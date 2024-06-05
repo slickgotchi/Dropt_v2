@@ -15,11 +15,13 @@ public class PlayerGotchi : MonoBehaviour
     [SerializeField] private SpriteRenderer BodySprite;
     [SerializeField] private ParticleSystem DustParticleSystem;
 
-    private Rigidbody2D rb;
+    private Animator animator;
+    private PlayerMovementFixed playerMovement;
 
     private void Awake()
     {
-        rb = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();
+        playerMovement = GetComponent<PlayerMovementFixed>();
     }
 
     private void Update()
@@ -27,11 +29,13 @@ public class PlayerGotchi : MonoBehaviour
         UpdateFacingFromMovement();
         UpdateDustParticles();
         UpdateSpriteLean();
+        UpdateGotchiAnim();
     }
 
     private bool IsMoving()
     {
-        return (math.abs(rb.velocity.x) > 0.1f || math.abs(rb.velocity.y) > 0.1f);
+        var velocity = playerMovement.GetVelocity();
+        return (math.abs(velocity.x) > 0.5f || math.abs(velocity.y) > 0.5f);
     }
 
     void UpdateDustParticles()
@@ -49,12 +53,12 @@ public class PlayerGotchi : MonoBehaviour
     void UpdateFacingFromMovement()
     {
         if (!IsMoving()) return;
-        Vector2 direction = rb.velocity;
+        Vector2 velocity = playerMovement.GetVelocity();
 
-        if (direction.y > math.abs(direction.x)) BodySprite.sprite = _back;
-        if (direction.y < -math.abs(direction.x)) BodySprite.sprite = _front;
-        if (direction.x <= -math.abs(direction.y)) BodySprite.sprite = _left;
-        if (direction.x >= math.abs(direction.y)) BodySprite.sprite = _right;
+        if (velocity.y > math.abs(velocity.x)) BodySprite.sprite = _back;
+        if (velocity.y < -math.abs(velocity.x)) BodySprite.sprite = _front;
+        if (velocity.x <= -math.abs(velocity.y)) BodySprite.sprite = _left;
+        if (velocity.x >= math.abs(velocity.y)) BodySprite.sprite = _right;
     }
 
     private void UpdateSpriteLean()
@@ -63,7 +67,7 @@ public class PlayerGotchi : MonoBehaviour
 
         if (IsMoving())
         {
-            Vector2 direction = rb.velocity;
+            Vector2 direction = playerMovement.GetDirection();
 
             float vx = direction.x;
             float vy = direction.y;
@@ -100,5 +104,17 @@ public class PlayerGotchi : MonoBehaviour
         }
 
         BodySprite.transform.rotation = Quaternion.Euler(new Vector3(0,0,rotation));
+    }
+
+    void UpdateGotchiAnim()
+    {
+        if (IsMoving())
+        {
+            animator.Play("Player_Move");
+        }
+        else
+        {
+            animator.Play("Player_Idle");
+        }
     }
 }

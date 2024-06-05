@@ -6,24 +6,28 @@ namespace Dropt
     public struct InputPayload : INetworkSerializable
     {
         public int tick;
-        public Vector3 inputVector;
+        public ulong networkObjectId;
+        public Vector3 moveDirection;
 
         public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
         {
             serializer.SerializeValue(ref tick);
-            serializer.SerializeValue(ref inputVector);
+            serializer.SerializeValue(ref networkObjectId);
+            serializer.SerializeValue(ref moveDirection);
         }
     }
 
     public struct StatePayload : INetworkSerializable
     {
         public int tick;
+        public ulong networkObjectId;
         public Vector3 position;
         public Vector3 velocity;
 
         public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
         {
             serializer.SerializeValue(ref tick);
+            serializer.SerializeValue(ref networkObjectId);
             serializer.SerializeValue(ref position);
             serializer.SerializeValue(ref velocity);
         }

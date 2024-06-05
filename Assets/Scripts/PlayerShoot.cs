@@ -17,7 +17,7 @@ public class PlayerShoot : NetworkBehaviour
             newBullet.transform.position = transform.position + new Vector3(0,0.7f, 0);
 
             var bulletRb = newBullet.GetComponent<Rigidbody2D>();
-            bulletRb.velocity = gameObject.GetComponent<PlayerMovement>().Direction * 10f;
+            bulletRb.velocity = gameObject.GetComponent<PlayerMovementFixed>().GetDirection() * 10f;
 
             newBullet.GetComponent<NetworkObject>().Spawn();
         }

@@ -15,6 +15,7 @@ public class LevelManager : MonoBehaviour
         }
 
         // spawn first level
+        Debug.Log("Spawn first level/lobby");
         Instantiate(m_levels[0]);
     }
 

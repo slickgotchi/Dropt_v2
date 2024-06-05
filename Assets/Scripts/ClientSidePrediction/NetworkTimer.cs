@@ -1,10 +1,14 @@
+using Unity.Mathematics;
+
 namespace Dropt
 {
     public class NetworkTimer
     {
         float timer;
+        float elapsedTime;
         public float MinTimeBetweenTicks { get; }
         public int CurrentTick { get; private set; }
+        public TickAndFraction CurrentTickAndFraction;
 
         public NetworkTimer(float serverTickRate)
         {
@@ -14,6 +18,10 @@ namespace Dropt
         public void Update(float deltaTime)
         {
             timer += deltaTime;
+            elapsedTime += deltaTime;
+
+            CurrentTickAndFraction.Tick = (int)math.floor(elapsedTime / MinTimeBetweenTicks);
+            CurrentTickAndFraction.Fraction = (elapsedTime - CurrentTickAndFraction.Tick * MinTimeBetweenTicks) / MinTimeBetweenTicks;
         }
 
         public bool ShouldTick()
@@ -26,6 +34,12 @@ namespace Dropt
             }
 
             return false;
+        }
+
+        public struct TickAndFraction
+        {
+            public int Tick;
+            public float Fraction;
         }
     }
 }
