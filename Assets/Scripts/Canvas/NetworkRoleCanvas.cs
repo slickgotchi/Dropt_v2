@@ -19,21 +19,24 @@ public class NetworkRoleCanvas : MonoBehaviour
         {
             Bootstrap.Singleton.NetworkRole = NetworkRole.Host;
             SetConnectionTypeFromDropDown();
-            SceneManager.LoadScene("Title");
+            SceneManager.LoadScene("Game");
+            //SceneManager.LoadScene("Title");
         });
 
         serverButton.onClick.AddListener(() =>
         {
             Bootstrap.Singleton.NetworkRole = NetworkRole.Server;
             SetConnectionTypeFromDropDown();
-            SceneManager.LoadScene("Title");
+            SceneManager.LoadScene("Game");
+            //SceneManager.LoadScene("Title");
         });
 
         clientButton.onClick.AddListener(() =>
         {
             Bootstrap.Singleton.NetworkRole = NetworkRole.Client;
             SetConnectionTypeFromDropDown();
-            SceneManager.LoadScene("Title");
+            SceneManager.LoadScene("Game");
+            //SceneManager.LoadScene("Title");
         });
 
         connectionDropdown.onValueChanged.AddListener(OnConnectionDropdownValueChanged);

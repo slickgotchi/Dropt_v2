@@ -20,6 +20,7 @@ namespace Dropt
             timer += deltaTime;
             elapsedTime += deltaTime;
 
+            // calc current tick and fraction (NOTE: current tick and currenttickAndfraction.currenttick not always the same!)
             CurrentTickAndFraction.Tick = (int)math.floor(elapsedTime / MinTimeBetweenTicks);
             CurrentTickAndFraction.Fraction = (elapsedTime - CurrentTickAndFraction.Tick * MinTimeBetweenTicks) / MinTimeBetweenTicks;
         }

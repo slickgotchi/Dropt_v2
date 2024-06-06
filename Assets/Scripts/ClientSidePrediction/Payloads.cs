@@ -32,4 +32,12 @@ namespace Dropt
             serializer.SerializeValue(ref velocity);
         }
     }
+
+    public struct NonNetworkStatePayload
+    {
+        public int tick;
+        public ulong networkObjectId;
+        public Vector3 position;
+        public Vector3 velocity;
+    }
 }
