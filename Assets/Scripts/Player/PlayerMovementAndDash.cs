@@ -5,20 +5,25 @@ using Dropt;
 using System.Collections.Generic;
 using Unity.Mathematics;
 
-public class PlayerMovement : NetworkBehaviour
+public class PlayerMovementAndDash : NetworkBehaviour
 {
     [Header("Gotchi Stats")]
     [SerializeField] private float moveSpeed = 6.22f;
 
-    private Vector2 m_moveVector;
+    private Vector3 m_moveVector;
     private Vector3 m_direction = new Vector3(0, -1, 0);
     private Vector3 m_velocity = new Vector3(0, -1, 0);
+    private Vector3 m_actionDirection = new Vector3(0, -1, 0);
+    private float m_actionDirectionTimer = 0;
+    private float k_actionDirectionTime = 0.5f;
+    private bool m_isDash = false;
+
     private Rigidbody2D rb;
 
     // Netcode general
     NetworkTimer timer;
-    const float k_serverTickRate = 10;
-    const int k_bufferSize = 32;
+    const float k_serverTickRate = 20;
+    const int k_bufferSize = 128;
 
     // Netcode client
     CircularBuffer<StatePayload> clientStateBuffer;
@@ -35,6 +40,12 @@ public class PlayerMovement : NetworkBehaviour
     [SerializeField] GameObject m_clientCircle;
     [SerializeField] GameObject m_serverCircle;
 
+    [Header("Utility")]
+    [SerializeField] Camera playerCamera;
+
+    private Vector2 m_cursorScreenPosition;
+    private Vector3 m_cursorWorldPosition;
+
     // to keep track of our tick delta to the server
     private int m_remoteClientTickDelta = 0;
 
@@ -45,9 +56,45 @@ public class PlayerMovement : NetworkBehaviour
 
     private void OnMovement(InputValue value)
     {
-        if (!IsClient) return;
+        if (!IsLocalPlayer) return;
 
         m_moveVector = value.Get<Vector2>();
+    }
+
+    private void OnCursor_Dash(InputValue value)
+    {
+        if (!IsLocalPlayer) return;
+        m_actionDirection = math.normalizesafe(m_cursorWorldPosition - transform.position);
+        m_actionDirectionTimer = k_actionDirectionTime;
+        m_direction = m_actionDirection;
+        m_isDash = true;
+
+        gameObject.GetComponentInChildren<DashTrailSpawner>().StartSpawning();
+    }
+
+    private void OnKeys_Dash(InputValue value)
+    {
+        if (!IsLocalPlayer) return;
+        m_actionDirection = m_direction;
+        m_actionDirectionTimer = k_actionDirectionTime;
+        m_isDash = true;
+    }
+
+    private void OnMousePosition(InputValue value)
+    {
+        if (!IsLocalPlayer) return;
+        // Get the screen position from the action
+        m_cursorScreenPosition = value.Get<Vector2>();
+    }
+
+    private void UpdateCursorWorldPosition()
+    {
+        // Convert screen position to world position
+        Vector3 screenToWorldPosition = playerCamera.ScreenToWorldPoint(
+            new Vector3(m_cursorScreenPosition.x, m_cursorScreenPosition.y, Camera.main.transform.position.z));
+
+        // Since it's a 2D game, we set the Z coordinate to 0
+        m_cursorWorldPosition = new Vector3(screenToWorldPosition.x, screenToWorldPosition.y, 0);
     }
 
     public override void OnNetworkSpawn()
@@ -74,39 +121,20 @@ public class PlayerMovement : NetworkBehaviour
     {
         timer.Update(Time.deltaTime);
 
-        // client cheat testing a fake dash
+        m_actionDirectionTimer -= Time.deltaTime;
+
         if (IsLocalPlayer)
         {
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                transform.position += m_direction * 3.5f;
-            }
-        }
+            UpdateCursorWorldPosition();
 
-        if (IsClient)
+            transform.position = GetLocalPlayerInterpPosition();
+        }
+        else if (IsClient)
         {
-            if (IsLocalPlayer)
-            {
-                // go back at least two ticks for our interp state
-                if (timer.CurrentTick < 3) return;
-
-                var currTick = timer.CurrentTickAndFraction.Tick;
-                var fraction = timer.CurrentTickAndFraction.Fraction;
-
-                var startBufferIndex = (currTick - 2) % k_bufferSize;
-                var finishBufferIndex = (currTick - 1) % k_bufferSize;
-
-                var startPos = clientStateBuffer.Get(startBufferIndex).position;
-                var finishPos = clientStateBuffer.Get(finishBufferIndex).position;
-
-                transform.position = Vector3.Lerp(startPos, finishPos, fraction);
-            }
-            else
-            {
-                transform.position = GetAuthInterpPosition();
-            }
+            transform.position = GetRemotePlayerInterpPosition();
         }
 
+        // update debug circles if attached
         if (m_serverCircle != null) m_serverCircle.transform.position = lastServerState.position;
         if (m_clientCircle != null) m_clientCircle.transform.position = transform.position;
     }
@@ -135,7 +163,12 @@ public class PlayerMovement : NetworkBehaviour
             tick = currentTick,
             networkObjectId = NetworkObjectId,
             moveDirection = m_moveVector,
+            actionDirection = m_actionDirection,
+            isDash = m_isDash,
         };
+
+        // reset any input booleans
+        m_isDash = false;
 
         // send input to server
         SendToServerRpc(inputPayload);
@@ -201,6 +234,12 @@ public class PlayerMovement : NetworkBehaviour
             // get the previous ticks final state as transform position for this movement
             var prevBufferIndex = (input.tick - 1) % k_bufferSize;
             transform.position = serverStateBuffer.Get(prevBufferIndex).position;
+        }
+
+        // check for dash
+        if (input.isDash)
+        {
+            transform.position += input.actionDirection * 3.5f;
         }
 
         // set velocity
@@ -275,7 +314,7 @@ public class PlayerMovement : NetworkBehaviour
         serverInputQueue.Enqueue(input);
     }
 
-    private Vector3 GetAuthInterpPosition()
+    private Vector3 GetRemotePlayerInterpPosition()
     {
         if (lastServerStateArray.Count < 5) return transform.position;
 
@@ -306,6 +345,23 @@ public class PlayerMovement : NetworkBehaviour
         return Vector3.Lerp(startPos, finishPos, fraction);
     }
 
+    private Vector3 GetLocalPlayerInterpPosition()
+    {
+        // go back at least two ticks for our interp state
+        if (timer.CurrentTick < 3) return transform.position;
+
+        var currTick = timer.CurrentTickAndFraction.Tick;
+        var fraction = timer.CurrentTickAndFraction.Fraction;
+
+        var startBufferIndex = (currTick - 2) % k_bufferSize;
+        var finishBufferIndex = (currTick - 1) % k_bufferSize;
+
+        var startPos = clientStateBuffer.Get(startBufferIndex).position;
+        var finishPos = clientStateBuffer.Get(finishBufferIndex).position;
+
+        return Vector3.Lerp(startPos, finishPos, fraction);
+    }
+
     public Vector3 GetDirection()
     {
         return m_direction;
@@ -314,5 +370,17 @@ public class PlayerMovement : NetworkBehaviour
     public Vector3 GetVelocity()
     {
         return m_velocity;
+    }
+
+    public Vector3 GetFacingDirection()
+    {
+        if (m_actionDirectionTimer > 0)
+        {
+            return math.normalize(m_actionDirection);
+        }
+        else
+        {
+            return m_direction;
+        }
     }
 }

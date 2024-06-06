@@ -16,9 +16,9 @@ GameObject:
   - component: {fileID: 8612981247896588042}
   - component: {fileID: 8544743339074553361}
   - component: {fileID: 5680879491830858358}
-  - component: {fileID: 4061757082423180522}
   - component: {fileID: 3992886838419682707}
   - component: {fileID: -774090055585674696}
+  - component: {fileID: -8059371171911978272}
   m_Layer: 6
   m_Name: Player
   m_TagString: Untagged
@@ -46,6 +46,7 @@ Transform:
   - {fileID: 5488348261898250879}
   - {fileID: 2859032198807436404}
   - {fileID: 50080018422574268}
+  - {fileID: 7805725747185774309}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!50 &3292186484427281000
@@ -117,7 +118,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1051059747
+  GlobalObjectIdHash: 1311497934
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -211,21 +212,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerCamera: {fileID: 7691548839490841235}
   playerAudioListener: {fileID: 27307221334136136}
---- !u!114 &4061757082423180522
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1519051571170098037}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 53ffda634c31d2d428743724fef40deb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moveSpeed: 6.22
-  m_clientCircle: {fileID: 7274103268871104239}
-  m_serverCircle: {fileID: 8085241754483361217}
 --- !u!114 &3992886838419682707
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -258,6 +244,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TransitionStateInfoList: []
   m_Animator: {fileID: 8612981247896588042}
+--- !u!114 &-8059371171911978272
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1519051571170098037}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00e3efa89fd77e543888cbbc051c4b4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSpeed: 6.22
+  m_clientCircle: {fileID: 0}
+  m_serverCircle: {fileID: 0}
+  playerCamera: {fileID: 2296568809480634166}
 --- !u!1 &2599869188027470805
 GameObject:
   m_ObjectHideFlags: 0
@@ -448,6 +450,53 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &5066538426062589322
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7805725747185774309}
+  - component: {fileID: 8491222754357145100}
+  m_Layer: 0
+  m_Name: DashTrailSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7805725747185774309
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5066538426062589322}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3968243587037172639}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8491222754357145100
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5066538426062589322}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d3a7242d975dff4199a6acbae4b9a4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dashTrail: {fileID: 1738891123222043436, guid: 94313d175ef12b6438f3773acc6c9d93, type: 3}
+  duration: 0.3
+  spawnInterval: 0.1
 --- !u!1 &5544583380941057587
 GameObject:
   m_ObjectHideFlags: 0
@@ -5851,8 +5900,8 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_Sprite: {fileID: 3394898989527120700, guid: cda9434f7b9c43742aee3adc65739461, type: 3}
+  m_SortingOrder: 1
+  m_Sprite: {fileID: 6640143806372017739, guid: b6e92cae1cc82cb4696ae97f817166f8, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

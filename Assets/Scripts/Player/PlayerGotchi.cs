@@ -17,7 +17,7 @@ public class PlayerGotchi : NetworkBehaviour
     [SerializeField] private ParticleSystem DustParticleSystem;
 
     private Animator animator;
-    private PlayerMovement playerMovement;
+    private PlayerMovementAndDash playerMovement;
 
     private Vector3 m_velocity;
     private float m_rotation;
@@ -27,7 +27,7 @@ public class PlayerGotchi : NetworkBehaviour
     private void Awake()
     {
         animator = GetComponent<Animator>();
-        playerMovement = GetComponent<PlayerMovement>();
+        playerMovement = GetComponent<PlayerMovementAndDash>();
     }
 
     private void Update()
@@ -86,12 +86,19 @@ public class PlayerGotchi : NetworkBehaviour
 
     void UpdateFacingFromMovement()
     {
-        if (!m_isMoving) return;
+        //if (!m_isMoving) return;
 
-        if (m_velocity.y > math.abs(m_velocity.x)) BodySprite.sprite = _back;
-        if (m_velocity.y < -math.abs(m_velocity.x)) BodySprite.sprite = _front;
-        if (m_velocity.x <= -math.abs(m_velocity.y)) BodySprite.sprite = _left;
-        if (m_velocity.x >= math.abs(m_velocity.y)) BodySprite.sprite = _right;
+        //if (m_velocity.y > math.abs(m_velocity.x)) BodySprite.sprite = _back;
+        //if (m_velocity.y < -math.abs(m_velocity.x)) BodySprite.sprite = _front;
+        //if (m_velocity.x <= -math.abs(m_velocity.y)) BodySprite.sprite = _left;
+        //if (m_velocity.x >= math.abs(m_velocity.y)) BodySprite.sprite = _right;
+
+        Vector3 facingDirection = playerMovement.GetFacingDirection();
+
+        if (facingDirection.y > math.abs(facingDirection.x)) BodySprite.sprite = _back;
+        if (facingDirection.y < -math.abs(facingDirection.x)) BodySprite.sprite = _front;
+        if (facingDirection.x <= -math.abs(facingDirection.y)) BodySprite.sprite = _left;
+        if (facingDirection.x >= math.abs(facingDirection.y)) BodySprite.sprite = _right;
     }
 
     private float CalculateSpriteLean()
