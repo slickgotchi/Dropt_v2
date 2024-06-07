@@ -46,7 +46,7 @@ public class DashTrail : MonoBehaviour
         }
 
         var color = m_spriteRenderer.color;
-        color.a = m_timer / destroyTimer;
+        color.a = m_timer / destroyTimer * 0.8f;
         m_spriteRenderer.color = color;
     }
 }

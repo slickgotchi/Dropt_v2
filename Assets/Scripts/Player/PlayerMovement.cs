@@ -70,6 +70,8 @@ public class PlayerMovement : NetworkBehaviour
         lastServerStateArray = new List<StatePayload>();
     }
 
+
+
     private void Update()
     {
         timer.Update(Time.deltaTime);

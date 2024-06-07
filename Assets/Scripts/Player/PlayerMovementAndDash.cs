@@ -118,7 +118,11 @@ public class PlayerMovementAndDash : NetworkBehaviour
         m_remoteClientTickDelta = 0;
 
         lastServerStateArray = new List<StatePayload>();
+
+
     }
+
+
 
     private void Update()
     {
@@ -242,7 +246,9 @@ public class PlayerMovementAndDash : NetworkBehaviour
         // check for dash
         if (input.isDash)
         {
-            transform.position += input.actionDirection * 3.5f;
+            //transform.position += input.actionDirection * 3.5f;
+            transform.position = DashCalcs.Dash(GetComponent<CapsuleCollider2D>(), transform.position, input.actionDirection, 3.5f);
+
         }
 
         // set velocity
@@ -273,6 +279,7 @@ public class PlayerMovementAndDash : NetworkBehaviour
             isDash = input.isDash,
         };
     }
+
 
     void HandleServerTick()
     {
@@ -350,14 +357,14 @@ public class PlayerMovementAndDash : NetworkBehaviour
         if (a == 0 && b == 0) return transform.position;
 
         // store interp values
-        var fraction = timer.CurrentTickAndFraction.Fraction;
         var start = lastServerStateArray[a];
         var finish = lastServerStateArray[b];
+        var fraction = timer.CurrentTickAndFraction.Fraction;
 
         // Draw dash shadow if we dashed
         IfDashInputDrawShadow(start, finish);
 
-        // otherwise return our lerp'd position
+        // return either final dash position or lerp for normal movememnt
         if (finish.isDash) return finish.position;
         else return Vector3.Lerp(start.position, finish.position, fraction);
     }
@@ -368,18 +375,18 @@ public class PlayerMovementAndDash : NetworkBehaviour
         if (timer.CurrentTick < 3) return transform.position;
 
         var currTick = timer.CurrentTickAndFraction.Tick;
-        var fraction = timer.CurrentTickAndFraction.Fraction;
 
         var startBufferIndex = (currTick - 2) % k_bufferSize;
         var finishBufferIndex = (currTick - 1) % k_bufferSize;
 
         var start = clientStateBuffer.Get(startBufferIndex);
         var finish = clientStateBuffer.Get(finishBufferIndex);
+        var fraction = timer.CurrentTickAndFraction.Fraction;
 
         // Draw dash shadow if we dashed
         IfDashInputDrawShadow(start, finish);
 
-        // otherwise return our lerp'd position
+        // return either final dash position or lerp for normal movememnt
         if (finish.isDash) return finish.position; 
         else return Vector3.Lerp(start.position, finish.position, fraction);
     }

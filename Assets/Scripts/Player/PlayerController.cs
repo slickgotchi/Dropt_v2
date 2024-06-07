@@ -20,5 +20,26 @@ public class PlayerController : NetworkBehaviour
 
         playerCamera.Priority = 100;
         playerAudioListener.enabled = true;
+
+        if (IsLocalPlayer && !IsHost)
+        {
+            PingServerRpc(Time.time);
+        }
+    }
+
+    [ServerRpc]
+    void PingServerRpc(float elapsedTime)
+    {
+        PongClientRpc(elapsedTime);
+    }
+
+    [ClientRpc]
+    void PongClientRpc(float elapsedTime)
+    {
+        if (!IsLocalPlayer) return;
+
+        var rtt = (int)((Time.time - elapsedTime)*1000);
+        DebugCanvas.Instance.SetPing(rtt);
+        PingServerRpc(Time.time);
     }
 }
