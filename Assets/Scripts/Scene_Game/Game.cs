@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class Game : MonoBehaviour
 {
-    private void Awake()
+    private void Start()
     {
         var transport = NetworkManager.Singleton.NetworkConfig.NetworkTransport as UnityTransport;
 
@@ -24,13 +24,11 @@ public class Game : MonoBehaviour
             transport.UseEncryption = false;
             transport.SetConnectionData("127.0.0.1", 8484, "0.0.0.0");
         }
-    }
 
-    void Start()
-    {
         // startup network 
         if (Bootstrap.IsHost()) NetworkManager.Singleton.StartHost();
         else if (Bootstrap.IsServer()) NetworkManager.Singleton.StartServer();
         else if (Bootstrap.IsClient()) NetworkManager.Singleton.StartClient();
     }
+
 }
