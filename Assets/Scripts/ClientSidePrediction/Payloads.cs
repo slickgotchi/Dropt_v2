@@ -27,6 +27,7 @@ namespace Dropt
         public ulong networkObjectId;
         public Vector3 position;
         public Vector3 velocity;
+        public bool isDash;
 
         public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
         {
@@ -34,6 +35,7 @@ namespace Dropt
             serializer.SerializeValue(ref networkObjectId);
             serializer.SerializeValue(ref position);
             serializer.SerializeValue(ref velocity);
+            serializer.SerializeValue(ref isDash);
         }
     }
 

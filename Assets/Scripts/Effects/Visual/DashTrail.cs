@@ -13,13 +13,17 @@ public class DashTrail : MonoBehaviour
 
     private SpriteRenderer m_spriteRenderer;
 
-    [SerializeField] private float destroyTimer = 1f;
+    public float destroyTimer = 1f;
 
     private float m_timer;
 
     private void Awake()
     {
         m_spriteRenderer = GetComponent<SpriteRenderer>();
+    }
+
+    private void Start()
+    {
         m_timer = destroyTimer;
     }
 

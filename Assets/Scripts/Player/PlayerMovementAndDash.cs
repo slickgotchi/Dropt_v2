@@ -4,6 +4,7 @@ using Unity.Netcode;
 using Dropt;
 using System.Collections.Generic;
 using Unity.Mathematics;
+using Unity.VisualScripting;
 
 public class PlayerMovementAndDash : NetworkBehaviour
 {
@@ -22,7 +23,7 @@ public class PlayerMovementAndDash : NetworkBehaviour
 
     // Netcode general
     NetworkTimer timer;
-    const float k_serverTickRate = 20;
+    const float k_serverTickRate = 10;
     const int k_bufferSize = 128;
 
     // Netcode client
@@ -36,6 +37,7 @@ public class PlayerMovementAndDash : NetworkBehaviour
     CircularBuffer<StatePayload> serverStateBuffer;
     Queue<InputPayload> serverInputQueue;
 
+
     [Header("Netcode")]
     [SerializeField] GameObject m_clientCircle;
     [SerializeField] GameObject m_serverCircle;
@@ -48,6 +50,9 @@ public class PlayerMovementAndDash : NetworkBehaviour
 
     // to keep track of our tick delta to the server
     private int m_remoteClientTickDelta = 0;
+    List<int> m_remoteClientTickDeltas = new List<int>();
+
+    private bool m_isDashAnimPlayed = false;
 
     private void Awake()
     {
@@ -68,8 +73,6 @@ public class PlayerMovementAndDash : NetworkBehaviour
         m_actionDirectionTimer = k_actionDirectionTime;
         m_direction = m_actionDirection;
         m_isDash = true;
-
-        gameObject.GetComponentInChildren<DashTrailSpawner>().StartSpawning();
     }
 
     private void OnKeys_Dash(InputValue value)
@@ -123,7 +126,7 @@ public class PlayerMovementAndDash : NetworkBehaviour
 
         m_actionDirectionTimer -= Time.deltaTime;
 
-        if (IsLocalPlayer)
+        if (IsLocalPlayer || IsHost)
         {
             UpdateCursorWorldPosition();
 
@@ -267,6 +270,7 @@ public class PlayerMovementAndDash : NetworkBehaviour
             tick = input.tick,
             networkObjectId = input.networkObjectId,
             position = transform.position,
+            isDash = input.isDash,
         };
     }
 
@@ -304,7 +308,15 @@ public class PlayerMovementAndDash : NetworkBehaviour
         if (lastServerStateArray.Count > 5) lastServerStateArray.RemoveAt(0);
 
         // update tick delta (if required)
-        m_remoteClientTickDelta = timer.CurrentTick - statePayload.tick;
+        //m_remoteClientTickDelta = timer.CurrentTick - statePayload.tick;
+
+        // get average delta tick
+        var deltaTick = timer.CurrentTick - statePayload.tick;
+        m_remoteClientTickDeltas.Add(deltaTick);
+        if (m_remoteClientTickDeltas.Count > 10) m_remoteClientTickDeltas.RemoveAt(0);
+        float sum = 0;
+        foreach (var delta in m_remoteClientTickDeltas) sum += delta;
+        m_remoteClientTickDelta = (int)math.round(sum/m_remoteClientTickDeltas.Count);
     }
 
     // this function executed on SERVER
@@ -339,10 +351,15 @@ public class PlayerMovementAndDash : NetworkBehaviour
 
         // store interp values
         var fraction = timer.CurrentTickAndFraction.Fraction;
-        var startPos = lastServerStateArray[a].position;
-        var finishPos = lastServerStateArray[b].position;
+        var start = lastServerStateArray[a];
+        var finish = lastServerStateArray[b];
 
-        return Vector3.Lerp(startPos, finishPos, fraction);
+        // Draw dash shadow if we dashed
+        IfDashInputDrawShadow(start, finish);
+
+        // otherwise return our lerp'd position
+        if (finish.isDash) return finish.position;
+        else return Vector3.Lerp(start.position, finish.position, fraction);
     }
 
     private Vector3 GetLocalPlayerInterpPosition()
@@ -356,10 +373,32 @@ public class PlayerMovementAndDash : NetworkBehaviour
         var startBufferIndex = (currTick - 2) % k_bufferSize;
         var finishBufferIndex = (currTick - 1) % k_bufferSize;
 
-        var startPos = clientStateBuffer.Get(startBufferIndex).position;
-        var finishPos = clientStateBuffer.Get(finishBufferIndex).position;
+        var start = clientStateBuffer.Get(startBufferIndex);
+        var finish = clientStateBuffer.Get(finishBufferIndex);
 
-        return Vector3.Lerp(startPos, finishPos, fraction);
+        // Draw dash shadow if we dashed
+        IfDashInputDrawShadow(start, finish);
+
+        // otherwise return our lerp'd position
+        if (finish.isDash) return finish.position; 
+        else return Vector3.Lerp(start.position, finish.position, fraction);
+    }
+
+    void IfDashInputDrawShadow(StatePayload start, StatePayload finish)
+    {
+        if (finish.isDash)
+        {
+            // play dash anim
+            if (!m_isDashAnimPlayed)
+            {
+                gameObject.GetComponentInChildren<DashTrailSpawner>().DrawShadow(start.position, finish.position, 4);
+                m_isDashAnimPlayed = true;
+            }
+        }
+        else
+        {
+            m_isDashAnimPlayed = false;
+        }
     }
 
     public Vector3 GetDirection()

@@ -21,7 +21,7 @@ public class PlayerGotchi : NetworkBehaviour
 
     private Vector3 m_velocity;
     private float m_rotation;
-    private Vector3 m_direction;
+    private Vector3 m_facingDirection;
     private bool m_isMoving;
 
     private void Awake()
@@ -36,11 +36,11 @@ public class PlayerGotchi : NetworkBehaviour
         if (IsLocalPlayer)
         {
             m_velocity = playerMovement.GetVelocity();
-            m_direction = playerMovement.GetDirection();
+            m_facingDirection = playerMovement.GetFacingDirection();
             m_isMoving = (math.abs(m_velocity.x) > 0.5f || math.abs(m_velocity.y) > 0.5f);
             m_rotation = CalculateSpriteLean();
 
-            SendDataToServerRpc(m_velocity, m_rotation, m_direction, m_isMoving);
+            SendDataToServerRpc(m_velocity, m_rotation, m_facingDirection, m_isMoving);
 
             UpdateGotchiAnim();
 
@@ -52,18 +52,18 @@ public class PlayerGotchi : NetworkBehaviour
     }
 
     [ServerRpc]
-    void SendDataToServerRpc(Vector3 velocity, float rotation, Vector3 direction, bool isMoving)
+    void SendDataToServerRpc(Vector3 velocity, float rotation, Vector3 facingDirection, bool isMoving)
     {
-        SendDataToClientRpc(velocity, rotation, direction, isMoving);
+        SendDataToClientRpc(velocity, rotation, facingDirection, isMoving);
     }
 
     [ClientRpc]
-    void SendDataToClientRpc(Vector3 velocity, float rotation, Vector3 direction, bool isMoving)
+    void SendDataToClientRpc(Vector3 velocity, float rotation, Vector3 facingDirection, bool isMoving)
     {
         if (IsLocalPlayer) return;
 
         m_velocity = velocity;
-        m_direction = direction;
+        m_facingDirection = facingDirection;
         m_isMoving = isMoving;
         m_rotation = rotation;
 
@@ -86,19 +86,10 @@ public class PlayerGotchi : NetworkBehaviour
 
     void UpdateFacingFromMovement()
     {
-        //if (!m_isMoving) return;
-
-        //if (m_velocity.y > math.abs(m_velocity.x)) BodySprite.sprite = _back;
-        //if (m_velocity.y < -math.abs(m_velocity.x)) BodySprite.sprite = _front;
-        //if (m_velocity.x <= -math.abs(m_velocity.y)) BodySprite.sprite = _left;
-        //if (m_velocity.x >= math.abs(m_velocity.y)) BodySprite.sprite = _right;
-
-        Vector3 facingDirection = playerMovement.GetFacingDirection();
-
-        if (facingDirection.y > math.abs(facingDirection.x)) BodySprite.sprite = _back;
-        if (facingDirection.y < -math.abs(facingDirection.x)) BodySprite.sprite = _front;
-        if (facingDirection.x <= -math.abs(facingDirection.y)) BodySprite.sprite = _left;
-        if (facingDirection.x >= math.abs(facingDirection.y)) BodySprite.sprite = _right;
+        if (m_facingDirection.y > math.abs(m_facingDirection.x)) BodySprite.sprite = _back;
+        if (m_facingDirection.y < -math.abs(m_facingDirection.x)) BodySprite.sprite = _front;
+        if (m_facingDirection.x <= -math.abs(m_facingDirection.y)) BodySprite.sprite = _left;
+        if (m_facingDirection.x >= math.abs(m_facingDirection.y)) BodySprite.sprite = _right;
     }
 
     private float CalculateSpriteLean()

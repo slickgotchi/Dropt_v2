@@ -1,47 +1,38 @@
-using System.Collections;
-using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEngine;
 
-// spawns a dash trail object at the spawners location
 public class DashTrailSpawner : MonoBehaviour
 {
-    [SerializeField] private DashTrail dashTrail;
-    [SerializeField] private float duration = 3f;
-    [SerializeField] private float spawnInterval = 0.05f;
-    [SerializeField] private float delay = 0.2f;
+    public GameObject dashTrailPrefab; // Reference to the DashTrail prefab
 
-    private bool m_isStarted = false;
-    private float m_timer;
-    private float m_spawnTimer = 0f;
-    private float m_delayTimer = 0f;
-
-    public void StartSpawning()
+    public void DrawShadow(Vector3 startPosition, Vector3 finishPosition, int numberSpawns)
     {
-        m_isStarted = true;
-        m_timer = duration;
-        m_delayTimer = delay;
-    }
-
-    private void Update()
-    {
-        if (!m_isStarted) return;
-
-        m_delayTimer -= Time.deltaTime;
-        if (m_delayTimer > 0f) return;
-
-        m_timer -= Time.deltaTime;
-        m_spawnTimer += Time.deltaTime;
-
-        if (m_spawnTimer > spawnInterval)
+        if (numberSpawns <= 0 || dashTrailPrefab == null)
         {
-            var goDashTrail = Instantiate(dashTrail);
-            goDashTrail.transform.position = transform.position;
-            m_spawnTimer -= spawnInterval;
+            Debug.LogWarning("Invalid number of spawns or dashTrailPrefab is not assigned.");
+            return;
         }
 
-        if (m_timer < 0f)
+        float totalDistance = Vector3.Distance(startPosition, finishPosition);
+        float interval = totalDistance / (numberSpawns - 1);
+
+        for (int i = 0; i < numberSpawns; i++)
         {
-            m_isStarted = false;
+            Vector3 spawnPosition = Vector3.Lerp(startPosition, finishPosition, i / (float)(numberSpawns - 1));
+            GameObject dashTrail = Instantiate(dashTrailPrefab, spawnPosition, Quaternion.identity);
+
+            float lifeTime = Mathf.Lerp(0.2f, 0.5f, i / (float)(numberSpawns - 1)); // Interpolating lifetime between 1 and 5 seconds (you can adjust these values as needed)
+
+            DashTrail dashTrailScript = dashTrail.GetComponent<DashTrail>();
+            if (dashTrailScript != null)
+            {
+                dashTrailScript.destroyTimer = lifeTime;
+                dashTrailScript.SetSpriteFromDirection(math.normalize(finishPosition - startPosition));
+            }
+            else
+            {
+                Debug.LogWarning("DashTrail script not found on dashTrailPrefab.");
+            }
         }
     }
 }
