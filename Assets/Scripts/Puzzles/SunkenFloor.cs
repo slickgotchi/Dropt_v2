@@ -30,9 +30,15 @@ public class SunkenFloor : NetworkBehaviour
     public Sprite GillsSunken;
     public Sprite GillsRaised;
 
+    [Header("Access")]
+    [SerializeField] private Collider2D SunkenCollider;
+    [SerializeField] private Collider2D RaisedCollider;
+
+    private Animator m_animator;
+
     private void Start()
     {
-
+        m_animator = GetComponent<Animator>();
     }
 
     public override void OnNetworkSpawn()
@@ -40,6 +46,32 @@ public class SunkenFloor : NetworkBehaviour
         if (!IsServer) return;
 
         SetTypeAndSprite(SunkenFloorType);
+
+        SunkenCollider.gameObject.SetActive(true);
+        RaisedCollider.gameObject.SetActive(false);
+    }
+
+    public void CheckButtons()
+    {
+        var no_buttons = new List<SunkenFloorButton>(GetComponentsInChildren<SunkenFloorButton>());
+        int pressedDownCount = 0;
+        foreach (var no_button in no_buttons)
+        {
+            if (no_button.ButtonState != ButtonState.Up) pressedDownCount++;
+        }
+
+        if (pressedDownCount >= NumberButtons)
+        {
+            m_animator.Play("SunkenFloor3x3_Raise");
+            SunkenCollider.gameObject.SetActive(false);
+            RaisedCollider.gameObject.SetActive(true);
+
+            // set all buttons to down locked
+            foreach (var no_button in no_buttons)
+            {
+                no_button.ButtonState = ButtonState.DownLocked;
+            }
+        }
     }
 
     public void SetTypeAndSprite(SunkenFloorType sunkenFloorType)

@@ -5,7 +5,7 @@ public class SunkenFloorButton : NetworkBehaviour
 {
     [Header("State")]
     public SunkenFloorType SunkenFloorType = SunkenFloorType.Droplet;
-    public bool IsPressedDown = false;
+    public ButtonState ButtonState = ButtonState.Up;
 
     [Header("Sprites")]
     public Sprite DropletUp;
@@ -33,41 +33,41 @@ public class SunkenFloorButton : NetworkBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        SetTypeStateAndSprite(SunkenFloorType, IsPressedDown);
+        SetTypeStateAndSprite(SunkenFloorType, ButtonState.Up);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (!IsServer) return;
 
-        IsPressedDown = true;
-        UpdateButtonClientRpc(IsPressedDown);
+        if (ButtonState != ButtonState.Up) return;
+
+        ButtonState = ButtonState.Down;
+        UpdateButtonClientRpc(ButtonState);
+
+        // grab the parent sunken floor and get it to check status of all its buttons
+        var parentSunkenFloor = transform.parent.gameObject.GetComponent<SunkenFloor>();
+        if (parentSunkenFloor != null)
+        {
+            parentSunkenFloor.CheckButtons();
+        } else
+        {
+            Debug.Log("Error: SunkenFloorButton does not have a parent SunkenFloor");
+        }
     }
 
     [ClientRpc]
-    void UpdateButtonClientRpc(bool isPressedDown)
+    void UpdateButtonClientRpc(ButtonState buttonState)
     {
-        SetTypeStateAndSprite(SunkenFloorType, isPressedDown);
+        SetTypeStateAndSprite(SunkenFloorType, buttonState);
     }
 
-    public void SetTypeStateAndSprite(SunkenFloorType sunkenFloorType, bool isPressedDown)
+    public void SetTypeStateAndSprite(SunkenFloorType sunkenFloorType, ButtonState buttonState)
     {
         SunkenFloorType = sunkenFloorType;
-        IsPressedDown = isPressedDown;
+        ButtonState = buttonState;
 
-        if (IsPressedDown)
-        {
-            switch (sunkenFloorType)
-            {
-                case SunkenFloorType.Droplet: m_spriteRenderer.sprite = DropletDown; break;
-                case SunkenFloorType.Swirl: m_spriteRenderer.sprite = SwirlDown; break;
-                case SunkenFloorType.Shroom: m_spriteRenderer.sprite = ShroomDown; break;
-                case SunkenFloorType.Bananas: m_spriteRenderer.sprite = BananasDown; break;
-                case SunkenFloorType.Gills: m_spriteRenderer.sprite = GillsDown; break;
-                default: break;
-            }
-        }
-        else
+        if (buttonState == ButtonState.Up)
         {
             switch (sunkenFloorType)
             {
@@ -79,6 +79,23 @@ public class SunkenFloorButton : NetworkBehaviour
                 default: break;
             }
         }
+        else
+        {
+            switch (sunkenFloorType)
+            {
+                case SunkenFloorType.Droplet: m_spriteRenderer.sprite = DropletDown; break;
+                case SunkenFloorType.Swirl: m_spriteRenderer.sprite = SwirlDown; break;
+                case SunkenFloorType.Shroom: m_spriteRenderer.sprite = ShroomDown; break;
+                case SunkenFloorType.Bananas: m_spriteRenderer.sprite = BananasDown; break;
+                case SunkenFloorType.Gills: m_spriteRenderer.sprite = GillsDown; break;
+                default: break;
+            }
+        }
     }
 
+}
+
+public enum ButtonState
+{
+    Up, Down, DownLocked,
 }

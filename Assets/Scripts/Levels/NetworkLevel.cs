@@ -9,39 +9,79 @@ public class NetworkLevel : NetworkBehaviour
     {
         if (!IsServer) return;
 
+        CreateSunkenFloors();
+    }
+
+    void CreateSunkenFloors()
+    {
         // search for sunken floors spawners and button spawners
         var sunkenFloorSpawners = new List<SunkenFloor3x3Spawner>(GetComponentsInChildren<SunkenFloor3x3Spawner>());
-        Debug.Log(sunkenFloorSpawners.Count);
         for (int i = 0; i < sunkenFloorSpawners.Count; i++)
         {
-            var sfs = sunkenFloorSpawners[i];
-            Debug.Log(sfs);
+            var sunkenFloorSpawner = sunkenFloorSpawners[i];
 
             // insta/spawn network sunken floor
-            var nwSunkenFloor = Instantiate(sfs.SunkenFloor3x3Prefab);
-            nwSunkenFloor.transform.position = sfs.transform.position;
-            nwSunkenFloor.GetComponent<NetworkObject>().Spawn();
+            var no_SunkenFloor = Instantiate(sunkenFloorSpawner.SunkenFloor3x3Prefab);
+            no_SunkenFloor.transform.position = sunkenFloorSpawner.transform.position;
+            no_SunkenFloor.GetComponent<NetworkObject>().Spawn();
 
             // set the floor type
-            nwSunkenFloor.GetComponent<SunkenFloor>().SetTypeAndSprite(sfs.SunkenFloorType);
+            no_SunkenFloor.GetComponent<SunkenFloor>().SetTypeAndSprite(sunkenFloorSpawner.SunkenFloorType);
+
+            // get list of button spawners
+            var buttonSpawners = new List<SunkenFloorButtonSpawner>(GetComponentsInChildren<SunkenFloorButtonSpawner>());
+
+            // randomly delete button spawners till we are at the required button count
+            for (int j = 0; j < buttonSpawners.Count; j++)
+            {
+                if (buttonSpawners.Count > sunkenFloorSpawner.NumberButtons)
+                {
+                    var randIndex = UnityEngine.Random.Range(0, buttonSpawners.Count);
+                    Destroy(buttonSpawners[randIndex].gameObject);
+                    buttonSpawners.RemoveAt(randIndex);
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            // in case the user specified more NumberButtons then we have button spawners, reduce the NumberButtons
+            no_SunkenFloor.GetComponent<SunkenFloor>().NumberButtons = buttonSpawners.Count;
 
             // spawn children buttons
-            var sfsButtons = new List<SunkenFloorButtonSpawner>(GetComponentsInChildren<SunkenFloorButtonSpawner>());
-            for (int j = 0; j < sfsButtons.Count; j++)
+            for (int j = 0; j < buttonSpawners.Count; j++)
             {
-                var button = sfsButtons[j];
+                var buttonSpawner = buttonSpawners[j];
 
                 // insta/spawn network buttno
-                var nwButton = Instantiate(sfs.SunkenFloorButtonPrefab);
-                nwButton.transform.position = button.transform.position;
-                nwButton.GetComponent<NetworkObject>().Spawn();
+                var no_Button = Instantiate(sunkenFloorSpawner.SunkenFloorButtonPrefab);
+                no_Button.transform.position = buttonSpawner.transform.position;
+                no_Button.GetComponent<NetworkObject>().Spawn();
+
+                // set network object buttons parent to the sunken floor
+                no_Button.transform.parent = no_SunkenFloor.transform;
+            }
+
+            // destroy all button spawners
+            while (buttonSpawners.Count > 0)
+            {
+                // destroy the spawner button
+                Destroy(buttonSpawners[0].gameObject);
+                buttonSpawners.RemoveAt(0);
             }
 
             // destroy button list
-            sfsButtons.Clear();
+            buttonSpawners.Clear();
+
+            // destroy the sunkenFloorSpawner
+            Destroy(sunkenFloorSpawners[i].gameObject);
+            sunkenFloorSpawners.RemoveAt(i);
         }
 
         // destroy list
         sunkenFloorSpawners.Clear();
     }
 }
+
+
