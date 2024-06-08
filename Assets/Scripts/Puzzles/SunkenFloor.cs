@@ -51,15 +51,20 @@ public class SunkenFloor : NetworkBehaviour
         RaisedCollider.gameObject.SetActive(false);
     }
 
-    public void CheckButtons()
+    public void ButtonPressedDown()
     {
+        if (!IsServer) return;
+
         var no_buttons = new List<SunkenFloorButton>(GetComponentsInChildren<SunkenFloorButton>());
+
+        // count our down buttons
         int pressedDownCount = 0;
         foreach (var no_button in no_buttons)
         {
             if (no_button.ButtonState != ButtonState.Up) pressedDownCount++;
         }
 
+        // if all our buttons are pressed, raise the floor and lock the buttons
         if (pressedDownCount >= NumberButtons)
         {
             m_animator.Play("SunkenFloor3x3_Raise");
@@ -72,6 +77,9 @@ public class SunkenFloor : NetworkBehaviour
                 no_button.ButtonState = ButtonState.DownLocked;
             }
         }
+
+        // ask the level parent to pop up all other platform buttons except ours
+        transform.parent.gameObject.GetComponent<NetworkLevel>().PopupAllPlatformButtonsExcept(NetworkObjectId);
     }
 
     public void SetTypeAndSprite(SunkenFloorType sunkenFloorType)

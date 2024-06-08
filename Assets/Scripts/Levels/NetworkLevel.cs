@@ -20,16 +20,17 @@ public class NetworkLevel : NetworkBehaviour
         {
             var sunkenFloorSpawner = sunkenFloorSpawners[i];
 
-            // insta/spawn network sunken floor
-            var no_SunkenFloor = Instantiate(sunkenFloorSpawner.SunkenFloor3x3Prefab);
-            no_SunkenFloor.transform.position = sunkenFloorSpawner.transform.position;
-            no_SunkenFloor.GetComponent<NetworkObject>().Spawn();
+            // insta/spawn network sunken floor and set its parent to the level
+            var no_sunkenFloor = Instantiate(sunkenFloorSpawner.SunkenFloor3x3Prefab);
+            no_sunkenFloor.transform.position = sunkenFloorSpawner.transform.position;
+            no_sunkenFloor.GetComponent<NetworkObject>().Spawn();
+            no_sunkenFloor.transform.parent = transform;
 
             // set the floor type
-            no_SunkenFloor.GetComponent<SunkenFloor>().SetTypeAndSprite(sunkenFloorSpawner.SunkenFloorType);
+            no_sunkenFloor.GetComponent<SunkenFloor>().SetTypeAndSprite(sunkenFloorSpawner.SunkenFloorType);
 
             // get list of button spawners
-            var buttonSpawners = new List<SunkenFloorButtonSpawner>(GetComponentsInChildren<SunkenFloorButtonSpawner>());
+            var buttonSpawners = new List<SunkenFloorButtonSpawner>(sunkenFloorSpawner.gameObject.GetComponentsInChildren<SunkenFloorButtonSpawner>());
 
             // randomly delete button spawners till we are at the required button count
             for (int j = 0; j < buttonSpawners.Count; j++)
@@ -47,7 +48,7 @@ public class NetworkLevel : NetworkBehaviour
             }
 
             // in case the user specified more NumberButtons then we have button spawners, reduce the NumberButtons
-            no_SunkenFloor.GetComponent<SunkenFloor>().NumberButtons = buttonSpawners.Count;
+            no_sunkenFloor.GetComponent<SunkenFloor>().NumberButtons = buttonSpawners.Count;
 
             // spawn children buttons
             for (int j = 0; j < buttonSpawners.Count; j++)
@@ -58,9 +59,10 @@ public class NetworkLevel : NetworkBehaviour
                 var no_Button = Instantiate(sunkenFloorSpawner.SunkenFloorButtonPrefab);
                 no_Button.transform.position = buttonSpawner.transform.position;
                 no_Button.GetComponent<NetworkObject>().Spawn();
+                no_Button.GetComponent<SunkenFloorButton>().SetTypeStateAndSprite(sunkenFloorSpawner.SunkenFloorType, ButtonState.Up);
 
                 // set network object buttons parent to the sunken floor
-                no_Button.transform.parent = no_SunkenFloor.transform;
+                no_Button.transform.parent = no_sunkenFloor.transform;
             }
 
             // destroy all button spawners
@@ -73,14 +75,37 @@ public class NetworkLevel : NetworkBehaviour
 
             // destroy button list
             buttonSpawners.Clear();
+        }
 
-            // destroy the sunkenFloorSpawner
-            Destroy(sunkenFloorSpawners[i].gameObject);
-            sunkenFloorSpawners.RemoveAt(i);
+        // Destroy all sunken floors
+        while (sunkenFloorSpawners.Count > 0)
+        {
+            // destroy the spawner button
+            Destroy(sunkenFloorSpawners[0].gameObject);
+            sunkenFloorSpawners.RemoveAt(0);
         }
 
         // destroy list
         sunkenFloorSpawners.Clear();
+    }
+
+    public void PopupAllPlatformButtonsExcept(ulong excludeNetworkObjectId)
+    {
+        var no_sunkenFloors = GetComponentsInChildren<SunkenFloor>();
+        foreach (var no_sunkenFloor in  no_sunkenFloors)
+        {
+            if (no_sunkenFloor.GetComponent<NetworkObject>().NetworkObjectId != excludeNetworkObjectId)
+            {
+                var no_buttons = no_sunkenFloor.GetComponentsInChildren<SunkenFloorButton>();
+                foreach (var no_button in no_buttons)
+                {
+                    if (no_button.ButtonState != ButtonState.DownLocked)
+                    {
+                        no_button.SetTypeStateAndSprite(no_sunkenFloor.SunkenFloorType, ButtonState.Up);
+                    }
+                }
+            }
+        }
     }
 }
 

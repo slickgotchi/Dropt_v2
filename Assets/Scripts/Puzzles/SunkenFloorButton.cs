@@ -39,9 +39,9 @@ public class SunkenFloorButton : NetworkBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (!IsServer) return;
-
         if (ButtonState != ButtonState.Up) return;
 
+        // update button state
         ButtonState = ButtonState.Down;
         UpdateButtonClientRpc(ButtonState);
 
@@ -49,7 +49,7 @@ public class SunkenFloorButton : NetworkBehaviour
         var parentSunkenFloor = transform.parent.gameObject.GetComponent<SunkenFloor>();
         if (parentSunkenFloor != null)
         {
-            parentSunkenFloor.CheckButtons();
+            parentSunkenFloor.ButtonPressedDown();
         } else
         {
             Debug.Log("Error: SunkenFloorButton does not have a parent SunkenFloor");
