@@ -22,9 +22,11 @@ public class Snail : NetworkBehaviour
 
         // register with the utility world
         m_utilityAgentController.Register(UtilityWorldSingleton.Instance.World);
-        Debug.Log("Snail agent registered with Utility World");
+    }
 
-        //m_navMeshAgent.SetDestination(new Vector3(0, 0, 0));
+    public override void OnNetworkDespawn()
+    {
+
     }
 
     // Start is called before the first frame update

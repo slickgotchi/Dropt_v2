@@ -1,3 +1,4 @@
+using CarlosLab.UtilityIntelligence;
 using Cinemachine;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,6 +9,8 @@ public class PlayerController : NetworkBehaviour
 {
     [SerializeField] CinemachineVirtualCamera playerCamera;
     [SerializeField] AudioListener playerAudioListener;
+
+    private UtilityEntityController m_entityController;
 
     public override void OnNetworkSpawn()
     {
@@ -25,6 +28,11 @@ public class PlayerController : NetworkBehaviour
         {
             PingServerRpc(Time.time);
         }
+
+        // register utility entity
+        m_entityController = GetComponent<UtilityEntityController>();
+        m_entityController.Register(UtilityWorldSingleton.Instance.World);
+        Debug.Log("Registerd Player Utility Entity with World");
     }
 
     [ServerRpc]

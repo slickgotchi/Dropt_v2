@@ -23,6 +23,9 @@ public class SpriteFlipToNavMeshAgentVelocity : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        SpriteToFlip.flipX = m_navMeshAgent.velocity.x > 0 ? false : true;
+        if (m_navMeshAgent.velocity.magnitude > 0.2f)
+        {
+            SpriteToFlip.flipX = m_navMeshAgent.velocity.x > 0 ? false : true;
+        }
     }
 }
