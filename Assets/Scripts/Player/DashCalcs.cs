@@ -10,7 +10,10 @@ public static class DashCalcs
         int environmentWaterLayerIndex = LayerMask.NameToLayer("EnvironmentWater");
         var environmentWaterLayer = 1 << environmentWaterLayerIndex;
 
-        var combinedLayer = (1 << environmentWallLayerIndex) | (1 << environmentWaterLayerIndex);
+        int destructibleLayerIndex = LayerMask.NameToLayer("Destructible");
+        var destructibleLayer = 1 << destructibleLayerIndex;
+
+        var combinedLayer = environmentWallLayer | environmentWaterLayer | destructibleLayer ;
 
         Vector2 capsuleOffset = playerCollider.offset;
         Vector3 adjustedStartPosition = startPosition + (Vector3)capsuleOffset;
@@ -18,7 +21,7 @@ public static class DashCalcs
         Vector3 initialFinishPosition = adjustedStartPosition + adjustedDirection * distance;
 
         // Perform initial collider cast to check for collisions along the start/finish path
-        RaycastHit2D hit = Physics2D.CapsuleCast(adjustedStartPosition, playerCollider.size, playerCollider.direction, 0, adjustedDirection, distance, environmentWallLayer);
+        RaycastHit2D hit = Physics2D.CapsuleCast(adjustedStartPosition, playerCollider.size, playerCollider.direction, 0, adjustedDirection, distance, environmentWallLayer | destructibleLayer);
         Vector3 finishPosition = hit.collider != null ? hit.point : initialFinishPosition;
 
         float checkDistance = Vector3.Distance(adjustedStartPosition, finishPosition);
@@ -49,7 +52,7 @@ public static class DashCalcs
                         Vector3 tempPosition = finishPosition + tryDirection * dist;
 
                         // Check for collisions at the temporary position
-                        Collider2D[] tempHits = Physics2D.OverlapCapsuleAll(tempPosition, playerCollider.size, playerCollider.direction, 0, environmentWaterLayer);
+                        Collider2D[] tempHits = Physics2D.OverlapCapsuleAll(tempPosition, playerCollider.size, playerCollider.direction, 0, combinedLayer);
                         if (tempHits.Length == 0)
                         {
                             // No collision at the new position, this is our finish position

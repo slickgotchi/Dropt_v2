@@ -5,7 +5,7 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class Snail : NetworkBehaviour
+public class EnemyAISetup : NetworkBehaviour
 {
     private NavMeshAgent m_navMeshAgent;
     private UtilityAgentController m_utilityAgentController;
