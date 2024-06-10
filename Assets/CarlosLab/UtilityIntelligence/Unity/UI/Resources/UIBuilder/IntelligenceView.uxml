@@ -1,0 +1,14 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <uie:Toolbar>
+        <uie:ToolbarMenu display-tooltip-when-elided="true" text="File" name="FileToolbarMenu" style="min-width: 60px;" />
+        <uie:ToolbarSpacer style="flex-grow: 1; display: flex;" />
+        <ui:Label name="DataVersionLabel" text="Data Version:" style="padding-right: 5px; padding-left: 5px; padding-top: 1px;" />
+    </uie:Toolbar>
+    <ui:TabView style="flex-grow: 1;">
+        <ui:Tab label="Intelligence" name="IntelligenceTab" />
+        <ui:Tab label="Target Filters" name="TargetFilterTab" />
+        <ui:Tab label="Considerations" name="ConsiderationTab" />
+        <ui:Tab label="Inputs" name="InputTab" />
+        <ui:Tab label="Blackboard" name="BlackboardTab" />
+    </ui:TabView>
+</ui:UXML>

@@ -1,0 +1,54 @@
+﻿#region
+
+using System;
+using CarlosLab.Common;
+using CarlosLab.Common.UI;
+using Unity.Properties;
+using UnityEngine;
+using UnityEngine.UIElements;
+
+#endregion
+
+namespace CarlosLab.UtilityIntelligence.UI
+{
+    public class ScoreItemView<TItemViewModel> : BaseNameItemView<TItemViewModel>
+        where TItemViewModel : class, IItemViewModel
+    {
+        private float score;
+
+        public ScoreItemView(IListViewWithItem<TItemViewModel> listView) : base(false, listView)
+        {
+            NameLabel.style.unityTextAlign = TextAnchor.MiddleCenter;
+        }
+
+        [CreateProperty]
+        public float Score
+        {
+            get => score;
+            set
+            {
+                if (Math.Abs(score - value) < MathUtils.Epsilon)
+                    return;
+
+                score = value;
+                UpdateScoreLabel(score);
+            }
+        }
+
+        protected void UpdateScoreLabel(float score)
+        {
+            NameLabel.text = score.ToString("F3");
+        }
+
+        protected override void OnUpdateView(TItemViewModel viewModel)
+        {
+            UpdateScoreLabel(Score);
+            SetBinding(nameof(Score), new DataBinding
+            {
+                bindingMode = BindingMode.ToTarget,
+                updateTrigger = BindingUpdateTrigger.OnSourceChanged,
+                dataSourcePath = PropertyPath.FromName(nameof(IScoreViewModel.Score))
+            });
+        }
+    }
+}

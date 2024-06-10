@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -11,6 +12,7 @@ public class NetworkLevel : NetworkBehaviour
 
         CreateSunkenFloors();
         CreateApeDoors();
+        CreateNetworkObjectSpawners();
     }
 
     void CreateSunkenFloors()
@@ -203,6 +205,211 @@ public class NetworkLevel : NetworkBehaviour
                 }
             }
         }
+    }
+
+    private struct Spawn
+    {
+        public string Name;
+        public float Chance;
+    }
+
+    public void CreateNetworkObjectSpawners()
+    {
+        var no_spawners = new List<NetworkObjectSpawner>(GetComponentsInChildren<NetworkObjectSpawner>());
+        for (int i = 0; i < no_spawners.Count; i++)
+        {
+            var no_spawner = no_spawners[i];
+            NormalizeNetworkObjectSpawner(ref no_spawner);
+
+            if (no_spawner.transform.childCount <= 0)
+            {
+                Debug.Log("No spawn points attached as children to NetworkObjectSpawner");
+                continue;
+            }
+
+            // create one list of the spawn names and spawn chances
+            List<Spawn> spawns = new List<Spawn>();
+            for (int j = 0; j < no_spawner.SpawnEnemies.Length; j++)
+            {
+                spawns.Add(new Spawn
+                {
+                    Name = no_spawner.SpawnEnemies[j].EnemyPrefabType.ToString(),
+                    Chance = no_spawner.SpawnEnemies[j].SpawnChance,
+                });
+            }
+
+            for (int j = 0; j < no_spawner.SpawnDestructibles.Length; j++)
+            {
+                spawns.Add(new Spawn
+                {
+                    Name = no_spawner.SpawnDestructibles[j].DestructiblePrefabType.ToString(),
+                    Chance = no_spawner.SpawnDestructibles[j].SpawnChance,
+                });
+            }
+
+            for (int j = 0; j < no_spawner.SpawnInteractables.Length; j++)
+            {
+                spawns.Add(new Spawn
+                {
+                    Name = no_spawner.SpawnInteractables[j].InteractablePrefabType.ToString(),
+                    Chance = no_spawner.SpawnInteractables[j].SpawnChance,
+                });
+            }
+
+            for (int j = 0; j < no_spawner.SpawnProps.Length; j++)
+            {
+                spawns.Add(new Spawn
+                {
+                    Name = no_spawner.SpawnProps[j].PropPrefabType.ToString(),
+                    Chance = no_spawner.SpawnProps[j].SpawnChance,
+                });
+            }
+
+            // iterate through the spawners spawn points
+            for (int j = 0; j < no_spawner.transform.childCount; j++)
+            {
+                var spawnPoint = no_spawner.transform.GetChild(j);
+                var randValue = UnityEngine.Random.Range(0f, 1f);
+
+                for (int k = 0; k < spawns.Count; k++)
+                {
+                    var spawn = spawns[k];
+
+                    if (randValue < spawn.Chance)
+                    {
+                        var spawnObject = Prefabs_NetworkObject.Instance.GetNetworkObjectByName(spawn.Name);
+                        if (spawnObject != null)
+                        {
+                            var no_object = Instantiate(spawnObject, spawnPoint);
+                            no_object.gameObject.GetComponent<NetworkObject>().Spawn();
+                        } else
+                        {
+                            Debug.Log(spawn.Name + " does not exist in Prefabs_NetworkObject");
+                        }
+                        break;
+                    } else
+                    {
+                        randValue -= spawn.Chance;
+                    }
+                }
+            }
+        }
+
+        // destroy all spawners
+        while (no_spawners.Count > 0)
+        {
+            Destroy(no_spawners[0].gameObject);
+            no_spawners.RemoveAt(0);
+        }
+        no_spawners.Clear();
+    }
+
+    //private GameObject GetEnemyPrefab(EnemySpawnType type)
+    //{
+    //    switch (type)
+    //    {
+    //        case EnemySpawnType.BombSnail: return Prefabs_NetworkObject_Enemy.Instance.BombSnail;
+    //        case EnemySpawnType.FudSpirit: return Prefabs_NetworkObject_Enemy.Instance.FudSpirit;
+    //        case EnemySpawnType.FudWisp: return Prefabs_NetworkObject_Enemy.Instance.FudWisp;
+    //        case EnemySpawnType.FussPot: return Prefabs_NetworkObject_Enemy.Instance.FussPot;
+    //        case EnemySpawnType.GasBag: return Prefabs_NetworkObject_Enemy.Instance.GasBag;
+    //        case EnemySpawnType.GeodeShade: return Prefabs_NetworkObject_Enemy.Instance.GeodeShade;
+    //        case EnemySpawnType.LeafShade: return Prefabs_NetworkObject_Enemy.Instance.LeafShade;
+    //        case EnemySpawnType.SentryBot: return Prefabs_NetworkObject_Enemy.Instance.SentryBot;
+    //        case EnemySpawnType.Snail: return Prefabs_NetworkObject_Enemy.Instance.Snail;
+    //        case EnemySpawnType.Spider: return Prefabs_NetworkObject_Enemy.Instance.Spider;
+    //        case EnemySpawnType.SpiderPod: return Prefabs_NetworkObject_Enemy.Instance.SpiderPod;
+    //        case EnemySpawnType.WispHollow: return Prefabs_NetworkObject_Enemy.Instance.WispHollow;
+    //        default : return null;
+    //    }
+    //}
+
+    //private GameObject GetDestructiblePrefab(DestructibleSpawnType type)
+    //{
+    //    switch (type)
+    //    {
+    //        case DestructibleSpawnType.BlueCrate: return Prefabs_NetworkObject_Destructible.Instance.BlueCrate;
+    //        case DestructibleSpawnType.BlueFern: return Prefabs_NetworkObject_Destructible.Instance.BlueFern;
+    //        case DestructibleSpawnType.Geode_Plain: return Prefabs_NetworkObject_Destructible.Instance.Geode_Plain;
+    //        case DestructibleSpawnType.Geode_Common: return Prefabs_NetworkObject_Destructible.Instance.Geode_Common;
+    //        case DestructibleSpawnType.Geode_Uncommon: return Prefabs_NetworkObject_Destructible.Instance.Geode_Uncommon;
+    //        case DestructibleSpawnType.Geode_Rare: return Prefabs_NetworkObject_Destructible.Instance.Geode_Rare;
+    //        case DestructibleSpawnType.Geode_Legendary: return Prefabs_NetworkObject_Destructible.Instance.Geode_Legendary;
+    //        case DestructibleSpawnType.Geode_Mythical: return Prefabs_NetworkObject_Destructible.Instance.Geode_Mythical;
+    //        case DestructibleSpawnType.Geode_Godlike: return Prefabs_NetworkObject_Destructible.Instance.Geode_Godlike;
+    //        default: return null;
+    //    }
+    //}
+
+    //private GameObject GetInteractablePrefab(InteractableSpawnType type)
+    //{
+    //    switch (type)
+    //    {
+    //        case InteractableSpawnType.Hole: return Prefabs_NetworkObject_Interactable.Instance.Hole;
+    //        case InteractableSpawnType.GotchiSelectPortal: return Prefabs_NetworkObject_Interactable.Instance.GotchiSelectPortal;
+    //        case InteractableSpawnType.EscapePortal: return Prefabs_NetworkObject_Interactable.Instance.EscapePortal;
+    //        default: return null;
+    //    }
+    //}
+
+    //private GameObject GetPropPrefabEntity(PropSpawnType type)
+    //{
+    //    switch (type)
+    //    {
+    //        case PropSpawnType.LightPole: return Prefabs_NetworkObject_Prop.Instance.LightPole;
+    //        case PropSpawnType.RuinBlock: return Prefabs_NetworkObject_Prop.Instance.RuinBlock;
+    //        default: return null;
+    //    }
+    //}
+
+    private void NormalizeNetworkObjectSpawner(ref NetworkObjectSpawner no_spawner)
+    {
+        var sum = no_spawner.NoSpawnChance;
+
+        foreach (var spawnPrefab in no_spawner.SpawnEnemies)
+        {
+            sum += spawnPrefab.SpawnChance;
+        }
+
+        foreach (var spawnPrefab in no_spawner.SpawnDestructibles)
+        {
+            sum += spawnPrefab.SpawnChance;
+        }
+
+        foreach (var spawnPrefab in no_spawner.SpawnInteractables)
+        {
+            sum += spawnPrefab.SpawnChance;
+        }
+
+        foreach (var spawnPrefab in no_spawner.SpawnProps)
+        {
+            sum += spawnPrefab.SpawnChance;
+        }
+
+        if (sum <= 0) return;
+
+        no_spawner.NoSpawnChance /= sum;
+
+        foreach (var spawnPrefab in no_spawner.SpawnEnemies)
+        {
+            spawnPrefab.SpawnChance /= sum;
+        }
+
+        foreach (var spawnPrefab in no_spawner.SpawnDestructibles)
+        {
+            spawnPrefab.SpawnChance /= sum;
+        }
+
+        foreach (var spawnPrefab in no_spawner.SpawnInteractables)
+        {
+            spawnPrefab.SpawnChance /= sum;
+        }
+
+        foreach (var spawnPrefab in no_spawner.SpawnProps)
+        {
+            spawnPrefab.SpawnChance /= sum;
+        }
+
     }
 }
 

@@ -12,6 +12,8 @@ public class Enemy : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         agent.updateRotation = false;
         agent.updateUpAxis = false;
+
+        NavMesh.avoidancePredictionTime = 3;
     }
 
     private void Update()
