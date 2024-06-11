@@ -13,31 +13,27 @@ public class EnemyAISetup : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        m_navMeshAgent = GetComponent<NavMeshAgent>();
-        m_navMeshAgent.updateRotation = false;
-        m_navMeshAgent.updateUpAxis = false;
-
+        // Utility AI
         m_utilityAgentController = GetComponent<UtilityAgentController>();
         m_utilityAgentFacade = GetComponent<UtilityAgentFacade>();
 
-        // register with the utility world
-        m_utilityAgentController.Register(UtilityWorldSingleton.Instance.World);
-    }
+        // only add nav mesh agent on the server
+        if (IsServer || IsHost)
+        {
+            // NavMeshAgent
+            m_navMeshAgent = gameObject.AddComponent<NavMeshAgent>();
+            m_navMeshAgent.updateRotation = false;
+            m_navMeshAgent.updateUpAxis = false;
+            m_navMeshAgent.obstacleAvoidanceType = ObstacleAvoidanceType.NoObstacleAvoidance;
+            m_navMeshAgent.enabled = true;
 
-    public override void OnNetworkDespawn()
-    {
-
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+            // register with the utility world
+            m_utilityAgentController.Register(UtilityWorldSingleton.Instance.World);
+        } else 
+        {
+            m_utilityAgentController.enabled = false;
+            m_utilityAgentFacade.enabled = false;
+            return;
+        }
     }
 }

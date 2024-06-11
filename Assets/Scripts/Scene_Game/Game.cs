@@ -1,3 +1,4 @@
+using Mono.CSharp;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -9,6 +10,11 @@ public class Game : MonoBehaviour
     private void Start()
     {
         var transport = NetworkManager.Singleton.NetworkConfig.NetworkTransport as UnityTransport;
+
+        if (transport == null)
+        {
+            Debug.Log("Could not get UnityTransport");
+        }
 
         if (Bootstrap.IsRemoteConnection())
         {
@@ -30,5 +36,4 @@ public class Game : MonoBehaviour
         else if (Bootstrap.IsServer()) NetworkManager.Singleton.StartServer();
         else if (Bootstrap.IsClient()) NetworkManager.Singleton.StartClient();
     }
-
 }

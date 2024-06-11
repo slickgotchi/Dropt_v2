@@ -6,8 +6,8 @@ using System.Collections.Generic;
 public class SunkenFloor : NetworkBehaviour
 {
     [Header("State")]
-    public SunkenFloorType SunkenFloorType = SunkenFloorType.Droplet;
-    public bool IsRaised = false;
+    public NetworkVariable<SunkenFloorType> Type;
+    public NetworkVariable<SunkenFloorState> State;
     public int NumberButtons = 2;
 
     [Header("Emblems")]
@@ -36,19 +36,33 @@ public class SunkenFloor : NetworkBehaviour
 
     private Animator m_animator;
 
-    private void Start()
+    private void Awake()
     {
         m_animator = GetComponent<Animator>();
+        Type = new NetworkVariable<SunkenFloorType>(SunkenFloorType.Droplet);
+        State = new NetworkVariable<SunkenFloorState>(SunkenFloorState.Lowered);
     }
 
     public override void OnNetworkSpawn()
     {
         if (!IsServer) return;
 
-        SetTypeAndSprite(SunkenFloorType);
+        SetTypeAndState(Type.Value, State.Value);
+    }
 
-        SunkenCollider.gameObject.SetActive(true);
-        RaisedCollider.gameObject.SetActive(false);
+    private void Update()
+    {
+        if (IsClient)
+        {
+            UpdateSprite();
+            UpdateColliders();
+        }
+    }
+
+    void UpdateColliders()
+    {
+        SunkenCollider.gameObject.SetActive(State.Value == SunkenFloorState.Lowered);
+        RaisedCollider.gameObject.SetActive(State.Value == SunkenFloorState.Raised);
     }
 
     public void ButtonPressedDown()
@@ -61,32 +75,61 @@ public class SunkenFloor : NetworkBehaviour
         int pressedDownCount = 0;
         foreach (var no_button in no_buttons)
         {
-            if (no_button.ButtonState != ButtonState.Up) pressedDownCount++;
+            if (no_button.State.Value != ButtonState.Up) pressedDownCount++;
         }
 
         // if all our buttons are pressed, raise the floor and lock the buttons
         if (pressedDownCount >= NumberButtons)
         {
             m_animator.Play("SunkenFloor3x3_Raise");
-            SunkenCollider.gameObject.SetActive(false);
-            RaisedCollider.gameObject.SetActive(true);
+            State.Value = SunkenFloorState.Raised;
+            UpdateColliders();
 
             // set all buttons to down locked
             foreach (var no_button in no_buttons)
             {
-                no_button.ButtonState = ButtonState.DownLocked;
+                no_button.State.Value = ButtonState.DownLocked;
             }
         }
 
         // ask the level parent to pop up all other platform buttons except ours
-        transform.parent.gameObject.GetComponent<NetworkLevel>().PopupAllPlatformButtonsExcept(NetworkObjectId);
+        PopupAllOtherPlatformButtons();
     }
 
-    public void SetTypeAndSprite(SunkenFloorType sunkenFloorType)
+    private void PopupAllOtherPlatformButtons()
     {
-        SunkenFloorType = sunkenFloorType;
+        var no_networkLevel = transform.parent.gameObject;
 
-        switch (sunkenFloorType)
+        var no_sunkenFloors = no_networkLevel.GetComponentsInChildren<SunkenFloor>();
+        foreach (var no_sunkenFloor in no_sunkenFloors)
+        {
+            if (no_sunkenFloor.GetComponent<NetworkObject>().NetworkObjectId != NetworkObjectId)
+            {
+                var no_buttons = no_sunkenFloor.GetComponentsInChildren<SunkenFloorButton>();
+                foreach (var no_button in no_buttons)
+                {
+                    if (no_button.State.Value != ButtonState.DownLocked)
+                    {
+                        no_button.SetTypeAndState(no_sunkenFloor.Type.Value, ButtonState.Up);
+                    }
+                }
+            }
+        }
+    }
+
+    public void SetTypeAndState(SunkenFloorType sunkenFloorType, SunkenFloorState floorState)
+    {
+        if (!IsServer) return;
+
+        Type.Value = sunkenFloorType;
+        State.Value = floorState;
+
+        UpdateColliders();
+    }
+
+    void UpdateSprite()
+    {
+        switch (Type.Value)
         {
             case SunkenFloorType.Droplet:
                 SunkenEmblem.sprite = DropletSunken;
@@ -116,4 +159,9 @@ public class SunkenFloor : NetworkBehaviour
 public enum SunkenFloorType
 {
     Droplet, Swirl, Shroom, Bananas, Gills,
+}
+
+public enum SunkenFloorState
+{
+    Lowered, Raised,
 }

@@ -6,8 +6,8 @@ using System.Collections.Generic;
 public class ApeDoor : NetworkBehaviour
 {
     [Header("State")]
-    public ApeDoorType ApeDoorType = ApeDoorType.Crescent;
-    public DoorState ApeDoorState = DoorState.Closed;
+    public NetworkVariable<ApeDoorType> Type;
+    public NetworkVariable<DoorState> State;
     public int NumberButtons = 2;
 
     [Header("Emblems")]
@@ -36,19 +36,33 @@ public class ApeDoor : NetworkBehaviour
 
     private Animator m_animator;
 
-    private void Start()
+    private void Awake()
     {
         m_animator = GetComponent<Animator>();
+        Type = new NetworkVariable<ApeDoorType>(ApeDoorType.Crescent);
+        State = new NetworkVariable<DoorState>(DoorState.Closed);
     }
 
     public override void OnNetworkSpawn()
     {
         if (!IsServer) return;
 
-        SetTypeAndSprite(ApeDoorType);
+        SetTypeAndState(Type.Value, State.Value);
+    }
 
-        ClosedCollider.gameObject.SetActive(true);
-        OpenCollider.gameObject.SetActive(false);
+    private void Update()
+    {
+        if (IsClient)
+        {
+            UpdateSprite();
+            UpdateColliders();
+        }
+    }
+
+    void UpdateColliders()
+    {
+        ClosedCollider.gameObject.SetActive(State.Value == DoorState.Closed);
+        OpenCollider.gameObject.SetActive(State.Value == DoorState.Open);
     }
 
     public void ButtonPressedDown()
@@ -61,32 +75,58 @@ public class ApeDoor : NetworkBehaviour
         int pressedDownCount = 0;
         foreach (var no_button in no_buttons)
         {
-            if (no_button.ButtonState != ButtonState.Up) pressedDownCount++;
+            if (no_button.State.Value != ButtonState.Up) pressedDownCount++;
         }
 
         // if all our buttons are pressed, raise the floor and lock the buttons
         if (pressedDownCount >= NumberButtons)
         {
             m_animator.Play("ApeDoor_Open");
-            ClosedCollider.gameObject.SetActive(false);
-            OpenCollider.gameObject.SetActive(true);
+            State.Value = DoorState.Open;
+            UpdateColliders();
 
             // set all buttons to down locked
             foreach (var no_button in no_buttons)
             {
-                no_button.ButtonState = ButtonState.DownLocked;
+                no_button.State.Value = ButtonState.DownLocked;
             }
         }
 
         // ask the level parent to pop up all other platform buttons except ours
-        transform.parent.gameObject.GetComponent<NetworkLevel>().PopupAllApeDoorButtonsExcept(NetworkObjectId);
+        PopupAllOtherApeDoorButtons();
     }
 
-    public void SetTypeAndSprite(ApeDoorType apeDoorType)
+    private void PopupAllOtherApeDoorButtons()
     {
-        ApeDoorType = apeDoorType;
+        var no_apeDoors = transform.parent.gameObject.GetComponentsInChildren<ApeDoor>();
+        foreach (var no_apeDoor in no_apeDoors)
+        {
+            if (no_apeDoor.GetComponent<NetworkObject>().NetworkObjectId != NetworkObjectId)
+            {
+                var no_buttons = no_apeDoor.GetComponentsInChildren<ApeDoorButton>();
+                foreach (var no_button in no_buttons)
+                {
+                    if (no_button.State.Value != ButtonState.DownLocked)
+                    {
+                        no_button.SetTypeAndState(no_apeDoor.Type.Value, ButtonState.Up);
+                    }
+                }
+            }
+        }
+    }
 
-        switch (apeDoorType)
+    public void SetTypeAndState(ApeDoorType apeDoorType, DoorState doorState)
+    {
+        if (!IsServer) return;
+
+        Type.Value = apeDoorType;
+        State.Value = doorState;
+        UpdateColliders();
+    }
+
+    void UpdateSprite()
+    {
+        switch (Type.Value)
         {
             case ApeDoorType.Crescent:
                 LeftEmblem.sprite = CrescentLeft;

@@ -12,27 +12,38 @@ public class PlayerController : NetworkBehaviour
 
     private UtilityEntityController m_entityController;
 
+    private void Awake()
+    {
+
+    }
+
     public override void OnNetworkSpawn()
     {
-        if (!IsOwner)
+        if (IsLocalPlayer) {
+            playerCamera.Priority = 100;
+            playerAudioListener.enabled = true;
+        } else
         {
             playerAudioListener.enabled = false;
             playerCamera.Priority = 0;
-            return;
         }
 
-        playerCamera.Priority = 100;
-        playerAudioListener.enabled = true;
+        m_entityController = GetComponent<UtilityEntityController>();
 
-        if (IsLocalPlayer && !IsHost)
+        // register utility entity if this is the server instance
+        if (IsServer)
+        {
+            m_entityController.Register(UtilityWorldSingleton.Instance.World);
+        } else if (!IsHost)
+        {
+            GetComponent<PlayerEntityFacade>().enabled = false;
+            m_entityController.enabled = false;
+        }
+
+        if (IsServer && !IsHost)
         {
             PingServerRpc(Time.time);
         }
-
-        // register utility entity
-        m_entityController = GetComponent<UtilityEntityController>();
-        m_entityController.Register(UtilityWorldSingleton.Instance.World);
-        Debug.Log("Registerd Player Utility Entity with World");
     }
 
     [ServerRpc]

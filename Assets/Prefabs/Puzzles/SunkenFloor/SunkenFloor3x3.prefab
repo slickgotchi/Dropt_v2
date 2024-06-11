@@ -259,7 +259,7 @@ TilemapRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 1629312629
-  m_SortingLayer: -5
+  m_SortingLayer: -6
   m_SortingOrder: 2
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0, y: 0, z: 0}
@@ -342,7 +342,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 1629312629
-  m_SortingLayer: -5
+  m_SortingLayer: -6
   m_SortingOrder: 3
   m_Sprite: {fileID: -4681479293694028885, guid: 0449e845b217c70469318d980ef73ca4, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -428,7 +428,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 1629312629
-  m_SortingLayer: -5
+  m_SortingLayer: -6
   m_SortingOrder: 3
   m_Sprite: {fileID: -7500450348722340713, guid: 0449e845b217c70469318d980ef73ca4, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -712,7 +712,7 @@ TilemapRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 1629312629
-  m_SortingLayer: -5
+  m_SortingLayer: -6
   m_SortingOrder: 1
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0, y: 0, z: 0}
@@ -812,6 +812,7 @@ GameObject:
   - component: {fileID: 1264335836638311706}
   - component: {fileID: -2529276569406560986}
   - component: {fileID: 8085788586653335108}
+  - component: {fileID: 4104363468735931376}
   m_Layer: 0
   m_Name: SunkenFloor3x3
   m_TagString: Untagged
@@ -893,7 +894,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 677b301fd1b142244b64a979aea9ab67, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SunkenFloorType: 0
+  Type:
+    m_InternalValue: 0
   IsRaised: 0
   NumberButtons: 2
   RaisedEmblem: {fileID: 4322068394986652409}
@@ -910,6 +912,20 @@ MonoBehaviour:
   GillsRaised: {fileID: 1657049589, guid: 6e1ddf02229864b60b1be0857b580e76, type: 3}
   SunkenCollider: {fileID: 6804020524617103786}
   RaisedCollider: {fileID: 3272067796254057689}
+--- !u!114 &4104363468735931376
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3924821971453843158}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8d0727d5ae3244e3b569694d3912374, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  TransitionStateInfoList: []
+  m_Animator: {fileID: 1264335836638311706}
 --- !u!1 &4623943772741365643
 GameObject:
   m_ObjectHideFlags: 0
@@ -1341,7 +1357,7 @@ TilemapRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 1629312629
-  m_SortingLayer: -5
+  m_SortingLayer: -6
   m_SortingOrder: 0
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0, y: 0, z: 0}

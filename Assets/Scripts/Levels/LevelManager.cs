@@ -10,6 +10,8 @@ public class LevelManager : NetworkBehaviour
     // Start is called before the first frame update
     public override void OnNetworkSpawn()
     {
+        if (!IsServer) return;
+
         if (m_levels.Count <= 0)
         {
             Debug.Log("Add a level to the LevelManager!");

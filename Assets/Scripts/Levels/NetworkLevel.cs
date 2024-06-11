@@ -6,13 +6,51 @@ using UnityEngine;
 
 public class NetworkLevel : NetworkBehaviour
 {
+    private struct NetworkObjectSpawn
+    {
+        public string Name;
+        public float Chance;
+    }
+
     public override void OnNetworkSpawn()
     {
-        if (!IsServer) return;
+        if (IsServer)
+        {
+            CreateSunkenFloors();
+            CreateApeDoors();
+            CreateNetworkObjectSpawners();
+            CreatePlayerSpawnPoints();
 
-        CreateSunkenFloors();
-        CreateApeDoors();
-        CreateNetworkObjectSpawners();
+            Debug.Log("Level Created on Server");
+        }
+
+        // if we're the client, we need to clean up the spawner objects not required client side
+        if (IsClient)
+        {
+            var no_sunkenFloorSpawners = new List<SunkenFloor3x3Spawner>(GetComponentsInChildren<SunkenFloor3x3Spawner>());
+            for (int i = 0; i < no_sunkenFloorSpawners.Count; i++)
+            {
+                Destroy(no_sunkenFloorSpawners[i].gameObject);
+            }
+
+            var no_apeDoorSpawners = new List<ApeDoorSpawner>(GetComponentsInChildren<ApeDoorSpawner>());
+            for (int i = 0; i < no_apeDoorSpawners.Count; i++)
+            {
+                Destroy(no_apeDoorSpawners[i].gameObject);
+            }
+
+            var no_spawners = new List<NetworkObjectSpawner>(GetComponentsInChildren<NetworkObjectSpawner>());
+            for (int i = 0; i < no_spawners.Count; i++)
+            {
+                Destroy(no_spawners[i].gameObject);
+            }
+
+            var no_playerSpawnPointsList = new List<PlayerSpawnPoints>(GetComponentsInChildren<PlayerSpawnPoints>());
+            for (int i = 0; i < no_playerSpawnPointsList.Count; i++)
+            {
+                Destroy(no_playerSpawnPointsList[i].gameObject);
+            }
+        }
     }
 
     void CreateSunkenFloors()
@@ -30,7 +68,7 @@ public class NetworkLevel : NetworkBehaviour
             no_sunkenFloor.transform.parent = transform;
 
             // set the floor type
-            no_sunkenFloor.GetComponent<SunkenFloor>().SetTypeAndSprite(sunkenFloorSpawner.SunkenFloorType);
+            no_sunkenFloor.GetComponent<SunkenFloor>().SetTypeAndState(sunkenFloorSpawner.SunkenFloorType, SunkenFloorState.Lowered);
 
             // get list of button spawners
             var buttonSpawners = new List<SunkenFloorButtonSpawner>(sunkenFloorSpawner.gameObject.GetComponentsInChildren<SunkenFloorButtonSpawner>());
@@ -62,7 +100,7 @@ public class NetworkLevel : NetworkBehaviour
                 var no_Button = Instantiate(sunkenFloorSpawner.SunkenFloorButtonPrefab);
                 no_Button.transform.position = buttonSpawner.transform.position;
                 no_Button.GetComponent<NetworkObject>().Spawn();
-                no_Button.GetComponent<SunkenFloorButton>().SetTypeStateAndSprite(sunkenFloorSpawner.SunkenFloorType, ButtonState.Up);
+                no_Button.GetComponent<SunkenFloorButton>().SetTypeAndState(sunkenFloorSpawner.SunkenFloorType, ButtonState.Up);
 
                 // set network object buttons parent to the sunken floor
                 no_Button.transform.parent = no_sunkenFloor.transform;
@@ -92,25 +130,6 @@ public class NetworkLevel : NetworkBehaviour
         sunkenFloorSpawners.Clear();
     }
 
-    public void PopupAllPlatformButtonsExcept(ulong excludeNetworkObjectId)
-    {
-        var no_sunkenFloors = GetComponentsInChildren<SunkenFloor>();
-        foreach (var no_sunkenFloor in  no_sunkenFloors)
-        {
-            if (no_sunkenFloor.GetComponent<NetworkObject>().NetworkObjectId != excludeNetworkObjectId)
-            {
-                var no_buttons = no_sunkenFloor.GetComponentsInChildren<SunkenFloorButton>();
-                foreach (var no_button in no_buttons)
-                {
-                    if (no_button.ButtonState != ButtonState.DownLocked)
-                    {
-                        no_button.SetTypeStateAndSprite(no_sunkenFloor.SunkenFloorType, ButtonState.Up);
-                    }
-                }
-            }
-        }
-    }
-
     void CreateApeDoors()
     {
         // search for sunken floors spawners and button spawners
@@ -126,7 +145,7 @@ public class NetworkLevel : NetworkBehaviour
             no_apeDoor.transform.parent = transform;
 
             // set the floor type
-            no_apeDoor.GetComponent<ApeDoor>().SetTypeAndSprite(apeDoorSpawner.ApeDoorType);
+            no_apeDoor.GetComponent<ApeDoor>().SetTypeAndState(apeDoorSpawner.ApeDoorType, DoorState.Closed);
 
             // get list of button spawners
             var buttonSpawners = new List<ApeDoorButtonSpawner>(apeDoorSpawner.gameObject.GetComponentsInChildren<ApeDoorButtonSpawner>());
@@ -158,7 +177,7 @@ public class NetworkLevel : NetworkBehaviour
                 var no_Button = Instantiate(apeDoorSpawner.ApeDoorButtonPrefab);
                 no_Button.transform.position = buttonSpawner.transform.position;
                 no_Button.GetComponent<NetworkObject>().Spawn();
-                no_Button.GetComponent<ApeDoorButton>().SetTypeStateAndSprite(apeDoorSpawner.ApeDoorType, ButtonState.Up);
+                no_Button.GetComponent<ApeDoorButton>().SetTypeAndState(apeDoorSpawner.ApeDoorType, ButtonState.Up);
 
                 // set network object buttons parent to the sunken floor
                 no_Button.transform.parent = no_apeDoor.transform;
@@ -188,31 +207,6 @@ public class NetworkLevel : NetworkBehaviour
         apeDoorSpawners.Clear();
     }
 
-    public void PopupAllApeDoorButtonsExcept(ulong excludeNetworkObjectId)
-    {
-        var no_apeDoors = GetComponentsInChildren<ApeDoor>();
-        foreach (var no_apeDoor in no_apeDoors)
-        {
-            if (no_apeDoor.GetComponent<NetworkObject>().NetworkObjectId != excludeNetworkObjectId)
-            {
-                var no_buttons = no_apeDoor.GetComponentsInChildren<ApeDoorButton>();
-                foreach (var no_button in no_buttons)
-                {
-                    if (no_button.ButtonState != ButtonState.DownLocked)
-                    {
-                        no_button.SetTypeStateAndSprite(no_apeDoor.ApeDoorType, ButtonState.Up);
-                    }
-                }
-            }
-        }
-    }
-
-    private struct Spawn
-    {
-        public string Name;
-        public float Chance;
-    }
-
     public void CreateNetworkObjectSpawners()
     {
         var no_spawners = new List<NetworkObjectSpawner>(GetComponentsInChildren<NetworkObjectSpawner>());
@@ -228,10 +222,10 @@ public class NetworkLevel : NetworkBehaviour
             }
 
             // create one list of the spawn names and spawn chances
-            List<Spawn> spawns = new List<Spawn>();
+            List<NetworkObjectSpawn> spawns = new List<NetworkObjectSpawn>();
             for (int j = 0; j < no_spawner.SpawnEnemies.Length; j++)
             {
-                spawns.Add(new Spawn
+                spawns.Add(new NetworkObjectSpawn
                 {
                     Name = no_spawner.SpawnEnemies[j].EnemyPrefabType.ToString(),
                     Chance = no_spawner.SpawnEnemies[j].SpawnChance,
@@ -240,7 +234,7 @@ public class NetworkLevel : NetworkBehaviour
 
             for (int j = 0; j < no_spawner.SpawnDestructibles.Length; j++)
             {
-                spawns.Add(new Spawn
+                spawns.Add(new NetworkObjectSpawn
                 {
                     Name = no_spawner.SpawnDestructibles[j].DestructiblePrefabType.ToString(),
                     Chance = no_spawner.SpawnDestructibles[j].SpawnChance,
@@ -249,7 +243,7 @@ public class NetworkLevel : NetworkBehaviour
 
             for (int j = 0; j < no_spawner.SpawnInteractables.Length; j++)
             {
-                spawns.Add(new Spawn
+                spawns.Add(new NetworkObjectSpawn
                 {
                     Name = no_spawner.SpawnInteractables[j].InteractablePrefabType.ToString(),
                     Chance = no_spawner.SpawnInteractables[j].SpawnChance,
@@ -258,7 +252,7 @@ public class NetworkLevel : NetworkBehaviour
 
             for (int j = 0; j < no_spawner.SpawnProps.Length; j++)
             {
-                spawns.Add(new Spawn
+                spawns.Add(new NetworkObjectSpawn
                 {
                     Name = no_spawner.SpawnProps[j].PropPrefabType.ToString(),
                     Chance = no_spawner.SpawnProps[j].SpawnChance,
@@ -303,64 +297,6 @@ public class NetworkLevel : NetworkBehaviour
         }
         no_spawners.Clear();
     }
-
-    //private GameObject GetEnemyPrefab(EnemySpawnType type)
-    //{
-    //    switch (type)
-    //    {
-    //        case EnemySpawnType.BombSnail: return Prefabs_NetworkObject_Enemy.Instance.BombSnail;
-    //        case EnemySpawnType.FudSpirit: return Prefabs_NetworkObject_Enemy.Instance.FudSpirit;
-    //        case EnemySpawnType.FudWisp: return Prefabs_NetworkObject_Enemy.Instance.FudWisp;
-    //        case EnemySpawnType.FussPot: return Prefabs_NetworkObject_Enemy.Instance.FussPot;
-    //        case EnemySpawnType.GasBag: return Prefabs_NetworkObject_Enemy.Instance.GasBag;
-    //        case EnemySpawnType.GeodeShade: return Prefabs_NetworkObject_Enemy.Instance.GeodeShade;
-    //        case EnemySpawnType.LeafShade: return Prefabs_NetworkObject_Enemy.Instance.LeafShade;
-    //        case EnemySpawnType.SentryBot: return Prefabs_NetworkObject_Enemy.Instance.SentryBot;
-    //        case EnemySpawnType.Snail: return Prefabs_NetworkObject_Enemy.Instance.Snail;
-    //        case EnemySpawnType.Spider: return Prefabs_NetworkObject_Enemy.Instance.Spider;
-    //        case EnemySpawnType.SpiderPod: return Prefabs_NetworkObject_Enemy.Instance.SpiderPod;
-    //        case EnemySpawnType.WispHollow: return Prefabs_NetworkObject_Enemy.Instance.WispHollow;
-    //        default : return null;
-    //    }
-    //}
-
-    //private GameObject GetDestructiblePrefab(DestructibleSpawnType type)
-    //{
-    //    switch (type)
-    //    {
-    //        case DestructibleSpawnType.BlueCrate: return Prefabs_NetworkObject_Destructible.Instance.BlueCrate;
-    //        case DestructibleSpawnType.BlueFern: return Prefabs_NetworkObject_Destructible.Instance.BlueFern;
-    //        case DestructibleSpawnType.Geode_Plain: return Prefabs_NetworkObject_Destructible.Instance.Geode_Plain;
-    //        case DestructibleSpawnType.Geode_Common: return Prefabs_NetworkObject_Destructible.Instance.Geode_Common;
-    //        case DestructibleSpawnType.Geode_Uncommon: return Prefabs_NetworkObject_Destructible.Instance.Geode_Uncommon;
-    //        case DestructibleSpawnType.Geode_Rare: return Prefabs_NetworkObject_Destructible.Instance.Geode_Rare;
-    //        case DestructibleSpawnType.Geode_Legendary: return Prefabs_NetworkObject_Destructible.Instance.Geode_Legendary;
-    //        case DestructibleSpawnType.Geode_Mythical: return Prefabs_NetworkObject_Destructible.Instance.Geode_Mythical;
-    //        case DestructibleSpawnType.Geode_Godlike: return Prefabs_NetworkObject_Destructible.Instance.Geode_Godlike;
-    //        default: return null;
-    //    }
-    //}
-
-    //private GameObject GetInteractablePrefab(InteractableSpawnType type)
-    //{
-    //    switch (type)
-    //    {
-    //        case InteractableSpawnType.Hole: return Prefabs_NetworkObject_Interactable.Instance.Hole;
-    //        case InteractableSpawnType.GotchiSelectPortal: return Prefabs_NetworkObject_Interactable.Instance.GotchiSelectPortal;
-    //        case InteractableSpawnType.EscapePortal: return Prefabs_NetworkObject_Interactable.Instance.EscapePortal;
-    //        default: return null;
-    //    }
-    //}
-
-    //private GameObject GetPropPrefabEntity(PropSpawnType type)
-    //{
-    //    switch (type)
-    //    {
-    //        case PropSpawnType.LightPole: return Prefabs_NetworkObject_Prop.Instance.LightPole;
-    //        case PropSpawnType.RuinBlock: return Prefabs_NetworkObject_Prop.Instance.RuinBlock;
-    //        default: return null;
-    //    }
-    //}
 
     private void NormalizeNetworkObjectSpawner(ref NetworkObjectSpawner no_spawner)
     {
@@ -411,6 +347,107 @@ public class NetworkLevel : NetworkBehaviour
         }
 
     }
+
+    private void CreatePlayerSpawnPoints()
+    {
+        var no_playerSpawnPointsList = new List<PlayerSpawnPoints>(GetComponentsInChildren<PlayerSpawnPoints>());
+
+        var spawnPoints = new List<Vector3>();
+        foreach (var no_playerSpawnPoints in no_playerSpawnPointsList)
+        {
+            for (int i = 0; i < no_playerSpawnPoints.transform.childCount; i++)
+            {
+                spawnPoints.Add(no_playerSpawnPoints.transform.GetChild(i).position);
+            }
+        }
+
+        // send warning if have less than 3 spawn points in the level
+        if (spawnPoints.Count < 3)
+        {
+            Debug.Log("Warning: Less than 3 player spawn points are available, some players might spawn at (0,0,0)");
+        }
+
+        // move players to spawn locations
+        var players = FindObjectsByType<PlayerMovementAndDash>(FindObjectsSortMode.None);
+        foreach (var player in players)
+        {
+            var randIndex = UnityEngine.Random.Range(0, spawnPoints.Count);
+            //player.SetPlayerPosition(spawnPoints[randIndex]);
+            spawnPoints.RemoveAt(randIndex);
+        }
+
+        // destroy the spawn points list
+        for (int i = 0; i < no_playerSpawnPointsList.Count; i++)
+        {
+            Destroy(no_playerSpawnPointsList[i].gameObject);
+        }
+        no_playerSpawnPointsList.Clear();
+
+    }
+
 }
 
 
+
+
+
+
+
+// SAVING THIS CODE IN CASE WE SEE ISSUES WITH LOAD TIMES LATER ON AND NEED TO DIRECTLY ASSIGN/ACCESS PREFABS
+//private GameObject GetEnemyPrefab(EnemySpawnType type)
+//{
+//    switch (type)
+//    {
+//        case EnemySpawnType.BombSnail: return Prefabs_NetworkObject_Enemy.Instance.BombSnail;
+//        case EnemySpawnType.FudSpirit: return Prefabs_NetworkObject_Enemy.Instance.FudSpirit;
+//        case EnemySpawnType.FudWisp: return Prefabs_NetworkObject_Enemy.Instance.FudWisp;
+//        case EnemySpawnType.FussPot: return Prefabs_NetworkObject_Enemy.Instance.FussPot;
+//        case EnemySpawnType.GasBag: return Prefabs_NetworkObject_Enemy.Instance.GasBag;
+//        case EnemySpawnType.GeodeShade: return Prefabs_NetworkObject_Enemy.Instance.GeodeShade;
+//        case EnemySpawnType.LeafShade: return Prefabs_NetworkObject_Enemy.Instance.LeafShade;
+//        case EnemySpawnType.SentryBot: return Prefabs_NetworkObject_Enemy.Instance.SentryBot;
+//        case EnemySpawnType.Snail: return Prefabs_NetworkObject_Enemy.Instance.Snail;
+//        case EnemySpawnType.Spider: return Prefabs_NetworkObject_Enemy.Instance.Spider;
+//        case EnemySpawnType.SpiderPod: return Prefabs_NetworkObject_Enemy.Instance.SpiderPod;
+//        case EnemySpawnType.WispHollow: return Prefabs_NetworkObject_Enemy.Instance.WispHollow;
+//        default : return null;
+//    }
+//}
+
+//private GameObject GetDestructiblePrefab(DestructibleSpawnType type)
+//{
+//    switch (type)
+//    {
+//        case DestructibleSpawnType.BlueCrate: return Prefabs_NetworkObject_Destructible.Instance.BlueCrate;
+//        case DestructibleSpawnType.BlueFern: return Prefabs_NetworkObject_Destructible.Instance.BlueFern;
+//        case DestructibleSpawnType.Geode_Plain: return Prefabs_NetworkObject_Destructible.Instance.Geode_Plain;
+//        case DestructibleSpawnType.Geode_Common: return Prefabs_NetworkObject_Destructible.Instance.Geode_Common;
+//        case DestructibleSpawnType.Geode_Uncommon: return Prefabs_NetworkObject_Destructible.Instance.Geode_Uncommon;
+//        case DestructibleSpawnType.Geode_Rare: return Prefabs_NetworkObject_Destructible.Instance.Geode_Rare;
+//        case DestructibleSpawnType.Geode_Legendary: return Prefabs_NetworkObject_Destructible.Instance.Geode_Legendary;
+//        case DestructibleSpawnType.Geode_Mythical: return Prefabs_NetworkObject_Destructible.Instance.Geode_Mythical;
+//        case DestructibleSpawnType.Geode_Godlike: return Prefabs_NetworkObject_Destructible.Instance.Geode_Godlike;
+//        default: return null;
+//    }
+//}
+
+//private GameObject GetInteractablePrefab(InteractableSpawnType type)
+//{
+//    switch (type)
+//    {
+//        case InteractableSpawnType.Hole: return Prefabs_NetworkObject_Interactable.Instance.Hole;
+//        case InteractableSpawnType.GotchiSelectPortal: return Prefabs_NetworkObject_Interactable.Instance.GotchiSelectPortal;
+//        case InteractableSpawnType.EscapePortal: return Prefabs_NetworkObject_Interactable.Instance.EscapePortal;
+//        default: return null;
+//    }
+//}
+
+//private GameObject GetPropPrefabEntity(PropSpawnType type)
+//{
+//    switch (type)
+//    {
+//        case PropSpawnType.LightPole: return Prefabs_NetworkObject_Prop.Instance.LightPole;
+//        case PropSpawnType.RuinBlock: return Prefabs_NetworkObject_Prop.Instance.RuinBlock;
+//        default: return null;
+//    }
+//}

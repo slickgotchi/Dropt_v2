@@ -4,8 +4,8 @@ using Unity.Netcode;
 public class SunkenFloorButton : NetworkBehaviour
 {
     [Header("State")]
-    public SunkenFloorType SunkenFloorType = SunkenFloorType.Droplet;
-    public ButtonState ButtonState = ButtonState.Up;
+    public NetworkVariable<SunkenFloorType> Type;
+    public NetworkVariable<ButtonState> State;
 
     [Header("Sprites")]
     public Sprite DropletUp;
@@ -28,22 +28,27 @@ public class SunkenFloorButton : NetworkBehaviour
     private void Awake()
     {
         m_spriteRenderer = GetComponent<SpriteRenderer>();
+        State = new NetworkVariable<ButtonState>(ButtonState.Up);
+        Type = new NetworkVariable<SunkenFloorType>(SunkenFloorType.Droplet);
+    }
+
+    public override void OnNetworkSpawn()
+    {
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        SetTypeStateAndSprite(SunkenFloorType, ButtonState.Up);
+        SetTypeAndState(Type.Value, State.Value);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (!IsServer) return;
-        if (ButtonState != ButtonState.Up) return;
+        if (State.Value != ButtonState.Up) return;
 
         // update button state
-        ButtonState = ButtonState.Down;
-        UpdateButtonClientRpc(ButtonState);
+        State.Value = ButtonState.Down;
 
         // grab the parent sunken floor and get it to check status of all its buttons
         var parentSunkenFloor = transform.parent.gameObject.GetComponent<SunkenFloor>();
@@ -56,20 +61,27 @@ public class SunkenFloorButton : NetworkBehaviour
         }
     }
 
-    [ClientRpc]
-    void UpdateButtonClientRpc(ButtonState buttonState)
+    private void Update()
     {
-        SetTypeStateAndSprite(SunkenFloorType, buttonState);
+        if (IsClient)
+        {
+            UpdateSprite();
+        }
     }
 
-    public void SetTypeStateAndSprite(SunkenFloorType sunkenFloorType, ButtonState buttonState)
+    public void SetTypeAndState(SunkenFloorType type, ButtonState state)
     {
-        SunkenFloorType = sunkenFloorType;
-        ButtonState = buttonState;
+        if (!IsServer) return;
 
-        if (buttonState == ButtonState.Up)
+        Type.Value = type;
+        State.Value = state;
+    }
+
+    void UpdateSprite()
+    {
+        if (State.Value == ButtonState.Up)
         {
-            switch (sunkenFloorType)
+            switch (Type.Value)
             {
                 case SunkenFloorType.Droplet: m_spriteRenderer.sprite = DropletUp; break;
                 case SunkenFloorType.Swirl: m_spriteRenderer.sprite = SwirlUp; break;
@@ -81,7 +93,7 @@ public class SunkenFloorButton : NetworkBehaviour
         }
         else
         {
-            switch (sunkenFloorType)
+            switch (Type.Value)
             {
                 case SunkenFloorType.Droplet: m_spriteRenderer.sprite = DropletDown; break;
                 case SunkenFloorType.Swirl: m_spriteRenderer.sprite = SwirlDown; break;
@@ -92,7 +104,6 @@ public class SunkenFloorButton : NetworkBehaviour
             }
         }
     }
-
 }
 
 public enum ButtonState

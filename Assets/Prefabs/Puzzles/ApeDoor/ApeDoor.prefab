@@ -295,7 +295,7 @@ TilemapRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 1555110763
-  m_SortingLayer: -3
+  m_SortingLayer: -4
   m_SortingOrder: 0
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0, y: 0, z: 0}
@@ -522,7 +522,7 @@ TilemapRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 1555110763
-  m_SortingLayer: -3
+  m_SortingLayer: -4
   m_SortingOrder: 0
   m_ChunkSize: {x: 32, y: 32, z: 32}
   m_ChunkCullingBounds: {x: 0, y: 0, z: 0}
@@ -771,6 +771,7 @@ GameObject:
   - component: {fileID: 1264335836638311706}
   - component: {fileID: 4152650369224279828}
   - component: {fileID: 950494912577993695}
+  - component: {fileID: 6171197292853117010}
   m_Layer: 0
   m_Name: ApeDoor
   m_TagString: Untagged
@@ -851,7 +852,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e901bbb6f373ffc43b3fa198ae58b421, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ApeDoorType: 0
+  Type:
+    m_InternalValue: 0
   ApeDoorState: 1
   NumberButtons: 2
   LeftEmblem: {fileID: 2713316522340092158}
@@ -868,6 +870,20 @@ MonoBehaviour:
   SquareRight: {fileID: 6391732422367643168, guid: 6e1ddf02229864b60b1be0857b580e76, type: 3}
   ClosedCollider: {fileID: 6120786186020349525}
   OpenCollider: {fileID: 3991240059267330904}
+--- !u!114 &6171197292853117010
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3924821971453843158}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8d0727d5ae3244e3b569694d3912374, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  TransitionStateInfoList: []
+  m_Animator: {fileID: 1264335836638311706}
 --- !u!1 &5509170766403334704
 GameObject:
   m_ObjectHideFlags: 0

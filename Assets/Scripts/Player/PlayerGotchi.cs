@@ -24,48 +24,34 @@ public class PlayerGotchi : NetworkBehaviour
     private Vector3 m_facingDirection;
     private bool m_isMoving;
 
+    private LocalVelocity m_localVelocity;
+
     private void Awake()
     {
         animator = GetComponent<Animator>();
         playerMovement = GetComponent<PlayerMovementAndDash>();
+        m_localVelocity = GetComponent<LocalVelocity>();
     }
 
     private void Update()
     {
-        // update velocity
+        if (IsServer && !IsHost) return;
+
         if (IsLocalPlayer)
         {
             m_velocity = playerMovement.GetVelocity();
             m_facingDirection = playerMovement.GetFacingDirection();
-            m_isMoving = (math.abs(m_velocity.x) > 0.5f || math.abs(m_velocity.y) > 0.5f);
-            m_rotation = CalculateSpriteLean();
-
-            SendDataToServerRpc(m_velocity, m_rotation, m_facingDirection, m_isMoving);
-
-            UpdateGotchiAnim();
-
-            UpdateFacingFromMovement();
-            UpdateDustParticles();
-            BodySprite.transform.rotation = Quaternion.Euler(new Vector3(0, 0, m_rotation));
+            m_isMoving = math.abs(m_velocity.x) > 0.1f || math.abs(m_velocity.y) > 0.1f;
+        } else
+        {
+            m_velocity = m_localVelocity.Value;
+            m_facingDirection = m_localVelocity.LastNonZeroVelocity.normalized;
+            m_isMoving = m_localVelocity.IsMoving;
         }
 
-    }
+        m_rotation = CalculateSpriteLean();
 
-    [ServerRpc]
-    void SendDataToServerRpc(Vector3 velocity, float rotation, Vector3 facingDirection, bool isMoving)
-    {
-        SendDataToClientRpc(velocity, rotation, facingDirection, isMoving);
-    }
-
-    [ClientRpc]
-    void SendDataToClientRpc(Vector3 velocity, float rotation, Vector3 facingDirection, bool isMoving)
-    {
-        if (IsLocalPlayer) return;
-
-        m_velocity = velocity;
-        m_facingDirection = facingDirection;
-        m_isMoving = isMoving;
-        m_rotation = rotation;
+        UpdateGotchiAnim();
 
         UpdateFacingFromMovement();
         UpdateDustParticles();

@@ -119,7 +119,11 @@ public class PlayerMovementAndDash : NetworkBehaviour
 
         lastServerStateArray = new List<StatePayload>();
 
-
+        //Debug.Log("IsHost: " + IsHost);
+        //Debug.Log("IsServer: " + IsServer);
+        //Debug.Log("IsClient: " + IsClient);
+        //Debug.Log("IsLocalPlayer: " + IsLocalPlayer);
+        //Debug.Log("IsOwner: " + IsOwner);
     }
 
 
@@ -130,7 +134,7 @@ public class PlayerMovementAndDash : NetworkBehaviour
 
         m_actionDirectionTimer -= Time.deltaTime;
 
-        if (IsLocalPlayer || IsHost)
+        if (IsLocalPlayer)
         {
             UpdateCursorWorldPosition();
 
@@ -280,6 +284,18 @@ public class PlayerMovementAndDash : NetworkBehaviour
         };
     }
 
+    public void SetPlayerPosition(Vector3 position)
+    {
+        var bufferIndex = timer.CurrentTick % k_bufferSize;
+        var newState = new StatePayload
+        {
+            tick = timer.CurrentTick,
+            position = position,
+            velocity = Vector3.zero,
+        };
+        serverStateBuffer.Add(newState, bufferIndex);
+        SendToClientRpc(newState);
+    }
 
     void HandleServerTick()
     {
@@ -314,9 +330,6 @@ public class PlayerMovementAndDash : NetworkBehaviour
         lastServerStateArray.Add(statePayload);
         if (lastServerStateArray.Count > 5) lastServerStateArray.RemoveAt(0);
 
-        // update tick delta (if required)
-        //m_remoteClientTickDelta = timer.CurrentTick - statePayload.tick;
-
         // get average delta tick
         var deltaTick = timer.CurrentTick - statePayload.tick;
         m_remoteClientTickDeltas.Add(deltaTick);
@@ -335,6 +348,7 @@ public class PlayerMovementAndDash : NetworkBehaviour
 
     private Vector3 GetRemotePlayerInterpPosition()
     {
+        //return lastServerState.position;
         if (lastServerStateArray.Count < 5) return transform.position;
 
         var targetTick = timer.CurrentTickAndFraction.Tick - m_remoteClientTickDelta - 3;

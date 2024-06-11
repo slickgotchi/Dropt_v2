@@ -4,8 +4,8 @@ using Unity.Netcode;
 public class ApeDoorButton : NetworkBehaviour
 {
     [Header("State")]
-    public ApeDoorType ApeDoorType = ApeDoorType.Crescent;
-    public ButtonState ButtonState = ButtonState.Up;
+    public NetworkVariable<ApeDoorType> Type;
+    public NetworkVariable<ButtonState> State;
 
     [Header("Sprites")]
     public Sprite CrescentUp;
@@ -28,22 +28,27 @@ public class ApeDoorButton : NetworkBehaviour
     private void Awake()
     {
         m_spriteRenderer = GetComponent<SpriteRenderer>();
+        Type = new NetworkVariable<ApeDoorType>(ApeDoorType.Crescent);
+        State = new NetworkVariable<ButtonState>(ButtonState.Up);
+    }
+
+    public override void OnNetworkSpawn()
+    {
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        SetTypeStateAndSprite(ApeDoorType, ButtonState.Up);
+        SetTypeAndState(Type.Value, State.Value);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (!IsServer) return;
-        if (ButtonState != ButtonState.Up) return;
+        if (State.Value != ButtonState.Up) return;
 
         // update button state
-        ButtonState = ButtonState.Down;
-        UpdateButtonClientRpc(ButtonState);
+        State.Value = ButtonState.Down;
 
         // grab the parent sunken floor and get it to check status of all its buttons
         var parentApeDoor = transform.parent.gameObject.GetComponent<ApeDoor>();
@@ -56,20 +61,27 @@ public class ApeDoorButton : NetworkBehaviour
         }
     }
 
-    [ClientRpc]
-    void UpdateButtonClientRpc(ButtonState buttonState)
+    private void Update()
     {
-        SetTypeStateAndSprite(ApeDoorType, buttonState);
+        if (IsClient)
+        {
+            UpdateSprite();
+        }
     }
 
-    public void SetTypeStateAndSprite(ApeDoorType apeDoorType, ButtonState buttonState)
+    public void SetTypeAndState(ApeDoorType type, ButtonState state)
     {
-        ApeDoorType = apeDoorType;
-        ButtonState = buttonState;
+        if (!IsServer) return;
 
-        if (buttonState == ButtonState.Up)
+        Type.Value = type;
+        State.Value = state;
+    }
+
+    void UpdateSprite()
+    {
+        if (State.Value == ButtonState.Up)
         {
-            switch (apeDoorType)
+            switch (Type.Value)
             {
                 case ApeDoorType.Crescent: m_spriteRenderer.sprite = CrescentUp; break;
                 case ApeDoorType.Triangle: m_spriteRenderer.sprite = TriangleUp; break;
@@ -81,7 +93,7 @@ public class ApeDoorButton : NetworkBehaviour
         }
         else
         {
-            switch (apeDoorType)
+            switch (Type.Value)
             {
                 case ApeDoorType.Crescent: m_spriteRenderer.sprite = CrescentDown; break;
                 case ApeDoorType.Triangle: m_spriteRenderer.sprite = TriangleDown; break;
