@@ -42,6 +42,8 @@ public class SunkenFloorButton : NetworkBehaviour
         SetTypeAndState(Type.Value, State.Value);
     }
 
+    // WARNING: TriggerEnter/Exit can be somewhat flakey when combined with my PlayerMovement predictino code
+    // therefore using a Physics2D.XXXXOverlap() function should usually be preferred
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (!IsServer) return;

@@ -175,7 +175,7 @@ public class PlayerMovementAndDash : NetworkBehaviour
         {
             tick = currentTick,
             networkObjectId = NetworkObjectId,
-            moveDirection = GetComponent<PlayerGotchi>().IsDropSpawning() ? Vector3.zero : m_moveVector,
+            moveDirection = GetComponent<PlayerGotchi>().IsDropSpawning ? Vector3.zero : m_moveVector,
             actionDirection = m_actionDirection,
             isDash = m_isDash,
         };

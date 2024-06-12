@@ -13,6 +13,8 @@ public class NetworkLevel : NetworkBehaviour
         public float Chance;
     }
 
+    private List<Vector3> m_availablePlayerSpawnPoints = new List<Vector3>();
+
     public override void OnNetworkSpawn()
     {
         if (IsServer)
@@ -21,6 +23,7 @@ public class NetworkLevel : NetworkBehaviour
             CreateApeDoors();
             CreateNetworkObjectSpawners();
             CreatePlayerSpawnPoints();
+            CreateSubLevels();
 
             Debug.Log("Level Created on Server");
         }
@@ -52,6 +55,14 @@ public class NetworkLevel : NetworkBehaviour
                 Destroy(no_playerSpawnPointsList[i].gameObject);
             }
         }
+
+        // rebuild the nav mesh
+        NavigationSurfaceSingleton.Instance.Surface.BuildNavMesh();
+    }
+
+    public override void OnNetworkDespawn()
+    {
+
     }
 
     void CreateSunkenFloors()
@@ -353,37 +364,18 @@ public class NetworkLevel : NetworkBehaviour
     {
         var no_playerSpawnPointsList = new List<PlayerSpawnPoints>(GetComponentsInChildren<PlayerSpawnPoints>());
 
-        var spawnPoints = new List<Vector3>();
         foreach (var no_playerSpawnPoints in no_playerSpawnPointsList)
         {
             for (int i = 0; i < no_playerSpawnPoints.transform.childCount; i++)
             {
-                spawnPoints.Add(no_playerSpawnPoints.transform.GetChild(i).position);
+                m_availablePlayerSpawnPoints.Add(no_playerSpawnPoints.transform.GetChild(i).position);
             }
         }
 
         // send warning if have less than 3 spawn points in the level
-        if (spawnPoints.Count < 3)
+        if (m_availablePlayerSpawnPoints.Count < 3)
         {
             Debug.Log("Warning: Less than 3 player spawn points are available, some players might spawn at (0,0,0)");
-        }
-
-        // move players to spawn locations and play spawn anims
-        var players = FindObjectsByType<PlayerMovementAndDash>(FindObjectsSortMode.None);
-        foreach (var player in players)
-        {
-            // cacl a spawn point
-            Vector3 spawnPoint = Vector3.zero;
-            if (spawnPoints.Count > 0)
-            {
-                var randIndex = UnityEngine.Random.Range(0, spawnPoints.Count);
-                spawnPoint = spawnPoints[randIndex];
-                spawnPoints.RemoveAt(randIndex);
-            }
-
-            // set player position and drop spawn
-            player.SetPlayerPosition(spawnPoint);
-            player.gameObject.GetComponent<PlayerGotchi>().DropSpawn();
         }
 
         // destroy the spawn points list
@@ -392,9 +384,66 @@ public class NetworkLevel : NetworkBehaviour
             Destroy(no_playerSpawnPointsList[i].gameObject);
         }
         no_playerSpawnPointsList.Clear();
-
     }
 
+    public Vector3 PopPlayerSpawnPoint()
+    {
+        Vector3 spawnPoint = Vector3.zero;
+        if (m_availablePlayerSpawnPoints.Count > 0)
+        {
+            var randIndex = UnityEngine.Random.Range(0, m_availablePlayerSpawnPoints.Count);
+            spawnPoint = m_availablePlayerSpawnPoints[randIndex];
+            m_availablePlayerSpawnPoints.RemoveAt(randIndex);
+        } else
+        {
+            Debug.Log("NetworkLevel: Ran out of spawn points! Returning Vector3.zero");
+        }
+
+        return spawnPoint;
+    }
+
+    public void CreateSubLevels()
+    {
+        var subLevelSpawners = new List<SubLevelSpawner>(GetComponentsInChildren<SubLevelSpawner>());
+        for (int i = 0; i < subLevelSpawners.Count; i++)
+        {
+            var subLevelSpawner = subLevelSpawners[i];
+
+            // normalize the spawn chances
+            float sum = 0;
+            foreach (var subLevel in subLevelSpawner.SubLevels)
+            {
+                sum += subLevel.SpawnChance;
+            }
+
+            foreach (var subLevel in subLevelSpawner.SubLevels)
+            {
+                subLevel.SpawnChance /= sum;
+            }
+
+            // go through rand chances
+            GameObject subLevelPrefab = null;
+            var randValue = UnityEngine.Random.Range(0, 1f);
+            foreach (var subLevel in subLevelSpawner.SubLevels)
+            {
+                Debug.Log(subLevel.SubLevelPrefab.name + " spawnChance: " + subLevel.SpawnChance + ", randValue: " + randValue);
+                if (randValue < subLevel.SpawnChance)
+                {
+                    subLevelPrefab = subLevel.SubLevelPrefab;
+                    break;
+                } else
+                {
+                    randValue -= subLevel.SpawnChance;
+                }
+            }
+
+            if (subLevelPrefab != null)
+            {
+                var newSubLevel = Instantiate(subLevelPrefab);
+                newSubLevel.GetComponent<NetworkObject>().Spawn();
+            }
+        }
+    }
 }
 
 

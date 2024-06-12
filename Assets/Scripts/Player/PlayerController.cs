@@ -12,6 +12,9 @@ public class PlayerController : NetworkBehaviour
 
     private UtilityEntityController m_entityController;
 
+    public bool isTryToSpawn = false;
+    public bool isSpawned = false;
+
     private void Awake()
     {
 
@@ -44,6 +47,12 @@ public class PlayerController : NetworkBehaviour
         {
             PingServerRpc(Time.time);
         }
+
+        // set the player to an available spawn point
+        if (IsServer)
+        {
+            isTryToSpawn = true;
+        }
     }
 
     public override void OnNetworkDespawn()
@@ -64,5 +73,17 @@ public class PlayerController : NetworkBehaviour
         var rtt = (int)((Time.time - elapsedTime)*1000);
         DebugCanvas.Instance.SetPing(rtt);
         PingServerRpc(Time.time);
+    }
+
+    private void Update()
+    {
+        if (IsServer && isTryToSpawn && !isSpawned && 
+            LevelManager.Instance != null && LevelManager.Instance.IsLevelCreated())
+        {
+            var spawnPoint = LevelManager.Instance.GetPlayerSpawnPoint();
+            GetComponent<PlayerMovementAndDash>().SetPlayerPosition(spawnPoint);
+            GetComponent<PlayerGotchi>().DropSpawn(spawnPoint);
+            isSpawned = true;
+        }
     }
 }

@@ -1,3 +1,4 @@
+using Cinemachine;
 using Unity.Mathematics;
 using Unity.Netcode;
 using UnityEngine;
@@ -19,17 +20,25 @@ public class PlayerGotchi : NetworkBehaviour
     private float m_rotation;
     private Vector3 m_facingDirection;
     private bool m_isMoving;
-    private bool m_isDropSpawning;
+
+    public bool IsDropSpawning { get; private set; }
 
     private LocalVelocity m_localVelocity;
 
-
+    private Camera m_camera;
+    private CinemachineVirtualCamera m_virtualCamera;
+    private Vector3 m_spawnPoint;
 
     private void Awake()
     {
         animator = GetComponent<Animator>();
         playerMovement = GetComponent<PlayerMovementAndDash>();
         m_localVelocity = GetComponent<LocalVelocity>();
+
+        m_camera = GetComponentInChildren<Camera>();
+        m_virtualCamera = GetComponentInChildren<CinemachineVirtualCamera>();
+
+        m_virtualCamera.Follow = null;
     }
 
     private void Update()
@@ -57,24 +66,32 @@ public class PlayerGotchi : NetworkBehaviour
         BodySprite.transform.rotation = Quaternion.Euler(new Vector3(0, 0, m_rotation));
     }
 
-    public void DropSpawn()
+    public void DropSpawn(Vector3 newSpawnPoint)
     {
         if (!IsServer) return;
 
-        m_isDropSpawning = true;
-        animator.Play("Player_Drop");
+        PlayDropAnimationClientRpc(newSpawnPoint);
     }
 
-    public bool IsDropSpawning()
+    [Rpc(SendTo.ClientsAndHost)]
+    void PlayDropAnimationClientRpc(Vector3 spawnPoint)
     {
-        return m_isDropSpawning;
+        if (!IsLocalPlayer) return;
+
+        IsDropSpawning = true;
+        animator.Play("Player_Drop");
+        m_spawnPoint = spawnPoint;
     }
 
     public void AnimEvent_EndDropSpawn()
     {
-        m_isDropSpawning = false;
+        IsDropSpawning = false;
 
         GetComponent<PlayerCamera>().Shake(1.75f, 0.3f);
+
+        // make camera follow player and warp it to our new spawn point
+        m_virtualCamera.Follow = transform;
+        m_virtualCamera.OnTargetObjectWarped(transform, m_spawnPoint);
     }
 
     void UpdateDustParticles()
@@ -140,31 +157,19 @@ public class PlayerGotchi : NetworkBehaviour
         }
 
         return rotation;
-
-        //BodySprite.transform.rotation = Quaternion.Euler(new Vector3(0,0,rotation));
     }
 
     void UpdateGotchiAnim()
     {
-        if (m_isDropSpawning) return;
+        if (IsDropSpawning) return;
 
         if (m_isMoving)
         {
-            //if (!IsAnimationPlaying("Player_Move"))
-            {
-                animator.Play("Player_Move");
-            }
+            animator.Play("Player_Move");
         }
         else
         {
-            //if (!IsAnimationPlaying("Player_Idle")) 
-                animator.Play("Player_Idle");
+            animator.Play("Player_Idle");
         }
-    }
-
-    bool IsAnimationPlaying(string name)
-    {
-        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
-        return stateInfo.IsName(name);
     }
 }
