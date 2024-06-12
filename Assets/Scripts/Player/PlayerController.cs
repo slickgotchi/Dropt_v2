@@ -49,10 +49,15 @@ public class PlayerController : NetworkBehaviour
         }
 
         // set the player to an available spawn point
-        if (IsServer)
-        {
-            isTryToSpawn = true;
-        }
+        TryGetNewSpawnPoint();
+    }
+
+    public void TryGetNewSpawnPoint()
+    {
+        if (!IsServer) return;
+
+        isTryToSpawn = true;
+        isSpawned = false;
     }
 
     public override void OnNetworkDespawn()
@@ -81,9 +86,11 @@ public class PlayerController : NetworkBehaviour
             LevelManager.Instance != null && LevelManager.Instance.IsLevelCreated())
         {
             var spawnPoint = LevelManager.Instance.GetPlayerSpawnPoint();
+            var currentPosition = transform.position;
             GetComponent<PlayerMovementAndDash>().SetPlayerPosition(spawnPoint);
-            GetComponent<PlayerGotchi>().DropSpawn(spawnPoint);
+            GetComponent<PlayerGotchi>().DropSpawn(currentPosition, spawnPoint);
             isSpawned = true;
+            isTryToSpawn = false;
         }
     }
 }

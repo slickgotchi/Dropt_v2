@@ -47,6 +47,27 @@ public class PlayerInteractions : NetworkBehaviour
             InteractableUICanvas.Instance.InteractTextbox.SetActive(m_interactingNetworkObjectId.Value != -1);
 
             // INSERT LOGIC FOR HANDLING DIFFERENT INTERACTABLES
+            if (m_interactingNetworkObjectId.Value != -1)
+            {
+                if (Input.GetKeyDown(KeyCode.F))
+                {
+                    InteractionTriggeredServerRpc();
+                }
+            }
+        }
+    }
+
+    [Rpc(SendTo.Server)]
+    void InteractionTriggeredServerRpc()
+    {
+        if (m_interactingNetworkObjectId.Value == -1) return;
+
+        // get current interactable
+        var interactable = NetworkManager.Singleton.SpawnManager.SpawnedObjects[(ulong)m_interactingNetworkObjectId.Value];
+
+        if (interactable.GetComponent<Hole>())
+        {
+            LevelManager.Instance.GoToNextLevel();
         }
     }
 }

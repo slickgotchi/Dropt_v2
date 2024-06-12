@@ -11,15 +11,15 @@ public class PlayerShoot : NetworkBehaviour
     {
         if (!IsOwner) return;
 
-        if (Input.GetKeyDown(KeyCode.F))
-        {
-            var newBullet = GameObject.Instantiate(bulletPrefab);
-            newBullet.transform.position = transform.position + new Vector3(0,0.7f, 0);
+        //if (Input.GetKeyDown(KeyCode.F))
+        //{
+        //    var newBullet = GameObject.Instantiate(bulletPrefab);
+        //    newBullet.transform.position = transform.position + new Vector3(0,0.7f, 0);
 
-            var bulletRb = newBullet.GetComponent<Rigidbody2D>();
-            bulletRb.velocity = gameObject.GetComponent<PlayerMovementAndDash>().GetDirection() * 10f;
+        //    var bulletRb = newBullet.GetComponent<Rigidbody2D>();
+        //    bulletRb.velocity = gameObject.GetComponent<PlayerMovementAndDash>().GetDirection() * 10f;
 
-            newBullet.GetComponent<NetworkObject>().Spawn();
-        }
+        //    newBullet.GetComponent<NetworkObject>().Spawn();
+        //}
     }
 }

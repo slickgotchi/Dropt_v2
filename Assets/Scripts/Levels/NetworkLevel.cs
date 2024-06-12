@@ -25,7 +25,8 @@ public class NetworkLevel : NetworkBehaviour
             CreatePlayerSpawnPoints();
             CreateSubLevels();
 
-            Debug.Log("Level Created on Server");
+            // level spawned, decrease spawning count
+            LevelManager.Instance.DecrementLevelSpawningCount();
         }
 
         // if we're the client, we need to clean up the spawner objects not required client side
@@ -56,8 +57,6 @@ public class NetworkLevel : NetworkBehaviour
             }
         }
 
-        // rebuild the nav mesh
-        NavigationSurfaceSingleton.Instance.Surface.BuildNavMesh();
     }
 
     public override void OnNetworkDespawn()
@@ -363,6 +362,7 @@ public class NetworkLevel : NetworkBehaviour
     private void CreatePlayerSpawnPoints()
     {
         var no_playerSpawnPointsList = new List<PlayerSpawnPoints>(GetComponentsInChildren<PlayerSpawnPoints>());
+        if (no_playerSpawnPointsList.Count <= 0) return;
 
         foreach (var no_playerSpawnPoints in no_playerSpawnPointsList)
         {
@@ -426,7 +426,6 @@ public class NetworkLevel : NetworkBehaviour
             var randValue = UnityEngine.Random.Range(0, 1f);
             foreach (var subLevel in subLevelSpawner.SubLevels)
             {
-                Debug.Log(subLevel.SubLevelPrefab.name + " spawnChance: " + subLevel.SpawnChance + ", randValue: " + randValue);
                 if (randValue < subLevel.SpawnChance)
                 {
                     subLevelPrefab = subLevel.SubLevelPrefab;
@@ -439,6 +438,8 @@ public class NetworkLevel : NetworkBehaviour
 
             if (subLevelPrefab != null)
             {
+                LevelManager.Instance.IncrementLevelSpawningCount();
+
                 var newSubLevel = Instantiate(subLevelPrefab);
                 newSubLevel.GetComponent<NetworkObject>().Spawn();
             }

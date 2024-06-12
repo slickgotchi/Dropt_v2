@@ -28,6 +28,7 @@ public class PlayerGotchi : NetworkBehaviour
     private Camera m_camera;
     private CinemachineVirtualCamera m_virtualCamera;
     private Vector3 m_spawnPoint;
+    private Vector3 m_preSpawnPoint;
 
     private void Awake()
     {
@@ -66,21 +67,24 @@ public class PlayerGotchi : NetworkBehaviour
         BodySprite.transform.rotation = Quaternion.Euler(new Vector3(0, 0, m_rotation));
     }
 
-    public void DropSpawn(Vector3 newSpawnPoint)
+    public void DropSpawn(Vector3 currentPosition, Vector3 newSpawnPoint)
     {
         if (!IsServer) return;
 
-        PlayDropAnimationClientRpc(newSpawnPoint);
+        PlayDropAnimationClientRpc(currentPosition, newSpawnPoint);
     }
 
     [Rpc(SendTo.ClientsAndHost)]
-    void PlayDropAnimationClientRpc(Vector3 spawnPoint)
+    void PlayDropAnimationClientRpc(Vector3 currentPosition, Vector3 spawnPoint)
     {
         if (!IsLocalPlayer) return;
+
+        m_virtualCamera.Follow = null;
 
         IsDropSpawning = true;
         animator.Play("Player_Drop");
         m_spawnPoint = spawnPoint;
+        m_preSpawnPoint = currentPosition;
     }
 
     public void AnimEvent_EndDropSpawn()
@@ -91,7 +95,7 @@ public class PlayerGotchi : NetworkBehaviour
 
         // make camera follow player and warp it to our new spawn point
         m_virtualCamera.Follow = transform;
-        m_virtualCamera.OnTargetObjectWarped(transform, m_spawnPoint);
+        m_virtualCamera.OnTargetObjectWarped(transform, m_spawnPoint-m_preSpawnPoint);
     }
 
     void UpdateDustParticles()
