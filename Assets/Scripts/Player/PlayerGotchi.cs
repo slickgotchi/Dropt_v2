@@ -1,7 +1,9 @@
+using Cinemachine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using TreeEditor;
 using Unity.Mathematics;
 using Unity.Netcode;
 using UnityEngine;
@@ -23,14 +25,18 @@ public class PlayerGotchi : NetworkBehaviour
     private float m_rotation;
     private Vector3 m_facingDirection;
     private bool m_isMoving;
+    private bool m_isDropSpawning;
 
     private LocalVelocity m_localVelocity;
+
+
 
     private void Awake()
     {
         animator = GetComponent<Animator>();
         playerMovement = GetComponent<PlayerMovementAndDash>();
         m_localVelocity = GetComponent<LocalVelocity>();
+
     }
 
     private void Update()
@@ -56,6 +62,25 @@ public class PlayerGotchi : NetworkBehaviour
         UpdateFacingFromMovement();
         UpdateDustParticles();
         BodySprite.transform.rotation = Quaternion.Euler(new Vector3(0, 0, m_rotation));
+    }
+
+    public void DropSpawn()
+    {
+        if (!IsServer) return;
+
+        m_isDropSpawning = true;
+        animator.Play("Player_Drop");
+    }
+
+    public bool IsDropSpawning()
+    {
+        return m_isDropSpawning;
+    }
+
+    public void AnimEvent_EndDropSpawn()
+    {
+        m_isDropSpawning = false;
+        GetComponent<PlayerCamera>().Shake(1.75f, 0.3f);
     }
 
     void UpdateDustParticles()
@@ -127,6 +152,8 @@ public class PlayerGotchi : NetworkBehaviour
 
     void UpdateGotchiAnim()
     {
+        if (m_isDropSpawning) return;
+
         if (m_isMoving)
         {
             //if (!IsAnimationPlaying("Player_Move"))

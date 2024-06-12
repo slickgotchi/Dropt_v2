@@ -118,12 +118,6 @@ public class PlayerMovementAndDash : NetworkBehaviour
         m_remoteClientTickDelta = 0;
 
         lastServerStateArray = new List<StatePayload>();
-
-        //Debug.Log("IsHost: " + IsHost);
-        //Debug.Log("IsServer: " + IsServer);
-        //Debug.Log("IsClient: " + IsClient);
-        //Debug.Log("IsLocalPlayer: " + IsLocalPlayer);
-        //Debug.Log("IsOwner: " + IsOwner);
     }
 
 
@@ -148,6 +142,11 @@ public class PlayerMovementAndDash : NetworkBehaviour
         // update debug circles if attached
         if (m_serverCircle != null) m_serverCircle.transform.position = lastServerState.position;
         if (m_clientCircle != null) m_clientCircle.transform.position = transform.position;
+
+        // IMPORTANT: need to keep rigid body position synced for collision interactions
+        // NOTE: OnTriggerEnter/Exit etc. won't work as expected when interacting with the player
+        // so we must do overlap checks instead
+        rb.position = lastServerState.position;
     }
 
     // 1. See if time to do a tick
@@ -173,7 +172,7 @@ public class PlayerMovementAndDash : NetworkBehaviour
         {
             tick = currentTick,
             networkObjectId = NetworkObjectId,
-            moveDirection = m_moveVector,
+            moveDirection = GetComponent<PlayerGotchi>().IsDropSpawning() ? Vector3.zero : m_moveVector,
             actionDirection = m_actionDirection,
             isDash = m_isDash,
         };
@@ -250,9 +249,7 @@ public class PlayerMovementAndDash : NetworkBehaviour
         // check for dash
         if (input.isDash)
         {
-            //transform.position += input.actionDirection * 3.5f;
             transform.position = DashCalcs.Dash(GetComponent<CapsuleCollider2D>(), transform.position, input.actionDirection, 3.5f);
-
         }
 
         // set velocity
@@ -268,6 +265,7 @@ public class PlayerMovementAndDash : NetworkBehaviour
             simulationTime -= Time.fixedDeltaTime;
         }
         rb.velocity = Vector3.zero;
+        rb.position = transform.position;   // CHECK THIS
 
         Physics2D.simulationMode = SimulationMode2D.FixedUpdate;
 

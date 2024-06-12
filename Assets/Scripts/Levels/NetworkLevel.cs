@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.Mathematics;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class NetworkLevel : NetworkBehaviour
 {
@@ -367,13 +368,22 @@ public class NetworkLevel : NetworkBehaviour
             Debug.Log("Warning: Less than 3 player spawn points are available, some players might spawn at (0,0,0)");
         }
 
-        // move players to spawn locations
+        // move players to spawn locations and play spawn anims
         var players = FindObjectsByType<PlayerMovementAndDash>(FindObjectsSortMode.None);
         foreach (var player in players)
         {
-            var randIndex = UnityEngine.Random.Range(0, spawnPoints.Count);
-            //player.SetPlayerPosition(spawnPoints[randIndex]);
-            spawnPoints.RemoveAt(randIndex);
+            // cacl a spawn point
+            Vector3 spawnPoint = Vector3.zero;
+            if (spawnPoints.Count > 0)
+            {
+                var randIndex = UnityEngine.Random.Range(0, spawnPoints.Count);
+                spawnPoint = spawnPoints[randIndex];
+                spawnPoints.RemoveAt(randIndex);
+            }
+
+            // set player position and drop spawn
+            player.SetPlayerPosition(spawnPoint);
+            player.gameObject.GetComponent<PlayerGotchi>().DropSpawn();
         }
 
         // destroy the spawn points list
