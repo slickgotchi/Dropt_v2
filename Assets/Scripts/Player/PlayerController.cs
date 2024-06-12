@@ -85,8 +85,10 @@ public class PlayerController : NetworkBehaviour
         if (IsServer && isTryToSpawn && !isSpawned && 
             LevelManager.Instance != null && LevelManager.Instance.IsLevelCreated())
         {
-            var spawnPoint = LevelManager.Instance.GetPlayerSpawnPoint();
+            var spawnPoint = LevelManager.Instance.PopPlayerSpawnPoint();
+            Debug.Log("Spawn player at: " + spawnPoint);
             var currentPosition = transform.position;
+
             GetComponent<PlayerMovementAndDash>().SetPlayerPosition(spawnPoint);
             GetComponent<PlayerGotchi>().DropSpawn(currentPosition, spawnPoint);
             isSpawned = true;

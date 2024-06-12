@@ -19,10 +19,16 @@ public class NetworkLevel : NetworkBehaviour
     {
         if (IsServer)
         {
+            // if on first level layer, ensure spawn points list is clear
+            if (LevelManager.Instance.GetLevelSpawningCount() == 1)
+            {
+                m_availablePlayerSpawnPoints.Clear();
+            }
+
             CreateSunkenFloors();
             CreateApeDoors();
             CreateNetworkObjectSpawners();
-            CreatePlayerSpawnPoints();
+            //CreatePlayerSpawnPoints();
             CreateSubLevels();
 
             // level spawned, decrease spawning count
@@ -363,6 +369,9 @@ public class NetworkLevel : NetworkBehaviour
     {
         var no_playerSpawnPointsList = new List<PlayerSpawnPoints>(GetComponentsInChildren<PlayerSpawnPoints>());
         if (no_playerSpawnPointsList.Count <= 0) return;
+
+        // we have spawn points so clear the old list
+        m_availablePlayerSpawnPoints.Clear();
 
         foreach (var no_playerSpawnPoints in no_playerSpawnPointsList)
         {

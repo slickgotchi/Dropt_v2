@@ -275,9 +275,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_levels:
   - {fileID: 2479902876975221149, guid: f8cb680e78d99534e844175de5f87d8e, type: 3}
-  - {fileID: 4017412747892297407, guid: 0b7b233a57cb94846bbf8f3684467501, type: 3}
-  LevelSpawningCount: 0
-  isBuildNavMeshOnLevelSpawnsComplete: 0
+  - {fileID: 1715501763463981955, guid: 9ff2a301c3bc61e4981d9590ac7f4654, type: 3}
 --- !u!114 &357314520
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -823,6 +821,37 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   World: {fileID: 0}
+--- !u!1 &1283829391
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1283829392}
+  m_Layer: 0
+  m_Name: --------------------------------- (3)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1283829392
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1283829391}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.019850813, y: 0.58466554, z: -0.0012366568}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1357887918
 GameObject:
   m_ObjectHideFlags: 0
@@ -1415,7 +1444,6 @@ SceneRoots:
   m_Roots:
   - {fileID: 1192552590}
   - {fileID: 2101386273}
-  - {fileID: 357314518}
   - {fileID: 1550672856}
   - {fileID: 771002294}
   - {fileID: 987970765}
@@ -1427,3 +1455,5 @@ SceneRoots:
   - {fileID: 1032223830}
   - {fileID: 1357887920}
   - {fileID: 1048149777}
+  - {fileID: 1283829392}
+  - {fileID: 357314518}

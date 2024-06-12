@@ -15,8 +15,11 @@ public class LevelManager : NetworkBehaviour
 
 
     // variables to keep track of spawning levels
-    private int LevelSpawningCount = 0;
+    private int m_levelSpawningCount = 0;
     private bool isBuildNavMeshOnLevelSpawnsComplete = false;    // when no levels spawing we can build nav mesh
+
+    // variable for player spawning
+    private List<Vector3> m_playerSpawnPoints = new List<Vector3>();
 
     private void Awake()
     {
@@ -25,12 +28,17 @@ public class LevelManager : NetworkBehaviour
 
     public void IncrementLevelSpawningCount()
     {
-        LevelSpawningCount++;
+        m_levelSpawningCount++;
     }
 
     public void DecrementLevelSpawningCount()
     {
-        LevelSpawningCount--;
+        m_levelSpawningCount--;
+    }
+
+    public int GetLevelSpawningCount()
+    {
+        return m_levelSpawningCount;
     }
 
     // Start is called before the first frame update
@@ -74,20 +82,30 @@ public class LevelManager : NetworkBehaviour
     {
         // increment the spawning level counter and start watching this number so we can build nav mesh once it goes
         // back to zero
-        LevelSpawningCount++;
+        m_levelSpawningCount++;
         isBuildNavMeshOnLevelSpawnsComplete = true;
 
         // spawn the level
         m_currentLevel = Instantiate(m_levels[index]);
         m_currentLevel.GetComponent<NetworkObject>().Spawn();
         m_currentLevelIndex = index;
+
+        // set our available spawn points
+        var no_playerSpawnPoints = m_currentLevel.GetComponentInChildren<PlayerSpawnPoints>();
+        m_playerSpawnPoints.Clear();
+        for (int i = 0; i < no_playerSpawnPoints.transform.childCount; i++)
+        {
+            var spawnPoint = no_playerSpawnPoints.transform.GetChild(i).position;
+            m_playerSpawnPoints.Add(spawnPoint);
+            Debug.Log("Add spawn point: " + spawnPoint);
+        }
     }
 
     private void Update()
     {
         if (!IsServer) return;
 
-        if (isBuildNavMeshOnLevelSpawnsComplete && LevelSpawningCount <= 0)
+        if (isBuildNavMeshOnLevelSpawnsComplete && m_levelSpawningCount <= 0)
         {
             isBuildNavMeshOnLevelSpawnsComplete = false;
             NavigationSurfaceSingleton.Instance.Surface.BuildNavMesh();
@@ -119,18 +137,36 @@ public class LevelManager : NetworkBehaviour
 
     public bool IsLevelCreated()
     {
-        return m_currentLevel.GetComponent<NetworkLevel>() != null;
+        return m_currentLevel.GetComponent<NetworkLevel>() != null && m_levelSpawningCount <= 0;
     }
 
-    public Vector3 GetPlayerSpawnPoint()
+
+    public Vector3 PopPlayerSpawnPoint()
     {
-        var networkLevel = m_currentLevel.GetComponent<NetworkLevel>();
-        if (networkLevel == null)
+        Vector3 spawnPoint = Vector3.zero;
+        if (m_playerSpawnPoints.Count > 0)
         {
-            Debug.Log("Error: Current level has no NetworkLevel component");
-            return Vector3.zero;
+            var randIndex = UnityEngine.Random.Range(0, m_playerSpawnPoints.Count);
+            spawnPoint = m_playerSpawnPoints[randIndex];
+            m_playerSpawnPoints.RemoveAt(randIndex);
+        }
+        else
+        {
+            Debug.Log("NetworkLevel: Ran out of spawn points! Returning Vector3.zero");
         }
 
-        return m_currentLevel.GetComponent<NetworkLevel>().PopPlayerSpawnPoint();
+        return spawnPoint;
     }
+
+    //public Vector3 GetPlayerSpawnPoint()
+    //{
+    //    var networkLevel = m_currentLevel.GetComponent<NetworkLevel>();
+    //    if (networkLevel == null)
+    //    {
+    //        Debug.Log("Error: Current level has no NetworkLevel component");
+    //        return Vector3.zero;
+    //    }
+
+    //    return m_currentLevel.GetComponent<NetworkLevel>().PopPlayerSpawnPoint();
+    //}
 }

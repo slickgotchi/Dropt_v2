@@ -287,6 +287,8 @@ public class PlayerMovementAndDash : NetworkBehaviour
 
     public void SetPlayerPosition(Vector3 position)
     {
+        if (!IsServer) return;
+
         var bufferIndex = timer.CurrentTick % k_bufferSize;
         var newState = new StatePayload
         {
