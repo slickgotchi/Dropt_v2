@@ -17,10 +17,14 @@ public class ActionTask_Pursue : ActionTask
 
     protected override UpdateStatus OnUpdate(float deltaTime)
     {
-        // this should only run server side (because we only add NavMeshAgent to server spawns)
+        // ensure we still have a valid context and target
+        if (Context == null || Context.Target == null) return UpdateStatus.Running;
+
+        // Note: this should only run server side (because we remove NavMeshAgent from our client side players)
         var navMeshAgent = GameObject.GetComponent<NavMeshAgent>();
         if (navMeshAgent == null) return UpdateStatus.Running;
 
+        // try get target
         var target = Context.Target.GetComponent<Transform>();
         if (!target) return UpdateStatus.Running;
 

@@ -1,9 +1,3 @@
-using Cinemachine;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using TreeEditor;
 using Unity.Mathematics;
 using Unity.Netcode;
 using UnityEngine;
@@ -36,7 +30,6 @@ public class PlayerGotchi : NetworkBehaviour
         animator = GetComponent<Animator>();
         playerMovement = GetComponent<PlayerMovementAndDash>();
         m_localVelocity = GetComponent<LocalVelocity>();
-
     }
 
     private void Update()
@@ -80,6 +73,7 @@ public class PlayerGotchi : NetworkBehaviour
     public void AnimEvent_EndDropSpawn()
     {
         m_isDropSpawning = false;
+
         GetComponent<PlayerCamera>().Shake(1.75f, 0.3f);
     }
 

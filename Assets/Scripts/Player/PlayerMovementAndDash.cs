@@ -146,7 +146,10 @@ public class PlayerMovementAndDash : NetworkBehaviour
         // IMPORTANT: need to keep rigid body position synced for collision interactions
         // NOTE: OnTriggerEnter/Exit etc. won't work as expected when interacting with the player
         // so we must do overlap checks instead
-        rb.position = lastServerState.position;
+        if (IsHost)
+        {
+            rb.position = lastServerState.position;
+        }
     }
 
     // 1. See if time to do a tick

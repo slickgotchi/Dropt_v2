@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7403398764017302948}
   - component: {fileID: 206112587050931102}
   - component: {fileID: 7677156213047648826}
-  m_Layer: 11
+  m_Layer: 14
   m_Name: ApeDoorButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -101,7 +101,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1307267662
+  GlobalObjectIdHash: 3665818254
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -122,8 +122,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0dd2697e14e3ed5499ffa6412e404412, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ApeDoorType: 0
-  ButtonState: 0
+  Type:
+    m_InternalValue: 0
+  State:
+    m_InternalValue: 0
   CrescentUp: {fileID: 4562486988586407675, guid: 6e1ddf02229864b60b1be0857b580e76, type: 3}
   CrescentDown: {fileID: 7274387575579673352, guid: 6e1ddf02229864b60b1be0857b580e76, type: 3}
   TriangleUp: {fileID: 3893754365894745733, guid: 6e1ddf02229864b60b1be0857b580e76, type: 3}

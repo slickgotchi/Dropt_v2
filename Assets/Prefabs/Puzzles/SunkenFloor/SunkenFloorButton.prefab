@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 8972470392597354838}
   - component: {fileID: 699287668439464412}
   - component: {fileID: -2442978027422339809}
-  m_Layer: 11
+  m_Layer: 14
   m_Name: SunkenFloorButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -76,7 +76,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -317176571
-  m_SortingLayer: -3
+  m_SortingLayer: -2
   m_SortingOrder: 0
   m_Sprite: {fileID: 9204166473726817061, guid: 6e1ddf02229864b60b1be0857b580e76, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -122,8 +122,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b5a9bef190387c4b9b4a9d4e96b72bd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SunkenFloorType: 0
-  IsPressedDown: 0
+  Type:
+    m_InternalValue: 0
+  State:
+    m_InternalValue: 0
   DropletUp: {fileID: 9204166473726817061, guid: 6e1ddf02229864b60b1be0857b580e76, type: 3}
   DropletDown: {fileID: 6182008410383214034, guid: 6e1ddf02229864b60b1be0857b580e76, type: 3}
   SwirlUp: {fileID: 5418755163777043901, guid: 6e1ddf02229864b60b1be0857b580e76, type: 3}

@@ -46,6 +46,10 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
+    public override void OnNetworkDespawn()
+    {
+    }
+
     [ServerRpc]
     void PingServerRpc(float elapsedTime)
     {
