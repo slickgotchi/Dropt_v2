@@ -38,8 +38,6 @@ public class PlayerGotchi : NetworkBehaviour
 
         m_camera = GetComponentInChildren<Camera>();
         m_virtualCamera = GetComponentInChildren<CinemachineVirtualCamera>();
-
-        m_virtualCamera.Follow = null;
     }
 
     private void Update()

@@ -16,11 +16,6 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] CinemachineVirtualCamera playerCamera;
     [SerializeField] AudioListener playerAudioListener;
 
-
-
-    [HideInInspector] public bool isTryToSpawn = false;
-    [HideInInspector] public bool isSpawned = false;
-
     [SerializeField] TextMeshProUGUI m_positionText;
 
     public override void OnNetworkSpawn()
@@ -39,43 +34,54 @@ public class PlayerController : NetworkBehaviour
             PingServerRpc(Time.time);
         }
 
-        // set the player to an available spawn point
-        TryGetNewSpawnPoint();
     }
 
-    public void TryGetNewSpawnPoint()
+
+    public void StartTransition()
     {
         if (!IsServer) return;
-
-        isTryToSpawn = true;
-        isSpawned = false;
-    }
-
-    public override void OnNetworkDespawn()
-    {
-
     }
 
     private void Update()
     {
-        if (IsServer && isTryToSpawn && !isSpawned && 
-            LevelManager.Instance != null && LevelManager.Instance.IsLevelCreated())
-        {
-            var spawnPoint = LevelManager.Instance.PopPlayerSpawnPoint();
-            Debug.Log("Spawn player at: " + spawnPoint);
-            var currentPosition = transform.position;
-
-            GetComponent<PlayerMovementAndDash>().SetPlayerPosition(spawnPoint);
-            GetComponent<PlayerGotchi>().DropSpawn(currentPosition, spawnPoint);
-            isSpawned = true;
-            isTryToSpawn = false;
-        }
-
         if (IsLocalPlayer)
         {
             // update position text
             var pos = transform.position;
-            m_positionText.text = $"({pos.x.ToString("F2")}, {pos.y.ToString("F2")})";
+            //m_positionText.text = $"({pos.x.ToString("F2")}, {pos.y.ToString("F2")})";
+
+            HandleLevelManagerState();
+        }
+    }
+
+    private LevelManager.TransitionState m_localTransition = LevelManager.TransitionState.Null;
+
+    void HandleLevelManagerState()
+    {
+        if (!IsLocalPlayer) return;
+
+        LevelManager.TransitionState state = LevelManager.Instance.State.Value;
+
+        if (state == LevelManager.TransitionState.Start ||
+            state == LevelManager.TransitionState.ClientHeadsUp || 
+            state == LevelManager.TransitionState.GoToNext)
+        {
+            if (m_localTransition != LevelManager.TransitionState.ClientHeadsUp)
+            {
+                m_localTransition = LevelManager.TransitionState.ClientHeadsUp;
+                LoadingCanvas.Instance.Animator.Play("LoadingCanvas_WipeIn");
+            }
+        }
+
+        if (state == LevelManager.TransitionState.ClientHeadsDown ||
+            state == LevelManager.TransitionState.End ||
+            state == LevelManager.TransitionState.Null)
+        {
+            if (m_localTransition == LevelManager.TransitionState.ClientHeadsUp)
+            {
+                m_localTransition = LevelManager.TransitionState.Null;
+                LoadingCanvas.Instance.Animator.Play("LoadingCanvas_WipeOut");
+            }
         }
     }
 
