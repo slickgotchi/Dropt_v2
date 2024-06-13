@@ -26,7 +26,7 @@ public class ActionTask_Pursue : ActionTask
 
         // try get target
         var target = Context.Target.GetComponent<Transform>();
-        if (!target) return UpdateStatus.Running;
+        if (target == null) return UpdateStatus.Running;
 
         var self = navMeshAgent.transform;
 

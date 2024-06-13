@@ -15,7 +15,7 @@ public class LevelManager : NetworkBehaviour
 
 
     // variables to keep track of spawning levels
-    private int m_levelSpawningCount = 0;
+    [HideInInspector] public int LevelSpawningCount = 0;
     private bool isBuildNavMeshOnLevelSpawnsComplete = false;    // when no levels spawing we can build nav mesh
 
     // variable for player spawning
@@ -24,21 +24,6 @@ public class LevelManager : NetworkBehaviour
     private void Awake()
     {
         Instance = this;
-    }
-
-    public void IncrementLevelSpawningCount()
-    {
-        m_levelSpawningCount++;
-    }
-
-    public void DecrementLevelSpawningCount()
-    {
-        m_levelSpawningCount--;
-    }
-
-    public int GetLevelSpawningCount()
-    {
-        return m_levelSpawningCount;
     }
 
     // Start is called before the first frame update
@@ -80,9 +65,9 @@ public class LevelManager : NetworkBehaviour
 
     private void CreateLevel(int index = 0)
     {
-        // increment the spawning level counter and start watching this number so we can build nav mesh once it goes
-        // back to zero
-        m_levelSpawningCount++;
+        // increment the spawning level counter and start watching this number so we can
+        // build nav mesh once it goes back to zero
+        LevelSpawningCount++;
         isBuildNavMeshOnLevelSpawnsComplete = true;
 
         // spawn the level
@@ -97,7 +82,7 @@ public class LevelManager : NetworkBehaviour
         {
             var spawnPoint = no_playerSpawnPoints.transform.GetChild(i).position;
             m_playerSpawnPoints.Add(spawnPoint);
-            Debug.Log("Add spawn point: " + spawnPoint);
+            //Debug.Log("Add spawn point: " + spawnPoint);
         }
     }
 
@@ -105,12 +90,25 @@ public class LevelManager : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        if (isBuildNavMeshOnLevelSpawnsComplete && m_levelSpawningCount <= 0)
+        if (isBuildNextFrame && !isNavMeshBuilt)
+        {
+            NavigationSurfaceSingleton.Instance.Surface.BuildNavMesh();
+            isNavMeshBuilt = true;
+        }
+
+        // this code ensures we only build a navmesh once level is finished loading
+        if (isBuildNavMeshOnLevelSpawnsComplete && LevelSpawningCount <= 0)
         {
             isBuildNavMeshOnLevelSpawnsComplete = false;
-            NavigationSurfaceSingleton.Instance.Surface.BuildNavMesh();
+            isBuildNextFrame = true;
+            isNavMeshBuilt = false;
         }
+
     }
+
+    bool isBuildNextFrame = false;
+    bool isNavMeshBuilt = false;
+
 
     public void GoToNextLevel()
     {
@@ -137,7 +135,7 @@ public class LevelManager : NetworkBehaviour
 
     public bool IsLevelCreated()
     {
-        return m_currentLevel.GetComponent<NetworkLevel>() != null && m_levelSpawningCount <= 0;
+        return m_currentLevel.GetComponent<NetworkLevel>() != null && LevelSpawningCount <= 0;
     }
 
 

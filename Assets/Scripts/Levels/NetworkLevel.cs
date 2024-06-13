@@ -20,7 +20,7 @@ public class NetworkLevel : NetworkBehaviour
         if (IsServer)
         {
             // if on first level layer, ensure spawn points list is clear
-            if (LevelManager.Instance.GetLevelSpawningCount() == 1)
+            if (LevelManager.Instance.LevelSpawningCount == 1)
             {
                 m_availablePlayerSpawnPoints.Clear();
             }
@@ -32,7 +32,7 @@ public class NetworkLevel : NetworkBehaviour
             CreateSubLevels();
 
             // level spawned, decrease spawning count
-            LevelManager.Instance.DecrementLevelSpawningCount();
+            LevelManager.Instance.LevelSpawningCount--;
         }
 
         // if we're the client, we need to clean up the spawner objects not required client side
@@ -447,7 +447,7 @@ public class NetworkLevel : NetworkBehaviour
 
             if (subLevelPrefab != null)
             {
-                LevelManager.Instance.IncrementLevelSpawningCount();
+                LevelManager.Instance.LevelSpawningCount++;
 
                 var newSubLevel = Instantiate(subLevelPrefab);
                 newSubLevel.GetComponent<NetworkObject>().Spawn();

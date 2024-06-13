@@ -37,6 +37,9 @@ public class PlayerMovementAndDash : NetworkBehaviour
     CircularBuffer<StatePayload> serverStateBuffer;
     Queue<InputPayload> serverInputQueue;
 
+    // SetPlayerPosition code
+    private bool m_isSetPlayerPosition = false;
+    private Vector3 m_setPlayerPosition = Vector3.zero;
 
     [Header("Netcode")]
     [SerializeField] GameObject m_clientCircle;
@@ -289,15 +292,8 @@ public class PlayerMovementAndDash : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        var bufferIndex = timer.CurrentTick % k_bufferSize;
-        var newState = new StatePayload
-        {
-            tick = timer.CurrentTick,
-            position = position,
-            velocity = Vector3.zero,
-        };
-        serverStateBuffer.Add(newState, bufferIndex);
-        SendToClientRpc(newState);
+        m_isSetPlayerPosition = true;
+        m_setPlayerPosition = position;
     }
 
     void HandleServerTick()
@@ -315,11 +311,15 @@ public class PlayerMovementAndDash : NetworkBehaviour
             bufferIndex = inputPayload.tick % k_bufferSize;
 
             statePayload = ProcessMovement(inputPayload);
+            if (m_isSetPlayerPosition) statePayload.position = m_setPlayerPosition;
             serverStateBuffer.Add(statePayload, bufferIndex);
 
             // tell client the last state we have as a server
             SendToClientRpc(statePayload);
         }
+
+        // reset state of setting player position
+        m_isSetPlayerPosition = false;
     }
 
     // this function executed on CLIENT

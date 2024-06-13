@@ -10,7 +10,7 @@ public class DebugColliderVisualizer : MonoBehaviour
             return;
 
         // Get all Collider2D components in the scene
-        Collider2D[] colliders = FindObjectsOfType<Collider2D>();
+        Collider2D[] colliders = FindObjectsByType<Collider2D>(FindObjectsSortMode.None);
 
         foreach (Collider2D collider in colliders)
         {
