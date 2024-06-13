@@ -62,6 +62,18 @@ public class PlayerMovementAndDash : NetworkBehaviour
         rb = GetComponent<Rigidbody2D>();
     }
 
+    private void Start()
+    {
+        // transform.position is the intitial position given to us by the ConnectionApprovalHandler
+        // thus we need to set all states to this position to start with
+        StatePayload startState = new StatePayload { position = transform.position };
+        for (int i = 0; i < k_bufferSize; i++)
+        {
+            serverStateBuffer.Add(startState, i);
+            clientStateBuffer.Add(startState, i);
+        }
+    }
+
     private void OnMovement(InputValue value)
     {
         if (!IsLocalPlayer) return;
