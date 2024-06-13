@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEditor;
 
-public class ClearTilemap : MonoBehaviour
+public class ClearTilemap
 {
     [MenuItem("Tools/Clear All Tiles")]
     private static void ClearAllTiles()
