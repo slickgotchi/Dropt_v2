@@ -2,7 +2,7 @@ public static class SecureParameters
 {
     // Use the common name you used to create the server certificate.
     public static readonly string ServerCommonName = "web.playdropt.io";
-
+#if CLIENT
     public static readonly string ClientCA =
         @"-----BEGIN CERTIFICATE-----
 MIIFFjCCAv6gAwIBAgIRAJErCErPDBinU/bWLiWnX1owDQYJKoZIhvcNAQELBQAw
@@ -34,8 +34,13 @@ HlUjr8gRsI3qfJOQFy/9rKIJR0Y/8Omwt/8oTWgy1mdeHmmjk7j1nYsvC9JSQ6Zv
 MldlTTKB3zhThV1+XWYp6rjd5JW1zbVWEkLNxE7GJThEUG3szgBVGP7pSWTUTsqX
 nLRbwHOoq7hHwg==
 -----END CERTIFICATE-----";
+    public static readonly string ServerCertificate = "";
+    public static readonly string ServerPrivateKey = "";
 
-            public static readonly string ServerCertificate =
+#else
+    public static readonly string ClientCA = "";
+
+    public static readonly string ServerCertificate =
         @"-----BEGIN CERTIFICATE-----
 MIIE7jCCA9agAwIBAgISA9+AFWAo3ShdbbfroBWi6AHtMA0GCSqGSIb3DQEBCwUA
 MDIxCzAJBgNVBAYTAlVTMRYwFAYDVQQKEw1MZXQncyBFbmNyeXB0MQswCQYDVQQD
@@ -95,4 +100,5 @@ PNRtHsPWQt7aQK4YYekIevV6tQYo1pn3a2hOYOg378jzl1PY3xH/VDYwPjgqmxr0
 6T5dBiQ8fuFmd/Vfmw+nafurwvho2Kx2RwDCHiu69YDKIZGG64qYfPi+ec/EydfO
 fnzOgAGQLnRvQRKWPncdJ33V
 -----END PRIVATE KEY-----";
+#endif
 }

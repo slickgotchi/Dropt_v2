@@ -20,8 +20,16 @@ public class Game : MonoBehaviour
             transport.UseEncryption = true;
 
             transport.SetConnectionData("178.128.22.77", 8484, "0.0.0.0");
-            transport.SetServerSecrets(SecureParameters.ServerCertificate, SecureParameters.ServerPrivateKey);
-            transport.SetClientSecrets(SecureParameters.ServerCommonName, SecureParameters.ClientCA);
+
+            if (Bootstrap.IsServer() || Bootstrap.IsHost())
+            {
+                transport.SetServerSecrets(SecureParameters.ServerCertificate, SecureParameters.ServerPrivateKey);
+            } 
+            
+            if (Bootstrap.IsClient() || Bootstrap.IsHost())
+            {
+                transport.SetClientSecrets(SecureParameters.ServerCommonName, SecureParameters.ClientCA);
+            }
         }
 
         else
