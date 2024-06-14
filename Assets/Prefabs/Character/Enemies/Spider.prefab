@@ -27,7 +27,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 0.5, z: 1}
+  m_LocalScale: {x: 0.5, y: 0.25, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 551280027139294499}
@@ -101,10 +101,11 @@ GameObject:
   - component: {fileID: -380767433246003270}
   - component: {fileID: 5418888167313772409}
   - component: {fileID: 6692319684208491026}
-  - component: {fileID: -2943007521765018699}
-  - component: {fileID: 4856163328072215160}
+  - component: {fileID: -2760814812408020241}
+  - component: {fileID: 2655677576660431681}
+  - component: {fileID: 3330986741626919136}
   m_Layer: 0
-  m_Name: SentryBot
+  m_Name: Spider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -139,7 +140,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1780407932
+  GlobalObjectIdHash: 304405713
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -220,7 +221,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SpriteToFlip: {fileID: 361146906994616670}
---- !u!114 &-2943007521765018699
+--- !u!114 &-2760814812408020241
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -235,7 +236,7 @@ MonoBehaviour:
   Value: {x: 0, y: 0, z: 0}
   IsMoving: 0
   LastNonZeroVelocity: {x: 0, y: 0, z: 0}
---- !u!114 &4856163328072215160
+--- !u!114 &2655677576660431681
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -266,6 +267,44 @@ MonoBehaviour:
   InLocalSpace: 0
   Interpolate: 1
   SlerpPosition: 0
+--- !u!114 &3330986741626919136
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6494b87727298314987516d4f17c6c93, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  HpMax:
+    m_InternalValue: 100
+  HpCurrent:
+    m_InternalValue: 100
+  HpBuffer:
+    m_InternalValue: 0
+  AttackPower:
+    m_InternalValue: 10
+  CriticalChance:
+    m_InternalValue: 0.1
+  ApMax:
+    m_InternalValue: 50
+  ApCurrent:
+    m_InternalValue: 50
+  ApBuffer:
+    m_InternalValue: 0
+  DoubleStrikeChance:
+    m_InternalValue: 0.05
+  CriticalStrikeDamage:
+    m_InternalValue: 1.5
+  MoveSpeed:
+    m_InternalValue: 6.22
+  Accuracy:
+    m_InternalValue: 1
+  Evasion:
+    m_InternalValue: 0
 --- !u!1 &6525230415705073668
 GameObject:
   m_ObjectHideFlags: 0
@@ -341,7 +380,7 @@ SpriteRenderer:
   m_SortingLayerID: 133809489
   m_SortingLayer: -1
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: f4a09ee5255de8943a637a460d68e25e, type: 3}
+  m_Sprite: {fileID: 1631665397471573146, guid: 600e61786f9002e48bb35dcb72eb35f6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

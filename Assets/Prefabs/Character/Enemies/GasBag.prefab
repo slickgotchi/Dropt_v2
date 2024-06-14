@@ -101,10 +101,11 @@ GameObject:
   - component: {fileID: -380767433246003270}
   - component: {fileID: 5418888167313772409}
   - component: {fileID: 6692319684208491026}
-  - component: {fileID: -3084451019736064510}
-  - component: {fileID: -5422921411863056728}
+  - component: {fileID: 530065517229923345}
+  - component: {fileID: 3230493777976678966}
+  - component: {fileID: -4071268660779327350}
   m_Layer: 0
-  m_Name: BombSnail
+  m_Name: GasBag
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -139,7 +140,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2500555884
+  GlobalObjectIdHash: 4139050077
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -220,7 +221,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SpriteToFlip: {fileID: 361146906994616670}
---- !u!114 &-3084451019736064510
+--- !u!114 &530065517229923345
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -235,7 +236,7 @@ MonoBehaviour:
   Value: {x: 0, y: 0, z: 0}
   IsMoving: 0
   LastNonZeroVelocity: {x: 0, y: 0, z: 0}
---- !u!114 &-5422921411863056728
+--- !u!114 &3230493777976678966
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -266,6 +267,44 @@ MonoBehaviour:
   InLocalSpace: 0
   Interpolate: 1
   SlerpPosition: 0
+--- !u!114 &-4071268660779327350
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6494b87727298314987516d4f17c6c93, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  HpMax:
+    m_InternalValue: 100
+  HpCurrent:
+    m_InternalValue: 100
+  HpBuffer:
+    m_InternalValue: 0
+  AttackPower:
+    m_InternalValue: 10
+  CriticalChance:
+    m_InternalValue: 0.1
+  ApMax:
+    m_InternalValue: 50
+  ApCurrent:
+    m_InternalValue: 50
+  ApBuffer:
+    m_InternalValue: 0
+  DoubleStrikeChance:
+    m_InternalValue: 0.05
+  CriticalStrikeDamage:
+    m_InternalValue: 1.5
+  MoveSpeed:
+    m_InternalValue: 6.22
+  Accuracy:
+    m_InternalValue: 1
+  Evasion:
+    m_InternalValue: 0
 --- !u!1 &6525230415705073668
 GameObject:
   m_ObjectHideFlags: 0
@@ -341,7 +380,7 @@ SpriteRenderer:
   m_SortingLayerID: 133809489
   m_SortingLayer: -1
   m_SortingOrder: 0
-  m_Sprite: {fileID: 313177609166244355, guid: 6781598aa99cfcb4cbc24b4c0f3f02fd, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 16849f64aa8c9564fa144d0cb3db4356, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

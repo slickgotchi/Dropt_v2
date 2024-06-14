@@ -73,7 +73,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -1182511101
-  m_SortingLayer: -5
+  m_SortingLayer: -4
   m_SortingOrder: 0
   m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
   m_Color: {r: 0.07450981, g: 0.07450981, b: 0.07450981, a: 0.39215687}
@@ -101,10 +101,11 @@ GameObject:
   - component: {fileID: -380767433246003270}
   - component: {fileID: 5418888167313772409}
   - component: {fileID: 6692319684208491026}
-  - component: {fileID: 5346642218723636926}
-  - component: {fileID: -6426811319550223535}
+  - component: {fileID: 8783827161198051983}
+  - component: {fileID: 2595904190626173712}
+  - component: {fileID: -2311261184717311322}
   m_Layer: 0
-  m_Name: Snail
+  m_Name: FudSpirit
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -139,7 +140,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1218351389
+  GlobalObjectIdHash: 3112441056
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -170,7 +171,7 @@ Animator:
   m_GameObject: {fileID: 1249991746567512264}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 4133b2f33aeac1b469b33407460fea55, type: 2}
+  m_Controller: {fileID: 0}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -220,7 +221,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SpriteToFlip: {fileID: 361146906994616670}
---- !u!114 &5346642218723636926
+--- !u!114 &8783827161198051983
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -235,7 +236,7 @@ MonoBehaviour:
   Value: {x: 0, y: 0, z: 0}
   IsMoving: 0
   LastNonZeroVelocity: {x: 0, y: 0, z: 0}
---- !u!114 &-6426811319550223535
+--- !u!114 &2595904190626173712
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -250,13 +251,13 @@ MonoBehaviour:
   UseUnreliableDeltas: 0
   SyncPositionX: 1
   SyncPositionY: 1
-  SyncPositionZ: 0
-  SyncRotAngleX: 0
-  SyncRotAngleY: 0
+  SyncPositionZ: 1
+  SyncRotAngleX: 1
+  SyncRotAngleY: 1
   SyncRotAngleZ: 1
-  SyncScaleX: 0
-  SyncScaleY: 0
-  SyncScaleZ: 0
+  SyncScaleX: 1
+  SyncScaleY: 1
+  SyncScaleZ: 1
   PositionThreshold: 0.001
   RotAngleThreshold: 0.01
   ScaleThreshold: 0.01
@@ -266,6 +267,44 @@ MonoBehaviour:
   InLocalSpace: 0
   Interpolate: 1
   SlerpPosition: 0
+--- !u!114 &-2311261184717311322
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6494b87727298314987516d4f17c6c93, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  HpMax:
+    m_InternalValue: 100
+  HpCurrent:
+    m_InternalValue: 100
+  HpBuffer:
+    m_InternalValue: 0
+  AttackPower:
+    m_InternalValue: 10
+  CriticalChance:
+    m_InternalValue: 0.1
+  ApMax:
+    m_InternalValue: 50
+  ApCurrent:
+    m_InternalValue: 50
+  ApBuffer:
+    m_InternalValue: 0
+  DoubleStrikeChance:
+    m_InternalValue: 0.05
+  CriticalStrikeDamage:
+    m_InternalValue: 1.5
+  MoveSpeed:
+    m_InternalValue: 6.22
+  Accuracy:
+    m_InternalValue: 1
+  Evasion:
+    m_InternalValue: 0
 --- !u!1 &6525230415705073668
 GameObject:
   m_ObjectHideFlags: 0
@@ -339,9 +378,9 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 133809489
-  m_SortingLayer: -2
+  m_SortingLayer: -1
   m_SortingOrder: 0
-  m_Sprite: {fileID: -9187523289668771099, guid: 27280fac04b006d4ebec4dd647b671ec, type: 3}
+  m_Sprite: {fileID: -147119152291819852, guid: d4adecac33d247f4cbcb7b3192808332, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

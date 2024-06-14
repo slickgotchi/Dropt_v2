@@ -18,7 +18,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &3908813926668223793
 RectTransform:
   m_ObjectHideFlags: 0
@@ -126,6 +126,7 @@ GameObject:
   - component: {fileID: 4878605696326581850}
   - component: {fileID: -66779552448143468}
   - component: {fileID: 2486501417752755360}
+  - component: {fileID: 4011541931376708870}
   m_Layer: 6
   m_Name: Player
   m_TagString: Untagged
@@ -271,8 +272,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerCamera: {fileID: 7691548839490841235}
   playerAudioListener: {fileID: 27307221334136136}
-  isTryToSpawn: 0
-  isSpawned: 0
   m_positionText: {fileID: 7164068991811045600}
 --- !u!114 &3992886838419682707
 MonoBehaviour:
@@ -435,6 +434,44 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b9e754e80175e5489f33f53e097480e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &4011541931376708870
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1519051571170098037}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6494b87727298314987516d4f17c6c93, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  HpMax:
+    m_InternalValue: 100
+  HpCurrent:
+    m_InternalValue: 100
+  HpBuffer:
+    m_InternalValue: 0
+  AttackPower:
+    m_InternalValue: 10
+  CriticalChance:
+    m_InternalValue: 0.1
+  ApMax:
+    m_InternalValue: 50
+  ApCurrent:
+    m_InternalValue: 50
+  ApBuffer:
+    m_InternalValue: 0
+  DoubleStrikeChance:
+    m_InternalValue: 0.05
+  CriticalStrikeDamage:
+    m_InternalValue: 1.5
+  MoveSpeed:
+    m_InternalValue: 6.22
+  Accuracy:
+    m_InternalValue: 1
+  Evasion:
+    m_InternalValue: 0
 --- !u!1 &2099523271220163082
 GameObject:
   m_ObjectHideFlags: 0
@@ -6055,7 +6092,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2859032198807436404
 Transform:
   m_ObjectHideFlags: 0

@@ -46,9 +46,12 @@ public class PlayerController : NetworkBehaviour
     {
         if (IsLocalPlayer)
         {
-            // update position text
-            var pos = transform.position;
-            //m_positionText.text = $"({pos.x.ToString("F2")}, {pos.y.ToString("F2")})";
+            if (m_positionText != null)
+            {
+                // update position text
+                var pos = transform.position;
+                m_positionText.text = $"({pos.x.ToString("F2")}, {pos.y.ToString("F2")})";
+            }
 
             HandleLevelManagerState();
         }
