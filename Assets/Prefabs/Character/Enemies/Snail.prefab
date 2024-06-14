@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 968608259130300221}
   - component: {fileID: 6504469520072649070}
-  m_Layer: 0
+  m_Layer: 15
   m_Name: Shadow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -104,7 +104,9 @@ GameObject:
   - component: {fileID: 5346642218723636926}
   - component: {fileID: -6426811319550223535}
   - component: {fileID: -1273593988190568045}
-  m_Layer: 0
+  - component: {fileID: 7690168732021353646}
+  - component: {fileID: 990222868014410655}
+  m_Layer: 15
   m_Name: Snail
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -142,7 +144,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   GlobalObjectIdHash: 1218351389
-  InScenePlacedSourceGlobalObjectIdHash: 0
+  InScenePlacedSourceGlobalObjectIdHash: 2137105859
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
   ActiveSceneSynchronization: 0
@@ -280,19 +282,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6494b87727298314987516d4f17c6c93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  initialHpMax: 100
-  initialHpCurrent: 100
-  initialHpBuffer: 0
-  initialAttackPower: 10
-  initialCriticalChance: 0.1
-  initialApMax: 0
-  initialApCurrent: 0
-  initialApBuffer: 0
-  initialDoubleStrikeChance: 0.05
-  initialCriticalStrikeDamage: 1.5
-  initialMoveSpeed: 6.22
-  initialAccuracy: 1
-  initialEvasion: 0
+  baseHpMax: 100
+  baseHpCurrent: 100
+  baseHpBuffer: 0
+  baseAttackPower: 10
+  baseCriticalChance: 0.1
+  baseApMax: 50
+  baseApCurrent: 50
+  baseApBuffer: 0
+  baseDoubleStrikeChance: 0.05
+  baseCriticalStrikeDamage: 1.5
+  baseMoveSpeed: 6.22
+  baseAccuracy: 1
+  baseEvasion: 0
   HpMax:
     m_InternalValue: 100
   HpCurrent:
@@ -311,14 +313,76 @@ MonoBehaviour:
     m_InternalValue: 0
   DoubleStrikeChance:
     m_InternalValue: 0.05
-  CriticalStrikeDamage:
-    m_InternalValue: 1.5
+  CriticalDamage:
+    m_InternalValue: 0
   MoveSpeed:
     m_InternalValue: 6.22
   Accuracy:
     m_InternalValue: 1
   Evasion:
     m_InternalValue: 0
+--- !u!61 &7690168732021353646
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0.3}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 1, y: 0.65}
+  m_EdgeRadius: 0
+--- !u!114 &990222868014410655
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ae9d4a30a38a7c41ab0cb48d3e08fc7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_flashColor: {r: 1, g: 1, b: 1, a: 1}
+  m_flashTime: 0.25
+  m_spriteRenderers:
+  - {fileID: 361146906994616670}
 --- !u!1 &6525230415705073668
 GameObject:
   m_ObjectHideFlags: 0
@@ -329,7 +393,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2228045280187910979}
   - component: {fileID: 361146906994616670}
-  m_Layer: 0
+  m_Layer: 15
   m_Name: Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -373,7 +437,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 70276c2fe1e8f7648bf6c72cd557588f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -413,6 +477,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 551280027139294499}
     m_Modifications:
+    - target: {fileID: 53772686991947196, guid: 8888b61c045151e4a9ab367f7299feda, type: 3}
+      propertyPath: m_Layer
+      value: 15
+      objectReference: {fileID: 0}
     - target: {fileID: 94706938419357954, guid: 8888b61c045151e4a9ab367f7299feda, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -421,10 +489,18 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 267367113993262784, guid: 8888b61c045151e4a9ab367f7299feda, type: 3}
+      propertyPath: m_Layer
+      value: 15
+      objectReference: {fileID: 0}
     - target: {fileID: 280974544690016271, guid: 8888b61c045151e4a9ab367f7299feda, type: 3}
       propertyPath: character
       value: 
       objectReference: {fileID: -1273593988190568045}
+    - target: {fileID: 374510274411942147, guid: 8888b61c045151e4a9ab367f7299feda, type: 3}
+      propertyPath: m_Layer
+      value: 15
+      objectReference: {fileID: 0}
     - target: {fileID: 3199090954834604453, guid: 8888b61c045151e4a9ab367f7299feda, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -505,6 +581,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4482160134699285636, guid: 8888b61c045151e4a9ab367f7299feda, type: 3}
+      propertyPath: m_Layer
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 5644978386769501384, guid: 8888b61c045151e4a9ab367f7299feda, type: 3}
+      propertyPath: m_Layer
+      value: 15
+      objectReference: {fileID: 0}
     - target: {fileID: 8977269994743859470, guid: 8888b61c045151e4a9ab367f7299feda, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -513,9 +597,17 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8985047458029285656, guid: 8888b61c045151e4a9ab367f7299feda, type: 3}
+      propertyPath: m_Layer
+      value: 15
+      objectReference: {fileID: 0}
     - target: {fileID: 9026217826315858155, guid: 8888b61c045151e4a9ab367f7299feda, type: 3}
       propertyPath: m_Name
       value: StatBarCanvas
+      objectReference: {fileID: 0}
+    - target: {fileID: 9026217826315858155, guid: 8888b61c045151e4a9ab367f7299feda, type: 3}
+      propertyPath: m_Layer
+      value: 15
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

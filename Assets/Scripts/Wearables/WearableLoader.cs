@@ -43,9 +43,9 @@ public class WearableLoader : MonoBehaviour
                 WeaponType = (Wearable.WeaponTypeEnum)System.Enum.Parse(typeof(Wearable.WeaponTypeEnum), row[9]),
                 SpecialAp = int.Parse(row[10]),
                 SpecialCooldown = int.Parse(row[11]),
-                SecondaryBuff = (Wearable.BuffEnum)System.Enum.Parse(typeof(Wearable.BuffEnum), row[12]),
+                SecondaryBuff = (CharacterStat)System.Enum.Parse(typeof(CharacterStat), row[12]),
                 SecondaryBuffValue = float.Parse(row[13]),
-                TertiaryBuff = (Wearable.BuffEnum)System.Enum.Parse(typeof(Wearable.BuffEnum), row[14]),
+                TertiaryBuff = (CharacterStat)System.Enum.Parse(typeof(CharacterStat), row[14]),
                 TertiaryBuffValue = float.Parse(row[15]),
                 SwapDescription = row[16]
             };

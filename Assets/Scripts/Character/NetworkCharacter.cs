@@ -1,22 +1,25 @@
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
 public class NetworkCharacter : NetworkBehaviour
 {
-    [Header("Initial Base Stats")]
-    public int initialHpMax = 100;
-    public int initialHpCurrent = 100;
-    public int initialHpBuffer = 0;
-    public int initialAttackPower = 10;
-    public float initialCriticalChance = 0.1f;
-    public int initialApMax = 50;
-    public int initialApCurrent = 50;
-    public int initialApBuffer = 0;
-    public float initialDoubleStrikeChance = 0.05f;
-    public float initialCriticalStrikeDamage = 1.5f;
-    public float initialMoveSpeed = 6.22f;
-    public float initialAccuracy = 1f;
-    public float initialEvasion = 0f;
+    [Header("Base Stats")]
+    public int baseHpMax = 100;
+    public int baseHpCurrent = 100;
+    public int baseHpBuffer = 0;
+    public int baseAttackPower = 10;
+    public float baseCriticalChance = 0.1f;
+    public int baseApMax = 50;
+    public int baseApCurrent = 50;
+    public int baseApBuffer = 0;
+    public float baseDoubleStrikeChance = 0.05f;
+    public float baseCriticalStrikeDamage = 1.5f;
+    public float baseMoveSpeed = 6.22f;
+    public float baseAccuracy = 1f;
+    public float baseEvasion = 0f;
+
+    private List<BuffObject> activeBuffObjects = new List<BuffObject>();
 
     // NetworkVariables
     [HideInInspector] public NetworkVariable<int> HpMax = new NetworkVariable<int>();
@@ -37,27 +40,143 @@ public class NetworkCharacter : NetworkBehaviour
     {
         if (IsServer)
         {
-            // Initialize default values on the server
+            // baseize default values on the server
             InitializeStats();
         }
     }
 
     protected virtual void InitializeStats()
     {
-        HpMax.Value = initialHpMax;
-        HpCurrent.Value = initialHpCurrent;
-        HpBuffer.Value = initialHpBuffer;
-        AttackPower.Value = initialAttackPower;
-        CriticalChance.Value = initialCriticalChance;
-        ApMax.Value = initialApMax;
-        ApCurrent.Value = initialApCurrent;
-        ApBuffer.Value = initialApBuffer;
-        DoubleStrikeChance.Value = initialDoubleStrikeChance;
-        CriticalDamage.Value = initialCriticalStrikeDamage;
-        MoveSpeed.Value = initialMoveSpeed;
-        Accuracy.Value = initialAccuracy;
-        Evasion.Value = initialEvasion;
+        HpMax.Value = baseHpMax;
+        HpCurrent.Value = baseHpCurrent;
+        HpBuffer.Value = baseHpBuffer;
+        AttackPower.Value = baseAttackPower;
+        CriticalChance.Value = baseCriticalChance;
+        ApMax.Value = baseApMax;
+        ApCurrent.Value = baseApCurrent;
+        ApBuffer.Value = baseApBuffer;
+        DoubleStrikeChance.Value = baseDoubleStrikeChance;
+        CriticalDamage.Value = baseCriticalStrikeDamage;
+        MoveSpeed.Value = baseMoveSpeed;
+        Accuracy.Value = baseAccuracy;
+        Evasion.Value = baseEvasion;
     }
 
+    public void AddBuffObject(BuffObject buffObject)
+    {
+        if (!IsServer)
+        {
+            Debug.LogError("Cannot call AddBuffObject() from client");
+            return;
+        }
 
+        if (!activeBuffObjects.Contains(buffObject))
+        {
+            activeBuffObjects.Add(buffObject);
+            CalculateFinalStats(); // Recalculate stats after adding a new buff
+        }
+    }
+
+    public void RemoveBuffObject(BuffObject buffObject)
+    {
+        if (!IsServer)
+        {
+            Debug.LogError("Cannot call RemoveBuffObject() from client");
+            return;
+        }
+
+        if (activeBuffObjects.Contains(buffObject))
+        {
+            activeBuffObjects.Remove(buffObject);
+            CalculateFinalStats(); // Recalculate stats after removing a buff
+        }
+    }
+
+    public void CalculateFinalStats()
+    {
+        if (!IsServer)
+        {
+            Debug.LogError("Cannot call CalculateFinalStats() from client");
+            return;
+        }
+
+        Dictionary<CharacterStat, float> baseStats = new Dictionary<CharacterStat, float>
+        {
+            { CharacterStat.HpMax, baseHpMax },
+            { CharacterStat.HpBuffer, 0 },
+            { CharacterStat.AttackPower, baseAttackPower },
+            { CharacterStat.CriticalChance, baseCriticalChance },
+            { CharacterStat.ApMax, baseApMax },
+            { CharacterStat.ApBuffer, 0 },
+            { CharacterStat.DoubleStrikeChance, baseDoubleStrikeChance },
+            { CharacterStat.CriticalDamage, baseCriticalStrikeDamage },
+            { CharacterStat.MoveSpeed, baseMoveSpeed },
+            { CharacterStat.Accuracy, baseAccuracy },
+            { CharacterStat.Evasion, baseEvasion }
+        };
+
+        // Apply Add/Subtract buffs
+        foreach (BuffObject buffObject in activeBuffObjects)
+        {
+            foreach (Buff buff in buffObject.buffs)
+            {
+                if (buff.BuffModifier == Buff.Modifier.Add || buff.BuffModifier == Buff.Modifier.Subtract)
+                {
+                    if (baseStats.ContainsKey(buff.BuffStat))
+                    {
+                        baseStats[buff.BuffStat] += buff.BuffModifier == Buff.Modifier.Add ? buff.Value : -buff.Value;
+                    }
+                }
+            }
+        }
+
+        // Apply Multiply/Divide buffs
+        foreach (BuffObject buffObject in activeBuffObjects)
+        {
+            foreach (Buff buff in buffObject.buffs)
+            {
+                if (buff.BuffModifier == Buff.Modifier.Multiply || buff.BuffModifier == Buff.Modifier.Divide)
+                {
+                    if (baseStats.ContainsKey(buff.BuffStat))
+                    {
+                        baseStats[buff.BuffStat] *= buff.BuffModifier == Buff.Modifier.Multiply ? buff.Value : 1 / buff.Value;
+                    }
+                }
+            }
+        }
+
+        // Apply Set buffs
+        foreach (BuffObject buffObject in activeBuffObjects)
+        {
+            foreach (Buff buff in buffObject.buffs)
+            {
+                if (buff.BuffModifier == Buff.Modifier.Set)
+                {
+                    if (baseStats.ContainsKey(buff.BuffStat))
+                    {
+                        baseStats[buff.BuffStat] = buff.Value;
+                    }
+                }
+            }
+        }
+
+        // Update network variables with final calculated stats
+        HpMax.Value = (int)baseStats[CharacterStat.HpMax];
+        HpBuffer.Value = (int)baseStats[CharacterStat.HpBuffer];
+        AttackPower.Value = (int)baseStats[CharacterStat.AttackPower];
+        CriticalChance.Value = baseStats[CharacterStat.CriticalChance];
+        ApMax.Value = (int)baseStats[CharacterStat.ApMax];
+        ApBuffer.Value = (int)baseStats[CharacterStat.ApBuffer];
+        DoubleStrikeChance.Value = baseStats[CharacterStat.DoubleStrikeChance];
+        CriticalDamage.Value = baseStats[CharacterStat.CriticalDamage];
+        MoveSpeed.Value = baseStats[CharacterStat.MoveSpeed];
+        Accuracy.Value = baseStats[CharacterStat.Accuracy];
+        Evasion.Value = baseStats[CharacterStat.Evasion];
+
+        // Optionally, you can log the final stats for debugging
+        Debug.Log("Final Stats Calculated:");
+        Debug.Log($"HpMax: {HpMax.Value}, AttackPower: {AttackPower.Value}, CriticalChance: {CriticalChance.Value}");
+        Debug.Log($"ApMax: {ApMax.Value}, DoubleStrikeChance: {DoubleStrikeChance.Value}, CriticalStrikeDamage: {CriticalDamage.Value}");
+        Debug.Log($"MoveSpeed: {MoveSpeed.Value}, Accuracy: {Accuracy.Value}, Evasion: {Evasion.Value}");
+    }
 }

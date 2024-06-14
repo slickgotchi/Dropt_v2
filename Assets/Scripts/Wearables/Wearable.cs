@@ -6,55 +6,6 @@ public partial class Wearable
     public enum SlotEnum { NA, Body, Face, Eyes, Head, Hand, Pet }
     public enum RarityEnum { NA, Common, Uncommon, Rare, Legendary, Mythical, Godlike }
     public enum WeaponTypeEnum { NA, Unarmed, Cleave, Smash, Pierce, Ballistic, Magic, Splash, Consume, Aura, Throw, Shield }
-    public enum BuffEnum { 
-        None,
-        NA,
-
-        // primary (from NetworkCharacter)
-        HpMax,
-        HpBuffer,
-        AttackPower,
-        CriticalChance,
-        ApMax,
-        ApBuffer,
-        DoubleStrikeChance,
-        CriticalDamage,
-        MoveSpeed,
-        Accuracy,
-        Evasion,
-
-        // attack
-        CriticalDamageIncrease,
-        DebuffEffectiveness,
-        SpecialCooldownReduction,
-        Piercing,
-        SpecialCostReduction,
-        AttackRange,
-
-        // defense
-        ReduceMeleeDamage,
-        ReduceRangedDamage,
-        ReduceElementalDamage,
-        Block,
-        ApLeech,
-        HpLeech,
-        EssenceLeech,
-
-        // environment
-        Magnetism,
-        ExtraDash,
-        Purveying,
-
-        // debuffs
-        Poison,
-        Weak,
-        RootChance,
-        BleedChance,
-        BurnChance,
-        SlowChance,
-        ShockChance,
-        BlindChance,
-    }
 
     public SlotEnum Slot;
     public int Id;
@@ -68,9 +19,9 @@ public partial class Wearable
     public WeaponTypeEnum WeaponType;
     public int SpecialAp;
     public int SpecialCooldown;
-    public BuffEnum SecondaryBuff;
+    public CharacterStat SecondaryBuff;
     public float SecondaryBuffValue;
-    public BuffEnum TertiaryBuff;
+    public CharacterStat TertiaryBuff;
     public float TertiaryBuffValue;
     public string SwapDescription;
 }

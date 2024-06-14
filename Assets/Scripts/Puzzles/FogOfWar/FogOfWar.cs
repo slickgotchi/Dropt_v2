@@ -7,6 +7,8 @@ using UnityEngine.Tilemaps;
 public class FogOfWar : NetworkBehaviour
 {
     public float FadeOutDuration = 1f;
+    public List<Tilemap> ConnectedTilemaps = new List<Tilemap>();
+    private List<float> connectedTilemapsStartAlpha = new List<float>();
 
     private NetworkVariable<bool> m_isCleared;
     private bool m_isFadeOutStarted = false;
@@ -19,6 +21,11 @@ public class FogOfWar : NetworkBehaviour
     {
         m_isCleared = new NetworkVariable<bool>(false);
         m_tilemap = GetComponent<Tilemap>();
+
+        for (int i = 0; i < ConnectedTilemaps.Count; i++)
+        {
+            connectedTilemapsStartAlpha.Add(ConnectedTilemaps[i].color.a);
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -42,6 +49,11 @@ public class FogOfWar : NetworkBehaviour
             m_isFadeOutStarted = true;
             m_startAlpha = m_tilemap.color.a;
             m_fadeOutTimer = FadeOutDuration;
+
+            for (int i = 0; i < ConnectedTilemaps.Count; i++)
+            {
+                connectedTilemapsStartAlpha[i] = ConnectedTilemaps[i].color.a;
+            }
         }
 
         // handle fading out
@@ -52,6 +64,14 @@ public class FogOfWar : NetworkBehaviour
             Color color = m_tilemap.color;
             color.a = newAlpha;
             m_tilemap.color = color;
+
+            for (int i = 0; i < ConnectedTilemaps.Count; i++)
+            {
+                newAlpha = m_fadeOutTimer > 0 ? m_fadeOutTimer / FadeOutDuration * connectedTilemapsStartAlpha[i] : 0;
+                color = ConnectedTilemaps[i].color;
+                color.a = newAlpha;
+                ConnectedTilemaps[i].color = color;
+            }
         }
     }
 }
