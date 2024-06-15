@@ -6,11 +6,15 @@ using UnityEngine;
 public class PlayerAbilities : MonoBehaviour
 {
     public CleaveSwing cleaveSwing;
+    public Dash dash;
 
     private void Awake()
     {
         cleaveSwing = Instantiate(cleaveSwing);
         cleaveSwing.GetComponent<NetworkObject>().Spawn();
+
+        dash = Instantiate(dash);
+        dash.GetComponent<NetworkObject>().Spawn();
     }
 
     private void Update()
