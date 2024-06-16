@@ -9,9 +9,12 @@ namespace Dropt
         public Vector3 moveDirection;
         public Vector3 actionDirection;
         //public bool isDash;
-        public float teleportDistance;
-        public float slowFactor;
-        public int slowFactorExpiryTick;
+        //public bool isLeftAttack;
+        //public bool isRightAttack;
+        public PlayerAbilityEnum abilityTriggered;
+        //public float teleportDistance;
+        //public float slowFactor;
+        //public int slowFactorExpiryTick;
 
         public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
         {
@@ -19,9 +22,12 @@ namespace Dropt
             serializer.SerializeValue(ref moveDirection);
             serializer.SerializeValue(ref actionDirection);
             //serializer.SerializeValue(ref isDash);
-            serializer.SerializeValue(ref teleportDistance);
-            serializer.SerializeValue(ref slowFactor);
-            serializer.SerializeValue(ref slowFactorExpiryTick);
+            //serializer.SerializeValue(ref isLeftAttack);
+            //serializer.SerializeValue(ref isRightAttack);
+            serializer.SerializeValue(ref abilityTriggered);
+            //serializer.SerializeValue(ref teleportDistance);
+            //serializer.SerializeValue(ref slowFactor);
+            //serializer.SerializeValue(ref slowFactorExpiryTick);
         }
     }
 
@@ -31,7 +37,10 @@ namespace Dropt
         public Vector3 position;
         public Vector3 velocity;
         //public bool isDash;
-        public float teleportDistance;
+        //public bool isLeftAttack;
+        //public bool isRightAttack;
+        public PlayerAbilityEnum abilityTriggered;
+        //public float teleportDistance;
 
         public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
         {
@@ -39,15 +48,14 @@ namespace Dropt
             serializer.SerializeValue(ref position);
             serializer.SerializeValue(ref velocity);
             //serializer.SerializeValue(ref isDash);
-            serializer.SerializeValue(ref teleportDistance);
+            //serializer.SerializeValue(ref isLeftAttack);
+            //serializer.SerializeValue(ref isRightAttack);
+            serializer.SerializeValue(ref abilityTriggered);
+            //serializer.SerializeValue(ref teleportDistance);
         }
     }
 
-    public struct NonNetworkStatePayload
-    {
-        public int tick;
-        public ulong networkObjectId;
-        public Vector3 position;
-        public Vector3 velocity;
-    }
+
+
+
 }

@@ -128,6 +128,7 @@ GameObject:
   - component: {fileID: 2486501417752755360}
   - component: {fileID: 4011541931376708870}
   - component: {fileID: 4912750138058364272}
+  - component: {fileID: 6173716106985737149}
   m_Layer: 6
   m_Name: Player
   m_TagString: Untagged
@@ -497,8 +498,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ac19e16993bf8842a557ff728d16e0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cleaveSwing: {fileID: -6166643874648367605, guid: e66a6c1c0cafc344399fd79aa2052341, type: 3}
   dash: {fileID: 7142540953182490140, guid: 42cffc45b3ab61542aa95340b28f6e9e, type: 3}
+  cleaveSwing: {fileID: -6166643874648367605, guid: e66a6c1c0cafc344399fd79aa2052341, type: 3}
+  pierceThrust: {fileID: 6793313604218709105, guid: cc2a798e3f7e11c46a0f8727a87d2fd5, type: 3}
+--- !u!114 &6173716106985737149
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1519051571170098037}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 948907d369c2c5443ad2a4f84e939a35, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Body:
+    m_InternalValue: 0
+  Face:
+    m_InternalValue: 0
+  Eyes:
+    m_InternalValue: 0
+  Head:
+    m_InternalValue: 0
+  RightHand:
+    m_InternalValue: 0
+  LeftHand:
+    m_InternalValue: 0
+  Pet:
+    m_InternalValue: 0
 --- !u!1 &2099523271220163082
 GameObject:
   m_ObjectHideFlags: 0

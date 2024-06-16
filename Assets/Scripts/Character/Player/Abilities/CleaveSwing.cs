@@ -2,7 +2,7 @@ using UnityEngine;
 using Unity.Netcode;
 using System.Collections.Generic;
 
-public class CleaveSwing : NetworkBehaviour
+public class CleaveSwing : PlayerAbility
 {
     public Animator animator;
     public float attackRange = 2.0f;
