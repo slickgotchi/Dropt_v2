@@ -220,7 +220,7 @@ public class PlayerMovementAndDash : NetworkBehaviour
         var bufferIndex = currentTick % k_bufferSize;   // this just ensures we go back to index 0 when tick goes past buffer size
 
         // assemble input
-        InputPayload inputPayload = new InputPayload()
+        InputPayload inputPayload = new InputPayload
         {
             tick = currentTick,
             moveDirection = GetComponent<PlayerGotchi>().IsDropSpawning ? Vector3.zero : m_moveDirection,
@@ -357,11 +357,8 @@ public class PlayerMovementAndDash : NetworkBehaviour
     {
         if (input.abilityTriggered != PlayerAbilityEnum.Null)
         {
+            if (IsServer) Debug.Log(input.abilityTriggered + " triggered on Server");
             var ability = GetComponent<PlayerAbilities>().GetAbility(input.abilityTriggered);
-            if (ability == null)
-            {
-                Debug.Log(input.abilityTriggered + " does not exist in PlayerAbilitites");
-            }
             if (ability != null)
             {
                 m_slowFactor = ability.SlowFactor;
@@ -372,6 +369,10 @@ public class PlayerMovementAndDash : NetworkBehaviour
         if (input.tick > m_slowFactorExpiryTick)
         {
             m_slowFactor = 1f;
+        } else
+        {
+            var str = IsServer ? "Server" : "Client";
+            Debug.Log($"m_slowFactor on {str} is " + m_slowFactor);
         }
     }
 

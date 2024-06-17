@@ -24,7 +24,7 @@ public class PlayerAbility : NetworkBehaviour
     protected Vector3 PlayerDirection;
     protected ContactFilter2D EnemyHurtContactFilter;
 
-    public NetworkVariable<ulong> PlayerNetworkObjectId = new NetworkVariable<ulong>();
+    public NetworkVariable<int> PlayerNetworkObjectId = new NetworkVariable<int>(-1);
 
     private float m_timer = 0;
     private bool m_isFinished = false;

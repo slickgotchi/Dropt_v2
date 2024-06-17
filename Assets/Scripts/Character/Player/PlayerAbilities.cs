@@ -20,7 +20,6 @@ public class PlayerAbilities : NetworkBehaviour
     public NetworkVariable<float> leftAttackCooldown = new NetworkVariable<float>(0);
     public NetworkVariable<float> rightAttackCooldown = new NetworkVariable<float>(0);
 
-
     public override void OnNetworkSpawn()
     {
         if (!IsServer) return;
@@ -32,22 +31,20 @@ public class PlayerAbilities : NetworkBehaviour
         // Ensure we instatiate here in Start() AFTER OnNetworkSpawn() otherwise we end up with duplciates
         if (!IsServer) return;
 
-        var playerId = GetComponent<NetworkObject>().NetworkObjectId;
+        var playerId = (int)GetComponent<NetworkObject>().NetworkObjectId;
 
         Dash = Instantiate(dashPrefab);
         Dash.GetComponent<NetworkObject>().Spawn();
-        Dash.GetComponent<PlayerAbility>().PlayerNetworkObjectId.Value = playerId;
-        //DashId.Value = Dash.GetComponent<NetworkObject>().NetworkObjectId;
+        DashId.Value = Dash.GetComponent<NetworkObject>().NetworkObjectId;
 
         CleaveSwing = Instantiate(cleaveSwingPrefab);
         CleaveSwing.GetComponent<NetworkObject>().Spawn();
-        CleaveSwing.GetComponent<PlayerAbility>().PlayerNetworkObjectId.Value = playerId;
-        //CleaveSwingId.Value = Dash.GetComponent<NetworkObject>().NetworkObjectId;
+        CleaveSwingId.Value = CleaveSwing.GetComponent<NetworkObject>().NetworkObjectId;
+        Debug.Log(CleaveSwingId.Value);
 
         PierceThrust = Instantiate(pierceThrustPrefab);
         PierceThrust.GetComponent<NetworkObject>().Spawn();
-        PierceThrust.GetComponent<PlayerAbility>().PlayerNetworkObjectId.Value = playerId;
-        //PierceThrustId.Value = Dash.GetComponent<NetworkObject>().NetworkObjectId;
+        PierceThrustId.Value = PierceThrust.GetComponent<NetworkObject>().NetworkObjectId;
     }
 
     private void Update()
@@ -58,13 +55,28 @@ public class PlayerAbilities : NetworkBehaviour
         //    leftAttackCooldown.Value -= dt;
         //    rightAttackCooldown.Value -= dt;
         //}
+
+        if (IsClient && IsSpawned)
+        {
+            if (Dash == null && DashId.Value > 0) Dash = 
+                    NetworkManager.SpawnManager.SpawnedObjects[DashId.Value].gameObject;
+            if (CleaveSwing == null && CleaveSwingId.Value > 0)
+            {
+                CleaveSwing = NetworkManager.SpawnManager.SpawnedObjects[CleaveSwingId.Value].gameObject;
+                Debug.Log(CleaveSwing.GetComponent<PlayerAbility>().SlowFactor);
+            }
+            if (PierceThrust == null && PierceThrustId.Value > 0) PierceThrust = 
+                    NetworkManager.SpawnManager.SpawnedObjects[PierceThrustId.Value].gameObject;
+        }
     }
 
     public PlayerAbility GetAbility(PlayerAbilityEnum abilityEnum)
     {
-        //if (abilityEnum == PlayerAbilityEnum.Dash) return Dash.GetComponent<PlayerAbility>();
-        //if (abilityEnum == PlayerAbilityEnum.CleaveSwing) return CleaveSwing.GetComponent<PlayerAbility>();
-        //if (abilityEnum == PlayerAbilityEnum.PierceThrust) return PierceThrust.GetComponent<PlayerAbility>();
+        if (!IsSpawned) return null;
+
+        if (abilityEnum == PlayerAbilityEnum.Dash) return Dash.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.CleaveSwing) return CleaveSwing.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.PierceThrust) return PierceThrust.GetComponent<PlayerAbility>();
 
         return null;
     }
