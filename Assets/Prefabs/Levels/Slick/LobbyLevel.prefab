@@ -896,7 +896,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2094022333
+  GlobalObjectIdHash: 3253146658
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -13074,20 +13074,16 @@ MonoBehaviour:
   NoSpawnChance: 0
   SpawnEnemies: []
   SpawnDestructibles:
-  - DestructiblePrefabType: 0
-    SpawnChance: 1
-  - DestructiblePrefabType: 1
-    SpawnChance: 1
+  - DestructiblePrefabType: 3
+    SpawnChance: 0.1
+  - DestructiblePrefabType: 4
+    SpawnChance: 0.5
   - DestructiblePrefabType: 5
-    SpawnChance: 1
-  - DestructiblePrefabType: 8
-    SpawnChance: 0.2
+    SpawnChance: 0.3
+  - DestructiblePrefabType: 6
+    SpawnChance: 0.1
   SpawnInteractables: []
-  SpawnProps:
-  - PropPrefabType: 0
-    SpawnChance: 0.3
-  - PropPrefabType: 1
-    SpawnChance: 0.3
+  SpawnProps: []
 --- !u!1 &5789586154813856722
 GameObject:
   m_ObjectHideFlags: 0
