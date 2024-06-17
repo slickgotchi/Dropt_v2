@@ -4,7 +4,6 @@ using Unity.Netcode;
 using Dropt;
 using System.Collections.Generic;
 using Unity.Mathematics;
-using Unity.VisualScripting;
 
 public class PlayerMovementAndDash : NetworkBehaviour
 {
@@ -17,16 +16,17 @@ public class PlayerMovementAndDash : NetworkBehaviour
     private float m_slowFactor = 1f;
     private int m_slowFactorExpiryTick = 0;
 
+    //private int m_dashCooldownExpiryTick = 0;
+    //private int m_leftAttackCooldownExpiryTick = 0;
+    //private int m_rightAttackCooldownExpiryTick = 0;
+    //private int m_leftSpecialCooldownExpiryTick = 0;
+    //private int m_rightSpecialCooldownExpiryTick = 0;
+
     // inputs to populate
     private Vector3 m_moveDirection;
     private Vector3 m_actionDirection = new Vector3(0, -1, 0);
-    private bool m_isDash = false;
-    private bool m_isLeftAttack = false;
-    private bool m_isRightAttack = false;
     private PlayerAbilityEnum m_abilityTriggered = PlayerAbilityEnum.Null;
-    //private float m_teleportDistance = 0;
-    //private float m_slowFactor = 1;
-    //private int m_slowFactorExpiryTick = 0;
+    private Hand m_abilityHand = Hand.Left;
 
     // timer required so that when an action/ability is activated gotchi action 
     // direction stays the same for a short duration
@@ -56,7 +56,7 @@ public class PlayerMovementAndDash : NetworkBehaviour
     private bool m_isSetPlayerPosition = false;
     private Vector3 m_setPlayerPosition = Vector3.zero;
 
-    [Header("Netcode")]
+    [Header("Debug")]
     [SerializeField] GameObject m_clientCircle;
     [SerializeField] GameObject m_serverCircle;
 
@@ -119,11 +119,8 @@ public class PlayerMovementAndDash : NetworkBehaviour
     {
         if (!IsLocalPlayer) return;
         m_actionDirection = math.normalizesafe(m_cursorWorldPosition - transform.position);
+        m_lastMoveDirection = m_actionDirection;
         m_actionDirectionTimer = k_actionDirectionTime;
-
-        // set dash teleport
-        //m_teleportDistance = m_playerAbilities.dash.TeleportDistance;
-        //m_isDash = true;
         m_abilityTriggered = PlayerAbilityEnum.Dash;
     }
 
@@ -132,11 +129,7 @@ public class PlayerMovementAndDash : NetworkBehaviour
         if (!IsLocalPlayer) return;
         m_actionDirection = m_lastMoveDirection;
         m_actionDirectionTimer = k_actionDirectionTime;
-
-        // set dash teleport
-        //m_teleportDistance = m_playerAbilities.dash.TeleportDistance;
         m_abilityTriggered = PlayerAbilityEnum.Dash;
-        //m_isDash = true;
     }
 
     private void OnMousePosition(InputValue value)
@@ -149,22 +142,24 @@ public class PlayerMovementAndDash : NetworkBehaviour
     {
         if (!IsLocalPlayer) return;
         m_actionDirection = math.normalizesafe(m_cursorWorldPosition - transform.position);
+        m_lastMoveDirection = m_actionDirection;
         m_actionDirectionTimer = k_actionDirectionTime;
-        m_isLeftAttack = true;
 
         var lhWearable = GetComponent<PlayerEquipment>().LeftHand.Value;
-        m_abilityTriggered = GetComponent<PlayerAbilities>().GetAttackAbility(lhWearable);
+        m_abilityTriggered = GetComponent<PlayerAbilities>().GetAttackAbilityEnum(lhWearable);
+        m_abilityHand = Hand.Left;
     }
 
     private void OnRightAttack_CursorAim(InputValue value)
     {
         if (!IsLocalPlayer) return;
         m_actionDirection = math.normalizesafe(m_cursorWorldPosition - transform.position);
+        m_lastMoveDirection = m_actionDirection;
         m_actionDirectionTimer = k_actionDirectionTime;
-        m_isRightAttack = true;
 
         var rhWearable = GetComponent<PlayerEquipment>().RightHand.Value;
-        m_abilityTriggered = GetComponent<PlayerAbilities>().GetAttackAbility(rhWearable);
+        m_abilityTriggered = GetComponent<PlayerAbilities>().GetAttackAbilityEnum(rhWearable);
+        m_abilityHand = Hand.Right;
     }
 
     private void UpdateCursorWorldPosition()
@@ -186,7 +181,6 @@ public class PlayerMovementAndDash : NetworkBehaviour
         if (IsLocalPlayer)
         {
             UpdateCursorWorldPosition();
-
             transform.position = GetLocalPlayerInterpPosition();
         }
         else if (IsClient)
@@ -231,23 +225,21 @@ public class PlayerMovementAndDash : NetworkBehaviour
             tick = currentTick,
             moveDirection = GetComponent<PlayerGotchi>().IsDropSpawning ? Vector3.zero : m_moveDirection,
             actionDirection = m_actionDirection,
-            //isDash = m_isDash,
-            //isLeftAttack = m_isLeftAttack,
-            //isRightAttack = m_isRightAttack,
             abilityTriggered = m_abilityTriggered,
-            //teleportDistance = m_teleportDistance,
         };
 
         // send input to server
         SendToServerRpc(inputPayload);
 
-        // reset any input booleans
-        m_isDash = false;
-        m_isLeftAttack = false;
-        m_isRightAttack = false;
-        m_abilityTriggered = PlayerAbilityEnum.Null;
-        //m_teleportDistance = 0;
+        // perform ability
+        var ability = GetComponent<PlayerAbilities>().GetAbility(m_abilityTriggered);
+        if (ability != null)
+        {
+            ability.TryActivate(gameObject, m_abilityHand);
+        }
 
+        // reset any triggered ability
+        m_abilityTriggered = PlayerAbilityEnum.Null;
 
         // store in client input buffer
         clientInputBuffer.Add(inputPayload, bufferIndex);
@@ -313,10 +305,10 @@ public class PlayerMovementAndDash : NetworkBehaviour
         }
 
         // teleport handling
-        CheckInputTeleportDistance(input);
+        HandleTeleportInput(input);
 
         // slow handling
-        CheckInputSlowFactor(input);    
+        HandleSlowFactorInput(input);
 
         // set velocity
         rb.velocity = input.moveDirection * m_networkCharacter.MoveSpeed.Value * m_slowFactor;
@@ -341,14 +333,11 @@ public class PlayerMovementAndDash : NetworkBehaviour
         {
             tick = input.tick,
             position = transform.position,
-            //isDash = input.isDash,
-            //isLeftAttack = input.isLeftAttack,
-            //isRightAttack = input.isRightAttack,
             abilityTriggered = input.abilityTriggered,
         };
     }
 
-    public void CheckInputTeleportDistance(InputPayload input)
+    public void HandleTeleportInput(InputPayload input)
     {
         if (input.abilityTriggered == PlayerAbilityEnum.Null) return;
         var ability = GetComponent<PlayerAbilities>().GetAbility(input.abilityTriggered);
@@ -357,38 +346,33 @@ public class PlayerMovementAndDash : NetworkBehaviour
             Debug.Log(input.abilityTriggered + " does not exist in PlayerAbilitites");
         }
 
-        if (ability.TeleportDistance > 0.1f)
+        if (ability != null && ability.TeleportDistance > 0.1f)
         {
             transform.position = DashCalcs.Dash(GetComponent<CapsuleCollider2D>(), transform.position,
                 input.actionDirection, ability.TeleportDistance);
         }
     }
 
-    public void CheckInputSlowFactor(InputPayload input)
+    public void HandleSlowFactorInput(InputPayload input)
     {
+        if (input.abilityTriggered != PlayerAbilityEnum.Null)
+        {
+            var ability = GetComponent<PlayerAbilities>().GetAbility(input.abilityTriggered);
+            if (ability == null)
+            {
+                Debug.Log(input.abilityTriggered + " does not exist in PlayerAbilitites");
+            }
+            if (ability != null)
+            {
+                m_slowFactor = ability.SlowFactor;
+                m_slowFactorExpiryTick = input.tick + (int)(ability.SlowFactorDuration * k_serverTickRate);
+            }
+        }
+
         if (input.tick > m_slowFactorExpiryTick)
         {
             m_slowFactor = 1f;
-            return;
         }
-
-        if (input.abilityTriggered == PlayerAbilityEnum.Null)
-        {
-            m_slowFactor = 1f;
-            return;
-        }
-
-        var ability = GetComponent<PlayerAbilities>().GetAbility(input.abilityTriggered);
-        if (ability == null)
-        {
-            Debug.Log(input.abilityTriggered + " does not exist in PlayerAbilitites");
-        } else
-        {
-            m_slowFactor = ability.SlowFactor;
-            m_slowFactorExpiryTick = input.tick + (int)(ability.SlowDuration * k_serverTickRate);
-        }
-
-
     }
 
     public void SetPlayerPosition(Vector3 position)
@@ -484,23 +468,9 @@ public class PlayerMovementAndDash : NetworkBehaviour
         // Draw dash shadow if we dashed
         IfDashInputDrawShadow(start, finish);
 
-        // return either final dash position or lerp for normal movememnt
-        //if (finish.isDash)
-        //{
-        //    if (m_playerAbilities.dash.TeleportDistance > 0.1f) return finish.position;
-        //}
-        //if (finish.isLeftAttack)
-        //{
-        //    if (m_playerAbilities.cleaveSwing.TeleportDistance > 0.1f) return finish.position;
-        //}
-        //if (finish.isRightAttack)
-        //{
-        //    if (m_playerAbilities.pierceThrust.TeleportDistance > 0.1f) return finish.position;
-        //}
+        // go straight to finish if there was a teleport
         var ability = GetComponent<PlayerAbilities>().GetAbility(finish.abilityTriggered);
         if (ability != null && ability.TeleportDistance > 0.1f) return finish.position;
-        //if (finish.teleportDistance > 0.1f) return finish.position;
-        //if (finish.isDash) return finish.position;
         return Vector3.Lerp(start.position, finish.position, fraction);
     }
 
@@ -521,37 +491,23 @@ public class PlayerMovementAndDash : NetworkBehaviour
         // Draw dash shadow if we dashed
         IfDashInputDrawShadow(start, finish);
 
-        // return either final dash position or lerp for normal movememnt
-        //if (finish.isDash)
-        //{
-        //    if (m_playerAbilities.dash.TeleportDistance > 0.1f) return finish.position;
-        //}
-        //if (finish.isLeftAttack)
-        //{
-        //    if (m_playerAbilities.cleaveSwing.TeleportDistance > 0.1f) return finish.position;
-        //}
-        //if (finish.isRightAttack)
-        //{
-        //    if (m_playerAbilities.pierceThrust.TeleportDistance > 0.1f) return finish.position;
-        //}
+        // go straight to finish if there was a teleport
         var ability = GetComponent<PlayerAbilities>().GetAbility(finish.abilityTriggered);
         if (ability != null && ability.TeleportDistance > 0.1f) return finish.position;
-        //if (finish.teleportDistance > 0.1f) return finish.position; 
-        //if (finish.isDash) return finish.position; 
         return Vector3.Lerp(start.position, finish.position, fraction);
     }
 
     void IfDashInputDrawShadow(StatePayload start, StatePayload finish)
     {
-        //if (finish.isDash)
         var ability = GetComponent<PlayerAbilities>().GetAbility(finish.abilityTriggered);
-        if (finish.abilityTriggered == PlayerAbilityEnum.Dash)
-        //if (finish.isDash)
+        if (ability != null && ability.TeleportDistance > 0.1f)
         {
             // play dash anim
             if (!m_isDashAnimPlayed)
             {
-                gameObject.GetComponentInChildren<DashTrailSpawner>().DrawShadow(start.position, finish.position, 4);
+                //gameObject.GetComponentInChildren<DashTrailSpawner>().DrawShadow(start.position, finish.position, 4);
+                gameObject.GetComponentInChildren<DashTrailSpawner>().DrawShadow(start.position, finish.position, 
+                    (int)math.ceil(ability.TeleportDistance)+1);
                 m_isDashAnimPlayed = true;
             }
         }
@@ -560,16 +516,6 @@ public class PlayerMovementAndDash : NetworkBehaviour
             m_isDashAnimPlayed = false;
         }
     }
-
-    //public Vector3 GetDirection()
-    //{
-    //    return m_direction;
-    //}
-
-    //public Vector3 GetVelocity()
-    //{
-    //    return m_velocity;
-    //}
 
     public Vector3 GetFacingDirection()
     {

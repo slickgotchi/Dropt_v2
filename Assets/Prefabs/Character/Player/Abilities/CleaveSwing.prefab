@@ -98,8 +98,8 @@ GameObject:
   - component: {fileID: 7869199515037794274}
   - component: {fileID: 7703814828098464651}
   - component: {fileID: -6693017499447722929}
-  - component: {fileID: 8801088054392196914}
   - component: {fileID: -6166643874648367605}
+  - component: {fileID: 2665581302092081799}
   m_Layer: 8
   m_Name: CleaveSwing
   m_TagString: Untagged
@@ -221,7 +221,7 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
---- !u!114 &8801088054392196914
+--- !u!114 &-6166643874648367605
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -230,7 +230,29 @@ MonoBehaviour:
   m_GameObject: {fileID: 2544078778212307353}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1d2065632d840d445836a0a3c32bcec2, type: 3}
+  m_Script: {fileID: 11500000, guid: 5e2dde1196a054c49a57e503348f2ebc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ApCost: 0
+  AbilityDuration: 1
+  CooldownDuration: 1
+  SlowFactor: 0.5
+  SlowFactorDuration: 0.2
+  TeleportDistance: 0
+  Projection: 1
+  attackRange: 2
+  damage: 10
+  hitFeedbackDuration: 0.1
+--- !u!114 &2665581302092081799
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2544078778212307353}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   UseUnreliableDeltas: 0
@@ -252,27 +274,6 @@ MonoBehaviour:
   InLocalSpace: 0
   Interpolate: 1
   SlerpPosition: 0
---- !u!114 &-6166643874648367605
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2544078778212307353}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5e2dde1196a054c49a57e503348f2ebc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ApCost: 0
-  CooldownDuration: 1
-  SlowFactor: 0.5
-  SlowDuration: 3
-  TeleportDistance: 0
-  animator: {fileID: 0}
-  attackRange: 2
-  damage: 10
-  hitFeedbackDuration: 0.1
 --- !u!1 &4708556748347195212
 GameObject:
   m_ObjectHideFlags: 0

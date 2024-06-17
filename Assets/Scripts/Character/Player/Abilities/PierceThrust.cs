@@ -4,8 +4,9 @@ using UnityEngine;
 
 public class PierceThrust : PlayerAbility
 {
-
-    private void Awake()
+    public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+        Debug.Log("PierceThrust spawned " + IsServer);
     }
 }

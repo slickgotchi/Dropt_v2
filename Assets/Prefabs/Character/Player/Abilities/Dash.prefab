@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4218498788601651818}
   - component: {fileID: 4745659270471905317}
-  - component: {fileID: 7142540953182490140}
+  - component: {fileID: -487820419116368734}
   m_Layer: 0
   m_Name: Dash
   m_TagString: Untagged
@@ -54,7 +54,7 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
---- !u!114 &7142540953182490140
+--- !u!114 &-487820419116368734
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -67,7 +67,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ApCost: 0
+  AbilityDuration: 1
   CooldownDuration: 1
-  SlowFactor: 0
-  SlowDuration: 0
-  TeleportDistance: 3.5
+  SlowFactor: 1
+  SlowFactorDuration: 1
+  TeleportDistance: 0
