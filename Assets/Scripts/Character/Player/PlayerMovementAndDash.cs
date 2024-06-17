@@ -15,6 +15,7 @@ public class PlayerMovementAndDash : NetworkBehaviour
 
     private float m_slowFactor = 1f;
     private int m_slowFactorExpiryTick = 0;
+    private int m_slowFactorStartTick = 0;
 
     //private int m_dashCooldownExpiryTick = 0;
     //private int m_leftAttackCooldownExpiryTick = 0;
@@ -307,11 +308,8 @@ public class PlayerMovementAndDash : NetworkBehaviour
         // teleport handling
         HandleTeleportInput(input);
 
-        // slow handling
-        HandleSlowFactorInput(input);
-
         // set velocity
-        rb.velocity = input.moveDirection * m_networkCharacter.MoveSpeed.Value * m_slowFactor;
+        rb.velocity = input.moveDirection * m_networkCharacter.MoveSpeed.Value * GetInputSlowFactor(input, isReconciliation);
 
         // simulate
         Physics2D.simulationMode = SimulationMode2D.Script;
@@ -339,18 +337,34 @@ public class PlayerMovementAndDash : NetworkBehaviour
 
     public void HandleTeleportInput(InputPayload input)
     {
-        if (input.abilityTriggered == PlayerAbilityEnum.Null) return;
         var ability = GetComponent<PlayerAbilities>().GetAbility(input.abilityTriggered);
-        if (ability == null)
-        {
-            Debug.Log(input.abilityTriggered + " does not exist in PlayerAbilitites");
-        }
-
         if (ability != null && ability.TeleportDistance > 0.1f)
         {
             transform.position = DashCalcs.Dash(GetComponent<CapsuleCollider2D>(), transform.position,
                 input.actionDirection, ability.TeleportDistance);
         }
+    }
+
+    public float GetInputSlowFactor(InputPayload input, bool isReconciliation)
+    {
+        if (!isReconciliation)
+        {
+            var ability = GetComponent<PlayerAbilities>().GetAbility(input.abilityTriggered);
+            if (ability != null)
+            {
+                m_slowFactor = ability.SlowFactor;
+                m_slowFactorStartTick = input.tick;
+                m_slowFactorExpiryTick = input.tick + (int)(ability.SlowFactorDuration * k_serverTickRate);
+            }
+        }
+
+        var slowFactor = 1f;
+        if (input.tick >= m_slowFactorStartTick && input.tick < m_slowFactorExpiryTick)
+        {
+            slowFactor = m_slowFactor;
+        }
+
+        return slowFactor;
     }
 
     public void HandleSlowFactorInput(InputPayload input)
@@ -372,7 +386,7 @@ public class PlayerMovementAndDash : NetworkBehaviour
         } else
         {
             var str = IsServer ? "Server" : "Client";
-            Debug.Log($"m_slowFactor on {str} is " + m_slowFactor);
+            Debug.Log($"m_slowFactor on {str} is " + m_slowFactor + " at tick " + input.tick);
         }
     }
 

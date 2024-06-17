@@ -31,8 +31,6 @@ public class PlayerAbilities : NetworkBehaviour
         // Ensure we instatiate here in Start() AFTER OnNetworkSpawn() otherwise we end up with duplciates
         if (!IsServer) return;
 
-        var playerId = (int)GetComponent<NetworkObject>().NetworkObjectId;
-
         Dash = Instantiate(dashPrefab);
         Dash.GetComponent<NetworkObject>().Spawn();
         DashId.Value = Dash.GetComponent<NetworkObject>().NetworkObjectId;
@@ -40,7 +38,6 @@ public class PlayerAbilities : NetworkBehaviour
         CleaveSwing = Instantiate(cleaveSwingPrefab);
         CleaveSwing.GetComponent<NetworkObject>().Spawn();
         CleaveSwingId.Value = CleaveSwing.GetComponent<NetworkObject>().NetworkObjectId;
-        Debug.Log(CleaveSwingId.Value);
 
         PierceThrust = Instantiate(pierceThrustPrefab);
         PierceThrust.GetComponent<NetworkObject>().Spawn();
