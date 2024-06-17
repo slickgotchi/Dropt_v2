@@ -280,7 +280,7 @@ public class NetworkLevel : NetworkBehaviour
             for (int j = 0; j < no_spawner.transform.childCount; j++)
             {
                 var spawnPoint = no_spawner.transform.GetChild(j);
-                var randValue = UnityEngine.Random.Range(0f, 1f);
+                var randValue = UnityEngine.Random.Range(0f, 0.999f);
 
                 for (int k = 0; k < spawns.Count; k++)
                 {
@@ -432,7 +432,7 @@ public class NetworkLevel : NetworkBehaviour
 
             // go through rand chances
             GameObject subLevelPrefab = null;
-            var randValue = UnityEngine.Random.Range(0, 1f);
+            var randValue = UnityEngine.Random.Range(0, 0.999f);
             foreach (var subLevel in subLevelSpawner.SubLevels)
             {
                 if (randValue < subLevel.SpawnChance)
