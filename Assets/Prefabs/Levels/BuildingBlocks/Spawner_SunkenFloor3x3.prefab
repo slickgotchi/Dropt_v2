@@ -771,6 +771,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9ebca12aaf5f3045a6d61cfba41ac6f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  SunkenFloorType: 0
+  NumberButtons: 1
   SunkenFloor3x3Prefab: {fileID: 3924821971453843158, guid: 8659c0dafb8de9144a503f68d2170f23, type: 3}
   SunkenFloorButtonPrefab: {fileID: 3924821971453843158, guid: dfd6baf1cb4ee604780bf9502a825f29, type: 3}
 --- !u!1 &4623943772741365643
@@ -1288,7 +1290,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -317176571
-  m_SortingLayer: -3
+  m_SortingLayer: -2
   m_SortingOrder: 0
   m_Sprite: {fileID: -986506512565922423, guid: 6e1ddf02229864b60b1be0857b580e76, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -1387,7 +1389,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -317176571
-  m_SortingLayer: -3
+  m_SortingLayer: -2
   m_SortingOrder: 0
   m_Sprite: {fileID: -986506512565922423, guid: 6e1ddf02229864b60b1be0857b580e76, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -1468,6 +1470,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8887390729596119023}
   - component: {fileID: 243827548236401763}
+  - component: {fileID: 5371653269138568961}
   m_Layer: 0
   m_Name: ButtonSpawn (2)
   m_TagString: Untagged
@@ -1531,7 +1534,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -317176571
-  m_SortingLayer: -3
+  m_SortingLayer: -2
   m_SortingOrder: 0
   m_Sprite: {fileID: -986506512565922423, guid: 6e1ddf02229864b60b1be0857b580e76, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -1544,3 +1547,15 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &5371653269138568961
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8800054236949393467}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b7a7d9796dc6ad2428a3070c2bc48fbd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

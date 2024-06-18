@@ -17,6 +17,7 @@ public class NetworkLevel : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        UnityEngine.Random.InitState(System.DateTime.Now.Millisecond);
         if (IsServer)
         {
             // if on first level layer, ensure spawn points list is clear
