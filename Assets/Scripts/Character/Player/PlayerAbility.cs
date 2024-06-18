@@ -100,9 +100,14 @@ public class PlayerAbility : NetworkBehaviour
 
     protected void SetRotationToDirection(Vector3 direction)
     {
-        if (!IsActivated) return;
         float angle = math.atan2(direction.y, direction.x) * math.TODEGREES;
         transform.rotation = Quaternion.Euler(0, 0, angle);
+    }
+
+    protected Quaternion GetRotationFromDirection(Vector3 direction)
+    {
+        float angle = math.atan2(direction.y, direction.x) * math.TODEGREES;
+        return Quaternion.Euler(0, 0, angle);
     }
 
     protected void SetPositionToPlayerCenterAtActivation(Vector3 offset = default)
@@ -110,6 +115,22 @@ public class PlayerAbility : NetworkBehaviour
         if (!IsActivated) return;
 
         transform.position = PlayerActivationState.position + PlayerCenterOffset + offset;
+    }
+
+    protected Vector3 GetPlayerCentrePosition()
+    {
+        Vector3 pos = Vector3.zero;
+
+        if (IsServer && Player != null)
+        {
+            pos = Player.GetComponent<PlayerMovementAndDash>().GetServerPosition() + PlayerCenterOffset;
+        }
+        else if (IsClient && Player != null)
+        {
+            pos = Player.transform.position + PlayerCenterOffset;
+        }
+
+        return pos;
     }
 
     protected void SetPositionToPlayerCenter(Vector3 offset = default)

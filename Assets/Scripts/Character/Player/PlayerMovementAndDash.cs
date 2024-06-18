@@ -556,6 +556,11 @@ public class PlayerMovementAndDash : NetworkBehaviour
         }
     }
 
+    public Vector3 GetServerPosition()
+    {
+        return lastServerState.position;
+    }
+
     public Vector3 GetFacingDirection()
     {
         if (m_actionDirectionTimer > 0)
