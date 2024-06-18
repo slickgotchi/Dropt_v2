@@ -17,6 +17,8 @@ public class NetworkLevel : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        UnityEngine.Random.InitState(System.DateTime.Now.Millisecond);
+
         if (IsServer)
         {
             // if on first level layer, ensure spawn points list is clear
@@ -280,7 +282,7 @@ public class NetworkLevel : NetworkBehaviour
             for (int j = 0; j < no_spawner.transform.childCount; j++)
             {
                 var spawnPoint = no_spawner.transform.GetChild(j);
-                var randValue = UnityEngine.Random.Range(0f, 0.999f);
+                var randValue = UnityEngine.Random.Range(0f, 1f);
 
                 for (int k = 0; k < spawns.Count; k++)
                 {
