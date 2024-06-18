@@ -220,6 +220,17 @@ public class PlayerMovementAndDash : NetworkBehaviour
         var currentTick = timer.CurrentTick;
         var bufferIndex = currentTick % k_bufferSize;   // this just ensures we go back to index 0 when tick goes past buffer size
 
+        // if ability not ready, we don't count as input this tick
+        var ability = GetComponent<PlayerAbilities>().GetAbility(m_abilityTriggered);
+        if (ability != null)
+        {
+            if (!ability.CanActivate(gameObject, m_abilityHand))
+            {
+                // ensure ability does not make it into input
+                m_abilityTriggered = PlayerAbilityEnum.Null;
+            }
+        }
+
         // assemble input
         InputPayload inputPayload = new InputPayload
         {
@@ -227,20 +238,11 @@ public class PlayerMovementAndDash : NetworkBehaviour
             moveDirection = GetComponent<PlayerGotchi>().IsDropSpawning ? Vector3.zero : m_moveDirection,
             actionDirection = m_actionDirection,
             abilityTriggered = m_abilityTriggered,
+            abilityHand = m_abilityHand,
         };
 
         // send input to server
         SendToServerRpc(inputPayload);
-
-        // perform ability
-        var ability = GetComponent<PlayerAbilities>().GetAbility(m_abilityTriggered);
-        if (ability != null)
-        {
-            ability.TryActivate(gameObject, m_abilityHand);
-        }
-
-        // reset any triggered ability
-        m_abilityTriggered = PlayerAbilityEnum.Null;
 
         // store in client input buffer
         clientInputBuffer.Add(inputPayload, bufferIndex);
@@ -248,6 +250,15 @@ public class PlayerMovementAndDash : NetworkBehaviour
         // locally process the movement and save our new state for this current tick
         StatePayload statePayload = ProcessMovement(inputPayload); // not a script simulation, use default fixed update
         clientStateBuffer.Add(statePayload, bufferIndex);
+
+        // activate ability if it was not null
+        if (ability != null && m_abilityTriggered != PlayerAbilityEnum.Null)
+        {
+            ability.Activate(gameObject, statePayload, inputPayload);
+        }
+
+        // reset any triggered ability
+        m_abilityTriggered = PlayerAbilityEnum.Null;
 
         // do server reconciliation
         HandleServerReconciliation();
@@ -309,7 +320,8 @@ public class PlayerMovementAndDash : NetworkBehaviour
         HandleTeleportInput(input);
 
         // set velocity
-        rb.velocity = input.moveDirection * m_networkCharacter.MoveSpeed.Value * GetInputSlowFactor(input, isReconciliation);
+        rb.velocity = input.moveDirection * m_networkCharacter.MoveSpeed.Value * 
+            GetInputSlowFactor(input, isReconciliation);
 
         // simulate
         Physics2D.simulationMode = SimulationMode2D.Script;
@@ -371,7 +383,6 @@ public class PlayerMovementAndDash : NetworkBehaviour
     {
         if (input.abilityTriggered != PlayerAbilityEnum.Null)
         {
-            if (IsServer) Debug.Log(input.abilityTriggered + " triggered on Server");
             var ability = GetComponent<PlayerAbilities>().GetAbility(input.abilityTriggered);
             if (ability != null)
             {
@@ -383,10 +394,6 @@ public class PlayerMovementAndDash : NetworkBehaviour
         if (input.tick > m_slowFactorExpiryTick)
         {
             m_slowFactor = 1f;
-        } else
-        {
-            var str = IsServer ? "Server" : "Client";
-            Debug.Log($"m_slowFactor on {str} is " + m_slowFactor + " at tick " + input.tick);
         }
     }
 
@@ -410,11 +417,28 @@ public class PlayerMovementAndDash : NetworkBehaviour
         {
             inputPayload = serverInputQueue.Dequeue();
 
+            // if ability not ready, we don't count as input this tick
+            var ability = GetComponent<PlayerAbilities>().GetAbility(inputPayload.abilityTriggered);
+            if (ability != null)
+            {
+                if (!ability.CanActivate(gameObject, inputPayload.abilityHand))
+                {
+                    // ensure ability does not make it into input
+                    inputPayload.abilityTriggered = PlayerAbilityEnum.Null;
+                }
+            }
+
             bufferIndex = inputPayload.tick % k_bufferSize;
 
             statePayload = ProcessMovement(inputPayload);
             if (m_isSetPlayerPosition) statePayload.position = m_setPlayerPosition;
             serverStateBuffer.Add(statePayload, bufferIndex);
+
+            // perform ability if applicable
+            if (ability != null && inputPayload.abilityTriggered != PlayerAbilityEnum.Null)
+            {
+                ability.Activate(gameObject, statePayload, inputPayload);
+            }
 
             // tell client the last state we have as a server
             SendToClientRpc(statePayload);

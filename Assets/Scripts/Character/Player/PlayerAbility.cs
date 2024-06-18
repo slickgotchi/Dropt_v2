@@ -21,34 +21,49 @@ public class PlayerAbility : NetworkBehaviour
     public float TeleportDistance = 0;
 
     public GameObject Player;
-    protected Vector3 PlayerDirection;
+    protected Vector3 PlayerCenterOffset = new Vector3(0,0.5f,0);
     protected ContactFilter2D EnemyHurtContactFilter;
+    protected bool IsActivated = false;
+    protected StatePayload PlayerActivationState;
+    protected InputPayload PlayerActivationInput;
 
     public NetworkVariable<int> PlayerNetworkObjectId = new NetworkVariable<int>(-1);
 
     private float m_timer = 0;
     private bool m_isFinished = false;
-
-    public void TryActivate(GameObject playerObject, Hand hand)
+    
+    public bool CanActivate(GameObject playerObject, Hand hand)
     {
-        if (playerObject.GetComponent<NetworkCharacter>().ApCurrent.Value < ApCost) return;
+        // AP check
+        if (playerObject.GetComponent<NetworkCharacter>().ApCurrent.Value < ApCost) return false;
 
+        // Cooldown check
         var playerAbilities = playerObject.GetComponent<PlayerAbilities>();
         if (hand == Hand.Left)
         {
-            if (playerAbilities.leftAttackCooldown.Value > 0) return;
+            if (playerAbilities.leftAttackCooldown.Value > 0) return false;
         } else
         {
-            if (playerAbilities.rightAttackCooldown.Value > 0) return;
+            if (playerAbilities.rightAttackCooldown.Value > 0) return false;
         }
 
+        // all good!
+        return true;
+    }
+
+    public bool Activate(GameObject playerObject, StatePayload state, InputPayload input)
+    {
         Player = playerObject;
-        PlayerDirection = Player.GetComponent<PlayerMovementAndDash>().GetFacingDirection().normalized;
+        PlayerActivationState = state;
+        PlayerActivationInput = input;
 
         m_timer = AbilityDuration;
         m_isFinished = false;
 
+        IsActivated = true;
         OnStart();
+
+        return true;
     }
 
     private void Update()
@@ -58,6 +73,7 @@ public class PlayerAbility : NetworkBehaviour
         if (!m_isFinished && m_timer < 0)
         {
             OnFinish();
+            IsActivated = false;
             m_isFinished = true;
         }
     }
@@ -82,10 +98,25 @@ public class PlayerAbility : NetworkBehaviour
         };
     }
 
-    protected void RotateToPlayerDirection()
+    protected void SetRotationToDirection(Vector3 direction)
     {
-        float angle = math.atan2(PlayerDirection.y, PlayerDirection.x) * math.TODEGREES;
+        if (!IsActivated) return;
+        float angle = math.atan2(direction.y, direction.x) * math.TODEGREES;
         transform.rotation = Quaternion.Euler(0, 0, angle);
+    }
+
+    protected void SetPositionToPlayerCenterAtActivation(Vector3 offset = default)
+    {
+        if (!IsActivated) return;
+
+        transform.position = PlayerActivationState.position + PlayerCenterOffset + offset;
+    }
+
+    protected void SetPositionToPlayerCenter(Vector3 offset = default)
+    {
+        if (Player == null || !IsActivated) return;
+
+        transform.position = Player.transform.position + PlayerCenterOffset + offset;
     }
 }
 

@@ -99,7 +99,6 @@ GameObject:
   - component: {fileID: 7703814828098464651}
   - component: {fileID: -6693017499447722929}
   - component: {fileID: -6166643874648367605}
-  - component: {fileID: 2665581302092081799}
   m_Layer: 8
   m_Name: CleaveSwing
   m_TagString: Untagged
@@ -194,11 +193,11 @@ PolygonCollider2D:
   m_Points:
     m_Paths:
     - - {x: 0, y: 1.8}
-      - {x: 0, y: 0}
-      - {x: 0.032489687, y: -1.6700413}
-      - {x: 1.5216597, y: -1.5324898}
+      - {x: -0.75, y: 0}
+      - {x: 0, y: -1.8}
+      - {x: 1.5, y: -1.8}
       - {x: 2.2, y: 0}
-      - {x: 1.2834022, y: 2.019835}
+      - {x: 1.5, y: 1.8}
   m_UseDelaunayMesh: 0
 --- !u!114 &-6693017499447722929
 MonoBehaviour:
@@ -236,47 +235,16 @@ MonoBehaviour:
   ApCost: 0
   AbilityDuration: 1
   CooldownDuration: 1
-  SlowFactor: 0.5
-  SlowFactorDuration: 1
+  SlowFactor: 0.3
+  SlowFactorDuration: 0.5
   TeleportDistance: 0
   Player: {fileID: 0}
   PlayerNetworkObjectId:
     m_InternalValue: -1
-  Projection: 1
+  Projection: 0.75
   attackRange: 2
   damage: 10
   hitFeedbackDuration: 0.1
---- !u!114 &2665581302092081799
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2544078778212307353}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  UseUnreliableDeltas: 0
-  SyncPositionX: 1
-  SyncPositionY: 1
-  SyncPositionZ: 0
-  SyncRotAngleX: 0
-  SyncRotAngleY: 0
-  SyncRotAngleZ: 1
-  SyncScaleX: 0
-  SyncScaleY: 0
-  SyncScaleZ: 0
-  PositionThreshold: 0.001
-  RotAngleThreshold: 0.01
-  ScaleThreshold: 0.01
-  UseQuaternionSynchronization: 0
-  UseQuaternionCompression: 0
-  UseHalfFloatPrecision: 0
-  InLocalSpace: 0
-  Interpolate: 1
-  SlerpPosition: 0
 --- !u!1 &4708556748347195212
 GameObject:
   m_ObjectHideFlags: 0

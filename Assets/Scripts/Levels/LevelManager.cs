@@ -194,6 +194,7 @@ public class LevelManager : NetworkBehaviour
 
         if (isBuildNextFrame && !isNavMeshBuilt)
         {
+            NavigationSurfaceSingleton.Instance.Surface.RemoveData();
             NavigationSurfaceSingleton.Instance.Surface.BuildNavMesh();
             isNavMeshBuilt = true;
         }

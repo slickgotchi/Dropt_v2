@@ -9,6 +9,7 @@ namespace Dropt
         public Vector3 moveDirection;
         public Vector3 actionDirection;
         public PlayerAbilityEnum abilityTriggered;
+        public Hand abilityHand;
 
         public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
         {
@@ -16,6 +17,7 @@ namespace Dropt
             serializer.SerializeValue(ref moveDirection);
             serializer.SerializeValue(ref actionDirection);
             serializer.SerializeValue(ref abilityTriggered);
+            serializer.SerializeValue(ref abilityHand);
         }
     }
 
