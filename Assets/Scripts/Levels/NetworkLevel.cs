@@ -432,14 +432,16 @@ public class NetworkLevel : NetworkBehaviour
 
             // go through rand chances
             GameObject subLevelPrefab = null;
-            var randValue = UnityEngine.Random.Range(0, 1f);
-            foreach (var subLevel in subLevelSpawner.SubLevels)
+            var randValue = UnityEngine.Random.Range(0, 0.999f);
+            for (int j = 0; j < subLevelSpawner.SubLevels.Count; j++)
             {
+                var subLevel = subLevelSpawner.SubLevels[j];
                 if (randValue < subLevel.SpawnChance)
                 {
                     subLevelPrefab = subLevel.SubLevelPrefab;
                     break;
-                } else
+                }
+                else
                 {
                     randValue -= subLevel.SpawnChance;
                 }
