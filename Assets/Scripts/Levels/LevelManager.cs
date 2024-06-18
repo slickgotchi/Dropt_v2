@@ -55,7 +55,8 @@ public class LevelManager : NetworkBehaviour
         {
             // things to save for next level
             if (networkObject.HasComponent<LevelManager>() ||
-                networkObject.HasComponent<PlayerController>()) continue;
+                networkObject.HasComponent<PlayerController>() ||
+                networkObject.HasComponent<PlayerAbility>()) continue;
 
             // destroy everything else
             networkObject.Despawn();

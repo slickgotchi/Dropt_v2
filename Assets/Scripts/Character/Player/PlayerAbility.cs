@@ -121,7 +121,7 @@ public class PlayerAbility : NetworkBehaviour
     {
         Vector3 pos = Vector3.zero;
 
-        if (IsServer && Player != null)
+        if (IsServer && !IsHost && Player != null)
         {
             pos = Player.GetComponent<PlayerMovementAndDash>().GetServerPosition() + PlayerCenterOffset;
         }

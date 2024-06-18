@@ -41,15 +41,14 @@ public class CleaveSwing : PlayerAbility
         {
             if (IsClient)
             {
-                //Debug.Log("Hit on Client");
                 if (hit.HasComponent<SpriteFlash>())
                 {
                     hit.GetComponent<SpriteFlash>().DamageFlash();
+                    Player.GetComponent<PlayerCamera>().Shake(0.5f, 0.3f);
                 }
             }
             if (IsServer)
             {
-                //Debug.Log("Hit on Server");
                 hit.GetComponent<NetworkCharacter>().HpCurrent.Value -= 20;
             }
         }

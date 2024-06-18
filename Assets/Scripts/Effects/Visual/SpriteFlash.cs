@@ -7,14 +7,15 @@ public class SpriteFlash : MonoBehaviour
 {
     [ColorUsage(true, true)]
     [SerializeField] private Color m_flashColor = Color.white;
-    [SerializeField] private float m_flashTime = 0.25f;
+    [SerializeField] private float m_flashTime = 0.15f;
+    [SerializeField] private int m_flashCount = 4; // Number of times the sprite should flash
 
     [SerializeField] private List<SpriteRenderer> m_spriteRenderers = new List<SpriteRenderer>();
 
     private Material[] m_materials;
-
     private bool m_isPlaying = false;
     private float m_timer = 0;
+    private int m_currentFlashCount = 0;
 
     private void Awake()
     {
@@ -38,12 +39,14 @@ public class SpriteFlash : MonoBehaviour
     {
         m_isPlaying = true;
         m_timer = m_flashTime;
+        m_currentFlashCount = 0; // Reset the flash count
         SetFlashColor();
     }
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.G)) {
+        if (Input.GetKeyDown(KeyCode.G))
+        {
             DamageFlash();
             Debug.Log("DamageFlash");
         }
@@ -58,9 +61,19 @@ public class SpriteFlash : MonoBehaviour
 
         if (m_timer <= 0)
         {
-            m_isPlaying = false;
-        }
+            m_currentFlashCount++;
 
+            if (m_currentFlashCount < m_flashCount)
+            {
+                // Start the next flash
+                m_timer = m_flashTime;
+            }
+            else
+            {
+                // End the flashing
+                m_isPlaying = false;
+            }
+        }
     }
 
     private void SetFlashColor()
@@ -73,7 +86,7 @@ public class SpriteFlash : MonoBehaviour
 
     private void SetFlashAmount(float amount)
     {
-        for (int i =0; i < m_materials.Length; i++)
+        for (int i = 0; i < m_materials.Length; i++)
         {
             m_materials[i].SetFloat("_FlashAmount", amount);
         }
