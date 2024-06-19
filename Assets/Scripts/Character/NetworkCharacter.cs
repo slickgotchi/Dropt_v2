@@ -14,10 +14,13 @@ public class NetworkCharacter : NetworkBehaviour
     public int baseApCurrent = 50;
     public int baseApBuffer = 0;
     public float baseDoubleStrikeChance = 0.05f;
-    public float baseCriticalStrikeDamage = 1.5f;
+    public float baseCriticalDamage = 1.5f;
     public float baseMoveSpeed = 6.22f;
     public float baseAccuracy = 1f;
     public float baseEvasion = 0f;
+
+    [Header("Damage/Health Popup Offset")]
+    public Vector3 popupTextOffset = new Vector3(0, 1.5f, 0f);
 
     private List<BuffObject> activeBuffObjects = new List<BuffObject>();
 
@@ -45,6 +48,48 @@ public class NetworkCharacter : NetworkBehaviour
         }
     }
 
+    public int GetAttackPower(float randomVariation = 0.1f)
+    {
+        return (int)UnityEngine.Random.Range(
+            AttackPower.Value * (1 - randomVariation), 
+            AttackPower.Value * (1 + randomVariation));
+    }
+
+    public bool IsCriticalAttack()
+    {
+        var rand = UnityEngine.Random.Range(0f, 0.999f);
+        return rand < CriticalChance.Value;
+    }
+
+    public virtual void TakeDamage(float damage, bool isCritical, bool isServer = false)
+    {
+        if (!isServer)
+        {
+            if (gameObject.HasComponent<SpriteFlash>())
+            {
+                gameObject.GetComponent<SpriteFlash>().DamageFlash();
+            }
+        }
+        else
+        {
+            HpCurrent.Value -= (int)damage;
+            if (HpCurrent.Value < 0) { HpCurrent.Value = 0; }
+            var position = transform.position + popupTextOffset;
+            DamagePopupTextClientRpc(damage, position, isCritical);
+        }
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    void DamagePopupTextClientRpc(float damage, Vector3 position, bool isCritical)
+    {
+        PopupTextManager.Instance.PopupText(
+            damage.ToString("F0"), 
+            position, 
+            isCritical ? 30 : 24, 
+            isCritical ? Color.yellow : Color.white, 
+            0.2f);
+    }
+
     protected virtual void InitializeStats()
     {
         HpMax.Value = baseHpMax;
@@ -56,7 +101,7 @@ public class NetworkCharacter : NetworkBehaviour
         ApCurrent.Value = baseApCurrent;
         ApBuffer.Value = baseApBuffer;
         DoubleStrikeChance.Value = baseDoubleStrikeChance;
-        CriticalDamage.Value = baseCriticalStrikeDamage;
+        CriticalDamage.Value = baseCriticalDamage;
         MoveSpeed.Value = baseMoveSpeed;
         Accuracy.Value = baseAccuracy;
         Evasion.Value = baseEvasion;
@@ -109,7 +154,7 @@ public class NetworkCharacter : NetworkBehaviour
             { CharacterStat.ApMax, baseApMax },
             { CharacterStat.ApBuffer, 0 },
             { CharacterStat.DoubleStrikeChance, baseDoubleStrikeChance },
-            { CharacterStat.CriticalDamage, baseCriticalStrikeDamage },
+            { CharacterStat.CriticalDamage, baseCriticalDamage },
             { CharacterStat.MoveSpeed, baseMoveSpeed },
             { CharacterStat.Accuracy, baseAccuracy },
             { CharacterStat.Evasion, baseEvasion }
@@ -176,7 +221,7 @@ public class NetworkCharacter : NetworkBehaviour
         // Optionally, you can log the final stats for debugging
         Debug.Log("Final Stats Calculated:");
         Debug.Log($"HpMax: {HpMax.Value}, AttackPower: {AttackPower.Value}, CriticalChance: {CriticalChance.Value}");
-        Debug.Log($"ApMax: {ApMax.Value}, DoubleStrikeChance: {DoubleStrikeChance.Value}, CriticalStrikeDamage: {CriticalDamage.Value}");
+        Debug.Log($"ApMax: {ApMax.Value}, DoubleStrikeChance: {DoubleStrikeChance.Value}, CriticalDamage: {CriticalDamage.Value}");
         Debug.Log($"MoveSpeed: {MoveSpeed.Value}, Accuracy: {Accuracy.Value}, Evasion: {Evasion.Value}");
     }
 }

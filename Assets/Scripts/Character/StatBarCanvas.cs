@@ -18,9 +18,9 @@ public class StatBarCanvas : MonoBehaviour
     void UpdateStatBars()
     {
         hpSlider.maxValue = character.HpMax.Value;
-        hpSlider.value = character.HpMax.Value;
+        hpSlider.value = character.HpCurrent.Value;
         apSlider.maxValue = character.ApMax.Value;
-        apSlider.value = character.ApMax.Value;
+        apSlider.value = character.ApCurrent.Value;
 
         if (character.ApMax.Value <= 0)
         {

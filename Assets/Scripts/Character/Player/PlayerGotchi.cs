@@ -14,10 +14,8 @@ public class PlayerGotchi : NetworkBehaviour
     [SerializeField] private ParticleSystem DustParticleSystem;
 
     private Animator animator;
-    private PlayerMovementAndDash playerMovement;
+    private PlayerMovementAndDash m_playerMovement;
 
-    private Vector3 m_velocity;
-    private float m_rotation;
     private Vector3 m_facingDirection;
     private bool m_isMoving;
 
@@ -33,7 +31,7 @@ public class PlayerGotchi : NetworkBehaviour
     private void Awake()
     {
         animator = GetComponent<Animator>();
-        playerMovement = GetComponent<PlayerMovementAndDash>();
+        m_playerMovement = GetComponent<PlayerMovementAndDash>();
         m_localVelocity = GetComponent<LocalVelocity>();
 
         m_camera = GetComponentInChildren<Camera>();
@@ -46,23 +44,18 @@ public class PlayerGotchi : NetworkBehaviour
 
         if (IsLocalPlayer)
         {
-            m_velocity = playerMovement.GetVelocity();
-            m_facingDirection = playerMovement.GetFacingDirection();
-            m_isMoving = math.abs(m_velocity.x) > 0.1f || math.abs(m_velocity.y) > 0.1f;
+            m_facingDirection = m_playerMovement.GetFacingDirection();
+            m_isMoving = m_playerMovement.IsMoving;
         } else
         {
-            m_velocity = m_localVelocity.Value;
             m_facingDirection = m_localVelocity.LastNonZeroVelocity.normalized;
             m_isMoving = m_localVelocity.IsMoving;
         }
 
-        m_rotation = CalculateSpriteLean();
-
         UpdateGotchiAnim();
-
         UpdateFacingFromMovement();
         UpdateDustParticles();
-        BodySprite.transform.rotation = Quaternion.Euler(new Vector3(0, 0, m_rotation));
+        BodySprite.transform.rotation = Quaternion.Euler(new Vector3(0, 0, CalculateSpriteLean()));
     }
 
     public void DropSpawn(Vector3 currentPosition, Vector3 newSpawnPoint)
@@ -122,7 +115,8 @@ public class PlayerGotchi : NetworkBehaviour
 
         if (m_isMoving)
         {
-            Vector2 direction = playerMovement.GetDirection();
+            //Vector2 direction = m_playerMovement.GetDirection();
+            Vector2 direction = m_facingDirection;
 
             float vx = direction.x;
             float vy = direction.y;

@@ -55,7 +55,8 @@ public class LevelManager : NetworkBehaviour
         {
             // things to save for next level
             if (networkObject.HasComponent<LevelManager>() ||
-                networkObject.HasComponent<PlayerController>()) continue;
+                networkObject.HasComponent<PlayerController>() ||
+                networkObject.HasComponent<PlayerAbility>()) continue;
 
             // destroy everything else
             networkObject.Despawn();
@@ -194,6 +195,7 @@ public class LevelManager : NetworkBehaviour
 
         if (isBuildNextFrame && !isNavMeshBuilt)
         {
+            NavigationSurfaceSingleton.Instance.Surface.RemoveData();
             NavigationSurfaceSingleton.Instance.Surface.BuildNavMesh();
             isNavMeshBuilt = true;
         }

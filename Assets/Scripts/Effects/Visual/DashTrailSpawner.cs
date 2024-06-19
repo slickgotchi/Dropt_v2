@@ -16,7 +16,7 @@ public class DashTrailSpawner : MonoBehaviour
         float totalDistance = Vector3.Distance(startPosition, finishPosition);
         float interval = totalDistance / (numberSpawns - 1);
 
-        for (int i = 0; i < numberSpawns; i++)
+        for (int i = 0; i < numberSpawns-1; i++)
         {
             Vector3 spawnPosition = Vector3.Lerp(startPosition, finishPosition, i / (float)(numberSpawns - 1));
             GameObject dashTrail = Instantiate(dashTrailPrefab, spawnPosition, Quaternion.identity);
