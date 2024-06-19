@@ -35,8 +35,10 @@ public class CleaveSwing : PlayerAbility
         {
             if (hit.HasComponent<NetworkCharacter>())
             {
-                var damage = Player.GetComponent<NetworkCharacter>().AttackPower.Value;
-                var isCritical = false;
+                var playerCharacter = Player.GetComponent<NetworkCharacter>();
+                var damage = playerCharacter.GetAttackPower();
+                var isCritical = playerCharacter.IsCriticalAttack();
+                damage = (int)(isCritical ? damage * playerCharacter.CriticalDamage.Value : damage);
                 hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical, isServer);
                 Player.GetComponent<PlayerCamera>().Shake(1.5f, 0.3f);
             }
@@ -50,7 +52,7 @@ public class CleaveSwing : PlayerAbility
             {
                 Animator.Play("CleaveSwing");
                 DebugDraw.DrawColliderPolygon(m_collider, IsServer);
-                PlayAnimServerRpc("CleaveSwing", AbilityOffset, AbilityRotation);
+                PlayAnimRemoteServerRpc("CleaveSwing", AbilityOffset, AbilityRotation);
             }
         }
     }

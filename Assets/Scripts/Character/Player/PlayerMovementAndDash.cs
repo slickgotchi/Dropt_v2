@@ -242,7 +242,7 @@ public class PlayerMovementAndDash : NetworkBehaviour
         clientInputBuffer.Add(inputPayload, bufferIndex);
 
         // locally process the movement and save our new state for this current tick
-        StatePayload statePayload = ProcessMovement(inputPayload); // not a script simulation, use default fixed update
+        StatePayload statePayload = ProcessMovement(inputPayload, false, false); // not a script simulation, use default fixed update
         clientStateBuffer.Add(statePayload, bufferIndex);
 
         // activate ability if it was not null
@@ -267,11 +267,8 @@ public class PlayerMovementAndDash : NetworkBehaviour
 
         StatePayload rewindState = IsHost ? serverStateBuffer.Get(bufferIndex - 1) : lastServerState;    // host rpcs execute immedimate, so use the previous server state in the buffer
 
-        ReconcileState(rewindState);
-    }
+        //ReconcileState(rewindState);
 
-    void ReconcileState(StatePayload rewindState)
-    {
         transform.position = rewindState.position;
 
         clientStateBuffer.Add(rewindState, rewindState.tick);
@@ -281,15 +278,19 @@ public class PlayerMovementAndDash : NetworkBehaviour
 
         while (tickToReplay <= timer.CurrentTick)
         {
-            int bufferIndex = tickToReplay % k_bufferSize;
-            StatePayload statePayload = ProcessMovement(clientInputBuffer.Get(bufferIndex), true);
+            bufferIndex = tickToReplay % k_bufferSize;
+            StatePayload statePayload = ProcessMovement(clientInputBuffer.Get(bufferIndex), true, false);
 
             clientStateBuffer.Add(statePayload, bufferIndex);
             tickToReplay++;
         }
     }
 
-    StatePayload ProcessMovement(InputPayload input, bool isReconciliation = false)
+    //void ReconcileState(StatePayload rewindState)
+    //{
+    //}
+
+    StatePayload ProcessMovement(InputPayload input, bool isReconciliation = false, bool isServer = false)
     {
         // set starting position and velocity
         if (IsLocalPlayer)
@@ -415,7 +416,8 @@ public class PlayerMovementAndDash : NetworkBehaviour
             var ability = GetComponent<PlayerAbilities>().GetAbility(inputPayload.abilityTriggered);
             if (ability != null)
             {
-                if (!ability.CanActivate(gameObject, inputPayload.abilityHand))
+                // need to add !IsHost as this will always fail if we're in host mode!
+                if (!ability.CanActivate(gameObject, inputPayload.abilityHand) && !IsHost)
                 {
                     // ensure ability does not make it into input
                     inputPayload.abilityTriggered = PlayerAbilityEnum.Null;
@@ -424,7 +426,8 @@ public class PlayerMovementAndDash : NetworkBehaviour
 
             bufferIndex = inputPayload.tick % k_bufferSize;
 
-            statePayload = ProcessMovement(inputPayload);
+            statePayload = ProcessMovement(inputPayload, false, true);
+
             if (m_isSetPlayerPosition) statePayload.position = m_setPlayerPosition;
             serverStateBuffer.Add(statePayload, bufferIndex);
 

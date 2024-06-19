@@ -18,6 +18,7 @@ public class PierceThrust : PlayerAbility
 
     public override void OnStart(bool isServer = false)
     {
+        // setup offset and rotation for tracking
         AbilityOffset = PlayerCenterOffset + PlayerActivationInput.actionDirection * Projection;
         AbilityRotation = GetRotationFromDirection(PlayerActivationInput.actionDirection);
 
@@ -35,8 +36,10 @@ public class PierceThrust : PlayerAbility
         {
             if (hit.HasComponent<NetworkCharacter>())
             {
-                var damage = Player.GetComponent<NetworkCharacter>().AttackPower.Value;
-                var isCritical = false;
+                var playerCharacter = Player.GetComponent<NetworkCharacter>();
+                var damage = playerCharacter.GetAttackPower();
+                var isCritical = playerCharacter.IsCriticalAttack();
+                damage = (int)(isCritical ? damage * playerCharacter.CriticalDamage.Value : damage);
                 hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical, isServer);
                 Player.GetComponent<PlayerCamera>().Shake(1.5f, 0.3f);
             }
@@ -50,7 +53,7 @@ public class PierceThrust : PlayerAbility
             {
                 Animator.Play("PierceThrust");
                 DebugDraw.DrawColliderPolygon(m_collider, IsServer);
-                PlayAnimServerRpc("PierceThrust", AbilityOffset, AbilityRotation);
+                PlayAnimRemoteServerRpc("PierceThrust", AbilityOffset, AbilityRotation);
             }
         }
     }

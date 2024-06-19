@@ -47,11 +47,11 @@ public class PlayerAbilities : NetworkBehaviour
     private void Update()
     {
         float dt = Time.deltaTime;
-        //if (IsServer && IsSpawned)
-        //{
-        //    leftAttackCooldown.Value -= dt;
-        //    rightAttackCooldown.Value -= dt;
-        //}
+        if (IsServer && IsSpawned)
+        {
+            leftAttackCooldown.Value -= dt;
+            rightAttackCooldown.Value -= dt;
+        }
 
         if (IsClient && IsSpawned)
         {

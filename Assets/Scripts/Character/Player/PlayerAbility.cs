@@ -48,9 +48,11 @@ public class PlayerAbility : NetworkBehaviour
         if (hand == Hand.Left)
         {
             if (playerAbilities.leftAttackCooldown.Value > 0) return false;
+            if (IsServer) playerAbilities.leftAttackCooldown.Value = CooldownDuration;
         } else
         {
             if (playerAbilities.rightAttackCooldown.Value > 0) return false;
+            if (IsServer) playerAbilities.rightAttackCooldown.Value = CooldownDuration;
         }
 
         // all good!
@@ -96,13 +98,13 @@ public class PlayerAbility : NetworkBehaviour
     }
 
     [Rpc(SendTo.Server)]
-    protected void PlayAnimServerRpc(string animName, Vector3 abilityOffset, Quaternion abilityRotation)
+    protected void PlayAnimRemoteServerRpc(string animName, Vector3 abilityOffset, Quaternion abilityRotation)
     {
-        PlayAnimClientRpc(animName, abilityOffset, abilityRotation);
+        PlayAnimRemoteClientRpc(animName, abilityOffset, abilityRotation);
     }
 
     [Rpc(SendTo.ClientsAndHost)]
-    protected void PlayAnimClientRpc(string animName, Vector3 abilityOffset, Quaternion abilityRotation)
+    protected void PlayAnimRemoteClientRpc(string animName, Vector3 abilityOffset, Quaternion abilityRotation)
     {
         if (Player.GetComponent<NetworkObject>().IsLocalPlayer) return;
 
