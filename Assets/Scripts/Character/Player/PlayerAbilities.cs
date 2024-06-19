@@ -13,6 +13,10 @@ public class PlayerAbilities : NetworkBehaviour
     [HideInInspector] public GameObject CleaveSwing;
     private NetworkVariable<ulong> CleaveSwingId = new NetworkVariable<ulong>(0);
 
+    public GameObject cleaveWhirlwindPrefab;
+    [HideInInspector] public GameObject CleaveWhirlwind;
+    private NetworkVariable<ulong> CleaveWhirlwindId = new NetworkVariable<ulong>(0);
+
     public GameObject pierceThrustPrefab;
     [HideInInspector] public GameObject PierceThrust;
     private NetworkVariable<ulong> PierceThrustId = new NetworkVariable<ulong>(0);
@@ -38,6 +42,10 @@ public class PlayerAbilities : NetworkBehaviour
         CleaveSwing = Instantiate(cleaveSwingPrefab);
         CleaveSwing.GetComponent<NetworkObject>().Spawn();
         CleaveSwingId.Value = CleaveSwing.GetComponent<NetworkObject>().NetworkObjectId;
+
+        CleaveWhirlwind = Instantiate(cleaveWhirlwindPrefab);
+        CleaveWhirlwind.GetComponent<NetworkObject>().Spawn();
+        CleaveWhirlwindId.Value = CleaveWhirlwind.GetComponent<NetworkObject>().NetworkObjectId;
 
         PierceThrust = Instantiate(pierceThrustPrefab);
         PierceThrust.GetComponent<NetworkObject>().Spawn();
@@ -78,7 +86,10 @@ public class PlayerAbilities : NetworkBehaviour
         if (!IsSpawned) return null;
 
         if (abilityEnum == PlayerAbilityEnum.Dash) return Dash.GetComponent<PlayerAbility>();
+
         if (abilityEnum == PlayerAbilityEnum.CleaveSwing) return CleaveSwing.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.CleaveWhirlwind) return CleaveWhirlwind.GetComponent<PlayerAbility>();
+
         if (abilityEnum == PlayerAbilityEnum.PierceThrust) return PierceThrust.GetComponent<PlayerAbility>();
 
         return null;
@@ -96,6 +107,20 @@ public class PlayerAbilities : NetworkBehaviour
         if (wearable.WeaponType == Wearable.WeaponTypeEnum.Splash) return PlayerAbilityEnum.SplashLob;
         if (wearable.WeaponType == Wearable.WeaponTypeEnum.Shield) return PlayerAbilityEnum.ShieldBash;
         if (wearable.WeaponType == Wearable.WeaponTypeEnum.Unarmed) return PlayerAbilityEnum.Unarmed;
+
+        return PlayerAbilityEnum.Null;
+    }
+
+    public PlayerAbilityEnum GetHoldAbilityEnum(Wearable.NameEnum wearableNameEnum)
+    {
+        var wearable = WearableManager.Instance.GetWearable(wearableNameEnum);
+
+        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Cleave) return PlayerAbilityEnum.CleaveWhirlwind;
+        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Smash) return PlayerAbilityEnum.SmashWave;
+        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Pierce) return PlayerAbilityEnum.PierceDrill;
+        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Ballistic) return PlayerAbilityEnum.BallisticSnipe;
+        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Magic) return PlayerAbilityEnum.MagicBeam;
+        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Splash) return PlayerAbilityEnum.SplashVolley;
 
         return PlayerAbilityEnum.Null;
     }

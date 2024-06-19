@@ -19,7 +19,7 @@ public class Bullet : MonoBehaviour
 
     public void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.GetComponent<PlayerMovementAndDash>() != null) return;
+        if (collision.gameObject.GetComponent<PlayerPrediction>() != null) return;
 
         var newExplosion = Instantiate(explosionPrefab);
         newExplosion.transform.position = transform.position;

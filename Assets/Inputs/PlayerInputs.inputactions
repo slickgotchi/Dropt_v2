@@ -33,6 +33,24 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "LeftHoldStart_CursorAim",
+                    "type": "Button",
+                    "id": "591e7e0e-e736-4805-862b-2199caf74661",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "Hold",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "LeftHoldFinish_CursorAim",
+                    "type": "Button",
+                    "id": "9cff82ec-67d3-43be-af1a-fa251bc0cae2",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "Press(behavior=1)",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "RightAttack_CursorAim",
                     "type": "Button",
                     "id": "05a5f118-4cb5-4707-95bc-0fcf9b80f7b0",
@@ -168,6 +186,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "RightAttack_CursorAim",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "351f8a5d-5090-4787-842a-7bd5d547b536",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "LeftHoldStart_CursorAim",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "feea3e16-5d3a-437d-96f6-531edc11ce47",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "LeftHoldFinish_CursorAim",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

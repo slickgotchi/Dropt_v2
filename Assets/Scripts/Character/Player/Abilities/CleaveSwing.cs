@@ -30,7 +30,7 @@ public class CleaveSwing : PlayerAbility
 
         // do a collision check
         List<Collider2D> hitColliders = new List<Collider2D>();
-        m_collider.Overlap(GetEnemyHurtContactFilter(), hitColliders);
+        m_collider.Overlap(GetContactFilter("EnemyHurt"), hitColliders);
         foreach (var hit in hitColliders)
         {
             if (hit.HasComponent<NetworkCharacter>())

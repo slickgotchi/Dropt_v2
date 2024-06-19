@@ -27,6 +27,8 @@ public class PlayerAbility : NetworkBehaviour
     protected StatePayload PlayerActivationState;
     protected InputPayload PlayerActivationInput;
 
+    protected float HoldDuration = 0;
+
     protected Vector3 AbilityOffset = Vector3.zero;
     protected Quaternion AbilityRotation = Quaternion.identity;
 
@@ -59,11 +61,13 @@ public class PlayerAbility : NetworkBehaviour
         return true;
     }
 
-    public bool Activate(GameObject playerObject, StatePayload state, InputPayload input, bool isServer = false)
+    public bool Activate(GameObject playerObject, StatePayload state, InputPayload input, float holdDuration, bool isServer = false)
     {
         Player = playerObject;
         PlayerActivationState = state;
         PlayerActivationInput = input;
+
+        HoldDuration = holdDuration;
 
         m_timer = AbilityDuration;
         m_isFinished = false;
@@ -116,12 +120,12 @@ public class PlayerAbility : NetworkBehaviour
         Animator.Play(animName);
     }
 
-    protected ContactFilter2D GetEnemyHurtContactFilter()
+    protected ContactFilter2D GetContactFilter(string layerName)
     {
         return new ContactFilter2D
         {
             useLayerMask = true,
-            layerMask = 1 << LayerMask.NameToLayer("EnemyHurt"),
+            layerMask = 1 << LayerMask.NameToLayer(layerName),
             useTriggers = true,
         };
     }
@@ -133,23 +137,10 @@ public class PlayerAbility : NetworkBehaviour
         transform.position = Player.transform.position + AbilityOffset;
     }
 
-    protected void SetRotationToDirection(Vector3 direction)
-    {
-        float angle = math.atan2(direction.y, direction.x) * math.TODEGREES;
-        transform.rotation = Quaternion.Euler(0, 0, angle);
-    }
-
     protected Quaternion GetRotationFromDirection(Vector3 direction)
     {
         float angle = math.atan2(direction.y, direction.x) * math.TODEGREES;
         return Quaternion.Euler(0, 0, angle);
-    }
-
-    protected void SetPositionToPlayerCenterAtActivation(Vector3 offset = default)
-    {
-        if (!IsActivated) return;
-
-        transform.position = PlayerActivationState.position + PlayerCenterOffset + offset;
     }
 
     protected Vector3 GetPlayerCentrePosition()
@@ -158,7 +149,7 @@ public class PlayerAbility : NetworkBehaviour
 
         if (IsServer && !IsHost && Player != null)
         {
-            pos = Player.GetComponent<PlayerMovementAndDash>().GetServerPosition() + PlayerCenterOffset;
+            pos = Player.GetComponent<PlayerPrediction>().GetServerPosition() + PlayerCenterOffset;
         }
         else if (IsClient && Player != null)
         {
@@ -168,12 +159,6 @@ public class PlayerAbility : NetworkBehaviour
         return pos;
     }
 
-    protected void SetPositionToPlayerCenter(Vector3 offset = default)
-    {
-        if (Player == null || !IsActivated) return;
-
-        transform.position = Player.transform.position + PlayerCenterOffset + offset;
-    }
 }
 
 public enum PlayerAbilityEnum

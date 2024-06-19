@@ -3,9 +3,9 @@ using Unity.Netcode;
 using System.Collections.Generic;
 using Unity.Mathematics;
 
-public class PierceThrust : PlayerAbility
+public class CleaveWhirlwind : PlayerAbility
 {
-    [Header("Pierce Thrust Parameters")]
+    [Header("Cleave Swing Parameters")]
     [SerializeField] float Projection = 1f;
 
     private Collider2D m_collider;
@@ -18,7 +18,8 @@ public class PierceThrust : PlayerAbility
 
     public override void OnStart(bool isServer = false)
     {
-        // setup offset and rotation for tracking
+        Debug.Log("Whirlwind with hold duration: " + HoldDuration);
+
         AbilityOffset = PlayerCenterOffset + PlayerActivationInput.actionDirection * Projection;
         AbilityRotation = GetRotationFromDirection(PlayerActivationInput.actionDirection);
 
@@ -51,12 +52,14 @@ public class PierceThrust : PlayerAbility
         {
             if (Player.GetComponent<NetworkObject>().IsLocalPlayer)
             {
-                Animator.Play("PierceThrust");
+                Animator.Play("CleaveSwing");
                 DebugDraw.DrawColliderPolygon(m_collider, IsServer);
-                PlayAnimRemoteServerRpc("PierceThrust", AbilityOffset, AbilityRotation);
+                PlayAnimRemoteServerRpc("CleaveSwing", AbilityOffset, AbilityRotation);
             }
         }
     }
+
+
 
     private void Update()
     {

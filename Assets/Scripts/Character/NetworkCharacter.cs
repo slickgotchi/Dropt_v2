@@ -82,11 +82,13 @@ public class NetworkCharacter : NetworkBehaviour
     [Rpc(SendTo.ClientsAndHost)]
     void DamagePopupTextClientRpc(float damage, Vector3 position, bool isCritical)
     {
+        ColorUtility.TryParseHtmlString("#ffeb57", out Color critColor);
+
         PopupTextManager.Instance.PopupText(
             damage.ToString("F0"), 
             position, 
             isCritical ? 30 : 24, 
-            isCritical ? Color.yellow : Color.white, 
+            isCritical ? critColor : Color.white, 
             0.2f);
     }
 

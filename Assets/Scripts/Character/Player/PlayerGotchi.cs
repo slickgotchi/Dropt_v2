@@ -14,7 +14,7 @@ public class PlayerGotchi : NetworkBehaviour
     [SerializeField] private ParticleSystem DustParticleSystem;
 
     private Animator animator;
-    private PlayerMovementAndDash m_playerMovement;
+    private PlayerPrediction m_playerMovement;
 
     private Vector3 m_facingDirection;
     private bool m_isMoving;
@@ -31,7 +31,7 @@ public class PlayerGotchi : NetworkBehaviour
     private void Awake()
     {
         animator = GetComponent<Animator>();
-        m_playerMovement = GetComponent<PlayerMovementAndDash>();
+        m_playerMovement = GetComponent<PlayerPrediction>();
         m_localVelocity = GetComponent<LocalVelocity>();
 
         m_camera = GetComponentInChildren<Camera>();
