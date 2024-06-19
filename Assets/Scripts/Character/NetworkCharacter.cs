@@ -19,6 +19,9 @@ public class NetworkCharacter : NetworkBehaviour
     public float baseAccuracy = 1f;
     public float baseEvasion = 0f;
 
+    [Header("Damage/Health Popup Offset")]
+    public Vector3 popupTextOffset = new Vector3(0, 1.5f, 0f);
+
     private List<BuffObject> activeBuffObjects = new List<BuffObject>();
 
     // NetworkVariables
@@ -43,6 +46,35 @@ public class NetworkCharacter : NetworkBehaviour
             // baseize default values on the server
             InitializeStats();
         }
+    }
+
+    public virtual void TakeDamage(float damage, bool isCritical, bool isServer = false)
+    {
+        if (!isServer)
+        {
+            if (gameObject.HasComponent<SpriteFlash>())
+            {
+                gameObject.GetComponent<SpriteFlash>().DamageFlash();
+            }
+        }
+        else
+        {
+            HpCurrent.Value -= (int)damage;
+            if (HpCurrent.Value < 0) { HpCurrent.Value = 0; }
+            var position = transform.position + popupTextOffset;
+            DamagePopupTextClientRpc(damage, position, isCritical);
+        }
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    void DamagePopupTextClientRpc(float damage, Vector3 position, bool isCritical)
+    {
+        PopupTextManager.Instance.PopupText(
+            damage.ToString("F0"), 
+            position, 
+            isCritical ? 36 : 24, 
+            isCritical ? Color.yellow : Color.white, 
+            0.2f);
     }
 
     protected virtual void InitializeStats()

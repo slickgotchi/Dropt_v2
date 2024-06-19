@@ -55,15 +55,21 @@ public class PlayerAbilities : NetworkBehaviour
 
         if (IsClient && IsSpawned)
         {
-            if (Dash == null && DashId.Value > 0) Dash = 
-                    NetworkManager.SpawnManager.SpawnedObjects[DashId.Value].gameObject;
+            if (Dash == null && DashId.Value > 0)
+            {
+                Dash = NetworkManager.SpawnManager.SpawnedObjects[DashId.Value].gameObject;
+                Dash.GetComponent<PlayerAbility>().Player = gameObject;
+            }
             if (CleaveSwing == null && CleaveSwingId.Value > 0)
             {
                 CleaveSwing = NetworkManager.SpawnManager.SpawnedObjects[CleaveSwingId.Value].gameObject;
-                Debug.Log(CleaveSwing.GetComponent<PlayerAbility>().SlowFactor);
+                CleaveSwing.GetComponent<PlayerAbility>().Player = gameObject;
             }
-            if (PierceThrust == null && PierceThrustId.Value > 0) PierceThrust = 
-                    NetworkManager.SpawnManager.SpawnedObjects[PierceThrustId.Value].gameObject;
+            if (PierceThrust == null && PierceThrustId.Value > 0)
+            {
+                PierceThrust = NetworkManager.SpawnManager.SpawnedObjects[PierceThrustId.Value].gameObject;
+                PierceThrust.GetComponent<PlayerAbility>().Player = gameObject;
+            }
         }
     }
 

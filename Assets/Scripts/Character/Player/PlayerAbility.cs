@@ -27,11 +27,17 @@ public class PlayerAbility : NetworkBehaviour
     protected StatePayload PlayerActivationState;
     protected InputPayload PlayerActivationInput;
 
+    protected Vector3 AbilityOffset = Vector3.zero;
+    protected Quaternion AbilityRotation = Quaternion.identity;
+
+    protected Animator Animator;
+
     public NetworkVariable<int> PlayerNetworkObjectId = new NetworkVariable<int>(-1);
 
     private float m_timer = 0;
     private bool m_isFinished = false;
-    
+    private bool m_isServer = false;
+
     public bool CanActivate(GameObject playerObject, Hand hand)
     {
         // AP check
@@ -51,7 +57,7 @@ public class PlayerAbility : NetworkBehaviour
         return true;
     }
 
-    public bool Activate(GameObject playerObject, StatePayload state, InputPayload input)
+    public bool Activate(GameObject playerObject, StatePayload state, InputPayload input, bool isServer = false)
     {
         Player = playerObject;
         PlayerActivationState = state;
@@ -61,7 +67,8 @@ public class PlayerAbility : NetworkBehaviour
         m_isFinished = false;
 
         IsActivated = true;
-        OnStart();
+        m_isServer = isServer;
+        OnStart(m_isServer);
 
         return true;
     }
@@ -72,20 +79,39 @@ public class PlayerAbility : NetworkBehaviour
 
         if (!m_isFinished && m_timer < 0)
         {
-            OnFinish();
+            OnFinish(m_isServer);
             IsActivated = false;
             m_isFinished = true;
         }
     }
 
-    public virtual void OnStart()
+    public virtual void OnStart(bool isServer = false)
     {
 
     }
 
-    public virtual void OnFinish()
+    public virtual void OnFinish(bool isServer = false)
     {
 
+    }
+
+    [Rpc(SendTo.Server)]
+    protected void PlayAnimServerRpc(string animName, Vector3 abilityOffset, Quaternion abilityRotation)
+    {
+        PlayAnimClientRpc(animName, abilityOffset, abilityRotation);
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    protected void PlayAnimClientRpc(string animName, Vector3 abilityOffset, Quaternion abilityRotation)
+    {
+        if (Player.GetComponent<NetworkObject>().IsLocalPlayer) return;
+
+        AbilityOffset = abilityOffset;
+        AbilityRotation = abilityRotation;
+
+        transform.position = Player.transform.position + abilityOffset;
+        transform.rotation = abilityRotation;
+        Animator.Play(animName);
     }
 
     protected ContactFilter2D GetEnemyHurtContactFilter()
@@ -96,6 +122,13 @@ public class PlayerAbility : NetworkBehaviour
             layerMask = 1 << LayerMask.NameToLayer("EnemyHurt"),
             useTriggers = true,
         };
+    }
+
+    protected void TrackPlayerPosition()
+    {
+        if (Player == null) return;
+        
+        transform.position = Player.transform.position + AbilityOffset;
     }
 
     protected void SetRotationToDirection(Vector3 direction)

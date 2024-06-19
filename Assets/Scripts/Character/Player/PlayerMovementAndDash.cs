@@ -17,12 +17,6 @@ public class PlayerMovementAndDash : NetworkBehaviour
     private int m_slowFactorExpiryTick = 0;
     private int m_slowFactorStartTick = 0;
 
-    //private int m_dashCooldownExpiryTick = 0;
-    //private int m_leftAttackCooldownExpiryTick = 0;
-    //private int m_rightAttackCooldownExpiryTick = 0;
-    //private int m_leftSpecialCooldownExpiryTick = 0;
-    //private int m_rightSpecialCooldownExpiryTick = 0;
-
     // inputs to populate
     private Vector3 m_moveDirection;
     private Vector3 m_actionDirection = new Vector3(0, -1, 0);
@@ -437,7 +431,7 @@ public class PlayerMovementAndDash : NetworkBehaviour
             // perform ability if applicable
             if (ability != null && inputPayload.abilityTriggered != PlayerAbilityEnum.Null)
             {
-                ability.Activate(gameObject, statePayload, inputPayload);
+                ability.Activate(gameObject, statePayload, inputPayload, true);
             }
 
             // tell client the last state we have as a server

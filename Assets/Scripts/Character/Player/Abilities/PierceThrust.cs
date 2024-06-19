@@ -8,27 +8,22 @@ public class PierceThrust : PlayerAbility
     [Header("Pierce Thrust Parameters")]
     [SerializeField] float Projection = 1f;
 
-    private Animator m_animator;
     private Collider2D m_collider;
 
     public override void OnNetworkSpawn()
     {
-        m_animator = GetComponent<Animator>();
+        Animator = GetComponent<Animator>();
         m_collider = GetComponent<Collider2D>();
     }
 
-    public override void OnStart()
+    public override void OnStart(bool isServer = false)
     {
-        // Play the attack animation
-        if (IsClient)
-        {
-            m_animator.Play("PierceThrust");
-        }
+        AbilityOffset = PlayerCenterOffset + PlayerActivationInput.actionDirection * Projection;
+        AbilityRotation = GetRotationFromDirection(PlayerActivationInput.actionDirection);
 
         // set transform to activation rotation/position
-        transform.rotation = GetRotationFromDirection(PlayerActivationInput.actionDirection);
-        transform.position = PlayerActivationState.position + PlayerCenterOffset +
-            PlayerActivationInput.actionDirection * Projection;
+        transform.rotation = AbilityRotation;
+        transform.position = PlayerActivationState.position + AbilityOffset;
 
         // sync colliders to current transform
         Physics2D.SyncTransforms();
@@ -36,34 +31,36 @@ public class PierceThrust : PlayerAbility
         // do a collision check
         List<Collider2D> hitColliders = new List<Collider2D>();
         m_collider.Overlap(GetEnemyHurtContactFilter(), hitColliders);
-        DebugDraw.DrawColliderPolygon(m_collider, IsServer);
         foreach (var hit in hitColliders)
         {
-            if (IsClient)
+            if (hit.HasComponent<NetworkCharacter>())
             {
-                //Debug.Log("Hit on Client");
-                if (hit.HasComponent<SpriteFlash>())
-                {
-                    hit.GetComponent<SpriteFlash>().DamageFlash();
-                    Player.GetComponent<PlayerCamera>().Shake(0.5f, 0.3f);
-                }
-            }
-            if (IsServer)
-            {
-                //Debug.Log("Hit on Server");
-                hit.GetComponent<NetworkCharacter>().HpCurrent.Value -= 20;
+                var damage = Player.GetComponent<NetworkCharacter>().AttackPower.Value;
+                var isCritical = false;
+                hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical, isServer);
+                Player.GetComponent<PlayerCamera>().Shake(1.5f, 0.3f);
             }
         }
-
         hitColliders.Clear();
+
+        // do client side effects/visuals etc.
+        if (!isServer)
+        {
+            if (Player.GetComponent<NetworkObject>().IsLocalPlayer)
+            {
+                Animator.Play("PierceThrust");
+                DebugDraw.DrawColliderPolygon(m_collider, IsServer);
+                PlayAnimServerRpc("PierceThrust", AbilityOffset, AbilityRotation);
+            }
+        }
     }
 
     private void Update()
     {
-        transform.position = GetPlayerCentrePosition() + PlayerActivationInput.actionDirection * Projection;
+        TrackPlayerPosition();
     }
 
-    public override void OnFinish()
+    public override void OnFinish(bool isServer = false)
     {
     }
 }
