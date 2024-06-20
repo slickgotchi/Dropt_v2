@@ -29,7 +29,7 @@ namespace Dropt
     {
         public int tick;
         public Vector3 position;
-        //public Vector3 velocity;
+        public Vector3 velocity;
         public PlayerAbilityEnum abilityTriggered;
 
         public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter

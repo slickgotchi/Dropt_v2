@@ -28,6 +28,17 @@ public class PlayerGotchi : NetworkBehaviour
     private Vector3 m_spawnPoint;
     private Vector3 m_preSpawnPoint;
 
+    // spin variables
+    public enum SpinDirection { AntiClockwise, Clockwise }
+    private SpinDirection m_spinDirection;
+    private int m_spinNumber;
+    private float m_spinPeriod;
+    private float m_spinAngle;
+    private float m_spinTimer;
+
+    public enum Facing { Front, Back, Left, Right }
+    private Facing m_facing;
+
     private void Awake()
     {
         animator = GetComponent<Animator>();
@@ -42,18 +53,19 @@ public class PlayerGotchi : NetworkBehaviour
     {
         if (IsServer && !IsHost) return;
 
-        if (IsLocalPlayer)
-        {
+        //if (IsLocalPlayer)
+        //{
             m_facingDirection = m_playerMovement.GetFacingDirection();
             m_isMoving = m_playerMovement.IsMoving;
-        } else
-        {
-            m_facingDirection = m_localVelocity.LastNonZeroVelocity.normalized;
-            m_isMoving = m_localVelocity.IsMoving;
-        }
+        //} else
+        //{
+        //    m_facingDirection = m_localVelocity.LastNonZeroVelocity.normalized;
+        //    m_isMoving = m_localVelocity.IsMoving;
+        //}
 
         UpdateGotchiAnim();
         UpdateFacingFromMovement();
+        UpdateFacingFromSpinning();
         UpdateDustParticles();
         BodySprite.transform.rotation = Quaternion.Euler(new Vector3(0, 0, CalculateSpriteLean()));
     }
@@ -107,6 +119,78 @@ public class PlayerGotchi : NetworkBehaviour
         if (m_facingDirection.y < -math.abs(m_facingDirection.x)) BodySprite.sprite = _front;
         if (m_facingDirection.x <= -math.abs(m_facingDirection.y)) BodySprite.sprite = _left;
         if (m_facingDirection.x >= math.abs(m_facingDirection.y)) BodySprite.sprite = _right;
+    }
+
+    public void PlayFacingSpin(int spinNumber, float spinPeriod, SpinDirection spinDirection, float startAngle)
+    {
+        m_spinNumber = spinNumber;
+        m_spinPeriod = spinPeriod;
+        m_spinDirection = spinDirection;
+        m_spinAngle = startAngle;
+        m_spinTimer = spinNumber * spinPeriod;
+    }
+
+    void UpdateFacingFromSpinning()
+    {
+        if (m_spinTimer <= 0) return;
+
+        m_spinTimer -= Time.deltaTime;
+        float angleDelta = 360 / m_spinPeriod * Time.deltaTime;
+        angleDelta *= m_spinDirection == SpinDirection.AntiClockwise ? 1 : -1;
+        m_spinAngle += angleDelta;
+        SetBodySpriteFromAngle(m_spinAngle);
+    }
+
+    /// <summary>
+    /// Returns gotchi Facing given a certaub direction
+    /// </summary>
+    /// <param name="direction"></param>
+    /// <returns></returns>
+    public Facing GetFacingFromDirection(Vector3 direction)
+    {
+        direction.z = 0;
+        direction.Normalize();
+        if (direction.y > math.abs(direction.x)) return Facing.Back;
+        if (direction.y < -math.abs(direction.x)) return Facing.Front;
+        if (direction.x <= -math.abs(direction.y)) return Facing.Left;
+        if (direction.x >= math.abs(direction.y)) return Facing.Right;
+        return Facing.Front;
+    }
+
+    public void SetBodySpriteFromFacing(Facing facing)
+    {
+        if (facing == Facing.Back) BodySprite.sprite = _back;
+        if (facing == Facing.Front) BodySprite.sprite = _front;
+        if (facing == Facing.Left) BodySprite.sprite = _left;
+        if (facing == Facing.Right) BodySprite.sprite = _right;
+    }
+
+    public void SetBodySpriteFromDirection(Vector3 direction)
+    {
+        SetBodySpriteFromFacing(GetFacingFromDirection(direction));
+    }
+
+    /// <summary>
+    /// Returns gotchi Facing given an angle in degrees. Right facing gotchi is 0 degrees
+    /// and anticlockwise is positive
+    /// </summary>
+    /// <param name="angleDegrees"></param>
+    /// <returns></returns>
+    public Facing GetFacingFromAngle(float angleDegrees)
+    {
+        // Normalize angleDegrees to be within the range [0, 360)
+        angleDegrees = angleDegrees % 360;  // Result will be in the range (-360, 360)
+        if (angleDegrees < 0) angleDegrees += 360;
+
+        if (angleDegrees > 45 && angleDegrees <= 135) return Facing.Front;
+        if (angleDegrees > 135 && angleDegrees <= 225) return Facing.Left;
+        if (angleDegrees > 225 && angleDegrees <= 315) return Facing.Back;
+        else return Facing.Right;
+    }
+
+    public void SetBodySpriteFromAngle(float angleDegrees)
+    {
+        SetBodySpriteFromFacing(GetFacingFromAngle(angleDegrees));
     }
 
     private float CalculateSpriteLean()

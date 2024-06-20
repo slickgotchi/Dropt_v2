@@ -17,7 +17,6 @@ public class PlayerAbility : NetworkBehaviour
     public float AbilityDuration = 1;
     public float CooldownDuration = 1;
     public float SlowFactor = 1;
-    public float SlowFactorDuration = 1;
     public float TeleportDistance = 0;
 
     public GameObject Player;
@@ -34,34 +33,19 @@ public class PlayerAbility : NetworkBehaviour
 
     protected Animator Animator;
 
+    //public float CooldownTimer = 0;
+
     public NetworkVariable<int> PlayerNetworkObjectId = new NetworkVariable<int>(-1);
 
     private float m_timer = 0;
     private bool m_isFinished = false;
-    private bool m_isServer = false;
 
-    public bool CanActivate(GameObject playerObject, Hand hand)
+    private void Awake()
     {
-        // AP check
-        if (playerObject.GetComponent<NetworkCharacter>().ApCurrent.Value < ApCost) return false;
-
-        // Cooldown check
-        var playerAbilities = playerObject.GetComponent<PlayerAbilities>();
-        if (hand == Hand.Left)
-        {
-            if (playerAbilities.leftAttackCooldown.Value > 0) return false;
-            if (IsServer) playerAbilities.leftAttackCooldown.Value = CooldownDuration;
-        } else
-        {
-            if (playerAbilities.rightAttackCooldown.Value > 0) return false;
-            if (IsServer) playerAbilities.rightAttackCooldown.Value = CooldownDuration;
-        }
-
-        // all good!
-        return true;
+        CooldownDuration = math.max(AbilityDuration, CooldownDuration);
     }
 
-    public bool Activate(GameObject playerObject, StatePayload state, InputPayload input, float holdDuration, bool isServer = false)
+    public bool Activate(GameObject playerObject, StatePayload state, InputPayload input, float holdDuration)
     {
         Player = playerObject;
         PlayerActivationState = state;
@@ -69,12 +53,11 @@ public class PlayerAbility : NetworkBehaviour
 
         HoldDuration = holdDuration;
 
+        IsActivated = true;
         m_timer = AbilityDuration;
         m_isFinished = false;
 
-        IsActivated = true;
-        m_isServer = isServer;
-        OnStart(m_isServer);
+        OnStart();
 
         return true;
     }
@@ -85,30 +68,37 @@ public class PlayerAbility : NetworkBehaviour
 
         if (!m_isFinished && m_timer < 0)
         {
-            OnFinish(m_isServer);
+            OnFinish();
             IsActivated = false;
             m_isFinished = true;
         }
+            
+        OnUpdate();
     }
 
-    public virtual void OnStart(bool isServer = false)
+    public virtual void OnStart()
     {
 
     }
 
-    public virtual void OnFinish(bool isServer = false)
+    public virtual void OnUpdate()
+    {
+
+    }
+
+    public virtual void OnFinish()
     {
 
     }
 
     [Rpc(SendTo.Server)]
-    protected void PlayAnimRemoteServerRpc(string animName, Vector3 abilityOffset, Quaternion abilityRotation)
+    protected void PlayAnimRemoteServerRpc(string animName, Vector3 abilityOffset, Quaternion abilityRotation, float abilityScale = 1f)
     {
-        PlayAnimRemoteClientRpc(animName, abilityOffset, abilityRotation);
+        PlayAnimRemoteClientRpc(animName, abilityOffset, abilityRotation, abilityScale);
     }
 
     [Rpc(SendTo.ClientsAndHost)]
-    protected void PlayAnimRemoteClientRpc(string animName, Vector3 abilityOffset, Quaternion abilityRotation)
+    protected void PlayAnimRemoteClientRpc(string animName, Vector3 abilityOffset, Quaternion abilityRotation, float abilityScale = 1f)
     {
         if (Player.GetComponent<NetworkObject>().IsLocalPlayer) return;
 
@@ -117,6 +107,7 @@ public class PlayerAbility : NetworkBehaviour
 
         transform.position = Player.transform.position + abilityOffset;
         transform.rotation = abilityRotation;
+        transform.localScale = new Vector3(abilityScale, abilityScale, 1);
         Animator.Play(animName);
     }
 

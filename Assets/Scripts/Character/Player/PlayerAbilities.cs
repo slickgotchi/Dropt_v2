@@ -73,6 +73,11 @@ public class PlayerAbilities : NetworkBehaviour
                 CleaveSwing = NetworkManager.SpawnManager.SpawnedObjects[CleaveSwingId.Value].gameObject;
                 CleaveSwing.GetComponent<PlayerAbility>().Player = gameObject;
             }
+            if (CleaveWhirlwind == null && CleaveWhirlwindId.Value > 0)
+            {
+                CleaveWhirlwind = NetworkManager.SpawnManager.SpawnedObjects[CleaveWhirlwindId.Value].gameObject;
+                CleaveWhirlwind.GetComponent<PlayerAbility>().Player = gameObject;
+            }
             if (PierceThrust == null && PierceThrustId.Value > 0)
             {
                 PierceThrust = NetworkManager.SpawnManager.SpawnedObjects[PierceThrustId.Value].gameObject;

@@ -5,7 +5,7 @@ using Unity.Mathematics;
 
 public class PierceThrust : PlayerAbility
 {
-    [Header("Pierce Thrust Parameters")]
+    [Header("PierceThrust Parameters")]
     [SerializeField] float Projection = 1f;
 
     private Collider2D m_collider;
@@ -16,7 +16,7 @@ public class PierceThrust : PlayerAbility
         m_collider = GetComponent<Collider2D>();
     }
 
-    public override void OnStart(bool isServer = false)
+    public override void OnStart()
     {
         // setup offset and rotation for tracking
         AbilityOffset = PlayerCenterOffset + PlayerActivationInput.actionDirection * Projection;
@@ -30,9 +30,10 @@ public class PierceThrust : PlayerAbility
         Physics2D.SyncTransforms();
 
         // do a collision check
-        List<Collider2D> hitColliders = new List<Collider2D>();
-        m_collider.Overlap(GetContactFilter("EnemyHurt"), hitColliders);
-        foreach (var hit in hitColliders)
+        List<Collider2D> enemyHitColliders = new List<Collider2D>();
+        m_collider.Overlap(GetContactFilter("EnemyHurt"), enemyHitColliders);
+        bool isLocalPlayer = Player.GetComponent<NetworkObject>().IsLocalPlayer;
+        foreach (var hit in enemyHitColliders)
         {
             if (hit.HasComponent<NetworkCharacter>())
             {
@@ -40,30 +41,34 @@ public class PierceThrust : PlayerAbility
                 var damage = playerCharacter.GetAttackPower();
                 var isCritical = playerCharacter.IsCriticalAttack();
                 damage = (int)(isCritical ? damage * playerCharacter.CriticalDamage.Value : damage);
-                hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical, isServer);
-                Player.GetComponent<PlayerCamera>().Shake(1.5f, 0.3f);
+                hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical);
             }
         }
-        hitColliders.Clear();
 
-        // do client side effects/visuals etc.
-        if (!isServer)
+        // screen shake
+        if (isLocalPlayer && enemyHitColliders.Count > 0)
         {
-            if (Player.GetComponent<NetworkObject>().IsLocalPlayer)
-            {
-                Animator.Play("PierceThrust");
-                DebugDraw.DrawColliderPolygon(m_collider, IsServer);
-                PlayAnimRemoteServerRpc("PierceThrust", AbilityOffset, AbilityRotation);
-            }
+            Player.GetComponent<PlayerCamera>().Shake(1.5f, 0.3f);
+        }
+
+        // clear out colliders
+        enemyHitColliders.Clear();
+
+        // animation
+        if (isLocalPlayer)
+        {
+            Animator.Play("PierceThrust");
+            DebugDraw.DrawColliderPolygon(m_collider, IsServer);
+            PlayAnimRemoteServerRpc("PierceThrust", AbilityOffset, AbilityRotation);
         }
     }
 
-    private void Update()
+    public override void OnUpdate()
     {
         TrackPlayerPosition();
     }
 
-    public override void OnFinish(bool isServer = false)
+    public override void OnFinish()
     {
     }
 }

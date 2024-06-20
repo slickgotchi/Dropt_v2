@@ -61,16 +61,16 @@ public class NetworkCharacter : NetworkBehaviour
         return rand < CriticalChance.Value;
     }
 
-    public virtual void TakeDamage(float damage, bool isCritical, bool isServer = false)
+    public virtual void TakeDamage(float damage, bool isCritical)
     {
-        if (!isServer)
+        if (IsClient)
         {
             if (gameObject.HasComponent<SpriteFlash>())
             {
                 gameObject.GetComponent<SpriteFlash>().DamageFlash();
             }
         }
-        else
+        if (IsServer)
         {
             HpCurrent.Value -= (int)damage;
             if (HpCurrent.Value < 0) { HpCurrent.Value = 0; }
