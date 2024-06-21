@@ -67,9 +67,12 @@ public class PlayerPrediction : NetworkBehaviour
     private int m_abilityCooldownExpiryTick = 0;
 
     // hold variables
-    private bool m_isHoldActive = false;
+    //private bool m_isHoldActive = false;
     private bool m_isHoldStart = false;
     private bool m_isHoldFinish = false;
+    //private Hand m_holdHand = Hand.Left;
+    public enum HoldState { Inactive, LeftActive, RightActive };
+    private HoldState m_holdState;
 
     private int m_holdStartTick = 0;
     private int m_holdFinishTick = 0;
@@ -161,13 +164,15 @@ public class PlayerPrediction : NetworkBehaviour
     private void OnLeftHoldStart_CursorAim(InputValue value)
     {
         m_isHoldStart = true;
-        m_isHoldActive = true;
+        //m_isHoldActive = true;
+        //m_holdHand = Hand.Left;
+        m_holdState = HoldState.LeftActive;
     }
 
     private void OnLeftHoldFinish_CursorAim(InputValue value)
     {
         // if hold time > 0, trigger our hold ability
-        if (m_isHoldActive)
+        if (m_holdState == HoldState.LeftActive)
         {
             if (!IsLocalPlayer) return;
             m_actionDirection = math.normalizesafe(m_cursorWorldPosition - transform.position);
@@ -178,8 +183,10 @@ public class PlayerPrediction : NetworkBehaviour
             m_abilityTriggered = m_playerAbilities.GetHoldAbilityEnum(lhWearable);
             m_abilityHand = Hand.Left;
 
-            m_isHoldActive = false;
+            //m_isHoldActive = false;
             m_isHoldFinish = true;
+
+            m_holdState = HoldState.Inactive;
         }
     }
 
@@ -195,7 +202,7 @@ public class PlayerPrediction : NetworkBehaviour
         m_abilityHand = Hand.Right;
     }
 
-
+    public HoldState GetHoldState() { return m_holdState; }
 
     private void UpdateCursorWorldPosition()
     {

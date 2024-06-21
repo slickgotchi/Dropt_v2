@@ -143,7 +143,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2137105859
+  GlobalObjectIdHash: 1218351389
   InScenePlacedSourceGlobalObjectIdHash: 2137105859
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -291,10 +291,11 @@ MonoBehaviour:
   baseApCurrent: 0
   baseApBuffer: 0
   baseDoubleStrikeChance: 0.05
-  baseCriticalStrikeDamage: 1.5
+  baseCriticalDamage: 1.5
   baseMoveSpeed: 6.22
   baseAccuracy: 1
   baseEvasion: 0
+  popupTextOffset: {x: 0, y: 1.5, z: 0}
   HpMax:
     m_InternalValue: 100
   HpCurrent:
@@ -381,6 +382,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_flashColor: {r: 1, g: 1, b: 1, a: 1}
   m_flashTime: 0.25
+  m_flashCount: 4
   m_spriteRenderers:
   - {fileID: 361146906994616670}
 --- !u!1 &6525230415705073668
@@ -393,6 +395,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2228045280187910979}
   - component: {fileID: 361146906994616670}
+  - component: {fileID: 6755339907416701310}
   m_Layer: 15
   m_Name: Body
   m_TagString: Untagged
@@ -469,6 +472,20 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 1
+--- !u!114 &6755339907416701310
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6525230415705073668}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d7b5c2d243625b45ad7856320609381, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetToTrack: {fileID: 0}
+  sortingOrderOffset: 0
 --- !u!1001 &541164097209515579
 PrefabInstance:
   m_ObjectHideFlags: 0

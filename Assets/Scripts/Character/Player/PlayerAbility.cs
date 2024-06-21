@@ -35,7 +35,7 @@ public class PlayerAbility : NetworkBehaviour
 
     //public float CooldownTimer = 0;
 
-    public NetworkVariable<int> PlayerNetworkObjectId = new NetworkVariable<int>(-1);
+    //public NetworkVariable<int> PlayerNetworkObjectId = new NetworkVariable<int>(-1);
 
     private float m_timer = 0;
     private bool m_isFinished = false;
@@ -56,6 +56,9 @@ public class PlayerAbility : NetworkBehaviour
         IsActivated = true;
         m_timer = AbilityDuration;
         m_isFinished = false;
+
+        // hide the player relevant hand
+        Player.GetComponent<PlayerGotchi>().HideHand(input.abilityHand, AbilityDuration);
 
         OnStart();
 
