@@ -19,7 +19,8 @@ public class PlayerAbility : NetworkBehaviour
     public float SlowFactor = 1;
     public float TeleportDistance = 0;
 
-    public GameObject Player;
+    [HideInInspector] public GameObject Player;
+
     protected Vector3 PlayerCenterOffset = new Vector3(0,0.5f,0);
     protected ContactFilter2D EnemyHurtContactFilter;
     protected bool IsActivated = false;
@@ -135,6 +136,11 @@ public class PlayerAbility : NetworkBehaviour
     {
         float angle = math.atan2(direction.y, direction.x) * math.TODEGREES;
         return Quaternion.Euler(0, 0, angle);
+    }
+
+    protected float GetAngleFromDirection(Vector3 direction)
+    {
+        return math.atan2(direction.y, direction.x) * math.TODEGREES;
     }
 
     protected Vector3 GetPlayerCentrePosition()

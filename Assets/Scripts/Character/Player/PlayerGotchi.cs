@@ -11,6 +11,9 @@ public class PlayerGotchi : NetworkBehaviour
     [SerializeField] Sprite _left;
     [SerializeField] Sprite _right;
 
+    [Header("Gotchi GameObject")]
+    [SerializeField] GameObject m_gotchi;
+
     [Header("Body GameObject and Side Views")]
     [SerializeField] GameObject m_bodyParent;
     [SerializeField] GameObject m_bodyFaceFront;
@@ -64,6 +67,9 @@ public class PlayerGotchi : NetworkBehaviour
     public enum Facing { Front, Back, Left, Right }
     private Facing m_facing;
 
+    private float m_bodyRotation = 0;
+    private float m_bodyRotationTimer = 0;
+
     private void Awake()
     {
         animator = GetComponent<Animator>();
@@ -89,7 +95,19 @@ public class PlayerGotchi : NetworkBehaviour
         UpdateFacingFromSpinning();
         SetActiveBodyPartsFromFacing(m_facing);
         UpdateDustParticles();
-        m_bodyParent.transform.rotation = Quaternion.Euler(new Vector3(0, 0, CalculateSpriteLean()));
+
+        m_bodyRotationTimer -= Time.deltaTime;
+        if (m_bodyRotationTimer > 0)
+        {
+            m_gotchi.transform.rotation = Quaternion.Euler(new Vector3(0, 0, m_bodyRotation));
+            m_gotchi.transform.localPosition = new Vector3(0, 0.5f, 0);
+        }
+        else
+        {
+            m_gotchi.transform.rotation = Quaternion.identity;
+            m_bodyParent.transform.rotation = Quaternion.Euler(new Vector3(0, 0, CalculateSpriteLean()));
+            m_gotchi.transform.localPosition = new Vector3(0, 0, 0);
+        }
     }
 
     public void DropSpawn(Vector3 currentPosition, Vector3 newSpawnPoint)
@@ -227,6 +245,8 @@ public class PlayerGotchi : NetworkBehaviour
         }
     }
 
+
+
     public void HideHand(Hand hand, float duration = 0.5f)
     {
         if (hand == Hand.Left)
@@ -246,6 +266,16 @@ public class PlayerGotchi : NetworkBehaviour
             m_rightHandFaceBack.SetActive(false);
             m_rightHandFaceRight.SetActive(false);
         }
+    }
+
+    public void SetGotchiRotation(float angleDegrees, float duration = 0.5f)
+    {
+        // Normalize angleDegrees to be within the range [0, 360)
+        angleDegrees = angleDegrees % 360;  // Result will be in the range (-360, 360)
+        if (angleDegrees < 0) angleDegrees += 360;
+
+        m_bodyRotation = angleDegrees;
+        m_bodyRotationTimer = duration;
     }
 
     public void PlayFacingSpin(int spinNumber, float spinPeriod, SpinDirection spinDirection, float startAngle)
@@ -303,11 +333,6 @@ public class PlayerGotchi : NetworkBehaviour
         else return Facing.Right;
     }
 
-    //public void SetBodySpriteFromAngle(float angleDegrees)
-    //{
-    //    SetBodySpriteFromFacing(GetFacingFromAngle(angleDegrees));
-    //}
-
     private float CalculateSpriteLean()
     {
         float rotation = 0;
@@ -360,31 +385,7 @@ public class PlayerGotchi : NetworkBehaviour
 
         var holdState = m_playerPrediction.GetHoldState();
         animator.SetBool("IsLeftHoldActive", holdState == PlayerPrediction.HoldState.LeftActive);
+        animator.SetBool("IsRightHoldActive", holdState == PlayerPrediction.HoldState.RightActive);
 
-        //if (m_playerPrediction.IsHoldActive())
-        //{
-        //    if (m_playerPrediction.GetHoldHand() == Hand.Left)
-        //    {
-        //        animator.Play("PlayerGotchiLeftHand_HoldCharge");
-        //    } else
-        //    {
-        //        animator.Play("PlayerGotchiRightHand_HoldCharge");
-        //    }
-        //} else
-        //{
-        //    animator.Play("PlayerGotchiBody_Idle");
-        //    animator.Play("PlayerGotchiLeftHand_Idle");
-        //    animator.Play("PlayerGotchiRightHand_Idle");
-        //}
-
-
-        if (m_isMoving)
-        {
-            //animator.Play("Player_Move");
-        }
-        else
-        {
-            //animator.Play("Player_Idle");
-        }
     }
 }

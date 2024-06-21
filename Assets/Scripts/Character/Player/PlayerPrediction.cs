@@ -164,9 +164,9 @@ public class PlayerPrediction : NetworkBehaviour
 
         SetActionDirectionAndLastMoveFromCursorAim();
 
+        m_abilityHand = Hand.Left;
         var lhWearable = GetComponent<PlayerEquipment>().LeftHand.Value;
         m_abilityTriggered = m_playerAbilities.GetAttackAbilityEnum(lhWearable);
-        m_abilityHand = Hand.Left;
     }
 
     private void OnLeftHoldStart_CursorAim(InputValue value)
@@ -185,15 +185,14 @@ public class PlayerPrediction : NetworkBehaviour
 
             SetActionDirectionAndLastMoveFromCursorAim();
 
+            m_abilityHand = Hand.Left;
             var lhWearable = GetComponent<PlayerEquipment>().LeftHand.Value;
             m_abilityTriggered = m_playerAbilities.GetHoldAbilityEnum(lhWearable);
-            m_abilityHand = Hand.Left;
-
-            m_holdAbilityPending = PlayerAbilityEnum.Null;
-            m_isHoldStarted = false;
 
             m_isHoldFinishFlag = true;
 
+            m_holdAbilityPending = PlayerAbilityEnum.Null;
+            m_isHoldStarted = false;
             m_holdState = HoldState.Inactive;
         }
     }
@@ -204,9 +203,37 @@ public class PlayerPrediction : NetworkBehaviour
 
         SetActionDirectionAndLastMoveFromCursorAim();
 
+        m_abilityHand = Hand.Right;
         var rhWearable = GetComponent<PlayerEquipment>().RightHand.Value;
         m_abilityTriggered = m_playerAbilities.GetAttackAbilityEnum(rhWearable);
-        m_abilityHand = Hand.Right;
+    }
+
+    private void OnRightHoldStart_CursorAim(InputValue value)
+    {
+        m_holdState = HoldState.RightActive;
+        var rhWearable = GetComponent<PlayerEquipment>().RightHand.Value;
+        m_holdAbilityPending = m_playerAbilities.GetHoldAbilityEnum(rhWearable);
+    }
+
+    private void OnRightHoldFinish_CursorAim(InputValue value)
+    {
+        // if hold time > 0, trigger our hold ability
+        if (m_holdState == HoldState.RightActive)
+        {
+            if (!IsLocalPlayer) return;
+
+            SetActionDirectionAndLastMoveFromCursorAim();
+
+            m_abilityHand = Hand.Right;
+            var rhWearable = GetComponent<PlayerEquipment>().RightHand.Value;
+            m_abilityTriggered = m_playerAbilities.GetHoldAbilityEnum(rhWearable);
+
+            m_isHoldFinishFlag = true;
+
+            m_holdAbilityPending = PlayerAbilityEnum.Null;
+            m_isHoldStarted = false;
+            m_holdState = HoldState.Inactive;
+        }
     }
 
     public HoldState GetHoldState() { return m_holdState; }

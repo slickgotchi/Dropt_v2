@@ -21,6 +21,10 @@ public class PlayerAbilities : NetworkBehaviour
     [HideInInspector] public GameObject PierceThrust;
     private NetworkVariable<ulong> PierceThrustId = new NetworkVariable<ulong>(0);
 
+    public GameObject pierceDrillPrefab;
+    [HideInInspector] public GameObject PierceDrill;
+    private NetworkVariable<ulong> PierceDrillId = new NetworkVariable<ulong>(0);
+
     public NetworkVariable<float> leftAttackCooldown = new NetworkVariable<float>(0);
     public NetworkVariable<float> rightAttackCooldown = new NetworkVariable<float>(0);
 
@@ -50,6 +54,10 @@ public class PlayerAbilities : NetworkBehaviour
         PierceThrust = Instantiate(pierceThrustPrefab);
         PierceThrust.GetComponent<NetworkObject>().Spawn();
         PierceThrustId.Value = PierceThrust.GetComponent<NetworkObject>().NetworkObjectId;
+
+        PierceDrill = Instantiate(pierceDrillPrefab);
+        PierceDrill.GetComponent<NetworkObject>().Spawn();
+        PierceDrillId.Value = PierceDrill.GetComponent<NetworkObject>().NetworkObjectId;
     }
 
     private void Update()
@@ -83,6 +91,11 @@ public class PlayerAbilities : NetworkBehaviour
                 PierceThrust = NetworkManager.SpawnManager.SpawnedObjects[PierceThrustId.Value].gameObject;
                 PierceThrust.GetComponent<PlayerAbility>().Player = gameObject;
             }
+            if (PierceDrill == null && PierceDrillId.Value > 0)
+            {
+                PierceDrill = NetworkManager.SpawnManager.SpawnedObjects[PierceDrillId.Value].gameObject;
+                PierceDrill.GetComponent<PlayerAbility>().Player = gameObject;
+            }
         }
     }
 
@@ -96,6 +109,7 @@ public class PlayerAbilities : NetworkBehaviour
         if (abilityEnum == PlayerAbilityEnum.CleaveWhirlwind) return CleaveWhirlwind.GetComponent<PlayerAbility>();
 
         if (abilityEnum == PlayerAbilityEnum.PierceThrust) return PierceThrust.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.PierceDrill) return PierceDrill.GetComponent<PlayerAbility>();
 
         return null;
     }
