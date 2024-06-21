@@ -22,6 +22,7 @@ public class PlayerPrediction : NetworkBehaviour
     private Vector3 m_actionDirection = new Vector3(0, -1, 0);
     private PlayerAbilityEnum m_abilityTriggered = PlayerAbilityEnum.Null;
     private Hand m_abilityHand = Hand.Left;
+    private PlayerAbilityEnum m_holdAbilityPending = PlayerAbilityEnum.Null;
 
     // timer required so that when an action/ability is activated gotchi action 
     // direction stays the same for a short duration
@@ -68,8 +69,9 @@ public class PlayerPrediction : NetworkBehaviour
 
     // hold variables
     //private bool m_isHoldActive = false;
-    private bool m_isHoldStart = false;
-    private bool m_isHoldFinish = false;
+    private bool m_isHoldStarted = false;
+    private bool m_isHoldStartFlag = false;
+    private bool m_isHoldFinishFlag = false;
     //private Hand m_holdHand = Hand.Left;
     public enum HoldState { Inactive, LeftActive, RightActive };
     private HoldState m_holdState;
@@ -126,12 +128,19 @@ public class PlayerPrediction : NetworkBehaviour
         m_moveDirection = value.Get<Vector2>();
     }
 
-    private void OnDash_CursorAim(InputValue value)
+    private void SetActionDirectionAndLastMoveFromCursorAim()
     {
-        if (!IsLocalPlayer) return;
         m_actionDirection = math.normalizesafe(m_cursorWorldPosition - transform.position);
         m_lastMoveDirection = m_actionDirection;
         m_actionDirectionTimer = k_actionDirectionTime;
+    }
+
+    private void OnDash_CursorAim(InputValue value)
+    {
+        if (!IsLocalPlayer) return;
+
+        SetActionDirectionAndLastMoveFromCursorAim();
+
         m_abilityTriggered = PlayerAbilityEnum.Dash;
     }
 
@@ -152,9 +161,8 @@ public class PlayerPrediction : NetworkBehaviour
     private void OnLeftAttack_CursorAim(InputValue value)
     {
         if (!IsLocalPlayer) return;
-        m_actionDirection = math.normalizesafe(m_cursorWorldPosition - transform.position);
-        m_lastMoveDirection = m_actionDirection;
-        m_actionDirectionTimer = k_actionDirectionTime;
+
+        SetActionDirectionAndLastMoveFromCursorAim();
 
         var lhWearable = GetComponent<PlayerEquipment>().LeftHand.Value;
         m_abilityTriggered = m_playerAbilities.GetAttackAbilityEnum(lhWearable);
@@ -163,10 +171,9 @@ public class PlayerPrediction : NetworkBehaviour
 
     private void OnLeftHoldStart_CursorAim(InputValue value)
     {
-        m_isHoldStart = true;
-        //m_isHoldActive = true;
-        //m_holdHand = Hand.Left;
         m_holdState = HoldState.LeftActive;
+        var lhWearable = GetComponent<PlayerEquipment>().LeftHand.Value;
+        m_holdAbilityPending = m_playerAbilities.GetHoldAbilityEnum(lhWearable);
     }
 
     private void OnLeftHoldFinish_CursorAim(InputValue value)
@@ -175,16 +182,17 @@ public class PlayerPrediction : NetworkBehaviour
         if (m_holdState == HoldState.LeftActive)
         {
             if (!IsLocalPlayer) return;
-            m_actionDirection = math.normalizesafe(m_cursorWorldPosition - transform.position);
-            m_lastMoveDirection = m_actionDirection;
-            m_actionDirectionTimer = k_actionDirectionTime;
+
+            SetActionDirectionAndLastMoveFromCursorAim();
 
             var lhWearable = GetComponent<PlayerEquipment>().LeftHand.Value;
             m_abilityTriggered = m_playerAbilities.GetHoldAbilityEnum(lhWearable);
             m_abilityHand = Hand.Left;
 
-            //m_isHoldActive = false;
-            m_isHoldFinish = true;
+            m_holdAbilityPending = PlayerAbilityEnum.Null;
+            m_isHoldStarted = false;
+
+            m_isHoldFinishFlag = true;
 
             m_holdState = HoldState.Inactive;
         }
@@ -193,9 +201,8 @@ public class PlayerPrediction : NetworkBehaviour
     private void OnRightAttack_CursorAim(InputValue value)
     {
         if (!IsLocalPlayer) return;
-        m_actionDirection = math.normalizesafe(m_cursorWorldPosition - transform.position);
-        m_lastMoveDirection = m_actionDirection;
-        m_actionDirectionTimer = k_actionDirectionTime;
+
+        SetActionDirectionAndLastMoveFromCursorAim();
 
         var rhWearable = GetComponent<PlayerEquipment>().RightHand.Value;
         m_abilityTriggered = m_playerAbilities.GetAttackAbilityEnum(rhWearable);
@@ -265,7 +272,7 @@ public class PlayerPrediction : NetworkBehaviour
 
         // if ability not ready, we don't count as input this tick
         var ability = m_playerAbilities.GetAbility(m_abilityTriggered);
-        if (ability != null && !IsHost)
+        if (ability != null)
         {
             bool isEnoughAp = GetComponent<NetworkCharacter>().ApCurrent.Value >= ability.ApCost;
             bool isCooldownFinished = currentTick > m_abilityCooldownExpiryTick;
@@ -276,6 +283,20 @@ public class PlayerPrediction : NetworkBehaviour
             } 
         }
 
+        // check if we can start our hold ability
+        var holdAbility = m_playerAbilities.GetAbility(m_holdAbilityPending);
+        if (!m_isHoldStarted && holdAbility != null)
+        {
+            bool isEnoughAp = GetComponent<NetworkCharacter>().ApCurrent.Value >= holdAbility.ApCost;
+            bool isCooldownFinished = currentTick > m_abilityCooldownExpiryTick;
+
+            if (isEnoughAp && isCooldownFinished)
+            {
+                m_isHoldStartFlag = true;
+                m_isHoldStarted = true;
+            }
+        }
+
         // assemble input
         InputPayload inputPayload = new InputPayload
         {
@@ -283,9 +304,10 @@ public class PlayerPrediction : NetworkBehaviour
             moveDirection = GetComponent<PlayerGotchi>().IsDropSpawning ? Vector3.zero : m_moveDirection,
             actionDirection = m_actionDirection,
             abilityTriggered = m_abilityTriggered,
+            holdAbilityPending = m_holdAbilityPending,
             abilityHand = m_abilityHand,
-            isHoldStart = m_isHoldStart,
-            isHoldFinish = m_isHoldFinish,
+            isHoldStartFlag = m_isHoldStartFlag,
+            isHoldFinishFlag = m_isHoldFinishFlag,
         };
 
         // send input to server
@@ -316,13 +338,14 @@ public class PlayerPrediction : NetworkBehaviour
                 m_slowFactor = ability.SlowFactor;
                 m_slowFactorStartTick = currentTick;
                 m_slowFactorExpiryTick = currentTick + (int)math.ceil(ability.AbilityDuration * k_serverTickRate);
+
             }
         }
 
         // reset any triggers or booleans
         m_abilityTriggered = PlayerAbilityEnum.Null;
-        m_isHoldStart = false;
-        m_isHoldFinish = false;
+        m_isHoldStartFlag = false;
+        m_isHoldFinishFlag = false;
 
         // do server reconciliation
         HandleServerReconciliation();
@@ -395,8 +418,8 @@ public class PlayerPrediction : NetworkBehaviour
         }
 
         // handle any hold info
-        if (input.isHoldStart) m_holdStartTick = input.tick;
-        if (input.isHoldFinish) m_holdFinishTick = input.tick;
+        if (input.isHoldStartFlag) m_holdStartTick = input.tick;
+        if (input.isHoldFinishFlag) m_holdFinishTick = input.tick;
 
         // teleport handling
         HandleTeleportInput(input);
@@ -457,7 +480,13 @@ public class PlayerPrediction : NetworkBehaviour
         if (input.tick > m_slowFactorStartTick && input.tick <= m_slowFactorExpiryTick)
         {
             return m_slowFactor;
-        } else
+        }
+        else if (input.tick >= m_holdStartTick && input.holdAbilityPending != PlayerAbilityEnum.Null)
+        {
+            var holdAbility = m_playerAbilities.GetAbility(input.holdAbilityPending);
+            return holdAbility.SlowFactor;
+        }
+        else
         {
             return 1;
         }
@@ -495,6 +524,23 @@ public class PlayerPrediction : NetworkBehaviour
                 }
             }
 
+            // check if we can start our hold ability
+            var holdAbility = m_playerAbilities.GetAbility(inputPayload.holdAbilityPending);
+            if (!m_isHoldStarted && inputPayload.isHoldStartFlag && holdAbility != null && !IsHost)
+            {
+                bool isEnoughAp = GetComponent<NetworkCharacter>().ApCurrent.Value >= holdAbility.ApCost;
+                bool isCooldownFinished = inputPayload.tick > m_abilityCooldownExpiryTick;
+
+                if (isEnoughAp && isCooldownFinished)
+                {
+                    m_isHoldStarted = true;
+                    inputPayload.isHoldStartFlag = true;
+                } else
+                {
+                    inputPayload.isHoldStartFlag = false;
+                }
+            }
+
             bufferIndex = inputPayload.tick % k_bufferSize;
 
             statePayload = ProcessInput(inputPayload, false, true);
@@ -508,7 +554,7 @@ public class PlayerPrediction : NetworkBehaviour
                 var holdDuration = (m_holdFinishTick - m_holdStartTick) / k_serverTickRate;
                 ability.Activate(gameObject, statePayload, inputPayload, holdDuration);
                 m_abilityCooldownExpiryTick = inputPayload.tick + 
-                    (int)math.ceil(ability.CooldownDuration * k_serverTickRate) + 1;
+                    (int)math.ceil(ability.CooldownDuration * k_serverTickRate);
 
                 // set slow down ticks
                 m_slowFactor = ability.SlowFactor;
