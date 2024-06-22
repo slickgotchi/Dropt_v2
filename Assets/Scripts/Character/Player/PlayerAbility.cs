@@ -13,11 +13,36 @@ using UnityEngine;
 public class PlayerAbility : NetworkBehaviour
 {
     [Header("Base Ability Parameters")]
+
+    [Tooltip("Cost to cast this ability in AP")]
     public int ApCost = 0;
-    public float AbilityDuration = 1;
-    public float CooldownDuration = 1;
-    public float SlowFactor = 1;
+
+    [Tooltip("Time (s) for the ability to run from Start() to Finish()")]
+    public float ExecutionDuration = 1;
+
+    [Tooltip("Slows player down for the AbilityDuration")]
+    public float ExecutionSlowFactor = 1;
+
+    [Tooltip("Time (s) taken till any ability can be used after AbilityDuration is Finish()ed")]
+    public float CooldownDuration = 0;
+
+    [Tooltip("Slows player down during Cooldown")]
+    public float CooldownSlowFactor = 1;
+
+    [Tooltip("Instant teleportation distance in the action direction at ability activation")]
     public float TeleportDistance = 0;
+
+    [Tooltip("Automatically move player over the given distance in the action direction at ability activation (Overrides SlowFactor)")]
+    public float AutoMoveDistance = 0;
+
+    [Tooltip("Time taken to move the AutoMoveDistance. Hard capped to AbilityDuration")]
+    public float AutoMoveDuration = 0;
+
+    [Tooltip("Is this ability a hold ability?")]
+    public bool isHoldAbility = false;
+
+    [Tooltip("Slows player down during Hold period")]
+    public float HoldSlowFactor = 1;
 
     [HideInInspector] public GameObject Player;
 
@@ -34,16 +59,15 @@ public class PlayerAbility : NetworkBehaviour
 
     protected Animator Animator;
 
-    //public float CooldownTimer = 0;
-
-    //public NetworkVariable<int> PlayerNetworkObjectId = new NetworkVariable<int>(-1);
-
     private float m_timer = 0;
     private bool m_isFinished = false;
 
+    private float m_autoMoveTimer = 0;
+    private bool m_autoMoveFinishCalled = false;
+
     private void Awake()
     {
-        CooldownDuration = math.max(AbilityDuration, CooldownDuration);
+        AutoMoveDuration = math.min(AutoMoveDuration, ExecutionDuration);
     }
 
     public bool Activate(GameObject playerObject, StatePayload state, InputPayload input, float holdDuration)
@@ -55,13 +79,15 @@ public class PlayerAbility : NetworkBehaviour
         HoldDuration = holdDuration;
 
         IsActivated = true;
-        m_timer = AbilityDuration;
+        m_timer = ExecutionDuration;
         m_isFinished = false;
+        m_autoMoveTimer = AutoMoveDuration;
+        m_autoMoveFinishCalled = false;
 
         // hide the player relevant hand
-        Player.GetComponent<PlayerGotchi>().HideHand(input.abilityHand, AbilityDuration);
+        Player.GetComponent<PlayerGotchi>().HideHand(input.abilityHand, ExecutionDuration);
 
-        OnStart();
+        if (Player != null) OnStart();
 
         return true;
     }
@@ -69,6 +95,10 @@ public class PlayerAbility : NetworkBehaviour
     private void Update()
     {
         m_timer -= Time.deltaTime;
+
+        m_autoMoveTimer -= Time.deltaTime;
+
+        if (Player == null) return;
 
         if (!m_isFinished && m_timer < 0)
         {
@@ -78,22 +108,21 @@ public class PlayerAbility : NetworkBehaviour
         }
             
         OnUpdate();
+
+        if (m_autoMoveTimer < 0 && !m_autoMoveFinishCalled)
+        {
+            OnAutoMoveFinish();
+            m_autoMoveFinishCalled = true;
+        }
     }
 
-    public virtual void OnStart()
-    {
+    public virtual void OnStart() { }
 
-    }
+    public virtual void OnUpdate() { }
 
-    public virtual void OnUpdate()
-    {
+    public virtual void OnFinish() { }
 
-    }
-
-    public virtual void OnFinish()
-    {
-
-    }
+    public virtual void OnAutoMoveFinish() { }
 
     [Rpc(SendTo.Server)]
     protected void PlayAnimRemoteServerRpc(string animName, Vector3 abilityOffset, Quaternion abilityRotation, float abilityScale = 1f)

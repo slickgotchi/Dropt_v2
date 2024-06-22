@@ -233,10 +233,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ApCost: 0
-  AbilityDuration: 0.3
-  CooldownDuration: 0.3
-  SlowFactor: 0.5
+  ExecutionDuration: 0.5
+  CooldownDuration: 0
+  isHoldAbility: 0
+  HoldSlowFactor: 1
+  ExecutionSlowFactor: 0.5
+  CooldownSlowFactor: 1
   TeleportDistance: 0
+  AutoMoveDistance: 0
+  AutoMoveDuration: 0
   Player: {fileID: 0}
   Projection: 0.75
 --- !u!1 &4708556748347195212

@@ -16,6 +16,7 @@ public class PlayerPrediction : NetworkBehaviour
     private float m_slowFactor = 1f;
     private int m_slowFactorExpiryTick = 0;
     private int m_slowFactorStartTick = 0;
+    private float m_cooldownSlowFactor = 1f;
 
     // inputs to populate
     private Vector3 m_moveDirection;
@@ -23,6 +24,10 @@ public class PlayerPrediction : NetworkBehaviour
     private PlayerAbilityEnum m_abilityTriggered = PlayerAbilityEnum.Null;
     private Hand m_abilityHand = Hand.Left;
     private PlayerAbilityEnum m_holdAbilityPending = PlayerAbilityEnum.Null;
+
+    private bool m_autoMove = false;
+    private Vector3 m_autoMoveVelocity = Vector3.zero;
+    private int m_autoMoveExpiryTick = 0;
 
     // timer required so that when an action/ability is activated gotchi action 
     // direction stays the same for a short duration
@@ -343,8 +348,25 @@ public class PlayerPrediction : NetworkBehaviour
         // store in client input buffer
         clientInputBuffer.Add(inputPayload, bufferIndex);
 
+        // activate ability if it was not null
+        if (ability != null && m_abilityTriggered != PlayerAbilityEnum.Null)
+        {
+            // we only activate once from the server side when in host mode
+            if (!IsHost)
+            {
+                // check automove (THIS MIGHT NEED TO BE MOVED BEFORE processInput)
+                if (ability.AutoMoveDuration > 0)
+                {
+                    m_autoMove = true;
+                    var speed = ability.AutoMoveDistance / ability.AutoMoveDuration;
+                    m_autoMoveVelocity = m_actionDirection * speed;
+                    m_autoMoveExpiryTick = currentTick + (int)(ability.AutoMoveDuration * k_serverTickRate);
+                }
+            }
+        }
+
         // locally process the movement and save our new state for this current tick
-        StatePayload statePayload = ProcessInput(inputPayload, false, false); // not a script simulation, use default fixed update
+        StatePayload statePayload = ProcessInput(inputPayload, false); // not a script simulation, use default fixed update
         clientStateBuffer.Add(statePayload, bufferIndex);
 
         // activate ability if it was not null
@@ -359,13 +381,13 @@ public class PlayerPrediction : NetworkBehaviour
 
                 // set cooldown tick
                 m_abilityCooldownExpiryTick = currentTick + 
-                    (int)math.ceil(ability.CooldownDuration * k_serverTickRate);
+                    (int)math.ceil((ability.ExecutionDuration + ability.CooldownDuration) * k_serverTickRate);
 
                 // set slow down ticks
-                m_slowFactor = ability.SlowFactor;
+                m_slowFactor = ability.ExecutionSlowFactor;
                 m_slowFactorStartTick = currentTick;
-                m_slowFactorExpiryTick = currentTick + (int)math.ceil(ability.AbilityDuration * k_serverTickRate);
-
+                m_slowFactorExpiryTick = currentTick + (int)math.ceil(ability.ExecutionDuration * k_serverTickRate);
+                m_cooldownSlowFactor = ability.CooldownSlowFactor;
             }
         }
 
@@ -416,14 +438,14 @@ public class PlayerPrediction : NetworkBehaviour
         while (tickToReplay <= timer.CurrentTick)
         {
             bufferIndex = tickToReplay % k_bufferSize;
-            StatePayload statePayload = ProcessInput(clientInputBuffer.Get(bufferIndex), true, false);
+            StatePayload statePayload = ProcessInput(clientInputBuffer.Get(bufferIndex), true);
 
             clientStateBuffer.Add(statePayload, bufferIndex);
             tickToReplay++;
         }
     }
 
-    StatePayload ProcessInput(InputPayload input, bool isReconciliation = false, bool isServer = false)
+    StatePayload ProcessInput(InputPayload input, bool isReconciliation = false)
     {
         // set starting position and velocity
         if (IsLocalPlayer)
@@ -463,6 +485,22 @@ public class PlayerPrediction : NetworkBehaviour
             // generate velocity from char speed, move dir any potential abilities that slow down speed
             rb.velocity = input.moveDirection * m_networkCharacter.MoveSpeed.Value * 
                 GetInputSlowFactor(input);
+
+            // check for automove
+            if (input.tick < m_autoMoveExpiryTick)
+            {
+                rb.velocity = m_autoMoveVelocity;
+            }
+
+            // check for teleport
+            var ability = m_playerAbilities.GetAbility(input.abilityTriggered);
+            if (ability != null)
+            {
+                if (ability.TeleportDistance > 0.1f)
+                {
+                    rb.velocity = Vector3.zero;
+                }
+            }
         }
 
         var stateVelocity = rb.velocity;
@@ -504,14 +542,17 @@ public class PlayerPrediction : NetworkBehaviour
 
     public float GetInputSlowFactor(InputPayload input)
     {
-        if (input.tick > m_slowFactorStartTick && input.tick <= m_slowFactorExpiryTick)
+        if (input.tick >= m_slowFactorStartTick && input.tick <= m_slowFactorExpiryTick)
         {
             return m_slowFactor;
+        } else if (input.tick <= m_abilityCooldownExpiryTick)
+        {
+            return m_cooldownSlowFactor;
         }
         else if (input.tick >= m_holdStartTick && input.holdAbilityPending != PlayerAbilityEnum.Null)
         {
             var holdAbility = m_playerAbilities.GetAbility(input.holdAbilityPending);
-            return holdAbility.SlowFactor;
+            return holdAbility.HoldSlowFactor;
         }
         else
         {
@@ -547,7 +588,8 @@ public class PlayerPrediction : NetworkBehaviour
 
                 if ((!isApEnough || !isCooldownFinished) && !IsHost)
                 {
-                    m_abilityTriggered = PlayerAbilityEnum.Null;
+                    //m_abilityTriggered = PlayerAbilityEnum.Null;
+                    inputPayload.abilityTriggered = PlayerAbilityEnum.Null;
                 }
             }
 
@@ -568,11 +610,25 @@ public class PlayerPrediction : NetworkBehaviour
                 }
             }
 
-            bufferIndex = inputPayload.tick % k_bufferSize;
 
-            statePayload = ProcessInput(inputPayload, false, true);
+            // perform ability if applicable
+            if (ability != null && inputPayload.abilityTriggered != PlayerAbilityEnum.Null)
+            {
+                // check automove (THIS MIGHT NEED TO BE MOVED BEFORE processInput)
+                if (ability.AutoMoveDuration > 0)
+                {
+                    m_autoMove = true;
+                    var speed = ability.AutoMoveDistance / ability.AutoMoveDuration;
+                    m_autoMoveVelocity = inputPayload.actionDirection * speed;
+                    m_autoMoveExpiryTick = inputPayload.tick + (int)(ability.AutoMoveDuration * k_serverTickRate);
+                }
+            }
+
+            statePayload = ProcessInput(inputPayload, false);
 
             if (m_isSetPlayerPosition) statePayload.position = m_setPlayerPosition;
+
+            bufferIndex = inputPayload.tick % k_bufferSize;
             serverStateBuffer.Add(statePayload, bufferIndex);
 
             // perform ability if applicable
@@ -581,13 +637,14 @@ public class PlayerPrediction : NetworkBehaviour
                 var holdDuration = (m_holdFinishTick - m_holdStartTick) / k_serverTickRate;
                 ability.Activate(gameObject, statePayload, inputPayload, holdDuration);
                 m_abilityCooldownExpiryTick = inputPayload.tick + 
-                    (int)math.ceil(ability.CooldownDuration * k_serverTickRate);
+                    (int)math.ceil((ability.ExecutionDuration + ability.CooldownDuration) * k_serverTickRate);
 
                 // set slow down ticks
-                m_slowFactor = ability.SlowFactor;
+                m_slowFactor = ability.ExecutionSlowFactor;
                 m_slowFactorStartTick = inputPayload.tick;
                 m_slowFactorExpiryTick = inputPayload.tick + 
-                    (int)math.ceil(ability.AbilityDuration * k_serverTickRate);
+                    (int)math.ceil(ability.ExecutionDuration * k_serverTickRate);
+                m_cooldownSlowFactor = ability.CooldownSlowFactor;
             }
 
             // tell client the last state we have as a server

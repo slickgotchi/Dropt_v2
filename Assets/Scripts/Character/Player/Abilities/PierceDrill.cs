@@ -12,19 +12,12 @@ public class PierceDrill : PlayerAbility
     [SerializeField] private float DamageMultiplier = 0.5f;
     [SerializeField] private float HoldChargeTime = 3f;
 
-    private float m_hitInterval;
-    private float m_hitTimer;
-    private int m_hitCounter;
-    
-
     private Collider2D m_collider;
 
     public override void OnNetworkSpawn()
     {
         Animator = GetComponent<Animator>();
         m_collider = GetComponent<Collider2D>();
-
-        m_hitInterval = AbilityDuration / (NumberHits - 1);
     }
 
     public override void OnStart()
@@ -35,11 +28,6 @@ public class PierceDrill : PlayerAbility
         // set transform to activation rotation/position and scale based on hold duration
         transform.rotation = AbilityRotation;
         transform.position = PlayerActivationState.position + AbilityOffset;
-        float chargePower = math.min(1 + (HoldDuration / HoldChargeTime), 2f);
-
-        m_hitCounter = NumberHits;
-        m_hitTimer = m_hitInterval;
-
 
         if (IsClient)
         {
@@ -52,11 +40,11 @@ public class PierceDrill : PlayerAbility
 
             if (Player.HasComponent<PlayerGotchi>())
             {
-                Player.GetComponent<PlayerGotchi>().PlayFacingSpin(3, AbilityDuration / 3,
+                Player.GetComponent<PlayerGotchi>().PlayFacingSpin(2, AutoMoveDuration / 2,
                     PlayerGotchi.SpinDirection.AntiClockwise, 0);
                 Player.GetComponent<PlayerGotchi>().SetGotchiRotation(
-                    GetAngleFromDirection(PlayerActivationInput.actionDirection)-90, AbilityDuration);
-                PlayFacingSpinRemoteServerRpc(3, AbilityDuration / 3, PlayerGotchi.SpinDirection.AntiClockwise, 0);
+                    GetAngleFromDirection(PlayerActivationInput.actionDirection) - 90, AutoMoveDuration);
+                PlayFacingSpinRemoteServerRpc(2, AutoMoveDuration / 2, PlayerGotchi.SpinDirection.AntiClockwise, 0);
             }
         }
     }
@@ -80,18 +68,44 @@ public class PierceDrill : PlayerAbility
     public override void OnUpdate()
     {
         TrackPlayerPosition();
-
     }
 
-    public override void OnFinish()
+    public override void OnAutoMoveFinish()
     {
-        // we do one last collision check here
-
         // play the default anim
-        if (IsClient && Player != null && Player.GetComponent<NetworkObject>().IsLocalPlayer)
+        if (IsClient && Player.GetComponent<NetworkObject>().IsLocalPlayer)
         {
             Animator.Play("PierceDefault");
             PlayAnimRemoteServerRpc("PierceDefault", AbilityOffset, AbilityRotation);
         }
+
+        float chargePower = math.min(1 + (HoldDuration / HoldChargeTime), 2f);
+
+        Physics2D.SyncTransforms();
+
+        // do a collision check
+        List<Collider2D> enemyHitColliders = new List<Collider2D>();
+        m_collider.Overlap(GetContactFilter("EnemyHurt"), enemyHitColliders);
+        bool isLocalPlayer = Player.GetComponent<NetworkObject>().IsLocalPlayer;
+        foreach (var hit in enemyHitColliders)
+        {
+            if (hit.HasComponent<NetworkCharacter>())
+            {
+                var playerCharacter = Player.GetComponent<NetworkCharacter>();
+                var damage = playerCharacter.GetAttackPower() * chargePower;
+                var isCritical = playerCharacter.IsCriticalAttack();
+                damage = (int)(isCritical ? damage * playerCharacter.CriticalDamage.Value : damage);
+                hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical);
+            }
+        }
+
+        // screen shake
+        if (isLocalPlayer && enemyHitColliders.Count > 0)
+        {
+            Player.GetComponent<PlayerCamera>().Shake(1.5f, 0.3f);
+        }
+
+        // clear out colliders
+        enemyHitColliders.Clear();
     }
 }

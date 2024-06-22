@@ -24,7 +24,7 @@ public class CleaveWhirlwind : PlayerAbility
         Animator = GetComponent<Animator>();
         m_collider = GetComponent<Collider2D>();
 
-        m_hitInterval = AbilityDuration / (NumberHits - 1);
+        m_hitInterval = ExecutionDuration / (NumberHits - 1);
     }
 
     public override void OnStart()
@@ -55,9 +55,9 @@ public class CleaveWhirlwind : PlayerAbility
 
             if (Player.HasComponent<PlayerGotchi>())
             {
-                Player.GetComponent<PlayerGotchi>().PlayFacingSpin(3, AbilityDuration / 3,
+                Player.GetComponent<PlayerGotchi>().PlayFacingSpin(3, ExecutionDuration / 3,
                     PlayerGotchi.SpinDirection.AntiClockwise, 0);
-                PlayFacingSpinRemoteServerRpc(3, AbilityDuration / 3, PlayerGotchi.SpinDirection.AntiClockwise, 0);
+                PlayFacingSpinRemoteServerRpc(3, ExecutionDuration / 3, PlayerGotchi.SpinDirection.AntiClockwise, 0);
             }
         }
     }
