@@ -15,7 +15,7 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Cursor_Dash",
+                    "name": "Dash_CursorAim",
                     "type": "Button",
                     "id": "835c6ec1-a8ce-418c-a0bf-23a62364f764",
                     "expectedControlType": "Button",
@@ -24,7 +24,25 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Keys_Dash",
+                    "name": "LeftAttack_CursorAim",
+                    "type": "Button",
+                    "id": "ede36fc0-ffc6-4227-ab97-549443fe4d4a",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "RightAttack_CursorAim",
+                    "type": "Button",
+                    "id": "05a5f118-4cb5-4707-95bc-0fcf9b80f7b0",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Dash_MoveAim",
                     "type": "Button",
                     "id": "be7e15c2-d544-4cc8-9874-03d6dbca7466",
                     "expectedControlType": "Button",
@@ -105,7 +123,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Cursor_Dash",
+                    "action": "Dash_CursorAim",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -127,7 +145,29 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Keys_Dash",
+                    "action": "Dash_MoveAim",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8e71ad0a-8f3a-4d9d-a9ac-67c8b256871e",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "LeftAttack_CursorAim",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "be8b19a2-d0ea-4c65-9476-bb6df62201c3",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "RightAttack_CursorAim",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

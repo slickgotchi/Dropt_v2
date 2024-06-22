@@ -127,6 +127,8 @@ GameObject:
   - component: {fileID: -66779552448143468}
   - component: {fileID: 2486501417752755360}
   - component: {fileID: 4011541931376708870}
+  - component: {fileID: 6173716106985737149}
+  - component: {fileID: 2488828689398098102}
   m_Layer: 6
   m_Name: Player
   m_TagString: Untagged
@@ -317,7 +319,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00e3efa89fd77e543888cbbc051c4b4a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 6.22
   m_clientCircle: {fileID: 0}
   m_serverCircle: {fileID: 8085241754483361217}
   playerCamera: {fileID: 2296568809480634166}
@@ -450,7 +451,7 @@ MonoBehaviour:
   baseHpCurrent: 100
   baseHpBuffer: 0
   baseAttackPower: 10
-  baseCriticalChance: 0.1
+  baseCriticalChance: 0.5
   baseApMax: 50
   baseApCurrent: 50
   baseApBuffer: 0
@@ -459,6 +460,7 @@ MonoBehaviour:
   baseMoveSpeed: 6.22
   baseAccuracy: 1
   baseEvasion: 0
+  popupTextOffset: {x: 0, y: 1.5, z: 0}
   HpMax:
     m_InternalValue: 100
   HpCurrent:
@@ -484,6 +486,54 @@ MonoBehaviour:
   Accuracy:
     m_InternalValue: 1
   Evasion:
+    m_InternalValue: 0
+--- !u!114 &6173716106985737149
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1519051571170098037}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 948907d369c2c5443ad2a4f84e939a35, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Body:
+    m_InternalValue: 0
+  Face:
+    m_InternalValue: 0
+  Eyes:
+    m_InternalValue: 0
+  Head:
+    m_InternalValue: 0
+  RightHand:
+    m_InternalValue: 0
+  LeftHand:
+    m_InternalValue: 0
+  Pet:
+    m_InternalValue: 0
+--- !u!114 &2488828689398098102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1519051571170098037}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ac19e16993bf8842a557ff728d16e0e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dashPrefab: {fileID: 5307370826521952360, guid: 42cffc45b3ab61542aa95340b28f6e9e, type: 3}
+  Dash: {fileID: 0}
+  cleaveSwingPrefab: {fileID: 2544078778212307353, guid: e66a6c1c0cafc344399fd79aa2052341, type: 3}
+  CleaveSwing: {fileID: 0}
+  pierceThrustPrefab: {fileID: 2544078778212307353, guid: b976e1ed2c25087488fe67fbfeecbceb, type: 3}
+  PierceThrust: {fileID: 0}
+  leftAttackCooldown:
+    m_InternalValue: 0
+  rightAttackCooldown:
     m_InternalValue: 0
 --- !u!1 &2099523271220163082
 GameObject:

@@ -7,7 +7,7 @@ public class WearableLoader : MonoBehaviour
 {
     public TextAsset wearableCsv;
 
-    void Awake()
+    void Start()
     {
         LoadWearables();
     }
