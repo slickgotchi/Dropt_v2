@@ -107,7 +107,7 @@ public class PlayerAbility : NetworkBehaviour
             m_isFinished = true;
         }
             
-        OnUpdate();
+        if (!m_isFinished) OnUpdate();
 
         if (m_autoMoveTimer < 0 && !m_autoMoveFinishCalled)
         {
@@ -163,7 +163,7 @@ public class PlayerAbility : NetworkBehaviour
 
     protected Quaternion GetRotationFromDirection(Vector3 direction)
     {
-        float angle = math.atan2(direction.y, direction.x) * math.TODEGREES;
+        float angle = GetAngleFromDirection(direction);
         return Quaternion.Euler(0, 0, angle);
     }
 

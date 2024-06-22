@@ -40,13 +40,14 @@ public class PierceDrill : PlayerAbility
 
             if (Player.HasComponent<PlayerGotchi>())
             {
-                Player.GetComponent<PlayerGotchi>().PlayFacingSpin(2, AutoMoveDuration / 2,
+                Player.GetComponent<PlayerGotchi>().PlayFacingSpin(2, AutoMoveDuration/2,
                     PlayerGotchi.SpinDirection.AntiClockwise, 0);
                 Player.GetComponent<PlayerGotchi>().SetGotchiRotation(
                     GetAngleFromDirection(PlayerActivationInput.actionDirection) - 90, AutoMoveDuration);
                 PlayFacingSpinRemoteServerRpc(2, AutoMoveDuration / 2, PlayerGotchi.SpinDirection.AntiClockwise, 0);
             }
         }
+
     }
 
     [Rpc(SendTo.Server)]
@@ -68,6 +69,8 @@ public class PierceDrill : PlayerAbility
     public override void OnUpdate()
     {
         TrackPlayerPosition();
+        //Debug.Log(Player.GetComponent<PlayerGotchi>().GetGotchi().transform.position + " " + transform.position);
+        //Debug.Log(Player.transform.position + " " + transform.position);
     }
 
     public override void OnAutoMoveFinish()

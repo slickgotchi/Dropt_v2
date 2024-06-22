@@ -70,6 +70,11 @@ public class PlayerGotchi : NetworkBehaviour
     private float m_bodyRotation = 0;
     private float m_bodyRotationTimer = 0;
 
+    public GameObject GetGotchi()
+    {
+        return m_gotchi;
+    }
+
     private void Awake()
     {
         animator = GetComponent<Animator>();
@@ -99,14 +104,15 @@ public class PlayerGotchi : NetworkBehaviour
         m_bodyRotationTimer -= Time.deltaTime;
         if (m_bodyRotationTimer > 0)
         {
+            // need to disable animator as PlayerGotchi_DropSpawn controls the Gotchi z position
+            GetComponent<Animator>().enabled = false;
             m_gotchi.transform.rotation = Quaternion.Euler(new Vector3(0, 0, m_bodyRotation));
-            m_gotchi.transform.localPosition = new Vector3(0, 0.5f, 0);
         }
         else
         {
             m_gotchi.transform.rotation = Quaternion.identity;
             m_bodyParent.transform.rotation = Quaternion.Euler(new Vector3(0, 0, CalculateSpriteLean()));
-            m_gotchi.transform.localPosition = new Vector3(0, 0, 0);
+            GetComponent<Animator>().enabled = true;
         }
     }
 
@@ -125,7 +131,7 @@ public class PlayerGotchi : NetworkBehaviour
         m_virtualCamera.Follow = null;
 
         IsDropSpawning = true;
-        animator.Play("Player_Drop");
+        animator.Play("PlayerGotchi_DropSpawn");
         m_spawnPoint = spawnPoint;
         m_preSpawnPoint = currentPosition;
     }

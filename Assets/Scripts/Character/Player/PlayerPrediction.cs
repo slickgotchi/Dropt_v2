@@ -135,7 +135,7 @@ public class PlayerPrediction : NetworkBehaviour
 
     private void SetActionDirectionAndLastMoveFromCursorAim()
     {
-        m_actionDirection = math.normalizesafe(m_cursorWorldPosition - transform.position);
+        m_actionDirection = math.normalizesafe(m_cursorWorldPosition - (transform.position + new Vector3(0,0.5f,0)));
         m_lastMoveDirection = m_actionDirection;
         m_actionDirectionTimer = k_actionDirectionTime;
     }
@@ -504,6 +504,7 @@ public class PlayerPrediction : NetworkBehaviour
         }
 
         var stateVelocity = rb.velocity;
+
 
         // simulate
         Physics2D.simulationMode = SimulationMode2D.Script;
