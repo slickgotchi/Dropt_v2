@@ -61,16 +61,16 @@ public class NetworkCharacter : NetworkBehaviour
         return rand < CriticalChance.Value;
     }
 
-    public virtual void TakeDamage(float damage, bool isCritical, bool isServer = false)
+    public virtual void TakeDamage(float damage, bool isCritical)
     {
-        if (!isServer)
+        if (IsClient)
         {
             if (gameObject.HasComponent<SpriteFlash>())
             {
                 gameObject.GetComponent<SpriteFlash>().DamageFlash();
             }
         }
-        else
+        if (IsServer)
         {
             HpCurrent.Value -= (int)damage;
             if (HpCurrent.Value < 0) { HpCurrent.Value = 0; }
@@ -82,11 +82,13 @@ public class NetworkCharacter : NetworkBehaviour
     [Rpc(SendTo.ClientsAndHost)]
     void DamagePopupTextClientRpc(float damage, Vector3 position, bool isCritical)
     {
+        ColorUtility.TryParseHtmlString("#ffeb57", out Color critColor);
+
         PopupTextManager.Instance.PopupText(
             damage.ToString("F0"), 
             position, 
             isCritical ? 30 : 24, 
-            isCritical ? Color.yellow : Color.white, 
+            isCritical ? critColor : Color.white, 
             0.2f);
     }
 

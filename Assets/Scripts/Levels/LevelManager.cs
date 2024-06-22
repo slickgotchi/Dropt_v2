@@ -181,7 +181,7 @@ public class LevelManager : NetworkBehaviour
             var spawnPoint = m_playerSpawnPoints[randIndex];
             m_playerSpawnPoints.RemoveAt(randIndex);
 
-            player.GetComponent<PlayerMovementAndDash>().SetPlayerPosition(spawnPoint);
+            player.GetComponent<PlayerPrediction>().SetPlayerPosition(spawnPoint);
             player.GetComponent<PlayerGotchi>().DropSpawn(player.transform.position, spawnPoint);
         }
     }

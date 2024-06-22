@@ -13,64 +13,81 @@ using UnityEngine;
 public class PlayerAbility : NetworkBehaviour
 {
     [Header("Base Ability Parameters")]
+
+    [Tooltip("Cost to cast this ability in AP")]
     public int ApCost = 0;
-    public float AbilityDuration = 1;
-    public float CooldownDuration = 1;
-    public float SlowFactor = 1;
-    public float SlowFactorDuration = 1;
+
+    [Tooltip("Time (s) for the ability to run from Start() to Finish()")]
+    public float ExecutionDuration = 1;
+
+    [Tooltip("Slows player down for the AbilityDuration")]
+    public float ExecutionSlowFactor = 1;
+
+    [Tooltip("Time (s) taken till any ability can be used after AbilityDuration is Finish()ed")]
+    public float CooldownDuration = 0;
+
+    [Tooltip("Slows player down during Cooldown")]
+    public float CooldownSlowFactor = 1;
+
+    [Tooltip("Instant teleportation distance in the action direction at ability activation")]
     public float TeleportDistance = 0;
 
-    public GameObject Player;
+    [Tooltip("Automatically move player over the given distance in the action direction at ability activation (Overrides SlowFactor)")]
+    public float AutoMoveDistance = 0;
+
+    [Tooltip("Time taken to move the AutoMoveDistance. Hard capped to AbilityDuration")]
+    public float AutoMoveDuration = 0;
+
+    [Tooltip("Is this ability a hold ability?")]
+    public bool isHoldAbility = false;
+
+    [Tooltip("Slows player down during Hold period")]
+    public float HoldSlowFactor = 1;
+
+    [HideInInspector] public GameObject Player;
+
     protected Vector3 PlayerCenterOffset = new Vector3(0,0.5f,0);
     protected ContactFilter2D EnemyHurtContactFilter;
     protected bool IsActivated = false;
     protected StatePayload PlayerActivationState;
     protected InputPayload PlayerActivationInput;
 
+    protected float HoldDuration = 0;
+
     protected Vector3 AbilityOffset = Vector3.zero;
     protected Quaternion AbilityRotation = Quaternion.identity;
 
     protected Animator Animator;
 
-    public NetworkVariable<int> PlayerNetworkObjectId = new NetworkVariable<int>(-1);
-
     private float m_timer = 0;
     private bool m_isFinished = false;
-    private bool m_isServer = false;
 
-    public bool CanActivate(GameObject playerObject, Hand hand)
+    private float m_autoMoveTimer = 0;
+    private bool m_autoMoveFinishCalled = false;
+
+    private void Awake()
     {
-        // AP check
-        if (playerObject.GetComponent<NetworkCharacter>().ApCurrent.Value < ApCost) return false;
-
-        // Cooldown check
-        var playerAbilities = playerObject.GetComponent<PlayerAbilities>();
-        if (hand == Hand.Left)
-        {
-            if (playerAbilities.leftAttackCooldown.Value > 0) return false;
-            if (IsServer) playerAbilities.leftAttackCooldown.Value = CooldownDuration;
-        } else
-        {
-            if (playerAbilities.rightAttackCooldown.Value > 0) return false;
-            if (IsServer) playerAbilities.rightAttackCooldown.Value = CooldownDuration;
-        }
-
-        // all good!
-        return true;
+        AutoMoveDuration = math.min(AutoMoveDuration, ExecutionDuration);
     }
 
-    public bool Activate(GameObject playerObject, StatePayload state, InputPayload input, bool isServer = false)
+    public bool Activate(GameObject playerObject, StatePayload state, InputPayload input, float holdDuration)
     {
         Player = playerObject;
         PlayerActivationState = state;
         PlayerActivationInput = input;
 
-        m_timer = AbilityDuration;
-        m_isFinished = false;
+        HoldDuration = holdDuration;
 
         IsActivated = true;
-        m_isServer = isServer;
-        OnStart(m_isServer);
+        m_timer = ExecutionDuration;
+        m_isFinished = false;
+        m_autoMoveTimer = AutoMoveDuration;
+        m_autoMoveFinishCalled = false;
+
+        // hide the player relevant hand
+        Player.GetComponent<PlayerGotchi>().HideHand(input.abilityHand, ExecutionDuration);
+
+        if (Player != null) OnStart();
 
         return true;
     }
@@ -79,32 +96,42 @@ public class PlayerAbility : NetworkBehaviour
     {
         m_timer -= Time.deltaTime;
 
+        m_autoMoveTimer -= Time.deltaTime;
+
+        if (Player == null) return;
+
         if (!m_isFinished && m_timer < 0)
         {
-            OnFinish(m_isServer);
+            OnFinish();
             IsActivated = false;
             m_isFinished = true;
         }
+            
+        OnUpdate();
+
+        if (m_autoMoveTimer < 0 && !m_autoMoveFinishCalled)
+        {
+            OnAutoMoveFinish();
+            m_autoMoveFinishCalled = true;
+        }
     }
 
-    public virtual void OnStart(bool isServer = false)
-    {
+    public virtual void OnStart() { }
 
-    }
+    public virtual void OnUpdate() { }
 
-    public virtual void OnFinish(bool isServer = false)
-    {
+    public virtual void OnFinish() { }
 
-    }
+    public virtual void OnAutoMoveFinish() { }
 
     [Rpc(SendTo.Server)]
-    protected void PlayAnimRemoteServerRpc(string animName, Vector3 abilityOffset, Quaternion abilityRotation)
+    protected void PlayAnimRemoteServerRpc(string animName, Vector3 abilityOffset, Quaternion abilityRotation, float abilityScale = 1f)
     {
-        PlayAnimRemoteClientRpc(animName, abilityOffset, abilityRotation);
+        PlayAnimRemoteClientRpc(animName, abilityOffset, abilityRotation, abilityScale);
     }
 
     [Rpc(SendTo.ClientsAndHost)]
-    protected void PlayAnimRemoteClientRpc(string animName, Vector3 abilityOffset, Quaternion abilityRotation)
+    protected void PlayAnimRemoteClientRpc(string animName, Vector3 abilityOffset, Quaternion abilityRotation, float abilityScale = 1f)
     {
         if (Player.GetComponent<NetworkObject>().IsLocalPlayer) return;
 
@@ -113,15 +140,16 @@ public class PlayerAbility : NetworkBehaviour
 
         transform.position = Player.transform.position + abilityOffset;
         transform.rotation = abilityRotation;
+        transform.localScale = new Vector3(abilityScale, abilityScale, 1);
         Animator.Play(animName);
     }
 
-    protected ContactFilter2D GetEnemyHurtContactFilter()
+    protected ContactFilter2D GetContactFilter(string layerName)
     {
         return new ContactFilter2D
         {
             useLayerMask = true,
-            layerMask = 1 << LayerMask.NameToLayer("EnemyHurt"),
+            layerMask = 1 << LayerMask.NameToLayer(layerName),
             useTriggers = true,
         };
     }
@@ -133,23 +161,15 @@ public class PlayerAbility : NetworkBehaviour
         transform.position = Player.transform.position + AbilityOffset;
     }
 
-    protected void SetRotationToDirection(Vector3 direction)
-    {
-        float angle = math.atan2(direction.y, direction.x) * math.TODEGREES;
-        transform.rotation = Quaternion.Euler(0, 0, angle);
-    }
-
     protected Quaternion GetRotationFromDirection(Vector3 direction)
     {
         float angle = math.atan2(direction.y, direction.x) * math.TODEGREES;
         return Quaternion.Euler(0, 0, angle);
     }
 
-    protected void SetPositionToPlayerCenterAtActivation(Vector3 offset = default)
+    protected float GetAngleFromDirection(Vector3 direction)
     {
-        if (!IsActivated) return;
-
-        transform.position = PlayerActivationState.position + PlayerCenterOffset + offset;
+        return math.atan2(direction.y, direction.x) * math.TODEGREES;
     }
 
     protected Vector3 GetPlayerCentrePosition()
@@ -158,7 +178,7 @@ public class PlayerAbility : NetworkBehaviour
 
         if (IsServer && !IsHost && Player != null)
         {
-            pos = Player.GetComponent<PlayerMovementAndDash>().GetServerPosition() + PlayerCenterOffset;
+            pos = Player.GetComponent<PlayerPrediction>().GetServerPosition() + PlayerCenterOffset;
         }
         else if (IsClient && Player != null)
         {
@@ -168,12 +188,6 @@ public class PlayerAbility : NetworkBehaviour
         return pos;
     }
 
-    protected void SetPositionToPlayerCenter(Vector3 offset = default)
-    {
-        if (Player == null || !IsActivated) return;
-
-        transform.position = Player.transform.position + PlayerCenterOffset + offset;
-    }
 }
 
 public enum PlayerAbilityEnum

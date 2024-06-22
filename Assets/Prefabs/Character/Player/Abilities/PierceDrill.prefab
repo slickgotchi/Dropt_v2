@@ -80,7 +80,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 3.5555556, y: 4.4444447}
+  m_Size: {x: 1.7777778, y: 1.5277778}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 0
@@ -97,10 +97,10 @@ GameObject:
   - component: {fileID: 8086004901219037682}
   - component: {fileID: -6693017499447722929}
   - component: {fileID: 7869199515037794274}
-  - component: {fileID: 7703814828098464651}
-  - component: {fileID: -6166643874648367605}
+  - component: {fileID: 5406072318433110963}
+  - component: {fileID: 5612337100066340978}
   m_Layer: 8
-  m_Name: CleaveSwing
+  m_Name: PierceDrill
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -136,7 +136,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2363590445
+  GlobalObjectIdHash: 1994975107
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -155,7 +155,7 @@ Animator:
   m_GameObject: {fileID: 2544078778212307353}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 3079e1f608c6be442b3590daee948c91, type: 2}
+  m_Controller: {fileID: 9100000, guid: b9072bc72459ef3448c91527efb49da9, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -167,8 +167,8 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!60 &7703814828098464651
-PolygonCollider2D:
+--- !u!61 &5406072318433110963
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -201,7 +201,7 @@ PolygonCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: -5, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -211,16 +211,9 @@ PolygonCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Points:
-    m_Paths:
-    - - {x: 0, y: 1.8}
-      - {x: -0.75, y: 0}
-      - {x: 0, y: -1.8}
-      - {x: 1.5, y: -1.8}
-      - {x: 2.2, y: 0}
-      - {x: 1.5, y: 1.8}
-  m_UseDelaunayMesh: 0
---- !u!114 &-6166643874648367605
+  m_Size: {x: 10, y: 1.7}
+  m_EdgeRadius: 0
+--- !u!114 &5612337100066340978
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -229,21 +222,24 @@ MonoBehaviour:
   m_GameObject: {fileID: 2544078778212307353}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5e2dde1196a054c49a57e503348f2ebc, type: 3}
+  m_Script: {fileID: 11500000, guid: d638a70b07ef77e469a05f7fc57c70bd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   ApCost: 0
-  ExecutionDuration: 0.5
+  ExecutionDuration: 0.7
   CooldownDuration: 0
   isHoldAbility: 0
-  HoldSlowFactor: 1
-  ExecutionSlowFactor: 0.5
+  HoldSlowFactor: 0.5
+  ExecutionSlowFactor: 0.3
   CooldownSlowFactor: 1
   TeleportDistance: 0
-  AutoMoveDistance: 0
-  AutoMoveDuration: 0
+  AutoMoveDistance: 10
+  AutoMoveDuration: 0.5
   Player: {fileID: 0}
-  Projection: 0.75
+  Projection: 1
+  NumberHits: 3
+  DamageMultiplier: 0.5
+  HoldChargeTime: 3
 --- !u!1 &4708556748347195212
 GameObject:
   m_ObjectHideFlags: 0
@@ -352,7 +348,7 @@ SpriteRenderer:
   m_SortingLayerID: 1447911093
   m_SortingLayer: 1
   m_SortingOrder: 2
-  m_Sprite: {fileID: -1526816664, guid: e4b30ec11d09f4d4fa2bafef9fdf3707, type: 3}
+  m_Sprite: {fileID: 145562777, guid: 388e7d52a6997734498cf9d6aff2c7c9, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -523,13 +519,13 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 1447911093
   m_SortingLayer: 1
-  m_SortingOrder: 1
+  m_SortingOrder: 4
   m_Sprite: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 3.5555556, y: 4.4444447}
+  m_Size: {x: 1.7777778, y: 1.5277778}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 0

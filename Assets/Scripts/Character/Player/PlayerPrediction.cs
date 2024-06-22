@@ -5,7 +5,7 @@ using Dropt;
 using System.Collections.Generic;
 using Unity.Mathematics;
 
-public class PlayerMovementAndDash : NetworkBehaviour
+public class PlayerPrediction : NetworkBehaviour
 {
     private NetworkCharacter m_networkCharacter;
 
@@ -16,17 +16,25 @@ public class PlayerMovementAndDash : NetworkBehaviour
     private float m_slowFactor = 1f;
     private int m_slowFactorExpiryTick = 0;
     private int m_slowFactorStartTick = 0;
+    private float m_cooldownSlowFactor = 1f;
 
     // inputs to populate
     private Vector3 m_moveDirection;
     private Vector3 m_actionDirection = new Vector3(0, -1, 0);
     private PlayerAbilityEnum m_abilityTriggered = PlayerAbilityEnum.Null;
     private Hand m_abilityHand = Hand.Left;
+    private PlayerAbilityEnum m_holdAbilityPending = PlayerAbilityEnum.Null;
+
+    private bool m_autoMove = false;
+    private Vector3 m_autoMoveVelocity = Vector3.zero;
+    private int m_autoMoveExpiryTick = 0;
 
     // timer required so that when an action/ability is activated gotchi action 
     // direction stays the same for a short duration
     private float m_actionDirectionTimer = 0;
     private float k_actionDirectionTime = 0.5f;
+
+    public NetworkVariable<Vector3> ActionDirection = new NetworkVariable<Vector3>();
 
     private Rigidbody2D rb;
     private PlayerAbilities m_playerAbilities;
@@ -60,6 +68,21 @@ public class PlayerMovementAndDash : NetworkBehaviour
 
     private Vector2 m_cursorScreenPosition;
     private Vector3 m_cursorWorldPosition;
+
+    // cooldown expiry ticks
+    private int m_abilityCooldownExpiryTick = 0;
+
+    // hold variables
+    //private bool m_isHoldActive = false;
+    private bool m_isHoldStarted = false;
+    private bool m_isHoldStartFlag = false;
+    private bool m_isHoldFinishFlag = false;
+    //private Hand m_holdHand = Hand.Left;
+    public enum HoldState { Inactive, LeftActive, RightActive };
+    private HoldState m_holdState;
+
+    private int m_holdStartTick = 0;
+    private int m_holdFinishTick = 0;
 
     // to keep track of our tick delta to the server
     private int m_remoteClientTickDelta = 0;
@@ -110,12 +133,19 @@ public class PlayerMovementAndDash : NetworkBehaviour
         m_moveDirection = value.Get<Vector2>();
     }
 
-    private void OnDash_CursorAim(InputValue value)
+    private void SetActionDirectionAndLastMoveFromCursorAim()
     {
-        if (!IsLocalPlayer) return;
         m_actionDirection = math.normalizesafe(m_cursorWorldPosition - transform.position);
         m_lastMoveDirection = m_actionDirection;
         m_actionDirectionTimer = k_actionDirectionTime;
+    }
+
+    private void OnDash_CursorAim(InputValue value)
+    {
+        if (!IsLocalPlayer) return;
+
+        SetActionDirectionAndLastMoveFromCursorAim();
+
         m_abilityTriggered = PlayerAbilityEnum.Dash;
     }
 
@@ -136,26 +166,82 @@ public class PlayerMovementAndDash : NetworkBehaviour
     private void OnLeftAttack_CursorAim(InputValue value)
     {
         if (!IsLocalPlayer) return;
-        m_actionDirection = math.normalizesafe(m_cursorWorldPosition - transform.position);
-        m_lastMoveDirection = m_actionDirection;
-        m_actionDirectionTimer = k_actionDirectionTime;
 
-        var lhWearable = GetComponent<PlayerEquipment>().LeftHand.Value;
-        m_abilityTriggered = GetComponent<PlayerAbilities>().GetAttackAbilityEnum(lhWearable);
+        SetActionDirectionAndLastMoveFromCursorAim();
+
         m_abilityHand = Hand.Left;
+        var lhWearable = GetComponent<PlayerEquipment>().LeftHand.Value;
+        m_abilityTriggered = m_playerAbilities.GetAttackAbilityEnum(lhWearable);
+    }
+
+    private void OnLeftHoldStart_CursorAim(InputValue value)
+    {
+        m_holdState = HoldState.LeftActive;
+        var lhWearable = GetComponent<PlayerEquipment>().LeftHand.Value;
+        m_holdAbilityPending = m_playerAbilities.GetHoldAbilityEnum(lhWearable);
+    }
+
+    private void OnLeftHoldFinish_CursorAim(InputValue value)
+    {
+        // if hold time > 0, trigger our hold ability
+        if (m_holdState == HoldState.LeftActive)
+        {
+            if (!IsLocalPlayer) return;
+
+            SetActionDirectionAndLastMoveFromCursorAim();
+
+            m_abilityHand = Hand.Left;
+            var lhWearable = GetComponent<PlayerEquipment>().LeftHand.Value;
+            m_abilityTriggered = m_playerAbilities.GetHoldAbilityEnum(lhWearable);
+
+            m_isHoldFinishFlag = true;
+
+            m_holdAbilityPending = PlayerAbilityEnum.Null;
+            m_isHoldStarted = false;
+            m_holdState = HoldState.Inactive;
+        }
     }
 
     private void OnRightAttack_CursorAim(InputValue value)
     {
         if (!IsLocalPlayer) return;
-        m_actionDirection = math.normalizesafe(m_cursorWorldPosition - transform.position);
-        m_lastMoveDirection = m_actionDirection;
-        m_actionDirectionTimer = k_actionDirectionTime;
 
-        var rhWearable = GetComponent<PlayerEquipment>().RightHand.Value;
-        m_abilityTriggered = GetComponent<PlayerAbilities>().GetAttackAbilityEnum(rhWearable);
+        SetActionDirectionAndLastMoveFromCursorAim();
+
         m_abilityHand = Hand.Right;
+        var rhWearable = GetComponent<PlayerEquipment>().RightHand.Value;
+        m_abilityTriggered = m_playerAbilities.GetAttackAbilityEnum(rhWearable);
     }
+
+    private void OnRightHoldStart_CursorAim(InputValue value)
+    {
+        m_holdState = HoldState.RightActive;
+        var rhWearable = GetComponent<PlayerEquipment>().RightHand.Value;
+        m_holdAbilityPending = m_playerAbilities.GetHoldAbilityEnum(rhWearable);
+    }
+
+    private void OnRightHoldFinish_CursorAim(InputValue value)
+    {
+        // if hold time > 0, trigger our hold ability
+        if (m_holdState == HoldState.RightActive)
+        {
+            if (!IsLocalPlayer) return;
+
+            SetActionDirectionAndLastMoveFromCursorAim();
+
+            m_abilityHand = Hand.Right;
+            var rhWearable = GetComponent<PlayerEquipment>().RightHand.Value;
+            m_abilityTriggered = m_playerAbilities.GetHoldAbilityEnum(rhWearable);
+
+            m_isHoldFinishFlag = true;
+
+            m_holdAbilityPending = PlayerAbilityEnum.Null;
+            m_isHoldStarted = false;
+            m_holdState = HoldState.Inactive;
+        }
+    }
+
+    public HoldState GetHoldState() { return m_holdState; }
 
     private void UpdateCursorWorldPosition()
     {
@@ -169,10 +255,12 @@ public class PlayerMovementAndDash : NetworkBehaviour
 
     private void Update()
     {
-        timer.Update(Time.deltaTime);
+        // timer stuff
+        float dt = Time.deltaTime;
+        timer.Update(dt);
+        m_actionDirectionTimer -= dt;
 
-        m_actionDirectionTimer -= Time.deltaTime;
-
+        // set updated render position
         if (IsLocalPlayer)
         {
             UpdateCursorWorldPosition();
@@ -215,13 +303,29 @@ public class PlayerMovementAndDash : NetworkBehaviour
         var bufferIndex = currentTick % k_bufferSize;   // this just ensures we go back to index 0 when tick goes past buffer size
 
         // if ability not ready, we don't count as input this tick
-        var ability = GetComponent<PlayerAbilities>().GetAbility(m_abilityTriggered);
+        var ability = m_playerAbilities.GetAbility(m_abilityTriggered);
         if (ability != null)
         {
-            if (!ability.CanActivate(gameObject, m_abilityHand))
+            bool isEnoughAp = GetComponent<NetworkCharacter>().ApCurrent.Value >= ability.ApCost;
+            bool isCooldownFinished = currentTick > m_abilityCooldownExpiryTick;
+
+            if (!isEnoughAp || !isCooldownFinished)
             {
-                // ensure ability does not make it into input
                 m_abilityTriggered = PlayerAbilityEnum.Null;
+            } 
+        }
+
+        // check if we can start our hold ability
+        var holdAbility = m_playerAbilities.GetAbility(m_holdAbilityPending);
+        if (!m_isHoldStarted && holdAbility != null)
+        {
+            bool isEnoughAp = GetComponent<NetworkCharacter>().ApCurrent.Value >= holdAbility.ApCost;
+            bool isCooldownFinished = currentTick > m_abilityCooldownExpiryTick;
+
+            if (isEnoughAp && isCooldownFinished)
+            {
+                m_isHoldStartFlag = true;
+                m_isHoldStarted = true;
             }
         }
 
@@ -232,7 +336,10 @@ public class PlayerMovementAndDash : NetworkBehaviour
             moveDirection = GetComponent<PlayerGotchi>().IsDropSpawning ? Vector3.zero : m_moveDirection,
             actionDirection = m_actionDirection,
             abilityTriggered = m_abilityTriggered,
+            holdAbilityPending = m_holdAbilityPending,
             abilityHand = m_abilityHand,
+            isHoldStartFlag = m_isHoldStartFlag,
+            isHoldFinishFlag = m_isHoldFinishFlag,
         };
 
         // send input to server
@@ -241,21 +348,75 @@ public class PlayerMovementAndDash : NetworkBehaviour
         // store in client input buffer
         clientInputBuffer.Add(inputPayload, bufferIndex);
 
+        // activate ability if it was not null
+        if (ability != null && m_abilityTriggered != PlayerAbilityEnum.Null)
+        {
+            // we only activate once from the server side when in host mode
+            if (!IsHost)
+            {
+                // check automove (THIS MIGHT NEED TO BE MOVED BEFORE processInput)
+                if (ability.AutoMoveDuration > 0)
+                {
+                    m_autoMove = true;
+                    var speed = ability.AutoMoveDistance / ability.AutoMoveDuration;
+                    m_autoMoveVelocity = m_actionDirection * speed;
+                    m_autoMoveExpiryTick = currentTick + (int)(ability.AutoMoveDuration * k_serverTickRate);
+                }
+            }
+        }
+
         // locally process the movement and save our new state for this current tick
-        StatePayload statePayload = ProcessMovement(inputPayload, false, false); // not a script simulation, use default fixed update
+        StatePayload statePayload = ProcessInput(inputPayload, false); // not a script simulation, use default fixed update
         clientStateBuffer.Add(statePayload, bufferIndex);
 
         // activate ability if it was not null
         if (ability != null && m_abilityTriggered != PlayerAbilityEnum.Null)
         {
-            ability.Activate(gameObject, statePayload, inputPayload);
+            var holdDuration = (m_holdFinishTick - m_holdStartTick) / k_serverTickRate;
+
+            // we only activate once from the server side when in host mode
+            if (!IsHost)
+            {
+                ability.Activate(gameObject, statePayload, inputPayload, holdDuration);
+
+                // set cooldown tick
+                m_abilityCooldownExpiryTick = currentTick + 
+                    (int)math.ceil((ability.ExecutionDuration + ability.CooldownDuration) * k_serverTickRate);
+
+                // set slow down ticks
+                m_slowFactor = ability.ExecutionSlowFactor;
+                m_slowFactorStartTick = currentTick;
+                m_slowFactorExpiryTick = currentTick + (int)math.ceil(ability.ExecutionDuration * k_serverTickRate);
+                m_cooldownSlowFactor = ability.CooldownSlowFactor;
+            }
         }
 
-        // reset any triggered ability
+        // reset any triggers or booleans
         m_abilityTriggered = PlayerAbilityEnum.Null;
+        m_isHoldStartFlag = false;
+        m_isHoldFinishFlag = false;
 
         // do server reconciliation
         HandleServerReconciliation();
+
+        // sync facing direction with remote clients
+        SetFacingParametersServerRpc(m_actionDirection, m_actionDirectionTimer, m_lastMoveDirection);
+    }
+
+    [Rpc(SendTo.Server)]
+    void SetFacingParametersServerRpc(Vector3 actionDirection, float actionDirectionTimer, Vector3 lastMoveDirection)
+    {
+        SetFacingParametersClientRpc(actionDirection, actionDirectionTimer, lastMoveDirection);
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    void SetFacingParametersClientRpc(Vector3 actionDirection, float actionDirectionTimer, Vector3 lastMoveDirection)
+    {
+        if (IsLocalPlayer) return;
+
+        m_actionDirection = actionDirection;
+        m_actionDirectionTimer = actionDirectionTimer;
+        m_lastMoveDirection = lastMoveDirection;
     }
 
     // 3. set transform to whatever the latest server state is then rewind
@@ -267,8 +428,6 @@ public class PlayerMovementAndDash : NetworkBehaviour
 
         StatePayload rewindState = IsHost ? serverStateBuffer.Get(bufferIndex - 1) : lastServerState;    // host rpcs execute immedimate, so use the previous server state in the buffer
 
-        //ReconcileState(rewindState);
-
         transform.position = rewindState.position;
 
         clientStateBuffer.Add(rewindState, rewindState.tick);
@@ -279,18 +438,14 @@ public class PlayerMovementAndDash : NetworkBehaviour
         while (tickToReplay <= timer.CurrentTick)
         {
             bufferIndex = tickToReplay % k_bufferSize;
-            StatePayload statePayload = ProcessMovement(clientInputBuffer.Get(bufferIndex), true, false);
+            StatePayload statePayload = ProcessInput(clientInputBuffer.Get(bufferIndex), true);
 
             clientStateBuffer.Add(statePayload, bufferIndex);
             tickToReplay++;
         }
     }
 
-    //void ReconcileState(StatePayload rewindState)
-    //{
-    //}
-
-    StatePayload ProcessMovement(InputPayload input, bool isReconciliation = false, bool isServer = false)
+    StatePayload ProcessInput(InputPayload input, bool isReconciliation = false)
     {
         // set starting position and velocity
         if (IsLocalPlayer)
@@ -311,12 +466,44 @@ public class PlayerMovementAndDash : NetworkBehaviour
             transform.position = serverStateBuffer.Get(prevBufferIndex).position;
         }
 
+        // handle any hold info
+        if (input.isHoldStartFlag) m_holdStartTick = input.tick;
+        if (input.isHoldFinishFlag) m_holdFinishTick = input.tick;
+
         // teleport handling
         HandleTeleportInput(input);
 
         // set velocity
-        rb.velocity = input.moveDirection * m_networkCharacter.MoveSpeed.Value * 
-            GetInputSlowFactor(input, isReconciliation);
+        if (isReconciliation)
+        {
+            // in reconciliation mode we need to grab the velocities stored in the client state buffer
+            // rather than try generate them again
+            var bufferIndex = input.tick % k_bufferSize;
+            rb.velocity = clientStateBuffer.Get(bufferIndex).velocity;
+        } else
+        {
+            // generate velocity from char speed, move dir any potential abilities that slow down speed
+            rb.velocity = input.moveDirection * m_networkCharacter.MoveSpeed.Value * 
+                GetInputSlowFactor(input);
+
+            // check for automove
+            if (input.tick < m_autoMoveExpiryTick)
+            {
+                rb.velocity = m_autoMoveVelocity;
+            }
+
+            // check for teleport
+            var ability = m_playerAbilities.GetAbility(input.abilityTriggered);
+            if (ability != null)
+            {
+                if (ability.TeleportDistance > 0.1f)
+                {
+                    rb.velocity = Vector3.zero;
+                }
+            }
+        }
+
+        var stateVelocity = rb.velocity;
 
         // simulate
         Physics2D.simulationMode = SimulationMode2D.Script;
@@ -338,13 +525,14 @@ public class PlayerMovementAndDash : NetworkBehaviour
         {
             tick = input.tick,
             position = transform.position,
+            velocity = stateVelocity,
             abilityTriggered = input.abilityTriggered,
         };
     }
 
     public void HandleTeleportInput(InputPayload input)
     {
-        var ability = GetComponent<PlayerAbilities>().GetAbility(input.abilityTriggered);
+        var ability = m_playerAbilities.GetAbility(input.abilityTriggered);
         if (ability != null && ability.TeleportDistance > 0.1f)
         {
             transform.position = DashCalcs.Dash(GetComponent<CapsuleCollider2D>(), transform.position,
@@ -352,43 +540,23 @@ public class PlayerMovementAndDash : NetworkBehaviour
         }
     }
 
-    public float GetInputSlowFactor(InputPayload input, bool isReconciliation)
+    public float GetInputSlowFactor(InputPayload input)
     {
-        if (!isReconciliation)
+        if (input.tick >= m_slowFactorStartTick && input.tick <= m_slowFactorExpiryTick)
         {
-            var ability = GetComponent<PlayerAbilities>().GetAbility(input.abilityTriggered);
-            if (ability != null)
-            {
-                m_slowFactor = ability.SlowFactor;
-                m_slowFactorStartTick = input.tick;
-                m_slowFactorExpiryTick = input.tick + (int)(ability.SlowFactorDuration * k_serverTickRate);
-            }
+            return m_slowFactor;
+        } else if (input.tick <= m_abilityCooldownExpiryTick)
+        {
+            return m_cooldownSlowFactor;
         }
-
-        var slowFactor = 1f;
-        if (input.tick >= m_slowFactorStartTick && input.tick < m_slowFactorExpiryTick)
+        else if (input.tick >= m_holdStartTick && input.holdAbilityPending != PlayerAbilityEnum.Null)
         {
-            slowFactor = m_slowFactor;
+            var holdAbility = m_playerAbilities.GetAbility(input.holdAbilityPending);
+            return holdAbility.HoldSlowFactor;
         }
-
-        return slowFactor;
-    }
-
-    public void HandleSlowFactorInput(InputPayload input)
-    {
-        if (input.abilityTriggered != PlayerAbilityEnum.Null)
+        else
         {
-            var ability = GetComponent<PlayerAbilities>().GetAbility(input.abilityTriggered);
-            if (ability != null)
-            {
-                m_slowFactor = ability.SlowFactor;
-                m_slowFactorExpiryTick = input.tick + (int)(ability.SlowFactorDuration * k_serverTickRate);
-            }
-        }
-
-        if (input.tick > m_slowFactorExpiryTick)
-        {
-            m_slowFactor = 1f;
+            return 1;
         }
     }
 
@@ -412,29 +580,71 @@ public class PlayerMovementAndDash : NetworkBehaviour
         {
             inputPayload = serverInputQueue.Dequeue();
 
-            // if ability not ready, we don't count as input this tick
-            var ability = GetComponent<PlayerAbilities>().GetAbility(inputPayload.abilityTriggered);
+            var ability = m_playerAbilities.GetAbility(inputPayload.abilityTriggered);
             if (ability != null)
             {
-                // need to add !IsHost as this will always fail if we're in host mode!
-                if (!ability.CanActivate(gameObject, inputPayload.abilityHand) && !IsHost)
+                bool isApEnough = GetComponent<NetworkCharacter>().ApCurrent.Value >= ability.ApCost;
+                bool isCooldownFinished = inputPayload.tick > m_abilityCooldownExpiryTick;
+
+                if ((!isApEnough || !isCooldownFinished) && !IsHost)
                 {
-                    // ensure ability does not make it into input
+                    //m_abilityTriggered = PlayerAbilityEnum.Null;
                     inputPayload.abilityTriggered = PlayerAbilityEnum.Null;
                 }
             }
 
-            bufferIndex = inputPayload.tick % k_bufferSize;
+            // check if we can start our hold ability
+            var holdAbility = m_playerAbilities.GetAbility(inputPayload.holdAbilityPending);
+            if (!m_isHoldStarted && inputPayload.isHoldStartFlag && holdAbility != null && !IsHost)
+            {
+                bool isEnoughAp = GetComponent<NetworkCharacter>().ApCurrent.Value >= holdAbility.ApCost;
+                bool isCooldownFinished = inputPayload.tick > m_abilityCooldownExpiryTick;
 
-            statePayload = ProcessMovement(inputPayload, false, true);
+                if (isEnoughAp && isCooldownFinished)
+                {
+                    m_isHoldStarted = true;
+                    inputPayload.isHoldStartFlag = true;
+                } else
+                {
+                    inputPayload.isHoldStartFlag = false;
+                }
+            }
+
+
+            // perform ability if applicable
+            if (ability != null && inputPayload.abilityTriggered != PlayerAbilityEnum.Null)
+            {
+                // check automove (THIS MIGHT NEED TO BE MOVED BEFORE processInput)
+                if (ability.AutoMoveDuration > 0)
+                {
+                    m_autoMove = true;
+                    var speed = ability.AutoMoveDistance / ability.AutoMoveDuration;
+                    m_autoMoveVelocity = inputPayload.actionDirection * speed;
+                    m_autoMoveExpiryTick = inputPayload.tick + (int)(ability.AutoMoveDuration * k_serverTickRate);
+                }
+            }
+
+            statePayload = ProcessInput(inputPayload, false);
 
             if (m_isSetPlayerPosition) statePayload.position = m_setPlayerPosition;
+
+            bufferIndex = inputPayload.tick % k_bufferSize;
             serverStateBuffer.Add(statePayload, bufferIndex);
 
             // perform ability if applicable
             if (ability != null && inputPayload.abilityTriggered != PlayerAbilityEnum.Null)
             {
-                ability.Activate(gameObject, statePayload, inputPayload, true);
+                var holdDuration = (m_holdFinishTick - m_holdStartTick) / k_serverTickRate;
+                ability.Activate(gameObject, statePayload, inputPayload, holdDuration);
+                m_abilityCooldownExpiryTick = inputPayload.tick + 
+                    (int)math.ceil((ability.ExecutionDuration + ability.CooldownDuration) * k_serverTickRate);
+
+                // set slow down ticks
+                m_slowFactor = ability.ExecutionSlowFactor;
+                m_slowFactorStartTick = inputPayload.tick;
+                m_slowFactorExpiryTick = inputPayload.tick + 
+                    (int)math.ceil(ability.ExecutionDuration * k_serverTickRate);
+                m_cooldownSlowFactor = ability.CooldownSlowFactor;
             }
 
             // tell client the last state we have as a server
@@ -505,7 +715,7 @@ public class PlayerMovementAndDash : NetworkBehaviour
         IfDashInputDrawShadow(start, finish);
 
         // go straight to finish if there was a teleport
-        var ability = GetComponent<PlayerAbilities>().GetAbility(finish.abilityTriggered);
+        var ability = m_playerAbilities.GetAbility(finish.abilityTriggered);
         if (ability != null && ability.TeleportDistance > 0.1f) return finish.position;
         return Vector3.Lerp(start.position, finish.position, fraction);
     }
@@ -528,14 +738,14 @@ public class PlayerMovementAndDash : NetworkBehaviour
         IfDashInputDrawShadow(start, finish);
 
         // go straight to finish if there was a teleport
-        var ability = GetComponent<PlayerAbilities>().GetAbility(finish.abilityTriggered);
+        var ability = m_playerAbilities.GetAbility(finish.abilityTriggered);
         if (ability != null && ability.TeleportDistance > 0.1f) return finish.position;
         return Vector3.Lerp(start.position, finish.position, fraction);
     }
 
     void IfDashInputDrawShadow(StatePayload start, StatePayload finish)
     {
-        var ability = GetComponent<PlayerAbilities>().GetAbility(finish.abilityTriggered);
+        var ability = m_playerAbilities.GetAbility(finish.abilityTriggered);
         if (ability != null && ability.TeleportDistance > 0.1f)
         {
             // play dash anim

@@ -130,6 +130,7 @@ GameObject:
   - component: {fileID: 361146906994616670}
   - component: {fileID: 4053262320334086805}
   - component: {fileID: 2487840040425660918}
+  - component: {fileID: 3309566593139392380}
   m_Layer: 11
   m_Name: Body
   m_TagString: Untagged
@@ -192,8 +193,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 133809489
-  m_SortingLayer: -1
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: -3623974082758994877, guid: 3ee57477ed4a87c42bf371e2875956ac, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -268,3 +269,17 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 2, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &3309566593139392380
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6525230415705073668}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d7b5c2d243625b45ad7856320609381, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetToTrack: {fileID: 0}
+  sortingOrderOffset: 0

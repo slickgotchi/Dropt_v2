@@ -5,7 +5,7 @@ using Unity.Mathematics;
 
 public class CleaveSwing : PlayerAbility
 {
-    [Header("Cleave Swing Parameters")]
+    [Header("CleaveSwing Parameters")]
     [SerializeField] float Projection = 1f;
 
     private Collider2D m_collider;
@@ -16,7 +16,7 @@ public class CleaveSwing : PlayerAbility
         m_collider = GetComponent<Collider2D>();
     }
 
-    public override void OnStart(bool isServer = false)
+    public override void OnStart()
     {
         AbilityOffset = PlayerCenterOffset + PlayerActivationInput.actionDirection * Projection;
         AbilityRotation = GetRotationFromDirection(PlayerActivationInput.actionDirection);
@@ -29,9 +29,10 @@ public class CleaveSwing : PlayerAbility
         Physics2D.SyncTransforms();
 
         // do a collision check
-        List<Collider2D> hitColliders = new List<Collider2D>();
-        m_collider.Overlap(GetEnemyHurtContactFilter(), hitColliders);
-        foreach (var hit in hitColliders)
+        List<Collider2D> enemyHitColliders = new List<Collider2D>();
+        m_collider.Overlap(GetContactFilter("EnemyHurt"), enemyHitColliders);
+        bool isLocalPlayer = Player.GetComponent<NetworkObject>().IsLocalPlayer;
+        foreach (var hit in enemyHitColliders)
         {
             if (hit.HasComponent<NetworkCharacter>())
             {
@@ -39,32 +40,36 @@ public class CleaveSwing : PlayerAbility
                 var damage = playerCharacter.GetAttackPower();
                 var isCritical = playerCharacter.IsCriticalAttack();
                 damage = (int)(isCritical ? damage * playerCharacter.CriticalDamage.Value : damage);
-                hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical, isServer);
-                Player.GetComponent<PlayerCamera>().Shake(1.5f, 0.3f);
+                hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical);
             }
         }
-        hitColliders.Clear();
 
-        // do client side effects/visuals etc.
-        if (!isServer)
+        // screen shake
+        if (isLocalPlayer && enemyHitColliders.Count > 0)
         {
-            if (Player.GetComponent<NetworkObject>().IsLocalPlayer)
-            {
-                Animator.Play("CleaveSwing");
-                DebugDraw.DrawColliderPolygon(m_collider, IsServer);
-                PlayAnimRemoteServerRpc("CleaveSwing", AbilityOffset, AbilityRotation);
-            }
+            Player.GetComponent<PlayerCamera>().Shake(1.5f, 0.3f);
+        }
+
+        // clear out colliders
+        enemyHitColliders.Clear();
+
+        // animation
+        if (isLocalPlayer)
+        {
+            Animator.Play("CleaveSwing");
+            DebugDraw.DrawColliderPolygon(m_collider, IsServer);
+            PlayAnimRemoteServerRpc("CleaveSwing", AbilityOffset, AbilityRotation);
         }
     }
 
 
 
-    private void Update()
+    public override void OnUpdate()
     {
         TrackPlayerPosition();
     }
 
-    public override void OnFinish(bool isServer = false)
+    public override void OnFinish()
     {
     }
 }

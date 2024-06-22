@@ -5,16 +5,41 @@ using UnityEngine;
 
 public class PlayerGotchi : NetworkBehaviour
 {
+    [Header("Gotchi Sprite Side Views")]
     [SerializeField] Sprite _front;
     [SerializeField] Sprite _back;
     [SerializeField] Sprite _left;
     [SerializeField] Sprite _right;
 
-    [SerializeField] private SpriteRenderer BodySprite;
+    [Header("Gotchi GameObject")]
+    [SerializeField] GameObject m_gotchi;
+
+    [Header("Body GameObject and Side Views")]
+    [SerializeField] GameObject m_bodyParent;
+    [SerializeField] GameObject m_bodyFaceFront;
+    [SerializeField] GameObject m_bodyFaceBack;
+    [SerializeField] GameObject m_bodyFaceLeft;
+    [SerializeField] GameObject m_bodyFaceRight;
+
+    [Header("Right Hand GameObject and Side Views")]
+    [SerializeField] GameObject m_rightHandParent;
+    [SerializeField] GameObject m_rightHandFaceFront;
+    [SerializeField] GameObject m_rightHandFaceBack;
+    [SerializeField] GameObject m_rightHandFaceLeft;
+    [SerializeField] GameObject m_rightHandFaceRight;
+
+    [Header("Left Hand GameObject and Side Views")]
+    [SerializeField] GameObject m_leftHandParent;
+    [SerializeField] GameObject m_leftHandFaceFront;
+    [SerializeField] GameObject m_leftHandFaceBack;
+    [SerializeField] GameObject m_leftHandFaceLeft;
+    [SerializeField] GameObject m_leftHandFaceRight;
+
+    [Header("Effects")]
     [SerializeField] private ParticleSystem DustParticleSystem;
 
     private Animator animator;
-    private PlayerMovementAndDash m_playerMovement;
+    private PlayerPrediction m_playerPrediction;
 
     private Vector3 m_facingDirection;
     private bool m_isMoving;
@@ -28,10 +53,27 @@ public class PlayerGotchi : NetworkBehaviour
     private Vector3 m_spawnPoint;
     private Vector3 m_preSpawnPoint;
 
+    // spin variables
+    public enum SpinDirection { AntiClockwise, Clockwise }
+    private SpinDirection m_spinDirection;
+    private int m_spinNumber;
+    private float m_spinPeriod;
+    private float m_spinAngle;
+    private float m_spinTimer;
+
+    private float m_leftHandHideTimer = 0;
+    private float m_rightHandHideTimer = 0;
+
+    public enum Facing { Front, Back, Left, Right }
+    private Facing m_facing;
+
+    private float m_bodyRotation = 0;
+    private float m_bodyRotationTimer = 0;
+
     private void Awake()
     {
         animator = GetComponent<Animator>();
-        m_playerMovement = GetComponent<PlayerMovementAndDash>();
+        m_playerPrediction = GetComponent<PlayerPrediction>();
         m_localVelocity = GetComponent<LocalVelocity>();
 
         m_camera = GetComponentInChildren<Camera>();
@@ -42,20 +84,30 @@ public class PlayerGotchi : NetworkBehaviour
     {
         if (IsServer && !IsHost) return;
 
-        if (IsLocalPlayer)
-        {
-            m_facingDirection = m_playerMovement.GetFacingDirection();
-            m_isMoving = m_playerMovement.IsMoving;
-        } else
-        {
-            m_facingDirection = m_localVelocity.LastNonZeroVelocity.normalized;
-            m_isMoving = m_localVelocity.IsMoving;
-        }
+        m_leftHandHideTimer -= Time.deltaTime;
+        m_rightHandHideTimer -= Time.deltaTime; 
+
+        m_facingDirection = m_playerPrediction.GetFacingDirection();
+        m_isMoving = m_playerPrediction.IsMoving;
 
         UpdateGotchiAnim();
         UpdateFacingFromMovement();
+        UpdateFacingFromSpinning();
+        SetActiveBodyPartsFromFacing(m_facing);
         UpdateDustParticles();
-        BodySprite.transform.rotation = Quaternion.Euler(new Vector3(0, 0, CalculateSpriteLean()));
+
+        m_bodyRotationTimer -= Time.deltaTime;
+        if (m_bodyRotationTimer > 0)
+        {
+            m_gotchi.transform.rotation = Quaternion.Euler(new Vector3(0, 0, m_bodyRotation));
+            m_gotchi.transform.localPosition = new Vector3(0, 0.5f, 0);
+        }
+        else
+        {
+            m_gotchi.transform.rotation = Quaternion.identity;
+            m_bodyParent.transform.rotation = Quaternion.Euler(new Vector3(0, 0, CalculateSpriteLean()));
+            m_gotchi.transform.localPosition = new Vector3(0, 0, 0);
+        }
     }
 
     public void DropSpawn(Vector3 currentPosition, Vector3 newSpawnPoint)
@@ -103,10 +155,182 @@ public class PlayerGotchi : NetworkBehaviour
 
     void UpdateFacingFromMovement()
     {
-        if (m_facingDirection.y > math.abs(m_facingDirection.x)) BodySprite.sprite = _back;
-        if (m_facingDirection.y < -math.abs(m_facingDirection.x)) BodySprite.sprite = _front;
-        if (m_facingDirection.x <= -math.abs(m_facingDirection.y)) BodySprite.sprite = _left;
-        if (m_facingDirection.x >= math.abs(m_facingDirection.y)) BodySprite.sprite = _right;
+        if (m_facingDirection.y < -math.abs(m_facingDirection.x)) m_facing = Facing.Front;
+        if (m_facingDirection.y > math.abs(m_facingDirection.x)) m_facing = Facing.Back;
+        if (m_facingDirection.x <= -math.abs(m_facingDirection.y)) m_facing = Facing.Left;
+        if (m_facingDirection.x >= math.abs(m_facingDirection.y)) m_facing = Facing.Right;
+    }
+
+    void SetActiveBodyPartsFromFacing(Facing facing)
+    {
+        if (facing == Facing.Front)
+        {
+            // body
+            m_bodyFaceFront.SetActive(true);
+            m_bodyFaceBack.SetActive(false);
+            m_bodyFaceLeft.SetActive(false);
+            m_bodyFaceRight.SetActive(false);
+
+            // right hand
+            if (m_rightHandHideTimer < 0) m_rightHandFaceFront.SetActive(true);
+            m_rightHandFaceBack.SetActive(false);
+            m_rightHandFaceLeft.SetActive(false);
+            m_rightHandFaceRight.SetActive(false);
+
+            // left hand
+            if (m_leftHandHideTimer < 0) m_leftHandFaceFront.SetActive(true);
+            m_leftHandFaceBack.SetActive(false);
+            m_leftHandFaceLeft.SetActive(false);
+            m_leftHandFaceRight.SetActive(false);
+        }
+        if (facing == Facing.Back)
+        {
+            // body
+            m_bodyFaceFront.SetActive(false);
+            m_bodyFaceBack.SetActive(true);
+            m_bodyFaceLeft.SetActive(false);
+            m_bodyFaceRight.SetActive(false);
+
+            // right hand
+            m_rightHandFaceFront.SetActive(false);
+            if (m_rightHandHideTimer < 0) m_rightHandFaceBack.SetActive(true);
+            m_rightHandFaceLeft.SetActive(false);
+            m_rightHandFaceRight.SetActive(false);
+
+            // left hand
+            m_leftHandFaceFront.SetActive(false);
+            if (m_leftHandHideTimer < 0) m_leftHandFaceBack.SetActive(true);
+            m_leftHandFaceLeft.SetActive(false);
+            m_leftHandFaceRight.SetActive(false);
+        }
+        if (facing == Facing.Left)
+        {
+            // body
+            m_bodyFaceFront.SetActive(false);
+            m_bodyFaceBack.SetActive(false);
+            m_bodyFaceLeft.SetActive(true);
+            m_bodyFaceRight.SetActive(false);
+
+            // right hand
+            m_rightHandFaceFront.SetActive(false);
+            m_rightHandFaceBack.SetActive(false);
+            if (m_rightHandHideTimer < 0) m_rightHandFaceLeft.SetActive(true);
+            m_rightHandFaceRight.SetActive(false);
+
+            // left hand
+            m_leftHandFaceFront.SetActive(false);
+            m_leftHandFaceBack.SetActive(false);
+            if (m_leftHandHideTimer < 0) m_leftHandFaceLeft.SetActive(true);
+            m_leftHandFaceRight.SetActive(false);
+        }
+        if (facing == Facing.Right)
+        {
+            // body
+            m_bodyFaceFront.SetActive(false);
+            m_bodyFaceBack.SetActive(false);
+            m_bodyFaceLeft.SetActive(false);
+            m_bodyFaceRight.SetActive(true);
+
+            // right hand
+            m_rightHandFaceFront.SetActive(false);
+            m_rightHandFaceBack.SetActive(false);
+            m_rightHandFaceLeft.SetActive(false);
+            if (m_rightHandHideTimer < 0) m_rightHandFaceRight.SetActive(true);
+
+            // left hand
+            m_leftHandFaceFront.SetActive(false);
+            m_leftHandFaceBack.SetActive(false);
+            m_leftHandFaceLeft.SetActive(false);
+            if (m_leftHandHideTimer < 0) m_leftHandFaceRight.SetActive(true);
+        }
+    }
+
+
+
+    public void HideHand(Hand hand, float duration = 0.5f)
+    {
+        if (hand == Hand.Left)
+        {
+            // left hand
+            m_leftHandHideTimer = duration;
+            m_leftHandFaceFront.SetActive(false);
+            m_leftHandFaceBack.SetActive(false);
+            m_leftHandFaceLeft.SetActive(false);
+
+        }
+        if (hand == Hand.Right)
+        {
+            // right hand
+            m_rightHandHideTimer = duration;
+            m_rightHandFaceFront.SetActive(false);
+            m_rightHandFaceBack.SetActive(false);
+            m_rightHandFaceRight.SetActive(false);
+        }
+    }
+
+    public void SetGotchiRotation(float angleDegrees, float duration = 0.5f)
+    {
+        // Normalize angleDegrees to be within the range [0, 360)
+        angleDegrees = angleDegrees % 360;  // Result will be in the range (-360, 360)
+        if (angleDegrees < 0) angleDegrees += 360;
+
+        m_bodyRotation = angleDegrees;
+        m_bodyRotationTimer = duration;
+    }
+
+    public void PlayFacingSpin(int spinNumber, float spinPeriod, SpinDirection spinDirection, float startAngle)
+    {
+        m_spinNumber = spinNumber;
+        m_spinPeriod = spinPeriod;
+        m_spinDirection = spinDirection;
+        m_spinAngle = startAngle;
+        m_spinTimer = spinNumber * spinPeriod;
+    }
+
+    void UpdateFacingFromSpinning()
+    {
+        if (m_spinTimer <= 0) return;
+
+        m_spinTimer -= Time.deltaTime;
+        float angleDelta = 360 / m_spinPeriod * Time.deltaTime;
+        angleDelta *= m_spinDirection == SpinDirection.AntiClockwise ? 1 : -1;
+        m_spinAngle += angleDelta;
+
+        m_facing = GetFacingFromAngle(m_spinAngle);
+    }
+
+    /// <summary>
+    /// Returns gotchi Facing given a certaub direction
+    /// </summary>
+    /// <param name="direction"></param>
+    /// <returns></returns>
+    public Facing GetFacingFromDirection(Vector3 direction)
+    {
+        direction.z = 0;
+        direction.Normalize();
+        if (direction.y > math.abs(direction.x)) return Facing.Back;
+        if (direction.y < -math.abs(direction.x)) return Facing.Front;
+        if (direction.x <= -math.abs(direction.y)) return Facing.Left;
+        if (direction.x >= math.abs(direction.y)) return Facing.Right;
+        return Facing.Front;
+    }
+
+    /// <summary>
+    /// Returns gotchi Facing given an angle in degrees. Right facing gotchi is 0 degrees
+    /// and anticlockwise is positive
+    /// </summary>
+    /// <param name="angleDegrees"></param>
+    /// <returns></returns>
+    public Facing GetFacingFromAngle(float angleDegrees)
+    {
+        // Normalize angleDegrees to be within the range [0, 360)
+        angleDegrees = angleDegrees % 360;  // Result will be in the range (-360, 360)
+        if (angleDegrees < 0) angleDegrees += 360;
+
+        if (angleDegrees > 45 && angleDegrees <= 135) return Facing.Front;
+        if (angleDegrees > 135 && angleDegrees <= 225) return Facing.Left;
+        if (angleDegrees > 225 && angleDegrees <= 315) return Facing.Back;
+        else return Facing.Right;
     }
 
     private float CalculateSpriteLean()
@@ -159,13 +383,9 @@ public class PlayerGotchi : NetworkBehaviour
     {
         if (IsDropSpawning) return;
 
-        if (m_isMoving)
-        {
-            animator.Play("Player_Move");
-        }
-        else
-        {
-            animator.Play("Player_Idle");
-        }
+        var holdState = m_playerPrediction.GetHoldState();
+        animator.SetBool("IsLeftHoldActive", holdState == PlayerPrediction.HoldState.LeftActive);
+        animator.SetBool("IsRightHoldActive", holdState == PlayerPrediction.HoldState.RightActive);
+
     }
 }
