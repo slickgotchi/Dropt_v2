@@ -125,19 +125,19 @@ public class PlayerPrediction : NetworkBehaviour
             clientStateBuffer.Add(startState, i);
         }
     }
+    private void SetActionDirectionAndLastMoveFromCursorAim()
+    {
+        m_actionDirection = math.normalizesafe(m_cursorWorldPosition - (transform.position + new Vector3(0, 0.5f, 0)));
+        m_lastMoveDirection = m_actionDirection;
+        m_actionDirectionTimer = k_actionDirectionTime;
+    }
+
 
     private void OnMovement(InputValue value)
     {
         if (!IsLocalPlayer) return;
 
         m_moveDirection = value.Get<Vector2>();
-    }
-
-    private void SetActionDirectionAndLastMoveFromCursorAim()
-    {
-        m_actionDirection = math.normalizesafe(m_cursorWorldPosition - (transform.position + new Vector3(0,0.5f,0)));
-        m_lastMoveDirection = m_actionDirection;
-        m_actionDirectionTimer = k_actionDirectionTime;
     }
 
     private void OnDash_CursorAim(InputValue value)
@@ -200,6 +200,17 @@ public class PlayerPrediction : NetworkBehaviour
             m_isHoldStarted = false;
             m_holdState = HoldState.Inactive;
         }
+    }
+
+    private void OnLeftSpecial_CursorAim(InputValue value)
+    {
+        if (!IsLocalPlayer) return;
+
+        SetActionDirectionAndLastMoveFromCursorAim();
+
+        m_abilityHand = Hand.Left;
+        var lhWearable = GetComponent<PlayerEquipment>().LeftHand.Value;
+        m_abilityTriggered = m_playerAbilities.GetSpecialAbilityEnum(lhWearable);
     }
 
     private void OnRightAttack_CursorAim(InputValue value)

@@ -53,13 +53,14 @@ public class PlayerGotchi : NetworkBehaviour
     private Vector3 m_spawnPoint;
     private Vector3 m_preSpawnPoint;
 
-    // spin variables
+    // facing spin variables
     public enum SpinDirection { AntiClockwise, Clockwise }
     private SpinDirection m_spinDirection;
-    private int m_spinNumber;
     private float m_spinPeriod;
     private float m_spinAngle;
     private float m_spinTimer;
+
+    // z spin variables
 
     private float m_leftHandHideTimer = 0;
     private float m_rightHandHideTimer = 0;
@@ -286,7 +287,6 @@ public class PlayerGotchi : NetworkBehaviour
 
     public void PlayFacingSpin(int spinNumber, float spinPeriod, SpinDirection spinDirection, float startAngle)
     {
-        m_spinNumber = spinNumber;
         m_spinPeriod = spinPeriod;
         m_spinDirection = spinDirection;
         m_spinAngle = startAngle;

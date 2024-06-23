@@ -80,7 +80,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1.7777778, y: 1.5277778}
+  m_Size: {x: 3.5555556, y: 4.4444447}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 0
@@ -96,11 +96,9 @@ GameObject:
   m_Component:
   - component: {fileID: 8086004901219037682}
   - component: {fileID: -6693017499447722929}
-  - component: {fileID: 7869199515037794274}
-  - component: {fileID: 5406072318433110963}
-  - component: {fileID: 5612337100066340978}
+  - component: {fileID: 8765156321553665057}
   m_Layer: 8
-  m_Name: PierceDrill
+  m_Name: CleaveCyclone
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -136,7 +134,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1994975107
+  GlobalObjectIdHash: 853290781
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -145,75 +143,7 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
---- !u!95 &7869199515037794274
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2544078778212307353}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: b9072bc72459ef3448c91527efb49da9, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
---- !u!61 &5406072318433110963
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2544078778212307353}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: -5, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0, y: 0}
-    oldSize: {x: 0, y: 0}
-    newSize: {x: 0, y: 0}
-    adaptiveTilingThreshold: 0
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Size: {x: 10, y: 1.7}
-  m_EdgeRadius: 0
---- !u!114 &5612337100066340978
+--- !u!114 &8765156321553665057
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -222,24 +152,25 @@ MonoBehaviour:
   m_GameObject: {fileID: 2544078778212307353}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d638a70b07ef77e469a05f7fc57c70bd, type: 3}
+  m_Script: {fileID: 11500000, guid: bdfd67ce9230dc043a19ac8b96c9db6f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   ApCost: 0
-  ExecutionDuration: 0.7
+  ExecutionDuration: 0.5
   ExecutionSlowFactor: 0
   CooldownDuration: 0
-  CooldownSlowFactor: 0
+  CooldownSlowFactor: 1
   TeleportDistance: 0
-  AutoMoveDistance: 10
-  AutoMoveDuration: 0.5
-  isHoldAbility: 1
-  HoldSlowFactor: 0.5
+  AutoMoveDistance: 0
+  AutoMoveDuration: 0
+  isHoldAbility: 0
+  HoldSlowFactor: 1
   Player: {fileID: 0}
-  Projection: 0.6
-  NumberHits: 2
-  DamageMultiplier: 0.5
-  HoldChargeTime: 3
+  Projection: 1.5
+  Distance: 10
+  Duration: 3
+  Scale: 2.5
+  CleaveCycloneProjectilePrefab: {fileID: 2544078778212307353, guid: 34665c4db3585a8408a451fbfb794b45, type: 3}
 --- !u!1 &4708556748347195212
 GameObject:
   m_ObjectHideFlags: 0
@@ -255,7 +186,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &5142712836386292480
 Transform:
   m_ObjectHideFlags: 0
@@ -348,7 +279,7 @@ SpriteRenderer:
   m_SortingLayerID: 1447911093
   m_SortingLayer: 1
   m_SortingOrder: 2
-  m_Sprite: {fileID: 145562777, guid: 388e7d52a6997734498cf9d6aff2c7c9, type: 3}
+  m_Sprite: {fileID: -1526816664, guid: e4b30ec11d09f4d4fa2bafef9fdf3707, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -519,13 +450,13 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 1447911093
   m_SortingLayer: 1
-  m_SortingOrder: 4
+  m_SortingOrder: 1
   m_Sprite: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1.7777778, y: 1.5277778}
+  m_Size: {x: 3.5555556, y: 4.4444447}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 0

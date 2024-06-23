@@ -144,7 +144,7 @@ public class PlayerAbility : NetworkBehaviour
         Animator.Play(animName);
     }
 
-    protected ContactFilter2D GetContactFilter(string layerName)
+    public static ContactFilter2D GetContactFilter(string layerName)
     {
         return new ContactFilter2D
         {

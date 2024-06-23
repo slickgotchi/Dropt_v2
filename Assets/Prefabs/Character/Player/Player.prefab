@@ -946,16 +946,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ac19e16993bf8842a557ff728d16e0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dashPrefab: {fileID: 5307370826521952360, guid: 42cffc45b3ab61542aa95340b28f6e9e, type: 3}
-  Dash: {fileID: 0}
-  cleaveSwingPrefab: {fileID: 2544078778212307353, guid: e66a6c1c0cafc344399fd79aa2052341, type: 3}
-  CleaveSwing: {fileID: 0}
-  cleaveWhirlwindPrefab: {fileID: 2544078778212307353, guid: b22f4700bfc46db488efe4bfe590d7ea, type: 3}
-  CleaveWhirlwind: {fileID: 0}
-  pierceThrustPrefab: {fileID: 2544078778212307353, guid: b976e1ed2c25087488fe67fbfeecbceb, type: 3}
-  PierceThrust: {fileID: 0}
-  pierceDrillPrefab: {fileID: 2544078778212307353, guid: 2bf46afaa19726c45994cda58e680365, type: 3}
-  PierceDrill: {fileID: 0}
+  abilityPrefabs:
+  - {fileID: 2544078778212307353, guid: 56e8499149b00074aaba259fddfe9730, type: 3}
+  - {fileID: 2544078778212307353, guid: e66a6c1c0cafc344399fd79aa2052341, type: 3}
+  - {fileID: 2544078778212307353, guid: b22f4700bfc46db488efe4bfe590d7ea, type: 3}
+  - {fileID: 5307370826521952360, guid: 42cffc45b3ab61542aa95340b28f6e9e, type: 3}
+  - {fileID: 2544078778212307353, guid: 2bf46afaa19726c45994cda58e680365, type: 3}
+  - {fileID: 2544078778212307353, guid: b976e1ed2c25087488fe67fbfeecbceb, type: 3}
   leftAttackCooldown:
     m_InternalValue: 0
   rightAttackCooldown:

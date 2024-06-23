@@ -1,3 +1,152 @@
+using System.Collections.Generic;
+using System.Linq;
+using Unity.Netcode;
+using UnityEditor;
+using UnityEngine;
+
+public class PlayerAbilities : NetworkBehaviour
+{
+    [SerializeField]
+    private List<GameObject> abilityPrefabs = new List<GameObject>();
+    private Dictionary<PlayerAbilityEnum, GameObject> instantiatedAbilities = new Dictionary<PlayerAbilityEnum, GameObject>();
+    private Dictionary<PlayerAbilityEnum, NetworkVariable<ulong>> abilityIds = new Dictionary<PlayerAbilityEnum, NetworkVariable<ulong>>();
+
+    public NetworkVariable<float> leftAttackCooldown = new NetworkVariable<float>(0);
+    public NetworkVariable<float> rightAttackCooldown = new NetworkVariable<float>(0);
+
+    public override void OnNetworkSpawn()
+    {
+        if (!IsServer) return;
+
+        // Ensure we instantiate here in Start() AFTER OnNetworkSpawn() otherwise we end up with duplicates
+        foreach (var prefab in abilityPrefabs)
+        {
+            PlayerAbility ability = prefab.GetComponent<PlayerAbility>();
+            if (ability != null)
+            {
+                PlayerAbilityEnum abilityEnum = (PlayerAbilityEnum)System.Enum.Parse(typeof(PlayerAbilityEnum), prefab.name);
+                var instantiatedAbility = Instantiate(prefab);
+                instantiatedAbility.GetComponent<NetworkObject>().Spawn();
+                instantiatedAbilities[abilityEnum] = instantiatedAbility;
+                abilityIds[abilityEnum] = new NetworkVariable<ulong>(instantiatedAbility.GetComponent<NetworkObject>().NetworkObjectId);
+            }
+        }
+    }
+
+    private void Update()
+    {
+        float dt = Time.deltaTime;
+        if (IsServer && IsSpawned)
+        {
+            leftAttackCooldown.Value -= dt;
+            rightAttackCooldown.Value -= dt;
+        }
+
+        if (IsClient && IsSpawned)
+        {
+            foreach (var abilityEnum in abilityIds.Keys.ToList())
+            {
+                if (instantiatedAbilities[abilityEnum] == null && abilityIds[abilityEnum].Value > 0)
+                {
+                    var spawnedObject = NetworkManager.SpawnManager.SpawnedObjects[abilityIds[abilityEnum].Value].gameObject;
+                    instantiatedAbilities[abilityEnum] = spawnedObject;
+                    spawnedObject.GetComponent<PlayerAbility>().Player = gameObject;
+                }
+            }
+        }
+    }
+
+    public PlayerAbility GetAbility(PlayerAbilityEnum abilityEnum)
+    {
+        if (!IsSpawned || !instantiatedAbilities.ContainsKey(abilityEnum)) return null;
+        return instantiatedAbilities[abilityEnum].GetComponent<PlayerAbility>();
+    }
+
+    public PlayerAbilityEnum GetAttackAbilityEnum(Wearable.NameEnum wearableNameEnum)
+    {
+        var wearable = WearableManager.Instance.GetWearable(wearableNameEnum);
+
+        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Cleave) return PlayerAbilityEnum.CleaveSwing;
+        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Smash) return PlayerAbilityEnum.SmashSwing;
+        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Pierce) return PlayerAbilityEnum.PierceThrust;
+        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Ballistic) return PlayerAbilityEnum.BallisticShot;
+        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Magic) return PlayerAbilityEnum.MagicCast;
+        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Splash) return PlayerAbilityEnum.SplashLob;
+        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Shield) return PlayerAbilityEnum.ShieldBash;
+        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Unarmed) return PlayerAbilityEnum.Unarmed;
+
+        return PlayerAbilityEnum.Null;
+    }
+
+    public PlayerAbilityEnum GetHoldAbilityEnum(Wearable.NameEnum wearableNameEnum)
+    {
+        var wearable = WearableManager.Instance.GetWearable(wearableNameEnum);
+
+        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Cleave) return PlayerAbilityEnum.CleaveWhirlwind;
+        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Smash) return PlayerAbilityEnum.SmashWave;
+        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Pierce) return PlayerAbilityEnum.PierceDrill;
+        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Ballistic) return PlayerAbilityEnum.BallisticSnipe;
+        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Magic) return PlayerAbilityEnum.MagicBeam;
+        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Splash) return PlayerAbilityEnum.SplashVolley;
+
+        return PlayerAbilityEnum.Null;
+    }
+
+    public PlayerAbilityEnum GetSpecialAbilityEnum(Wearable.NameEnum wearableNameEnum)
+    {
+        var wearable = WearableManager.Instance.GetWearable(wearableNameEnum);
+
+        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Cleave) return PlayerAbilityEnum.CleaveCyclone;
+        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Smash) return PlayerAbilityEnum.SmashSlam;
+        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Pierce) return PlayerAbilityEnum.PierceLance;
+        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Ballistic) return PlayerAbilityEnum.BallisticKill;
+        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Magic) return PlayerAbilityEnum.MagicBlast;
+        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Splash) return PlayerAbilityEnum.SplashBomb;
+
+        return PlayerAbilityEnum.Null;
+    }
+
+#if UNITY_EDITOR
+    [ContextMenu("Populate Ability Prefabs")]
+    private void PopulateAbilityPrefabs()
+    {
+        abilityPrefabs.Clear();
+        string[] guids = AssetDatabase.FindAssets("t:Prefab");
+        foreach (string guid in guids)
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            if (prefab != null && prefab.GetComponent<PlayerAbility>() != null)
+            {
+                abilityPrefabs.Add(prefab);
+            }
+        }
+    }
+#endif
+}
+
+public enum Hand { Left, Right };
+
+//public enum PlayerAbilityEnum
+//{
+//    Null,
+//    Dash,
+//    CleaveSwing, CleaveWhirlwind, CleaveCyclone,
+//    SmashSwing, SmashWave, SmashSlam,
+//    PierceThrust, PierceDrill, PierceLance,
+//    BallisticShot, BallisticSnipe, BallisticKill,
+//    MagicCast, MagicBeam, MagicBlast,
+//    SplashLob, SplashVolley, SplashBomb,
+//    Consume, Aura, Throw,
+//    ShieldBash, ShieldParry, ShieldWall,
+//    Unarmed,
+//}
+
+
+
+
+
+/*
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -147,3 +296,5 @@ public class PlayerAbilities : NetworkBehaviour
 }
 
 public enum Hand { Left, Right };
+
+*/
