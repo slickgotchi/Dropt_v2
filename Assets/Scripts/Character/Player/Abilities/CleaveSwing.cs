@@ -54,7 +54,7 @@ public class CleaveSwing : PlayerAbility
         enemyHitColliders.Clear();
 
         // animation
-        if (isLocalPlayer)
+        //if (isLocalPlayer)
         {
             Animator.Play("CleaveSwing");
             DebugDraw.DrawColliderPolygon(m_collider, IsServer);

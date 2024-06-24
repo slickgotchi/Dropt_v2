@@ -70,7 +70,7 @@ public class PlayerAbilityEditor : Editor
         }
 
         // Draw the rest of the properties
-        DrawPropertiesExcluding(serializedObject, "m_Script", "ApCost", "ExecutionDuration", "ExecutionSlowFactor", "CooldownDuration", "CooldownSlowFactor", "isHoldAbility", "HoldSlowFactor", "TeleportDistance", "AutoMoveDistance", "AutoMoveDuration");
+        DrawPropertiesExcluding(serializedObject, "m_Script", "ApCost", "ExecutionDuration", "ExecutionSlowFactor", "CooldownDuration", "CooldownSlowFactor", "isHoldAbility", "HoldSlowFactor", "TeleportDistance", "AutoMoveDistance", "AutoMoveDuration", "IsSpecialAbility");
 
         serializedObject.ApplyModifiedProperties();
     }

@@ -13,6 +13,7 @@ public class PlayerGotchi : NetworkBehaviour
 
     [Header("Gotchi GameObject")]
     [SerializeField] GameObject m_gotchi;
+    [SerializeField] GameObject m_shadow;
 
     [Header("Body GameObject and Side Views")]
     [SerializeField] GameObject m_bodyParent;
@@ -135,6 +136,12 @@ public class PlayerGotchi : NetworkBehaviour
         animator.Play("PlayerGotchi_DropSpawn");
         m_spawnPoint = spawnPoint;
         m_preSpawnPoint = currentPosition;
+    }
+
+    public void SetVisible(bool visible)
+    {
+        m_gotchi.SetActive(visible);
+        m_shadow.SetActive(visible);
     }
 
     public void AnimEvent_EndDropSpawn()

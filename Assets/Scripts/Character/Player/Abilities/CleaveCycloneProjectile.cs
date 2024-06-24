@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
-public class CleaveCycloneProjectile : NetworkBehaviour
+public class CleaveCycloneProjectile : MonoBehaviour
 {
     [HideInInspector] public Vector3 Direction;
     [HideInInspector] public float Distance;
@@ -17,6 +17,8 @@ public class CleaveCycloneProjectile : NetworkBehaviour
     [HideInInspector] public float DamagePerHit = 1f;
     [HideInInspector] public float CriticalChance = 0.1f;
     [HideInInspector] public float CriticalDamage = 1.5f;
+
+    [HideInInspector] public bool IsServer = false;
 
     public float GrowShrinkTime = 0.5f; // Time for scaling up and down
 
@@ -32,8 +34,11 @@ public class CleaveCycloneProjectile : NetworkBehaviour
     private float m_hitClearTimer = 0;
     private float m_hitClearInterval = 1;
 
-    public override void OnNetworkSpawn()
+    //public override void OnNetworkSpawn()
+    private void Start()
     {
+        //if (!IsServer) return;
+
         if (Duration < 2 * GrowShrinkTime)
         {
             Duration = 2 * GrowShrinkTime;
@@ -43,7 +48,7 @@ public class CleaveCycloneProjectile : NetworkBehaviour
         m_isSpawned = true;
         m_speed = Distance / Duration;
 
-        GetComponent<Animator>().Play("CleaveCyclone");
+        GetComponent<Animator>().Play("CleaveCycloneProjectile");
 
         m_collider = GetComponent<Collider2D>();
 
@@ -62,6 +67,7 @@ public class CleaveCycloneProjectile : NetworkBehaviour
 
     private void Update()
     {
+        //if (!IsServer) return;
         if (!m_isSpawned) return;
 
         float elapsedTime = Duration - m_timer;
@@ -111,12 +117,17 @@ public class CleaveCycloneProjectile : NetworkBehaviour
                 {
                     m_hitColliders.Add(hit);
 
-                    var damage = DamagePerHit * DamageMutiplierPerHit;
-                    damage = GetRandomVariation(damage);
-                    var isCritical = IsCriticalAttack(CriticalChance);
-                    damage = (int)(isCritical ? damage * CriticalDamage : damage);
-
-                    hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical);
+                    if (IsServer)
+                    {
+                        var damage = DamagePerHit * DamageMutiplierPerHit;
+                        damage = GetRandomVariation(damage);
+                        var isCritical = IsCriticalAttack(CriticalChance);
+                        damage = (int)(isCritical ? damage * CriticalDamage : damage);
+                        hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical);
+                    } else
+                    {
+                        hit.GetComponent<SpriteFlash>().DamageFlash();
+                    }
                 }
 
             }

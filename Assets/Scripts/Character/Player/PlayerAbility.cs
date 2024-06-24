@@ -69,6 +69,9 @@ public class PlayerAbility : NetworkBehaviour
     private float m_autoMoveTimer = 0;
     private bool m_autoMoveFinishCalled = false;
 
+    private float m_teleportLagTimer = 0;
+    private bool m_isOnTeleportStartChecking = false;
+
     private void Awake()
     {
         AutoMoveDuration = math.min(AutoMoveDuration, ExecutionDuration);
@@ -95,6 +98,8 @@ public class PlayerAbility : NetworkBehaviour
         m_isFinished = false;
         m_autoMoveTimer = AutoMoveDuration;
         m_autoMoveFinishCalled = false;
+        m_teleportLagTimer = 1 / playerObject.GetComponent<PlayerPrediction>().GetServerTickRate() * 2;
+        m_isOnTeleportStartChecking = true;
 
         // deduct ap from the player
         if (IsServer)
@@ -132,6 +137,13 @@ public class PlayerAbility : NetworkBehaviour
             OnAutoMoveFinish();
             m_autoMoveFinishCalled = true;
         }
+
+        m_teleportLagTimer -= Time.deltaTime;
+        if (m_isOnTeleportStartChecking && m_teleportLagTimer < 0)
+        {
+            OnTeleport();
+            m_isOnTeleportStartChecking = false;
+        }
     }
 
     public virtual void OnStart() { }
@@ -139,6 +151,8 @@ public class PlayerAbility : NetworkBehaviour
     public virtual void OnUpdate() { }
 
     public virtual void OnFinish() { }
+
+    public virtual void OnTeleport() { }
 
     public virtual void OnAutoMoveFinish() { }
 

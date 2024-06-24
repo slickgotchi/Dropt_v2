@@ -208,28 +208,4 @@ public class LevelManager : NetworkBehaviour
             isNavMeshBuilt = false;
         }
     }
-
-    //public bool IsLevelCreated()
-    //{
-    //    if (m_currentLevel == null) return false;
-    //    return m_currentLevel.GetComponent<NetworkLevel>() != null && LevelSpawningCount <= 0;
-    //}
-
-
-    //public Vector3 PopPlayerSpawnPoint()
-    //{
-    //    Vector3 spawnPoint = Vector3.zero;
-    //    if (m_playerSpawnPoints.Count > 0)
-    //    {
-    //        var randIndex = UnityEngine.Random.Range(0, m_playerSpawnPoints.Count);
-    //        spawnPoint = m_playerSpawnPoints[randIndex];
-    //        m_playerSpawnPoints.RemoveAt(randIndex);
-    //    }
-    //    else
-    //    {
-    //        Debug.Log("NetworkLevel: Ran out of spawn points! Returning Vector3.zero");
-    //    }
-
-    //    return spawnPoint;
-    //}
 }

@@ -126,13 +126,37 @@ public class PlayerPrediction : NetworkBehaviour
             clientStateBuffer.Add(startState, i);
         }
     }
+
+    public float GetSpecialCooldownRemaining(Hand hand)
+    {
+        if (hand == Hand.Left)
+        {
+            if (m_lhSpecialCooldownExpiryTick < timer.CurrentTick)
+            {
+                return 0;
+            } else
+            {
+                return math.floor((m_lhSpecialCooldownExpiryTick - timer.CurrentTick) / k_serverTickRate);
+            }
+        } else
+        {
+            if (m_rhSpecialCooldownExpiryTick < timer.CurrentTick)
+            {
+                return 0;
+            }
+            else
+            {
+                return math.floor((m_rhSpecialCooldownExpiryTick - timer.CurrentTick) / k_serverTickRate);
+            }
+        }
+    }
+
     private void SetActionDirectionAndLastMoveFromCursorAim()
     {
         m_actionDirection = math.normalizesafe(m_cursorWorldPosition - (transform.position + new Vector3(0, 0.5f, 0)));
         m_lastMoveDirection = m_actionDirection;
         m_actionDirectionTimer = k_actionDirectionTime;
     }
-
 
     private void OnMovement(InputValue value)
     {
@@ -251,6 +275,17 @@ public class PlayerPrediction : NetworkBehaviour
             m_isHoldStarted = false;
             m_holdState = HoldState.Inactive;
         }
+    }
+
+    private void OnRightSpecial_CursorAim(InputValue value)
+    {
+        if (!IsLocalPlayer) return;
+
+        SetActionDirectionAndLastMoveFromCursorAim();
+
+        m_abilityHand = Hand.Right;
+        var rhWearable = GetComponent<PlayerEquipment>().RightHand.Value;
+        m_abilityTriggered = m_playerAbilities.GetSpecialAbilityEnum(rhWearable);
     }
 
     public HoldState GetHoldState() { return m_holdState; }
@@ -640,7 +675,6 @@ public class PlayerPrediction : NetworkBehaviour
 
                 if ((!isApEnough || !isCooldownFinished) && !IsHost)
                 {
-                    //m_abilityTriggered = PlayerAbilityEnum.Null;
                     inputPayload.abilityTriggered = PlayerAbilityEnum.Null;
                 }
             }
@@ -649,7 +683,7 @@ public class PlayerPrediction : NetworkBehaviour
             var holdAbility = m_playerAbilities.GetAbility(inputPayload.holdAbilityPending);
             if (!m_isHoldStarted && inputPayload.isHoldStartFlag && holdAbility != null && !IsHost)
             {
-                ability.Init(gameObject, inputPayload.abilityHand);
+                holdAbility.Init(gameObject, inputPayload.abilityHand);
                 bool isEnoughAp = GetComponent<NetworkCharacter>().ApCurrent.Value >= holdAbility.ApCost;
                 bool isCooldownFinished = inputPayload.tick > m_abilityCooldownExpiryTick;
 
@@ -819,8 +853,12 @@ public class PlayerPrediction : NetworkBehaviour
             // play dash anim
             if (!m_isDashAnimPlayed)
             {
-                //gameObject.GetComponentInChildren<DashTrailSpawner>().DrawShadow(start.position, finish.position, 4);
-                gameObject.GetComponentInChildren<DashTrailSpawner>().DrawShadow(start.position, finish.position, 
+                var offset = Vector3.zero;
+                if (finish.abilityTriggered == PlayerAbilityEnum.PierceLance) offset.y = 5f;
+
+                gameObject.GetComponentInChildren<DashTrailSpawner>().DrawShadow(
+                    start.position, 
+                    finish.position + offset, 
                     (int)math.ceil(ability.TeleportDistance)+1);
                 m_isDashAnimPlayed = true;
             }
@@ -855,5 +893,8 @@ public class PlayerPrediction : NetworkBehaviour
         private set { }
     }
 
-
+    public float GetServerTickRate()
+    {
+        return k_serverTickRate;
+    }
 }

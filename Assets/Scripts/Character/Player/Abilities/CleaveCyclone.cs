@@ -38,7 +38,8 @@ public class CleaveCyclone : PlayerAbility
 
         m_abilityDirection = PlayerActivationInput.actionDirection;
 
-        if (IsServer)
+
+        //if (IsServer)
         {
             m_projectile = Instantiate(CleaveCycloneProjectilePrefab, transform);
             var no_projectile = m_projectile.GetComponent<CleaveCycloneProjectile>();
@@ -51,8 +52,8 @@ public class CleaveCyclone : PlayerAbility
             no_projectile.DamagePerHit = playerCharacter.AttackPower.Value;
             no_projectile.CriticalChance = playerCharacter.CriticalChance.Value;
             no_projectile.CriticalDamage = playerCharacter.CriticalDamage.Value;
-
-            m_projectile.GetComponent<NetworkObject>().Spawn();
+            no_projectile.IsServer = IsServer;
+            //m_projectile.GetComponent<NetworkObject>().Spawn();
         }
 
         // animation

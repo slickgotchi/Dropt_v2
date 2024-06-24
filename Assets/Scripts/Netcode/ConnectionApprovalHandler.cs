@@ -13,7 +13,7 @@ public class ConnectionApprovalHandler : MonoBehaviour
 {
     private NetworkManager m_NetworkManager;
 
-    [SerializeField] private List<Vector3> m_StartPositions = new List<Vector3>();
+    [SerializeField] private List<Vector3> m_defaulSpawnPositions = new List<Vector3>();
 
     private void Start()
     {
@@ -27,9 +27,9 @@ public class ConnectionApprovalHandler : MonoBehaviour
 
     Vector3 PopPosition()
     {
-        if (m_StartPositions.Count <= 0) return Vector3.zero;
-        var pos = m_StartPositions[0];
-        m_StartPositions.RemoveAt(0);
+        if (m_defaulSpawnPositions.Count <= 0) return Vector3.zero;
+        var pos = m_defaulSpawnPositions[0];
+        m_defaulSpawnPositions.RemoveAt(0);
         return pos;
     }
 

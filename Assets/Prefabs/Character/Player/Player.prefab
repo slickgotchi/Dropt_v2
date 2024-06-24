@@ -633,7 +633,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1051059747
+  GlobalObjectIdHash: 1311497934
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -696,6 +696,7 @@ MonoBehaviour:
   _left: {fileID: 3394898989527120700, guid: cda9434f7b9c43742aee3adc65739461, type: 3}
   _right: {fileID: 2601085677984276970, guid: 1c2361fbf5dfa7440b5a4c2b6773c78d, type: 3}
   m_gotchi: {fileID: 2776703595897084511}
+  m_shadow: {fileID: 4489782892346996251}
   m_bodyParent: {fileID: 9192806298503223172}
   m_bodyFaceFront: {fileID: 2749890752192525978}
   m_bodyFaceBack: {fileID: 7723691326441634053}
@@ -946,13 +947,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ac19e16993bf8842a557ff728d16e0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  abilityPrefabs:
-  - {fileID: 2544078778212307353, guid: 56e8499149b00074aaba259fddfe9730, type: 3}
-  - {fileID: 2544078778212307353, guid: e66a6c1c0cafc344399fd79aa2052341, type: 3}
-  - {fileID: 2544078778212307353, guid: b22f4700bfc46db488efe4bfe590d7ea, type: 3}
-  - {fileID: 5307370826521952360, guid: 42cffc45b3ab61542aa95340b28f6e9e, type: 3}
-  - {fileID: 2544078778212307353, guid: 2bf46afaa19726c45994cda58e680365, type: 3}
-  - {fileID: 2544078778212307353, guid: b976e1ed2c25087488fe67fbfeecbceb, type: 3}
+  dashPrefab: {fileID: 5307370826521952360, guid: 42cffc45b3ab61542aa95340b28f6e9e, type: 3}
+  Dash: {fileID: 0}
+  cleaveSwingPrefab: {fileID: 2544078778212307353, guid: e66a6c1c0cafc344399fd79aa2052341, type: 3}
+  CleaveSwing: {fileID: 0}
+  cleaveWhirlwindPrefab: {fileID: 2544078778212307353, guid: b22f4700bfc46db488efe4bfe590d7ea, type: 3}
+  CleaveWhirlwind: {fileID: 0}
+  cleaveCyclonePrefab: {fileID: 2544078778212307353, guid: 56e8499149b00074aaba259fddfe9730, type: 3}
+  CleaveCyclone: {fileID: 0}
+  pierceThrustPrefab: {fileID: 2544078778212307353, guid: b976e1ed2c25087488fe67fbfeecbceb, type: 3}
+  PierceThrust: {fileID: 0}
+  pierceDrillPrefab: {fileID: 2544078778212307353, guid: 2bf46afaa19726c45994cda58e680365, type: 3}
+  PierceDrill: {fileID: 0}
+  pierceLancePrefab: {fileID: 2544078778212307353, guid: 5a4df2f5c1739be48975e83fc417362e, type: 3}
+  PierceLance: {fileID: 0}
   leftAttackCooldown:
     m_InternalValue: 0
   rightAttackCooldown:

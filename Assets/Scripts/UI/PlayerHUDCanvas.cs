@@ -43,6 +43,9 @@ public class PlayerHUDCanvas : MonoBehaviour
     [SerializeField] private Slider m_abilitySlider;
     [SerializeField] private TextMeshProUGUI m_abilityText;
 
+    [SerializeField] private TextMeshProUGUI m_lhCooldownText;
+    [SerializeField] private TextMeshProUGUI m_rhCooldownText;
+
     private NetworkCharacter m_localPlayerCharacter;
 
     public void SetLocalPlayerCharacter(NetworkCharacter localPlayerCharacter)
@@ -61,6 +64,12 @@ public class PlayerHUDCanvas : MonoBehaviour
 
         m_container.SetActive(true);
 
+        UpdateStatBars();
+        UpdateCooldowns();
+    }
+
+    void UpdateStatBars()
+    {
         // HP
         var maxHp = m_localPlayerCharacter.HpMax.Value + m_localPlayerCharacter.HpBuffer.Value;
         var currHp = m_localPlayerCharacter.HpCurrent.Value;
@@ -78,5 +87,14 @@ public class PlayerHUDCanvas : MonoBehaviour
         m_abilitySlider.value = currAp;
 
         m_abilityText.text = currAp + " / " + maxAp;
+    }
+
+    void UpdateCooldowns()
+    {
+        var lhRem = m_localPlayerCharacter.GetComponent<PlayerPrediction>().GetSpecialCooldownRemaining(Hand.Left);
+        var rhRem = m_localPlayerCharacter.GetComponent<PlayerPrediction>().GetSpecialCooldownRemaining(Hand.Right);
+
+        m_lhCooldownText.text = lhRem < 0.1f ? "" : lhRem.ToString("F0");
+        m_rhCooldownText.text = rhRem < 0.1f ? "" : rhRem.ToString("F0");
     }
 }

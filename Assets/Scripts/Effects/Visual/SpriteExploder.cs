@@ -21,6 +21,7 @@ public class SpriteExploder : MonoBehaviour
     private Sprite[] sprites; // Array to store the individual sprites
     private GameObject[] fragments; // Array to store fragment GameObjects
 
+#if UNITY_EDITOR
     void Start()
     {
         LoadSprites();
@@ -37,7 +38,6 @@ public class SpriteExploder : MonoBehaviour
             GenerateFragments();
         }
     }
-
     void OnDisable()
     {
         ClearFragments();
@@ -137,6 +137,8 @@ public class SpriteExploder : MonoBehaviour
             fragments = null;
         }
     }
+
+#endif
 
     // Explode the fragments from a specified point
     public void Explode(Vector2 explosionPoint)

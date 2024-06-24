@@ -1,3 +1,4 @@
+/*
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
@@ -127,25 +128,14 @@ public class PlayerAbilities : NetworkBehaviour
 
 public enum Hand { Left, Right };
 
-public enum PlayerAbilityEnum
-{
-    Null,
-    Dash,
-    CleaveSwing, CleaveWhirlwind, CleaveCyclone,
-    SmashSwing, SmashWave, SmashSlam,
-    PierceThrust, PierceDrill, PierceLance,
-    BallisticShot, BallisticSnipe, BallisticKill,
-    MagicCast, MagicBeam, MagicBlast,
-    SplashLob, SplashVolley, SplashBomb,
-    Consume, Aura, Throw,
-    ShieldBash, ShieldParry, ShieldWall,
-    Unarmed,
-}
+*/
 
 
 
 
-/*
+
+
+
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -165,6 +155,10 @@ public class PlayerAbilities : NetworkBehaviour
     [HideInInspector] public GameObject CleaveWhirlwind;
     private NetworkVariable<ulong> CleaveWhirlwindId = new NetworkVariable<ulong>(0);
 
+    public GameObject cleaveCyclonePrefab;
+    [HideInInspector] public GameObject CleaveCyclone;
+    private NetworkVariable<ulong> CleaveCycloneId = new NetworkVariable<ulong>(0);
+
     public GameObject pierceThrustPrefab;
     [HideInInspector] public GameObject PierceThrust;
     private NetworkVariable<ulong> PierceThrustId = new NetworkVariable<ulong>(0);
@@ -172,6 +166,10 @@ public class PlayerAbilities : NetworkBehaviour
     public GameObject pierceDrillPrefab;
     [HideInInspector] public GameObject PierceDrill;
     private NetworkVariable<ulong> PierceDrillId = new NetworkVariable<ulong>(0);
+
+    public GameObject pierceLancePrefab;
+    [HideInInspector] public GameObject PierceLance;
+    private NetworkVariable<ulong> PierceLanceId = new NetworkVariable<ulong>(0);
 
     public NetworkVariable<float> leftAttackCooldown = new NetworkVariable<float>(0);
     public NetworkVariable<float> rightAttackCooldown = new NetworkVariable<float>(0);
@@ -199,6 +197,10 @@ public class PlayerAbilities : NetworkBehaviour
         CleaveWhirlwind.GetComponent<NetworkObject>().Spawn();
         CleaveWhirlwindId.Value = CleaveWhirlwind.GetComponent<NetworkObject>().NetworkObjectId;
 
+        CleaveCyclone = Instantiate(cleaveCyclonePrefab);
+        CleaveCyclone.GetComponent<NetworkObject>().Spawn();
+        CleaveCycloneId.Value = CleaveCyclone.GetComponent<NetworkObject>().NetworkObjectId;
+
         PierceThrust = Instantiate(pierceThrustPrefab);
         PierceThrust.GetComponent<NetworkObject>().Spawn();
         PierceThrustId.Value = PierceThrust.GetComponent<NetworkObject>().NetworkObjectId;
@@ -206,6 +208,10 @@ public class PlayerAbilities : NetworkBehaviour
         PierceDrill = Instantiate(pierceDrillPrefab);
         PierceDrill.GetComponent<NetworkObject>().Spawn();
         PierceDrillId.Value = PierceDrill.GetComponent<NetworkObject>().NetworkObjectId;
+
+        PierceLance = Instantiate(pierceLancePrefab);
+        PierceLance.GetComponent<NetworkObject>().Spawn();
+        PierceLanceId.Value = PierceLance.GetComponent<NetworkObject>().NetworkObjectId;
     }
 
     private void Update()
@@ -234,6 +240,11 @@ public class PlayerAbilities : NetworkBehaviour
                 CleaveWhirlwind = NetworkManager.SpawnManager.SpawnedObjects[CleaveWhirlwindId.Value].gameObject;
                 CleaveWhirlwind.GetComponent<PlayerAbility>().Player = gameObject;
             }
+            if (CleaveCyclone == null && CleaveCycloneId.Value > 0)
+            {
+                CleaveCyclone = NetworkManager.SpawnManager.SpawnedObjects[CleaveCycloneId.Value].gameObject;
+                CleaveCyclone.GetComponent<PlayerAbility>().Player = gameObject;
+            }
             if (PierceThrust == null && PierceThrustId.Value > 0)
             {
                 PierceThrust = NetworkManager.SpawnManager.SpawnedObjects[PierceThrustId.Value].gameObject;
@@ -243,6 +254,11 @@ public class PlayerAbilities : NetworkBehaviour
             {
                 PierceDrill = NetworkManager.SpawnManager.SpawnedObjects[PierceDrillId.Value].gameObject;
                 PierceDrill.GetComponent<PlayerAbility>().Player = gameObject;
+            }
+            if (PierceLance == null && PierceLanceId.Value > 0)
+            {
+                PierceLance = NetworkManager.SpawnManager.SpawnedObjects[PierceLanceId.Value].gameObject;
+                PierceLance.GetComponent<PlayerAbility>().Player = gameObject;
             }
         }
     }
@@ -255,9 +271,11 @@ public class PlayerAbilities : NetworkBehaviour
 
         if (abilityEnum == PlayerAbilityEnum.CleaveSwing) return CleaveSwing.GetComponent<PlayerAbility>();
         if (abilityEnum == PlayerAbilityEnum.CleaveWhirlwind) return CleaveWhirlwind.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.CleaveCyclone) return CleaveCyclone.GetComponent<PlayerAbility>();
 
         if (abilityEnum == PlayerAbilityEnum.PierceThrust) return PierceThrust.GetComponent<PlayerAbility>();
         if (abilityEnum == PlayerAbilityEnum.PierceDrill) return PierceDrill.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.PierceLance) return PierceLance.GetComponent<PlayerAbility>();
 
         return null;
     }
@@ -292,8 +310,35 @@ public class PlayerAbilities : NetworkBehaviour
         return PlayerAbilityEnum.Null;
     }
 
+
+    public PlayerAbilityEnum GetSpecialAbilityEnum(Wearable.NameEnum wearableNameEnum)
+    {
+        var wearable = WearableManager.Instance.GetWearable(wearableNameEnum);
+
+        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Cleave) return PlayerAbilityEnum.CleaveCyclone;
+        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Smash) return PlayerAbilityEnum.SmashSlam;
+        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Pierce) return PlayerAbilityEnum.PierceLance;
+        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Ballistic) return PlayerAbilityEnum.BallisticKill;
+        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Magic) return PlayerAbilityEnum.MagicBlast;
+        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Splash) return PlayerAbilityEnum.SplashBomb;
+
+        return PlayerAbilityEnum.Null;
+    }
 }
 
 public enum Hand { Left, Right };
 
-*/
+public enum PlayerAbilityEnum
+{
+    Null,
+    Dash,
+    CleaveSwing, CleaveWhirlwind, CleaveCyclone,
+    SmashSwing, SmashWave, SmashSlam,
+    PierceThrust, PierceDrill, PierceLance,
+    BallisticShot, BallisticSnipe, BallisticKill,
+    MagicCast, MagicBeam, MagicBlast,
+    SplashLob, SplashVolley, SplashBomb,
+    Consume, Aura, Throw,
+    ShieldBash, ShieldParry, ShieldWall,
+    Unarmed,
+}
