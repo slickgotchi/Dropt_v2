@@ -80,31 +80,7 @@ public class CleaveWhirlwind : PlayerAbility
 
     private void CollisionCheck()
     {
-        // sync colliders to current transform
-        Physics2D.SyncTransforms();
-
-        // do a collision check
-        List<Collider2D> enemyHitColliders = new List<Collider2D>();
-        m_collider.Overlap(GetContactFilter("EnemyHurt"), enemyHitColliders);
-        bool isLocalPlayer = Player.GetComponent<NetworkObject>().IsLocalPlayer;
-        var playerCharacter = Player.GetComponent<NetworkCharacter>();
-        foreach (var hit in enemyHitColliders)
-        {
-            if (hit.HasComponent<NetworkCharacter>())
-            {
-                var damage = playerCharacter.GetAttackPower() * DamageMultiplier;
-                var isCritical = playerCharacter.IsCriticalAttack();
-                damage = (int)(isCritical ? damage * playerCharacter.CriticalDamage.Value : damage);
-                hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical);
-            }
-        }
-
-        if (isLocalPlayer && enemyHitColliders.Count > 0)
-        {
-            Player.GetComponent<PlayerCamera>().Shake(1.5f, 0.3f);
-        }
-
-        enemyHitColliders.Clear();
+        OneFrameCollisionDamageCheck(m_collider, Wearable.WeaponTypeEnum.Cleave, DamageMultiplier);
     }
 
 

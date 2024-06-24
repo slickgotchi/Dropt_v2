@@ -186,6 +186,59 @@ public class PlayerAbility : NetworkBehaviour
         };
     }
 
+    public static ContactFilter2D GetContactFilter(string[] layerNames)
+    {
+        int combinedLayerMask = 0;
+        foreach (string layerName in layerNames)
+        {
+            combinedLayerMask |= 1 << LayerMask.NameToLayer(layerName);
+        }
+
+        return new ContactFilter2D
+        {
+            useLayerMask = true,
+            layerMask = combinedLayerMask,
+            useTriggers = true,
+        };
+    }
+
+    protected void OneFrameCollisionDamageCheck(Collider2D abilityCollider, Wearable.WeaponTypeEnum weaponType, float damageMultiplier = 1f)
+    {
+        // sync colliders to current transform
+        Physics2D.SyncTransforms();
+
+        // do a collision check
+        List<Collider2D> enemyHitColliders = new List<Collider2D>();
+        abilityCollider.Overlap(GetContactFilter(new string[] { "EnemyHurt", "Destructible" }), enemyHitColliders);
+        bool isLocalPlayer = Player.GetComponent<NetworkObject>().IsLocalPlayer;
+        foreach (var hit in enemyHitColliders)
+        {
+            if (hit.HasComponent<NetworkCharacter>())
+            {
+                var playerCharacter = Player.GetComponent<NetworkCharacter>();
+                var damage = playerCharacter.GetAttackPower() * damageMultiplier;
+                var isCritical = playerCharacter.IsCriticalAttack();
+                damage = (int)(isCritical ? damage * playerCharacter.CriticalDamage.Value : damage);
+                hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical);
+            }
+
+            if (hit.HasComponent<Destructible>())
+            {
+                var destructible = hit.GetComponent<Destructible>();
+                destructible.TakeDamage(weaponType);
+            }
+        }
+
+        // screen shake
+        if (isLocalPlayer && enemyHitColliders.Count > 0)
+        {
+            Player.GetComponent<PlayerCamera>().Shake(1.5f, 0.3f);
+        }
+
+        // clear out colliders
+        enemyHitColliders.Clear();
+    }
+
     protected void TrackPlayerPosition()
     {
         if (Player == null) return;

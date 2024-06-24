@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Mathematics;
@@ -30,7 +31,6 @@ public class NetworkLevel : NetworkBehaviour
             CreateSunkenFloors();
             CreateApeDoors();
             CreateNetworkObjectSpawners();
-            //CreatePlayerSpawnPoints();
             CreateSubLevels();
 
             // level spawned, decrease spawning count
@@ -278,7 +278,8 @@ public class NetworkLevel : NetworkBehaviour
                 });
             }
 
-            // iterate through the spawners spawn points
+            // iterate through the spawners spawn points and create objects
+            var spawnedObjects = new List<GameObject>();
             for (int j = 0; j < no_spawner.transform.childCount; j++)
             {
                 var spawnPoint = no_spawner.transform.GetChild(j);
@@ -295,6 +296,7 @@ public class NetworkLevel : NetworkBehaviour
                         {
                             var no_object = Instantiate(spawnObject, spawnPoint);
                             no_object.gameObject.GetComponent<NetworkObject>().Spawn();
+                            spawnedObjects.Add(no_object);
                         } else
                         {
                             Debug.Log(spawn.Name + " does not exist in Prefabs_NetworkObject");
@@ -303,6 +305,35 @@ public class NetworkLevel : NetworkBehaviour
                     } else
                     {
                         randValue -= spawn.Chance;
+                    }
+                }
+            }
+
+            // check for OnDestroySpawnNetworkObject component
+            var onDestroySpawner = no_spawner.GetComponent<SpawnerOnDestroySpawnNetworkObject>();
+            if (onDestroySpawner != null)
+            {
+                if (onDestroySpawner.Type == SpawnerOnDestroySpawnNetworkObject.EnumType.Chance)
+                {
+                    // for each spawned object, add a OnDestroySpawnNetworkObject if criteria is met
+                    for (int j =0; j < spawnedObjects.Count; j++)
+                    {
+                        var rand = UnityEngine.Random.Range(0, 0.9999f);
+                        if (rand < onDestroySpawner.Chance)
+                        {
+                            var odsno = spawnedObjects[j].GetComponent<OnDestroySpawnNetworkObject>();
+                            odsno.SpawnPrefab = onDestroySpawner.NetworkObjectPrefab;
+                        }
+                    }
+                } else if (onDestroySpawner.Type == SpawnerOnDestroySpawnNetworkObject.EnumType.Range)
+                {
+                    if (onDestroySpawner.MaxRange < onDestroySpawner.MinRange) onDestroySpawner.MaxRange = onDestroySpawner.MinRange;
+                    var numberSpawns = UnityEngine.Random.Range(onDestroySpawner.MinRange, onDestroySpawner.MaxRange);
+                    List<int> randIndices = GetRandomSamples(spawnedObjects.Count, numberSpawns);
+                    foreach (var rand in randIndices)
+                    {
+                        var odsno = spawnedObjects[rand].GetComponent<OnDestroySpawnNetworkObject>();
+                        odsno.SpawnPrefab = onDestroySpawner.NetworkObjectPrefab;
                     }
                 }
             }
@@ -315,6 +346,35 @@ public class NetworkLevel : NetworkBehaviour
             no_spawners.RemoveAt(0);
         }
         no_spawners.Clear();
+    }
+
+    private List<int> GetRandomSamples(int count, int numberSamples)
+    {
+        if (numberSamples > count) numberSamples = count;
+
+        HashSet<int> samples = new HashSet<int>();
+
+        // Continue looping until we have the required number of unique samples
+        int justInCase = 0;
+        while (samples.Count < numberSamples)
+        {
+            // Generate a random number between 0 (inclusive) and count (exclusive)
+            int randomNumber = UnityEngine.Random.Range(0, count);
+
+            // Add the number to the HashSet. If it is already present, it will not be added again
+            samples.Add(randomNumber);
+
+            justInCase++;
+
+            if (justInCase > 1000)
+            {
+                Debug.Log("Exceeded 1000 loops in GetRandomSamples. Check input parameters");
+                break;
+            }
+        }
+
+        // Convert the HashSet to a List and return it
+        return new List<int>(samples);
     }
 
     private void NormalizeNetworkObjectSpawner(ref NetworkObjectSpawner no_spawner)

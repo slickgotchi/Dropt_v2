@@ -103,7 +103,7 @@ public class CleaveCycloneProjectile : MonoBehaviour
 
         // do a collision check
         List<Collider2D> enemyHitColliders = new List<Collider2D>();
-        m_collider.Overlap(PlayerAbility.GetContactFilter("EnemyHurt"), enemyHitColliders);
+        m_collider.Overlap(PlayerAbility.GetContactFilter(new string[] {"EnemyHurt", "Destructible"}), enemyHitColliders);
         foreach (var hit in enemyHitColliders)
         {
             if (hit.HasComponent<NetworkCharacter>())
@@ -117,16 +117,19 @@ public class CleaveCycloneProjectile : MonoBehaviour
                 {
                     m_hitColliders.Add(hit);
 
-                    if (IsServer)
+                    if (hit.HasComponent<NetworkCharacter>())
                     {
                         var damage = DamagePerHit * DamageMutiplierPerHit;
                         damage = GetRandomVariation(damage);
                         var isCritical = IsCriticalAttack(CriticalChance);
                         damage = (int)(isCritical ? damage * CriticalDamage : damage);
                         hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical);
-                    } else
+                    }
+
+                    if (hit.HasComponent<Destructible>())
                     {
-                        hit.GetComponent<SpriteFlash>().DamageFlash();
+                        var destructible = hit.GetComponent<Destructible>();
+                        destructible.TakeDamage(Wearable.WeaponTypeEnum.Cleave);
                     }
                 }
 

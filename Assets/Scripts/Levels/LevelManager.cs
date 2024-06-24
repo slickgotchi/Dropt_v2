@@ -58,7 +58,12 @@ public class LevelManager : NetworkBehaviour
                 networkObject.HasComponent<PlayerController>() ||
                 networkObject.HasComponent<PlayerAbility>()) continue;
 
-            // destroy everything else
+            // destroy everything else (remove onDestroy components first too to prevent the new objects appearing
+            // in the next level)
+            if (networkObject.HasComponent<OnDestroySpawnNetworkObject>())
+            {
+                networkObject.GetComponent<OnDestroySpawnNetworkObject>().SpawnPrefab = null;
+            }
             networkObject.Despawn();
         }
 

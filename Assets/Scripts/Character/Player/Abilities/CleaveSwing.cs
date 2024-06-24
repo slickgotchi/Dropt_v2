@@ -25,41 +25,12 @@ public class CleaveSwing : PlayerAbility
         transform.rotation = AbilityRotation;
         transform.position = PlayerActivationState.position + AbilityOffset;
 
-        // sync colliders to current transform
-        Physics2D.SyncTransforms();
-
-        // do a collision check
-        List<Collider2D> enemyHitColliders = new List<Collider2D>();
-        m_collider.Overlap(GetContactFilter("EnemyHurt"), enemyHitColliders);
-        bool isLocalPlayer = Player.GetComponent<NetworkObject>().IsLocalPlayer;
-        foreach (var hit in enemyHitColliders)
-        {
-            if (hit.HasComponent<NetworkCharacter>())
-            {
-                var playerCharacter = Player.GetComponent<NetworkCharacter>();
-                var damage = playerCharacter.GetAttackPower();
-                var isCritical = playerCharacter.IsCriticalAttack();
-                damage = (int)(isCritical ? damage * playerCharacter.CriticalDamage.Value : damage);
-                hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical);
-            }
-        }
-
-        // screen shake
-        if (isLocalPlayer && enemyHitColliders.Count > 0)
-        {
-            Player.GetComponent<PlayerCamera>().Shake(1.5f, 0.3f);
-        }
-
-        // clear out colliders
-        enemyHitColliders.Clear();
+        OneFrameCollisionDamageCheck(m_collider, Wearable.WeaponTypeEnum.Cleave);
 
         // animation
-        //if (isLocalPlayer)
-        {
-            Animator.Play("CleaveSwing");
-            DebugDraw.DrawColliderPolygon(m_collider, IsServer);
-            PlayAnimRemoteServerRpc("CleaveSwing", AbilityOffset, AbilityRotation);
-        }
+        Animator.Play("CleaveSwing");
+        DebugDraw.DrawColliderPolygon(m_collider, IsServer);
+        PlayAnimRemoteServerRpc("CleaveSwing", AbilityOffset, AbilityRotation);
     }
 
 
