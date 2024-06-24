@@ -14,6 +14,9 @@ public class PlayerAbility : NetworkBehaviour
 {
     [Header("Base Ability Parameters")]
 
+    [Tooltip("Set to true if this ability should use Special AP Cost from wearable-data spreadsheet")]
+    public bool IsSpecialAbility = false;
+
     [Tooltip("Cost to cast this ability in AP")]
     public int ApCost = 0;
 
@@ -45,6 +48,7 @@ public class PlayerAbility : NetworkBehaviour
     public float HoldSlowFactor = 1;
 
     [HideInInspector] public GameObject Player;
+    [HideInInspector] public float SpecialCooldown;
 
     protected Vector3 PlayerCenterOffset = new Vector3(0,0.5f,0);
     protected ContactFilter2D EnemyHurtContactFilter;
@@ -70,6 +74,14 @@ public class PlayerAbility : NetworkBehaviour
         AutoMoveDuration = math.min(AutoMoveDuration, ExecutionDuration);
     }
 
+    public void Init(GameObject playerObject, Hand abilityHand)
+    {
+        var playerEquipment = playerObject.GetComponent<PlayerEquipment>();
+        var wearable = abilityHand == Hand.Left ? playerEquipment.LeftHand : playerEquipment.RightHand;
+        ApCost = IsSpecialAbility ? WearableManager.Instance.GetWearable(wearable.Value).SpecialAp : ApCost;
+        SpecialCooldown = WearableManager.Instance.GetWearable(wearable.Value).SpecialCooldown;
+    }
+
     public bool Activate(GameObject playerObject, StatePayload state, InputPayload input, float holdDuration)
     {
         Player = playerObject;
@@ -83,6 +95,12 @@ public class PlayerAbility : NetworkBehaviour
         m_isFinished = false;
         m_autoMoveTimer = AutoMoveDuration;
         m_autoMoveFinishCalled = false;
+
+        // deduct ap from the player
+        if (IsServer)
+        {
+            Player.GetComponent<NetworkCharacter>().ApCurrent.Value -= ApCost;
+        }
 
         // hide the player relevant hand
         Player.GetComponent<PlayerGotchi>().HideHand(input.abilityHand, ExecutionDuration);
@@ -190,17 +208,3 @@ public class PlayerAbility : NetworkBehaviour
 
 }
 
-public enum PlayerAbilityEnum
-{
-    Null,
-    Dash,
-    CleaveSwing, CleaveWhirlwind, CleaveCyclone,
-    SmashSwing, SmashWave, SmashSlam,
-    PierceThrust, PierceDrill, PierceLance,
-    BallisticShot, BallisticSnipe, BallisticKill,
-    MagicCast, MagicBeam, MagicBlast,
-    SplashLob, SplashVolley, SplashBomb,
-    Consume, Aura, Throw,
-    ShieldBash, ShieldParry, ShieldWall,
-    Unarmed,
-}

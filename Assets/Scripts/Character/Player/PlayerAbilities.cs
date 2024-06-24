@@ -127,21 +127,20 @@ public class PlayerAbilities : NetworkBehaviour
 
 public enum Hand { Left, Right };
 
-//public enum PlayerAbilityEnum
-//{
-//    Null,
-//    Dash,
-//    CleaveSwing, CleaveWhirlwind, CleaveCyclone,
-//    SmashSwing, SmashWave, SmashSlam,
-//    PierceThrust, PierceDrill, PierceLance,
-//    BallisticShot, BallisticSnipe, BallisticKill,
-//    MagicCast, MagicBeam, MagicBlast,
-//    SplashLob, SplashVolley, SplashBomb,
-//    Consume, Aura, Throw,
-//    ShieldBash, ShieldParry, ShieldWall,
-//    Unarmed,
-//}
-
+public enum PlayerAbilityEnum
+{
+    Null,
+    Dash,
+    CleaveSwing, CleaveWhirlwind, CleaveCyclone,
+    SmashSwing, SmashWave, SmashSlam,
+    PierceThrust, PierceDrill, PierceLance,
+    BallisticShot, BallisticSnipe, BallisticKill,
+    MagicCast, MagicBeam, MagicBlast,
+    SplashLob, SplashVolley, SplashBomb,
+    Consume, Aura, Throw,
+    ShieldBash, ShieldParry, ShieldWall,
+    Unarmed,
+}
 
 
 

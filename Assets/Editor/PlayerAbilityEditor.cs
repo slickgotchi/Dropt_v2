@@ -5,6 +5,7 @@ using UnityEditor;
 [CustomEditor(typeof(PlayerAbility), true)]
 public class PlayerAbilityEditor : Editor
 {
+    SerializedProperty isSpecialAbility;
     SerializedProperty apCost;
     SerializedProperty executionDuration;
     SerializedProperty executionSlowFactor;
@@ -18,6 +19,7 @@ public class PlayerAbilityEditor : Editor
 
     private void OnEnable()
     {
+        isSpecialAbility = serializedObject.FindProperty("IsSpecialAbility");
         apCost = serializedObject.FindProperty("ApCost");
         executionDuration = serializedObject.FindProperty("ExecutionDuration");
         executionSlowFactor = serializedObject.FindProperty("ExecutionSlowFactor");
@@ -34,7 +36,12 @@ public class PlayerAbilityEditor : Editor
     {
         serializedObject.Update();
 
-        EditorGUILayout.PropertyField(apCost, new GUIContent("AP Cost", "Cost to cast this ability in AP"));
+        EditorGUILayout.PropertyField(isSpecialAbility, new GUIContent("Is Special Ability", "Set to true if this ability should use Special AP Cost from wearable-data spreadsheet"));
+
+        if (!isSpecialAbility.boolValue)
+        {
+            EditorGUILayout.PropertyField(apCost, new GUIContent("AP Cost", "Cost to cast this ability in AP"));
+        }
 
         EditorGUILayout.PropertyField(executionDuration, new GUIContent("Execution Duration", "Time (s) for the ability to run from Start() to Finish()"));
         if (executionDuration.floatValue > 0)

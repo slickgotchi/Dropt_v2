@@ -18,6 +18,8 @@ public class PlayerController : NetworkBehaviour
 
     [SerializeField] TextMeshProUGUI m_positionText;
 
+    private bool m_isPlayerHUDInitialized = false;
+
     public override void OnNetworkSpawn()
     {
         if (IsLocalPlayer) {
@@ -54,6 +56,12 @@ public class PlayerController : NetworkBehaviour
             }
 
             HandleLevelManagerState();
+
+            // setup player hud
+            if (!m_isPlayerHUDInitialized && GetComponent<NetworkCharacter>() != null)
+            {
+                PlayerHUDCanvas.Singleton.SetLocalPlayerCharacter(GetComponent<NetworkCharacter>());
+            }
         }
     }
 

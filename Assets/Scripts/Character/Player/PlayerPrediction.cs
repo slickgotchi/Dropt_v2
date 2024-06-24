@@ -13,6 +13,7 @@ public class PlayerPrediction : NetworkBehaviour
     private Vector3 m_lastMoveDirection = new Vector3(0, -1, 0);
     private Vector3 m_velocity = new Vector3(0, -1, 0);
 
+    // slow variables
     private float m_slowFactor = 1f;
     private int m_slowFactorExpiryTick = 0;
     private int m_slowFactorStartTick = 0;
@@ -25,7 +26,8 @@ public class PlayerPrediction : NetworkBehaviour
     private Hand m_abilityHand = Hand.Left;
     private PlayerAbilityEnum m_holdAbilityPending = PlayerAbilityEnum.Null;
 
-    private bool m_autoMove = false;
+    // for auto move during abilities
+    //private bool m_autoMove = false;
     private Vector3 m_autoMoveVelocity = Vector3.zero;
     private int m_autoMoveExpiryTick = 0;
 
@@ -33,9 +35,9 @@ public class PlayerPrediction : NetworkBehaviour
     // direction stays the same for a short duration
     private float m_actionDirectionTimer = 0;
     private float k_actionDirectionTime = 0.5f;
-
     public NetworkVariable<Vector3> ActionDirection = new NetworkVariable<Vector3>();
 
+    // for access
     private Rigidbody2D rb;
     private PlayerAbilities m_playerAbilities;
 
@@ -48,14 +50,13 @@ public class PlayerPrediction : NetworkBehaviour
     CircularBuffer<StatePayload> clientStateBuffer;
     CircularBuffer<InputPayload> clientInputBuffer;
     StatePayload lastServerState;
-
     List<StatePayload> lastServerStateArray;
 
     // Netcode server
     CircularBuffer<StatePayload> serverStateBuffer;
     Queue<InputPayload> serverInputQueue;
 
-    // SetPlayerPosition code
+    // SetPlayerPosition code for teleports
     private bool m_isSetPlayerPosition = false;
     private Vector3 m_setPlayerPosition = Vector3.zero;
 
@@ -66,21 +67,21 @@ public class PlayerPrediction : NetworkBehaviour
     [Header("Utility")]
     [SerializeField] Camera playerCamera;
 
+    // for calculating mouse positions
     private Vector2 m_cursorScreenPosition;
     private Vector3 m_cursorWorldPosition;
 
     // cooldown expiry ticks
     private int m_abilityCooldownExpiryTick = 0;
+    private int m_lhSpecialCooldownExpiryTick = 0;
+    private int m_rhSpecialCooldownExpiryTick = 0;
 
     // hold variables
-    //private bool m_isHoldActive = false;
     private bool m_isHoldStarted = false;
     private bool m_isHoldStartFlag = false;
     private bool m_isHoldFinishFlag = false;
-    //private Hand m_holdHand = Hand.Left;
     public enum HoldState { Inactive, LeftActive, RightActive };
     private HoldState m_holdState;
-
     private int m_holdStartTick = 0;
     private int m_holdFinishTick = 0;
 
@@ -317,8 +318,19 @@ public class PlayerPrediction : NetworkBehaviour
         var ability = m_playerAbilities.GetAbility(m_abilityTriggered);
         if (ability != null)
         {
+            ability.Init(gameObject, m_abilityHand);
             bool isEnoughAp = GetComponent<NetworkCharacter>().ApCurrent.Value >= ability.ApCost;
             bool isCooldownFinished = currentTick > m_abilityCooldownExpiryTick;
+            if (ability.IsSpecialAbility)
+            {
+                if (m_abilityHand == Hand.Left)
+                {
+                    isCooldownFinished = currentTick > m_lhSpecialCooldownExpiryTick;
+                } else
+                {
+                    isCooldownFinished = currentTick > m_rhSpecialCooldownExpiryTick;
+                }
+            }
 
             if (!isEnoughAp || !isCooldownFinished)
             {
@@ -330,6 +342,7 @@ public class PlayerPrediction : NetworkBehaviour
         var holdAbility = m_playerAbilities.GetAbility(m_holdAbilityPending);
         if (!m_isHoldStarted && holdAbility != null)
         {
+            holdAbility.Init(gameObject, m_abilityHand);
             bool isEnoughAp = GetComponent<NetworkCharacter>().ApCurrent.Value >= holdAbility.ApCost;
             bool isCooldownFinished = currentTick > m_abilityCooldownExpiryTick;
 
@@ -359,7 +372,7 @@ public class PlayerPrediction : NetworkBehaviour
         // store in client input buffer
         clientInputBuffer.Add(inputPayload, bufferIndex);
 
-        // activate ability if it was not null
+        // handle auto move
         if (ability != null && m_abilityTriggered != PlayerAbilityEnum.Null)
         {
             // we only activate once from the server side when in host mode
@@ -368,7 +381,7 @@ public class PlayerPrediction : NetworkBehaviour
                 // check automove (THIS MIGHT NEED TO BE MOVED BEFORE processInput)
                 if (ability.AutoMoveDuration > 0)
                 {
-                    m_autoMove = true;
+                    //m_autoMove = true;
                     var speed = ability.AutoMoveDistance / ability.AutoMoveDuration;
                     m_autoMoveVelocity = m_actionDirection * speed;
                     m_autoMoveExpiryTick = currentTick + (int)(ability.AutoMoveDuration * k_serverTickRate);
@@ -393,6 +406,20 @@ public class PlayerPrediction : NetworkBehaviour
                 // set cooldown tick
                 m_abilityCooldownExpiryTick = currentTick + 
                     (int)math.ceil((ability.ExecutionDuration + ability.CooldownDuration) * k_serverTickRate);
+
+                // set special cooldown
+                if (ability.IsSpecialAbility)
+                {
+                    int expiryTick = currentTick +
+                            (int)math.ceil((ability.SpecialCooldown + ability.ExecutionDuration) * k_serverTickRate);
+                    if (m_abilityHand == Hand.Left)
+                    {
+                        m_lhSpecialCooldownExpiryTick = expiryTick;
+                    } else
+                    {
+                        m_rhSpecialCooldownExpiryTick = expiryTick;
+                    }
+                }
 
                 // set slow down ticks
                 m_slowFactor = ability.ExecutionSlowFactor;
@@ -595,8 +622,21 @@ public class PlayerPrediction : NetworkBehaviour
             var ability = m_playerAbilities.GetAbility(inputPayload.abilityTriggered);
             if (ability != null)
             {
+                ability.Init(gameObject, inputPayload.abilityHand);
                 bool isApEnough = GetComponent<NetworkCharacter>().ApCurrent.Value >= ability.ApCost;
                 bool isCooldownFinished = inputPayload.tick > m_abilityCooldownExpiryTick;
+
+                if (ability.IsSpecialAbility)
+                {
+                    if (m_abilityHand == Hand.Left)
+                    {
+                        isCooldownFinished = inputPayload.tick > m_lhSpecialCooldownExpiryTick;
+                    }
+                    else
+                    {
+                        isCooldownFinished = inputPayload.tick > m_rhSpecialCooldownExpiryTick;
+                    }
+                }
 
                 if ((!isApEnough || !isCooldownFinished) && !IsHost)
                 {
@@ -609,6 +649,7 @@ public class PlayerPrediction : NetworkBehaviour
             var holdAbility = m_playerAbilities.GetAbility(inputPayload.holdAbilityPending);
             if (!m_isHoldStarted && inputPayload.isHoldStartFlag && holdAbility != null && !IsHost)
             {
+                ability.Init(gameObject, inputPayload.abilityHand);
                 bool isEnoughAp = GetComponent<NetworkCharacter>().ApCurrent.Value >= holdAbility.ApCost;
                 bool isCooldownFinished = inputPayload.tick > m_abilityCooldownExpiryTick;
 
@@ -629,7 +670,7 @@ public class PlayerPrediction : NetworkBehaviour
                 // check automove (THIS MIGHT NEED TO BE MOVED BEFORE processInput)
                 if (ability.AutoMoveDuration > 0)
                 {
-                    m_autoMove = true;
+                    //m_autoMove = true;
                     var speed = ability.AutoMoveDistance / ability.AutoMoveDuration;
                     m_autoMoveVelocity = inputPayload.actionDirection * speed;
                     m_autoMoveExpiryTick = inputPayload.tick + (int)(ability.AutoMoveDuration * k_serverTickRate);
@@ -650,6 +691,21 @@ public class PlayerPrediction : NetworkBehaviour
                 ability.Activate(gameObject, statePayload, inputPayload, holdDuration);
                 m_abilityCooldownExpiryTick = inputPayload.tick + 
                     (int)math.ceil((ability.ExecutionDuration + ability.CooldownDuration) * k_serverTickRate);
+
+                // set special cooldown
+                if (ability.IsSpecialAbility)
+                {
+                    int expiryTick = inputPayload.tick +
+                            (int)math.ceil((ability.SpecialCooldown + ability.ExecutionDuration) * k_serverTickRate);
+                    if (m_abilityHand == Hand.Left)
+                    {
+                        m_lhSpecialCooldownExpiryTick = expiryTick;
+                    }
+                    else
+                    {
+                        m_rhSpecialCooldownExpiryTick = expiryTick;
+                    }
+                }
 
                 // set slow down ticks
                 m_slowFactor = ability.ExecutionSlowFactor;
