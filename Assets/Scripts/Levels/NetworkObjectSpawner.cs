@@ -33,8 +33,8 @@ public enum EnemySpawnType
 
 public enum DestructibleSpawnType
 {
-    BlueCrate,
-    BlueFern,
+    DO_NOT_USE_BlueCrate,
+    DO_NOT_USE_BlueFern,
     Geode_Plain,
     Geode_Common,
     Geode_Uncommon,
@@ -42,6 +42,32 @@ public enum DestructibleSpawnType
     Geode_Legendary,
     Geode_Mythical,
     Geode_Godlike,
+    Rock_Large,
+    Fern_FUD,
+    Fern_FOMO,
+    Fern_ALPHA,
+    Fern_KEK,
+    Mangrove,
+    Mangrove_AP,
+    Mangrove_HP,
+    Flower_FUD,
+    Flower_FOMO,
+    Flower_ALPHA,
+    Flower_KEK,
+    FoxyTails,
+    Barrel_FUD,
+    Barrel_FOMO,
+    Barrel_ALPHA,
+    Barrel_KEK,
+    Crate_Blue,
+    Crate_Kinship,
+    Chest_Plain,
+    Chest_Common,
+    Chest_Uncommon,
+    Chest_Rare,
+    Chest_Legendary,
+    Chest_Mythical,
+    Chest_Godlike,
 }
 
 public enum InteractableSpawnType
