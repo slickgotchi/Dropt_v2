@@ -32,7 +32,8 @@ public class NetworkLevel : NetworkBehaviour
 
             CreateSunkenFloorsNew();
             //CreateSunkenFloors();
-            CreateApeDoors();
+            CreateApeDoorsNew();
+            //CreateApeDoors();
             CreateNetworkObjectSpawners();
             CreateSubLevels();
 
@@ -53,6 +54,12 @@ public class NetworkLevel : NetworkBehaviour
             for (int i = 0; i < no_apeDoorSpawners.Count; i++)
             {
                 Destroy(no_apeDoorSpawners[i].gameObject);
+            }
+
+            var no_apeDoorButtonGroupSpawners = new List<ApeDoorButtonGroupSpawner>(GetComponentsInChildren<ApeDoorButtonGroupSpawner>());
+            for (int i = 0; i < no_apeDoorButtonGroupSpawners.Count; i++)
+            {
+                Destroy(no_apeDoorButtonGroupSpawners[i].gameObject);
             }
 
             var no_spawners = new List<NetworkObjectSpawner>(GetComponentsInChildren<NetworkObjectSpawner>());
@@ -111,14 +118,14 @@ public class NetworkLevel : NetworkBehaviour
             no_buttonGroup.GetComponent<NetworkObject>().TrySetParent(gameObject);
 
             // create child buttons (start by reducing to number of buttons we need)
-            var buttonSpawners = new List<Transform>(buttonGroupSpawner.GetComponentsInChildren<Transform>());
-            for (int j = 0; j < buttonSpawners.Count; j++)
+            for (int j = 0; j < buttonGroupSpawner.transform.childCount; j++)
             {
-                if (buttonSpawners.Count > buttonGroupSpawner.NumberButtons)
+                if (buttonGroupSpawner.transform.childCount > buttonGroupSpawner.NumberButtons)
                 {
-                    var randIndex = UnityEngine.Random.Range(0, buttonSpawners.Count);
-                    Destroy(buttonSpawners[randIndex].gameObject);
-                    buttonSpawners.RemoveAt(randIndex);
+                    var randIndex = UnityEngine.Random.Range(0, buttonGroupSpawner.transform.childCount);
+                    var button = buttonGroupSpawner.transform.GetChild(randIndex);
+                    button.parent = null;
+                    Destroy(button.gameObject);
                 }
                 else
                 {
@@ -127,12 +134,12 @@ public class NetworkLevel : NetworkBehaviour
             }
 
             // in case the user specified more NumberButtons then we have button spawners, reduce the NumberButtons
-            no_buttonGroup.GetComponent<SunkenFloorButtonGroup>().NumberButtons = buttonSpawners.Count;
+            no_buttonGroup.GetComponent<SunkenFloorButtonGroup>().NumberButtons = buttonGroupSpawner.transform.childCount;
 
             // spawn children buttons
-            for (int j = 0; j < buttonSpawners.Count; j++)
+            for (int j = 0; j < buttonGroupSpawner.transform.childCount; j++)
             {
-                var buttonSpawner = buttonSpawners[j];
+                var buttonSpawner = buttonGroupSpawner.transform.GetChild(j);
 
                 // insta/spawn network buttno
                 var no_button = Instantiate(buttonGroupSpawner.SunkenFloorButtonPrefab);
@@ -145,15 +152,13 @@ public class NetworkLevel : NetworkBehaviour
             }
 
             // destroy all button spawners
-            while (buttonSpawners.Count > 0)
+            while (buttonGroupSpawner.transform.childCount > 0)
             {
                 // destroy the spawner button
-                Destroy(buttonSpawners[0].gameObject);
-                buttonSpawners.RemoveAt(0);
+                var button = buttonGroupSpawner.transform.GetChild(0);
+                button.parent = null;
+                Destroy(button.gameObject);
             }
-
-            // destroy button list
-            buttonSpawners.Clear();
 
             // 2. create sunken floors
             for (int j = 0; j < buttonGroupSpawner.SunkenFloorSpawners.Count; j++)
@@ -162,44 +167,36 @@ public class NetworkLevel : NetworkBehaviour
                 var sunkenFloorSpawner = buttonGroupSpawner.SunkenFloorSpawners[j];
                 var no_sunkenFloor = Instantiate(sunkenFloorSpawner.SunkenFloorPrefab, sunkenFloorSpawner.transform);
                 no_sunkenFloor.GetComponent<NetworkObject>().Spawn();
+                no_sunkenFloor.GetComponent<SunkenFloor>().SetTypeAndState(buttonGroupSpawner.SunkenFloorType, SunkenFloorState.Lowered);
 
-                // add sunken floor to buttons list
+                // add sunken floor to buttongroup's list
                 no_buttonGroup.GetComponent<SunkenFloorButtonGroup>().SunkenFloors.Add(no_sunkenFloor);
             }
         }
     }
 
-    void CreateSunkenFloors()
+    void CreateApeDoorsNew()
     {
         // 1. create button groups
-
-
-        // search for sunken floors spawners and button spawners
-        var sunkenFloorSpawners = new List<SunkenFloor3x3Spawner>(GetComponentsInChildren<SunkenFloor3x3Spawner>());
-        for (int i = 0; i < sunkenFloorSpawners.Count; i++)
+        var buttonGroupSpawners = new List<ApeDoorButtonGroupSpawner>(GetComponentsInChildren<ApeDoorButtonGroupSpawner>());
+        for (int i = 0; i < buttonGroupSpawners.Count; i++)
         {
-            var sunkenFloorSpawner = sunkenFloorSpawners[i];
+            var buttonGroupSpawner = buttonGroupSpawners[i];
 
-            // insta/spawn network sunken floor and set its parent to the level
-            var no_sunkenFloor = Instantiate(sunkenFloorSpawner.SunkenFloor3x3Prefab);
-            no_sunkenFloor.transform.position = sunkenFloorSpawner.transform.position;
-            no_sunkenFloor.GetComponent<NetworkObject>().Spawn();
-            no_sunkenFloor.transform.parent = transform;
+            // create the network button group and set its parent to the level
+            var no_buttonGroup = Instantiate(buttonGroupSpawner.ApeDoorButtonGroupPrefab, buttonGroupSpawner.transform);
+            no_buttonGroup.GetComponent<NetworkObject>().Spawn();
+            no_buttonGroup.GetComponent<NetworkObject>().TrySetParent(gameObject);
 
-            // set the floor type
-            no_sunkenFloor.GetComponent<SunkenFloor>().SetTypeAndState(sunkenFloorSpawner.SunkenFloorType, SunkenFloorState.Lowered);
-
-            // get list of button spawners
-            var buttonSpawners = new List<SunkenFloorButtonSpawner>(sunkenFloorSpawner.gameObject.GetComponentsInChildren<SunkenFloorButtonSpawner>());
-
-            // randomly delete button spawners till we are at the required button count
-            for (int j = 0; j < buttonSpawners.Count; j++)
+            // create child buttons (start by reducing to number of buttons we need)
+            for (int j = 0; j < buttonGroupSpawner.transform.childCount; j++)
             {
-                if (buttonSpawners.Count > sunkenFloorSpawner.NumberButtons)
+                if (buttonGroupSpawner.transform.childCount > buttonGroupSpawner.NumberButtons)
                 {
-                    var randIndex = UnityEngine.Random.Range(0, buttonSpawners.Count);
-                    Destroy(buttonSpawners[randIndex].gameObject);
-                    buttonSpawners.RemoveAt(randIndex);
+                    var randIndex = UnityEngine.Random.Range(0, buttonGroupSpawner.transform.childCount);
+                    var button = buttonGroupSpawner.transform.GetChild(randIndex);
+                    button.parent = null;
+                    Destroy(button.gameObject);
                 }
                 else
                 {
@@ -208,123 +205,200 @@ public class NetworkLevel : NetworkBehaviour
             }
 
             // in case the user specified more NumberButtons then we have button spawners, reduce the NumberButtons
-            no_sunkenFloor.GetComponent<SunkenFloor>().NumberButtons = buttonSpawners.Count;
+            no_buttonGroup.GetComponent<ApeDoorButtonGroup>().NumberButtons = buttonGroupSpawner.transform.childCount;
 
             // spawn children buttons
-            for (int j = 0; j < buttonSpawners.Count; j++)
+            for (int j = 0; j < buttonGroupSpawner.transform.childCount; j++)
             {
-                var buttonSpawner = buttonSpawners[j];
+                var buttonSpawner = buttonGroupSpawner.transform.GetChild(j);
 
                 // insta/spawn network buttno
-                var no_Button = Instantiate(sunkenFloorSpawner.SunkenFloorButtonPrefab);
-                no_Button.transform.position = buttonSpawner.transform.position;
-                no_Button.GetComponent<NetworkObject>().Spawn();
-                no_Button.GetComponent<SunkenFloorButton>().SetTypeAndState(sunkenFloorSpawner.SunkenFloorType, ButtonState.Up);
+                var no_button = Instantiate(buttonGroupSpawner.ApeDoorButtonPrefab);
+                no_button.transform.position = buttonSpawner.transform.position;
+                no_button.GetComponent<NetworkObject>().Spawn();
+                no_button.GetComponent<ApeDoorButton>().SetTypeAndState(buttonGroupSpawner.ApeDoorType, ButtonState.Up);
 
-                // set network object buttons parent to the sunken floor
-                no_Button.transform.parent = no_sunkenFloor.transform;
+                // parent button to the button group
+                no_button.GetComponent<NetworkObject>().TrySetParent(no_buttonGroup);
             }
 
             // destroy all button spawners
-            while (buttonSpawners.Count > 0)
+            while (buttonGroupSpawner.transform.childCount > 0)
             {
                 // destroy the spawner button
-                Destroy(buttonSpawners[0].gameObject);
-                buttonSpawners.RemoveAt(0);
+                var button = buttonGroupSpawner.transform.GetChild(0);
+                button.parent = null;
+                Destroy(button.gameObject);
             }
 
-            // destroy button list
-            buttonSpawners.Clear();
-        }
+            // 2. create sunken floors
+            for (int j = 0; j < buttonGroupSpawner.ApeDoorSpawners.Count; j++)
+            {
+                // spawn sunken floor
+                var apeDoorSpawner = buttonGroupSpawner.ApeDoorSpawners[j];
+                var no_sunkenFloor = Instantiate(apeDoorSpawner.ApeDoorPrefab, apeDoorSpawner.transform);
+                no_sunkenFloor.GetComponent<NetworkObject>().Spawn();
+                no_sunkenFloor.GetComponent<ApeDoor>().SetTypeAndState(buttonGroupSpawner.ApeDoorType, DoorState.Closed);
 
-        // Destroy all sunken floors
-        while (sunkenFloorSpawners.Count > 0)
-        {
-            // destroy the spawner button
-            Destroy(sunkenFloorSpawners[0].gameObject);
-            sunkenFloorSpawners.RemoveAt(0);
+                // add sunken floor to buttongroup's list
+                no_buttonGroup.GetComponent<ApeDoorButtonGroup>().ApeDoors.Add(no_sunkenFloor);
+            }
         }
-
-        // destroy list
-        sunkenFloorSpawners.Clear();
     }
 
-    void CreateApeDoors()
-    {
-        // search for sunken floors spawners and button spawners
-        var apeDoorSpawners = new List<ApeDoorSpawner>(GetComponentsInChildren<ApeDoorSpawner>());
-        for (int i = 0; i < apeDoorSpawners.Count; i++)
-        {
-            var apeDoorSpawner = apeDoorSpawners[i];
+    //void CreateSunkenFloors()
+    //{
+    //    // search for sunken floors spawners and button spawners
+    //    var sunkenFloorSpawners = new List<SunkenFloor3x3Spawner>(GetComponentsInChildren<SunkenFloor3x3Spawner>());
+    //    for (int i = 0; i < sunkenFloorSpawners.Count; i++)
+    //    {
+    //        var sunkenFloorSpawner = sunkenFloorSpawners[i];
 
-            // insta/spawn network sunken floor and set its parent to the level
-            var no_apeDoor = Instantiate(apeDoorSpawner.ApeDoorPrefab);
-            no_apeDoor.transform.position = apeDoorSpawner.transform.position;
-            no_apeDoor.GetComponent<NetworkObject>().Spawn();
-            no_apeDoor.transform.parent = transform;
+    //        // insta/spawn network sunken floor and set its parent to the level
+    //        var no_sunkenFloor = Instantiate(sunkenFloorSpawner.SunkenFloor3x3Prefab);
+    //        no_sunkenFloor.transform.position = sunkenFloorSpawner.transform.position;
+    //        no_sunkenFloor.GetComponent<NetworkObject>().Spawn();
+    //        no_sunkenFloor.transform.parent = transform;
 
-            // set the floor type
-            no_apeDoor.GetComponent<ApeDoor>().SetTypeAndState(apeDoorSpawner.ApeDoorType, DoorState.Closed);
+    //        // set the floor type
+    //        no_sunkenFloor.GetComponent<SunkenFloor>().SetTypeAndState(sunkenFloorSpawner.SunkenFloorType, SunkenFloorState.Lowered);
 
-            // get list of button spawners
-            var buttonSpawners = new List<ApeDoorButtonSpawner>(apeDoorSpawner.gameObject.GetComponentsInChildren<ApeDoorButtonSpawner>());
+    //        // get list of button spawners
+    //        var buttonSpawners = new List<SunkenFloorButtonSpawner>(sunkenFloorSpawner.gameObject.GetComponentsInChildren<SunkenFloorButtonSpawner>());
 
-            // randomly delete button spawners till we are at the required button count
-            for (int j = 0; j < buttonSpawners.Count; j++)
-            {
-                if (buttonSpawners.Count > apeDoorSpawner.NumberButtons)
-                {
-                    var randIndex = UnityEngine.Random.Range(0, buttonSpawners.Count);
-                    Destroy(buttonSpawners[randIndex].gameObject);
-                    buttonSpawners.RemoveAt(randIndex);
-                }
-                else
-                {
-                    break;
-                }
-            }
+    //        // randomly delete button spawners till we are at the required button count
+    //        for (int j = 0; j < buttonSpawners.Count; j++)
+    //        {
+    //            if (buttonSpawners.Count > sunkenFloorSpawner.NumberButtons)
+    //            {
+    //                var randIndex = UnityEngine.Random.Range(0, buttonSpawners.Count);
+    //                Destroy(buttonSpawners[randIndex].gameObject);
+    //                buttonSpawners.RemoveAt(randIndex);
+    //            }
+    //            else
+    //            {
+    //                break;
+    //            }
+    //        }
 
-            // in case the user specified more NumberButtons then we have button spawners, reduce the NumberButtons
-            no_apeDoor.GetComponent<ApeDoor>().NumberButtons = buttonSpawners.Count;
+    //        // in case the user specified more NumberButtons then we have button spawners, reduce the NumberButtons
+    //        no_sunkenFloor.GetComponent<SunkenFloor>().NumberButtons = buttonSpawners.Count;
 
-            // spawn children buttons
-            for (int j = 0; j < buttonSpawners.Count; j++)
-            {
-                var buttonSpawner = buttonSpawners[j];
+    //        // spawn children buttons
+    //        for (int j = 0; j < buttonSpawners.Count; j++)
+    //        {
+    //            var buttonSpawner = buttonSpawners[j];
 
-                // insta/spawn network buttno
-                var no_Button = Instantiate(apeDoorSpawner.ApeDoorButtonPrefab);
-                no_Button.transform.position = buttonSpawner.transform.position;
-                no_Button.GetComponent<NetworkObject>().Spawn();
-                no_Button.GetComponent<ApeDoorButton>().SetTypeAndState(apeDoorSpawner.ApeDoorType, ButtonState.Up);
+    //            // insta/spawn network buttno
+    //            var no_Button = Instantiate(sunkenFloorSpawner.SunkenFloorButtonPrefab);
+    //            no_Button.transform.position = buttonSpawner.transform.position;
+    //            no_Button.GetComponent<NetworkObject>().Spawn();
+    //            no_Button.GetComponent<SunkenFloorButton>().SetTypeAndState(sunkenFloorSpawner.SunkenFloorType, ButtonState.Up);
 
-                // set network object buttons parent to the sunken floor
-                no_Button.transform.parent = no_apeDoor.transform;
-            }
+    //            // set network object buttons parent to the sunken floor
+    //            no_Button.transform.parent = no_sunkenFloor.transform;
+    //        }
 
-            // destroy all button spawners
-            while (buttonSpawners.Count > 0)
-            {
-                // destroy the spawner button
-                Destroy(buttonSpawners[0].gameObject);
-                buttonSpawners.RemoveAt(0);
-            }
+    //        // destroy all button spawners
+    //        while (buttonSpawners.Count > 0)
+    //        {
+    //            // destroy the spawner button
+    //            Destroy(buttonSpawners[0].gameObject);
+    //            buttonSpawners.RemoveAt(0);
+    //        }
 
-            // destroy button list
-            buttonSpawners.Clear();
-        }
+    //        // destroy button list
+    //        buttonSpawners.Clear();
+    //    }
 
-        // Destroy all sunken floors
-        while (apeDoorSpawners.Count > 0)
-        {
-            // destroy the spawner button
-            Destroy(apeDoorSpawners[0].gameObject);
-            apeDoorSpawners.RemoveAt(0);
-        }
+    //    // Destroy all sunken floors
+    //    while (sunkenFloorSpawners.Count > 0)
+    //    {
+    //        // destroy the spawner button
+    //        Destroy(sunkenFloorSpawners[0].gameObject);
+    //        sunkenFloorSpawners.RemoveAt(0);
+    //    }
 
-        // destroy list
-        apeDoorSpawners.Clear();
-    }
+    //    // destroy list
+    //    sunkenFloorSpawners.Clear();
+    //}
+
+    //void CreateApeDoors()
+    //{
+    //    // search for sunken floors spawners and button spawners
+    //    var apeDoorSpawners = new List<ApeDoorSpawner>(GetComponentsInChildren<ApeDoorSpawner>());
+    //    for (int i = 0; i < apeDoorSpawners.Count; i++)
+    //    {
+    //        var apeDoorSpawner = apeDoorSpawners[i];
+
+    //        // insta/spawn network sunken floor and set its parent to the level
+    //        var no_apeDoor = Instantiate(apeDoorSpawner.ApeDoorPrefab);
+    //        no_apeDoor.transform.position = apeDoorSpawner.transform.position;
+    //        no_apeDoor.GetComponent<NetworkObject>().Spawn();
+    //        no_apeDoor.transform.parent = transform;
+
+    //        // set the floor type
+    //        no_apeDoor.GetComponent<ApeDoor>().SetTypeAndState(apeDoorSpawner.ApeDoorType, DoorState.Closed);
+
+    //        // get list of button spawners
+    //        var buttonSpawners = new List<ApeDoorButtonSpawner>(apeDoorSpawner.gameObject.GetComponentsInChildren<ApeDoorButtonSpawner>());
+
+    //        // randomly delete button spawners till we are at the required button count
+    //        for (int j = 0; j < buttonSpawners.Count; j++)
+    //        {
+    //            if (buttonSpawners.Count > apeDoorSpawner.NumberButtons)
+    //            {
+    //                var randIndex = UnityEngine.Random.Range(0, buttonSpawners.Count);
+    //                Destroy(buttonSpawners[randIndex].gameObject);
+    //                buttonSpawners.RemoveAt(randIndex);
+    //            }
+    //            else
+    //            {
+    //                break;
+    //            }
+    //        }
+
+    //        // in case the user specified more NumberButtons then we have button spawners, reduce the NumberButtons
+    //        no_apeDoor.GetComponent<ApeDoor>().NumberButtons = buttonSpawners.Count;
+
+    //        // spawn children buttons
+    //        for (int j = 0; j < buttonSpawners.Count; j++)
+    //        {
+    //            var buttonSpawner = buttonSpawners[j];
+
+    //            // insta/spawn network buttno
+    //            var no_Button = Instantiate(apeDoorSpawner.ApeDoorButtonPrefab);
+    //            no_Button.transform.position = buttonSpawner.transform.position;
+    //            no_Button.GetComponent<NetworkObject>().Spawn();
+    //            no_Button.GetComponent<ApeDoorButton>().SetTypeAndState(apeDoorSpawner.ApeDoorType, ButtonState.Up);
+
+    //            // set network object buttons parent to the sunken floor
+    //            no_Button.transform.parent = no_apeDoor.transform;
+    //        }
+
+    //        // destroy all button spawners
+    //        while (buttonSpawners.Count > 0)
+    //        {
+    //            // destroy the spawner button
+    //            Destroy(buttonSpawners[0].gameObject);
+    //            buttonSpawners.RemoveAt(0);
+    //        }
+
+    //        // destroy button list
+    //        buttonSpawners.Clear();
+    //    }
+
+    //    // Destroy all sunken floors
+    //    while (apeDoorSpawners.Count > 0)
+    //    {
+    //        // destroy the spawner button
+    //        Destroy(apeDoorSpawners[0].gameObject);
+    //        apeDoorSpawners.RemoveAt(0);
+    //    }
+
+    //    // destroy list
+    //    apeDoorSpawners.Clear();
+    //}
 
     public void CreateNetworkObjectSpawners()
     {

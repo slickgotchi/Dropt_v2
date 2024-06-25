@@ -53,13 +53,13 @@ public class ApeDoorButton : NetworkBehaviour
         State.Value = ButtonState.Down;
 
         // grab the parent sunken floor and get it to check status of all its buttons
-        var parentApeDoor = transform.parent.gameObject.GetComponent<ApeDoor>();
-        if (parentApeDoor != null)
+        var parentApeDoorButtonGroup = transform.parent.gameObject.GetComponent<ApeDoorButtonGroup>();
+        if (parentApeDoorButtonGroup != null)
         {
-            parentApeDoor.ButtonPressedDown();
+            parentApeDoorButtonGroup.ButtonPressedDown();
         } else
         {
-            Debug.Log("Error: SunkenFloorButton does not have a parent SunkenFloor");
+            Debug.Log("Error: ApeDoorButton does not have a parent ApeDoorButtonGroup");
         }
     }
 

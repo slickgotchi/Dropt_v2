@@ -72,57 +72,57 @@ public class SunkenFloor : NetworkBehaviour
         UpdateColliders();
     }
 
-    public void ButtonPressedDown()
-    {
-        if (!IsServer) return;
+    //public void ButtonPressedDown()
+    //{
+    //    if (!IsServer) return;
 
-        var no_buttons = new List<SunkenFloorButton>(GetComponentsInChildren<SunkenFloorButton>());
+    //    var no_buttons = new List<SunkenFloorButton>(GetComponentsInChildren<SunkenFloorButton>());
 
-        // count our down buttons
-        int pressedDownCount = 0;
-        foreach (var no_button in no_buttons)
-        {
-            if (no_button.State.Value != ButtonState.Up) pressedDownCount++;
-        }
+    //    // count our down buttons
+    //    int pressedDownCount = 0;
+    //    foreach (var no_button in no_buttons)
+    //    {
+    //        if (no_button.State.Value != ButtonState.Up) pressedDownCount++;
+    //    }
 
-        // if all our buttons are pressed, raise the floor and lock the buttons
-        if (pressedDownCount >= NumberButtons)
-        {
-            m_animator.Play("SunkenFloor3x3_Raise");
-            State.Value = SunkenFloorState.Raised;
-            UpdateColliders();
+    //    // if all our buttons are pressed, raise the floor and lock the buttons
+    //    if (pressedDownCount >= NumberButtons)
+    //    {
+    //        m_animator.Play("SunkenFloor3x3_Raise");
+    //        State.Value = SunkenFloorState.Raised;
+    //        UpdateColliders();
 
-            // set all buttons to down locked
-            foreach (var no_button in no_buttons)
-            {
-                no_button.State.Value = ButtonState.DownLocked;
-            }
-        }
+    //        // set all buttons to down locked
+    //        foreach (var no_button in no_buttons)
+    //        {
+    //            no_button.State.Value = ButtonState.DownLocked;
+    //        }
+    //    }
 
-        // ask the level parent to pop up all other platform buttons except ours
-        PopupAllOtherPlatformButtons();
-    }
+    //    // ask the level parent to pop up all other platform buttons except ours
+    //    PopupAllOtherPlatformButtons();
+    //}
 
-    private void PopupAllOtherPlatformButtons()
-    {
-        var no_networkLevel = transform.parent.gameObject;
+    //private void PopupAllOtherPlatformButtons()
+    //{
+    //    var no_networkLevel = transform.parent.gameObject;
 
-        var no_sunkenFloors = no_networkLevel.GetComponentsInChildren<SunkenFloor>();
-        foreach (var no_sunkenFloor in no_sunkenFloors)
-        {
-            if (no_sunkenFloor.GetComponent<NetworkObject>().NetworkObjectId != NetworkObjectId)
-            {
-                var no_buttons = no_sunkenFloor.GetComponentsInChildren<SunkenFloorButton>();
-                foreach (var no_button in no_buttons)
-                {
-                    if (no_button.State.Value != ButtonState.DownLocked)
-                    {
-                        no_button.SetTypeAndState(no_sunkenFloor.Type.Value, ButtonState.Up);
-                    }
-                }
-            }
-        }
-    }
+    //    var no_sunkenFloors = no_networkLevel.GetComponentsInChildren<SunkenFloor>();
+    //    foreach (var no_sunkenFloor in no_sunkenFloors)
+    //    {
+    //        if (no_sunkenFloor.GetComponent<NetworkObject>().NetworkObjectId != NetworkObjectId)
+    //        {
+    //            var no_buttons = no_sunkenFloor.GetComponentsInChildren<SunkenFloorButton>();
+    //            foreach (var no_button in no_buttons)
+    //            {
+    //                if (no_button.State.Value != ButtonState.DownLocked)
+    //                {
+    //                    no_button.SetTypeAndState(no_sunkenFloor.Type.Value, ButtonState.Up);
+    //                }
+    //            }
+    //        }
+    //    }
+    //}
 
     public void SetTypeAndState(SunkenFloorType sunkenFloorType, SunkenFloorState floorState)
     {
