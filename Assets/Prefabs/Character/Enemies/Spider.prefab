@@ -104,6 +104,7 @@ GameObject:
   - component: {fileID: -2760814812408020241}
   - component: {fileID: 2655677576660431681}
   - component: {fileID: 3330986741626919136}
+  - component: {fileID: 2642312668980575302}
   m_Layer: 0
   m_Name: Spider
   m_TagString: Untagged
@@ -279,6 +280,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6494b87727298314987516d4f17c6c93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  baseHpMax: 100
+  baseHpCurrent: 100
+  baseHpBuffer: 0
+  baseAttackPower: 10
+  baseCriticalChance: 0.1
+  baseApMax: 50
+  baseApCurrent: 50
+  baseApBuffer: 0
+  baseDoubleStrikeChance: 0.05
+  baseCriticalDamage: 1.5
+  baseMoveSpeed: 6.22
+  baseAccuracy: 1
+  baseEvasion: 0
+  popupTextOffset: {x: 0, y: 1.5, z: 0}
   HpMax:
     m_InternalValue: 100
   HpCurrent:
@@ -297,14 +312,26 @@ MonoBehaviour:
     m_InternalValue: 0
   DoubleStrikeChance:
     m_InternalValue: 0.05
-  CriticalStrikeDamage:
-    m_InternalValue: 1.5
+  CriticalDamage:
+    m_InternalValue: 0
   MoveSpeed:
     m_InternalValue: 6.22
   Accuracy:
     m_InternalValue: 1
   Evasion:
     m_InternalValue: 0
+--- !u!114 &2642312668980575302
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc87cfd934687634ca27afcc4e9b8d4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6525230415705073668
 GameObject:
   m_ObjectHideFlags: 0

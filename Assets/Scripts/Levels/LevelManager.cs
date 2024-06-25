@@ -64,6 +64,14 @@ public class LevelManager : NetworkBehaviour
             {
                 networkObject.GetComponent<OnDestroySpawnNetworkObject>().SpawnPrefab = null;
             }
+
+            // Ensure the object is active before despawning
+            if (!networkObject.gameObject.activeInHierarchy)
+            {
+                networkObject.gameObject.SetActive(true);
+            }
+
+            // despawn
             networkObject.Despawn();
         }
 

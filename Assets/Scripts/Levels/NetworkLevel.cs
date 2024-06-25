@@ -16,6 +16,8 @@ public class NetworkLevel : NetworkBehaviour
 
     private List<Vector3> m_availablePlayerSpawnPoints = new List<Vector3>();
 
+    private List<SpawnerActivator> m_spawnerActivators = new List<SpawnerActivator>();
+
     public override void OnNetworkSpawn()
     {
         UnityEngine.Random.InitState(System.DateTime.Now.Millisecond);
@@ -70,6 +72,16 @@ public class NetworkLevel : NetworkBehaviour
     public override void OnNetworkDespawn()
     {
 
+    }
+
+    private void Update()
+    {
+        if (!IsServer) return;
+
+        foreach (var spawnerActivator in m_spawnerActivators)
+        {
+            spawnerActivator.Update(Time.deltaTime);
+        }
     }
 
     void CreateSunkenFloors()
@@ -334,6 +346,32 @@ public class NetworkLevel : NetworkBehaviour
                     {
                         var odsno = spawnedObjects[rand].GetComponent<OnDestroySpawnNetworkObject>();
                         odsno.SpawnPrefab = onDestroySpawner.NetworkObjectPrefab;
+                    }
+                }
+            }
+
+            // add all spawned objects to the spawner activator and start them off deactivated
+            var spawnerActivator = new SpawnerActivator();
+            for (int j = 0; j < spawnedObjects.Count; j++)
+            {
+                spawnedObjects[j].SetActive(false);
+                spawnerActivator.spawnedObjects.Add(spawnedObjects[j]);
+                spawnerActivator.Type = SpawnerActivator.ActivationType.ElapsedTime;
+            }
+            m_spawnerActivators.Add(spawnerActivator);
+        }
+
+        // assign spawnerActivators where applicable
+        for (int i = 0; i < no_spawners.Count; i++)
+        {
+            if (no_spawners[i].activationType == NetworkObjectSpawner.ActivationType.OtherSpawnerCleared)
+            {
+                for (int j = 0; j < no_spawners.Count; j++)
+                {
+                    if (no_spawners[i].activateOnOtherSpawnerCleared == no_spawners[j])
+                    {
+                        m_spawnerActivators[i].Type = SpawnerActivator.ActivationType.OtherSpawnerCleared;
+                        m_spawnerActivators[i].otherSpawnerActivator = m_spawnerActivators[j];
                     }
                 }
             }

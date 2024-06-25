@@ -76,6 +76,11 @@ public class NetworkCharacter : NetworkBehaviour
             if (HpCurrent.Value < 0) { HpCurrent.Value = 0; }
             var position = transform.position + popupTextOffset;
             DamagePopupTextClientRpc(damage, position, isCritical);
+
+            if (HpCurrent.Value <= 0)
+            {
+                gameObject.GetComponent<NetworkObject>().Despawn();
+            }
         }
     }
 

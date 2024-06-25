@@ -4,6 +4,15 @@ using UnityEngine;
 
 public class NetworkObjectSpawner : MonoBehaviour
 {
+    public enum ActivationType { ElapsedTime, OtherSpawnerCleared }
+
+    [Header("Activation Setup")]
+    public ActivationType activationType = ActivationType.ElapsedTime;
+
+    public float activateOnElapsedTime = 0f;
+    public NetworkObjectSpawner activateOnOtherSpawnerCleared;
+
+    [Header("Spawn Parameters")]
     public float NoSpawnChance = 0;
 
     //public SpawnGameObject[] SpawnPrefabs;
