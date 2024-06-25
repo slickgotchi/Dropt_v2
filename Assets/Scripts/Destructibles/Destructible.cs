@@ -19,6 +19,11 @@ public class Destructible : NetworkBehaviour
                 GetComponent<NetworkObject>().Despawn();
             }
         }
+
+        var damageWobble = GetComponent<DamageWobble>();
+        if (damageWobble != null) damageWobble.Play();
+
+        if (Hp <= 0) VisualEffectsManager.Singleton.SpawnCloudExplosion(transform.position + new Vector3(0,0.5f,0));
     }
 
     int CalculateDamageToDestructible(Type destructibleType, Wearable.WeaponTypeEnum weaponType)

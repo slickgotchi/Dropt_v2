@@ -226,6 +226,7 @@ public class PlayerAbility : NetworkBehaviour
             {
                 var destructible = hit.GetComponent<Destructible>();
                 destructible.TakeDamage(weaponType);
+
             }
         }
 
