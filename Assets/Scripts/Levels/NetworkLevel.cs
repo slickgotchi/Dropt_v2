@@ -30,7 +30,8 @@ public class NetworkLevel : NetworkBehaviour
                 m_availablePlayerSpawnPoints.Clear();
             }
 
-            CreateSunkenFloors();
+            CreateSunkenFloorsNew();
+            //CreateSunkenFloors();
             CreateApeDoors();
             CreateNetworkObjectSpawners();
             CreateSubLevels();
@@ -65,6 +66,18 @@ public class NetworkLevel : NetworkBehaviour
             {
                 Destroy(no_playerSpawnPointsList[i].gameObject);
             }
+
+            var sunkenFloorSpawners = new List<SunkenFloorSpawner>(GetComponentsInChildren<SunkenFloorSpawner>());
+            for (int i = 0; i < sunkenFloorSpawners.Count; i++)
+            {
+                Destroy(sunkenFloorSpawners[i].gameObject);
+            }
+
+            var sfButtonGroupSpawners = new List<SunkenFloorButtonGroupSpawner>(GetComponentsInChildren<SunkenFloorButtonGroupSpawner>());
+            for (int i = 0; i < sfButtonGroupSpawners.Count; i++)
+            {
+                Destroy(sfButtonGroupSpawners[i].gameObject);
+            }
         }
 
     }
@@ -84,8 +97,83 @@ public class NetworkLevel : NetworkBehaviour
         }
     }
 
+    void CreateSunkenFloorsNew()
+    {
+        // 1. create button groups
+        var buttonGroupSpawners = new List<SunkenFloorButtonGroupSpawner>(GetComponentsInChildren<SunkenFloorButtonGroupSpawner>());
+        for (int i = 0; i < buttonGroupSpawners.Count; i++)
+        {
+            var buttonGroupSpawner = buttonGroupSpawners[i];
+
+            // create the network button group and set its parent to the level
+            var no_buttonGroup = Instantiate(buttonGroupSpawner.SunkenFloorButtonGroupPrefab, buttonGroupSpawner.transform);
+            no_buttonGroup.GetComponent<NetworkObject>().Spawn();
+            no_buttonGroup.GetComponent<NetworkObject>().TrySetParent(gameObject);
+
+            // create child buttons (start by reducing to number of buttons we need)
+            var buttonSpawners = new List<Transform>(buttonGroupSpawner.GetComponentsInChildren<Transform>());
+            for (int j = 0; j < buttonSpawners.Count; j++)
+            {
+                if (buttonSpawners.Count > buttonGroupSpawner.NumberButtons)
+                {
+                    var randIndex = UnityEngine.Random.Range(0, buttonSpawners.Count);
+                    Destroy(buttonSpawners[randIndex].gameObject);
+                    buttonSpawners.RemoveAt(randIndex);
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            // in case the user specified more NumberButtons then we have button spawners, reduce the NumberButtons
+            no_buttonGroup.GetComponent<SunkenFloorButtonGroup>().NumberButtons = buttonSpawners.Count;
+
+            // spawn children buttons
+            for (int j = 0; j < buttonSpawners.Count; j++)
+            {
+                var buttonSpawner = buttonSpawners[j];
+
+                // insta/spawn network buttno
+                var no_button = Instantiate(buttonGroupSpawner.SunkenFloorButtonPrefab);
+                no_button.transform.position = buttonSpawner.transform.position;
+                no_button.GetComponent<NetworkObject>().Spawn();
+                no_button.GetComponent<SunkenFloorButton>().SetTypeAndState(buttonGroupSpawner.SunkenFloorType, ButtonState.Up);
+
+                // parent button to the button group
+                no_button.GetComponent<NetworkObject>().TrySetParent(no_buttonGroup);
+            }
+
+            // destroy all button spawners
+            while (buttonSpawners.Count > 0)
+            {
+                // destroy the spawner button
+                Destroy(buttonSpawners[0].gameObject);
+                buttonSpawners.RemoveAt(0);
+            }
+
+            // destroy button list
+            buttonSpawners.Clear();
+
+            // 2. create sunken floors
+            for (int j = 0; j < buttonGroupSpawner.SunkenFloorSpawners.Count; j++)
+            {
+                // spawn sunken floor
+                var sunkenFloorSpawner = buttonGroupSpawner.SunkenFloorSpawners[j];
+                var no_sunkenFloor = Instantiate(sunkenFloorSpawner.SunkenFloorPrefab, sunkenFloorSpawner.transform);
+                no_sunkenFloor.GetComponent<NetworkObject>().Spawn();
+
+                // add sunken floor to buttons list
+                no_buttonGroup.GetComponent<SunkenFloorButtonGroup>().SunkenFloors.Add(no_sunkenFloor);
+            }
+        }
+    }
+
     void CreateSunkenFloors()
     {
+        // 1. create button groups
+
+
         // search for sunken floors spawners and button spawners
         var sunkenFloorSpawners = new List<SunkenFloor3x3Spawner>(GetComponentsInChildren<SunkenFloor3x3Spawner>());
         for (int i = 0; i < sunkenFloorSpawners.Count; i++)

@@ -53,10 +53,10 @@ public class SunkenFloorButton : NetworkBehaviour
         State.Value = ButtonState.Down;
 
         // grab the parent sunken floor and get it to check status of all its buttons
-        var parentSunkenFloor = transform.parent.gameObject.GetComponent<SunkenFloor>();
-        if (parentSunkenFloor != null)
+        var parentButtonGroup = transform.parent.gameObject.GetComponent<SunkenFloorButtonGroup>();
+        if (parentButtonGroup != null)
         {
-            parentSunkenFloor.ButtonPressedDown();
+            parentButtonGroup.ButtonPressedDown();
         } else
         {
             Debug.Log("Error: SunkenFloorButton does not have a parent SunkenFloor");

@@ -65,6 +65,13 @@ public class SunkenFloor : NetworkBehaviour
         RaisedCollider.gameObject.SetActive(State.Value == SunkenFloorState.Raised);
     }
 
+    public void Raise()
+    {
+        m_animator.Play("SunkenFloor3x3_Raise");
+        State.Value = SunkenFloorState.Raised;
+        UpdateColliders();
+    }
+
     public void ButtonPressedDown()
     {
         if (!IsServer) return;
