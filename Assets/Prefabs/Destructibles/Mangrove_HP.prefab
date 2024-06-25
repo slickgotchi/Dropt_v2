@@ -26,8 +26,8 @@ Transform:
   m_GameObject: {fileID: 961407751358436795}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.2, y: 0.6, z: 1}
+  m_LocalPosition: {x: 0.031, y: 0.065, z: 0}
+  m_LocalScale: {x: 0.7, y: 0.35, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 551280027139294499}
@@ -98,10 +98,10 @@ GameObject:
   - component: {fileID: -3599212634581151793}
   - component: {fileID: 3387859537420111930}
   - component: {fileID: 3280724935253903593}
-  - component: {fileID: -295677938728491692}
-  - component: {fileID: 1520580521923272572}
+  - component: {fileID: 2429993280611058659}
+  - component: {fileID: -5269999287691293456}
   m_Layer: 12
-  m_Name: BlueCrate
+  m_Name: Mangrove_HP
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -136,7 +136,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2262072591
+  GlobalObjectIdHash: 4153357182
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -155,11 +155,11 @@ NavMeshObstacle:
   m_Enabled: 1
   serializedVersion: 3
   m_Shape: 1
-  m_Extents: {x: 0.5, y: 0.45, z: 0.5}
+  m_Extents: {x: 0.4, y: 0.25, z: 0.5}
   m_MoveThreshold: 0.1
   m_Carve: 1
   m_CarveOnlyStationary: 1
-  m_Center: {x: 0, y: 0.3, z: 0}
+  m_Center: {x: 0, y: 0.2, z: 0}
   m_TimeToStationary: 0.5
 --- !u!61 &3280724935253903593
 BoxCollider2D:
@@ -195,7 +195,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0.3}
+  m_Offset: {x: 0, y: 0.2}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -205,9 +205,9 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1, y: 0.9}
+  m_Size: {x: 0.8, y: 0.5}
   m_EdgeRadius: 0
---- !u!114 &-295677938728491692
+--- !u!114 &2429993280611058659
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -219,9 +219,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 517a0e5d7276e564fadb7ae93628f0e9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  type: 2
-  Hp: 3
---- !u!114 &1520580521923272572
+  type: 0
+  Hp: 4
+--- !u!114 &-5269999287691293456
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -310,12 +310,12 @@ SpriteRenderer:
   m_SortingLayerID: -317176571
   m_SortingLayer: -2
   m_SortingOrder: 0
-  m_Sprite: {fileID: -1998394612, guid: 66cfa600b6649fe4f8e58bf53c3e7f4b, type: 3}
+  m_Sprite: {fileID: -1994009305, guid: 66cfa600b6649fe4f8e58bf53c3e7f4b, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.37, y: 0.24}
+  m_Size: {x: 1, y: 1.3888888}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1

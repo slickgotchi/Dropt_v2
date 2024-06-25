@@ -27,7 +27,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.8, y: 0.4, z: 1}
+  m_LocalScale: {x: 0.9, y: 0.45, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 551280027139294499}
@@ -98,10 +98,10 @@ GameObject:
   - component: {fileID: -3599212634581151793}
   - component: {fileID: 3387859537420111930}
   - component: {fileID: 3280724935253903593}
-  - component: {fileID: -7196070668645962370}
-  - component: {fileID: -3707377872679597396}
+  - component: {fileID: 2429993280611058659}
+  - component: {fileID: -5269999287691293456}
   m_Layer: 12
-  m_Name: Geode_Mythical
+  m_Name: Fern_FUD
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -136,7 +136,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2586706607
+  GlobalObjectIdHash: 1783152223
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -155,7 +155,7 @@ NavMeshObstacle:
   m_Enabled: 1
   serializedVersion: 3
   m_Shape: 1
-  m_Extents: {x: 0.35, y: 0.3, z: 0.5}
+  m_Extents: {x: 0.5, y: 0.3, z: 0.5}
   m_MoveThreshold: 0.1
   m_Carve: 1
   m_CarveOnlyStationary: 1
@@ -205,9 +205,9 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.7, y: 0.6}
+  m_Size: {x: 1, y: 0.6}
   m_EdgeRadius: 0
---- !u!114 &-7196070668645962370
+--- !u!114 &2429993280611058659
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -219,9 +219,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 517a0e5d7276e564fadb7ae93628f0e9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  type: 1
-  Hp: 3
---- !u!114 &-3707377872679597396
+  type: 0
+  Hp: 2
+--- !u!114 &-5269999287691293456
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -310,7 +310,7 @@ SpriteRenderer:
   m_SortingLayerID: -317176571
   m_SortingLayer: -2
   m_SortingOrder: 0
-  m_Sprite: {fileID: 543185619, guid: 66cfa600b6649fe4f8e58bf53c3e7f4b, type: 3}
+  m_Sprite: {fileID: -523899209, guid: 66cfa600b6649fe4f8e58bf53c3e7f4b, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
