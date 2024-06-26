@@ -59,7 +59,7 @@ public class ApeDoorButtonGroup : NetworkBehaviour
                 {
                     if (no_button.State.Value != ButtonState.DownLocked)
                     {
-                        no_button.SetTypeAndState(no_apeDoorButtonGroup.Type.Value, ButtonState.Up);
+                        no_button.State.Value = ButtonState.Up;
                     }
                 }
             }

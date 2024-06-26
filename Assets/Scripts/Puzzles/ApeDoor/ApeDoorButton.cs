@@ -32,16 +32,6 @@ public class ApeDoorButton : NetworkBehaviour
         State = new NetworkVariable<ButtonState>(ButtonState.Up);
     }
 
-    public override void OnNetworkSpawn()
-    {
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        SetTypeAndState(Type.Value, State.Value);
-    }
-
     // WARNING: TriggerEnter/Exit can be somewhat flakey when combined with my PlayerMovement predictino code
     // therefore using a Physics2D.XXXXOverlap() function should usually be preferred
     private void OnTriggerEnter2D(Collider2D collision)
@@ -69,14 +59,6 @@ public class ApeDoorButton : NetworkBehaviour
         {
             UpdateSprite();
         }
-    }
-
-    public void SetTypeAndState(ApeDoorType type, ButtonState state)
-    {
-        if (!IsServer) return;
-
-        Type.Value = type;
-        State.Value = state;
     }
 
     void UpdateSprite()
