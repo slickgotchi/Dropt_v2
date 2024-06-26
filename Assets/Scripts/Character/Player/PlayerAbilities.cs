@@ -1,152 +1,16 @@
-/*
-using System.Collections.Generic;
-using System.Linq;
-using Unity.Netcode;
-using UnityEditor;
-using UnityEngine;
-
-public class PlayerAbilities : NetworkBehaviour
-{
-    [SerializeField]
-    private List<GameObject> abilityPrefabs = new List<GameObject>();
-    private Dictionary<PlayerAbilityEnum, GameObject> instantiatedAbilities = new Dictionary<PlayerAbilityEnum, GameObject>();
-    private Dictionary<PlayerAbilityEnum, NetworkVariable<ulong>> abilityIds = new Dictionary<PlayerAbilityEnum, NetworkVariable<ulong>>();
-
-    public NetworkVariable<float> leftAttackCooldown = new NetworkVariable<float>(0);
-    public NetworkVariable<float> rightAttackCooldown = new NetworkVariable<float>(0);
-
-    public override void OnNetworkSpawn()
-    {
-        if (!IsServer) return;
-
-        // Ensure we instantiate here in Start() AFTER OnNetworkSpawn() otherwise we end up with duplicates
-        foreach (var prefab in abilityPrefabs)
-        {
-            PlayerAbility ability = prefab.GetComponent<PlayerAbility>();
-            if (ability != null)
-            {
-                PlayerAbilityEnum abilityEnum = (PlayerAbilityEnum)System.Enum.Parse(typeof(PlayerAbilityEnum), prefab.name);
-                var instantiatedAbility = Instantiate(prefab);
-                instantiatedAbility.GetComponent<NetworkObject>().Spawn();
-                instantiatedAbilities[abilityEnum] = instantiatedAbility;
-                abilityIds[abilityEnum] = new NetworkVariable<ulong>(instantiatedAbility.GetComponent<NetworkObject>().NetworkObjectId);
-            }
-        }
-    }
-
-    private void Update()
-    {
-        float dt = Time.deltaTime;
-        if (IsServer && IsSpawned)
-        {
-            leftAttackCooldown.Value -= dt;
-            rightAttackCooldown.Value -= dt;
-        }
-
-        if (IsClient && IsSpawned)
-        {
-            foreach (var abilityEnum in abilityIds.Keys.ToList())
-            {
-                if (instantiatedAbilities[abilityEnum] == null && abilityIds[abilityEnum].Value > 0)
-                {
-                    var spawnedObject = NetworkManager.SpawnManager.SpawnedObjects[abilityIds[abilityEnum].Value].gameObject;
-                    instantiatedAbilities[abilityEnum] = spawnedObject;
-                    spawnedObject.GetComponent<PlayerAbility>().Player = gameObject;
-                }
-            }
-        }
-    }
-
-    public PlayerAbility GetAbility(PlayerAbilityEnum abilityEnum)
-    {
-        if (!IsSpawned || !instantiatedAbilities.ContainsKey(abilityEnum)) return null;
-        return instantiatedAbilities[abilityEnum].GetComponent<PlayerAbility>();
-    }
-
-    public PlayerAbilityEnum GetAttackAbilityEnum(Wearable.NameEnum wearableNameEnum)
-    {
-        var wearable = WearableManager.Instance.GetWearable(wearableNameEnum);
-
-        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Cleave) return PlayerAbilityEnum.CleaveSwing;
-        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Smash) return PlayerAbilityEnum.SmashSwing;
-        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Pierce) return PlayerAbilityEnum.PierceThrust;
-        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Ballistic) return PlayerAbilityEnum.BallisticShot;
-        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Magic) return PlayerAbilityEnum.MagicCast;
-        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Splash) return PlayerAbilityEnum.SplashLob;
-        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Shield) return PlayerAbilityEnum.ShieldBash;
-        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Unarmed) return PlayerAbilityEnum.Unarmed;
-
-        return PlayerAbilityEnum.Null;
-    }
-
-    public PlayerAbilityEnum GetHoldAbilityEnum(Wearable.NameEnum wearableNameEnum)
-    {
-        var wearable = WearableManager.Instance.GetWearable(wearableNameEnum);
-
-        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Cleave) return PlayerAbilityEnum.CleaveWhirlwind;
-        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Smash) return PlayerAbilityEnum.SmashWave;
-        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Pierce) return PlayerAbilityEnum.PierceDrill;
-        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Ballistic) return PlayerAbilityEnum.BallisticSnipe;
-        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Magic) return PlayerAbilityEnum.MagicBeam;
-        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Splash) return PlayerAbilityEnum.SplashVolley;
-
-        return PlayerAbilityEnum.Null;
-    }
-
-    public PlayerAbilityEnum GetSpecialAbilityEnum(Wearable.NameEnum wearableNameEnum)
-    {
-        var wearable = WearableManager.Instance.GetWearable(wearableNameEnum);
-
-        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Cleave) return PlayerAbilityEnum.CleaveCyclone;
-        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Smash) return PlayerAbilityEnum.SmashSlam;
-        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Pierce) return PlayerAbilityEnum.PierceLance;
-        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Ballistic) return PlayerAbilityEnum.BallisticKill;
-        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Magic) return PlayerAbilityEnum.MagicBlast;
-        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Splash) return PlayerAbilityEnum.SplashBomb;
-
-        return PlayerAbilityEnum.Null;
-    }
-
-#if UNITY_EDITOR
-    [ContextMenu("Populate Ability Prefabs")]
-    private void PopulateAbilityPrefabs()
-    {
-        abilityPrefabs.Clear();
-        string[] guids = AssetDatabase.FindAssets("t:Prefab");
-        foreach (string guid in guids)
-        {
-            string path = AssetDatabase.GUIDToAssetPath(guid);
-            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
-            if (prefab != null && prefab.GetComponent<PlayerAbility>() != null)
-            {
-                abilityPrefabs.Add(prefab);
-            }
-        }
-    }
-#endif
-}
-
-public enum Hand { Left, Right };
-
-*/
-
-
-
-
-
-
-
-using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
+
 public class PlayerAbilities : NetworkBehaviour
 {
+    [Header("Dash")]
     public GameObject dashPrefab;
     [HideInInspector] public GameObject Dash;
     private NetworkVariable<ulong> DashId = new NetworkVariable<ulong>(0);
 
+    [Header("Cleave")]
     public GameObject cleaveSwingPrefab;
     [HideInInspector] public GameObject CleaveSwing;
     private NetworkVariable<ulong> CleaveSwingId = new NetworkVariable<ulong>(0);
@@ -159,6 +23,7 @@ public class PlayerAbilities : NetworkBehaviour
     [HideInInspector] public GameObject CleaveCyclone;
     private NetworkVariable<ulong> CleaveCycloneId = new NetworkVariable<ulong>(0);
 
+    [Header("Pierce")]
     public GameObject pierceThrustPrefab;
     [HideInInspector] public GameObject PierceThrust;
     private NetworkVariable<ulong> PierceThrustId = new NetworkVariable<ulong>(0);
@@ -171,8 +36,94 @@ public class PlayerAbilities : NetworkBehaviour
     [HideInInspector] public GameObject PierceLance;
     private NetworkVariable<ulong> PierceLanceId = new NetworkVariable<ulong>(0);
 
-    public NetworkVariable<float> leftAttackCooldown = new NetworkVariable<float>(0);
-    public NetworkVariable<float> rightAttackCooldown = new NetworkVariable<float>(0);
+    [Header("Smash")]
+    public GameObject smashSwingPrefab;
+    [HideInInspector] public GameObject SmashSwing;
+    private NetworkVariable<ulong> SmashSwingId = new NetworkVariable<ulong>(0);
+
+    public GameObject smashWavePrefab;
+    [HideInInspector] public GameObject SmashWave;
+    private NetworkVariable<ulong> SmashWaveId = new NetworkVariable<ulong>(0);
+
+    public GameObject smashSlamPrefab;
+    [HideInInspector] public GameObject SmashSlam;
+    private NetworkVariable<ulong> SmashSlamId = new NetworkVariable<ulong>(0);
+
+    [Header("Ballistic")]
+    public GameObject ballisticShotPrefab;
+    [HideInInspector] public GameObject BallisticShot;
+    private NetworkVariable<ulong> BallisticShotId = new NetworkVariable<ulong>(0);
+
+    public GameObject ballisticSnipePrefab;
+    [HideInInspector] public GameObject BallisticSnipe;
+    private NetworkVariable<ulong> BallisticSnipeId = new NetworkVariable<ulong>(0);
+
+    public GameObject ballisticKillPrefab;
+    [HideInInspector] public GameObject BallisticKill;
+    private NetworkVariable<ulong> BallisticKillId = new NetworkVariable<ulong>(0);
+
+    [Header("Magic")]
+    public GameObject magicCastPrefab;
+    [HideInInspector] public GameObject MagicCast;
+    private NetworkVariable<ulong> MagicCastId = new NetworkVariable<ulong>(0);
+
+    public GameObject magicBeamPrefab;
+    [HideInInspector] public GameObject MagicBeam;
+    private NetworkVariable<ulong> MagicBeamId = new NetworkVariable<ulong>(0);
+
+    public GameObject magicBlastPrefab;
+    [HideInInspector] public GameObject MagicBlast;
+    private NetworkVariable<ulong> MagicBlastId = new NetworkVariable<ulong>(0);
+
+    [Header("Splash")]
+    public GameObject splashLobPrefab;
+    [HideInInspector] public GameObject SplashLob;
+    private NetworkVariable<ulong> SplashLobId = new NetworkVariable<ulong>(0);
+
+    public GameObject splashVolleyPrefab;
+    [HideInInspector] public GameObject SplashVolley;
+    private NetworkVariable<ulong> SplashVolleyId = new NetworkVariable<ulong>(0);
+
+    public GameObject splashBombPrefab;
+    [HideInInspector] public GameObject SplashBomb;
+    private NetworkVariable<ulong> SplashBombId = new NetworkVariable<ulong>(0);
+
+    [Header("Consume")]
+    public GameObject consumePrefab;
+    [HideInInspector] public GameObject Consume;
+    private NetworkVariable<ulong> ConsumeId = new NetworkVariable<ulong>(0);
+
+    [Header("Aura")]
+    public GameObject auraPrefab;
+    [HideInInspector] public GameObject Aura;
+    private NetworkVariable<ulong> AuraId = new NetworkVariable<ulong>(0);
+
+    [Header("Throw")]
+    public GameObject throwPrefab;
+    [HideInInspector] public GameObject Throw;
+    private NetworkVariable<ulong> ThrowId = new NetworkVariable<ulong>(0);
+
+    [Header("Shield")]
+    public GameObject shieldBashPrefab;
+    [HideInInspector] public GameObject ShieldBash;
+    private NetworkVariable<ulong> ShieldBashId = new NetworkVariable<ulong>(0);
+
+    public GameObject shieldParryPrefab;
+    [HideInInspector] public GameObject ShieldParry;
+    private NetworkVariable<ulong> ShieldParryId = new NetworkVariable<ulong>(0);
+
+    public GameObject shieldWallPrefab;
+    [HideInInspector] public GameObject ShieldWall;
+    private NetworkVariable<ulong> ShieldWallId = new NetworkVariable<ulong>(0);
+
+    [Header("Unarmed")]
+    public GameObject unarmedPunchPrefab;
+    [HideInInspector] public GameObject UnarmedPunch;
+    private NetworkVariable<ulong> UnarmedPunchId = new NetworkVariable<ulong>(0);
+
+    // cooldowns
+    [HideInInspector] public NetworkVariable<float> leftAttackCooldown = new NetworkVariable<float>(0);
+    [HideInInspector] public NetworkVariable<float> rightAttackCooldown = new NetworkVariable<float>(0);
 
     public override void OnNetworkSpawn()
     {
@@ -185,34 +136,54 @@ public class PlayerAbilities : NetworkBehaviour
         // Ensure we instatiate here in Start() AFTER OnNetworkSpawn() otherwise we end up with duplciates
         if (!IsServer) return;
 
-        Dash = Instantiate(dashPrefab);
-        Dash.GetComponent<NetworkObject>().Spawn();
-        DashId.Value = Dash.GetComponent<NetworkObject>().NetworkObjectId;
+        // dash
+        CreateAbility(ref Dash, dashPrefab, DashId);
 
-        CleaveSwing = Instantiate(cleaveSwingPrefab);
-        CleaveSwing.GetComponent<NetworkObject>().Spawn();
-        CleaveSwingId.Value = CleaveSwing.GetComponent<NetworkObject>().NetworkObjectId;
+        // cleave
+        CreateAbility(ref CleaveSwing, cleaveSwingPrefab, CleaveSwingId);
+        CreateAbility(ref CleaveWhirlwind, cleaveWhirlwindPrefab, CleaveWhirlwindId);
+        CreateAbility(ref CleaveCyclone, cleaveCyclonePrefab, CleaveCycloneId);
 
-        CleaveWhirlwind = Instantiate(cleaveWhirlwindPrefab);
-        CleaveWhirlwind.GetComponent<NetworkObject>().Spawn();
-        CleaveWhirlwindId.Value = CleaveWhirlwind.GetComponent<NetworkObject>().NetworkObjectId;
+        // pierce
+        CreateAbility(ref PierceThrust, pierceThrustPrefab, PierceThrustId);
+        CreateAbility(ref PierceDrill, pierceDrillPrefab, PierceDrillId);
+        CreateAbility(ref PierceLance, pierceLancePrefab, PierceLanceId);
 
-        CleaveCyclone = Instantiate(cleaveCyclonePrefab);
-        CleaveCyclone.GetComponent<NetworkObject>().Spawn();
-        CleaveCycloneId.Value = CleaveCyclone.GetComponent<NetworkObject>().NetworkObjectId;
+        // smash
+        CreateAbility(ref SmashSwing, smashSwingPrefab, SmashSwingId);
+        CreateAbility(ref SmashWave, smashWavePrefab, SmashWaveId);
+        CreateAbility(ref SmashSlam, smashSlamPrefab, SmashSlamId);
 
-        PierceThrust = Instantiate(pierceThrustPrefab);
-        PierceThrust.GetComponent<NetworkObject>().Spawn();
-        PierceThrustId.Value = PierceThrust.GetComponent<NetworkObject>().NetworkObjectId;
+        // ballistic
+        CreateAbility(ref BallisticShot, ballisticShotPrefab, BallisticShotId);
+        CreateAbility(ref BallisticSnipe, ballisticSnipePrefab, BallisticSnipeId);
+        CreateAbility(ref BallisticKill, ballisticKillPrefab, BallisticKillId);
 
-        PierceDrill = Instantiate(pierceDrillPrefab);
-        PierceDrill.GetComponent<NetworkObject>().Spawn();
-        PierceDrillId.Value = PierceDrill.GetComponent<NetworkObject>().NetworkObjectId;
+        // magic
+        CreateAbility(ref MagicCast, magicCastPrefab, MagicCastId);
+        CreateAbility(ref MagicBeam, magicBeamPrefab, MagicBeamId);
+        CreateAbility(ref MagicBlast, magicBlastPrefab, MagicBlastId);
 
-        PierceLance = Instantiate(pierceLancePrefab);
-        PierceLance.GetComponent<NetworkObject>().Spawn();
-        PierceLanceId.Value = PierceLance.GetComponent<NetworkObject>().NetworkObjectId;
+        // splash
+        CreateAbility(ref SplashLob, splashLobPrefab, SplashLobId);
+        CreateAbility(ref SplashVolley, splashVolleyPrefab, SplashVolleyId);
+        CreateAbility(ref SplashBomb, splashBombPrefab, SplashBombId);
+
+        // consume, aura, throw
+        CreateAbility(ref Consume, consumePrefab, ConsumeId);
+        CreateAbility(ref Aura, auraPrefab, AuraId);
+        CreateAbility(ref Throw, throwPrefab, ThrowId);
+
+        // shield
+        CreateAbility(ref ShieldBash, shieldBashPrefab, ShieldBashId);
+        CreateAbility(ref ShieldParry, shieldParryPrefab, ShieldParryId);
+        CreateAbility(ref ShieldWall, shieldWallPrefab, ShieldWallId);
+
+        // unarmed
+        CreateAbility(ref UnarmedPunch, unarmedPunchPrefab, UnarmedPunchId);
     }
+
+    
 
     private void Update()
     {
@@ -225,57 +196,105 @@ public class PlayerAbilities : NetworkBehaviour
 
         if (IsClient && IsSpawned)
         {
-            if (Dash == null && DashId.Value > 0)
-            {
-                Dash = NetworkManager.SpawnManager.SpawnedObjects[DashId.Value].gameObject;
-                Dash.GetComponent<PlayerAbility>().Player = gameObject;
-            }
-            if (CleaveSwing == null && CleaveSwingId.Value > 0)
-            {
-                CleaveSwing = NetworkManager.SpawnManager.SpawnedObjects[CleaveSwingId.Value].gameObject;
-                CleaveSwing.GetComponent<PlayerAbility>().Player = gameObject;
-            }
-            if (CleaveWhirlwind == null && CleaveWhirlwindId.Value > 0)
-            {
-                CleaveWhirlwind = NetworkManager.SpawnManager.SpawnedObjects[CleaveWhirlwindId.Value].gameObject;
-                CleaveWhirlwind.GetComponent<PlayerAbility>().Player = gameObject;
-            }
-            if (CleaveCyclone == null && CleaveCycloneId.Value > 0)
-            {
-                CleaveCyclone = NetworkManager.SpawnManager.SpawnedObjects[CleaveCycloneId.Value].gameObject;
-                CleaveCyclone.GetComponent<PlayerAbility>().Player = gameObject;
-            }
-            if (PierceThrust == null && PierceThrustId.Value > 0)
-            {
-                PierceThrust = NetworkManager.SpawnManager.SpawnedObjects[PierceThrustId.Value].gameObject;
-                PierceThrust.GetComponent<PlayerAbility>().Player = gameObject;
-            }
-            if (PierceDrill == null && PierceDrillId.Value > 0)
-            {
-                PierceDrill = NetworkManager.SpawnManager.SpawnedObjects[PierceDrillId.Value].gameObject;
-                PierceDrill.GetComponent<PlayerAbility>().Player = gameObject;
-            }
-            if (PierceLance == null && PierceLanceId.Value > 0)
-            {
-                PierceLance = NetworkManager.SpawnManager.SpawnedObjects[PierceLanceId.Value].gameObject;
-                PierceLance.GetComponent<PlayerAbility>().Player = gameObject;
-            }
+            // dash
+            TryAddAbilityClientSide(ref Dash, DashId);
+
+            // cleave
+            TryAddAbilityClientSide(ref CleaveSwing, CleaveSwingId);
+            TryAddAbilityClientSide(ref CleaveWhirlwind, CleaveWhirlwindId);
+            TryAddAbilityClientSide(ref CleaveCyclone, CleaveCycloneId);
+
+            // pierce
+            TryAddAbilityClientSide(ref PierceThrust, PierceThrustId);
+            TryAddAbilityClientSide(ref PierceDrill, PierceDrillId);
+            TryAddAbilityClientSide(ref PierceLance, PierceLanceId);
+
+            // smash
+            TryAddAbilityClientSide(ref SmashSwing, SmashSwingId);
+            TryAddAbilityClientSide(ref SmashWave, SmashWaveId);
+            TryAddAbilityClientSide(ref SmashSlam, SmashSlamId);
+
+            // ballistic
+            TryAddAbilityClientSide(ref BallisticShot, BallisticShotId);
+            TryAddAbilityClientSide(ref BallisticSnipe, BallisticSnipeId);
+            TryAddAbilityClientSide(ref BallisticKill, BallisticKillId);
+
+            // magic
+            TryAddAbilityClientSide(ref MagicCast, MagicCastId);
+            TryAddAbilityClientSide(ref MagicBeam, MagicBeamId);
+            TryAddAbilityClientSide(ref MagicBlast, MagicBlastId);
+
+            // splash
+            TryAddAbilityClientSide(ref SplashLob, SplashLobId);
+            TryAddAbilityClientSide(ref SplashVolley, SplashVolleyId);
+            TryAddAbilityClientSide(ref SplashBomb, SplashBombId);
+
+            // consume, aura, throw
+            TryAddAbilityClientSide(ref Consume, ConsumeId);
+            TryAddAbilityClientSide(ref Aura, AuraId);
+            TryAddAbilityClientSide(ref Throw, ThrowId);
+
+            // shield
+            TryAddAbilityClientSide(ref ShieldBash, ShieldBashId);
+            TryAddAbilityClientSide(ref ShieldParry, ShieldParryId);
+            TryAddAbilityClientSide(ref ShieldWall, ShieldWallId);
+
+            // unarmed
+            TryAddAbilityClientSide(ref UnarmedPunch, UnarmedPunchId);  
         }
     }
+
+
 
     public PlayerAbility GetAbility(PlayerAbilityEnum abilityEnum)
     {
         if (!IsSpawned) return null;
 
+        // dash
         if (abilityEnum == PlayerAbilityEnum.Dash) return Dash.GetComponent<PlayerAbility>();
 
+        // cleave
         if (abilityEnum == PlayerAbilityEnum.CleaveSwing) return CleaveSwing.GetComponent<PlayerAbility>();
         if (abilityEnum == PlayerAbilityEnum.CleaveWhirlwind) return CleaveWhirlwind.GetComponent<PlayerAbility>();
         if (abilityEnum == PlayerAbilityEnum.CleaveCyclone) return CleaveCyclone.GetComponent<PlayerAbility>();
 
+        // pierce
         if (abilityEnum == PlayerAbilityEnum.PierceThrust) return PierceThrust.GetComponent<PlayerAbility>();
         if (abilityEnum == PlayerAbilityEnum.PierceDrill) return PierceDrill.GetComponent<PlayerAbility>();
         if (abilityEnum == PlayerAbilityEnum.PierceLance) return PierceLance.GetComponent<PlayerAbility>();
+
+        // smash
+        if (abilityEnum == PlayerAbilityEnum.SmashSwing) return SmashSwing.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.SmashWave) return SmashWave.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.SmashSlam) return SmashSlam.GetComponent<PlayerAbility>();
+
+        // ballistic
+        if (abilityEnum == PlayerAbilityEnum.BallisticShot) return BallisticShot.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.BallisticSnipe) return BallisticSnipe.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.BallisticKill) return BallisticKill.GetComponent<PlayerAbility>();
+
+        // magic
+        if (abilityEnum == PlayerAbilityEnum.MagicCast) return MagicCast.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.MagicBeam) return MagicBeam.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.MagicBlast) return MagicBlast.GetComponent<PlayerAbility>();
+
+        // splash
+        if (abilityEnum == PlayerAbilityEnum.SplashLob) return SplashLob.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.SplashVolley) return SplashVolley.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.SplashBomb) return SplashBomb.GetComponent<PlayerAbility>();
+
+        // consume, aura, throw
+        if (abilityEnum == PlayerAbilityEnum.Consume) return Consume.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.Aura) return Aura.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.Throw) return Throw.GetComponent<PlayerAbility>();
+
+        // shield
+        if (abilityEnum == PlayerAbilityEnum.ShieldBash) return ShieldBash.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.ShieldParry) return ShieldParry.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.ShieldWall) return ShieldWall.GetComponent<PlayerAbility>();
+        
+        // unarmed
+        if (abilityEnum == PlayerAbilityEnum.Unarmed) return UnarmedPunch.GetComponent<PlayerAbility>();
 
         return null;
     }
@@ -324,7 +343,45 @@ public class PlayerAbilities : NetworkBehaviour
 
         return PlayerAbilityEnum.Null;
     }
+
+    void CreateAbility(ref GameObject ability, GameObject prefab, NetworkVariable<ulong> abilityId)
+    {
+        if (prefab == null)
+        {
+            Debug.LogWarning("Prefab passed to CreateAbility in PlayerAbilities was null");
+            return;
+        }
+        if (!prefab.HasComponent<PlayerAbility>())
+        {
+            Debug.LogWarning("Prefab for " + ability.ToString() + " ability is not a valid PlayerAbility");
+            return;
+        }
+        ability = Instantiate(prefab);
+        ability.GetComponent<NetworkObject>().Spawn();
+        abilityId.Value = ability.GetComponent<NetworkObject>().NetworkObjectId;
+    }
+
+    void TryAddAbilityClientSide(ref GameObject ability, NetworkVariable<ulong> abilityId)
+    {
+        if (ability == null && abilityId.Value > 0)
+        {
+            ability = NetworkManager.SpawnManager.SpawnedObjects[abilityId.Value].gameObject;
+            if (ability == null)
+            {
+                Debug.LogWarning("Could not add ability " + ability.ToString() + " to the client side");
+                return;
+            }
+            if (!ability.HasComponent<PlayerAbility>())
+            {
+                Debug.LogWarning("No PlayerAbility on " + ability.ToString() + " ability on client side");
+                return;
+            }
+            ability.GetComponent<PlayerAbility>().Player = gameObject;
+        }
+    }
 }
+
+
 
 public enum Hand { Left, Right };
 
