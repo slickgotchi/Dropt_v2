@@ -33,7 +33,7 @@ public class PlayerController : NetworkBehaviour
 
         if (IsServer && !IsHost)
         {
-            PingServerRpc(Time.time);
+            //PingServerRpc(Time.time);
         }
 
     }
@@ -96,19 +96,19 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
-    [ServerRpc]
-    void PingServerRpc(float elapsedTime)
-    {
-        PongClientRpc(elapsedTime);
-    }
+    //[ServerRpc]
+    //void PingServerRpc(float elapsedTime)
+    //{
+    //    PongClientRpc(elapsedTime);
+    //}
 
-    [ClientRpc]
-    void PongClientRpc(float elapsedTime)
-    {
-        if (!IsLocalPlayer) return;
+    //[ClientRpc]
+    //void PongClientRpc(float elapsedTime)
+    //{
+    //    if (!IsLocalPlayer) return;
 
-        var rtt = (int)((Time.time - elapsedTime) * 1000);
-        DebugCanvas.Instance.SetPing(rtt);
-        PingServerRpc(Time.time);
-    }
+    //    var rtt = (int)((Time.time - elapsedTime) * 1000);
+    //    DebugCanvas.Instance.SetPing(rtt);
+    //    PingServerRpc(Time.time);
+    //}
 }

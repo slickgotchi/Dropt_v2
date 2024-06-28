@@ -140,30 +140,30 @@ public class PlayerEquipmentDebugCanvas : MonoBehaviour
         switch (slot)
         {
             case Wearable.SlotEnum.Body:
-                playerEquipment.Body.Value = selectedNameEnum;
+                playerEquipment.SetEquipment(PlayerEquipment.Slot.Body, selectedNameEnum);
                 break;
             case Wearable.SlotEnum.Face:
-                playerEquipment.Face.Value = selectedNameEnum;
+                playerEquipment.SetEquipment(PlayerEquipment.Slot.Face, selectedNameEnum);
                 break;
             case Wearable.SlotEnum.Eyes:
-                playerEquipment.Eyes.Value = selectedNameEnum;
+                playerEquipment.SetEquipment(PlayerEquipment.Slot.Eyes, selectedNameEnum);
                 break;
             case Wearable.SlotEnum.Head:
-                playerEquipment.Head.Value = selectedNameEnum;
+                playerEquipment.SetEquipment(PlayerEquipment.Slot.Head, selectedNameEnum);
                 break;
             case Wearable.SlotEnum.Hand:
                 // Handle both left and right hand separately
                 if (dropdown == rightHandWearableDropdown)
                 {
-                    playerEquipment.RightHand.Value = selectedNameEnum;
+                    playerEquipment.SetEquipment(PlayerEquipment.Slot.RightHand, selectedNameEnum);
                 }
                 else if (dropdown == leftHandWearableDropdown)
                 {
-                    playerEquipment.LeftHand.Value = selectedNameEnum;
+                    playerEquipment.SetEquipment(PlayerEquipment.Slot.LeftHand, selectedNameEnum);
                 }
                 break;
             case Wearable.SlotEnum.Pet:
-                playerEquipment.Pet.Value = selectedNameEnum;
+                playerEquipment.SetEquipment(PlayerEquipment.Slot.Pet, selectedNameEnum);
                 break;
         }
     }

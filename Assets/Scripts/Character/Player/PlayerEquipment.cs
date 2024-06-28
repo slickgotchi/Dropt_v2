@@ -15,7 +15,32 @@ public class PlayerEquipment : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        LeftHand.Value = Wearable.NameEnum.Handsaw;
+        LeftHand.Value = Wearable.NameEnum.AagentPistol;
         RightHand.Value = Wearable.NameEnum.Pitchfork;
+    }
+
+    public void SetEquipment(Slot slot, Wearable.NameEnum equipmentNameEnum)
+    {
+        SetEquipmentServerRpc(slot, equipmentNameEnum);
+    }
+
+    [Rpc(SendTo.Server)]
+    public void SetEquipmentServerRpc(Slot slot, Wearable.NameEnum equipmentNameEnum)
+    {
+        switch (slot)
+        {
+            case Slot.Body: Body.Value = equipmentNameEnum; break;
+            case Slot.Face: Face.Value = equipmentNameEnum; break;
+            case Slot.Eyes: Eyes.Value = equipmentNameEnum; break;
+            case Slot.Head: Head.Value = equipmentNameEnum; break;
+            case Slot.RightHand: RightHand.Value = equipmentNameEnum; break;
+            case Slot.LeftHand: LeftHand.Value = equipmentNameEnum; break;
+            case Slot.Pet: Pet.Value = equipmentNameEnum; break;
+        }
+    }
+
+    public enum Slot
+    {
+        Body, Face, Eyes, Head, RightHand, LeftHand, Pet,
     }
 }

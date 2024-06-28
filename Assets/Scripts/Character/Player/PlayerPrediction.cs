@@ -790,7 +790,7 @@ public class PlayerPrediction : NetworkBehaviour
         serverInputQueue.Enqueue(input);
     }
 
-    private Vector3 GetRemotePlayerInterpPosition()
+    public Vector3 GetRemotePlayerInterpPosition()
     {
         //return lastServerState.position;
         if (lastServerStateArray.Count < 5) return transform.position;
@@ -828,7 +828,7 @@ public class PlayerPrediction : NetworkBehaviour
         return Vector3.Lerp(start.position, finish.position, fraction);
     }
 
-    private Vector3 GetLocalPlayerInterpPosition()
+    public Vector3 GetLocalPlayerInterpPosition()
     {
         // go back at least two ticks for our interp state
         if (timer.CurrentTick < 3) return transform.position;
@@ -849,6 +849,27 @@ public class PlayerPrediction : NetworkBehaviour
         var ability = m_playerAbilities.GetAbility(finish.abilityTriggered);
         if (ability != null && ability.TeleportDistance > 0.1f) return finish.position;
         return Vector3.Lerp(start.position, finish.position, fraction);
+    }
+
+    public Vector3 GetInterpPositionAtTick(int tick)
+    {
+        // because we do interpolation between tick-2 and tick-1, for simplicity (and some determinism)
+        // lets take the mid point between those two positions
+        var startBufferIndex = (tick-2) % k_bufferSize;
+        var finishBufferIndex = (tick-1) % k_bufferSize;
+
+        if (IsLocalPlayer)
+        {
+            var posA = clientStateBuffer.Get(startBufferIndex).position;
+            var posB = clientStateBuffer.Get(finishBufferIndex).position;
+            return math.lerp(posA, posB, 0.5f);
+        }
+        else
+        {
+            var posA = serverStateBuffer.Get(startBufferIndex).position;
+            var posB = serverStateBuffer.Get(finishBufferIndex).position;
+            return math.lerp(posA, posB, 0.5f);
+        }
     }
 
     void IfDashInputDrawShadow(StatePayload start, StatePayload finish)

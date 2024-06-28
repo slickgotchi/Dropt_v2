@@ -71,7 +71,7 @@ public class CleaveCyclone : PlayerAbility
             no_projectile.DamagePerHit = playerCharacter.AttackPower.Value;
             no_projectile.CriticalChance = playerCharacter.CriticalChance.Value;
             no_projectile.CriticalDamage = playerCharacter.CriticalDamage.Value;
-            no_projectile.Role = IsServer ? AbilityRole.Server : AbilityRole.LocalClient;
+            no_projectile.Role = IsServer ? PlayerAbility.NetworkRole.Server : PlayerAbility.NetworkRole.LocalClient;
 
             no_projectile.Fire();
         }
@@ -101,7 +101,7 @@ public class CleaveCyclone : PlayerAbility
             no_projectile.DamagePerHit = playerCharacter.AttackPower.Value;
             no_projectile.CriticalChance = playerCharacter.CriticalChance.Value;
             no_projectile.CriticalDamage = playerCharacter.CriticalDamage.Value;
-            no_projectile.Role = AbilityRole.RemoteClient;
+            no_projectile.Role = PlayerAbility.NetworkRole.RemoteClient;
 
             no_projectile.Fire();
         }

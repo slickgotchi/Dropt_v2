@@ -68,6 +68,8 @@ public class PlayerAbility : NetworkBehaviour
     private float m_teleportLagTimer = 0;
     private bool m_isOnTeleportStartChecking = false;
 
+    public enum NetworkRole { LocalClient, RemoteClient, Server }
+
     private void Awake()
     {
         AutoMoveDuration = math.min(AutoMoveDuration, ExecutionDuration);

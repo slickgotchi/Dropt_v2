@@ -4098,7 +4098,6 @@ GameObject:
   - component: {fileID: 1171476965}
   - component: {fileID: 1171476966}
   - component: {fileID: 1171476967}
-  - component: {fileID: 1171476968}
   - component: {fileID: 1171476969}
   m_Layer: 0
   m_Name: NetworkManager
@@ -4188,30 +4187,6 @@ MonoBehaviour:
     PacketDelayMS: 0
     PacketJitterMS: 0
     PacketDropRate: 0
---- !u!114 &1171476968
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1171476962}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 98d9db9626104da59357651088226725, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_PresetAsset: {fileID: 11400000, guid: 288141c527b3d204c8af1b1ed2d20cfa, type: 2}
-  m_PresetReference:
-    rid: -2
-  m_Scenario:
-    rid: -2
-  m_IsScenarioSettingsFolded: 0
-  AutoRunScenario: 0
-  references:
-    version: 2
-    RefIds:
-    - rid: -2
-      type: {class: , ns: , asm: }
 --- !u!114 &1171476969
 MonoBehaviour:
   m_ObjectHideFlags: 0
