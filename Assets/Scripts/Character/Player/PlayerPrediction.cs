@@ -190,6 +190,8 @@ public class PlayerPrediction : NetworkBehaviour
 
     private void OnLeftAttack_CursorAim(InputValue value)
     {
+        if (PlayerEquipmentDebugCanvas.IsActive()) return;
+
         if (!IsLocalPlayer) return;
 
         SetActionDirectionAndLastMoveFromCursorAim();
@@ -351,6 +353,10 @@ public class PlayerPrediction : NetworkBehaviour
 
         // if ability not ready, we don't count as input this tick
         var ability = m_playerAbilities.GetAbility(m_abilityTriggered);
+        if (m_abilityTriggered != PlayerAbilityEnum.Null && ability == null)
+        {
+            Debug.LogWarning(m_abilityTriggered + " is not yet implemented or a prefab is missing");
+        } 
         if (ability != null)
         {
             ability.Init(gameObject, m_abilityHand);

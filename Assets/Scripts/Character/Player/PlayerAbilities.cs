@@ -241,50 +241,50 @@ public class PlayerAbilities : NetworkBehaviour
         if (!IsSpawned) return null;
 
         // dash
-        if (abilityEnum == PlayerAbilityEnum.Dash) return Dash.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.Dash && Dash != null) return Dash.GetComponent<PlayerAbility>();
 
         // cleave
-        if (abilityEnum == PlayerAbilityEnum.CleaveSwing) return CleaveSwing.GetComponent<PlayerAbility>();
-        if (abilityEnum == PlayerAbilityEnum.CleaveWhirlwind) return CleaveWhirlwind.GetComponent<PlayerAbility>();
-        if (abilityEnum == PlayerAbilityEnum.CleaveCyclone) return CleaveCyclone.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.CleaveSwing && CleaveSwing != null) return CleaveSwing.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.CleaveWhirlwind && CleaveWhirlwind != null) return CleaveWhirlwind.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.CleaveCyclone && CleaveCyclone != null) return CleaveCyclone.GetComponent<PlayerAbility>();
 
         // pierce
-        if (abilityEnum == PlayerAbilityEnum.PierceThrust) return PierceThrust.GetComponent<PlayerAbility>();
-        if (abilityEnum == PlayerAbilityEnum.PierceDrill) return PierceDrill.GetComponent<PlayerAbility>();
-        if (abilityEnum == PlayerAbilityEnum.PierceLance) return PierceLance.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.PierceThrust && PierceThrust != null) return PierceThrust.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.PierceDrill && PierceDrill != null) return PierceDrill.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.PierceLance && PierceLance != null) return PierceLance.GetComponent<PlayerAbility>();
 
         // smash
-        if (abilityEnum == PlayerAbilityEnum.SmashSwing) return SmashSwing.GetComponent<PlayerAbility>();
-        if (abilityEnum == PlayerAbilityEnum.SmashWave) return SmashWave.GetComponent<PlayerAbility>();
-        if (abilityEnum == PlayerAbilityEnum.SmashSlam) return SmashSlam.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.SmashSwing && SmashSwing != null) return SmashSwing.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.SmashWave && SmashWave != null) return SmashWave.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.SmashSlam && SmashSlam != null) return SmashSlam.GetComponent<PlayerAbility>();
 
         // ballistic
-        if (abilityEnum == PlayerAbilityEnum.BallisticShot) return BallisticShot.GetComponent<PlayerAbility>();
-        if (abilityEnum == PlayerAbilityEnum.BallisticSnipe) return BallisticSnipe.GetComponent<PlayerAbility>();
-        if (abilityEnum == PlayerAbilityEnum.BallisticKill) return BallisticKill.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.BallisticShot && BallisticShot != null) return BallisticShot.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.BallisticSnipe && BallisticSnipe != null) return BallisticSnipe.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.BallisticKill && BallisticKill != null) return BallisticKill.GetComponent<PlayerAbility>();
 
         // magic
-        if (abilityEnum == PlayerAbilityEnum.MagicCast) return MagicCast.GetComponent<PlayerAbility>();
-        if (abilityEnum == PlayerAbilityEnum.MagicBeam) return MagicBeam.GetComponent<PlayerAbility>();
-        if (abilityEnum == PlayerAbilityEnum.MagicBlast) return MagicBlast.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.MagicCast && MagicCast != null) return MagicCast.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.MagicBeam && MagicBeam != null) return MagicBeam.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.MagicBlast && MagicBlast != null) return MagicBlast.GetComponent<PlayerAbility>();
 
         // splash
-        if (abilityEnum == PlayerAbilityEnum.SplashLob) return SplashLob.GetComponent<PlayerAbility>();
-        if (abilityEnum == PlayerAbilityEnum.SplashVolley) return SplashVolley.GetComponent<PlayerAbility>();
-        if (abilityEnum == PlayerAbilityEnum.SplashBomb) return SplashBomb.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.SplashLob && SplashLob != null) return SplashLob.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.SplashVolley && SplashVolley != null) return SplashVolley.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.SplashBomb && SplashBomb != null) return SplashBomb.GetComponent<PlayerAbility>();
 
         // consume, aura, throw
-        if (abilityEnum == PlayerAbilityEnum.Consume) return Consume.GetComponent<PlayerAbility>();
-        if (abilityEnum == PlayerAbilityEnum.Aura) return Aura.GetComponent<PlayerAbility>();
-        if (abilityEnum == PlayerAbilityEnum.Throw) return Throw.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.Consume && Consume != null) return Consume.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.Aura && Aura != null) return Aura.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.Throw && Throw != null) return Throw.GetComponent<PlayerAbility>();
 
         // shield
-        if (abilityEnum == PlayerAbilityEnum.ShieldBash) return ShieldBash.GetComponent<PlayerAbility>();
-        if (abilityEnum == PlayerAbilityEnum.ShieldParry) return ShieldParry.GetComponent<PlayerAbility>();
-        if (abilityEnum == PlayerAbilityEnum.ShieldWall) return ShieldWall.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.ShieldBash && ShieldBash != null) return ShieldBash.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.ShieldParry && ShieldParry != null) return ShieldParry.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.ShieldWall && ShieldWall != null) return ShieldWall.GetComponent<PlayerAbility>();
         
         // unarmed
-        if (abilityEnum == PlayerAbilityEnum.Unarmed) return UnarmedPunch.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.Unarmed && UnarmedPunch != null) return UnarmedPunch.GetComponent<PlayerAbility>();
 
         return null;
     }

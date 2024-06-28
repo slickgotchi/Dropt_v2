@@ -34,10 +34,8 @@ public class CleaveCycloneProjectile : NetworkBehaviour
     private float m_hitClearTimer = 0;
     private float m_hitClearInterval = 1;
 
-    //public override void OnNetworkSpawn()
     public void Fire()
     {
-        //if (!IsServer) return;
         gameObject.SetActive(true);
 
         if (Duration < 2 * GrowShrinkTime)
@@ -68,7 +66,6 @@ public class CleaveCycloneProjectile : NetworkBehaviour
 
     private void Update()
     {
-        //if (!IsServer) return;
         if (!m_isSpawned) return;
 
         float elapsedTime = Duration - m_timer;
@@ -137,8 +134,8 @@ public class CleaveCycloneProjectile : NetworkBehaviour
                     if (hit.HasComponent<NetworkCharacter>())
                     {
                         var damage = DamagePerHit * DamageMutiplierPerHit;
-                        damage = GetRandomVariation(damage);
-                        var isCritical = IsCriticalAttack(CriticalChance);
+                        damage = PlayerAbility.GetRandomVariation(damage);
+                        var isCritical = PlayerAbility.IsCriticalAttack(CriticalChance);
                         damage = (int)(isCritical ? damage * CriticalDamage : damage);
                         hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical);
                     }
@@ -154,19 +151,6 @@ public class CleaveCycloneProjectile : NetworkBehaviour
         }
         // clear out colliders
         enemyHitColliders.Clear();
-    }
-
-    public int GetRandomVariation(float baseValue, float randomVariation = 0.1f)
-    {
-        return (int)UnityEngine.Random.Range(
-            baseValue * (1 - randomVariation),
-            baseValue * (1 + randomVariation));
-    }
-
-    public bool IsCriticalAttack(float criticalChance)
-    {
-        var rand = UnityEngine.Random.Range(0f, 0.999f);
-        return rand < criticalChance;
     }
 }
 

@@ -14,17 +14,19 @@ public class CleaveCyclone : PlayerAbility
     public float DamageMultiplierPerHit = 0.5f;
     public int NumberHits = 6;
 
+    [Header("Projectile Prefab")]
     public GameObject ProjectilePrefab;
 
+    // variables for keeping track of the spawned projectile
     private GameObject m_projectile;
     private NetworkVariable<ulong> m_projectileId = new NetworkVariable<ulong>(0);
 
     public override void OnNetworkSpawn()
     {
-        Animator = GetComponent<Animator>();
-
         if (IsServer)
         {
+            // instantiate/spawn our projectile we'll be using when this ability activates
+            // and initially set to deactivated
             m_projectile = Instantiate(ProjectilePrefab);
             m_projectile.GetComponent<NetworkObject>().Spawn();
             m_projectileId.Value = m_projectile.GetComponent<NetworkObject>().NetworkObjectId;
@@ -34,6 +36,7 @@ public class CleaveCyclone : PlayerAbility
 
     private void Update()
     {
+        // ensure remote clients associate projectile with m_projectile
         if (m_projectile == null && m_projectileId.Value > 0)
         {
             m_projectile = NetworkManager.SpawnManager.SpawnedObjects[m_projectileId.Value].gameObject;
@@ -47,12 +50,13 @@ public class CleaveCyclone : PlayerAbility
         SetRotation(quaternion.identity);
         SetLocalPosition(PlayerAbilityCentreOffset + ActivationInput.actionDirection * Projection);
 
+        // activate projectile
         ActivateProjectile(ActivationInput.actionDirection, Distance, Duration, Scale);
     }
 
     void ActivateProjectile(Vector3 direction, float distance, float duration, float scale)
     {
-        // Local Client or Server
+        // Local Client & Server
         if (Player.GetComponent<NetworkObject>().IsLocalPlayer || IsServer)
         {
             m_projectile.SetActive(true);
@@ -77,17 +81,7 @@ public class CleaveCyclone : PlayerAbility
         {
             ActivateProjectileClientRpc(direction, distance, duration, scale);
         }
-
-        //if (!Player.GetComponent<NetworkObject>().IsLocalPlayer) return;
-
-        //ActivateProjectileServerRpc(direction, distance, duration, scale);
     }
-
-    //[Rpc(SendTo.Server)]
-    //void ActivateProjectileServerRpc(Vector3 direction, float distance, float duration, float scale)
-    //{
-    //    ActivateProjectileClientRpc(direction, distance, duration, scale);
-    //}
 
     [Rpc(SendTo.ClientsAndHost)]
     void ActivateProjectileClientRpc(Vector3 direction, float distance, float duration, float scale)
