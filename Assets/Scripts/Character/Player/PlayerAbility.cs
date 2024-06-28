@@ -50,16 +50,16 @@ public class PlayerAbility : NetworkBehaviour
     [HideInInspector] public GameObject Player;
     [HideInInspector] public float SpecialCooldown;
 
-    protected Vector3 PlayerCenterOffset = new Vector3(0,0.5f,0);
-    protected ContactFilter2D EnemyHurtContactFilter;
+    public Vector3 PlayerAbilityCentreOffset = new Vector3(0,0.5f,0);
+    //protected ContactFilter2D EnemyHurtContactFilter;
     protected bool IsActivated = false;
     protected StatePayload PlayerActivationState;
-    protected InputPayload PlayerActivationInput;
+    protected InputPayload ActivationInput;
 
     protected float HoldDuration = 0;
 
-    protected Vector3 AbilityOffset = Vector3.zero;
-    protected Quaternion AbilityRotation = Quaternion.identity;
+    //protected Vector3 AbilityOffset = Vector3.zero;
+    //protected Quaternion AbilityRotation = Quaternion.identity;
 
     protected Animator Animator;
 
@@ -75,6 +75,7 @@ public class PlayerAbility : NetworkBehaviour
     private void Awake()
     {
         AutoMoveDuration = math.min(AutoMoveDuration, ExecutionDuration);
+        Animator = GetComponent<Animator>();
     }
 
     public void Init(GameObject playerObject, Hand abilityHand)
@@ -89,7 +90,7 @@ public class PlayerAbility : NetworkBehaviour
     {
         Player = playerObject;
         PlayerActivationState = state;
-        PlayerActivationInput = input;
+        ActivationInput = input;
 
         HoldDuration = holdDuration;
 
@@ -108,7 +109,10 @@ public class PlayerAbility : NetworkBehaviour
         }
 
         // hide the player relevant hand
-        Player.GetComponent<PlayerGotchi>().HideHand(input.abilityHand, ExecutionDuration);
+        if (input.abilityTriggered != PlayerAbilityEnum.Dash)
+        {
+            Player.GetComponent<PlayerGotchi>().HideHand(input.abilityHand, ExecutionDuration);
+        }
 
         if (Player != null) OnStart();
 
@@ -156,23 +160,130 @@ public class PlayerAbility : NetworkBehaviour
 
     public virtual void OnAutoMoveFinish() { }
 
-    [Rpc(SendTo.Server)]
-    protected void PlayAnimRemoteServerRpc(string animName, Vector3 abilityOffset, Quaternion abilityRotation, float abilityScale = 1f)
+    /// <summary>
+    /// Automatically sets the ability rotation to align with the input action direction. Calls SetRotation()
+    /// </summary>
+    protected void SetRotationToActionDirection()
     {
-        PlayAnimRemoteClientRpc(animName, abilityOffset, abilityRotation, abilityScale);
+        SetRotation(GetRotationFromDirection(ActivationInput.actionDirection));
+    }
+
+    /// <summary>
+    /// Sets ability rotation and then calls RPC's in the background to ensure remote clients rotation instances
+    /// are also adjusted
+    /// </summary>
+    /// <param name="rotation"></param>
+    protected void SetRotation(Quaternion rotation)
+    {
+        // Local Client
+        if (Player.GetComponent<NetworkObject>().IsLocalPlayer)
+        {
+            transform.rotation = rotation;  
+        }
+
+        // Server
+        if (IsServer)
+        {
+            SetRotationClientRpc(rotation); 
+        }
     }
 
     [Rpc(SendTo.ClientsAndHost)]
-    protected void PlayAnimRemoteClientRpc(string animName, Vector3 abilityOffset, Quaternion abilityRotation, float abilityScale = 1f)
+    private void SetRotationClientRpc(Quaternion rotation)
+    {
+        // Remote Client
+        if (!Player.GetComponent<NetworkObject>().IsLocalPlayer)
+        {
+            transform.rotation = rotation;
+        }
+    }
+
+    /// <summary>
+    /// Sets transform.localPosition. Abilities are parented to their player by default and SetLocalPositon() should generally
+    /// be used to configure ability position. For non-parented abilities, spawn different NetworkObjects.
+    /// Call RPC's in background to ensure localPosition synced on remote clients.
+    /// </summary>
+    /// <param name="localPosition"></param>
+    protected void SetLocalPosition(Vector3 localPosition)
+    {
+        // Local CLient
+        if (Player.GetComponent<NetworkObject>().IsLocalPlayer)
+        {
+            transform.localPosition = localPosition;
+        }
+
+        // Server
+        if (IsServer)
+        {
+            SetLocalPositionClientRpc(localPosition);
+        }
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    private void SetLocalPositionClientRpc(Vector3 localPosition)
+    {
+        // Remote Client
+        if (!Player.GetComponent<NetworkObject>().IsLocalPlayer)
+        {
+            transform.localPosition = localPosition;
+        }
+    }
+
+    /// <summary>
+    /// Set scale for ability. This function also calls RPC's to ensure remote clients ability scales are adjusted.
+    /// </summary>
+    /// <param name="scale"></param>
+    protected void SetScale(float scale)
+    {
+        // Local Client
+        if (Player.GetComponent<NetworkObject>().IsLocalPlayer)
+        {
+            transform.localScale = new Vector3(scale, scale, 1);
+        }
+
+        // Server
+        if (IsServer)
+        {
+            SetScaleClientRpc(scale);
+        }
+    }
+
+
+    [Rpc(SendTo.ClientsAndHost)]
+    private void SetScaleClientRpc(float scale)
+    {
+        // Remote Client
+        if (!Player.GetComponent<NetworkObject>().IsLocalPlayer)
+        {
+            transform.localScale = new Vector3(scale, scale, 1);
+        }
+    }
+
+    /// <summary>
+    /// Play animation on local instance and on remote clients via RPC. PlayerAbility prefabs should have an Animator
+    /// component if they want to use this function.
+    /// </summary>
+    /// <param name="animName"></param>
+    protected void PlayAnimation(string animName)
+    {
+        // Local Client - play animation
+        if (Player.GetComponent<NetworkObject>().IsLocalPlayer)
+        {
+            Animator.Play(animName);
+        }
+
+        // Server - send message to all clients to play anim
+        if (IsServer)
+        {
+            PlayAnimationClientRpc(animName);
+        }
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    private void PlayAnimationClientRpc(string animName)
     {
         if (Player.GetComponent<NetworkObject>().IsLocalPlayer) return;
 
-        AbilityOffset = abilityOffset;
-        AbilityRotation = abilityRotation;
-
-        transform.position = Player.transform.position + abilityOffset;
-        transform.rotation = abilityRotation;
-        transform.localScale = new Vector3(abilityScale, abilityScale, 1);
         Animator.Play(animName);
     }
 
@@ -226,7 +337,6 @@ public class PlayerAbility : NetworkBehaviour
             {
                 var destructible = hit.GetComponent<Destructible>();
                 destructible.TakeDamage(weaponType);
-
             }
         }
 
@@ -240,13 +350,6 @@ public class PlayerAbility : NetworkBehaviour
         enemyHitColliders.Clear();
     }
 
-    protected void TrackPlayerPosition()
-    {
-        if (Player == null) return;
-        
-        transform.position = Player.transform.position + AbilityOffset;
-    }
-
     protected Quaternion GetRotationFromDirection(Vector3 direction)
     {
         float angle = GetAngleFromDirection(direction);
@@ -258,17 +361,17 @@ public class PlayerAbility : NetworkBehaviour
         return math.atan2(direction.y, direction.x) * math.TODEGREES;
     }
 
-    protected Vector3 GetPlayerCentrePosition()
+    protected Vector3 GetPlayerAbilityCentrePosition()
     {
         Vector3 pos = Vector3.zero;
 
         if (IsServer && !IsHost && Player != null)
         {
-            pos = Player.GetComponent<PlayerPrediction>().GetServerPosition() + PlayerCenterOffset;
+            pos = Player.GetComponent<PlayerPrediction>().GetServerPosition() + PlayerAbilityCentreOffset;
         }
         else if (IsClient && Player != null)
         {
-            pos = Player.transform.position + PlayerCenterOffset;
+            pos = Player.transform.position + PlayerAbilityCentreOffset;
         }
 
         return pos;

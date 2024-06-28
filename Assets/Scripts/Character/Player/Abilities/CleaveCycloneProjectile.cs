@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
-public class CleaveCycloneProjectile : MonoBehaviour
+public class CleaveCycloneProjectile : NetworkBehaviour
 {
     [HideInInspector] public Vector3 Direction;
     [HideInInspector] public float Distance;
@@ -18,7 +18,7 @@ public class CleaveCycloneProjectile : MonoBehaviour
     [HideInInspector] public float CriticalChance = 0.1f;
     [HideInInspector] public float CriticalDamage = 1.5f;
 
-    [HideInInspector] public bool IsServer = false;
+    [HideInInspector] public AbilityRole Role = AbilityRole.LocalClient;
 
     public float GrowShrinkTime = 0.5f; // Time for scaling up and down
 
@@ -35,9 +35,10 @@ public class CleaveCycloneProjectile : MonoBehaviour
     private float m_hitClearInterval = 1;
 
     //public override void OnNetworkSpawn()
-    private void Start()
+    public void Fire()
     {
         //if (!IsServer) return;
+        gameObject.SetActive(true);
 
         if (Duration < 2 * GrowShrinkTime)
         {
@@ -91,19 +92,35 @@ public class CleaveCycloneProjectile : MonoBehaviour
 
         if (m_timer < 0)
         {
-            Destroy(gameObject);
+            gameObject.SetActive(false);
         }
 
         m_timer -= Time.deltaTime;
 
         transform.position += Direction * m_speed * Time.deltaTime;
 
+        if (Role != AbilityRole.RemoteClient)
+        {
+            CollisionCheck();
+        }
+
+        m_hitClearTimer += Time.deltaTime;
+        if (m_hitClearTimer > m_hitClearInterval && NumberHits > 0)
+        {
+            m_hitClearTimer = 0;
+            m_hitColliders.Clear();
+            NumberHits--;
+        }
+    }
+
+    public void CollisionCheck()
+    {
         // each frame do our collision checks
         Physics2D.SyncTransforms();
 
         // do a collision check
         List<Collider2D> enemyHitColliders = new List<Collider2D>();
-        m_collider.Overlap(PlayerAbility.GetContactFilter(new string[] {"EnemyHurt", "Destructible"}), enemyHitColliders);
+        m_collider.Overlap(PlayerAbility.GetContactFilter(new string[] { "EnemyHurt", "Destructible" }), enemyHitColliders);
         foreach (var hit in enemyHitColliders)
         {
             if (hit.HasComponent<NetworkCharacter>())
@@ -137,14 +154,6 @@ public class CleaveCycloneProjectile : MonoBehaviour
         }
         // clear out colliders
         enemyHitColliders.Clear();
-
-        m_hitClearTimer += Time.deltaTime;
-        if (m_hitClearTimer > m_hitClearInterval && NumberHits > 0)
-        {
-            m_hitClearTimer = 0;
-            m_hitColliders.Clear();
-            NumberHits--;
-        }
     }
 
     public int GetRandomVariation(float baseValue, float randomVariation = 0.1f)
@@ -160,3 +169,5 @@ public class CleaveCycloneProjectile : MonoBehaviour
         return rand < criticalChance;
     }
 }
+
+public enum AbilityRole { LocalClient, RemoteClient, Server }

@@ -22,63 +22,27 @@ public class PierceDrill : PlayerAbility
 
     public override void OnStart()
     {
-        AbilityOffset = PlayerCenterOffset + PlayerActivationInput.actionDirection * Projection;
-        AbilityRotation = GetRotationFromDirection(PlayerActivationInput.actionDirection);
+        // set transform to activation rotation/position
+        SetRotationToActionDirection();
+        SetLocalPosition(PlayerAbilityCentreOffset + ActivationInput.actionDirection * Projection);
 
-        // set transform to activation rotation/position and scale based on hold duration
-        transform.rotation = AbilityRotation;
-        transform.position = PlayerActivationState.position + AbilityOffset;
+        PlayAnimation("PierceDrill");
 
-        if (IsClient)
-        {
-            if (Player.GetComponent<NetworkObject>().IsLocalPlayer)
-            {
-                Animator.Play("PierceDrill");
-                PlayAnimRemoteServerRpc("PierceDrill", AbilityOffset, AbilityRotation);
-                DebugDraw.DrawColliderPolygon(m_collider, IsServer);
-            }
+        Player.GetComponent<PlayerGotchi>().PlayFacingSpin(2, AutoMoveDuration / 2,
+            PlayerGotchi.SpinDirection.AntiClockwise, 0);
 
-            if (Player.HasComponent<PlayerGotchi>())
-            {
-                Player.GetComponent<PlayerGotchi>().PlayFacingSpin(2, AutoMoveDuration/2,
-                    PlayerGotchi.SpinDirection.AntiClockwise, 0);
-                Player.GetComponent<PlayerGotchi>().SetGotchiRotation(
-                    GetAngleFromDirection(PlayerActivationInput.actionDirection) - 90, AutoMoveDuration);
-                PlayFacingSpinRemoteServerRpc(2, AutoMoveDuration / 2, PlayerGotchi.SpinDirection.AntiClockwise, 0);
-            }
-        }
-
-    }
-
-    [Rpc(SendTo.Server)]
-    void PlayFacingSpinRemoteServerRpc(int spinNumber, float spinPeriod, PlayerGotchi.SpinDirection spinDirection,
-        float startAngle)
-    {
-        PlayFacingSpinRemoteClientRpc(spinNumber, spinPeriod, spinDirection, startAngle);
-    }
-
-    [Rpc(SendTo.ClientsAndHost)]
-    void PlayFacingSpinRemoteClientRpc(int spinNumber, float spinPeriod, PlayerGotchi.SpinDirection spinDirection,
-        float startAngle)
-    {
-        if (Player.GetComponent<NetworkObject>().IsLocalPlayer) return;
-
-        Player.GetComponent<PlayerGotchi>().PlayFacingSpin(spinNumber, spinPeriod, spinDirection, startAngle);
+        Player.GetComponent<PlayerGotchi>().SetGotchiRotation(
+            GetAngleFromDirection(ActivationInput.actionDirection) - 90, AutoMoveDuration);
     }
 
     public override void OnUpdate()
     {
-        TrackPlayerPosition();
     }
 
     public override void OnAutoMoveFinish()
     {
         // play the default anim
-        if (IsClient && Player.GetComponent<NetworkObject>().IsLocalPlayer)
-        {
-            Animator.Play("PierceDefault");
-            PlayAnimRemoteServerRpc("PierceDefault", AbilityOffset, AbilityRotation);
-        }
+        PlayAnimation("PierceDefault");
 
         float chargePower = math.min(1 + (HoldDuration / HoldChargeTime), 2f);
         OneFrameCollisionDamageCheck(m_collider, Wearable.WeaponTypeEnum.Pierce, chargePower);

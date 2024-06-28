@@ -12,35 +12,32 @@ public class CleaveSwing : PlayerAbility
 
     public override void OnNetworkSpawn()
     {
-        Animator = GetComponent<Animator>();
         m_collider = GetComponent<Collider2D>();
     }
 
     public override void OnStart()
     {
-        AbilityOffset = PlayerCenterOffset + PlayerActivationInput.actionDirection * Projection;
-        AbilityRotation = GetRotationFromDirection(PlayerActivationInput.actionDirection);
+        // set local rotation/position.
+        // IMPORTANT SetRotation(), SetRotationToActionDirection() and SetLocalPosition() must be used as
+        // they call RPC's that sync remote clients
+        SetRotationToActionDirection();
+        SetLocalPosition(PlayerAbilityCentreOffset + ActivationInput.actionDirection * Projection);
 
-        // set transform to activation rotation/position
-        transform.rotation = AbilityRotation;
-        transform.position = PlayerActivationState.position + AbilityOffset;
-
+        // collision check (no RPC's are involved in this call)
         OneFrameCollisionDamageCheck(m_collider, Wearable.WeaponTypeEnum.Cleave);
 
-        // animation
-        Animator.Play("CleaveSwing");
-        DebugDraw.DrawColliderPolygon(m_collider, IsServer);
-        PlayAnimRemoteServerRpc("CleaveSwing", AbilityOffset, AbilityRotation);
+        // IMPORTANT use PlayAnimation which calls RPC's in the background that play the 
+        // animation on remote clients
+        PlayAnimation("CleaveSwing");
     }
-
-
 
     public override void OnUpdate()
     {
-        TrackPlayerPosition();
+
     }
 
     public override void OnFinish()
     {
+
     }
 }

@@ -2,6 +2,7 @@ using UnityEngine;
 using Unity.Netcode;
 using System.Collections.Generic;
 using Unity.Mathematics;
+using Unity.Hierarchy;
 
 public class CleaveCyclone : PlayerAbility
 {
@@ -13,63 +14,104 @@ public class CleaveCyclone : PlayerAbility
     public float DamageMultiplierPerHit = 0.5f;
     public int NumberHits = 6;
 
-    public GameObject CleaveCycloneProjectilePrefab;
+    public GameObject ProjectilePrefab;
 
-    private Vector3 m_abilityDirection;
-
-    private Collider2D m_collider;
     private GameObject m_projectile;
+    private NetworkVariable<ulong> m_projectileId = new NetworkVariable<ulong>(0);
 
     public override void OnNetworkSpawn()
     {
         Animator = GetComponent<Animator>();
-        m_collider = GetComponent<Collider2D>();
+
+        if (IsServer)
+        {
+            m_projectile = Instantiate(ProjectilePrefab);
+            m_projectile.GetComponent<NetworkObject>().Spawn();
+            m_projectileId.Value = m_projectile.GetComponent<NetworkObject>().NetworkObjectId;
+            m_projectile.SetActive(false);
+        }
+    }
+
+    private void Update()
+    {
+        if (m_projectile == null && m_projectileId.Value > 0)
+        {
+            m_projectile = NetworkManager.SpawnManager.SpawnedObjects[m_projectileId.Value].gameObject;
+            m_projectile.SetActive(false);
+        }
     }
 
     public override void OnStart()
     {
-        //AbilityOffset = PlayerCenterOffset;
-        AbilityOffset = PlayerCenterOffset + PlayerActivationInput.actionDirection * Projection;
-        AbilityRotation = quaternion.identity;
+        // set rotatin/local position
+        SetRotation(quaternion.identity);
+        SetLocalPosition(PlayerAbilityCentreOffset + ActivationInput.actionDirection * Projection);
 
-        // set transform to activation rotation/position
-        transform.rotation = AbilityRotation;
-        transform.position = PlayerActivationState.position + AbilityOffset;
+        ActivateProjectile(ActivationInput.actionDirection, Distance, Duration, Scale);
+    }
 
-        m_abilityDirection = PlayerActivationInput.actionDirection;
-
-
-        //if (IsServer)
+    void ActivateProjectile(Vector3 direction, float distance, float duration, float scale)
+    {
+        // Local Client or Server
+        if (Player.GetComponent<NetworkObject>().IsLocalPlayer || IsServer)
         {
-            m_projectile = Instantiate(CleaveCycloneProjectilePrefab, transform);
+            m_projectile.SetActive(true);
+            m_projectile.transform.position = transform.position;
             var no_projectile = m_projectile.GetComponent<CleaveCycloneProjectile>();
-            no_projectile.Direction = PlayerActivationInput.actionDirection;
-            no_projectile.Distance = Distance;
-            no_projectile.Duration = Duration;
-            no_projectile.Scale = Scale;
+            no_projectile.Direction = direction;
+            no_projectile.Distance = distance;
+            no_projectile.Duration = duration;
+            no_projectile.Scale = scale;
 
             var playerCharacter = Player.GetComponent<NetworkCharacter>();
             no_projectile.DamagePerHit = playerCharacter.AttackPower.Value;
             no_projectile.CriticalChance = playerCharacter.CriticalChance.Value;
             no_projectile.CriticalDamage = playerCharacter.CriticalDamage.Value;
-            no_projectile.IsServer = IsServer;
-            //m_projectile.GetComponent<NetworkObject>().Spawn();
+            no_projectile.Role = IsServer ? AbilityRole.Server : AbilityRole.LocalClient;
+
+            no_projectile.Fire();
         }
 
-        // animation
-        bool isLocalPlayer = Player.GetComponent<NetworkObject>().IsLocalPlayer;
-        if (isLocalPlayer)
+        // Server Only
+        if (IsServer)
         {
-            //Player.GetComponent<PlayerGotchi>().PlayFacingSpin(1, 0.5f, 
-            //    PlayerGotchi.SpinDirection.Clockwise, GetAngleFromDirection(PlayerActivationInput.actionDirection));
-
-            //Animator.Play("CleaveCyclone");
-            //DebugDraw.DrawColliderPolygon(m_collider, IsServer);
-            //PlayAnimRemoteServerRpc("CleaveCyclone", AbilityOffset, AbilityRotation);
+            ActivateProjectileClientRpc(direction, distance, duration, scale);
         }
+
+        //if (!Player.GetComponent<NetworkObject>().IsLocalPlayer) return;
+
+        //ActivateProjectileServerRpc(direction, distance, duration, scale);
     }
 
+    //[Rpc(SendTo.Server)]
+    //void ActivateProjectileServerRpc(Vector3 direction, float distance, float duration, float scale)
+    //{
+    //    ActivateProjectileClientRpc(direction, distance, duration, scale);
+    //}
 
+    [Rpc(SendTo.ClientsAndHost)]
+    void ActivateProjectileClientRpc(Vector3 direction, float distance, float duration, float scale)
+    {
+        // Remote Client
+        if (!Player.GetComponent<NetworkObject>().IsLocalPlayer)
+        {
+            m_projectile.SetActive(true);
+            m_projectile.transform.position = transform.position;
+            var no_projectile = m_projectile.GetComponent<CleaveCycloneProjectile>();
+            no_projectile.Direction = direction;
+            no_projectile.Distance = distance;
+            no_projectile.Duration = duration;
+            no_projectile.Scale = scale;
+
+            var playerCharacter = Player.GetComponent<NetworkCharacter>();
+            no_projectile.DamagePerHit = playerCharacter.AttackPower.Value;
+            no_projectile.CriticalChance = playerCharacter.CriticalChance.Value;
+            no_projectile.CriticalDamage = playerCharacter.CriticalDamage.Value;
+            no_projectile.Role = AbilityRole.RemoteClient;
+
+            no_projectile.Fire();
+        }
+    }
 
     public override void OnUpdate()
     {

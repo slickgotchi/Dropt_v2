@@ -138,10 +138,56 @@ public class PlayerGotchi : NetworkBehaviour
         m_preSpawnPoint = currentPosition;
     }
 
+    public void PlayAnimation(string animName)
+    {
+        // Local Client
+        if (IsLocalPlayer)
+        {
+            animator.Play(animName);
+        }
+
+        // Server
+        if (IsServer)
+        {
+            PlayAnimationClientRpc(animName);
+        }
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    private void PlayAnimationClientRpc(string animName)
+    {
+        // Remote Client
+        if (!IsLocalPlayer)
+        {
+            animator.Play(animName);
+        }
+    }
+
     public void SetVisible(bool visible)
     {
-        m_gotchi.SetActive(visible);
-        m_shadow.SetActive(visible);
+        // Local Client
+        if (IsLocalPlayer)
+        {
+            m_gotchi.SetActive(visible);
+            m_shadow.SetActive(visible);
+        }
+
+        // Server
+        if (IsServer)
+        {
+            SetVisibleClientRpc(visible);
+        }
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    private void SetVisibleClientRpc(bool visible)
+    {
+        // Remote Client
+        if (!IsLocalPlayer)
+        {
+            SetVisible(visible);
+        }
+
     }
 
     public void AnimEvent_EndDropSpawn()
@@ -284,20 +330,81 @@ public class PlayerGotchi : NetworkBehaviour
 
     public void SetGotchiRotation(float angleDegrees, float duration = 0.5f)
     {
-        // Normalize angleDegrees to be within the range [0, 360)
-        angleDegrees = angleDegrees % 360;  // Result will be in the range (-360, 360)
-        if (angleDegrees < 0) angleDegrees += 360;
+        if (IsLocalPlayer)
+        {
+            // Normalize angleDegrees to be within the range [0, 360)
+            angleDegrees = angleDegrees % 360;  // Result will be in the range (-360, 360)
+            if (angleDegrees < 0) angleDegrees += 360;
 
-        m_bodyRotation = angleDegrees;
-        m_bodyRotationTimer = duration;
+            m_bodyRotation = angleDegrees;
+            m_bodyRotationTimer = duration;
+        }
+
+        if (IsServer)
+        {
+            SetGotchiRotationClientRpc(angleDegrees, duration); 
+        }
+    }
+
+    //[Rpc(SendTo.Server)]
+    //private void SetGotchiRotationServerRpc(float angleDegrees, float duration)
+    //{
+    //    SetGotchiRotationClientRpc(angleDegrees, duration); 
+    //}
+
+    [Rpc(SendTo.ClientsAndHost)]
+    private void SetGotchiRotationClientRpc(float angleDegrees, float duration)
+    {
+        if (!IsLocalPlayer)
+        {
+            // Normalize angleDegrees to be within the range [0, 360)
+            angleDegrees = angleDegrees % 360;  // Result will be in the range (-360, 360)
+            if (angleDegrees < 0) angleDegrees += 360;
+
+            m_bodyRotation = angleDegrees;
+            m_bodyRotationTimer = duration;
+        }
     }
 
     public void PlayFacingSpin(int spinNumber, float spinPeriod, SpinDirection spinDirection, float startAngle)
     {
-        m_spinPeriod = spinPeriod;
-        m_spinDirection = spinDirection;
-        m_spinAngle = startAngle;
-        m_spinTimer = spinNumber * spinPeriod;
+        if (IsLocalPlayer)
+        {
+            m_spinPeriod = spinPeriod;
+            m_spinDirection = spinDirection;
+            m_spinAngle = startAngle;
+            m_spinTimer = spinNumber * spinPeriod;
+        }
+
+        if (IsServer)
+        {
+            PlayFacingSpinClientRpc(spinNumber, spinPeriod, spinDirection, startAngle);
+        }
+
+        //if (IsLocalPlayer)
+        //{
+        //    PlayFacingSpinServerRpc(spinNumber, spinPeriod, spinDirection, startAngle);
+        //}
+    }
+
+    //[Rpc(SendTo.Server)]
+    //private void PlayFacingSpinServerRpc(int spinNumber, float spinPeriod, SpinDirection spinDirection, float startAngle)
+    //{
+    //    PlayFacingSpinClientRpc(spinNumber, spinPeriod, spinDirection, startAngle);
+    //}
+
+    [Rpc(SendTo.ClientsAndHost)]
+    private void PlayFacingSpinClientRpc(int spinNumber, float spinPeriod, SpinDirection spinDirection, float startAngle)
+    {
+        if (!IsLocalPlayer)
+        {
+            m_spinPeriod = spinPeriod;
+            m_spinDirection = spinDirection;
+            m_spinAngle = startAngle;
+            m_spinTimer = spinNumber * spinPeriod;
+        }
+
+        //PlayFacingSpin(spinNumber, spinPeriod, spinDirection, startAngle);
     }
 
     void UpdateFacingFromSpinning()
@@ -392,13 +499,43 @@ public class PlayerGotchi : NetworkBehaviour
         return rotation;
     }
 
+    float m_animUpdateTimer = 0;
+
     void UpdateGotchiAnim()
     {
         if (IsDropSpawning) return;
 
-        var holdState = m_playerPrediction.GetHoldState();
-        animator.SetBool("IsLeftHoldActive", holdState == PlayerPrediction.HoldState.LeftActive);
-        animator.SetBool("IsRightHoldActive", holdState == PlayerPrediction.HoldState.RightActive);
+        // no need to send anim update RPC's every frame
+        m_animUpdateTimer -= Time.deltaTime;
+        if (m_animUpdateTimer > 0) return;
+        m_animUpdateTimer += 0.2f;
 
+        var holdState = m_playerPrediction.GetHoldState();
+        SetAnimatorBool("IsLeftHoldActive", holdState == PlayerPrediction.HoldState.LeftActive);
+        SetAnimatorBool("IsRightHoldActive", holdState == PlayerPrediction.HoldState.RightActive);
+
+    }
+
+    void SetAnimatorBool(string name, bool value)
+    {
+        if (!IsLocalPlayer) return;
+
+        animator.SetBool(name, value);
+
+        SetAnimatorBoolServerRpc(name, value);
+    }
+
+    [Rpc(SendTo.Server)]
+    void SetAnimatorBoolServerRpc(string name, bool value)
+    {
+        SetAnimatorBoolClientRpc(name, value);
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    void SetAnimatorBoolClientRpc(string name, bool value)
+    {
+        if (IsLocalPlayer) return;
+
+        animator.SetBool(name, value);
     }
 }

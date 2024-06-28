@@ -125,12 +125,6 @@ public class PlayerAbilities : NetworkBehaviour
     [HideInInspector] public NetworkVariable<float> leftAttackCooldown = new NetworkVariable<float>(0);
     [HideInInspector] public NetworkVariable<float> rightAttackCooldown = new NetworkVariable<float>(0);
 
-    public override void OnNetworkSpawn()
-    {
-        if (!IsServer) return;
-
-    }
-
     private void Start()
     {
         // Ensure we instatiate here in Start() AFTER OnNetworkSpawn() otherwise we end up with duplciates
@@ -182,8 +176,6 @@ public class PlayerAbilities : NetworkBehaviour
         // unarmed
         CreateAbility(ref UnarmedPunch, unarmedPunchPrefab, UnarmedPunchId);
     }
-
-    
 
     private void Update()
     {
@@ -243,8 +235,6 @@ public class PlayerAbilities : NetworkBehaviour
             TryAddAbilityClientSide(ref UnarmedPunch, UnarmedPunchId);  
         }
     }
-
-
 
     public PlayerAbility GetAbility(PlayerAbilityEnum abilityEnum)
     {
@@ -358,6 +348,9 @@ public class PlayerAbilities : NetworkBehaviour
         }
         ability = Instantiate(prefab);
         ability.GetComponent<NetworkObject>().Spawn();
+        ability.GetComponent<NetworkObject>().TrySetParent(gameObject, false);
+        ability.transform.localPosition = Vector3.zero;
+        ability.transform.rotation = Quaternion.identity;
         abilityId.Value = ability.GetComponent<NetworkObject>().NetworkObjectId;
     }
 

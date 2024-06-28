@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 public class SpawnerActivator
@@ -54,7 +55,12 @@ public class SpawnerActivator
     {
         for (int i = 0; i < spawnedObjects.Count; i++)
         {
+            if (spawnedObjects[i] == null)
+            {
+                Debug.LogWarning("SpawnerActivator: Tried to spawn a null object");
+            }
             spawnedObjects[i].SetActive(true);
+            spawnedObjects[i].GetComponent<NetworkObject>().Spawn();
         }
     }
 }
