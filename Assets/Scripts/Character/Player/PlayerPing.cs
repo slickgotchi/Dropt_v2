@@ -7,11 +7,19 @@ public class PlayerPing : NetworkBehaviour
 {
     public float Ping = 0;
 
+    float m_timer = 0;
+
+    private void Update()
+    {
+        m_timer += Time.deltaTime;
+    }
+
     public override void OnNetworkSpawn()
     {
         if (IsLocalPlayer && !IsHost)
         {
-            PingServerRpc(Time.realtimeSinceStartup);
+            PingServerRpc(m_timer);
+            Debug.Log("Ping: " + m_timer);
         }
     }
 
@@ -26,10 +34,11 @@ public class PlayerPing : NetworkBehaviour
     {
         if (IsLocalPlayer)
         {
-            float currTime = Time.realtimeSinceStartup;
+            float currTime = m_timer;
             Ping = currTime - prevTime;
-            DebugCanvas.Instance.SetPing((int)(Ping * 100));
-            PingServerRpc(Time.realtimeSinceStartup);
+            DebugCanvas.Instance.SetPing((int)(Ping * 1000));
+            PingServerRpc(m_timer);
+            Debug.Log("Pong: " + m_timer);
         }
     }
 }

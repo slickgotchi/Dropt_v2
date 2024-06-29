@@ -177,6 +177,54 @@ public class PlayerAbilities : NetworkBehaviour
         CreateAbility(ref UnarmedPunch, unarmedPunchPrefab, UnarmedPunchId);
     }
 
+    public override void OnNetworkDespawn()
+    {
+        Debug.Log("Player disconnected");
+        DestroyAbility(ref Dash);
+
+        DestroyAbility(ref CleaveSwing);
+        DestroyAbility(ref CleaveWhirlwind);
+        DestroyAbility(ref CleaveCyclone);
+
+        DestroyAbility(ref PierceThrust);
+        DestroyAbility(ref PierceDrill);
+        DestroyAbility(ref PierceLance);
+
+        DestroyAbility(ref SmashSwing);
+        DestroyAbility(ref SmashWave);
+        DestroyAbility(ref SmashSlam);
+
+        DestroyAbility(ref BallisticShot);
+        DestroyAbility(ref BallisticSnipe);
+        DestroyAbility(ref BallisticKill);
+
+        DestroyAbility(ref MagicCast);
+        DestroyAbility(ref MagicBeam);
+        DestroyAbility(ref MagicBlast);
+
+        DestroyAbility(ref SplashLob);
+        DestroyAbility(ref SplashVolley);
+        DestroyAbility(ref SplashBomb);
+
+        DestroyAbility(ref Consume);
+        DestroyAbility(ref Aura);
+        DestroyAbility(ref Throw);
+
+        DestroyAbility(ref ShieldBash);
+        DestroyAbility(ref ShieldParry);
+        DestroyAbility(ref ShieldWall);
+
+        DestroyAbility(ref UnarmedPunch);
+    }
+
+    void DestroyAbility(ref GameObject ability)
+    {
+        if (ability != null)
+        {
+            ability.GetComponent<NetworkObject>().Despawn();
+        }
+    }
+
     private void Update()
     {
         float dt = Time.deltaTime;

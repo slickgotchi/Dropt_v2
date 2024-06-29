@@ -12,7 +12,9 @@ public class BallisticShotProjectile : NetworkBehaviour
     [HideInInspector] public float CriticalChance = 0.1f;
     [HideInInspector] public float CriticalDamage = 1.5f;
 
-    [HideInInspector] public PlayerAbility.NetworkRole Role = PlayerAbility.NetworkRole.LocalClient;
+    [HideInInspector] public GameObject LocalPlayer;
+
+    [HideInInspector] public PlayerAbility.NetworkRole NetworkRole = PlayerAbility.NetworkRole.LocalClient;
 
     private float m_timer = 0;
     private bool m_isSpawned = false;
@@ -43,8 +45,9 @@ public class BallisticShotProjectile : NetworkBehaviour
         }
 
         transform.position += Direction * m_speed * Time.deltaTime;
+        transform.rotation = PlayerAbility.GetRotationFromDirection(Direction);
 
-        if (Role != PlayerAbility.NetworkRole.RemoteClient) CollisionCheck();
+        if (NetworkRole != PlayerAbility.NetworkRole.RemoteClient) CollisionCheck();
     }
 
     public void CollisionCheck()
@@ -73,6 +76,11 @@ public class BallisticShotProjectile : NetworkBehaviour
                 destructible.TakeDamage(Wearable.WeaponTypeEnum.Ballistic);
             }
             Deactivate();
+
+            if (LocalPlayer != null)
+            {
+                LocalPlayer.GetComponent<PlayerCamera>().Shake();
+            }
         }
     }
 
@@ -80,7 +88,7 @@ public class BallisticShotProjectile : NetworkBehaviour
     {
         gameObject.SetActive(false);
 
-        if (Role == PlayerAbility.NetworkRole.Server)
+        if (NetworkRole == PlayerAbility.NetworkRole.Server)
         {
             DeactivateClientRpc();
         }
@@ -89,7 +97,7 @@ public class BallisticShotProjectile : NetworkBehaviour
     [Rpc(SendTo.ClientsAndHost)]
     void DeactivateClientRpc()
     {
-        if (Role == PlayerAbility.NetworkRole.RemoteClient)
+        if (NetworkRole == PlayerAbility.NetworkRole.RemoteClient)
         {
             gameObject.SetActive(false);
         }

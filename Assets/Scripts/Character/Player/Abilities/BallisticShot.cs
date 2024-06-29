@@ -31,6 +31,14 @@ public class BallisticShot : PlayerAbility
         }
     }
 
+    public override void OnNetworkDespawn()
+    {
+        if (m_projectile != null)
+        {
+            m_projectile.GetComponent<NetworkObject>().Despawn();
+        }
+    }
+
     private void Update()
     {
         // ensure remote clients associate projectile with m_projectile
@@ -59,17 +67,19 @@ public class BallisticShot : PlayerAbility
             m_projectile.SetActive(true);
             m_projectile.transform.position =
                 Player.GetComponent<PlayerPrediction>().GetInterpPositionAtTick(ActivationInput.tick) 
-                + new Vector3(0,0.5f,0);
+                + new Vector3(0,0.5f,0)
+                + ActivationInput.actionDirection * Projection;
             var no_projectile = m_projectile.GetComponent<BallisticShotProjectile>();
             no_projectile.Direction = direction;
             no_projectile.Distance = distance;
             no_projectile.Duration = duration;
+            no_projectile.LocalPlayer = Player;
 
             var playerCharacter = Player.GetComponent<NetworkCharacter>();
             no_projectile.DamagePerHit = playerCharacter.AttackPower.Value;
             no_projectile.CriticalChance = playerCharacter.CriticalChance.Value;
             no_projectile.CriticalDamage = playerCharacter.CriticalDamage.Value;
-            no_projectile.Role = IsServer ? PlayerAbility.NetworkRole.Server : PlayerAbility.NetworkRole.LocalClient;
+            no_projectile.NetworkRole = IsServer ? PlayerAbility.NetworkRole.Server : PlayerAbility.NetworkRole.LocalClient;
 
             no_projectile.Fire();
         }
@@ -89,20 +99,17 @@ public class BallisticShot : PlayerAbility
         {
             m_projectile.SetActive(true);
             m_projectile.transform.position = startPosition;
-            //m_projectile.transform.position = transform.position + new Vector3(0, 0.5f, 0);
-            //m_projectile.transform.position =
-            //    Player.GetComponent<PlayerPrediction>().GetInterpPositionAtTick(ActivationInput.tick)
-            //    + new Vector3(0, 0.5f, 0);
             var no_projectile = m_projectile.GetComponent<BallisticShotProjectile>();
             no_projectile.Direction = direction;
             no_projectile.Distance = distance;
             no_projectile.Duration = duration;
 
+
             var playerCharacter = Player.GetComponent<NetworkCharacter>();
             no_projectile.DamagePerHit = playerCharacter.AttackPower.Value;
             no_projectile.CriticalChance = playerCharacter.CriticalChance.Value;
             no_projectile.CriticalDamage = playerCharacter.CriticalDamage.Value;
-            no_projectile.Role = PlayerAbility.NetworkRole.RemoteClient;
+            no_projectile.NetworkRole = PlayerAbility.NetworkRole.RemoteClient;
 
             no_projectile.Fire();
         }

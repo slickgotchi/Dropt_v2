@@ -34,6 +34,14 @@ public class CleaveCyclone : PlayerAbility
         }
     }
 
+    public override void OnNetworkDespawn()
+    {
+        if (m_projectile != null)
+        {
+            m_projectile.GetComponent<NetworkObject>().Despawn();
+        }
+    }
+
     private void Update()
     {
         // ensure remote clients associate projectile with m_projectile

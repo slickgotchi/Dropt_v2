@@ -173,8 +173,8 @@ public class PlayerAbility : NetworkBehaviour
     /// <param name="rotation"></param>
     protected void SetRotation(Quaternion rotation)
     {
-        // Local Client
-        if (Player.GetComponent<NetworkObject>().IsLocalPlayer)
+        // Local Client or Server
+        if (Player.GetComponent<NetworkObject>().IsLocalPlayer || IsServer)
         {
             transform.rotation = rotation;  
         }
@@ -204,8 +204,8 @@ public class PlayerAbility : NetworkBehaviour
     /// <param name="localPosition"></param>
     protected void SetLocalPosition(Vector3 localPosition)
     {
-        // Local CLient
-        if (Player.GetComponent<NetworkObject>().IsLocalPlayer)
+        // Local Client or Server
+        if (Player.GetComponent<NetworkObject>().IsLocalPlayer || IsServer)
         {
             transform.localPosition = localPosition;
         }
@@ -233,8 +233,8 @@ public class PlayerAbility : NetworkBehaviour
     /// <param name="scale"></param>
     protected void SetScale(float scale)
     {
-        // Local Client
-        if (Player.GetComponent<NetworkObject>().IsLocalPlayer)
+        // Local Client or Server
+        if (Player.GetComponent<NetworkObject>().IsLocalPlayer || IsServer)
         {
             transform.localScale = new Vector3(scale, scale, 1);
         }
@@ -264,8 +264,8 @@ public class PlayerAbility : NetworkBehaviour
     /// <param name="animName"></param>
     protected void PlayAnimation(string animName)
     {
-        // Local Client - play animation
-        if (Player.GetComponent<NetworkObject>().IsLocalPlayer)
+        // Local Client or Server - play animation
+        if (Player.GetComponent<NetworkObject>().IsLocalPlayer || IsServer)
         {
             Animator.Play(animName);
         }
@@ -348,13 +348,13 @@ public class PlayerAbility : NetworkBehaviour
         enemyHitColliders.Clear();
     }
 
-    protected Quaternion GetRotationFromDirection(Vector3 direction)
+    public static Quaternion GetRotationFromDirection(Vector3 direction)
     {
-        float angle = GetAngleFromDirection(direction);
+        float angle = PlayerAbility.GetAngleFromDirection(direction);
         return Quaternion.Euler(0, 0, angle);
     }
 
-    protected float GetAngleFromDirection(Vector3 direction)
+    public static float GetAngleFromDirection(Vector3 direction)
     {
         return math.atan2(direction.y, direction.x) * math.TODEGREES;
     }
