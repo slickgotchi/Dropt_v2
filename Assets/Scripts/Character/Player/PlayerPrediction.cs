@@ -84,6 +84,8 @@ public class PlayerPrediction : NetworkBehaviour
     private HoldState m_holdState;
     private int m_holdStartTick = 0;
     private int m_holdFinishTick = 0;
+    private float m_holdChargeTime = 0;
+    private int m_holdInputStartTick = 0;
 
     // to keep track of our tick delta to the server
     private int m_remoteClientTickDelta = 0;
@@ -206,6 +208,9 @@ public class PlayerPrediction : NetworkBehaviour
         m_holdState = HoldState.LeftActive;
         var lhWearable = GetComponent<PlayerEquipment>().LeftHand.Value;
         m_holdAbilityPending = m_playerAbilities.GetHoldAbilityEnum(lhWearable);
+        var holdAbility = m_playerAbilities.GetAbility(m_holdAbilityPending);
+        if (holdAbility != null) m_holdChargeTime = holdAbility.HoldChargeTime;
+        m_holdInputStartTick = timer.CurrentTick;
     }
 
     private void OnLeftHoldFinish_CursorAim(InputValue value)
@@ -256,6 +261,9 @@ public class PlayerPrediction : NetworkBehaviour
         m_holdState = HoldState.RightActive;
         var rhWearable = GetComponent<PlayerEquipment>().RightHand.Value;
         m_holdAbilityPending = m_playerAbilities.GetHoldAbilityEnum(rhWearable);
+        var holdAbility = m_playerAbilities.GetAbility(m_holdAbilityPending);
+        if (holdAbility != null) m_holdChargeTime = holdAbility.HoldChargeTime;
+        m_holdInputStartTick = timer.CurrentTick;
     }
 
     private void OnRightHoldFinish_CursorAim(InputValue value)
@@ -291,6 +299,16 @@ public class PlayerPrediction : NetworkBehaviour
     }
 
     public HoldState GetHoldState() { return m_holdState; }
+
+    public float GetHoldPercentage()
+    {
+        if (m_holdState == HoldState.Inactive) return 0;
+
+        var holdDuration = (timer.CurrentTick - m_holdInputStartTick) / k_serverTickRate;
+        var holdPercent = math.min(holdDuration / m_holdChargeTime, 1f);
+
+        return holdPercent;
+    }
 
     private void UpdateCursorWorldPosition()
     {

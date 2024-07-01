@@ -10,7 +10,6 @@ public class PierceDrill : PlayerAbility
     [SerializeField] float Projection = 0f;
     [SerializeField] private int NumberHits = 3;
     [SerializeField] private float DamageMultiplier = 0.5f;
-    [SerializeField] private float HoldChargeTime = 3f;
 
     private Collider2D m_collider;
 

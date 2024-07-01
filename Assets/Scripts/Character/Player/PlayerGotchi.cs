@@ -92,7 +92,7 @@ public class PlayerGotchi : NetworkBehaviour
         if (IsServer && !IsHost) return;
 
         m_leftHandHideTimer -= Time.deltaTime;
-        m_rightHandHideTimer -= Time.deltaTime; 
+        m_rightHandHideTimer -= Time.deltaTime;
 
         m_facingDirection = m_playerPrediction.GetFacingDirection();
         m_isMoving = m_playerPrediction.IsMoving;
@@ -198,7 +198,7 @@ public class PlayerGotchi : NetworkBehaviour
 
         // make camera follow player and warp it to our new spawn point
         m_virtualCamera.Follow = transform;
-        m_virtualCamera.OnTargetObjectWarped(transform, m_spawnPoint-m_preSpawnPoint);
+        m_virtualCamera.OnTargetObjectWarped(transform, m_spawnPoint - m_preSpawnPoint);
     }
 
     void UpdateDustParticles()
@@ -321,22 +321,55 @@ public class PlayerGotchi : NetworkBehaviour
 
     public void HideHand(Hand hand, float duration = 0.5f)
     {
-        if (hand == Hand.Left)
+        if (IsLocalPlayer)
         {
-            // left hand
-            m_leftHandHideTimer = duration;
-            m_leftHandFaceFront.SetActive(false);
-            m_leftHandFaceBack.SetActive(false);
-            m_leftHandFaceLeft.SetActive(false);
+            if (hand == Hand.Left)
+            {
+                // left hand
+                m_leftHandHideTimer = duration;
+                m_leftHandFaceFront.SetActive(false);
+                m_leftHandFaceBack.SetActive(false);
+                m_leftHandFaceLeft.SetActive(false);
 
+            }
+            if (hand == Hand.Right)
+            {
+                // right hand
+                m_rightHandHideTimer = duration;
+                m_rightHandFaceFront.SetActive(false);
+                m_rightHandFaceBack.SetActive(false);
+                m_rightHandFaceRight.SetActive(false);
+            }
         }
-        if (hand == Hand.Right)
+
+        if (IsServer)
         {
-            // right hand
-            m_rightHandHideTimer = duration;
-            m_rightHandFaceFront.SetActive(false);
-            m_rightHandFaceBack.SetActive(false);
-            m_rightHandFaceRight.SetActive(false);
+            HideHandClientRpc(hand, duration);
+        }
+    }
+
+    [Rpc(SendTo.ClientsAndHost)] 
+    private void HideHandClientRpc(Hand hand, float duration = 0.5f)
+    {
+        if (!IsLocalPlayer)
+        {
+            if (hand == Hand.Left)
+            {
+                // left hand
+                m_leftHandHideTimer = duration;
+                m_leftHandFaceFront.SetActive(false);
+                m_leftHandFaceBack.SetActive(false);
+                m_leftHandFaceLeft.SetActive(false);
+
+            }
+            if (hand == Hand.Right)
+            {
+                // right hand
+                m_rightHandHideTimer = duration;
+                m_rightHandFaceFront.SetActive(false);
+                m_rightHandFaceBack.SetActive(false);
+                m_rightHandFaceRight.SetActive(false);
+            }
         }
     }
 

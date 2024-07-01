@@ -44,6 +44,9 @@ public class PlayerAbility : NetworkBehaviour
     [Tooltip("Is this ability a hold ability?")]
     public bool isHoldAbility = false;
 
+    [Tooltip("Duration it takes to charge hold ability")]
+    public float HoldChargeTime = 3f;
+
     [Tooltip("Slows player down during Hold period")]
     public float HoldSlowFactor = 1;
 
@@ -54,6 +57,7 @@ public class PlayerAbility : NetworkBehaviour
     protected bool IsActivated = false;
     protected StatePayload PlayerActivationState;
     protected InputPayload ActivationInput;
+    protected Wearable.NameEnum ActivationWearable;
 
     protected float HoldDuration = 0;
 
@@ -82,6 +86,7 @@ public class PlayerAbility : NetworkBehaviour
         var wearable = abilityHand == Hand.Left ? playerEquipment.LeftHand : playerEquipment.RightHand;
         ApCost = IsSpecialAbility ? WearableManager.Instance.GetWearable(wearable.Value).SpecialAp : ApCost;
         SpecialCooldown = WearableManager.Instance.GetWearable(wearable.Value).SpecialCooldown;
+        ActivationWearable = wearable.Value;
     }
 
     public bool Activate(GameObject playerObject, StatePayload state, InputPayload input, float holdDuration)

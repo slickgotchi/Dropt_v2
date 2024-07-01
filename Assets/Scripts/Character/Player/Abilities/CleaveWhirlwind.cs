@@ -9,7 +9,6 @@ public class CleaveWhirlwind : PlayerAbility
     [Header("CleaveWhirlwind Parameters")]
     [SerializeField] private int NumberHits = 3;
     [SerializeField] private float DamageMultiplier = 0.5f;
-    [SerializeField] private float HoldChargeTime = 3f;
 
     private float m_hitInterval;
     private float m_hitTimer;
@@ -20,7 +19,6 @@ public class CleaveWhirlwind : PlayerAbility
 
     public override void OnNetworkSpawn()
     {
-        Animator = GetComponent<Animator>();
         m_collider = GetComponent<Collider2D>();
 
         m_hitInterval = ExecutionDuration / (NumberHits - 1);

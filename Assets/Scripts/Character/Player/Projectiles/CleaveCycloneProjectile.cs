@@ -41,7 +41,8 @@ public class CleaveCycloneProjectile : NetworkBehaviour
 
         if (Duration < 2 * GrowShrinkTime)
         {
-            Duration = 2 * GrowShrinkTime;
+            //Duration = 2 * GrowShrinkTime;
+            GrowShrinkTime = Duration / 2;
         }
 
         m_timer = Duration;
@@ -69,6 +70,8 @@ public class CleaveCycloneProjectile : NetworkBehaviour
     {
         if (!m_isSpawned) return;
 
+        m_timer -= Time.deltaTime;
+
         float elapsedTime = Duration - m_timer;
 
         if (elapsedTime <= GrowShrinkTime)
@@ -93,7 +96,6 @@ public class CleaveCycloneProjectile : NetworkBehaviour
             gameObject.SetActive(false);
         }
 
-        m_timer -= Time.deltaTime;
 
         transform.position += Direction * m_speed * Time.deltaTime;
 
