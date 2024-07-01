@@ -52,8 +52,11 @@ public class BallisticShot : PlayerAbility
     public override void OnStart()
     {
         // set rotatin/local position
-        SetRotation(quaternion.identity);
-        SetLocalPosition(PlayerAbilityCentreOffset + ActivationInput.actionDirection * Projection);
+        SetRotationToActionDirection();
+        SetLocalPosition(PlayerAbilityCentreOffset);
+
+        // play animation
+        PlayAnimation("BallisticShot");
 
         // activate projectile
         ActivateProjectile(ActivationInput.actionDirection, Distance, Duration);

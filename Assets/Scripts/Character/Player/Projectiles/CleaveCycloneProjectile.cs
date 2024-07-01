@@ -37,6 +37,7 @@ public class CleaveCycloneProjectile : NetworkBehaviour
     public void Fire()
     {
         gameObject.SetActive(true);
+        m_hitColliders.Clear();
 
         if (Duration < 2 * GrowShrinkTime)
         {
@@ -120,33 +121,29 @@ public class CleaveCycloneProjectile : NetworkBehaviour
         m_collider.Overlap(PlayerAbility.GetContactFilter(new string[] { "EnemyHurt", "Destructible" }), enemyHitColliders);
         foreach (var hit in enemyHitColliders)
         {
-            if (hit.HasComponent<NetworkCharacter>())
+            bool isAlreadyHit = false;
+            foreach (var hitCheck in m_hitColliders)
             {
-                bool isAlreadyHit = false;
-                foreach (var hitCheck in m_hitColliders)
-                {
-                    if (hitCheck == hit) isAlreadyHit = true;
-                }
-                if (!isAlreadyHit)
-                {
-                    m_hitColliders.Add(hit);
+                if (hitCheck == hit) isAlreadyHit = true;
+            }
+            if (!isAlreadyHit)
+            {
+                m_hitColliders.Add(hit);
 
-                    if (hit.HasComponent<NetworkCharacter>())
-                    {
-                        var damage = DamagePerHit * DamageMutiplierPerHit;
-                        damage = PlayerAbility.GetRandomVariation(damage);
-                        var isCritical = PlayerAbility.IsCriticalAttack(CriticalChance);
-                        damage = (int)(isCritical ? damage * CriticalDamage : damage);
-                        hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical);
-                    }
-
-                    if (hit.HasComponent<Destructible>())
-                    {
-                        var destructible = hit.GetComponent<Destructible>();
-                        destructible.TakeDamage(Wearable.WeaponTypeEnum.Cleave);
-                    }
+                if (hit.HasComponent<NetworkCharacter>())
+                {
+                    var damage = DamagePerHit * DamageMutiplierPerHit;
+                    damage = PlayerAbility.GetRandomVariation(damage);
+                    var isCritical = PlayerAbility.IsCriticalAttack(CriticalChance);
+                    damage = (int)(isCritical ? damage * CriticalDamage : damage);
+                    hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical);
                 }
 
+                if (hit.HasComponent<Destructible>())
+                {
+                    var destructible = hit.GetComponent<Destructible>();
+                    destructible.TakeDamage(Wearable.WeaponTypeEnum.Cleave);
+                }
             }
         }
         // clear out colliders

@@ -19,7 +19,6 @@ public class PlayerPing : NetworkBehaviour
         if (IsLocalPlayer && !IsHost)
         {
             PingServerRpc(m_timer);
-            Debug.Log("Ping: " + m_timer);
         }
     }
 
@@ -38,7 +37,6 @@ public class PlayerPing : NetworkBehaviour
             Ping = currTime - prevTime;
             DebugCanvas.Instance.SetPing((int)(Ping * 1000));
             PingServerRpc(m_timer);
-            Debug.Log("Pong: " + m_timer);
         }
     }
 }

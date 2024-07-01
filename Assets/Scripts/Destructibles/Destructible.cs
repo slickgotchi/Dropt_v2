@@ -9,12 +9,21 @@ public class Destructible : NetworkBehaviour
     public Type type;
     public int Hp = 1;
 
+    private NetworkVariable<int> CurrentHp;
+
+    void Awake()
+    {
+        CurrentHp = new NetworkVariable<int>(Hp);
+    }
+
     public void TakeDamage(Wearable.WeaponTypeEnum weaponType)
     {
+        var damage = CalculateDamageToDestructible(type, weaponType);
+
         if (IsServer)
         {
-            Hp -= CalculateDamageToDestructible(type, weaponType);
-            if (Hp <= 0)
+            CurrentHp.Value -= damage;
+            if (CurrentHp.Value <= 0)
             {
                 GetComponent<NetworkObject>().Despawn();
             }
@@ -23,7 +32,10 @@ public class Destructible : NetworkBehaviour
         var damageWobble = GetComponent<DamageWobble>();
         if (damageWobble != null) damageWobble.Play();
 
-        if (Hp <= 0) VisualEffectsManager.Singleton.SpawnCloudExplosion(transform.position + new Vector3(0,0.5f,0));
+        if (CurrentHp.Value <= damage)
+        {
+            VisualEffectsManager.Singleton.SpawnCloudExplosion(transform.position + new Vector3(0, 0.5f, 0));
+        }
     }
 
     int CalculateDamageToDestructible(Type destructibleType, Wearable.WeaponTypeEnum weaponType)

@@ -125,6 +125,12 @@ public class PlayerAbility : NetworkBehaviour
 
         if (Player == null) return;
 
+        if (m_autoMoveTimer < 0 && !m_autoMoveFinishCalled && IsActivated)
+        {
+            OnAutoMoveFinish();
+            m_autoMoveFinishCalled = true;
+        }
+
         if (!m_isFinished && m_timer < 0)
         {
             OnFinish();
@@ -134,11 +140,6 @@ public class PlayerAbility : NetworkBehaviour
             
         if (!m_isFinished) OnUpdate();
 
-        if (m_autoMoveTimer < 0 && !m_autoMoveFinishCalled)
-        {
-            OnAutoMoveFinish();
-            m_autoMoveFinishCalled = true;
-        }
 
         m_teleportLagTimer -= Time.deltaTime;
         if (m_isOnTeleportStartChecking && m_teleportLagTimer < 0)
@@ -333,6 +334,7 @@ public class PlayerAbility : NetworkBehaviour
 
             if (hit.HasComponent<Destructible>())
             {
+                Debug.Log("Hit");
                 var destructible = hit.GetComponent<Destructible>();
                 destructible.TakeDamage(weaponType);
             }

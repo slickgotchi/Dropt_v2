@@ -62,7 +62,8 @@ public class BallisticShotProjectile : NetworkBehaviour
 
         if (hitCount > 0)
         {
-            Collider2D hit = hits[0].collider;
+            RaycastHit2D hitInfo = hits[0];
+            Collider2D hit = hitInfo.collider;
             if (hit.HasComponent<NetworkCharacter>())
             {
                 var damage = PlayerAbility.GetRandomVariation(DamagePerHit);
@@ -75,7 +76,7 @@ public class BallisticShotProjectile : NetworkBehaviour
                 var destructible = hit.GetComponent<Destructible>();
                 destructible.TakeDamage(Wearable.WeaponTypeEnum.Ballistic);
             }
-            Deactivate();
+            Deactivate(hitInfo.point);
 
             if (LocalPlayer != null)
             {
@@ -84,21 +85,23 @@ public class BallisticShotProjectile : NetworkBehaviour
         }
     }
 
-    void Deactivate()
+    void Deactivate(Vector3 hitPosition)
     {
+        VisualEffectsManager.Singleton.SpawnBulletExplosion(hitPosition);
         gameObject.SetActive(false);
 
         if (NetworkRole == PlayerAbility.NetworkRole.Server)
         {
-            DeactivateClientRpc();
+            DeactivateClientRpc(hitPosition);
         }
     }
 
     [Rpc(SendTo.ClientsAndHost)]
-    void DeactivateClientRpc()
+    void DeactivateClientRpc(Vector3 hitPosition)
     {
         if (NetworkRole == PlayerAbility.NetworkRole.RemoteClient)
         {
+            VisualEffectsManager.Singleton.SpawnBulletExplosion(hitPosition);
             gameObject.SetActive(false);
         }
     }

@@ -97,6 +97,7 @@ GameObject:
   - component: {fileID: 8086004901219037682}
   - component: {fileID: -6693017499447722929}
   - component: {fileID: 3963884182834467150}
+  - component: {fileID: 8150119983424438167}
   m_Layer: 8
   m_Name: BallisticShot
   m_TagString: Untagged
@@ -134,7 +135,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3909569891
+  GlobalObjectIdHash: 1797453795
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -171,8 +172,30 @@ MonoBehaviour:
   PlayerAbilityCentreOffset: {x: 0, y: 0.5, z: 0}
   Projection: 1
   Distance: 12
-  Duration: 0.25
+  Duration: 0.5
   ProjectilePrefab: {fileID: 2544078778212307353, guid: 8c2687b056614ae47b7a8816e6ee2291, type: 3}
+--- !u!95 &8150119983424438167
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2544078778212307353}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: a322bc52b365c454881fc1855683508c, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &4708556748347195212
 GameObject:
   m_ObjectHideFlags: 0
@@ -188,7 +211,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &5142712836386292480
 Transform:
   m_ObjectHideFlags: 0

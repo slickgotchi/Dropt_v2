@@ -5,10 +5,11 @@ public class VisualEffectsManager : MonoBehaviour
 {
     public static VisualEffectsManager Singleton { get; private set; }
 
-    [SerializeField]
-    private GameObject cloudExplosionPrefab;
+    [SerializeField] private GameObject cloudExplosionPrefab;
+    [SerializeField] private GameObject bulletExplosionPrefab;
 
-    private Queue<GameObject> pool = new Queue<GameObject>();
+    private Queue<GameObject> cloudExplosionPool = new Queue<GameObject>();
+    private Queue<GameObject> bulletExplosionPool = new Queue<GameObject>();
 
     private void Awake()
     {
@@ -27,9 +28,9 @@ public class VisualEffectsManager : MonoBehaviour
     {
         GameObject instance;
 
-        if (pool.Count > 0)
+        if (cloudExplosionPool.Count > 0)
         {
-            instance = pool.Dequeue();
+            instance = cloudExplosionPool.Dequeue();
             instance.SetActive(true);
         }
         else
@@ -41,9 +42,30 @@ public class VisualEffectsManager : MonoBehaviour
         return instance;
     }
 
+    public GameObject SpawnBulletExplosion(Vector3 position)
+    {
+        GameObject instance;
+
+        if (bulletExplosionPool.Count > 0)
+        {
+            instance = bulletExplosionPool.Dequeue();
+            instance.SetActive(true);
+        }
+        else
+        {
+            instance = Instantiate(bulletExplosionPrefab);
+        }
+
+        instance.transform.position = position;
+        return instance;
+    }
+
     public void ReturnToPool(GameObject instance)
     {
         instance.SetActive(false);
-        pool.Enqueue(instance);
+
+        if (instance.HasComponent<CloudExplosion>()) cloudExplosionPool.Enqueue(instance);
+        if (instance.HasComponent<BulletExplosion>()) bulletExplosionPool.Enqueue(instance);
+        
     }
 }
