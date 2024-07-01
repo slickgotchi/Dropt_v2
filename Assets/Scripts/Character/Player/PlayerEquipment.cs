@@ -22,6 +22,8 @@ public class PlayerEquipment : NetworkBehaviour
     public void SetEquipment(Slot slot, Wearable.NameEnum equipmentNameEnum)
     {
         SetEquipmentServerRpc(slot, equipmentNameEnum);
+
+        GetComponent<PlayerGotchi>().SetWeaponSprites(slot == Slot.LeftHand ? Hand.Left : Hand.Right, equipmentNameEnum);
     }
 
     [Rpc(SendTo.Server)]
@@ -36,6 +38,15 @@ public class PlayerEquipment : NetworkBehaviour
             case Slot.RightHand: RightHand.Value = equipmentNameEnum; break;
             case Slot.LeftHand: LeftHand.Value = equipmentNameEnum; break;
             case Slot.Pet: Pet.Value = equipmentNameEnum; break;
+        }
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    public void SetEquipmentClientRpc(Slot slot, Wearable.NameEnum equipmentNameEnum)
+    {
+        if (!IsLocalPlayer)
+        {
+            GetComponent<PlayerGotchi>().SetWeaponSprites(slot == Slot.LeftHand ? Hand.Left : Hand.Right, equipmentNameEnum);
         }
     }
 

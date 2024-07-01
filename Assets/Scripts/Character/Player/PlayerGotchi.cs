@@ -221,6 +221,18 @@ public class PlayerGotchi : NetworkBehaviour
         if (m_facingDirection.x >= math.abs(m_facingDirection.y)) m_facing = Facing.Right;
     }
 
+    public void SetWeaponSprites(Hand hand, Wearable.NameEnum wearableNameEnum)
+    {
+        if (hand == Hand.Left)
+        {
+            Debug.Log("Setting player gotchi LeftHand Weapon sprites for " + wearableNameEnum);
+        }
+        else
+        {
+            Debug.Log("Setting player gotchi RightHand Weapon sprites for " + wearableNameEnum);
+        }
+    }
+
     void SetActiveBodyPartsFromFacing(Facing facing)
     {
         if (facing == Facing.Front)
@@ -346,12 +358,6 @@ public class PlayerGotchi : NetworkBehaviour
         }
     }
 
-    //[Rpc(SendTo.Server)]
-    //private void SetGotchiRotationServerRpc(float angleDegrees, float duration)
-    //{
-    //    SetGotchiRotationClientRpc(angleDegrees, duration); 
-    //}
-
     [Rpc(SendTo.ClientsAndHost)]
     private void SetGotchiRotationClientRpc(float angleDegrees, float duration)
     {
@@ -380,18 +386,7 @@ public class PlayerGotchi : NetworkBehaviour
         {
             PlayFacingSpinClientRpc(spinNumber, spinPeriod, spinDirection, startAngle);
         }
-
-        //if (IsLocalPlayer)
-        //{
-        //    PlayFacingSpinServerRpc(spinNumber, spinPeriod, spinDirection, startAngle);
-        //}
     }
-
-    //[Rpc(SendTo.Server)]
-    //private void PlayFacingSpinServerRpc(int spinNumber, float spinPeriod, SpinDirection spinDirection, float startAngle)
-    //{
-    //    PlayFacingSpinClientRpc(spinNumber, spinPeriod, spinDirection, startAngle);
-    //}
 
     [Rpc(SendTo.ClientsAndHost)]
     private void PlayFacingSpinClientRpc(int spinNumber, float spinPeriod, SpinDirection spinDirection, float startAngle)

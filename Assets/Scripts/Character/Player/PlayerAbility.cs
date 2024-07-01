@@ -334,7 +334,6 @@ public class PlayerAbility : NetworkBehaviour
 
             if (hit.HasComponent<Destructible>())
             {
-                Debug.Log("Hit");
                 var destructible = hit.GetComponent<Destructible>();
                 destructible.TakeDamage(weaponType);
             }
