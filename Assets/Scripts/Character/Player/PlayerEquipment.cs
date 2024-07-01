@@ -15,7 +15,7 @@ public class PlayerEquipment : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        LeftHand.Value = Wearable.NameEnum.Handsaw;
+        LeftHand.Value = Wearable.NameEnum.LegendaryWizardStaff;
         RightHand.Value = Wearable.NameEnum.Basketball;
     }
 

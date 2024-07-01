@@ -4,27 +4,19 @@ using System.Collections.Generic;
 using Unity.Mathematics;
 using Unity.Hierarchy;
 
-public class BallisticShot : PlayerAbility
+public class MagicCast : PlayerAbility
 {
-    [Header("BallisticShot Parameters")]
+    [Header("MagicCast Parameters")]
     public float Projection = 1.5f;
     public float Distance = 8f;
     public float Duration = 1f;
 
     [Header("Projectile Prefab")]
-    public GameObject BulletPrefab;
-    public GameObject ArrowPrefab;
-    public GameObject BasketballPrefab;
+    public GameObject MagicOrbPrefab;
 
     // variables for keeping track of the spawned projectile
-    private GameObject m_bulletProjectile;
+    private GameObject m_orbProjectile;
     private NetworkVariable<ulong> m_bulletProjectileId = new NetworkVariable<ulong>(0);
-
-    private GameObject m_arrowProjectile;
-    private NetworkVariable<ulong> m_arrowProjectileId = new NetworkVariable<ulong>(0);
-
-    private GameObject m_basketballProjectile;
-    private NetworkVariable<ulong> m_basketballProjectileId = new NetworkVariable<ulong>(0);
 
     void InitProjectile(ref GameObject projectile, ref NetworkVariable<ulong> projectileId, GameObject prefab)
     {
@@ -40,17 +32,13 @@ public class BallisticShot : PlayerAbility
     {
         if (IsServer)
         {
-            InitProjectile(ref m_bulletProjectile, ref m_bulletProjectileId, BulletPrefab);
-            InitProjectile(ref m_arrowProjectile, ref m_arrowProjectileId, ArrowPrefab);
-            InitProjectile(ref m_basketballProjectile, ref m_basketballProjectileId, BasketballPrefab);
+            InitProjectile(ref m_orbProjectile, ref m_bulletProjectileId, MagicOrbPrefab);
         }
     }
 
     public override void OnNetworkDespawn()
     {
-        if (m_bulletProjectile != null) m_bulletProjectile.GetComponent<NetworkObject>().Despawn();
-        if (m_arrowProjectile != null) m_arrowProjectile.GetComponent<NetworkObject>().Despawn();
-        if (m_basketballProjectile != null) m_basketballProjectile.GetComponent<NetworkObject>().Despawn();
+        if (m_orbProjectile != null) m_orbProjectile.GetComponent<NetworkObject>().Despawn();
     }
 
     void TryAddProjectile(ref GameObject projectile, ref NetworkVariable<ulong> projectileId)
@@ -65,9 +53,7 @@ public class BallisticShot : PlayerAbility
     private void Update()
     {
         // ensure remote clients associate projectiles with local projectile variables
-        TryAddProjectile(ref m_bulletProjectile, ref m_bulletProjectileId);
-        TryAddProjectile(ref m_arrowProjectile, ref m_arrowProjectileId);
-        TryAddProjectile(ref m_basketballProjectile, ref m_basketballProjectileId);
+        TryAddProjectile(ref m_orbProjectile, ref m_bulletProjectileId);
     }
 
     public override void OnStart()
@@ -77,7 +63,7 @@ public class BallisticShot : PlayerAbility
         SetLocalPosition(PlayerAbilityCentreOffset);
 
         // play animation
-        PlayAnimation("BallisticShot");
+        PlayAnimation("MagicCast");
 
         // activate projectile
         ActivateProjectile(ActivationWearable, ActivationInput.actionDirection, Distance, Duration);
@@ -85,18 +71,7 @@ public class BallisticShot : PlayerAbility
 
     ref GameObject GetProjectileInstance(Wearable.NameEnum activationWearable)
     {
-        if (activationWearable == Wearable.NameEnum.AagentPistol || activationWearable == Wearable.NameEnum.NailGun)
-        {
-            return ref m_bulletProjectile;
-        }
-        else if (activationWearable == Wearable.NameEnum.Basketball)
-        {
-            return ref m_basketballProjectile;
-        }
-        else
-        {
-            return ref m_arrowProjectile;
-        }
+        return ref m_orbProjectile;
     }
 
     void ActivateProjectile(Wearable.NameEnum activationWearable, Vector3 direction, float distance, float duration)
@@ -108,8 +83,8 @@ public class BallisticShot : PlayerAbility
         {
             projectile.SetActive(true);
             projectile.transform.position =
-                Player.GetComponent<PlayerPrediction>().GetInterpPositionAtTick(ActivationInput.tick) 
-                + new Vector3(0,0.5f,0)
+                Player.GetComponent<PlayerPrediction>().GetInterpPositionAtTick(ActivationInput.tick)
+                + new Vector3(0, 0.5f, 0)
                 + ActivationInput.actionDirection * Projection;
             var no_projectile = projectile.GetComponent<GenericProjectile>();
             no_projectile.Direction = direction;
@@ -117,7 +92,7 @@ public class BallisticShot : PlayerAbility
             no_projectile.Duration = duration;
             no_projectile.Scale = 1;
             no_projectile.LocalPlayer = Player;
-            no_projectile.WeaponType = Wearable.WeaponTypeEnum.Ballistic;
+            no_projectile.WeaponType = Wearable.WeaponTypeEnum.Magic;
 
             var playerCharacter = Player.GetComponent<NetworkCharacter>();
             no_projectile.DamagePerHit = playerCharacter.AttackPower.Value;
@@ -150,7 +125,7 @@ public class BallisticShot : PlayerAbility
             no_projectile.Distance = distance;
             no_projectile.Duration = duration;
             no_projectile.Scale = 1;
-            no_projectile.WeaponType = Wearable.WeaponTypeEnum.Ballistic;
+            no_projectile.WeaponType = Wearable.WeaponTypeEnum.Magic;
 
             var playerCharacter = Player.GetComponent<NetworkCharacter>();
             no_projectile.DamagePerHit = playerCharacter.AttackPower.Value;

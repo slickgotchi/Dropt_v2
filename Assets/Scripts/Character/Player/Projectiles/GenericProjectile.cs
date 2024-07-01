@@ -12,6 +12,7 @@ public class GenericProjectile : NetworkBehaviour
     [HideInInspector] public float DamagePerHit = 1f;
     [HideInInspector] public float CriticalChance = 0.1f;
     [HideInInspector] public float CriticalDamage = 1.5f;
+    [HideInInspector] public Wearable.WeaponTypeEnum WeaponType;
 
     [HideInInspector] public GameObject LocalPlayer;
 
@@ -77,7 +78,7 @@ public class GenericProjectile : NetworkBehaviour
             else if (hit.HasComponent<Destructible>())
             {
                 var destructible = hit.GetComponent<Destructible>();
-                destructible.TakeDamage(Wearable.WeaponTypeEnum.Ballistic);
+                destructible.TakeDamage(WeaponType);
             }
             Deactivate(hitInfo.point);
 

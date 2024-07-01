@@ -13,6 +13,7 @@ public class PlayerAbilityEditor : Editor
     SerializedProperty cooldownSlowFactor;
     SerializedProperty isHoldAbility;
     SerializedProperty holdSlowFactor;
+    SerializedProperty holdChargeTime;
     SerializedProperty teleportDistance;
     SerializedProperty autoMoveDistance;
     SerializedProperty autoMoveDuration;
@@ -27,6 +28,7 @@ public class PlayerAbilityEditor : Editor
         cooldownSlowFactor = serializedObject.FindProperty("CooldownSlowFactor");
         isHoldAbility = serializedObject.FindProperty("isHoldAbility");
         holdSlowFactor = serializedObject.FindProperty("HoldSlowFactor");
+        holdChargeTime = serializedObject.FindProperty("HoldChargeTime");
         teleportDistance = serializedObject.FindProperty("TeleportDistance");
         autoMoveDistance = serializedObject.FindProperty("AutoMoveDistance");
         autoMoveDuration = serializedObject.FindProperty("AutoMoveDuration");
@@ -59,6 +61,7 @@ public class PlayerAbilityEditor : Editor
         if (isHoldAbility.boolValue)
         {
             EditorGUILayout.PropertyField(holdSlowFactor, new GUIContent("Hold Slow Factor", "Slows player down during Hold period"));
+            EditorGUILayout.PropertyField(holdChargeTime, new GUIContent("Hold Charge Time", "Time taken to fully charge hold ability"));
         }
 
         EditorGUILayout.PropertyField(teleportDistance, new GUIContent("Teleport Distance", "Instant teleportation distance in the action direction at ability activation"));
@@ -70,7 +73,7 @@ public class PlayerAbilityEditor : Editor
         }
 
         // Draw the rest of the properties
-        DrawPropertiesExcluding(serializedObject, "m_Script", "ApCost", "ExecutionDuration", "ExecutionSlowFactor", "CooldownDuration", "CooldownSlowFactor", "isHoldAbility", "HoldSlowFactor", "TeleportDistance", "AutoMoveDistance", "AutoMoveDuration", "IsSpecialAbility");
+        DrawPropertiesExcluding(serializedObject, "m_Script", "ApCost", "ExecutionDuration", "ExecutionSlowFactor", "CooldownDuration", "CooldownSlowFactor", "isHoldAbility", "HoldSlowFactor", "HoldChargeTime", "TeleportDistance", "AutoMoveDistance", "AutoMoveDuration", "IsSpecialAbility");
 
         serializedObject.ApplyModifiedProperties();
     }
