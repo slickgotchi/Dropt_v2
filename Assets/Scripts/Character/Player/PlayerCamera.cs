@@ -18,7 +18,7 @@ public class PlayerCamera : NetworkBehaviour
         m_perlin = m_virtualCamera.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
     }
 
-    public void Shake(float intensity, float time)
+    public void Shake(float intensity = 1.5f, float time = 0.3f)
     {
         if (!IsLocalPlayer) return;
 

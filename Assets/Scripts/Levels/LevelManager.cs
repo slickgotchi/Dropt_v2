@@ -48,7 +48,15 @@ public class LevelManager : NetworkBehaviour
         var networkObjects = new List<NetworkObject>(FindObjectsByType<NetworkObject>(FindObjectsSortMode.None));
 
         // deparent every single network object
-        foreach (var networkObject in networkObjects) { networkObject.transform.parent = null; }
+        foreach (var networkObject in networkObjects) 
+        {
+            // things to save for next level
+            if (networkObject.HasComponent<LevelManager>() ||
+                networkObject.HasComponent<PlayerController>() ||
+                networkObject.HasComponent<PlayerAbility>()) continue;
+
+            networkObject.TryRemoveParent(); 
+        }
 
         // destroy all network objects (except for some)
         foreach (var networkObject in networkObjects)

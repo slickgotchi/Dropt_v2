@@ -16,6 +16,42 @@ public class PlayerEquipment : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         LeftHand.Value = Wearable.NameEnum.Handsaw;
-        RightHand.Value = Wearable.NameEnum.Pitchfork;
+        RightHand.Value = Wearable.NameEnum.Basketball;
+    }
+
+    public void SetEquipment(Slot slot, Wearable.NameEnum equipmentNameEnum)
+    {
+        SetEquipmentServerRpc(slot, equipmentNameEnum);
+
+        GetComponent<PlayerGotchi>().SetWeaponSprites(slot == Slot.LeftHand ? Hand.Left : Hand.Right, equipmentNameEnum);
+    }
+
+    [Rpc(SendTo.Server)]
+    public void SetEquipmentServerRpc(Slot slot, Wearable.NameEnum equipmentNameEnum)
+    {
+        switch (slot)
+        {
+            case Slot.Body: Body.Value = equipmentNameEnum; break;
+            case Slot.Face: Face.Value = equipmentNameEnum; break;
+            case Slot.Eyes: Eyes.Value = equipmentNameEnum; break;
+            case Slot.Head: Head.Value = equipmentNameEnum; break;
+            case Slot.RightHand: RightHand.Value = equipmentNameEnum; break;
+            case Slot.LeftHand: LeftHand.Value = equipmentNameEnum; break;
+            case Slot.Pet: Pet.Value = equipmentNameEnum; break;
+        }
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    public void SetEquipmentClientRpc(Slot slot, Wearable.NameEnum equipmentNameEnum)
+    {
+        if (!IsLocalPlayer)
+        {
+            GetComponent<PlayerGotchi>().SetWeaponSprites(slot == Slot.LeftHand ? Hand.Left : Hand.Right, equipmentNameEnum);
+        }
+    }
+
+    public enum Slot
+    {
+        Body, Face, Eyes, Head, RightHand, LeftHand, Pet,
     }
 }

@@ -67,7 +67,7 @@ public class NetworkCharacter : NetworkBehaviour
         {
             if (gameObject.HasComponent<SpriteFlash>())
             {
-                gameObject.GetComponent<SpriteFlash>().DamageFlash();
+                GetComponent<SpriteFlash>().DamageFlash();
             }
         }
         if (IsServer)

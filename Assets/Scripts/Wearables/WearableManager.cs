@@ -5,7 +5,7 @@ public class WearableManager : MonoBehaviour
 {
     public static WearableManager Instance { get; private set; }
     private Dictionary<int, Wearable> wearablesById = new Dictionary<int, Wearable>();
-    private Dictionary<Wearable.NameEnum, Wearable> wearablesByNameEnum = new Dictionary<Wearable.NameEnum, Wearable>();
+    public Dictionary<Wearable.NameEnum, Wearable> wearablesByNameEnum = new Dictionary<Wearable.NameEnum, Wearable>();
 
     private void Awake()
     {

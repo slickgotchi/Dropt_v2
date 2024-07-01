@@ -533,6 +533,7 @@ GameObject:
   - component: {fileID: 4011541931376708870}
   - component: {fileID: 6173716106985737149}
   - component: {fileID: 2488828689398098102}
+  - component: {fileID: 969674464929535031}
   m_Layer: 6
   m_Name: Player
   m_TagString: Untagged
@@ -961,10 +962,61 @@ MonoBehaviour:
   PierceDrill: {fileID: 0}
   pierceLancePrefab: {fileID: 2544078778212307353, guid: 5a4df2f5c1739be48975e83fc417362e, type: 3}
   PierceLance: {fileID: 0}
+  smashSwingPrefab: {fileID: 0}
+  SmashSwing: {fileID: 0}
+  smashWavePrefab: {fileID: 0}
+  SmashWave: {fileID: 0}
+  smashSlamPrefab: {fileID: 0}
+  SmashSlam: {fileID: 0}
+  ballisticShotPrefab: {fileID: 2544078778212307353, guid: 371f3124e5b4ff94686f952e5f097bb7, type: 3}
+  BallisticShot: {fileID: 0}
+  ballisticSnipePrefab: {fileID: 0}
+  BallisticSnipe: {fileID: 0}
+  ballisticKillPrefab: {fileID: 0}
+  BallisticKill: {fileID: 0}
+  magicCastPrefab: {fileID: 0}
+  MagicCast: {fileID: 0}
+  magicBeamPrefab: {fileID: 0}
+  MagicBeam: {fileID: 0}
+  magicBlastPrefab: {fileID: 0}
+  MagicBlast: {fileID: 0}
+  splashLobPrefab: {fileID: 0}
+  SplashLob: {fileID: 0}
+  splashVolleyPrefab: {fileID: 0}
+  SplashVolley: {fileID: 0}
+  splashBombPrefab: {fileID: 0}
+  SplashBomb: {fileID: 0}
+  consumePrefab: {fileID: 0}
+  Consume: {fileID: 0}
+  auraPrefab: {fileID: 0}
+  Aura: {fileID: 0}
+  throwPrefab: {fileID: 0}
+  Throw: {fileID: 0}
+  shieldBashPrefab: {fileID: 0}
+  ShieldBash: {fileID: 0}
+  shieldParryPrefab: {fileID: 0}
+  ShieldParry: {fileID: 0}
+  shieldWallPrefab: {fileID: 0}
+  ShieldWall: {fileID: 0}
+  unarmedPunchPrefab: {fileID: 0}
+  UnarmedPunch: {fileID: 0}
   leftAttackCooldown:
     m_InternalValue: 0
   rightAttackCooldown:
     m_InternalValue: 0
+--- !u!114 &969674464929535031
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1519051571170098037}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: df456dae0e37bc44489437af91b77145, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Ping: 0
 --- !u!1 &1722710475381033325
 GameObject:
   m_ObjectHideFlags: 0

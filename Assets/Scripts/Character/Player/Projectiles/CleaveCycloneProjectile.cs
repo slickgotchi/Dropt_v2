@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
-public class CleaveCycloneProjectile : MonoBehaviour
+public class CleaveCycloneProjectile : NetworkBehaviour
 {
     [HideInInspector] public Vector3 Direction;
     [HideInInspector] public float Distance;
@@ -18,7 +18,7 @@ public class CleaveCycloneProjectile : MonoBehaviour
     [HideInInspector] public float CriticalChance = 0.1f;
     [HideInInspector] public float CriticalDamage = 1.5f;
 
-    [HideInInspector] public bool IsServer = false;
+    [HideInInspector] public PlayerAbility.NetworkRole Role = PlayerAbility.NetworkRole.LocalClient;
 
     public float GrowShrinkTime = 0.5f; // Time for scaling up and down
 
@@ -34,10 +34,10 @@ public class CleaveCycloneProjectile : MonoBehaviour
     private float m_hitClearTimer = 0;
     private float m_hitClearInterval = 1;
 
-    //public override void OnNetworkSpawn()
-    private void Start()
+    public void Fire()
     {
-        //if (!IsServer) return;
+        gameObject.SetActive(true);
+        m_hitColliders.Clear();
 
         if (Duration < 2 * GrowShrinkTime)
         {
@@ -67,7 +67,6 @@ public class CleaveCycloneProjectile : MonoBehaviour
 
     private void Update()
     {
-        //if (!IsServer) return;
         if (!m_isSpawned) return;
 
         float elapsedTime = Duration - m_timer;
@@ -91,52 +90,17 @@ public class CleaveCycloneProjectile : MonoBehaviour
 
         if (m_timer < 0)
         {
-            Destroy(gameObject);
+            gameObject.SetActive(false);
         }
 
         m_timer -= Time.deltaTime;
 
         transform.position += Direction * m_speed * Time.deltaTime;
 
-        // each frame do our collision checks
-        Physics2D.SyncTransforms();
-
-        // do a collision check
-        List<Collider2D> enemyHitColliders = new List<Collider2D>();
-        m_collider.Overlap(PlayerAbility.GetContactFilter(new string[] {"EnemyHurt", "Destructible"}), enemyHitColliders);
-        foreach (var hit in enemyHitColliders)
+        if (Role != PlayerAbility.NetworkRole.RemoteClient)
         {
-            if (hit.HasComponent<NetworkCharacter>())
-            {
-                bool isAlreadyHit = false;
-                foreach (var hitCheck in m_hitColliders)
-                {
-                    if (hitCheck == hit) isAlreadyHit = true;
-                }
-                if (!isAlreadyHit)
-                {
-                    m_hitColliders.Add(hit);
-
-                    if (hit.HasComponent<NetworkCharacter>())
-                    {
-                        var damage = DamagePerHit * DamageMutiplierPerHit;
-                        damage = GetRandomVariation(damage);
-                        var isCritical = IsCriticalAttack(CriticalChance);
-                        damage = (int)(isCritical ? damage * CriticalDamage : damage);
-                        hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical);
-                    }
-
-                    if (hit.HasComponent<Destructible>())
-                    {
-                        var destructible = hit.GetComponent<Destructible>();
-                        destructible.TakeDamage(Wearable.WeaponTypeEnum.Cleave);
-                    }
-                }
-
-            }
+            CollisionCheck();
         }
-        // clear out colliders
-        enemyHitColliders.Clear();
 
         m_hitClearTimer += Time.deltaTime;
         if (m_hitClearTimer > m_hitClearInterval && NumberHits > 0)
@@ -147,16 +111,43 @@ public class CleaveCycloneProjectile : MonoBehaviour
         }
     }
 
-    public int GetRandomVariation(float baseValue, float randomVariation = 0.1f)
+    public void CollisionCheck()
     {
-        return (int)UnityEngine.Random.Range(
-            baseValue * (1 - randomVariation),
-            baseValue * (1 + randomVariation));
-    }
+        // each frame do our collision checks
+        Physics2D.SyncTransforms();
 
-    public bool IsCriticalAttack(float criticalChance)
-    {
-        var rand = UnityEngine.Random.Range(0f, 0.999f);
-        return rand < criticalChance;
+        // do a collision check
+        List<Collider2D> enemyHitColliders = new List<Collider2D>();
+        m_collider.Overlap(PlayerAbility.GetContactFilter(new string[] { "EnemyHurt", "Destructible" }), enemyHitColliders);
+        foreach (var hit in enemyHitColliders)
+        {
+            bool isAlreadyHit = false;
+            foreach (var hitCheck in m_hitColliders)
+            {
+                if (hitCheck == hit) isAlreadyHit = true;
+            }
+            if (!isAlreadyHit)
+            {
+                m_hitColliders.Add(hit);
+
+                if (hit.HasComponent<NetworkCharacter>())
+                {
+                    var damage = DamagePerHit * DamageMutiplierPerHit;
+                    damage = PlayerAbility.GetRandomVariation(damage);
+                    var isCritical = PlayerAbility.IsCriticalAttack(CriticalChance);
+                    damage = (int)(isCritical ? damage * CriticalDamage : damage);
+                    hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical);
+                }
+
+                if (hit.HasComponent<Destructible>())
+                {
+                    var destructible = hit.GetComponent<Destructible>();
+                    destructible.TakeDamage(Wearable.WeaponTypeEnum.Cleave);
+                }
+            }
+        }
+        // clear out colliders
+        enemyHitColliders.Clear();
     }
 }
+

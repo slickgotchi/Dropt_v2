@@ -12,31 +12,32 @@ public class PierceThrust : PlayerAbility
 
     public override void OnNetworkSpawn()
     {
-        Animator = GetComponent<Animator>();
         m_collider = GetComponent<Collider2D>();
     }
 
     public override void OnStart()
     {
-        // setup offset and rotation for tracking
-        AbilityOffset = PlayerCenterOffset + PlayerActivationInput.actionDirection * Projection;
-        AbilityRotation = GetRotationFromDirection(PlayerActivationInput.actionDirection);
 
-        // set transform to activation rotation/position
-        transform.rotation = AbilityRotation;
-        transform.position = PlayerActivationState.position + AbilityOffset;
+    }
 
+    public override void OnTeleport()
+    {
+        // set local rotation/position.
+        // IMPORTANT SetRotation(), SetRotationToActionDirection() and SetLocalPosition() must be used as
+        // they call RPC's that sync remote clients
+        SetRotationToActionDirection();
+        SetLocalPosition(PlayerAbilityCentreOffset + ActivationInput.actionDirection * Projection);
+
+        // collision check (no RPC's are involved in this call)
         OneFrameCollisionDamageCheck(m_collider, Wearable.WeaponTypeEnum.Pierce);
 
-        // animation
-        Animator.Play("PierceThrust");
-        DebugDraw.DrawColliderPolygon(m_collider, IsServer);
-        PlayAnimRemoteServerRpc("PierceThrust", AbilityOffset, AbilityRotation);
+        // IMPORTANT use PlayAnimation which calls RPC's in the background that play the 
+        // animation on remote clients
+        PlayAnimation("PierceThrust");
     }
 
     public override void OnUpdate()
     {
-        TrackPlayerPosition();
     }
 
     public override void OnFinish()

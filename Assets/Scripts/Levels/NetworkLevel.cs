@@ -312,8 +312,8 @@ public class NetworkLevel : NetworkBehaviour
                         var spawnObject = Prefabs_NetworkObject.Instance.GetNetworkObjectByName(spawn.Name);
                         if (spawnObject != null)
                         {
-                            var no_object = Instantiate(spawnObject, spawnPoint);
-                            no_object.gameObject.GetComponent<NetworkObject>().Spawn();
+                            var no_object = Instantiate(spawnObject);
+                            no_object.transform.position = spawnPoint.transform.position;
                             spawnedObjects.Add(no_object);
                         } else
                         {
