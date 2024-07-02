@@ -6,7 +6,6 @@ public class DynamicSorting : MonoBehaviour
     public int sortingOrderOffset = 0;
 
     private SpriteRenderer m_spriteRenderer;
-    private int m_sortingOrder = 0;
     private int k_multiplicationFactor = 10;
 
     private void Awake()
@@ -19,11 +18,10 @@ public class DynamicSorting : MonoBehaviour
     {
         if (targetToTrack != null)
         {
-            m_sortingOrder = (int)(k_multiplicationFactor * -targetToTrack.transform.position.y) + sortingOrderOffset;
+            m_spriteRenderer.sortingOrder = (int)(k_multiplicationFactor * -targetToTrack.transform.position.y) + sortingOrderOffset;
         } else
         {
-            m_sortingOrder = (int)(k_multiplicationFactor * -transform.position.y) + sortingOrderOffset;
+            m_spriteRenderer.sortingOrder = (int)(k_multiplicationFactor * -transform.position.y) + sortingOrderOffset;
         }
-        m_spriteRenderer.sortingOrder = m_sortingOrder;
     }
 }

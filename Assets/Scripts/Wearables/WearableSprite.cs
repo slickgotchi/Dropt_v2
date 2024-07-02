@@ -1,9 +1,9 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "WearableSprites", menuName = "ScriptableObjects/WearableSprites", order = 1)]
-public class WearableSprites : ScriptableObject
+[CreateAssetMenu(fileName = "WearableSprite", menuName = "ScriptableObjects/WearableSprite", order = 1)]
+public class WearableSprite : ScriptableObject
 {
-    public Wearable.NameEnum Wearable;
+    public Wearable.NameEnum WearableNameEnum;
 
     public Sprite FrontView;
     // the order indicates if this sprite renders behind or in front of the players hand

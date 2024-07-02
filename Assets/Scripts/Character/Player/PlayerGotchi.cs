@@ -225,11 +225,73 @@ public class PlayerGotchi : NetworkBehaviour
     {
         if (hand == Hand.Left)
         {
-            Debug.Log("Setting player gotchi LeftHand Weapon sprites for " + wearableNameEnum);
+            // set sprite
+            m_leftHandFaceFront.transform.Find("Wearable").GetComponent<SpriteRenderer>().sprite =
+                WeaponSpriteManager.Instance.GetSprite(wearableNameEnum, Facing.Front);
+            m_leftHandFaceBack.transform.Find("Wearable").GetComponent<SpriteRenderer>().sprite =
+                WeaponSpriteManager.Instance.GetSprite(wearableNameEnum, Facing.Back);
+            m_leftHandFaceLeft.transform.Find("Wearable").GetComponent<SpriteRenderer>().sprite =
+                WeaponSpriteManager.Instance.GetSprite(wearableNameEnum, Facing.Left);
+            m_leftHandFaceRight.transform.Find("Wearable").GetComponent<SpriteRenderer>().sprite =
+                WeaponSpriteManager.Instance.GetSprite(wearableNameEnum, Facing.Right);
+
+            var leftHandFaceFrontHandSortingOrder = m_leftHandFaceFront.transform.Find("Hand").
+                GetComponent<DynamicSorting>().sortingOrderOffset;
+            var leftHandFaceBackHandSortingOrder = m_leftHandFaceBack.transform.Find("Hand").
+                GetComponent<DynamicSorting>().sortingOrderOffset;
+            var leftHandFaceLeftHandSortingOrder = m_leftHandFaceLeft.transform.Find("Hand").
+                GetComponent<DynamicSorting>().sortingOrderOffset;
+            var leftHandFaceRightHandSortingOrder = m_leftHandFaceRight.transform.Find("Hand").
+                GetComponent<DynamicSorting>().sortingOrderOffset;
+
+            // set sorting order
+            m_leftHandFaceFront.transform.Find("Wearable").GetComponent<DynamicSorting>().sortingOrderOffset =
+                WeaponSpriteManager.Instance.GetSpriteOrder(wearableNameEnum, Facing.Front) == 1 ?
+                leftHandFaceFrontHandSortingOrder - 1 : leftHandFaceFrontHandSortingOrder + 1;
+            m_leftHandFaceBack.transform.Find("Wearable").GetComponent<DynamicSorting>().sortingOrderOffset =
+                WeaponSpriteManager.Instance.GetSpriteOrder(wearableNameEnum, Facing.Back) == 1 ?
+                leftHandFaceBackHandSortingOrder - 1 : leftHandFaceBackHandSortingOrder + 1;
+            m_leftHandFaceLeft.transform.Find("Wearable").GetComponent<DynamicSorting>().sortingOrderOffset =
+                WeaponSpriteManager.Instance.GetSpriteOrder(wearableNameEnum, Facing.Left) == 1 ?
+                leftHandFaceLeftHandSortingOrder - 1 : leftHandFaceLeftHandSortingOrder + 1;
+            m_leftHandFaceRight.transform.Find("Wearable").GetComponent<DynamicSorting>().sortingOrderOffset =
+                WeaponSpriteManager.Instance.GetSpriteOrder(wearableNameEnum, Facing.Right) == 1 ?
+                leftHandFaceRightHandSortingOrder - 1 : leftHandFaceRightHandSortingOrder + 1;
         }
         else
         {
-            Debug.Log("Setting player gotchi RightHand Weapon sprites for " + wearableNameEnum);
+            // set sprite
+            m_rightHandFaceFront.transform.Find("Wearable").GetComponent<SpriteRenderer>().sprite =
+                WeaponSpriteManager.Instance.GetSprite(wearableNameEnum, Facing.Front);
+            m_rightHandFaceBack.transform.Find("Wearable").GetComponent<SpriteRenderer>().sprite =
+                WeaponSpriteManager.Instance.GetSprite(wearableNameEnum, Facing.Back);
+            m_rightHandFaceLeft.transform.Find("Wearable").GetComponent<SpriteRenderer>().sprite =
+                WeaponSpriteManager.Instance.GetSprite(wearableNameEnum, Facing.Left);
+            m_rightHandFaceRight.transform.Find("Wearable").GetComponent<SpriteRenderer>().sprite =
+                WeaponSpriteManager.Instance.GetSprite(wearableNameEnum, Facing.Right);
+
+            var rightHandFaceFrontHandSortingOrder = m_rightHandFaceFront.transform.Find("Hand").
+                GetComponent<DynamicSorting>().sortingOrderOffset;
+            var rightHandFaceBackHandSortingOrder = m_rightHandFaceBack.transform.Find("Hand").
+                GetComponent<DynamicSorting>().sortingOrderOffset;
+            var rightHandFaceLeftHandSortingOrder = m_rightHandFaceLeft.transform.Find("Hand").
+                GetComponent<DynamicSorting>().sortingOrderOffset;
+            var rightHandFaceRightHandSortingOrder = m_rightHandFaceRight.transform.Find("Hand").
+                GetComponent<DynamicSorting>().sortingOrderOffset;
+
+            // set sorting order
+            m_rightHandFaceFront.transform.Find("Wearable").GetComponent<DynamicSorting>().sortingOrderOffset =
+                WeaponSpriteManager.Instance.GetSpriteOrder(wearableNameEnum, Facing.Front) == 1 ?
+                rightHandFaceFrontHandSortingOrder - 1 : rightHandFaceFrontHandSortingOrder + 1;
+            m_rightHandFaceBack.transform.Find("Wearable").GetComponent<DynamicSorting>().sortingOrderOffset =
+                WeaponSpriteManager.Instance.GetSpriteOrder(wearableNameEnum, Facing.Back) == 1 ?
+                rightHandFaceBackHandSortingOrder - 1 : rightHandFaceBackHandSortingOrder + 1;
+            m_rightHandFaceLeft.transform.Find("Wearable").GetComponent<DynamicSorting>().sortingOrderOffset =
+                WeaponSpriteManager.Instance.GetSpriteOrder(wearableNameEnum, Facing.Left) == 1 ?
+                rightHandFaceLeftHandSortingOrder - 1 : rightHandFaceLeftHandSortingOrder + 1;
+            m_rightHandFaceRight.transform.Find("Wearable").GetComponent<DynamicSorting>().sortingOrderOffset =
+                WeaponSpriteManager.Instance.GetSpriteOrder(wearableNameEnum, Facing.Right) == 1 ?
+                rightHandFaceRightHandSortingOrder - 1 : rightHandFaceRightHandSortingOrder + 1;
         }
     }
 

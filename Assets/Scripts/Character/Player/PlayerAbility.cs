@@ -87,6 +87,16 @@ public class PlayerAbility : NetworkBehaviour
         ApCost = IsSpecialAbility ? WearableManager.Instance.GetWearable(wearable.Value).SpecialAp : ApCost;
         SpecialCooldown = WearableManager.Instance.GetWearable(wearable.Value).SpecialCooldown;
         ActivationWearable = wearable.Value;
+
+        var handAndWearableTransform = transform.Find("HandAndWearable");
+        if (handAndWearableTransform == null) return;
+        var wearableTransform = handAndWearableTransform.Find("Wearable");
+        if (wearableTransform == null) return;
+        var spriteRenderer = wearableTransform.GetComponent<SpriteRenderer>();
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.sprite = WeaponSpriteManager.Instance.GetSprite(wearable.Value, PlayerGotchi.Facing.Right);
+        }
     }
 
     public bool Activate(GameObject playerObject, StatePayload state, InputPayload input, float holdDuration)
