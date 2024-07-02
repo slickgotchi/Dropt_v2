@@ -286,7 +286,7 @@ public class PlayerAbilities : NetworkBehaviour
 
     public PlayerAbility GetAbility(PlayerAbilityEnum abilityEnum)
     {
-        if (!IsSpawned) return null;
+        if (!IsSpawned || abilityEnum == PlayerAbilityEnum.Null) return null;
 
         // dash
         if (abilityEnum == PlayerAbilityEnum.Dash && Dash != null) return Dash.GetComponent<PlayerAbility>();
@@ -344,9 +344,15 @@ public class PlayerAbilities : NetworkBehaviour
         if (wearable.WeaponType == Wearable.WeaponTypeEnum.Cleave) return PlayerAbilityEnum.CleaveSwing;
         if (wearable.WeaponType == Wearable.WeaponTypeEnum.Smash) return PlayerAbilityEnum.SmashSwing;
         if (wearable.WeaponType == Wearable.WeaponTypeEnum.Pierce) return PlayerAbilityEnum.PierceThrust;
+
         if (wearable.WeaponType == Wearable.WeaponTypeEnum.Ballistic) return PlayerAbilityEnum.BallisticShot;
         if (wearable.WeaponType == Wearable.WeaponTypeEnum.Magic) return PlayerAbilityEnum.MagicCast;
         if (wearable.WeaponType == Wearable.WeaponTypeEnum.Splash) return PlayerAbilityEnum.SplashLob;
+
+        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Consume) return PlayerAbilityEnum.Unarmed;
+        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Aura) return PlayerAbilityEnum.Unarmed;
+        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Throw) return PlayerAbilityEnum.Unarmed;
+
         if (wearable.WeaponType == Wearable.WeaponTypeEnum.Shield) return PlayerAbilityEnum.ShieldBash;
         if (wearable.WeaponType == Wearable.WeaponTypeEnum.Unarmed) return PlayerAbilityEnum.Unarmed;
 
@@ -375,9 +381,16 @@ public class PlayerAbilities : NetworkBehaviour
         if (wearable.WeaponType == Wearable.WeaponTypeEnum.Cleave) return PlayerAbilityEnum.CleaveCyclone;
         if (wearable.WeaponType == Wearable.WeaponTypeEnum.Smash) return PlayerAbilityEnum.SmashSlam;
         if (wearable.WeaponType == Wearable.WeaponTypeEnum.Pierce) return PlayerAbilityEnum.PierceLance;
+
         if (wearable.WeaponType == Wearable.WeaponTypeEnum.Ballistic) return PlayerAbilityEnum.BallisticKill;
         if (wearable.WeaponType == Wearable.WeaponTypeEnum.Magic) return PlayerAbilityEnum.MagicBlast;
         if (wearable.WeaponType == Wearable.WeaponTypeEnum.Splash) return PlayerAbilityEnum.SplashBomb;
+
+        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Consume) return PlayerAbilityEnum.Consume;
+        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Aura) return PlayerAbilityEnum.Aura;
+        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Throw) return PlayerAbilityEnum.Throw;
+
+        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Shield) return PlayerAbilityEnum.ShieldWall;
 
         return PlayerAbilityEnum.Null;
     }

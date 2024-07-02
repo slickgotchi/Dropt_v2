@@ -112,7 +112,8 @@ public class PlayerAbility : NetworkBehaviour
         }
 
         // hide the player relevant hand
-        if (input.abilityTriggered != PlayerAbilityEnum.Dash)
+        if (input.abilityTriggered != PlayerAbilityEnum.Dash &&
+            input.abilityTriggered != PlayerAbilityEnum.Consume)
         {
             Player.GetComponent<PlayerGotchi>().HideHand(input.abilityHand, ExecutionDuration);
         }

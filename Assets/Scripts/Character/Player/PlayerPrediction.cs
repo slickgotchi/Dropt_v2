@@ -205,11 +205,14 @@ public class PlayerPrediction : NetworkBehaviour
 
     private void OnLeftHoldStart_CursorAim(InputValue value)
     {
-        m_holdState = HoldState.LeftActive;
         var lhWearable = GetComponent<PlayerEquipment>().LeftHand.Value;
         m_holdAbilityPending = m_playerAbilities.GetHoldAbilityEnum(lhWearable);
         var holdAbility = m_playerAbilities.GetAbility(m_holdAbilityPending);
-        if (holdAbility != null) m_holdChargeTime = holdAbility.HoldChargeTime;
+
+        if (holdAbility == null) return; 
+        
+        m_holdState = HoldState.LeftActive;
+        m_holdChargeTime = holdAbility.HoldChargeTime;
         m_holdInputStartTick = timer.CurrentTick;
     }
 
@@ -258,11 +261,14 @@ public class PlayerPrediction : NetworkBehaviour
 
     private void OnRightHoldStart_CursorAim(InputValue value)
     {
-        m_holdState = HoldState.RightActive;
         var rhWearable = GetComponent<PlayerEquipment>().RightHand.Value;
         m_holdAbilityPending = m_playerAbilities.GetHoldAbilityEnum(rhWearable);
         var holdAbility = m_playerAbilities.GetAbility(m_holdAbilityPending);
-        if (holdAbility != null) m_holdChargeTime = holdAbility.HoldChargeTime;
+
+        if (holdAbility == null) return;
+        
+        m_holdChargeTime = holdAbility.HoldChargeTime;
+        m_holdState = HoldState.RightActive;
         m_holdInputStartTick = timer.CurrentTick;
     }
 
