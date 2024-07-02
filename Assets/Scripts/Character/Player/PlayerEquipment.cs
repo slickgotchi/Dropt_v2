@@ -15,7 +15,7 @@ public class PlayerEquipment : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        LeftHand.Value = Wearable.NameEnum.LegendaryWizardStaff;
+        LeftHand.Value = Wearable.NameEnum.MK2Grenade;
         RightHand.Value = Wearable.NameEnum.Basketball;
     }
 
@@ -23,7 +23,10 @@ public class PlayerEquipment : NetworkBehaviour
     {
         SetEquipmentServerRpc(slot, equipmentNameEnum);
 
-        GetComponent<PlayerGotchi>().SetWeaponSprites(slot == Slot.LeftHand ? Hand.Left : Hand.Right, equipmentNameEnum);
+        if (slot == Slot.LeftHand || slot == Slot.RightHand)
+        {
+            GetComponent<PlayerGotchi>().SetWeaponSprites(slot == Slot.LeftHand ? Hand.Left : Hand.Right, equipmentNameEnum);
+        }
     }
 
     [Rpc(SendTo.Server)]
