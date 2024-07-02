@@ -12,6 +12,7 @@ public class FreeDrawPrefabBrushEditor : GridBrushEditor
         serializedObject.Update();
         EditorGUILayout.PropertyField(serializedObject.FindProperty("prefab"), true);
         EditorGUILayout.PropertyField(serializedObject.FindProperty("offset"), true);
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("cellSize"), true);
         serializedObject.ApplyModifiedProperties();
     }
 }
