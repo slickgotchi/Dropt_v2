@@ -337,13 +337,14 @@ public class PlayerAbility : NetworkBehaviour
         List<Collider2D> enemyHitColliders = new List<Collider2D>();
         abilityCollider.Overlap(GetContactFilter(new string[] { "EnemyHurt", "Destructible" }), enemyHitColliders);
         bool isLocalPlayer = Player.GetComponent<NetworkObject>().IsLocalPlayer;
+        bool isCritical = false;
         foreach (var hit in enemyHitColliders)
         {
             if (hit.HasComponent<NetworkCharacter>())
             {
                 var playerCharacter = Player.GetComponent<NetworkCharacter>();
                 var damage = playerCharacter.GetAttackPower() * damageMultiplier;
-                var isCritical = playerCharacter.IsCriticalAttack();
+                isCritical = playerCharacter.IsCriticalAttack();
                 damage = (int)(isCritical ? damage * playerCharacter.CriticalDamage.Value : damage);
                 hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical);
             }
@@ -358,7 +359,7 @@ public class PlayerAbility : NetworkBehaviour
         // screen shake
         if (isLocalPlayer && enemyHitColliders.Count > 0)
         {
-            Player.GetComponent<PlayerCamera>().Shake(1.5f, 0.3f);
+            Player.GetComponent<PlayerCamera>().Shake(isCritical ? 1.5f : 0.75f, 0.3f);
         }
 
         // clear out colliders

@@ -603,7 +603,7 @@ public class PlayerGotchi : NetworkBehaviour
         var holdState = m_playerPrediction.GetHoldState();
         SetAnimatorBool("IsLeftHoldActive", holdState == PlayerPrediction.HoldState.LeftActive);
         SetAnimatorBool("IsRightHoldActive", holdState == PlayerPrediction.HoldState.RightActive);
-
+        SetAnimatorBool("IsHoldActive", holdState != PlayerPrediction.HoldState.Inactive);
     }
 
     void SetAnimatorBool(string name, bool value)
