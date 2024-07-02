@@ -7,7 +7,7 @@ public class SplashProjectile : NetworkBehaviour
     [HideInInspector] public Vector3 Direction;
     [HideInInspector] public float Distance;
     [HideInInspector] public float Duration;
-    [HideInInspector] public float Scale = 1f;
+    [HideInInspector] public float ExplosionRadius = 1f;
     [HideInInspector] public float LobHeight = 2f;
 
     [HideInInspector] public float DamagePerHit = 1f;
@@ -19,18 +19,17 @@ public class SplashProjectile : NetworkBehaviour
 
     [HideInInspector] public PlayerAbility.NetworkRole NetworkRole = PlayerAbility.NetworkRole.LocalClient;
 
+    public CircleCollider2D Collider;
+
     private float m_timer = 0;
     private bool m_isSpawned = false;
     private float m_speed = 1;
     private Vector3 m_finalPosition;
 
-    private Collider2D m_collider;
-
     public void Fire()
     {
         gameObject.SetActive(true);
 
-        transform.localScale = new Vector3(Scale, Scale, 1f);
         transform.rotation = Quaternion.identity;
 
         m_timer = Duration;
@@ -39,7 +38,7 @@ public class SplashProjectile : NetworkBehaviour
 
         m_finalPosition = transform.position + Direction * Distance;
 
-        m_collider = GetComponent<Collider2D>();
+        Collider.radius = ExplosionRadius;
 
         GetComponent<LobArc>().Reset();
         GetComponent<LobArc>().Duration_s = Duration;
@@ -57,7 +56,7 @@ public class SplashProjectile : NetworkBehaviour
             transform.position = m_finalPosition;
             if (NetworkRole != PlayerAbility.NetworkRole.RemoteClient) CollisionCheck();
             gameObject.SetActive(false);
-            VisualEffectsManager.Singleton.SpawnSplashExplosion(m_finalPosition, new Color(1, 0, 0, 0.5f));
+            VisualEffectsManager.Singleton.SpawnSplashExplosion(m_finalPosition, new Color(1, 0, 0, 0.5f), ExplosionRadius);
         }
 
         transform.position += Direction * m_speed * Time.deltaTime;
@@ -70,7 +69,7 @@ public class SplashProjectile : NetworkBehaviour
 
         // do a collision check
         List<Collider2D> enemyHitColliders = new List<Collider2D>();
-        m_collider.Overlap(PlayerAbility.GetContactFilter(new string[] { "EnemyHurt", "Destructible" }), enemyHitColliders);
+        Collider.Overlap(PlayerAbility.GetContactFilter(new string[] { "EnemyHurt", "Destructible" }), enemyHitColliders);
         foreach (var hit in enemyHitColliders)
         {
             if (hit.HasComponent<NetworkCharacter>())

@@ -9,6 +9,7 @@ public class SplashVolley : PlayerAbility
     public float Projection = 1.5f;
     public float Distance = 8f;
     public float Duration = 1f;
+    public float ExplosionRadius = 1f;
     public float LobHeight = 2f;
     public float DistanceDelta = 0.5f; // New: Distance variation
     public float ReleaseTimeDelta = 0.1f; // New: Release time variation
@@ -17,20 +18,35 @@ public class SplashVolley : PlayerAbility
     public GameObject SplashProjectilePrefab;
 
     // variables for keeping track of the spawned projectiles
-    private List<GameObject> m_splashProjectiles = new List<GameObject>();
-    private List<NetworkVariable<ulong>> m_splashProjectileIds = new List<NetworkVariable<ulong>>();
+    private List<GameObject> m_splashProjectiles = new List<GameObject>(new GameObject[5]);
+
+    private NetworkVariable<ulong> m_splashProjectileId_0 = new NetworkVariable<ulong>();
+    private NetworkVariable<ulong> m_splashProjectileId_1 = new NetworkVariable<ulong>();
+    private NetworkVariable<ulong> m_splashProjectileId_2 = new NetworkVariable<ulong>();
+    private NetworkVariable<ulong> m_splashProjectileId_3 = new NetworkVariable<ulong>();
+    private NetworkVariable<ulong> m_splashProjectileId_4 = new NetworkVariable<ulong>();
+
+    //private List<NetworkVariable<ulong>> m_splashProjectileIds = new List<NetworkVariable<ulong>>();
+    //private NetworkList<ulong> m_splashProjectileIds = new NetworkList<ulong>();
     private List<ScheduledProjectile> m_scheduledProjectiles = new List<ScheduledProjectile>();
+
+    ref NetworkVariable<ulong> GetSplashProjectileId(int index)
+    {
+        if (index == 0) return ref m_splashProjectileId_0;
+        else if (index == 1) return ref m_splashProjectileId_1;
+        else if (index == 2) return ref m_splashProjectileId_2;
+        else if (index == 3) return ref m_splashProjectileId_3;
+        else return ref m_splashProjectileId_4;
+    }
 
     void InitProjectile(int index, GameObject prefab)
     {
         var projectile = Instantiate(prefab);
         projectile.GetComponent<NetworkObject>().Spawn();
-        var projectileId = new NetworkVariable<ulong>(projectile.GetComponent<NetworkObject>().NetworkObjectId);
-
-        m_splashProjectiles.Add(projectile);
-        m_splashProjectileIds.Add(projectileId);
-
         projectile.SetActive(false);
+        m_splashProjectiles[index] = projectile;
+
+        GetSplashProjectileId(index).Value = projectile.GetComponent<NetworkObject>().NetworkObjectId;
     }
 
     public override void OnNetworkSpawn()
@@ -55,9 +71,10 @@ public class SplashVolley : PlayerAbility
 
     void TryAddProjectile(int index)
     {
-        if (m_splashProjectiles[index] == null && m_splashProjectileIds[index].Value > 0)
+        var projectileId = GetSplashProjectileId(index).Value;
+        if (m_splashProjectiles[index] == null && projectileId > 0)
         {
-            var projectile = NetworkManager.SpawnManager.SpawnedObjects[m_splashProjectileIds[index].Value].gameObject;
+            var projectile = NetworkManager.SpawnManager.SpawnedObjects[projectileId].gameObject;
             projectile.SetActive(false);
             m_splashProjectiles[index] = projectile;
         }
@@ -88,7 +105,7 @@ public class SplashVolley : PlayerAbility
     {
         // Set rotation/local position
         SetRotationToActionDirection();
-        SetLocalPosition(PlayerAbilityCentreOffset);
+        SetLocalPosition(PlayerAbilityCentreOffset + ActivationInput.actionDirection * Projection);
 
         // Play animation
         PlayAnimation("SplashLob");
@@ -151,9 +168,10 @@ public class SplashVolley : PlayerAbility
             no_projectile.Direction = direction;
             no_projectile.Distance = distance;
             no_projectile.Duration = duration;
-            no_projectile.Scale = 1;
+            no_projectile.ExplosionRadius = 1;
             no_projectile.LocalPlayer = Player;
             no_projectile.WeaponType = Wearable.WeaponTypeEnum.Magic;
+            no_projectile.ExplosionRadius = ExplosionRadius;
 
             var playerCharacter = Player.GetComponent<NetworkCharacter>();
             no_projectile.DamagePerHit = playerCharacter.AttackPower.Value;
@@ -185,8 +203,9 @@ public class SplashVolley : PlayerAbility
             no_projectile.Direction = direction;
             no_projectile.Distance = distance;
             no_projectile.Duration = duration;
-            no_projectile.Scale = 1;
+            no_projectile.ExplosionRadius = 1;
             no_projectile.WeaponType = Wearable.WeaponTypeEnum.Magic;
+            no_projectile.ExplosionRadius = ExplosionRadius;
 
             var playerCharacter = Player.GetComponent<NetworkCharacter>();
             no_projectile.DamagePerHit = playerCharacter.AttackPower.Value;

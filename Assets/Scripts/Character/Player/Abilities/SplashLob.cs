@@ -10,6 +10,7 @@ public class SplashLob : PlayerAbility
     public float Projection = 1.5f;
     public float Distance = 8f;
     public float Duration = 1f;
+    public float ExplosionRadius = 1f;
     public float LobHeight = 2f;
 
     [Header("Projectile Prefab")]
@@ -61,7 +62,7 @@ public class SplashLob : PlayerAbility
     {
         // set rotatin/local position
         SetRotationToActionDirection();
-        SetLocalPosition(PlayerAbilityCentreOffset);
+        SetLocalPosition(PlayerAbilityCentreOffset + ActivationInput.actionDirection * Projection);
 
         // play animation
         PlayAnimation("SplashLob");
@@ -91,9 +92,10 @@ public class SplashLob : PlayerAbility
             no_projectile.Direction = direction;
             no_projectile.Distance = distance;
             no_projectile.Duration = duration;
-            no_projectile.Scale = 1;
+            no_projectile.ExplosionRadius = 1;
             no_projectile.LocalPlayer = Player;
             no_projectile.WeaponType = Wearable.WeaponTypeEnum.Magic;
+            no_projectile.ExplosionRadius = ExplosionRadius;
 
             var playerCharacter = Player.GetComponent<NetworkCharacter>();
             no_projectile.DamagePerHit = playerCharacter.AttackPower.Value;
@@ -125,8 +127,9 @@ public class SplashLob : PlayerAbility
             no_projectile.Direction = direction;
             no_projectile.Distance = distance;
             no_projectile.Duration = duration;
-            no_projectile.Scale = 1;
+            no_projectile.ExplosionRadius = 1;
             no_projectile.WeaponType = Wearable.WeaponTypeEnum.Magic;
+            no_projectile.ExplosionRadius = ExplosionRadius;
 
             var playerCharacter = Player.GetComponent<NetworkCharacter>();
             no_projectile.DamagePerHit = playerCharacter.AttackPower.Value;
