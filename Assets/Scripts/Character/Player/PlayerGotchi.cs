@@ -66,7 +66,7 @@ public class PlayerGotchi : NetworkBehaviour
     private float m_leftHandHideTimer = 0;
     private float m_rightHandHideTimer = 0;
 
-    public enum Facing { Front, Back, Left, Right }
+    public enum Facing { Front, Back, Left, Right, NA }
     private Facing m_facing;
 
     private float m_bodyRotation = 0;

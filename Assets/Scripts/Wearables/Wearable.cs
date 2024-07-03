@@ -26,6 +26,8 @@ public partial class Wearable
     public CharacterStat TertiaryBuff;
     public float TertiaryBuffValue;
     public string SwapDescription;
+    public PlayerGotchi.Facing AttackView;
+    public float AttackAngle;
 }
 
 

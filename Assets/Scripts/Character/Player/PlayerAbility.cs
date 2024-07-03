@@ -83,10 +83,11 @@ public class PlayerAbility : NetworkBehaviour
     public void Init(GameObject playerObject, Hand abilityHand)
     {
         var playerEquipment = playerObject.GetComponent<PlayerEquipment>();
-        var wearable = abilityHand == Hand.Left ? playerEquipment.LeftHand : playerEquipment.RightHand;
-        ApCost = IsSpecialAbility ? WearableManager.Instance.GetWearable(wearable.Value).SpecialAp : ApCost;
-        SpecialCooldown = WearableManager.Instance.GetWearable(wearable.Value).SpecialCooldown;
-        ActivationWearable = wearable.Value;
+        var wearableNameEnum = (abilityHand == Hand.Left ? playerEquipment.LeftHand : playerEquipment.RightHand).Value;
+        var wearable = WearableManager.Instance.GetWearable(wearableNameEnum);
+        ApCost = IsSpecialAbility ? wearable.SpecialAp : ApCost;
+        SpecialCooldown = wearable.SpecialCooldown;
+        ActivationWearable = wearableNameEnum;
 
         var handAndWearableTransform = transform.Find("HandAndWearable");
         if (handAndWearableTransform == null) return;
@@ -95,7 +96,8 @@ public class PlayerAbility : NetworkBehaviour
         var spriteRenderer = wearableTransform.GetComponent<SpriteRenderer>();
         if (spriteRenderer != null)
         {
-            spriteRenderer.sprite = WeaponSpriteManager.Instance.GetSprite(wearable.Value, PlayerGotchi.Facing.Right);
+            spriteRenderer.sprite = WeaponSpriteManager.Instance.GetSprite(wearableNameEnum, wearable.AttackView);
+            wearableTransform.localRotation = Quaternion.Euler(0, 0, wearable.AttackAngle);
         }
     }
 
