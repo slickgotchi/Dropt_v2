@@ -3,9 +3,9 @@ using Unity.Netcode;
 using System.Collections.Generic;
 using Unity.Mathematics;
 
-public class CleaveSwing : PlayerAbility
+public class CleaveSlash : PlayerAbility
 {
-    [Header("CleaveSwing Parameters")]
+    [Header("CleaveSlash Parameters")]
     [SerializeField] float Projection = 1f;
 
     private Collider2D m_collider;
@@ -28,7 +28,7 @@ public class CleaveSwing : PlayerAbility
 
         // IMPORTANT use PlayAnimation which calls RPC's in the background that play the 
         // animation on remote clients
-        PlayAnimation("CleaveSwing");
+        PlayAnimation("CleaveSlash");
 
 
     }

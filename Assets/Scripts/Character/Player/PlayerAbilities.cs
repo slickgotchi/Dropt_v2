@@ -11,9 +11,9 @@ public class PlayerAbilities : NetworkBehaviour
     private NetworkVariable<ulong> DashId = new NetworkVariable<ulong>(0);
 
     [Header("Cleave")]
-    public GameObject cleaveSwingPrefab;
-    [HideInInspector] public GameObject CleaveSwing;
-    private NetworkVariable<ulong> CleaveSwingId = new NetworkVariable<ulong>(0);
+    public GameObject cleaveSlashPrefab;
+    [HideInInspector] public GameObject CleaveSlash;
+    private NetworkVariable<ulong> CleaveSlashId = new NetworkVariable<ulong>(0);
 
     public GameObject cleaveWhirlwindPrefab;
     [HideInInspector] public GameObject CleaveWhirlwind;
@@ -37,9 +37,9 @@ public class PlayerAbilities : NetworkBehaviour
     private NetworkVariable<ulong> PierceLanceId = new NetworkVariable<ulong>(0);
 
     [Header("Smash")]
-    public GameObject smashSwingPrefab;
-    [HideInInspector] public GameObject SmashSwing;
-    private NetworkVariable<ulong> SmashSwingId = new NetworkVariable<ulong>(0);
+    public GameObject smashSwipePrefab;
+    [HideInInspector] public GameObject SmashSwipe;
+    private NetworkVariable<ulong> SmashSwipeId = new NetworkVariable<ulong>(0);
 
     public GameObject smashWavePrefab;
     [HideInInspector] public GameObject SmashWave;
@@ -134,7 +134,7 @@ public class PlayerAbilities : NetworkBehaviour
         CreateAbility(ref Dash, dashPrefab, DashId);
 
         // cleave
-        CreateAbility(ref CleaveSwing, cleaveSwingPrefab, CleaveSwingId);
+        CreateAbility(ref CleaveSlash, cleaveSlashPrefab, CleaveSlashId);
         CreateAbility(ref CleaveWhirlwind, cleaveWhirlwindPrefab, CleaveWhirlwindId);
         CreateAbility(ref CleaveCyclone, cleaveCyclonePrefab, CleaveCycloneId);
 
@@ -144,7 +144,7 @@ public class PlayerAbilities : NetworkBehaviour
         CreateAbility(ref PierceLance, pierceLancePrefab, PierceLanceId);
 
         // smash
-        CreateAbility(ref SmashSwing, smashSwingPrefab, SmashSwingId);
+        CreateAbility(ref SmashSwipe, smashSwipePrefab, SmashSwipeId);
         CreateAbility(ref SmashWave, smashWavePrefab, SmashWaveId);
         CreateAbility(ref SmashSlam, smashSlamPrefab, SmashSlamId);
 
@@ -182,7 +182,7 @@ public class PlayerAbilities : NetworkBehaviour
         Debug.Log("Player disconnected");
         DestroyAbility(ref Dash);
 
-        DestroyAbility(ref CleaveSwing);
+        DestroyAbility(ref CleaveSlash);
         DestroyAbility(ref CleaveWhirlwind);
         DestroyAbility(ref CleaveCyclone);
 
@@ -190,7 +190,7 @@ public class PlayerAbilities : NetworkBehaviour
         DestroyAbility(ref PierceDrill);
         DestroyAbility(ref PierceLance);
 
-        DestroyAbility(ref SmashSwing);
+        DestroyAbility(ref SmashSwipe);
         DestroyAbility(ref SmashWave);
         DestroyAbility(ref SmashSlam);
 
@@ -240,7 +240,7 @@ public class PlayerAbilities : NetworkBehaviour
             TryAddAbilityClientSide(ref Dash, DashId);
 
             // cleave
-            TryAddAbilityClientSide(ref CleaveSwing, CleaveSwingId);
+            TryAddAbilityClientSide(ref CleaveSlash, CleaveSlashId);
             TryAddAbilityClientSide(ref CleaveWhirlwind, CleaveWhirlwindId);
             TryAddAbilityClientSide(ref CleaveCyclone, CleaveCycloneId);
 
@@ -250,7 +250,7 @@ public class PlayerAbilities : NetworkBehaviour
             TryAddAbilityClientSide(ref PierceLance, PierceLanceId);
 
             // smash
-            TryAddAbilityClientSide(ref SmashSwing, SmashSwingId);
+            TryAddAbilityClientSide(ref SmashSwipe, SmashSwipeId);
             TryAddAbilityClientSide(ref SmashWave, SmashWaveId);
             TryAddAbilityClientSide(ref SmashSlam, SmashSlamId);
 
@@ -292,7 +292,7 @@ public class PlayerAbilities : NetworkBehaviour
         if (abilityEnum == PlayerAbilityEnum.Dash && Dash != null) return Dash.GetComponent<PlayerAbility>();
 
         // cleave
-        if (abilityEnum == PlayerAbilityEnum.CleaveSwing && CleaveSwing != null) return CleaveSwing.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.CleaveSlash && CleaveSlash != null) return CleaveSlash.GetComponent<PlayerAbility>();
         if (abilityEnum == PlayerAbilityEnum.CleaveWhirlwind && CleaveWhirlwind != null) return CleaveWhirlwind.GetComponent<PlayerAbility>();
         if (abilityEnum == PlayerAbilityEnum.CleaveCyclone && CleaveCyclone != null) return CleaveCyclone.GetComponent<PlayerAbility>();
 
@@ -302,7 +302,7 @@ public class PlayerAbilities : NetworkBehaviour
         if (abilityEnum == PlayerAbilityEnum.PierceLance && PierceLance != null) return PierceLance.GetComponent<PlayerAbility>();
 
         // smash
-        if (abilityEnum == PlayerAbilityEnum.SmashSwing && SmashSwing != null) return SmashSwing.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.SmashSwipe && SmashSwipe != null) return SmashSwipe.GetComponent<PlayerAbility>();
         if (abilityEnum == PlayerAbilityEnum.SmashWave && SmashWave != null) return SmashWave.GetComponent<PlayerAbility>();
         if (abilityEnum == PlayerAbilityEnum.SmashSlam && SmashSlam != null) return SmashSlam.GetComponent<PlayerAbility>();
 
@@ -341,8 +341,8 @@ public class PlayerAbilities : NetworkBehaviour
     {
         var wearable = WearableManager.Instance.GetWearable(wearableNameEnum);
 
-        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Cleave) return PlayerAbilityEnum.CleaveSwing;
-        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Smash) return PlayerAbilityEnum.SmashSwing;
+        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Cleave) return PlayerAbilityEnum.CleaveSlash;
+        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Smash) return PlayerAbilityEnum.SmashSwipe;
         if (wearable.WeaponType == Wearable.WeaponTypeEnum.Pierce) return PlayerAbilityEnum.PierceThrust;
 
         if (wearable.WeaponType == Wearable.WeaponTypeEnum.Ballistic) return PlayerAbilityEnum.BallisticShot;
@@ -443,8 +443,8 @@ public enum PlayerAbilityEnum
 {
     Null,
     Dash,
-    CleaveSwing, CleaveWhirlwind, CleaveCyclone,
-    SmashSwing, SmashWave, SmashSlam,
+    CleaveSlash, CleaveWhirlwind, CleaveCyclone,
+    SmashSwipe, SmashWave, SmashSlam,
     PierceThrust, PierceDrill, PierceLance,
     BallisticShot, BallisticSnipe, BallisticKill,
     MagicCast, MagicBeam, MagicBlast,
