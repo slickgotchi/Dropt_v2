@@ -116,6 +116,11 @@ public class PlayerGotchi : NetworkBehaviour
             m_bodyParent.transform.rotation = Quaternion.Euler(new Vector3(0, 0, CalculateSpriteLean()));
             GetComponent<Animator>().enabled = true;
         }
+
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            ResetIdleAnimation();
+        }
     }
 
     public void DropSpawn(Vector3 currentPosition, Vector3 newSpawnPoint)
@@ -136,6 +141,35 @@ public class PlayerGotchi : NetworkBehaviour
         animator.Play("PlayerGotchi_DropSpawn");
         m_spawnPoint = spawnPoint;
         m_preSpawnPoint = currentPosition;
+    }
+
+    public void ResetIdleAnimation()
+    {
+        // Local Client
+        if (IsLocalPlayer)
+        {
+            animator.Play("PlayerGotchiBody_Reset");
+            animator.Play("PlayerGotchiLeftHand_Reset");
+            animator.Play("PlayerGotchiRightHand_Reset");
+        }
+
+        // Server
+        if (IsServer)
+        {
+            ResetIdleAnimationClientRpc();
+        }
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    private void ResetIdleAnimationClientRpc()
+    {
+        // Remote Client
+        if (!IsLocalPlayer)
+        {
+            animator.Play("PlayerGotchiBody_Reset");
+            animator.Play("PlayerGotchiLeftHand_Reset");
+            animator.Play("PlayerGotchiRightHand_Reset");
+        }
     }
 
     public void PlayAnimation(string animName)
@@ -590,6 +624,8 @@ public class PlayerGotchi : NetworkBehaviour
     }
 
     float m_animUpdateTimer = 0;
+    bool m_isHoldStart = false;
+    bool m_isHoldReleased = false;
 
     void UpdateGotchiAnim()
     {
@@ -603,7 +639,15 @@ public class PlayerGotchi : NetworkBehaviour
         var holdState = m_playerPrediction.GetHoldState();
         SetAnimatorBool("IsLeftHoldActive", holdState == PlayerPrediction.HoldState.LeftActive);
         SetAnimatorBool("IsRightHoldActive", holdState == PlayerPrediction.HoldState.RightActive);
-        SetAnimatorBool("IsHoldActive", holdState != PlayerPrediction.HoldState.Inactive);
+
+        if (!m_isHoldStart && holdState != PlayerPrediction.HoldState.Inactive) m_isHoldStart = true;
+        if (m_isHoldStart && holdState == PlayerPrediction.HoldState.Inactive) m_isHoldReleased = true;
+        if (m_isHoldReleased)
+        {
+            ResetIdleAnimation();
+            m_isHoldReleased = false;
+            m_isHoldStart = false;
+        }
     }
 
     void SetAnimatorBool(string name, bool value)
