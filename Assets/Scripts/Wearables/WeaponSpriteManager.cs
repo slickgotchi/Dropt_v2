@@ -6,7 +6,18 @@ public class WeaponSpriteManager : MonoBehaviour
     private static WeaponSpriteManager _instance;
     public static WeaponSpriteManager Instance => _instance;
 
-    [SerializeField] private string folderPath = "Wearables/WeaponSprites";
+    [SerializeField] private string[] folderPaths = { 
+        "Wearables/WeaponSprites/Cleave", 
+        "Wearables/WeaponSprites/Pierce", 
+        "Wearables/WeaponSprites/Smash", 
+        "Wearables/WeaponSprites/Ballistic", 
+        "Wearables/WeaponSprites/Magic", 
+        "Wearables/WeaponSprites/Splash", 
+        "Wearables/WeaponSprites/Consume", 
+        "Wearables/WeaponSprites/Aura", 
+        "Wearables/WeaponSprites/Throw", 
+        "Wearables/WeaponSprites/Shield", 
+    };
 
     private Dictionary<Wearable.NameEnum, WearableSprite> wearableSprites;
 
@@ -28,12 +39,16 @@ public class WeaponSpriteManager : MonoBehaviour
     {
         wearableSprites = new Dictionary<Wearable.NameEnum, WearableSprite>();
 
-        var sprites = Resources.LoadAll<WearableSprite>(folderPath);
-        foreach (var sprite in sprites)
+        foreach (var folderPath in folderPaths)
         {
-            if (!wearableSprites.ContainsKey(sprite.WearableNameEnum))
+            Debug.Log("Loading " + folderPath);
+            var sprites = Resources.LoadAll<WearableSprite>(folderPath);
+            foreach (var sprite in sprites)
             {
-                wearableSprites.Add(sprite.WearableNameEnum, sprite);
+                if (!wearableSprites.ContainsKey(sprite.WearableNameEnum))
+                {
+                    wearableSprites.Add(sprite.WearableNameEnum, sprite);
+                }
             }
         }
     }
