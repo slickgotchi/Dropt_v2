@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System.Collections.Generic;   
 using UnityEngine;
 
 public class WeaponSpriteManager : MonoBehaviour
@@ -35,13 +35,13 @@ public class WeaponSpriteManager : MonoBehaviour
         }
     }
 
+
     private void LoadAllWearableSprites()
     {
         wearableSprites = new Dictionary<Wearable.NameEnum, WearableSprite>();
 
         foreach (var folderPath in folderPaths)
         {
-            Debug.Log("Loading " + folderPath);
             var sprites = Resources.LoadAll<WearableSprite>(folderPath);
             foreach (var sprite in sprites)
             {

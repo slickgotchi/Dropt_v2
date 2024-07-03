@@ -15,7 +15,7 @@ public class PlayerEquipment : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        LeftHand.Value = Wearable.NameEnum.ThaaveHammer;
+        LeftHand.Value = Wearable.NameEnum.SushiPiece;
         RightHand.Value = Wearable.NameEnum.Parasol;
     }
 
@@ -42,6 +42,8 @@ public class PlayerEquipment : NetworkBehaviour
             case Slot.LeftHand: LeftHand.Value = equipmentNameEnum; break;
             case Slot.Pet: Pet.Value = equipmentNameEnum; break;
         }
+
+        SetEquipmentClientRpc(slot, equipmentNameEnum);
     }
 
     [Rpc(SendTo.ClientsAndHost)]

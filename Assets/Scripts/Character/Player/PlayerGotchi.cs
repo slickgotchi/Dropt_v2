@@ -426,6 +426,7 @@ public class PlayerGotchi : NetworkBehaviour
                 m_leftHandFaceFront.SetActive(false);
                 m_leftHandFaceBack.SetActive(false);
                 m_leftHandFaceLeft.SetActive(false);
+                m_leftHandFaceRight.SetActive(false);
 
             }
             if (hand == Hand.Right)
@@ -434,6 +435,7 @@ public class PlayerGotchi : NetworkBehaviour
                 m_rightHandHideTimer = duration;
                 m_rightHandFaceFront.SetActive(false);
                 m_rightHandFaceBack.SetActive(false);
+                m_rightHandFaceLeft.SetActive(false);
                 m_rightHandFaceRight.SetActive(false);
             }
         }
@@ -456,6 +458,7 @@ public class PlayerGotchi : NetworkBehaviour
                 m_leftHandFaceFront.SetActive(false);
                 m_leftHandFaceBack.SetActive(false);
                 m_leftHandFaceLeft.SetActive(false);
+                m_leftHandFaceRight.SetActive(false);
 
             }
             if (hand == Hand.Right)
@@ -464,6 +467,7 @@ public class PlayerGotchi : NetworkBehaviour
                 m_rightHandHideTimer = duration;
                 m_rightHandFaceFront.SetActive(false);
                 m_rightHandFaceBack.SetActive(false);
+                m_rightHandFaceLeft.SetActive(false);
                 m_rightHandFaceRight.SetActive(false);
             }
         }
