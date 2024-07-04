@@ -47,7 +47,7 @@ public class Consume : PlayerAbility
         }
         else
         {
-            var wearableNameEnum = Player.GetComponent<PlayerEquipment>().LeftHand.Value;
+            var wearableNameEnum = Player.GetComponent<PlayerEquipment>().RightHand.Value;
             ApplyBuff(wearableNameEnum);
         }
     }
