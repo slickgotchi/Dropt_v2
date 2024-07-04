@@ -75,7 +75,7 @@ public class SmashWave : PlayerAbility
                     damage = GetRandomVariation(damage);
                     var isCritical = IsCriticalAttack(playerCharacter.CriticalChance.Value);
                     damage = (int)(isCritical ? damage * playerCharacter.CriticalDamage.Value : damage);
-                    hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical);
+                    hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical, Player);
                 }
 
                 if (hit.HasComponent<Destructible>())

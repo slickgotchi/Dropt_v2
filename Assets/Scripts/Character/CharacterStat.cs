@@ -18,6 +18,7 @@ public enum CharacterStat
     MoveSpeed,
     Accuracy,
     Evasion,
+    DamageReduction,
 
     // attack
     DebuffEffectiveness,

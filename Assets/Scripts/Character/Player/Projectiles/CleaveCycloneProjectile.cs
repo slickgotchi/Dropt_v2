@@ -18,6 +18,8 @@ public class CleaveCycloneProjectile : NetworkBehaviour
     [HideInInspector] public float CriticalChance = 0.1f;
     [HideInInspector] public float CriticalDamage = 1.5f;
 
+    [HideInInspector] public GameObject LocalPlayer;
+
     [HideInInspector] public PlayerAbility.NetworkRole Role = PlayerAbility.NetworkRole.LocalClient;
 
     public float GrowShrinkTime = 0.5f; // Time for scaling up and down
@@ -138,7 +140,7 @@ public class CleaveCycloneProjectile : NetworkBehaviour
                     damage = PlayerAbility.GetRandomVariation(damage);
                     var isCritical = PlayerAbility.IsCriticalAttack(CriticalChance);
                     damage = (int)(isCritical ? damage * CriticalDamage : damage);
-                    hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical);
+                    hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical, LocalPlayer);
                 }
 
                 if (hit.HasComponent<Destructible>())

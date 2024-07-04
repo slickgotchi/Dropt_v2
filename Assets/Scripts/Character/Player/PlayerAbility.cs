@@ -369,7 +369,7 @@ public class PlayerAbility : NetworkBehaviour
                 var damage = playerCharacter.GetAttackPower() * damageMultiplier * ActivationWearable.RarityMultiplier;
                 isCritical = playerCharacter.IsCriticalAttack();
                 damage = (int)(isCritical ? damage * playerCharacter.CriticalDamage.Value : damage);
-                hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical);
+                hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical, Player);
             }
 
             if (hit.HasComponent<Destructible>())

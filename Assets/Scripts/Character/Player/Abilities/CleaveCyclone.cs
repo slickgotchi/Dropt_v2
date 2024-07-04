@@ -74,6 +74,7 @@ public class CleaveCyclone : PlayerAbility
             no_projectile.Distance = distance;
             no_projectile.Duration = duration;
             no_projectile.Scale = scale;
+            no_projectile.LocalPlayer = Player;
 
             var playerCharacter = Player.GetComponent<NetworkCharacter>();
             no_projectile.DamagePerHit = playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier;

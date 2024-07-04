@@ -19,6 +19,7 @@ public class NetworkCharacter : NetworkBehaviour
     public float baseAccuracy = 1f;
     public float baseEvasion = 0f;
     public float baseDamageReduction = 0f;
+    public float baseApLeech = 0f;
 
     [Header("Damage/Health Popup Offset")]
     public Vector3 popupTextOffset = new Vector3(0, 1.5f, 0f);
@@ -40,6 +41,7 @@ public class NetworkCharacter : NetworkBehaviour
     [HideInInspector] public NetworkVariable<float> Accuracy = new NetworkVariable<float>();
     [HideInInspector] public NetworkVariable<float> Evasion = new NetworkVariable<float>();
     [HideInInspector] public NetworkVariable<float> DamageReduction = new NetworkVariable<float>();
+    [HideInInspector] public NetworkVariable<float> ApLeech = new NetworkVariable<float>();
 
     public override void OnNetworkSpawn()
     {
@@ -50,9 +52,9 @@ public class NetworkCharacter : NetworkBehaviour
         }
     }
 
-    public int GetAttackPower(float randomVariation = 0.1f)
+    public float GetAttackPower(float randomVariation = 0.1f)
     {
-        return (int)UnityEngine.Random.Range(
+        return UnityEngine.Random.Range(
             AttackPower.Value * (1 - randomVariation), 
             AttackPower.Value * (1 + randomVariation));
     }
@@ -63,7 +65,7 @@ public class NetworkCharacter : NetworkBehaviour
         return rand < CriticalChance.Value;
     }
 
-    public virtual void TakeDamage(float damage, bool isCritical)
+    public virtual void TakeDamage(float damage, bool isCritical, GameObject damageDealer = null)
     {
         // reduce damage
         damage *= (1 - DamageReduction.Value);
@@ -85,6 +87,16 @@ public class NetworkCharacter : NetworkBehaviour
             if (HpCurrent.Value <= 0)
             {
                 gameObject.GetComponent<NetworkObject>().Despawn();
+            }
+
+            // do ap leech
+            if (damageDealer != null)
+            {
+                var nc_damageDealer = damageDealer.GetComponent<NetworkCharacter>();
+                if (nc_damageDealer != null)
+                {
+                    nc_damageDealer.ApCurrent.Value += (int)(damage * nc_damageDealer.ApLeech.Value);
+                }
             }
         }
     }
@@ -117,6 +129,8 @@ public class NetworkCharacter : NetworkBehaviour
         MoveSpeed.Value = baseMoveSpeed;
         Accuracy.Value = baseAccuracy;
         Evasion.Value = baseEvasion;
+        DamageReduction.Value = baseDamageReduction;
+        ApLeech.Value = baseApLeech;
     }
 
     public void AddBuffObject(BuffObject buffObject)
@@ -169,7 +183,9 @@ public class NetworkCharacter : NetworkBehaviour
             { CharacterStat.CriticalDamage, baseCriticalDamage },
             { CharacterStat.MoveSpeed, baseMoveSpeed },
             { CharacterStat.Accuracy, baseAccuracy },
-            { CharacterStat.Evasion, baseEvasion }
+            { CharacterStat.Evasion, baseEvasion },
+            { CharacterStat.DamageReduction, baseDamageReduction },
+            { CharacterStat.ApLeech, baseApLeech },
         };
 
         // Apply Add/Subtract buffs
@@ -229,11 +245,10 @@ public class NetworkCharacter : NetworkBehaviour
         MoveSpeed.Value = baseStats[CharacterStat.MoveSpeed];
         Accuracy.Value = baseStats[CharacterStat.Accuracy];
         Evasion.Value = baseStats[CharacterStat.Evasion];
+        DamageReduction.Value = baseStats[CharacterStat.DamageReduction];
+        ApLeech.Value = baseStats[CharacterStat.ApLeech];
 
         // Optionally, you can log the final stats for debugging
-        Debug.Log("Final Stats Calculated:");
-        Debug.Log($"HpMax: {HpMax.Value}, AttackPower: {AttackPower.Value}, CriticalChance: {CriticalChance.Value}");
-        Debug.Log($"ApMax: {ApMax.Value}, DoubleStrikeChance: {DoubleStrikeChance.Value}, CriticalDamage: {CriticalDamage.Value}");
-        Debug.Log($"MoveSpeed: {MoveSpeed.Value}, Accuracy: {Accuracy.Value}, Evasion: {Evasion.Value}");
+        Debug.Log("Player Stats Updated");
     }
 }
