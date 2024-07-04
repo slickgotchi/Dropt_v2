@@ -18,6 +18,7 @@ public class NetworkCharacter : NetworkBehaviour
     public float baseMoveSpeed = 6.22f;
     public float baseAccuracy = 1f;
     public float baseEvasion = 0f;
+    public float baseDamageReduction = 0f;
 
     [Header("Damage/Health Popup Offset")]
     public Vector3 popupTextOffset = new Vector3(0, 1.5f, 0f);
@@ -38,6 +39,7 @@ public class NetworkCharacter : NetworkBehaviour
     [HideInInspector] public NetworkVariable<float> MoveSpeed = new NetworkVariable<float>();
     [HideInInspector] public NetworkVariable<float> Accuracy = new NetworkVariable<float>();
     [HideInInspector] public NetworkVariable<float> Evasion = new NetworkVariable<float>();
+    [HideInInspector] public NetworkVariable<float> DamageReduction = new NetworkVariable<float>();
 
     public override void OnNetworkSpawn()
     {
@@ -63,6 +65,9 @@ public class NetworkCharacter : NetworkBehaviour
 
     public virtual void TakeDamage(float damage, bool isCritical)
     {
+        // reduce damage
+        damage *= (1 - DamageReduction.Value);
+
         if (IsClient)
         {
             if (gameObject.HasComponent<SpriteFlash>())

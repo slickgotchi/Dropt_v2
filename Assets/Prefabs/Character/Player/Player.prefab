@@ -874,8 +874,8 @@ MonoBehaviour:
   baseHpMax: 256
   baseHpCurrent: 256
   baseHpBuffer: 0
-  baseAttackPower: 32
-  baseCriticalChance: 0.2
+  baseAttackPower: 10
+  baseCriticalChance: 0.05
   baseApMax: 128
   baseApCurrent: 128
   baseApBuffer: 0
@@ -884,6 +884,7 @@ MonoBehaviour:
   baseMoveSpeed: 6.22
   baseAccuracy: 1
   baseEvasion: 0
+  baseDamageReduction: 0
   popupTextOffset: {x: 0, y: 1.5, z: 0}
   HpMax:
     m_InternalValue: 100
@@ -910,6 +911,8 @@ MonoBehaviour:
   Accuracy:
     m_InternalValue: 1
   Evasion:
+    m_InternalValue: 0
+  DamageReduction:
     m_InternalValue: 0
 --- !u!114 &6173716106985737149
 MonoBehaviour:
@@ -997,7 +1000,7 @@ MonoBehaviour:
   ShieldBash: {fileID: 0}
   shieldParryPrefab: {fileID: 0}
   ShieldParry: {fileID: 0}
-  shieldWallPrefab: {fileID: 0}
+  shieldWallPrefab: {fileID: 2544078778212307353, guid: 2f53b05453a3ba145aa8e2278a1196f0, type: 3}
   ShieldWall: {fileID: 0}
   unarmedPunchPrefab: {fileID: 2544078778212307353, guid: 344722100d5743f46946f3b90b5b5783, type: 3}
   UnarmedPunch: {fileID: 0}

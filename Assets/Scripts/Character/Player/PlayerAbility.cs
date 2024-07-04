@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Mathematics;
 using Unity.Netcode;
+using UnityEditor.Rendering;
 using UnityEngine;
 
 // Notes when deriving from PlayerAbility
@@ -57,7 +58,8 @@ public class PlayerAbility : NetworkBehaviour
     protected bool IsActivated = false;
     protected StatePayload PlayerActivationState;
     protected InputPayload ActivationInput;
-    protected Wearable.NameEnum ActivationWearable;
+    protected Wearable.NameEnum ActivationWearableNameEnum;
+    protected Wearable ActivationWearable;
 
     protected float HoldDuration = 0;
 
@@ -90,7 +92,8 @@ public class PlayerAbility : NetworkBehaviour
         var wearable = WearableManager.Instance.GetWearable(wearableNameEnum);
         ApCost = IsSpecialAbility ? wearable.SpecialAp : ApCost;
         SpecialCooldown = wearable.SpecialCooldown;
-        ActivationWearable = wearableNameEnum;
+        ActivationWearableNameEnum = wearableNameEnum;
+        ActivationWearable = wearable;
 
         m_handAndWearableTransform = transform.Find("HandAndWearable");
         if (m_handAndWearableTransform == null) return;
@@ -292,26 +295,28 @@ public class PlayerAbility : NetworkBehaviour
     /// component if they want to use this function.
     /// </summary>
     /// <param name="animName"></param>
-    protected void PlayAnimation(string animName)
+    protected void PlayAnimation(string animName, float speed = 1f)
     {
         // Local Client or Server - play animation
         if (Player.GetComponent<NetworkObject>().IsLocalPlayer || IsServer)
         {
+            Animator.speed = speed;
             Animator.Play(animName);
         }
 
         // Server - send message to all clients to play anim
         if (IsServer)
         {
-            PlayAnimationClientRpc(animName);
+            PlayAnimationClientRpc(animName, speed);
         }
     }
 
     [Rpc(SendTo.ClientsAndHost)]
-    private void PlayAnimationClientRpc(string animName)
+    private void PlayAnimationClientRpc(string animName, float speed)
     {
         if (Player.GetComponent<NetworkObject>().IsLocalPlayer) return;
 
+        Animator.speed = speed;
         Animator.Play(animName);
     }
 
@@ -356,7 +361,7 @@ public class PlayerAbility : NetworkBehaviour
             if (hit.HasComponent<NetworkCharacter>())
             {
                 var playerCharacter = Player.GetComponent<NetworkCharacter>();
-                var damage = playerCharacter.GetAttackPower() * damageMultiplier;
+                var damage = playerCharacter.GetAttackPower() * damageMultiplier * ActivationWearable.RarityMultiplier;
                 isCritical = playerCharacter.IsCriticalAttack();
                 damage = (int)(isCritical ? damage * playerCharacter.CriticalDamage.Value : damage);
                 hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical);

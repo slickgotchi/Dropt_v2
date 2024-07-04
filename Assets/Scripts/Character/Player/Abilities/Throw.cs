@@ -67,7 +67,7 @@ public class Throw : PlayerAbility
         PlayAnimation("Throw");
 
         // activate projectile
-        ActivateProjectile(ActivationWearable, ActivationInput.actionDirection, Distance, Duration);
+        ActivateProjectile(ActivationWearableNameEnum, ActivationInput.actionDirection, Distance, Duration);
     }
 
     ref GameObject GetProjectileInstance(Wearable.NameEnum activationWearable)
@@ -101,7 +101,7 @@ public class Throw : PlayerAbility
         // Server Only
         if (IsServer)
         {
-            ActivateProjectileClientRpc(ActivationWearable, projectile.transform.position, direction, distance, duration);
+            ActivateProjectileClientRpc(ActivationWearableNameEnum, projectile.transform.position, direction, distance, duration);
         }
     }
 

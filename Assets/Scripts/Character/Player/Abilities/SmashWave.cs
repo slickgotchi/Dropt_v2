@@ -71,7 +71,7 @@ public class SmashWave : PlayerAbility
                 if (hit.HasComponent<NetworkCharacter>())
                 {
                     var playerCharacter = Player.GetComponent<NetworkCharacter>();
-                    var damage = playerCharacter.AttackPower.Value * m_damageMultiplier;
+                    var damage = playerCharacter.AttackPower.Value * m_damageMultiplier * ActivationWearable.RarityMultiplier;
                     damage = GetRandomVariation(damage);
                     var isCritical = IsCriticalAttack(playerCharacter.CriticalChance.Value);
                     damage = (int)(isCritical ? damage * playerCharacter.CriticalDamage.Value : damage);

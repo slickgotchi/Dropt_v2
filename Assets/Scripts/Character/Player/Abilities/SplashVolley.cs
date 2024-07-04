@@ -112,7 +112,7 @@ public class SplashVolley : PlayerAbility
 
         // Activate projectiles
         var holdChargePercentage = math.min(HoldDuration / HoldChargeTime, 1);
-        ActivateMultipleProjectiles(ActivationWearable, ActivationInput.actionDirection, Distance, Duration, holdChargePercentage);
+        ActivateMultipleProjectiles(ActivationWearableNameEnum, ActivationInput.actionDirection, Distance, Duration, holdChargePercentage);
     }
 
     GameObject GetProjectileInstance(int index)
@@ -174,7 +174,7 @@ public class SplashVolley : PlayerAbility
             no_projectile.ExplosionRadius = ExplosionRadius;
 
             var playerCharacter = Player.GetComponent<NetworkCharacter>();
-            no_projectile.DamagePerHit = playerCharacter.AttackPower.Value;
+            no_projectile.DamagePerHit = playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier;
             no_projectile.CriticalChance = playerCharacter.CriticalChance.Value;
             no_projectile.CriticalDamage = playerCharacter.CriticalDamage.Value;
             no_projectile.NetworkRole = IsServer ? PlayerAbility.NetworkRole.Server : PlayerAbility.NetworkRole.LocalClient;
@@ -208,7 +208,7 @@ public class SplashVolley : PlayerAbility
             no_projectile.ExplosionRadius = ExplosionRadius;
 
             var playerCharacter = Player.GetComponent<NetworkCharacter>();
-            no_projectile.DamagePerHit = playerCharacter.AttackPower.Value;
+            no_projectile.DamagePerHit = playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier;
             no_projectile.CriticalChance = playerCharacter.CriticalChance.Value;
             no_projectile.CriticalDamage = playerCharacter.CriticalDamage.Value;
             no_projectile.NetworkRole = PlayerAbility.NetworkRole.RemoteClient;
