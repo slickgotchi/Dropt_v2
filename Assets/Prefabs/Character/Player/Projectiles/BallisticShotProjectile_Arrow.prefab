@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 8086004901219037682}
   - component: {fileID: -6693017499447722929}
-  - component: {fileID: 7869199515037794274}
   - component: {fileID: 3785798846994764995}
   - component: {fileID: 2334808591066055042}
   - component: {fileID: 2965551278588062993}
@@ -49,7 +48,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 4014014249
+  GlobalObjectIdHash: 1373369980
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -58,28 +57,6 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
---- !u!95 &7869199515037794274
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2544078778212307353}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 3079e1f608c6be442b3590daee948c91, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!58 &3785798846994764995
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -158,9 +135,11 @@ MonoBehaviour:
   Direction: {x: 0, y: 0, z: 0}
   Distance: 0
   Duration: 0
+  Scale: 1
   DamagePerHit: 1
   CriticalChance: 0.1
   CriticalDamage: 1.5
+  WeaponType: 0
   LocalPlayer: {fileID: 0}
   NetworkRole: 0
 --- !u!1 &8059999596395395899
@@ -246,6 +225,6 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0

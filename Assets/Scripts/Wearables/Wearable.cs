@@ -48,10 +48,23 @@ public partial class Wearable
 
     public float RarityMultiplier
     {
-        get
-        {
-            return GetRarityMultiplier(Rarity);
-        }
+        get { return GetRarityMultiplier(Rarity); }
+        set { }
+    }
+
+    public static UnityEngine.Color GetColorByRarity(RarityEnum rarity)
+    {
+        if (rarity == RarityEnum.Common) return Dropt.Utils.Color.HexToColor("#8661fd");
+        else if (rarity == RarityEnum.Uncommon) return Dropt.Utils.Color.HexToColor("#44b9cb");
+        else if (rarity == RarityEnum.Rare) return Dropt.Utils.Color.HexToColor("#66bafd");
+        else if (rarity == RarityEnum.Legendary) return Dropt.Utils.Color.HexToColor("#fbc56f");
+        else if (rarity == RarityEnum.Mythical) return Dropt.Utils.Color.HexToColor("#fe96fe");
+        else if (rarity == RarityEnum.Godlike) return Dropt.Utils.Color.HexToColor("#5bffaa");
+        else return Dropt.Utils.Color.HexToColor("#ffffff");
+    }
+
+    public UnityEngine.Color RarityColor {
+        get { return GetColorByRarity(Rarity);  }
         set { }
     }
 }

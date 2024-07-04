@@ -89,20 +89,25 @@ public class PlayerAbility : NetworkBehaviour
     {
         var playerEquipment = playerObject.GetComponent<PlayerEquipment>();
         var wearableNameEnum = (abilityHand == Hand.Left ? playerEquipment.LeftHand : playerEquipment.RightHand).Value;
-        var wearable = WearableManager.Instance.GetWearable(wearableNameEnum);
-        ApCost = IsSpecialAbility ? wearable.SpecialAp : ApCost;
-        SpecialCooldown = wearable.SpecialCooldown;
+        ActivationWearable = WearableManager.Instance.GetWearable(wearableNameEnum);
+        ApCost = IsSpecialAbility ? ActivationWearable.SpecialAp : ApCost;
+        SpecialCooldown = ActivationWearable.SpecialCooldown;
         ActivationWearableNameEnum = wearableNameEnum;
-        ActivationWearable = wearable;
 
+        // change wearable hand
         m_handAndWearableTransform = transform.Find("HandAndWearable");
         if (m_handAndWearableTransform == null) return;
         var wearableTransform = m_handAndWearableTransform.Find("Wearable");
         if (wearableTransform == null) return;
         var spriteRenderer = wearableTransform.GetComponent<SpriteRenderer>();
         if (spriteRenderer == null) return;
-        spriteRenderer.sprite = WeaponSpriteManager.Instance.GetSprite(wearableNameEnum, wearable.AttackView);
-        m_attackAngleOffset = wearable.AttackAngle;
+        spriteRenderer.sprite = WeaponSpriteManager.Instance.GetSprite(wearableNameEnum, ActivationWearable.AttackView);
+        m_attackAngleOffset = ActivationWearable.AttackAngle;
+
+        // change secondary slash color
+        var secSlashTransform = transform.Find("SecondarySlash");
+        if (secSlashTransform == null) return;
+        secSlashTransform.GetComponent<SpriteRenderer>().color = ActivationWearable.RarityColor;
     }
 
     public bool Activate(GameObject playerObject, StatePayload state, InputPayload input, float holdDuration)
