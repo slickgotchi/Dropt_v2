@@ -72,6 +72,9 @@ public class PlayerAbility : NetworkBehaviour
     private float m_teleportLagTimer = 0;
     private bool m_isOnTeleportStartChecking = false;
 
+    private Transform m_handAndWearableTransform;
+    private float m_attackAngleOffset = 0;
+
     public enum NetworkRole { LocalClient, RemoteClient, Server }
 
     private void Awake()
@@ -89,16 +92,14 @@ public class PlayerAbility : NetworkBehaviour
         SpecialCooldown = wearable.SpecialCooldown;
         ActivationWearable = wearableNameEnum;
 
-        var handAndWearableTransform = transform.Find("HandAndWearable");
-        if (handAndWearableTransform == null) return;
-        var wearableTransform = handAndWearableTransform.Find("Wearable");
+        m_handAndWearableTransform = transform.Find("HandAndWearable");
+        if (m_handAndWearableTransform == null) return;
+        var wearableTransform = m_handAndWearableTransform.Find("Wearable");
         if (wearableTransform == null) return;
         var spriteRenderer = wearableTransform.GetComponent<SpriteRenderer>();
-        if (spriteRenderer != null)
-        {
-            spriteRenderer.sprite = WeaponSpriteManager.Instance.GetSprite(wearableNameEnum, wearable.AttackView);
-            wearableTransform.localRotation = Quaternion.Euler(0, 0, wearable.AttackAngle);
-        }
+        if (spriteRenderer == null) return;
+        spriteRenderer.sprite = WeaponSpriteManager.Instance.GetSprite(wearableNameEnum, wearable.AttackView);
+        m_attackAngleOffset = wearable.AttackAngle;
     }
 
     public bool Activate(GameObject playerObject, StatePayload state, InputPayload input, float holdDuration)
@@ -135,10 +136,20 @@ public class PlayerAbility : NetworkBehaviour
         return true;
     }
 
+    private void LateUpdate()
+    {
+        // apply attack angle offset to hand and wearable transform
+        if (m_handAndWearableTransform != null)
+        {
+            Quaternion currentRotation = m_handAndWearableTransform.localRotation;
+            Quaternion additionalRotation = Quaternion.Euler(0, 0, m_attackAngleOffset);
+            m_handAndWearableTransform.localRotation = currentRotation * additionalRotation;
+        }
+    }
+
     private void Update()
     {
         m_timer -= Time.deltaTime;
-
         m_autoMoveTimer -= Time.deltaTime;
 
         if (Player == null) return;
