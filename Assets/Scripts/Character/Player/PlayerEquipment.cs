@@ -15,8 +15,8 @@ public class PlayerEquipment : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        LeftHand.Value = Wearable.NameEnum.GeodeSmasher;
-        RightHand.Value = Wearable.NameEnum.SushiKnife;
+        LeftHand.Value = Wearable.NameEnum.AppleJuice;
+        RightHand.Value = Wearable.NameEnum.L2Sign;
     }
 
     public void SetEquipment(Slot slot, Wearable.NameEnum equipmentNameEnum)

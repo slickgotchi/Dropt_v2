@@ -144,7 +144,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3209613136
+  GlobalObjectIdHash: 3131480104
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -296,6 +296,7 @@ MonoBehaviour:
   baseMoveSpeed: 6.22
   baseAccuracy: 1
   baseEvasion: 0
+  baseDamageReduction: 0
   popupTextOffset: {x: 0, y: 1.5, z: 0}
   HpMax:
     m_InternalValue: 100
@@ -322,6 +323,8 @@ MonoBehaviour:
   Accuracy:
     m_InternalValue: 1
   Evasion:
+    m_InternalValue: 0
+  DamageReduction:
     m_InternalValue: 0
 --- !u!114 &-4115255136852117106
 MonoBehaviour:
@@ -408,6 +411,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2228045280187910979}
   - component: {fileID: 361146906994616670}
+  - component: {fileID: 4489110827241425368}
   m_Layer: 0
   m_Name: Body
   m_TagString: Untagged
@@ -484,6 +488,20 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 1
+--- !u!114 &4489110827241425368
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6525230415705073668}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d7b5c2d243625b45ad7856320609381, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetToTrack: {fileID: 0}
+  sortingOrderOffset: 0
 --- !u!1001 &2507992453680468634
 PrefabInstance:
   m_ObjectHideFlags: 0

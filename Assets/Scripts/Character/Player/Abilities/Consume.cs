@@ -34,6 +34,6 @@ public class Consume : PlayerAbility
 
     public override void OnFinish()
     {
-
+        Player.GetComponent<PlayerGotchi>().ResetIdleAnimation();
     }
 }

@@ -13,6 +13,7 @@ public class ShieldWallEffect : NetworkBehaviour
     private float timer_s = 10f;
 
     private bool m_isDamageReductionSet = false;
+    private float m_ogDamageReduction = 0;
 
     private Wearable m_wearable;
 
@@ -31,6 +32,11 @@ public class ShieldWallEffect : NetworkBehaviour
         }
     }
 
+    public override void OnNetworkDespawn()
+    {
+        transform.parent.GetComponent<NetworkCharacter>().DamageReduction.Value = m_ogDamageReduction; 
+    }
+
 
     // Update is called once per frame
     void Update()
@@ -40,6 +46,7 @@ public class ShieldWallEffect : NetworkBehaviour
 
         if (!m_isDamageReductionSet)
         {
+            m_ogDamageReduction = transform.parent.GetComponent<NetworkCharacter>().DamageReduction.Value;
             transform.parent.GetComponent<NetworkCharacter>().DamageReduction.Value =
                 0.3f * Wearable.GetRarityMultiplier(m_wearable.Rarity);
             m_isDamageReductionSet = true;
