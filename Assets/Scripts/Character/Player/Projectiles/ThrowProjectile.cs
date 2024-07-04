@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class ThrowProjectile : NetworkBehaviour
 {
+    public SpriteRenderer bodySpriteRenderer;
     [HideInInspector] public Vector3 Direction;
     [HideInInspector] public float Distance;
     [HideInInspector] public float Duration;
@@ -35,6 +36,10 @@ public class ThrowProjectile : NetworkBehaviour
         GetComponent<LobArc>().Reset();
         GetComponent<LobArc>().Duration_s = Duration;
         GetComponent<LobArc>().MaxHeight = LobHeight;
+
+        var wearable = WearableManager.Instance.GetWearable(WearableNameEnum);
+        var wearablesSprite = WeaponSpriteManager.Instance.GetSprite(WearableNameEnum, wearable.AttackView);
+        bodySpriteRenderer.sprite = wearablesSprite;
     }
 
     private void Update()
