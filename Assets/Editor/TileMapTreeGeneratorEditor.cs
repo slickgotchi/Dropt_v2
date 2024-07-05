@@ -23,13 +23,13 @@ namespace Tilemaps.Editor
 
                 var tile = source.GetTile(pos);
 
-                if (!(tile is RuleTile))
-                    continue;
-
-                var sprite = source.GetSprite(pos);
-
-                if (null != sprite)
+                if ((tile is RuleTile))
                 {
+                    var sprite = source.GetSprite(pos);
+
+                    if (null == sprite)
+                        continue;
+
                     if (!cache.ContainsKey(sprite.name))
                     {
                         var assets = AssetDatabase.FindAssets(sprite.name).Where(
@@ -45,9 +45,13 @@ namespace Tilemaps.Editor
                     }
 
                     tile = cache[sprite.name];
-                }
 
-                if (tile != null)
+                    if (tile != null)
+                    {
+                        tiles[pos] = tile;
+                    }
+                }
+                else
                 {
                     tiles[pos] = tile;
                 }
@@ -95,7 +99,7 @@ namespace Tilemaps.Editor
 
                     ClearAll(layer.TargetLayer);
                 }
-                
+
                 SwitchToStatic(tilemap, tilemap);
 
                 Generate(treeGenerator, tilemap);
