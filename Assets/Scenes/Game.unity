@@ -14338,6 +14338,57 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2040990500}
   m_CullTransparentMesh: 1
+--- !u!1 &2046429192
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2046429194}
+  - component: {fileID: 2046429193}
+  m_Layer: 0
+  m_Name: AuraManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2046429193
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2046429192}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d9dab92a20bc6f4c862d4e9b4484e1f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  IsAaveFlagActive: 0
+  IsJamaicanFlagActive: 0
+  IsL2SignActive: 0
+  IsOKExSignActive: 0
+  IsRektSignActive: 0
+  IsUpArrowActive: 0
+  IsVoteSignActive: 0
+--- !u!4 &2046429194
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2046429192}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.6177731, y: 1.1501997, z: -0.012308605}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2060243895
 GameObject:
   m_ObjectHideFlags: 0
@@ -15323,3 +15374,4 @@ SceneRoots:
   - {fileID: 357314518}
   - {fileID: 1883660609}
   - {fileID: 1291991139}
+  - {fileID: 2046429194}

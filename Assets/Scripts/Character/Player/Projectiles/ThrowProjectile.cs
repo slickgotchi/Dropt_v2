@@ -4,6 +4,11 @@ using UnityEngine;
 
 public class ThrowProjectile : NetworkBehaviour
 {
+    public SpriteRenderer bodySpriteRenderer;
+
+    [Header("Explosion Prefabs")]
+    public GameObject StunExplosionPrefab;
+
     [HideInInspector] public Vector3 Direction;
     [HideInInspector] public float Distance;
     [HideInInspector] public float Duration;
@@ -35,6 +40,10 @@ public class ThrowProjectile : NetworkBehaviour
         GetComponent<LobArc>().Reset();
         GetComponent<LobArc>().Duration_s = Duration;
         GetComponent<LobArc>().MaxHeight = LobHeight;
+
+        var wearable = WearableManager.Instance.GetWearable(WearableNameEnum);
+        var wearablesSprite = WeaponSpriteManager.Instance.GetSprite(WearableNameEnum, wearable.AttackView);
+        bodySpriteRenderer.sprite = wearablesSprite;
     }
 
     private void Update()
@@ -45,8 +54,16 @@ public class ThrowProjectile : NetworkBehaviour
 
         if (m_timer < 0)
         {
+            if (IsServer)
+            {
+                var explosion = Instantiate(StunExplosionPrefab);
+                explosion.transform.position = m_finalPosition;
+                explosion.GetComponent<NetworkObject>().Spawn();
+            }
+
             transform.position = m_finalPosition;
             gameObject.SetActive(false);
+
         }
 
         transform.position += Direction * m_speed * Time.deltaTime;

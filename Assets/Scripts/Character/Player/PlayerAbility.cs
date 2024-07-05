@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Mathematics;
 using Unity.Netcode;
+using UnityEditor.Rendering;
 using UnityEngine;
 
 // Notes when deriving from PlayerAbility
@@ -57,7 +58,8 @@ public class PlayerAbility : NetworkBehaviour
     protected bool IsActivated = false;
     protected StatePayload PlayerActivationState;
     protected InputPayload ActivationInput;
-    protected Wearable.NameEnum ActivationWearable;
+    protected Wearable.NameEnum ActivationWearableNameEnum;
+    protected Wearable ActivationWearable;
 
     protected float HoldDuration = 0;
 
@@ -72,6 +74,9 @@ public class PlayerAbility : NetworkBehaviour
     private float m_teleportLagTimer = 0;
     private bool m_isOnTeleportStartChecking = false;
 
+    private Transform m_handAndWearableTransform;
+    private float m_attackAngleOffset = 0;
+
     public enum NetworkRole { LocalClient, RemoteClient, Server }
 
     private void Awake()
@@ -83,20 +88,27 @@ public class PlayerAbility : NetworkBehaviour
     public void Init(GameObject playerObject, Hand abilityHand)
     {
         var playerEquipment = playerObject.GetComponent<PlayerEquipment>();
-        var wearable = abilityHand == Hand.Left ? playerEquipment.LeftHand : playerEquipment.RightHand;
-        ApCost = IsSpecialAbility ? WearableManager.Instance.GetWearable(wearable.Value).SpecialAp : ApCost;
-        SpecialCooldown = WearableManager.Instance.GetWearable(wearable.Value).SpecialCooldown;
-        ActivationWearable = wearable.Value;
+        var wearableNameEnum = (abilityHand == Hand.Left ? playerEquipment.LeftHand : playerEquipment.RightHand).Value;
+        ActivationWearable = WearableManager.Instance.GetWearable(wearableNameEnum);
+        ApCost = IsSpecialAbility ? ActivationWearable.SpecialAp : ApCost;
+        SpecialCooldown = ActivationWearable.SpecialCooldown;
+        ActivationWearableNameEnum = wearableNameEnum;
 
-        var handAndWearableTransform = transform.Find("HandAndWearable");
-        if (handAndWearableTransform == null) return;
-        var wearableTransform = handAndWearableTransform.Find("Wearable");
+        // change wearable hand
+        m_handAndWearableTransform = transform.Find("HandAndWearable");
+        if (m_handAndWearableTransform == null) return;
+        var wearableTransform = m_handAndWearableTransform.Find("Wearable");
         if (wearableTransform == null) return;
+        wearableTransform.localPosition = WeaponSpriteManager.Instance.GetSpriteOffset(wearableNameEnum, ActivationWearable.AttackView);
         var spriteRenderer = wearableTransform.GetComponent<SpriteRenderer>();
-        if (spriteRenderer != null)
-        {
-            spriteRenderer.sprite = WeaponSpriteManager.Instance.GetSprite(wearable.Value, PlayerGotchi.Facing.Right);
-        }
+        if (spriteRenderer == null) return;
+        spriteRenderer.sprite = WeaponSpriteManager.Instance.GetSprite(wearableNameEnum, ActivationWearable.AttackView);
+        m_attackAngleOffset = ActivationWearable.AttackAngle;
+
+        // change secondary slash color
+        var secSlashTransform = transform.Find("SecondarySlash");
+        if (secSlashTransform == null) return;
+        secSlashTransform.GetComponent<SpriteRenderer>().color = ActivationWearable.RarityColor;
     }
 
     public bool Activate(GameObject playerObject, StatePayload state, InputPayload input, float holdDuration)
@@ -133,10 +145,20 @@ public class PlayerAbility : NetworkBehaviour
         return true;
     }
 
+    private void LateUpdate()
+    {
+        // apply attack angle offset to hand and wearable transform
+        if (m_handAndWearableTransform != null)
+        {
+            Quaternion currentRotation = m_handAndWearableTransform.localRotation;
+            Quaternion additionalRotation = Quaternion.Euler(0, 0, m_attackAngleOffset);
+            m_handAndWearableTransform.localRotation = currentRotation * additionalRotation;
+        }
+    }
+
     private void Update()
     {
         m_timer -= Time.deltaTime;
-
         m_autoMoveTimer -= Time.deltaTime;
 
         if (Player == null) return;
@@ -279,26 +301,28 @@ public class PlayerAbility : NetworkBehaviour
     /// component if they want to use this function.
     /// </summary>
     /// <param name="animName"></param>
-    protected void PlayAnimation(string animName)
+    protected void PlayAnimation(string animName, float speed = 1f)
     {
         // Local Client or Server - play animation
         if (Player.GetComponent<NetworkObject>().IsLocalPlayer || IsServer)
         {
+            Animator.speed = speed;
             Animator.Play(animName);
         }
 
         // Server - send message to all clients to play anim
         if (IsServer)
         {
-            PlayAnimationClientRpc(animName);
+            PlayAnimationClientRpc(animName, speed);
         }
     }
 
     [Rpc(SendTo.ClientsAndHost)]
-    private void PlayAnimationClientRpc(string animName)
+    private void PlayAnimationClientRpc(string animName, float speed)
     {
         if (Player.GetComponent<NetworkObject>().IsLocalPlayer) return;
 
+        Animator.speed = speed;
         Animator.Play(animName);
     }
 
@@ -343,10 +367,10 @@ public class PlayerAbility : NetworkBehaviour
             if (hit.HasComponent<NetworkCharacter>())
             {
                 var playerCharacter = Player.GetComponent<NetworkCharacter>();
-                var damage = playerCharacter.GetAttackPower() * damageMultiplier;
+                var damage = playerCharacter.GetAttackPower() * damageMultiplier * ActivationWearable.RarityMultiplier;
                 isCritical = playerCharacter.IsCriticalAttack();
                 damage = (int)(isCritical ? damage * playerCharacter.CriticalDamage.Value : damage);
-                hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical);
+                hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical, Player);
             }
 
             if (hit.HasComponent<Destructible>())

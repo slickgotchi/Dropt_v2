@@ -26,6 +26,48 @@ public partial class Wearable
     public CharacterStat TertiaryBuff;
     public float TertiaryBuffValue;
     public string SwapDescription;
+    public int EffectDuration;
+    public PlayerGotchi.Facing AttackView;
+    public float AttackAngle;
+
+    public static float GetRarityMultiplier(RarityEnum rarity)
+    {
+        float multiplier = 1f;
+        switch (rarity)
+        {
+            case RarityEnum.NA: multiplier = 1.00f; break;
+            case RarityEnum.Common: multiplier = 1.15f; break;
+            case RarityEnum.Uncommon: multiplier = 1.36f; break;
+            case RarityEnum.Rare: multiplier = 1.64f; break;
+            case RarityEnum.Legendary: multiplier = 1.99f; break;
+            case RarityEnum.Mythical: multiplier = 2.43f; break;
+            case RarityEnum.Godlike: multiplier = 3.00f; break;
+            default: break;
+        }
+        return multiplier;
+    }
+
+    public float RarityMultiplier
+    {
+        get { return GetRarityMultiplier(Rarity); }
+        set { }
+    }
+
+    public static UnityEngine.Color GetColorByRarity(RarityEnum rarity)
+    {
+        if (rarity == RarityEnum.Common) return Dropt.Utils.Color.HexToColor("#8661fd");
+        else if (rarity == RarityEnum.Uncommon) return Dropt.Utils.Color.HexToColor("#44b9cb");
+        else if (rarity == RarityEnum.Rare) return Dropt.Utils.Color.HexToColor("#66bafd");
+        else if (rarity == RarityEnum.Legendary) return Dropt.Utils.Color.HexToColor("#fbc56f");
+        else if (rarity == RarityEnum.Mythical) return Dropt.Utils.Color.HexToColor("#fe96fe");
+        else if (rarity == RarityEnum.Godlike) return Dropt.Utils.Color.HexToColor("#5bffaa");
+        else return Dropt.Utils.Color.HexToColor("#ffffff");
+    }
+
+    public UnityEngine.Color RarityColor {
+        get { return GetColorByRarity(Rarity);  }
+        set { }
+    }
 }
 
 

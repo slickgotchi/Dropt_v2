@@ -136,7 +136,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3849122308
+  GlobalObjectIdHash: 1197388314
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -225,16 +225,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7c6f816e7c4aea40a64dd16adfff263, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  IsSpecialAbility: 0
   ApCost: 0
   ExecutionDuration: 0.4
-  CooldownDuration: 0
-  HoldSlowFactor: 1
   ExecutionSlowFactor: 0
+  CooldownDuration: 0
   CooldownSlowFactor: 1
   TeleportDistance: 0.5
   AutoMoveDistance: 0
   AutoMoveDuration: 0
+  isHoldAbility: 0
+  HoldChargeTime: 3
+  HoldSlowFactor: 1
   Player: {fileID: 0}
+  SpecialCooldown: 0
+  PlayerAbilityCentreOffset: {x: 0, y: 0.5, z: 0}
   Projection: 1
 --- !u!1 &4708556748347195212
 GameObject:
@@ -294,7 +299,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5096719094059558881}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0.25, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -344,7 +349,7 @@ SpriteRenderer:
   m_SortingLayerID: 1447911093
   m_SortingLayer: 1
   m_SortingOrder: 2
-  m_Sprite: {fileID: 145562777, guid: 388e7d52a6997734498cf9d6aff2c7c9, type: 3}
+  m_Sprite: {fileID: 341554163, guid: 388e7d52a6997734498cf9d6aff2c7c9, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

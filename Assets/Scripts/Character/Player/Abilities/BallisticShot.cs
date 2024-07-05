@@ -80,7 +80,7 @@ public class BallisticShot : PlayerAbility
         PlayAnimation("BallisticShot");
 
         // activate projectile
-        ActivateProjectile(ActivationWearable, ActivationInput.actionDirection, Distance, Duration);
+        ActivateProjectile(ActivationWearableNameEnum, ActivationInput.actionDirection, Distance, Duration);
     }
 
     ref GameObject GetProjectileInstance(Wearable.NameEnum activationWearable)
@@ -120,7 +120,7 @@ public class BallisticShot : PlayerAbility
             no_projectile.WeaponType = Wearable.WeaponTypeEnum.Ballistic;
 
             var playerCharacter = Player.GetComponent<NetworkCharacter>();
-            no_projectile.DamagePerHit = playerCharacter.AttackPower.Value;
+            no_projectile.DamagePerHit = playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier;
             no_projectile.CriticalChance = playerCharacter.CriticalChance.Value;
             no_projectile.CriticalDamage = playerCharacter.CriticalDamage.Value;
             no_projectile.NetworkRole = IsServer ? PlayerAbility.NetworkRole.Server : PlayerAbility.NetworkRole.LocalClient;
@@ -131,7 +131,7 @@ public class BallisticShot : PlayerAbility
         // Server Only
         if (IsServer)
         {
-            ActivateProjectileClientRpc(ActivationWearable, projectile.transform.position, direction, distance, duration);
+            ActivateProjectileClientRpc(ActivationWearableNameEnum, projectile.transform.position, direction, distance, duration);
         }
     }
 
@@ -153,7 +153,7 @@ public class BallisticShot : PlayerAbility
             no_projectile.WeaponType = Wearable.WeaponTypeEnum.Ballistic;
 
             var playerCharacter = Player.GetComponent<NetworkCharacter>();
-            no_projectile.DamagePerHit = playerCharacter.AttackPower.Value;
+            no_projectile.DamagePerHit = playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier;
             no_projectile.CriticalChance = playerCharacter.CriticalChance.Value;
             no_projectile.CriticalDamage = playerCharacter.CriticalDamage.Value;
             no_projectile.NetworkRole = PlayerAbility.NetworkRole.RemoteClient;

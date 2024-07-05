@@ -68,7 +68,7 @@ public class SplashLob : PlayerAbility
         PlayAnimation("SplashLob");
 
         // activate projectile
-        ActivateProjectile(ActivationWearable, ActivationInput.actionDirection, Distance, Duration);
+        ActivateProjectile(ActivationWearableNameEnum, ActivationInput.actionDirection, Distance, Duration);
     }
 
     ref GameObject GetProjectileInstance(Wearable.NameEnum activationWearable)
@@ -98,7 +98,7 @@ public class SplashLob : PlayerAbility
             no_projectile.ExplosionRadius = ExplosionRadius;
 
             var playerCharacter = Player.GetComponent<NetworkCharacter>();
-            no_projectile.DamagePerHit = playerCharacter.AttackPower.Value;
+            no_projectile.DamagePerHit = playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier;
             no_projectile.CriticalChance = playerCharacter.CriticalChance.Value;
             no_projectile.CriticalDamage = playerCharacter.CriticalDamage.Value;
             no_projectile.NetworkRole = IsServer ? PlayerAbility.NetworkRole.Server : PlayerAbility.NetworkRole.LocalClient;
@@ -109,7 +109,7 @@ public class SplashLob : PlayerAbility
         // Server Only
         if (IsServer)
         {
-            ActivateProjectileClientRpc(ActivationWearable, projectile.transform.position, direction, distance, duration);
+            ActivateProjectileClientRpc(ActivationWearableNameEnum, projectile.transform.position, direction, distance, duration);
         }
     }
 
@@ -132,7 +132,7 @@ public class SplashLob : PlayerAbility
             no_projectile.ExplosionRadius = ExplosionRadius;
 
             var playerCharacter = Player.GetComponent<NetworkCharacter>();
-            no_projectile.DamagePerHit = playerCharacter.AttackPower.Value;
+            no_projectile.DamagePerHit = playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier;
             no_projectile.CriticalChance = playerCharacter.CriticalChance.Value;
             no_projectile.CriticalDamage = playerCharacter.CriticalDamage.Value;
             no_projectile.NetworkRole = PlayerAbility.NetworkRole.RemoteClient;

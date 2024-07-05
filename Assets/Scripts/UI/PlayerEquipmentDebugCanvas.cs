@@ -46,8 +46,8 @@ public class PlayerEquipmentDebugCanvas : MonoBehaviour
                 {
                     playerEquipment = players[i];
                     InitializeDropdowns();
-                    SetUpDropdownListeners();
                     SetDropdownValues();
+                    SetUpDropdownListeners();
                 }
             }
         }

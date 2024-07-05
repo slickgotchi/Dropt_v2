@@ -162,7 +162,7 @@ SpriteRenderer:
   m_SortingLayer: 1
   m_SortingOrder: 0
   m_Sprite: {fileID: 7140140830480692406, guid: 3f4dd8ef965de954ebc65f4b6aed2b6e, type: 3}
-  m_Color: {r: 1, g: 0, b: 0, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -221,7 +221,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1074957786
+  GlobalObjectIdHash: 3977009962
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -257,6 +257,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8d5bb1fb8de21c48bc7d8889aa3069c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  bodySpriteRenderer: {fileID: 1988679027168017655}
+  StunExplosionPrefab: {fileID: 8971766286208747079, guid: 67700542215b3ca4f847967a91e75f66, type: 3}
   Direction: {x: 0, y: 0, z: 0}
   Distance: 0
   Duration: 0
@@ -264,7 +266,6 @@ MonoBehaviour:
   WearableNameEnum: 0
   LocalPlayer: {fileID: 0}
   NetworkRole: 0
-  Collider: {fileID: 0}
 --- !u!1 &3733025194124998147
 GameObject:
   m_ObjectHideFlags: 0
