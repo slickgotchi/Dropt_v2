@@ -129,6 +129,7 @@ Transform:
   m_Children:
   - {fileID: 2228045280187910979}
   - {fileID: 968608259130300221}
+  - {fileID: 8471917673845004992}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &-3599212634581151793
@@ -287,8 +288,8 @@ MonoBehaviour:
   baseHpBuffer: 0
   baseAttackPower: 10
   baseCriticalChance: 0.1
-  baseApMax: 50
-  baseApCurrent: 50
+  baseApMax: 0
+  baseApCurrent: 0
   baseApBuffer: 0
   baseDoubleStrikeChance: 0.05
   baseCriticalDamage: 1.5
@@ -371,7 +372,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0.0022971928, y: 0.20215547}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -381,7 +382,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 0.7197389, y: 0.59568906}
   m_EdgeRadius: 0
 --- !u!114 &-4382550609485557648
 MonoBehaviour:
@@ -398,7 +399,8 @@ MonoBehaviour:
   m_flashColor: {r: 1, g: 1, b: 1, a: 1}
   m_flashTime: 0.15
   m_flashCount: 4
-  m_spriteRenderers: []
+  m_spriteRenderers:
+  - {fileID: 361146906994616670}
 --- !u!1 &6525230415705073668
 GameObject:
   m_ObjectHideFlags: 0
@@ -454,7 +456,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 70276c2fe1e8f7648bf6c72cd557588f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
