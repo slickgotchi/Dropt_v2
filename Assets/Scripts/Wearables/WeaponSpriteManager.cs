@@ -90,4 +90,23 @@ public class WeaponSpriteManager : MonoBehaviour
         }
         return -1; // Return a default value if not found
     }
+
+    public Vector3 GetSpriteOffset(Wearable.NameEnum wearableNameEnum, PlayerGotchi.Facing facingDirection)
+    {
+        if (wearableSprites.TryGetValue(wearableNameEnum, out var wearableSprite))
+        {
+            switch (facingDirection)
+            {
+                case PlayerGotchi.Facing.Front:
+                    return wearableSprite.FrontOffset;
+                case PlayerGotchi.Facing.Right:
+                    return wearableSprite.RightOffset;
+                case PlayerGotchi.Facing.Left:
+                    return wearableSprite.LeftOffset;
+                case PlayerGotchi.Facing.Back:
+                    return wearableSprite.BackOffset;
+            }
+        }
+        return Vector3.zero; // Return a default value if not found
+    }
 }

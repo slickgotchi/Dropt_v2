@@ -8,6 +8,8 @@ public class SmashSwipe : PlayerAbility
     [Header("SmashSwipe Parameters")]
     [SerializeField] float Projection = 1f;
 
+    public SpriteRenderer SecondarySlashSpirte;
+
     private Collider2D m_collider;
 
     public override void OnNetworkSpawn()
@@ -29,8 +31,6 @@ public class SmashSwipe : PlayerAbility
         // IMPORTANT use PlayAnimation which calls RPC's in the background that play the 
         // animation on remote clients
         PlayAnimation("SmashSwipe");
-
-
     }
 
     public override void OnUpdate()

@@ -16,16 +16,28 @@ public class PlayerEquipment : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         LeftHand.Value = Wearable.NameEnum.SushiPiece;
-        RightHand.Value = Wearable.NameEnum.Parasol;
+        RightHand.Value = Wearable.NameEnum.WalkieTalkie;
+
+        SetEquipment(Slot.LeftHand, LeftHand.Value);
+        SetEquipment(Slot.RightHand, RightHand.Value);  
     }
 
     public void SetEquipment(Slot slot, Wearable.NameEnum equipmentNameEnum)
     {
         SetEquipmentServerRpc(slot, equipmentNameEnum);
 
-        if (slot == Slot.LeftHand || slot == Slot.RightHand)
+        if (IsLocalPlayer)
         {
-            GetComponent<PlayerGotchi>().SetWeaponSprites(slot == Slot.LeftHand ? Hand.Left : Hand.Right, equipmentNameEnum);
+            if (slot == Slot.LeftHand)
+            {
+                GetComponent<PlayerGotchi>().SetWeaponSprites(Hand.Left, equipmentNameEnum);
+                Debug.Log("Set left to " + equipmentNameEnum);
+            } 
+            else if (slot == Slot.RightHand)
+            {
+                GetComponent<PlayerGotchi>().SetWeaponSprites(Hand.Right, equipmentNameEnum);
+                Debug.Log("Set right to " + equipmentNameEnum);
+            }
         }
     }
 
@@ -41,6 +53,7 @@ public class PlayerEquipment : NetworkBehaviour
             case Slot.RightHand: RightHand.Value = equipmentNameEnum; break;
             case Slot.LeftHand: LeftHand.Value = equipmentNameEnum; break;
             case Slot.Pet: Pet.Value = equipmentNameEnum; break;
+            default: break;
         }
 
         SetEquipmentClientRpc(slot, equipmentNameEnum);
@@ -51,7 +64,14 @@ public class PlayerEquipment : NetworkBehaviour
     {
         if (!IsLocalPlayer)
         {
-            GetComponent<PlayerGotchi>().SetWeaponSprites(slot == Slot.LeftHand ? Hand.Left : Hand.Right, equipmentNameEnum);
+            if (slot == Slot.LeftHand)
+            {
+                GetComponent<PlayerGotchi>().SetWeaponSprites(Hand.Left, equipmentNameEnum);
+            }
+            else if (slot == Slot.RightHand)
+            {
+                GetComponent<PlayerGotchi>().SetWeaponSprites(Hand.Right, equipmentNameEnum);
+            }
         }
     }
 

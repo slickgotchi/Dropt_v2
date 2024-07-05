@@ -66,7 +66,7 @@ public class PlayerGotchi : NetworkBehaviour
     private float m_leftHandHideTimer = 0;
     private float m_rightHandHideTimer = 0;
 
-    public enum Facing { Front, Back, Left, Right }
+    public enum Facing { Front, Back, Left, Right, NA }
     private Facing m_facing;
 
     private float m_bodyRotation = 0;
@@ -269,6 +269,7 @@ public class PlayerGotchi : NetworkBehaviour
             m_leftHandFaceRight.transform.Find("Wearable").GetComponent<SpriteRenderer>().sprite =
                 WeaponSpriteManager.Instance.GetSprite(wearableNameEnum, Facing.Right);
 
+            // sort order
             var leftHandFaceFrontHandSortingOrder = m_leftHandFaceFront.transform.Find("Hand").
                 GetComponent<DynamicSorting>().sortingOrderOffset;
             var leftHandFaceBackHandSortingOrder = m_leftHandFaceBack.transform.Find("Hand").
@@ -291,6 +292,16 @@ public class PlayerGotchi : NetworkBehaviour
             m_leftHandFaceRight.transform.Find("Wearable").GetComponent<DynamicSorting>().sortingOrderOffset =
                 WeaponSpriteManager.Instance.GetSpriteOrder(wearableNameEnum, Facing.Right) == 1 ?
                 leftHandFaceRightHandSortingOrder - 1 : leftHandFaceRightHandSortingOrder + 1;
+
+            // offsets
+            m_leftHandFaceFront.transform.Find("Wearable").transform.localPosition =
+                WeaponSpriteManager.Instance.GetSpriteOffset(wearableNameEnum, Facing.Front);
+            m_leftHandFaceBack.transform.Find("Wearable").transform.localPosition =
+                WeaponSpriteManager.Instance.GetSpriteOffset(wearableNameEnum, Facing.Back);
+            m_leftHandFaceLeft.transform.Find("Wearable").transform.localPosition =
+                WeaponSpriteManager.Instance.GetSpriteOffset(wearableNameEnum, Facing.Left);
+            m_leftHandFaceRight.transform.Find("Wearable").transform.localPosition =
+                WeaponSpriteManager.Instance.GetSpriteOffset(wearableNameEnum, Facing.Right);
         }
         else
         {
@@ -326,6 +337,16 @@ public class PlayerGotchi : NetworkBehaviour
             m_rightHandFaceRight.transform.Find("Wearable").GetComponent<DynamicSorting>().sortingOrderOffset =
                 WeaponSpriteManager.Instance.GetSpriteOrder(wearableNameEnum, Facing.Right) == 1 ?
                 rightHandFaceRightHandSortingOrder - 1 : rightHandFaceRightHandSortingOrder + 1;
+
+            // offsets
+            m_rightHandFaceFront.transform.Find("Wearable").transform.localPosition =
+                WeaponSpriteManager.Instance.GetSpriteOffset(wearableNameEnum, Facing.Front);
+            m_rightHandFaceBack.transform.Find("Wearable").transform.localPosition =
+                WeaponSpriteManager.Instance.GetSpriteOffset(wearableNameEnum, Facing.Back);
+            m_rightHandFaceLeft.transform.Find("Wearable").transform.localPosition =
+                WeaponSpriteManager.Instance.GetSpriteOffset(wearableNameEnum, Facing.Left);
+            m_rightHandFaceRight.transform.Find("Wearable").transform.localPosition =
+                WeaponSpriteManager.Instance.GetSpriteOffset(wearableNameEnum, Facing.Right);
         }
     }
 

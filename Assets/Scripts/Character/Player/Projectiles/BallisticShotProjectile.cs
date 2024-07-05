@@ -69,7 +69,7 @@ public class BallisticShotProjectile : NetworkBehaviour
                 var damage = PlayerAbility.GetRandomVariation(DamagePerHit);
                 var isCritical = PlayerAbility.IsCriticalAttack(CriticalChance);
                 damage = (int)(isCritical ? damage * CriticalDamage : damage);
-                hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical);
+                hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical, LocalPlayer);
             }
             else if (hit.HasComponent<Destructible>())
             {
