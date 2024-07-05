@@ -99,6 +99,7 @@ public class PlayerAbility : NetworkBehaviour
         if (m_handAndWearableTransform == null) return;
         var wearableTransform = m_handAndWearableTransform.Find("Wearable");
         if (wearableTransform == null) return;
+        wearableTransform.localPosition = WeaponSpriteManager.Instance.GetSpriteOffset(wearableNameEnum, ActivationWearable.AttackView);
         var spriteRenderer = wearableTransform.GetComponent<SpriteRenderer>();
         if (spriteRenderer == null) return;
         spriteRenderer.sprite = WeaponSpriteManager.Instance.GetSprite(wearableNameEnum, ActivationWearable.AttackView);

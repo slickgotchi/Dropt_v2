@@ -63,8 +63,8 @@ public class Throw : PlayerAbility
         SetRotationToActionDirection();
         SetLocalPosition(PlayerAbilityCentreOffset + ActivationInput.actionDirection * Projection);
 
-        // play animation
-        PlayAnimation("Throw");
+        // play animation (its the same as the SplashLob...)
+        PlayAnimation("SplashLob");
 
         // activate projectile
         ActivateProjectile(ActivationWearableNameEnum, ActivationInput.actionDirection, Distance, Duration);

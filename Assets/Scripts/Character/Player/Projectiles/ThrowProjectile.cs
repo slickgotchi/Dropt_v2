@@ -5,6 +5,10 @@ using UnityEngine;
 public class ThrowProjectile : NetworkBehaviour
 {
     public SpriteRenderer bodySpriteRenderer;
+
+    [Header("Explosion Prefabs")]
+    public GameObject StunExplosionPrefab;
+
     [HideInInspector] public Vector3 Direction;
     [HideInInspector] public float Distance;
     [HideInInspector] public float Duration;
@@ -50,8 +54,16 @@ public class ThrowProjectile : NetworkBehaviour
 
         if (m_timer < 0)
         {
+            if (IsServer)
+            {
+                var explosion = Instantiate(StunExplosionPrefab);
+                explosion.transform.position = m_finalPosition;
+                explosion.GetComponent<NetworkObject>().Spawn();
+            }
+
             transform.position = m_finalPosition;
             gameObject.SetActive(false);
+
         }
 
         transform.position += Direction * m_speed * Time.deltaTime;
