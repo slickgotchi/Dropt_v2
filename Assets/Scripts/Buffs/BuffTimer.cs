@@ -18,6 +18,8 @@ public class BuffTimer : MonoBehaviour
         m_networkCharacter = networkCharacter;
 
         networkCharacter.AddBuffObject(buffObject);
+
+        Debug.Log("Buff started for " + duration + " seconds");
     }
 
     public void EndBuff()

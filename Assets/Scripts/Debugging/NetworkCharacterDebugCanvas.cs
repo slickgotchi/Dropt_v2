@@ -26,16 +26,21 @@ public class NetworkCharacterDebugCanvas : MonoBehaviour
     public TextMeshProUGUI DamageReduction;
     public TextMeshProUGUI ApLeech;
 
-    public static bool isVisible = false;
+    private void Awake()
+    {
+        Container.SetActive(false);
+    }
 
-    public static NetworkCharacterDebugCanvas Instance;
-
-    // Update is called once per frame
     void Update()
+    {
+        UpdateText();
+    }
+
+    private void UpdateText()
     {
         HpMax.text = "HpMax: " + networkCharacter.HpMax.Value;
         HpCurrent.text = "HpCurrent: " + networkCharacter.HpCurrent.Value;
-        HpBuffer.text = "HpBuffer: " + networkCharacter .HpBuffer.Value;
+        HpBuffer.text = "HpBuffer: " + networkCharacter.HpBuffer.Value;
         AttackPower.text = "AttackPower: " + networkCharacter.AttackPower.Value;
         CriticalChance.text = "CriticalChance: " + networkCharacter.CriticalChance.Value;
         ApMax.text = "ApMax: " + networkCharacter.ApMax.Value;
@@ -48,20 +53,5 @@ public class NetworkCharacterDebugCanvas : MonoBehaviour
         Evasion.text = "Evasion: " + networkCharacter.Evasion.Value;
         DamageReduction.text = "DamageReduction: " + networkCharacter.DamageReduction.Value;
         ApLeech.text = "ApLeech: " + networkCharacter.ApLeech.Value;
-
-        if (Input.GetKeyDown(KeyCode.Alpha2))
-        {
-            isVisible = !isVisible;
-            SetVisible(isVisible);
-        }
-    }
-
-    private static void SetVisible(bool visible)
-    {
-        var canvii = FindObjectsByType<NetworkCharacterDebugCanvas>(FindObjectsSortMode.None);
-        foreach (var canvas in canvii)
-        {
-            canvas.Container.SetActive(visible);
-        }
     }
 }

@@ -10,8 +10,8 @@ public class ActionTask_Roam : ActionTask
 {
     public VariableReference<float> MaxDirectionChangeTime = 5.0f;
     public VariableReference<float> MinDirectionChangeTime = 2.0f;
-    public VariableReference<float> MaxRoamSpeed = 2f;
-    public VariableReference<float> MinRoamSpeed = 1f;
+    public VariableReference<float> MaxRoamSpeed = 0.5f;
+    public VariableReference<float> MinRoamSpeed = 0.25f;
     public VariableReference<float> TargetDistance = 20f;
 
     private float m_changeDirectionTimer = 0;
@@ -40,7 +40,8 @@ public class ActionTask_Roam : ActionTask
 
             var targetDestination = currentPosition + new Vector3(dir.x,dir.y,0) * TargetDistance;
             navMeshAgent.SetDestination(targetDestination);
-            navMeshAgent.speed = UnityEngine.Random.Range(MinRoamSpeed, MaxRoamSpeed);
+            navMeshAgent.speed = UnityEngine.Random.Range(MinRoamSpeed, MaxRoamSpeed) 
+                * GameObject.GetComponent<NetworkCharacter>().MoveSpeed.Value;
         }
 
         return UpdateStatus.Running;
