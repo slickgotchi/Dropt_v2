@@ -6,8 +6,10 @@ public class ThrowProjectile : NetworkBehaviour
 {
     public SpriteRenderer bodySpriteRenderer;
 
-    [Header("Explosion Prefabs")]
+    [Header("OnProjectileFinish Prefabs")]
     public GameObject StunExplosionPrefab;
+    public GameObject BlindCloudPrefab;
+    public GameObject LurePrefab;
 
     [HideInInspector] public Vector3 Direction;
     [HideInInspector] public float Distance;
@@ -56,9 +58,12 @@ public class ThrowProjectile : NetworkBehaviour
         {
             if (IsServer)
             {
-                var explosion = Instantiate(StunExplosionPrefab);
-                explosion.transform.position = m_finalPosition;
-                explosion.GetComponent<NetworkObject>().Spawn();
+                var spawnObject = InstantiateThrowFinishObject(WearableNameEnum);
+                if (spawnObject != null)
+                {
+                    spawnObject.transform.position = m_finalPosition;
+                    spawnObject.GetComponent<NetworkObject>().Spawn();
+                }
             }
 
             transform.position = m_finalPosition;
@@ -68,4 +73,76 @@ public class ThrowProjectile : NetworkBehaviour
 
         transform.position += Direction * m_speed * Time.deltaTime;
     }
+
+    GameObject InstantiateThrowFinishObject(Wearable.NameEnum wearableNameEnum)
+    {
+        GameObject throwFinishObject = null;
+        switch (wearableNameEnum)
+        {
+            case Wearable.NameEnum._1337Laptop:
+                throwFinishObject = Instantiate(StunExplosionPrefab);
+                throwFinishObject.GetComponent<StunExplosion>().Radius = 5f;
+                throwFinishObject.GetComponent<StunExplosion>().StunDuration = 3f;
+                break;
+            case Wearable.NameEnum.BabyBottle:
+                throwFinishObject = Instantiate(BlindCloudPrefab);
+                throwFinishObject.GetComponent<BlindCloud>().Radius = 3f;
+                throwFinishObject.GetComponent<BlindCloud>().BlindDuration = 10f;
+                break;
+            case Wearable.NameEnum.CandyJaar:
+                throwFinishObject = Instantiate(LurePrefab);
+                throwFinishObject.GetComponent<Lure>().Hp = 100;
+                throwFinishObject.GetComponent<Lure>().WearableNameEnum.Value = wearableNameEnum;
+                break;
+            case Wearable.NameEnum.Coconut:
+                throwFinishObject = Instantiate(LurePrefab);
+                throwFinishObject.GetComponent<Lure>().Hp = 100;
+                throwFinishObject.GetComponent<Lure>().WearableNameEnum.Value = wearableNameEnum;
+                break;
+            case Wearable.NameEnum.DAOEgg:
+                throwFinishObject = Instantiate(LurePrefab);
+                throwFinishObject.GetComponent<Lure>().Hp = 100;
+                throwFinishObject.GetComponent<Lure>().WearableNameEnum.Value = wearableNameEnum;
+                break;
+            case Wearable.NameEnum.GameController:
+                throwFinishObject = Instantiate(StunExplosionPrefab);
+                throwFinishObject.GetComponent<StunExplosion>().Radius = 1.5f;
+                throwFinishObject.GetComponent<StunExplosion>().StunDuration = 1.5f;
+                break;
+            case Wearable.NameEnum.GemstoneRing:
+                throwFinishObject = Instantiate(BlindCloudPrefab);
+                throwFinishObject.GetComponent<BlindCloud>().Radius = 2f;
+                throwFinishObject.GetComponent<BlindCloud>().BlindDuration = 7.5f;
+                break;
+            case Wearable.NameEnum.Lasso:
+                throwFinishObject = Instantiate(StunExplosionPrefab);
+                throwFinishObject.GetComponent<StunExplosion>().Radius = 1.5f;
+                throwFinishObject.GetComponent<StunExplosion>().StunDuration = 1.5f;
+                break;
+            case Wearable.NameEnum.PaintPalette:
+                throwFinishObject = Instantiate(BlindCloudPrefab);
+                throwFinishObject.GetComponent<BlindCloud>().Radius = 5f;
+                throwFinishObject.GetComponent<BlindCloud>().BlindDuration = 15f;
+                break;
+            case Wearable.NameEnum.PixelcraftSquare:
+                throwFinishObject = Instantiate(BlindCloudPrefab);
+                throwFinishObject.GetComponent<BlindCloud>().Radius = 2f;
+                throwFinishObject.GetComponent<BlindCloud>().BlindDuration = 5f;
+                break;
+            case Wearable.NameEnum.SushiPiece:
+                throwFinishObject = Instantiate(LurePrefab);
+                throwFinishObject.GetComponent<Lure>().Hp = 200;
+                throwFinishObject.GetComponent<Lure>().WearableNameEnum.Value = wearableNameEnum;
+                break;
+            case Wearable.NameEnum.WalkieTalkie:
+                throwFinishObject = Instantiate(StunExplosionPrefab);
+                throwFinishObject.GetComponent<StunExplosion>().Radius = 2f;
+                throwFinishObject.GetComponent<StunExplosion>().StunDuration = 2f;
+                break;
+            default: break;
+        }
+
+        return throwFinishObject;
+    }
+
 }
