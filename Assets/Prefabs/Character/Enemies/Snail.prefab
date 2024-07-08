@@ -107,6 +107,7 @@ GameObject:
   - component: {fileID: 7690168732021353646}
   - component: {fileID: 990222868014410655}
   - component: {fileID: -8885356297908006619}
+  - component: {fileID: 5070268919411304364}
   m_Layer: 15
   m_Name: Snail
   m_TagString: Untagged
@@ -294,7 +295,7 @@ MonoBehaviour:
   baseApBuffer: 0
   baseDoubleStrikeChance: 0.05
   baseCriticalDamage: 1.5
-  baseMoveSpeed: 6.22
+  baseMoveSpeed: 3
   baseAccuracy: 1
   baseEvasion: 0
   baseDamageReduction: 0
@@ -405,6 +406,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc87cfd934687634ca27afcc4e9b8d4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &5070268919411304364
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67f82dd767fcb7f43ac4c354bf39cc47, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  AttackPrefab: {fileID: 3159421716010617349, guid: 92ca5efdc97856144bc1de4c9b4fed87, type: 3}
 --- !u!1 &6525230415705073668
 GameObject:
   m_ObjectHideFlags: 0
