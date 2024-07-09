@@ -12,7 +12,7 @@ public class UnarmedPunch : PlayerAbility
 
     private bool m_isCollisionChecked = false;
 
-    private float m_timer = 0f;
+    private float m_unarmedPunchTimer = 0f;
 
     public override void OnNetworkSpawn()
     {
@@ -27,7 +27,7 @@ public class UnarmedPunch : PlayerAbility
         SetRotationToActionDirection();
         SetLocalPosition(PlayerAbilityCentreOffset + ActivationInput.actionDirection * Projection);
 
-        m_timer = 0;
+        m_unarmedPunchTimer = 0;
 
         // IMPORTANT use PlayAnimation which calls RPC's in the background that play the 
         // animation on remote clients
@@ -38,9 +38,9 @@ public class UnarmedPunch : PlayerAbility
     {
         if (!IsActivated) return;
 
-        m_timer += Time.deltaTime;
+        m_unarmedPunchTimer += Time.deltaTime;
 
-        if (m_timer > ExecutionDuration/2 && !m_isCollisionChecked)
+        if (m_unarmedPunchTimer > ExecutionDuration/2 && !m_isCollisionChecked)
         {
             // collision check (no RPC's are involved in this call)
             OneFrameCollisionDamageCheck(m_collider, Wearable.WeaponTypeEnum.Unarmed);

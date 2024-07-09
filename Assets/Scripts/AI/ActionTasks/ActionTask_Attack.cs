@@ -9,16 +9,7 @@ using Unity.Netcode;
 
 public class ActionTask_Attack : ActionTask
 {
-    public VariableReference<float> PursueSpeed = 3.0f;
-    public VariableReference<float> StopShortDistance = 1.5f;
-
-    private float attackCooldown = 0;
-    private bool isAttackTime = false;
-
-    protected override void OnStart()
-    {
-        attackCooldown = 2f;
-    }
+    private bool m_isActivated = false;
 
     protected override UpdateStatus OnUpdate(float deltaTime)
     {
@@ -33,31 +24,17 @@ public class ActionTask_Attack : ActionTask
         var target = Context.Target.GetComponent<Transform>();
         if (target == null) return UpdateStatus.Running;
 
-        var self = navMeshAgent.transform;
-
-        Vector3 dir = (target.position - self.position).normalized;
-
-        navMeshAgent.SetDestination(target.position - dir * StopShortDistance);
-        navMeshAgent.speed = 3f;
-
-        attackCooldown -= Time.deltaTime;
-        if (attackCooldown <= 0)
+        if (!m_isActivated)
         {
-            isAttackTime = true;
-            attackCooldown = 2f;
-        }
-
-        if (isAttackTime)
+            var attackAbility = GameObject.GetComponent<EnemyAbilities>().PrimaryAttack;
+            m_isActivated = GameObject.GetComponent<EnemyAbilities>().TryActivate(attackAbility, GameObject, target.gameObject);
+        } else
         {
-            Debug.Log("Attack");
-
-            var attack = GameObject.Instantiate(GameObject.GetComponent<EnemyAttack>().AttackPrefab);
-            attack.transform.position = self.position + new Vector3(0, 0.35f, 0f);
-            attack.transform.rotation = PlayerAbility.GetRotationFromDirection(dir);
-            attack.GetComponent<NetworkObject>().Spawn();
-            attack.GetComponent<NetworkObject>().TrySetParent(GameObject);
-
-            isAttackTime = false;
+            if (!GameObject.GetComponent<EnemyAbilities>().IsAbilityRunning())
+            {
+                m_isActivated = false;
+                return UpdateStatus.Failure;
+            }
         }
 
         return UpdateStatus.Running;
