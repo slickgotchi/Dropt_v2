@@ -172,6 +172,7 @@ public class SplashVolley : PlayerAbility
             no_projectile.LocalPlayer = Player;
             no_projectile.WeaponType = Wearable.WeaponTypeEnum.Magic;
             no_projectile.ExplosionRadius = ExplosionRadius;
+            no_projectile.WearableNameEnum = activationWearable;
 
             var playerCharacter = Player.GetComponent<NetworkCharacter>();
             no_projectile.DamagePerHit = playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier;
@@ -206,6 +207,7 @@ public class SplashVolley : PlayerAbility
             no_projectile.ExplosionRadius = 1;
             no_projectile.WeaponType = Wearable.WeaponTypeEnum.Magic;
             no_projectile.ExplosionRadius = ExplosionRadius;
+            no_projectile.WearableNameEnum = activationWearable;
 
             var playerCharacter = Player.GetComponent<NetworkCharacter>();
             no_projectile.DamagePerHit = playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier;

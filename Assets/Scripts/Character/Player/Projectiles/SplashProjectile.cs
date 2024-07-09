@@ -15,10 +15,13 @@ public class SplashProjectile : NetworkBehaviour
     [HideInInspector] public float CriticalDamage = 1.5f;
     [HideInInspector] public Wearable.WeaponTypeEnum WeaponType;
 
+    [HideInInspector] public Wearable.NameEnum WearableNameEnum;
+
     [HideInInspector] public GameObject LocalPlayer;
 
     [HideInInspector] public PlayerAbility.NetworkRole NetworkRole = PlayerAbility.NetworkRole.LocalClient;
 
+    public SpriteRenderer bodySpriteRenderer;
     public CircleCollider2D Collider;
 
     private float m_timer = 0;
@@ -43,6 +46,10 @@ public class SplashProjectile : NetworkBehaviour
         GetComponent<LobArc>().Reset();
         GetComponent<LobArc>().Duration_s = Duration;
         GetComponent<LobArc>().MaxHeight = LobHeight;
+
+        var wearable = WearableManager.Instance.GetWearable(WearableNameEnum);
+        var wearablesSprite = WeaponSpriteManager.Instance.GetSprite(WearableNameEnum, wearable.AttackView);
+        bodySpriteRenderer.sprite = wearablesSprite;
     }
 
     private void Update()

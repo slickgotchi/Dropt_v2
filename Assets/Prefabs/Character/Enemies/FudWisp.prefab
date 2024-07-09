@@ -296,6 +296,8 @@ MonoBehaviour:
   baseMoveSpeed: 6.22
   baseAccuracy: 1
   baseEvasion: 0
+  baseDamageReduction: 0
+  baseApLeech: 0
   popupTextOffset: {x: 0, y: 1.5, z: 0}
   HpMax:
     m_InternalValue: 100
@@ -322,6 +324,10 @@ MonoBehaviour:
   Accuracy:
     m_InternalValue: 1
   Evasion:
+    m_InternalValue: 0
+  DamageReduction:
+    m_InternalValue: 0
+  ApLeech:
     m_InternalValue: 0
 --- !u!114 &-5820717897817998991
 MonoBehaviour:
@@ -394,8 +400,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_flashColor: {r: 1, g: 1, b: 1, a: 1}
-  m_flashTime: 0.15
-  m_flashCount: 4
+  m_flashTime: 0.3
+  m_flashCount: 1
   m_spriteRenderers:
   - {fileID: 361146906994616670}
 --- !u!1 &6525230415705073668

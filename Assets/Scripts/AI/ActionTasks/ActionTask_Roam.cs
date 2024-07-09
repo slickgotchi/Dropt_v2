@@ -21,6 +21,11 @@ public class ActionTask_Roam : ActionTask
         m_changeDirectionTimer = 0;
     }
 
+    protected override void OnStart()
+    {
+        m_changeDirectionTimer = 0f;
+    }
+
     protected override UpdateStatus OnUpdate(float deltaTime)
     {
         // this should only run server side (because we only add NavMeshAgent to server spawns)
