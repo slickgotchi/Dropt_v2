@@ -1,14 +1,13 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using CarlosLab.UtilityIntelligence;
 using CarlosLab.Common;
+using CarlosLab.UtilityIntelligence;
+using UnityEngine;
 using UnityEngine.AI;
-using Unity.Mathematics;
-using Unity.Netcode;
 
-public class ActionTask_Attack : ActionTask
+public class ActionTask_ArmExplosive : ActionTask
 {
+    public VariableReference<float> PursueSpeed = 3.0f;
+    public VariableReference<float> StopShortDistance = 1.5f;
+    public VariableReference<float> DetonationTime = 3f;
     private bool m_isActivated = false;
 
     protected override UpdateStatus OnUpdate(float deltaTime)
@@ -24,17 +23,23 @@ public class ActionTask_Attack : ActionTask
         var target = Context.Target.GetComponent<Transform>();
         if (target == null) return UpdateStatus.Running;
 
-        if (!m_isActivated)
+        // move to target
+        var self = navMeshAgent.transform;
+        Vector3 dir = (self.position - target.position).normalized;
+        navMeshAgent.SetDestination(target.position + dir * StopShortDistance);
+        navMeshAgent.speed = PursueSpeed;
+
+        // reduce detonation time
+        DetonationTime.Value -= Time.deltaTime;
+        Debug.Log("Detonation time: " + DetonationTime.Value);
+        //
+        if (DetonationTime.Value <= 0)
         {
+            Debug.Log("Try activate explosion");
             var attackAbility = GameObject.GetComponent<EnemyAbilities>().PrimaryAttack;
             m_isActivated = GameObject.GetComponent<EnemyAbilities>().TryActivate(attackAbility, GameObject, target.gameObject);
-        } else
-        {
-            if (!GameObject.GetComponent<EnemyAbilities>().IsAbilityRunning())
-            {
-                m_isActivated = false;
-                return UpdateStatus.Success;
-            }
+
+            return UpdateStatus.Success;
         }
 
         return UpdateStatus.Running;
