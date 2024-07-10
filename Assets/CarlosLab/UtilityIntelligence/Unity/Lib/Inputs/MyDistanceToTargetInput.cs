@@ -12,8 +12,22 @@ namespace CarlosLab.UtilityIntelligence
         {
             var myPosition = AgentFacade.Position;
             var targetPosition = context.TargetFacade.Position;
-            myPosition.Y = 0;
+            myPosition.Y = 0; 
             targetPosition.Y = 0;
+
+            return Vector3.Distance(myPosition, targetPosition);
+        }
+    }
+
+    // added this for dropt
+    public class MyDistanceToTargetXYInput : Input<float>
+    {
+        protected override float OnGetRawInput(InputContext context)
+        {
+            var myPosition = AgentFacade.Position;
+            var targetPosition = context.TargetFacade.Position;
+            myPosition.Z = 0;
+            targetPosition.Z = 0;
 
             return Vector3.Distance(myPosition, targetPosition);
         }

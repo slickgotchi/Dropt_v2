@@ -100,13 +100,13 @@ GameObject:
   - component: {fileID: 166411181886647591}
   - component: {fileID: -380767433246003270}
   - component: {fileID: 5418888167313772409}
-  - component: {fileID: 6692319684208491026}
   - component: {fileID: -3084451019736064510}
   - component: {fileID: -5422921411863056728}
   - component: {fileID: 6259036050550763651}
   - component: {fileID: -7828813223129445629}
   - component: {fileID: -2099557218047769943}
   - component: {fileID: -1865453684165800506}
+  - component: {fileID: 6865306147935662936}
   m_Layer: 15
   m_Name: BombSnail
   m_TagString: Untagged
@@ -144,7 +144,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2500555884
+  GlobalObjectIdHash: 4221514460
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -211,20 +211,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29cf3e7c9f82b7644ab0cfa54edb7528, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  editorAsset: {fileID: 11400000, guid: 92c3b9a1946d19b4f8e7d684d8fcc9fd, type: 2}
---- !u!114 &6692319684208491026
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1249991746567512264}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c71bcd1f6c85bd942ab09525e816866f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  SpriteToFlip: {fileID: 361146906994616670}
+  editorAsset: {fileID: 11400000, guid: 8a3eede54a1a6944094278f32ef481d9, type: 2}
 --- !u!114 &-3084451019736064510
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -296,6 +283,8 @@ MonoBehaviour:
   baseMoveSpeed: 6.22
   baseAccuracy: 1
   baseEvasion: 0
+  baseDamageReduction: 0
+  baseApLeech: 0
   popupTextOffset: {x: 0, y: 1.5, z: 0}
   HpMax:
     m_InternalValue: 100
@@ -323,6 +312,10 @@ MonoBehaviour:
     m_InternalValue: 1
   Evasion:
     m_InternalValue: 0
+  DamageReduction:
+    m_InternalValue: 0
+  ApLeech:
+    m_InternalValue: 0
 --- !u!114 &-7828813223129445629
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -335,6 +328,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc87cfd934687634ca27afcc4e9b8d4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  SpriteToFlip: {fileID: 361146906994616670}
+  FacingDirection: 0
 --- !u!61 &-2099557218047769943
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -394,10 +389,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_flashColor: {r: 1, g: 1, b: 1, a: 1}
-  m_flashTime: 0.15
-  m_flashCount: 4
+  m_flashTime: 0.3
+  m_flashCount: 1
   m_spriteRenderers:
   - {fileID: 361146906994616670}
+--- !u!114 &6865306147935662936
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a3a378c64a8d7d4ab8bcc33e72c4017, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PrimaryAttack: {fileID: 3159421716010617349, guid: 1a39f28e9e312b646adfe8a192589597, type: 3}
+  SecondaryAttack: {fileID: 0}
 --- !u!1 &6525230415705073668
 GameObject:
   m_ObjectHideFlags: 0
