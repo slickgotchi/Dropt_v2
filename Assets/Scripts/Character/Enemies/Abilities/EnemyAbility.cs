@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class EnemyAbility : NetworkBehaviour
 {
-    [Header("EnemyAbility Base Parameters")]
+    [Header("Base EnemyAbility Parameters")]
     public float TelegraphDuration = 1f;
     public float ExecutionDuration = 1f;
     public float CooldownDuration = 1f;
@@ -19,7 +19,7 @@ public class EnemyAbility : NetworkBehaviour
     {
         None, Telegraph, Execution, Cooldown,
     }
-    public State EnemyAbilityState = State.None;
+    [HideInInspector] public State EnemyAbilityState = State.None;
 
     public override void OnNetworkSpawn()
     {
@@ -77,4 +77,26 @@ public class EnemyAbility : NetworkBehaviour
     public virtual void OnCooldownStart() { }
     public virtual void OnFinish() { }
     public virtual void OnUpdate() { }
+
+    public static void PlayerCollisionCheckAndDamage(Collider2D collider, float damage, 
+        bool isCritical = false, GameObject damageDealer = null)
+    {
+        // sync colliders to current transform
+        Physics2D.SyncTransforms();
+
+        // do a collision check
+        List<Collider2D> playerHitColliders = new List<Collider2D>();
+        collider.Overlap(PlayerAbility.GetContactFilter(new string[] { "PlayerHurt" }), playerHitColliders);
+        foreach (var hit in playerHitColliders)
+        {
+            var player = hit.transform.parent;
+            if (player.HasComponent<NetworkCharacter>())
+            {
+                player.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical, damageDealer);
+            }
+        }
+
+        // clear out colliders
+        playerHitColliders.Clear();
+    }
 }
