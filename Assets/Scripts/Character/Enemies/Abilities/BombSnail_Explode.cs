@@ -1,3 +1,4 @@
+using CarlosLab.UtilityIntelligence;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Mathematics;
@@ -13,33 +14,56 @@ public class BombSnail_Explode : EnemyAbility
     [SerializeField] private Transform SpriteTransform;
     [SerializeField] private Collider2D Collider;
 
-    private float m_explosionTimer = 0;
+    private float m_explosionGrowFadeTimer = 0;
+
+    private void Awake()
+    {
+        SpriteTransform.localScale = Vector3.one;
+    }
 
     public override void OnTelegraphStart()
     {
-        transform.position = Parent.transform.position + new Vector3(0,0.3f,0);
-        SpriteTransform.localScale = new Vector3(0f, 0f, 1);
-        if (Parent != null) Parent.GetComponent<NetworkObject>().Despawn();
-
-        GetComponentInChildren<FadeOut>().duration = ExplosionDuration;
+        Debug.Log("OnTelegraphStart()");
     }
 
     public override void OnExecutionStart()
     {
-        m_explosionTimer = 0f;
+        Debug.Log("OnExecutionStart()");
+
+        // reset explosion fade timer & set fade out duration
+        m_explosionGrowFadeTimer = 0f;
+        GetComponentInChildren<FadeOut>().duration = ExplosionDuration;
+
+        // set position of explosion and initial scale
+        transform.position = Parent.transform.position + new Vector3(0, 0.3f, 0);
+        SpriteTransform.localScale = new Vector3(0f, 0f, 1);
+
+        // resize explosion collider and check collisions
+        Collider.GetComponent<CircleCollider2D>().radius = ExplosionRadius;
+        var enemyCharacter = Parent.GetComponent<NetworkCharacter>();
+        var damage = enemyCharacter.GetAttackPower();
+        var isCritical = enemyCharacter.IsCriticalAttack();
+        EnemyAbility.PlayerCollisionCheckAndDamage(Collider, damage, isCritical, enemyCharacter.gameObject);
+
+        // destroy the parent object
+        if (Parent != null)
+        {
+            transform.parent = null;
+            Parent.GetComponent<UtilityAgentFacade>().Destroy();
+        }
     }
 
     public override void OnUpdate()
     {
-        m_explosionTimer += Time.deltaTime;
-        if (m_explosionTimer > ExplosionDuration)
+        m_explosionGrowFadeTimer += Time.deltaTime;
+        if (m_explosionGrowFadeTimer > ExplosionDuration)
         {
             GetComponent<NetworkObject>().Despawn();
             return;
         }
 
-        m_explosionTimer = math.min(m_explosionTimer, ExplosionDuration);
-        var alpha = m_explosionTimer / ExplosionDuration;
+        m_explosionGrowFadeTimer = math.min(m_explosionGrowFadeTimer, ExplosionDuration);
+        var alpha = m_explosionGrowFadeTimer / ExplosionDuration;
 
         SpriteTransform.localScale = new Vector3(alpha * ExplosionRadius, alpha * ExplosionRadius, 1);
     }
