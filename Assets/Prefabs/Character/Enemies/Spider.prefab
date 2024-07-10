@@ -144,7 +144,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 861938076
+  GlobalObjectIdHash: 304405713
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -297,6 +297,7 @@ MonoBehaviour:
   baseAccuracy: 1
   baseEvasion: 0
   baseDamageReduction: 0
+  baseApLeech: 0
   popupTextOffset: {x: 0, y: 1.5, z: 0}
   HpMax:
     m_InternalValue: 100
@@ -325,6 +326,8 @@ MonoBehaviour:
   Evasion:
     m_InternalValue: 0
   DamageReduction:
+    m_InternalValue: 0
+  ApLeech:
     m_InternalValue: 0
 --- !u!114 &2642312668980575302
 MonoBehaviour:
@@ -397,8 +400,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_flashColor: {r: 1, g: 1, b: 1, a: 1}
-  m_flashTime: 0.15
-  m_flashCount: 4
+  m_flashTime: 0.3
+  m_flashCount: 1
   m_spriteRenderers:
   - {fileID: 361146906994616670}
 --- !u!1 &6525230415705073668

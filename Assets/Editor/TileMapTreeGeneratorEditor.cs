@@ -57,6 +57,11 @@ namespace Tilemaps.Editor
                 }
             }
 
+            if (source == target)
+            {
+                target.ClearAllTiles();
+            }
+
             foreach (var item in tiles)
             {
                 target.SetTile(item.Key, item.Value);
