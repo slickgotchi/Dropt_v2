@@ -62,8 +62,6 @@ public class GasBag_Explode : EnemyAbility
             var player = hit.transform.parent;
             if (player.HasComponent<NetworkCharacter>())
             {
-                Debug.Log("Poison Player");
-
                 // apply a stack of poison
                 PoisonStack.ApplyPoisonStack(player.gameObject, 3, 10, 5);
             }
