@@ -11,7 +11,7 @@ public class GeodeShade_Charge : EnemyAbility
     private Vector3 m_direction;
     private float m_speed;
     private Collider2D m_collider;
-    private bool m_isActive = false;
+    private bool m_isExecuting = false;
 
     private List<Transform> m_hitTransforms = new List<Transform>();
 
@@ -36,17 +36,17 @@ public class GeodeShade_Charge : EnemyAbility
 
     public override void OnExecutionStart()
     {
-        m_isActive = true;
+        m_isExecuting = true;
     }
 
     public override void OnCooldownStart()
     {
-        m_isActive = false;
+        m_isExecuting = false;
     }
 
     public override void OnUpdate()
     {
-        if (!m_isActive) return;
+        if (!m_isExecuting) return;
 
         ContinuousCollisionCheck();
 

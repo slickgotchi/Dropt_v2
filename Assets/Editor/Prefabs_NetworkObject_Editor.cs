@@ -29,7 +29,7 @@ public class Prefabs_NetworkObject_Editor : Editor
             GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
             if (prefab != null && 
                 prefab.GetComponent<NetworkObject>() != null && 
-                prefab.GetComponent<NetworkLevel>() == null)
+                prefab.GetComponent<Level.NetworkLevel>() == null)
             {
                 networkObjectsInProject.Add(prefab);
             }
