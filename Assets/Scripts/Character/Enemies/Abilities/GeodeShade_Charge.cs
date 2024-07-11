@@ -27,8 +27,6 @@ public class GeodeShade_Charge : EnemyAbility
 
     public override void OnTelegraphStart()
     {
-        Debug.Log("Locked on to Target");
-
         m_direction = (Target.transform.position - Parent.transform.position).normalized;
         m_speed = ChargeDistance / ExecutionDuration;
 
