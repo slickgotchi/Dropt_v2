@@ -100,13 +100,13 @@ GameObject:
   - component: {fileID: 166411181886647591}
   - component: {fileID: -380767433246003270}
   - component: {fileID: 5418888167313772409}
-  - component: {fileID: 6692319684208491026}
   - component: {fileID: -2760814812408020241}
   - component: {fileID: 2655677576660431681}
   - component: {fileID: 3330986741626919136}
   - component: {fileID: 2642312668980575302}
   - component: {fileID: 9088211342616817470}
   - component: {fileID: -4382550609485557648}
+  - component: {fileID: -8181816123156669113}
   m_Layer: 15
   m_Name: Spider
   m_TagString: Untagged
@@ -212,19 +212,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   editorAsset: {fileID: 11400000, guid: 92c3b9a1946d19b4f8e7d684d8fcc9fd, type: 2}
---- !u!114 &6692319684208491026
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1249991746567512264}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c71bcd1f6c85bd942ab09525e816866f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  SpriteToFlip: {fileID: 361146906994616670}
 --- !u!114 &-2760814812408020241
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -341,6 +328,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc87cfd934687634ca27afcc4e9b8d4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  SpriteToFlip: {fileID: 0}
+  FacingDirection: 0
 --- !u!61 &9088211342616817470
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -404,6 +393,20 @@ MonoBehaviour:
   m_flashCount: 1
   m_spriteRenderers:
   - {fileID: 361146906994616670}
+--- !u!114 &-8181816123156669113
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a3a378c64a8d7d4ab8bcc33e72c4017, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PrimaryAttack: {fileID: 0}
+  SecondaryAttack: {fileID: 0}
 --- !u!1 &6525230415705073668
 GameObject:
   m_ObjectHideFlags: 0

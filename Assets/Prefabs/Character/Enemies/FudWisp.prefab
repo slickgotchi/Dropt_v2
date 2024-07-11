@@ -100,13 +100,13 @@ GameObject:
   - component: {fileID: 166411181886647591}
   - component: {fileID: -380767433246003270}
   - component: {fileID: 5418888167313772409}
-  - component: {fileID: 6692319684208491026}
   - component: {fileID: -3638760681959725395}
   - component: {fileID: -1289819314110708733}
   - component: {fileID: -5698031763241939707}
   - component: {fileID: -5820717897817998991}
   - component: {fileID: 8844155451223192699}
   - component: {fileID: -8223768237068053155}
+  - component: {fileID: 449732407676914570}
   m_Layer: 15
   m_Name: FudWisp
   m_TagString: Untagged
@@ -211,20 +211,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29cf3e7c9f82b7644ab0cfa54edb7528, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  editorAsset: {fileID: 11400000, guid: 92c3b9a1946d19b4f8e7d684d8fcc9fd, type: 2}
---- !u!114 &6692319684208491026
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1249991746567512264}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c71bcd1f6c85bd942ab09525e816866f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  SpriteToFlip: {fileID: 361146906994616670}
+  editorAsset: {fileID: 11400000, guid: 47404f7e05324044c892a8a469ef4c19, type: 2}
 --- !u!114 &-3638760681959725395
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -341,6 +328,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc87cfd934687634ca27afcc4e9b8d4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  SpriteToFlip: {fileID: 0}
+  FacingDirection: 0
 --- !u!61 &8844155451223192699
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -404,6 +393,20 @@ MonoBehaviour:
   m_flashCount: 1
   m_spriteRenderers:
   - {fileID: 361146906994616670}
+--- !u!114 &449732407676914570
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a3a378c64a8d7d4ab8bcc33e72c4017, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PrimaryAttack: {fileID: 3159421716010617349, guid: 060fc45219c1dec4daedca90b92c7985, type: 3}
+  SecondaryAttack: {fileID: 0}
 --- !u!1 &6525230415705073668
 GameObject:
   m_ObjectHideFlags: 0
