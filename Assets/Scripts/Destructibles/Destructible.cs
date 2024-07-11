@@ -38,6 +38,26 @@ public class Destructible : NetworkBehaviour
         }
     }
 
+    public void TakeDamage(int damage)
+    {
+        if (IsServer)
+        {
+            CurrentHp.Value -= damage;
+            if (CurrentHp.Value <= 0)
+            {
+                GetComponent<NetworkObject>().Despawn();
+            }
+        }
+
+        var damageWobble = GetComponent<DamageWobble>();
+        if (damageWobble != null) damageWobble.Play();
+
+        if (CurrentHp.Value <= damage)
+        {
+            VisualEffectsManager.Singleton.SpawnCloudExplosion(transform.position + new Vector3(0, 0.5f, 0));
+        }
+    }
+
     int CalculateDamageToDestructible(Type destructibleType, Wearable.WeaponTypeEnum weaponType)
     {
         int damage = 1;
