@@ -34,6 +34,7 @@ public class EnemyAbilities : MonoBehaviour
         var no_ability = Instantiate(abilityPrefab);
         no_ability.GetComponent<EnemyAbility>().Target = target;
         no_ability.GetComponent<EnemyAbility>().Parent = parent;
+        no_ability.transform.position = parent.transform.position + new Vector3(0, 0.3f, 0);
         no_ability.GetComponent<NetworkObject>().Spawn();
         no_ability.GetComponent<EnemyAbility>().Activate();
 
