@@ -25,6 +25,7 @@ namespace Level
                 ApeDoorFactory.CreateApeDoors(gameObject);
                 NetworkObjectSpawnerFactory.CreateNetworkObjectSpawners(gameObject, ref m_spawnerActivators);
                 SubLevelFactory.CreateSubLevels(gameObject);
+                NetworkObjectPrefabSpawnerFactory.CreateNetworkObjectPrefabSpawners(gameObject);
 
                 LevelManager.Instance.LevelSpawningCount--;
             }
@@ -59,6 +60,7 @@ namespace Level
             CleanupFactory.DestroySpawnerObjects<PlayerSpawnPoints>(gameObject);
             CleanupFactory.DestroySpawnerObjects<SunkenFloorSpawner>(gameObject);
             CleanupFactory.DestroySpawnerObjects<SunkenFloorButtonGroupSpawner>(gameObject);
+            CleanupFactory.DestroySpawnerObjects<NetworkObjectPrefabSpawner>(gameObject);
         }
 
         public Vector3 PopPlayerSpawnPoint()
