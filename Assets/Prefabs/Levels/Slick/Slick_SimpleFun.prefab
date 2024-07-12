@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3580875482717547080}
   - component: {fileID: 899519365111170708}
   m_Layer: 0
-  m_Name: PrefabSpawner_Snail
+  m_Name: PrefabSpawner_Enemy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -27,7 +27,7 @@ Transform:
   m_GameObject: {fileID: 260619799412673314}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 8.03, y: 5.12, z: 0}
+  m_LocalPosition: {x: 12.07, y: 7.65, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3b5fb0b55fb9af4785cfd643c8fc3ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 7c6b6e1ebc9fbe14fb6a33651bc2989d, type: 3}
+  NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 32a1b8b0f0e0b1040ab0f7b8ca27e557, type: 3}
 --- !u!212 &899519365111170708
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -90,7 +90,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: -9187523289668771099, guid: 27280fac04b006d4ebec4dd647b671ec, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 0, b: 0, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0

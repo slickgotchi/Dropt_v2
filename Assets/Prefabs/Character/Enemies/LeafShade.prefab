@@ -107,6 +107,7 @@ GameObject:
   - component: {fileID: -277146688726621620}
   - component: {fileID: -4429307489550190617}
   - component: {fileID: 1235791206149504990}
+  - component: {fileID: -8391369733495563293}
   m_Layer: 15
   m_Name: LeafShade
   m_TagString: Untagged
@@ -144,7 +145,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3251470331
+  GlobalObjectIdHash: 1888255537
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -211,7 +212,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29cf3e7c9f82b7644ab0cfa54edb7528, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  editorAsset: {fileID: 11400000, guid: 92c3b9a1946d19b4f8e7d684d8fcc9fd, type: 2}
+  editorAsset: {fileID: 11400000, guid: 25cba72ff2b012d47984bccb44af02e4, type: 2}
 --- !u!114 &-1691391478239455132
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -328,7 +329,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc87cfd934687634ca27afcc4e9b8d4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SpriteToFlip: {fileID: 0}
+  SpriteToFlip: {fileID: 361146906994616670}
   FacingDirection: 0
 --- !u!61 &-277146688726621620
 BoxCollider2D:
@@ -405,8 +406,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a3a378c64a8d7d4ab8bcc33e72c4017, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PrimaryAttack: {fileID: 0}
+  PrimaryAttack: {fileID: 6780689125281501319, guid: 80dc677fccc766d49a6e18ff21db2170, type: 3}
   SecondaryAttack: {fileID: 0}
+--- !u!114 &-8391369733495563293
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93245a10eab2ede4eb23e82088d382cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6525230415705073668
 GameObject:
   m_ObjectHideFlags: 0
