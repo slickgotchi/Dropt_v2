@@ -2,7 +2,7 @@
 {
     public static class FrameworkRuntimeConsts
     {
-        public const string FrameworkVersion = "1.0.0";
+        public const string FrameworkVersion = "1.0.11";
         public const int DataVersion = 1;
         public const string DataExtension = "json";
         

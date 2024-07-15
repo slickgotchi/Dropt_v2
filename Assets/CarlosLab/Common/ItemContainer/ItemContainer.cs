@@ -94,7 +94,7 @@ namespace CarlosLab.Common
     {
         public TValue GetValue<TValue>(string name)
         {
-            IContainerItemValue<TValue> item = GetItem<TValue>(name);
+            IContainerItemValue<TValue> item = GetItemByValue<TValue>(name);
             if (item != null)
                 return item.Value;
 
@@ -102,13 +102,26 @@ namespace CarlosLab.Common
             return default;
         }
 
-        public IContainerItemValue<TValue> GetItem<TValue>(string name)
+        internal IContainerItemValue<TValue> GetItemByValue<TValue>(string name)
         {
             if (string.IsNullOrEmpty(name))
                 return null;
 
             if (itemDict.TryGetValue(name, out TItem item))
                 return item as IContainerItemValue<TValue>;
+
+            CommonConsole.Instance.LogWarning($"Cannot find the variable: {name}");
+            return null;
+        }
+
+        public TItemValue GetItem<TItemValue>(string name)
+            where TItemValue : class, IContainerItemValue
+        {
+            if (string.IsNullOrEmpty(name))
+                return null;
+
+            if (itemDict.TryGetValue(name, out TItem item))
+                return item as TItemValue;
 
             CommonConsole.Instance.LogWarning($"Cannot find the variable: {name}");
             return null;

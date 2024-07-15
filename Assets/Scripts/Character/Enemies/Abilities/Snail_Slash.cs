@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
-public class SnailSlash : EnemyAbility
+public class Snail_Slash : EnemyAbility
 {
     private Animator m_animator;
     private Collider2D m_collider;

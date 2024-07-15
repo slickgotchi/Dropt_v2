@@ -17,13 +17,7 @@ namespace CarlosLab.UtilityIntelligence
 
         [SerializeField]
         internal string agentDescription;
-
-        #region Framework Properties
-
-        public override int DataVersion => FrameworkRuntimeConsts.DataVersion;
-        public override string FrameworkVersion => FrameworkRuntimeConsts.FrameworkVersion;
-
-        #endregion
+        
 
         #region Agent Properties
 
@@ -37,6 +31,12 @@ namespace CarlosLab.UtilityIntelligence
         #endregion
 
         #region Serialization Methods
+        
+        protected override void OnStartSerialization()
+        {
+            Model.DataVersion = DataVersion;
+            Model.FrameworkVersion = FrameworkVersion;
+        }
 
         protected override void OnStartDeserialization()
         {
@@ -45,6 +45,8 @@ namespace CarlosLab.UtilityIntelligence
         
         protected override void OnFinishDeserialization()
         {
+            DataVersion = FrameworkRuntimeConsts.DataVersion;
+            FrameworkVersion = FrameworkRuntimeConsts.FrameworkVersion;
             UpdateReferences();
         }
 
@@ -64,6 +66,16 @@ namespace CarlosLab.UtilityIntelligence
         }
 
         private void UpdateReferences()
+        {
+            UpdateVariableReferences(TargetFilters);
+            UpdateVariableReferences(Actions);
+            UpdateVariableReferences(Inputs);
+            UpdateVariableReferences(InputNormalizations);
+
+            UpdateContainerReferences();
+        }
+
+        private void UpdateContainerReferences()
         {
             if (Model == null) return;
             
@@ -85,11 +97,6 @@ namespace CarlosLab.UtilityIntelligence
             {
                 model.InputContainer = inputs;
             }
-
-            UpdateVariableReferences(TargetFilters);
-            UpdateVariableReferences(Actions);
-            UpdateVariableReferences(Inputs);
-            UpdateVariableReferences(InputNormalizations);
         }
 
         private void UpdateVariableReferences(IReadOnlyList<IGenericModel> models)

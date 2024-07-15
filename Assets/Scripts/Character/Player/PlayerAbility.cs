@@ -401,6 +401,19 @@ public class PlayerAbility : NetworkBehaviour
         return math.atan2(direction.y, direction.x) * math.TODEGREES;
     }
 
+    public static Vector3 GetDirectionFromAngle(float angleInDegrees)
+    {
+        // Convert angle from degrees to radians
+        float angleInRadians = angleInDegrees * Mathf.Deg2Rad;
+
+        // Calculate the x and y components of the vector
+        float x = Mathf.Cos(angleInRadians);
+        float y = Mathf.Sin(angleInRadians);
+
+        // Create and return the vector
+        return new Vector3(x, y, 0f);
+    }
+
     protected Vector3 GetPlayerAbilityCentrePosition()
     {
         Vector3 pos = Vector3.zero;
