@@ -13,30 +13,29 @@ public class NetworkRoleCanvas : MonoBehaviour
     [SerializeField] private Button clientButton;
     [SerializeField] private TMP_Dropdown connectionDropdown;
 
+    public bool isSkipTitle = true;
+
     private void Awake()
     {
         hostButton.onClick.AddListener(() =>
         {
             Bootstrap.Singleton.NetworkRole = NetworkRole.Host;
             SetConnectionTypeFromDropDown();
-            SceneManager.LoadScene("Game");
-            //SceneManager.LoadScene("Title");
+            SceneManager.LoadScene(isSkipTitle ? "Game" : "Title");
         });
 
         serverButton.onClick.AddListener(() =>
         {
             Bootstrap.Singleton.NetworkRole = NetworkRole.Server;
             SetConnectionTypeFromDropDown();
-            SceneManager.LoadScene("Game");
-            //SceneManager.LoadScene("Title");
+            SceneManager.LoadScene(isSkipTitle ? "Game" : "Title");
         });
 
         clientButton.onClick.AddListener(() =>
         {
             Bootstrap.Singleton.NetworkRole = NetworkRole.Client;
             SetConnectionTypeFromDropDown();
-            SceneManager.LoadScene("Game");
-            //SceneManager.LoadScene("Title");
+            SceneManager.LoadScene(isSkipTitle ? "Game" : "Title");
         });
 
         connectionDropdown.onValueChanged.AddListener(OnConnectionDropdownValueChanged);

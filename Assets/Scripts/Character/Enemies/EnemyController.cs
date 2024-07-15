@@ -38,6 +38,8 @@ public class EnemyController : NetworkBehaviour
         m_utilityAgentController = GetComponent<UtilityAgentController>();
         m_utilityAgentFacade = GetComponent<UtilityAgentFacade>();
 
+        if (m_utilityAgentController == null) return;
+
         // only add nav mesh agent on the server
         if (IsServer || IsHost)
         {
