@@ -11,6 +11,7 @@ public class SpiderPod_SpawnSpiders : EnemyAbility
     public float SpawnDuration = 1f;
     public float SpawnDistance = 2f;
 
+    private float m_spawnTimer = 0f;
     private List<GameObject> m_spiders = new List<GameObject>();
     private List<Vector3> m_spiderDirections = new List<Vector3>();
     private float m_speed = 1f;
