@@ -11,7 +11,7 @@ public class LevelManager : NetworkBehaviour
     // level tracking variables
     [SerializeField] private List<GameObject> m_levels = new List<GameObject>();
     private GameObject m_currentLevel;
-    private int m_currentLevelIndex = 0;
+    public int m_currentLevelIndex = 0;
 
     // variables to keep track of spawning levels
     [HideInInspector] public int LevelSpawningCount = 0;
@@ -189,9 +189,15 @@ public class LevelManager : NetworkBehaviour
         // drop spawn players
         var no_playerSpawnPoints = m_currentLevel.GetComponentInChildren<PlayerSpawnPoints>();
         m_playerSpawnPoints.Clear();
-        for (int i = 0; i < no_playerSpawnPoints.transform.childCount; i++)
+        if (no_playerSpawnPoints == null)
         {
-            m_playerSpawnPoints.Add(no_playerSpawnPoints.transform.GetChild(i).transform.position);
+            m_playerSpawnPoints.Add(Vector3.zero);
+        } else
+        {
+            for (int i = 0; i < no_playerSpawnPoints.transform.childCount; i++)
+            {
+                m_playerSpawnPoints.Add(no_playerSpawnPoints.transform.GetChild(i).transform.position);
+            }
         }
 
         // set each player spawn position
@@ -204,6 +210,7 @@ public class LevelManager : NetworkBehaviour
 
             player.GetComponent<PlayerPrediction>().SetPlayerPosition(spawnPoint);
             player.GetComponent<PlayerGotchi>().DropSpawn(player.transform.position, spawnPoint);
+            player.GetComponent<Collider2D>().enabled = false;  
         }
     }
 

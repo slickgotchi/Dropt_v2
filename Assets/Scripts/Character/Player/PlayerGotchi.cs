@@ -233,6 +233,9 @@ public class PlayerGotchi : NetworkBehaviour
         // make camera follow player and warp it to our new spawn point
         m_virtualCamera.Follow = transform;
         m_virtualCamera.OnTargetObjectWarped(transform, m_spawnPoint - m_preSpawnPoint);
+
+        // renable collider
+        GetComponent<Collider2D>().enabled = true;
     }
 
     void UpdateDustParticles()
