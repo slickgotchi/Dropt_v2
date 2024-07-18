@@ -47,10 +47,13 @@ public class WearableLoader : MonoBehaviour
                 SecondaryBuffValue = float.Parse(row[13]),
                 TertiaryBuff = (CharacterStat)System.Enum.Parse(typeof(CharacterStat), row[14]),
                 TertiaryBuffValue = float.Parse(row[15]),
-                SwapDescription = row[16],
-                EffectDuration = int.Parse(row[17]),
-                AttackView = (PlayerGotchi.Facing)System.Enum.Parse(typeof(PlayerGotchi.Facing), row[18]),
-                AttackAngle = float.Parse(row[19]),
+                BaseDescription = row[16],
+                AttackDescription = row[17],
+                HoldDescription = row[18],
+                SpecialDescription = row[19],
+                EffectDuration = int.Parse(row[20]),
+                AttackView = (PlayerGotchi.Facing)System.Enum.Parse(typeof(PlayerGotchi.Facing), row[21]),
+                AttackAngle = float.Parse(row[22]),
             };
 
             WearableManager.Instance.AddWearable(wearable);

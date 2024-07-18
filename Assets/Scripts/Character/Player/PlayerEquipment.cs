@@ -15,8 +15,8 @@ public class PlayerEquipment : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        LeftHand.Value = Wearable.NameEnum._1337Laptop;
-        RightHand.Value = Wearable.NameEnum.BabyBottle;
+        LeftHand.Value = Wearable.NameEnum.Unarmed;
+        RightHand.Value = Wearable.NameEnum.Unarmed;
 
         SetEquipment(Slot.LeftHand, LeftHand.Value);
         SetEquipment(Slot.RightHand, RightHand.Value);  
@@ -31,12 +31,10 @@ public class PlayerEquipment : NetworkBehaviour
             if (slot == Slot.LeftHand)
             {
                 GetComponent<PlayerGotchi>().SetWeaponSprites(Hand.Left, equipmentNameEnum);
-                Debug.Log("Set left to " + equipmentNameEnum);
             } 
             else if (slot == Slot.RightHand)
             {
                 GetComponent<PlayerGotchi>().SetWeaponSprites(Hand.Right, equipmentNameEnum);
-                Debug.Log("Set right to " + equipmentNameEnum);
             }
         }
     }

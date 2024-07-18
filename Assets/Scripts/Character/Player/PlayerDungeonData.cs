@@ -8,6 +8,12 @@ public class PlayerDungeonData : NetworkBehaviour
     // Public properties with private setters
     public int GltrCount { get; private set; } = 0;
     public int cGHSTCount { get; private set; } = 0;
+    public float Essence { get; private set; } = 300;
+
+    private void Update()
+    {
+        Essence -= Time.deltaTime;
+    }
 
     // Method to add value to GltrCount
     public void AddGltr(int value)
@@ -23,6 +29,13 @@ public class PlayerDungeonData : NetworkBehaviour
         if (!IsServer) return;
 
         cGHSTCount += value;
+    }
+
+    public void AddEssence(float value)
+    {
+        if (!IsServer) return;
+
+        Essence += value;
     }
 
     // Method to reset counts

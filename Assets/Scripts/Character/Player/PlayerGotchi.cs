@@ -260,6 +260,8 @@ public class PlayerGotchi : NetworkBehaviour
 
     public void SetWeaponSprites(Hand hand, Wearable.NameEnum wearableNameEnum)
     {
+        if (wearableNameEnum == Wearable.NameEnum.Unarmed) wearableNameEnum = Wearable.NameEnum.None;
+
         if (hand == Hand.Left)
         {
             // set sprite

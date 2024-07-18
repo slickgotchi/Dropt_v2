@@ -25,7 +25,10 @@ public partial class Wearable
     public float SecondaryBuffValue;
     public CharacterStat TertiaryBuff;
     public float TertiaryBuffValue;
-    public string SwapDescription;
+    public string BaseDescription;
+    public string AttackDescription;
+    public string HoldDescription;
+    public string SpecialDescription;
     public int EffectDuration;
     public PlayerGotchi.Facing AttackView;
     public float AttackAngle;

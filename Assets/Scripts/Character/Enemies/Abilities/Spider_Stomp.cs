@@ -23,6 +23,8 @@ public class Spider_Stomp : EnemyAbility
 
     public override void OnNetworkSpawn()
     {
+        if (Parent == null) return;
+
         transform.position = Parent.transform.position;
     }
 
@@ -37,12 +39,16 @@ public class Spider_Stomp : EnemyAbility
 
     public override void OnExecutionStart()
     {
+        if (Parent == null) return;
+
         m_isExecuting = true;
         Parent.GetComponent<Animator>().Play("Spider_Jump");
     }
 
     public override void OnCooldownStart()
     {
+        if (Parent == null) return;
+
         m_isExecuting = false;
         Parent.GetComponent<Animator>().Play("Spider_Walk");
 
