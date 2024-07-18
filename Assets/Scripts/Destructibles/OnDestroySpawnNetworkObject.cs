@@ -10,14 +10,13 @@ public class OnDestroySpawnNetworkObject : NetworkBehaviour
 
     public override void OnNetworkDespawn()
     {
-        if (IsServer)
-        {
-            if (SpawnPrefab == null) return;
+        if (!IsServer) return;
+        if (!GetComponent<OnDestroySpawnNetworkObject>().enabled) return;
 
-            var newSpawn = Instantiate(SpawnPrefab, transform);
-            newSpawn.transform.position += Offset;
-            newSpawn.GetComponent<NetworkObject>().Spawn();
-        }
+        // spawn 
+        var newSpawn = Instantiate(SpawnPrefab, transform);
+        newSpawn.transform.position += Offset;
+        newSpawn.GetComponent<NetworkObject>().Spawn();
     }
 
 }

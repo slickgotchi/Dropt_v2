@@ -43,12 +43,13 @@ public class Snail_Slash : EnemyAbility
 
     public override void OnExecutionStart()
     {
+        if (Parent == null) return;
+
         transform.position = Parent.transform.position + new Vector3(0, 0.35f, 0f);
         m_animator.Play("SnailSlash_Attack");
         var damage = Parent.GetComponent<NetworkCharacter>().GetAttackPower();
         var isCritical = Parent.GetComponent<NetworkCharacter>().IsCriticalAttack();
         EnemyAbility.PlayerCollisionCheckAndDamage(m_collider, damage, isCritical, Parent);
-        //CollisionCheck();
     }
 
     public override void OnCooldownStart()
@@ -58,25 +59,4 @@ public class Snail_Slash : EnemyAbility
     public override void OnFinish()
     {
     }
-
-    //void CollisionCheck()
-    //{
-    //    // sync colliders to current transform
-    //    Physics2D.SyncTransforms();
-
-    //    // do a collision check
-    //    List<Collider2D> playerHitColliders = new List<Collider2D>();
-    //    m_collider.Overlap(PlayerAbility.GetContactFilter(new string[] { "PlayerHurt" }), playerHitColliders);
-    //    foreach (var hit in playerHitColliders)
-    //    {
-    //        var player = hit.transform.parent;
-    //        if (player.HasComponent<NetworkCharacter>())
-    //        {
-    //            player.GetComponent<NetworkCharacter>().TakeDamage(10, false, gameObject);
-    //        }
-    //    }
-
-    //    // clear out colliders
-    //    playerHitColliders.Clear();
-    //}
 }

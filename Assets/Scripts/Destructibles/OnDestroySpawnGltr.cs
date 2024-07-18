@@ -10,6 +10,7 @@ public class OnDestroySpawnGltr : NetworkBehaviour
     public override void OnNetworkDespawn()
     {
         if (!IsServer) return;
+        if (!GetComponent<OnDestroySpawnGltr>().enabled) return;
 
         PickupItemManager.Instance.SpawnGltr(GltrValue, transform.position);
     }
