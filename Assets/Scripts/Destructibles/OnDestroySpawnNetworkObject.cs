@@ -12,6 +12,7 @@ public class OnDestroySpawnNetworkObject : NetworkBehaviour
     {
         if (!IsServer) return;
         if (!GetComponent<OnDestroySpawnNetworkObject>().enabled) return;
+        if (SpawnPrefab == null) return;
 
         // spawn 
         var newSpawn = Instantiate(SpawnPrefab, transform);
