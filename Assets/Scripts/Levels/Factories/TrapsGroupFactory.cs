@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Level.Traps;
 using Unity.Netcode;
 using UnityEngine;
@@ -13,13 +14,15 @@ namespace Level
 
             foreach (var group in groups)
             {
+                var maxGroup = group.Spawners.Max(temp => temp.Group);
+
                 foreach (var spawner in group.Spawners)
                 {
                     var trap = Object.Instantiate(spawner.Prefab, group.transform);
                     trap.transform.position = spawner.transform.position;
                     trap.GetComponent<NetworkObject>().Spawn();
                     trap.GetComponent<NetworkObject>().TrySetParent(parent);
-                    trap.GetComponent<Trap>().SetupGroup(group, spawner.Group);
+                    trap.GetComponent<Trap>().SetupGroup(spawner.Group, maxGroup);
                 }
                 
                 CleanupFactory.DestroyAllChildren(group.transform);

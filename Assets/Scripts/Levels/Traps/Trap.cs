@@ -7,15 +7,19 @@ namespace Level.Traps
 {
     public abstract class Trap : NetworkBehaviour
     {
+        [HideInInspector]
+        public NetworkVariable<int> Group;
+        [HideInInspector]
+        public NetworkVariable<int> MaxGroup;
+
         [SerializeField] protected BoxCollider2D m_collider;
         [SerializeField] protected float m_cooldownDuration;
         [SerializeField] protected float m_damage;
         [SerializeField] protected BuffDamageAbility m_buffDamageAbility;
 
-        protected TrapsGroupSpawner m_group;
-        protected int m_currentGroup;
         private float m_cooldownTimer;
 
+        //is available trap for attack
         protected abstract bool IsAvailableForAttack
         {
             get;
@@ -24,11 +28,6 @@ namespace Level.Traps
         private void Awake()
         {
             m_cooldownTimer = 0;
-        }
-
-        public override void OnNetworkSpawn()
-        {
-            if (!IsServer) return;
         }
 
         protected virtual void Update()
@@ -46,6 +45,7 @@ namespace Level.Traps
                 if (m_cooldownTimer > 0)
                     return;
 
+                //cause damage
                 List<NetworkCharacter> result = ListPool<NetworkCharacter>.Get();
                 result.Clear();
                 EnemyAbility.FillPlayerCollisionCheckAndDamage(result, m_collider, m_damage, false, gameObject);
@@ -60,11 +60,11 @@ namespace Level.Traps
             }
         }
 
-        public virtual void SetupGroup(TrapsGroupSpawner spawner, int group)
+        //setup group order
+        public void SetupGroup(int group, int maxGroup)
         {
-            m_currentGroup = group;
-            m_group = spawner;
-            spawner.AddChild(group);
+            Group.Value = group;
+            MaxGroup.Value = maxGroup + 1;
         }
     }
 }

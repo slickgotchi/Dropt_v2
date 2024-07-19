@@ -7,6 +7,7 @@ namespace Level.Traps
     {
         [SerializeField] private SpriteRenderer m_trapImage;
         [SerializeField] private TimedTrapFrame[] m_frames;
+        
         private int[] m_timings;
 
         protected override bool IsAvailableForAttack
@@ -23,18 +24,13 @@ namespace Level.Traps
         private int m_frame;
         private int m_minTime;
         private int m_maxTime;
-
-        public override void OnNetworkSpawn()
+        
+        private void TryToInitTimings()
         {
-            if (!IsServer) return;
-        }
+            if (null != m_timings)
+                return;
 
-        public override void SetupGroup(TrapsGroupSpawner spawner, int group)
-        {
-            base.SetupGroup(spawner, group);
-
-            if (!IsServer) return;
-
+            //calculate duration till damage frame
             m_timeToGoToNextGroup = 0;
             for (int i = 0; i < m_frames.Length; i++)
             {
@@ -51,7 +47,8 @@ namespace Level.Traps
 
             m_totalDuration = m_frames.Sum(temp => temp.TimeMs);
 
-            m_minTime = m_currentGroup * m_timeToGoToNextGroup;
+            //calculate frame timings taking into account group number and damage frame time offset
+            m_minTime = Group.Value * m_timeToGoToNextGroup;
             m_timings = new int[m_frames.Length];
 
             m_maxTime = m_minTime;
@@ -72,27 +69,30 @@ namespace Level.Traps
         {
             base.Update();
 
-            if (!IsServer)
-                return;
+            TryToInitTimings();
 
+            //switch between trap frames
             m_time += Mathf.RoundToInt(Time.deltaTime * 1000);
             m_frame = GetFrameByTime(m_time);
             m_trapImage.sprite = m_frames[m_frame].Frame;
 
-            if (m_currentGroup + 1 == m_group.MaxGroupsCount)
+            var maxGroupsCount = MaxGroup.Value;
+
+            //reset time when animation is over
+            if (Group.Value + 1 == maxGroupsCount)
             {
-                if (m_time >= m_group.MaxGroupsCount * m_totalDuration)
+                if (m_time >= maxGroupsCount * m_totalDuration)
                 {
                     m_time = m_timeToGoToNextGroup;
                 }
             }
             else
-            if (m_time >= m_group.MaxGroupsCount * m_totalDuration - m_timeToGoToNextGroup)
+            if (m_time >= maxGroupsCount * m_totalDuration - m_timeToGoToNextGroup)
             {
                 m_time = 0;
             }
         }
-
+        
         private int GetFrameByTime(int time)
         {
             if (time < m_minTime || time > m_maxTime)
