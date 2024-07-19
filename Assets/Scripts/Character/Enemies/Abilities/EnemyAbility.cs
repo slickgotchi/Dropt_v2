@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Pool;
 
 public class EnemyAbility : NetworkBehaviour
 {
@@ -85,7 +86,8 @@ public class EnemyAbility : NetworkBehaviour
         Physics2D.SyncTransforms();
 
         // do a collision check
-        List<Collider2D> playerHitColliders = new List<Collider2D>();
+        List<Collider2D> playerHitColliders = ListPool<Collider2D>.Get();
+
         collider.Overlap(PlayerAbility.GetContactFilter(new string[] { "PlayerHurt" }), playerHitColliders);
         foreach (var hit in playerHitColliders)
         {
@@ -97,6 +99,31 @@ public class EnemyAbility : NetworkBehaviour
         }
 
         // clear out colliders
+        ListPool<Collider2D>.Release(playerHitColliders);
+    }
+
+    public static void FillPlayerCollisionCheckAndDamage(List<NetworkCharacter> result, Collider2D collider, float damage,
+        bool isCritical = false, GameObject damageDealer = null)
+    {
+        // sync colliders to current transform
+        Physics2D.SyncTransforms();
+
+        // do a collision check
+        List<Collider2D> playerHitColliders = ListPool<Collider2D>.Get();
+        // clear out colliders
         playerHitColliders.Clear();
+
+        collider.Overlap(PlayerAbility.GetContactFilter(new string[] { "PlayerHurt" }), playerHitColliders);
+        foreach (var hit in playerHitColliders)
+        {
+            var player = hit.transform.parent;
+            if (player.HasComponent<NetworkCharacter>())
+            {
+                player.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical, damageDealer);
+                result.Add(player.GetComponent<NetworkCharacter>());
+            }
+        }
+
+        ListPool<Collider2D>.Release(playerHitColliders);
     }
 }

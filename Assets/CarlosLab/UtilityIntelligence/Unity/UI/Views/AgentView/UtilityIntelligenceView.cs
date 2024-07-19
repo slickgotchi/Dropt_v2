@@ -52,7 +52,7 @@ namespace CarlosLab.UtilityIntelligence.UI
             dataVersionLabel = this.Q<Label>("DataVersionLabel");
             
             InitTabView();
-            
+
 #if UNITY_EDITOR
             InitToolBarMenu();
 
@@ -61,7 +61,8 @@ namespace CarlosLab.UtilityIntelligence.UI
             else
                 LoadStyleSheet(UIBuilderResourcePaths.UtilityIntelligenceView_Light);
 #else
-            LoadStyleSheet(UIBuilderResourcePaths.AgentView_Dark);
+//test Nike
+            //LoadStyleSheet(UIBuilderResourcePaths.AgentView_Dark);
 #endif
         }
 

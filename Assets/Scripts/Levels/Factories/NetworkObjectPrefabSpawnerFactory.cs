@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
@@ -16,6 +15,8 @@ namespace Level
                 var no_object = Object.Instantiate(no_prefabSpawners[i].NetworkObjectPrefab);
                 no_object.transform.position = no_prefabSpawners[i].transform.position;
                 no_object.GetComponent<NetworkObject>().Spawn();
+
+                CleanupFactory.DestroyAllChildren(no_prefabSpawners[i].transform);
             }
         }
     }
