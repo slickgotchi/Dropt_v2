@@ -15,7 +15,6 @@ public class NetworkObjectSpawner : MonoBehaviour
     [Header("Spawn Parameters")]
     public float NoSpawnChance = 0;
 
-    //public SpawnGameObject[] SpawnPrefabs;
     public EnemySpawnPrefab[] SpawnEnemies;
     public DestructibleSpawnPrefab[] SpawnDestructibles;
     public InteractableSpawnPrefab[] SpawnInteractables;
