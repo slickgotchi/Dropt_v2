@@ -27,7 +27,18 @@ public class EnemyAbilities : MonoBehaviour
     {
         if (m_cooldownTimer > 0) return false;
 
+        if (abilityPrefab == null)
+        {
+            Debug.LogWarning("TryActivate(): Need to pass a valid abilityPrefab");
+            return false;
+        }
+
         var enemyAbility = abilityPrefab.GetComponent<EnemyAbility>();
+        if (enemyAbility == null)
+        {
+            Debug.LogWarning("TryActivate(): Enemy ability not assigned yet");
+            return false;
+        }
         m_cooldownTimer = enemyAbility.TelegraphDuration + enemyAbility.ExecutionDuration + enemyAbility.CooldownDuration;
         m_cooldownDuration = enemyAbility.CooldownDuration;
 

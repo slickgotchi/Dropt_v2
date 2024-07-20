@@ -154,7 +154,7 @@ namespace CarlosLab.Common
         {
             if (blackboard == null)
                 return null;
-            return blackboard.GetItem<TValue>(name) as Variable<TValue>;
+            return blackboard.GetItemByValue<TValue>(name) as Variable<TValue>;
         }
 
         public object Clone()

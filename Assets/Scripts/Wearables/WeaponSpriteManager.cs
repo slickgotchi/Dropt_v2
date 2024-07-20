@@ -17,6 +17,7 @@ public class WeaponSpriteManager : MonoBehaviour
         "Wearables/WeaponSprites/Aura", 
         "Wearables/WeaponSprites/Throw", 
         "Wearables/WeaponSprites/Shield", 
+        "Wearables/WeaponSprites/Unarmed", 
     };
 
     private Dictionary<Wearable.NameEnum, WearableSprite> wearableSprites;

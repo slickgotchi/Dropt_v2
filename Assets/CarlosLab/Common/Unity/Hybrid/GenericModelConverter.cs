@@ -64,8 +64,8 @@ namespace CarlosLab.Common
                 else
                 {
                     reader.Read();
-                    if (reader.TokenType == JsonToken.Null)
-                        continue;
+                    // if (reader.TokenType == JsonToken.Null)
+                    //     continue;
 
                     if (model.FieldInfos.TryGetValue(propertyName, out FieldInfo fieldInfo))
                     {

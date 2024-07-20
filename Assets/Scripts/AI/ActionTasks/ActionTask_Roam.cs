@@ -31,6 +31,7 @@ public class ActionTask_Roam : ActionTask
         // this should only run server side (because we only add NavMeshAgent to server spawns)
         var navMeshAgent = GameObject.GetComponent<NavMeshAgent>();
         if (navMeshAgent == null) return UpdateStatus.Running;
+        navMeshAgent.isStopped = false;
 
         m_changeDirectionTimer -= deltaTime;
 

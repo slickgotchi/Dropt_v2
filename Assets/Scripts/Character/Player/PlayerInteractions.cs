@@ -9,65 +9,135 @@ public class PlayerInteractions : NetworkBehaviour
 
     private int m_interactablesLayer;
 
+    private GameObject m_interactableObject;
+
+    private float m_fHoldTimer = 0;
+    private float k_fHoldtime = 0.5f;
+    private float m_nextLevelCooldownTimer = 0;
+    private float k_nextLevelCooldown = 3;
+
     private void Awake()
     {
         m_interactablesLayer = 1 << LayerMask.NameToLayer("Interactable");
         m_interactingNetworkObjectId = new NetworkVariable<int>(-1);
     }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-    }
-
-    // Update is called once per frame
     void Update()
     {
-        if (IsServer)
-        {
-            var interactionHit = Physics2D.OverlapCircle(
-                transform.position + new Vector3(0, 0.6f, 0),
-                0.5f,
-                m_interactablesLayer);
+        m_nextLevelCooldownTimer -= Time.deltaTime;
 
-            if (interactionHit != null) {
-                var networkObject = interactionHit.gameObject.GetComponent<NetworkObject>();
-                if (networkObject != null)
-                {
-                    m_interactingNetworkObjectId.Value = (int)networkObject.NetworkObjectId;
-                }
-            } else
-            {
-                m_interactingNetworkObjectId.Value = -1;
-            }
-        }
+        // reset all UI canvas
+        ResetUICanvii();
 
+        // test for any interaction hits
+        var interactionHit = Physics2D.OverlapCircle(
+            transform.position + new Vector3(0, 0.6f, 0),
+            0.5f,
+            m_interactablesLayer);
+        if (interactionHit == null) return;
+
+        // get interactable object
+        m_interactableObject = interactionHit.gameObject;
+
+        // show UI based on interaction type
         if (IsLocalPlayer)
         {
-            InteractableUICanvas.Instance.InteractTextbox.SetActive(m_interactingNetworkObjectId.Value != -1);
+            // reset f hold timer if no f down
+            if (!Input.GetKey(KeyCode.F)) m_fHoldTimer = 0;
 
-            // INSERT LOGIC FOR HANDLING DIFFERENT INTERACTABLES
-            if (m_interactingNetworkObjectId.Value != -1)
+            HandleLocalHoleInteractions();
+            HandleLocalWeaponSwapInteractions();
+            HandleLocalEscapePortalInteractions();
+        }
+
+        // set interactable fill bar
+        InteractableUICanvas.Instance.InteractSlider.value = m_fHoldTimer / k_fHoldtime;
+    }
+
+    private void HandleLocalHoleInteractions()
+    {
+        if (m_interactableObject.HasComponent<Hole>())
+        {
+            InteractableUICanvas.Instance.InteractTextbox.SetActive(true);
+
+            if (Input.GetKey(KeyCode.F))
             {
-                if (Input.GetKeyDown(KeyCode.F))
+                m_fHoldTimer += Time.deltaTime;
+                if (m_fHoldTimer >= k_fHoldtime && m_nextLevelCooldownTimer <= 0)
                 {
-                    InteractionTriggeredServerRpc();
+                    TryGoToNextLevelServerRpc();
+                    m_nextLevelCooldownTimer = k_nextLevelCooldown;
                 }
             }
         }
+    }
+
+    private void HandleLocalEscapePortalInteractions()
+    {
+        if (m_interactableObject.HasComponent<EscapePortal>())
+        {
+            InteractableUICanvas.Instance.InteractTextbox.SetActive(true);
+
+            if (Input.GetKey(KeyCode.F))
+            {
+                m_fHoldTimer += Time.deltaTime;
+                if (m_fHoldTimer >= k_fHoldtime && m_nextLevelCooldownTimer <= 0)
+                {
+                    TryGoToDegenapeVillageLevelServerRpc();
+                    m_nextLevelCooldownTimer = k_nextLevelCooldown;
+                }
+            }
+        }
+    }
+
+    private void HandleLocalWeaponSwapInteractions()
+    {
+        if (m_interactableObject.HasComponent<WeaponSwap>())
+        {
+            WeaponSwapCanvas.Instance.Container.SetActive(true);
+            WeaponSwapCanvas.Instance.Init(m_interactableObject.GetComponent<WeaponSwap>().WearableNameEnum);
+
+            var wearableNameEnum = m_interactableObject.GetComponent<WeaponSwap>().WearableNameEnum;
+            if (Input.GetMouseButtonDown(0))
+            {
+                var ogEquipment = GetComponent<PlayerEquipment>().LeftHand.Value;
+                GetComponent<PlayerEquipment>().SetEquipment(PlayerEquipment.Slot.LeftHand, wearableNameEnum);
+                m_interactableObject.GetComponent<WeaponSwap>().Init(ogEquipment);
+            }
+            if (Input.GetMouseButtonDown(1))
+            {
+                var ogEquipment = GetComponent<PlayerEquipment>().RightHand.Value;
+                GetComponent<PlayerEquipment>().SetEquipment(PlayerEquipment.Slot.RightHand, wearableNameEnum);
+                m_interactableObject.GetComponent<WeaponSwap>().Init(ogEquipment);
+            }
+        }
+    }
+
+    private void ResetUICanvii()
+    {
+        InteractableUICanvas.Instance.InteractTextbox.SetActive(false);
+        WeaponSwapCanvas.Instance.Container.SetActive(false);
     }
 
     [Rpc(SendTo.Server)]
-    void InteractionTriggeredServerRpc()
+    void TryGoToNextLevelServerRpc()
     {
-        if (m_interactingNetworkObjectId.Value == -1) return;
+        if (m_interactableObject == null) return;
+        if (!m_interactableObject.HasComponent<Hole>()) return;
+        if (m_nextLevelCooldownTimer > 0) return;
 
-        // get current interactable
-        var interactable = NetworkManager.Singleton.SpawnManager.SpawnedObjects[(ulong)m_interactingNetworkObjectId.Value];
+        LevelManager.Instance.GoToNextLevel();
+        m_nextLevelCooldownTimer = k_nextLevelCooldown;
+    }
 
-        if (interactable.GetComponent<Hole>())
-        {
-            LevelManager.Instance.GoToNextLevel();
-        }
+    [Rpc(SendTo.Server)]
+    void TryGoToDegenapeVillageLevelServerRpc()
+    {
+        if (m_interactableObject == null) return;
+        if (!m_interactableObject.HasComponent<EscapePortal>()) return;
+        if (m_nextLevelCooldownTimer > 0) return;
+
+        LevelManager.Instance.GoToDegenapeVillageLevel();
+        m_nextLevelCooldownTimer = k_nextLevelCooldown;
     }
 }

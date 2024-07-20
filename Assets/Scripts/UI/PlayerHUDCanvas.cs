@@ -46,6 +46,10 @@ public class PlayerHUDCanvas : MonoBehaviour
     [SerializeField] private TextMeshProUGUI m_lhCooldownText;
     [SerializeField] private TextMeshProUGUI m_rhCooldownText;
 
+    [SerializeField] private TextMeshProUGUI m_gltrText;
+
+    [SerializeField] private TextMeshProUGUI m_essenceText;
+
     private NetworkCharacter m_localPlayerCharacter;
 
     public void SetLocalPlayerCharacter(NetworkCharacter localPlayerCharacter)
@@ -66,6 +70,8 @@ public class PlayerHUDCanvas : MonoBehaviour
 
         UpdateStatBars();
         UpdateCooldowns();
+        UpdateGltr();
+        UpdateEssence();
     }
 
     void UpdateStatBars()
@@ -96,5 +102,18 @@ public class PlayerHUDCanvas : MonoBehaviour
 
         m_lhCooldownText.text = lhRem < 0.1f ? "" : lhRem.ToString("F0");
         m_rhCooldownText.text = rhRem < 0.1f ? "" : rhRem.ToString("F0");
+    }
+
+    void UpdateGltr()
+    {
+        var gltrCount = m_localPlayerCharacter.GetComponent<PlayerDungeonData>().GltrCount;
+        m_gltrText.text = gltrCount.ToString();
+    }
+
+
+    void UpdateEssence()
+    {
+        var essence = m_localPlayerCharacter.GetComponent<PlayerDungeonData>().Essence;
+        m_essenceText.text = essence.ToString("F0");
     }
 }
