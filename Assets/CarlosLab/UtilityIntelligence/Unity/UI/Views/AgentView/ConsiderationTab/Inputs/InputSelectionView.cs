@@ -187,7 +187,7 @@ namespace CarlosLab.UtilityIntelligence.UI
                     }
                     else
                     {
-                        // ViewModel.InputName = null;
+                        ViewModel.InputName = null;
                         inputValueView.Clear();
                         normalizationView.Reset();
                     }

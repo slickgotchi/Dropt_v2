@@ -27,7 +27,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 0.5, z: 1}
+  m_LocalScale: {x: 1, y: 0.75, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 551280027139294499}
@@ -96,7 +96,6 @@ GameObject:
   m_Component:
   - component: {fileID: 551280027139294499}
   - component: {fileID: -3599212634581151793}
-  - component: {fileID: -6477304286265958127}
   - component: {fileID: 166411181886647591}
   - component: {fileID: -380767433246003270}
   - component: {fileID: 5418888167313772409}
@@ -107,6 +106,7 @@ GameObject:
   - component: {fileID: -2099557218047769943}
   - component: {fileID: -1865453684165800506}
   - component: {fileID: 6865306147935662936}
+  - component: {fileID: -5451400601243544258}
   m_Layer: 15
   m_Name: BombSnail
   m_TagString: Untagged
@@ -144,7 +144,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 4221514460
+  GlobalObjectIdHash: 2500555884
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -153,18 +153,6 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
---- !u!114 &-6477304286265958127
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1249991746567512264}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 161c06ab86184634fbcfe4f5370426bb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!95 &166411181886647591
 Animator:
   serializedVersion: 7
@@ -242,13 +230,13 @@ MonoBehaviour:
   UseUnreliableDeltas: 0
   SyncPositionX: 1
   SyncPositionY: 1
-  SyncPositionZ: 1
-  SyncRotAngleX: 1
-  SyncRotAngleY: 1
+  SyncPositionZ: 0
+  SyncRotAngleX: 0
+  SyncRotAngleY: 0
   SyncRotAngleZ: 1
-  SyncScaleX: 1
-  SyncScaleY: 1
-  SyncScaleZ: 1
+  SyncScaleX: 0
+  SyncScaleY: 0
+  SyncScaleZ: 0
   PositionThreshold: 0.001
   RotAngleThreshold: 0.01
   ScaleThreshold: 0.01
@@ -273,14 +261,14 @@ MonoBehaviour:
   baseHpMax: 100
   baseHpCurrent: 100
   baseHpBuffer: 0
-  baseAttackPower: 10
+  baseAttackPower: 20
   baseCriticalChance: 0.1
   baseApMax: 0
   baseApCurrent: 0
   baseApBuffer: 0
   baseDoubleStrikeChance: 0.05
   baseCriticalDamage: 1.5
-  baseMoveSpeed: 6.22
+  baseMoveSpeed: 3
   baseAccuracy: 1
   baseEvasion: 0
   baseDamageReduction: 0
@@ -330,6 +318,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SpriteToFlip: {fileID: 361146906994616670}
   FacingDirection: 0
+  IsSpawning: 1
+  SpawnDuration: 0
 --- !u!61 &-2099557218047769943
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -407,6 +397,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PrimaryAttack: {fileID: 3159421716010617349, guid: 1a39f28e9e312b646adfe8a192589597, type: 3}
   SecondaryAttack: {fileID: 0}
+--- !u!114 &-5451400601243544258
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93245a10eab2ede4eb23e82088d382cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6525230415705073668
 GameObject:
   m_ObjectHideFlags: 0

@@ -51,7 +51,11 @@ namespace CarlosLab.UtilityIntelligence
             set => dataVersion = value;
         }
 
-        public int DataVersion => dataVersion;
+        public int DataVersion
+        {
+            get => dataVersion;
+            internal set => dataVersion = value;
+        }
 
         [DataMember(Name = nameof(FrameworkVersion))]
         private string frameworkVersion;
@@ -62,7 +66,11 @@ namespace CarlosLab.UtilityIntelligence
             set => frameworkVersion = value;
         }
 
-        public string FrameworkVersion => frameworkVersion;
+        public string FrameworkVersion
+        {
+            get => frameworkVersion;
+            internal set => frameworkVersion = value;
+        }
 
         #endregion
         

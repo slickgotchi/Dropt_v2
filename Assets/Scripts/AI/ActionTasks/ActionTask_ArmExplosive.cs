@@ -31,12 +31,10 @@ public class ActionTask_ArmExplosive : ActionTask
 
         // reduce detonation time
         DetonationTime.Value -= Time.deltaTime;
-        Debug.Log("Detonation time: " + DetonationTime.Value);
-        //
         if (DetonationTime.Value <= 0)
         {
-            Debug.Log("Try activate explosion");
             var attackAbility = GameObject.GetComponent<EnemyAbilities>().PrimaryAttack;
+            attackAbility.transform.position = self.position;
             m_isActivated = GameObject.GetComponent<EnemyAbilities>().TryActivate(attackAbility, GameObject, target.gameObject);
 
             return UpdateStatus.Success;

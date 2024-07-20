@@ -101,6 +101,7 @@ GameObject:
   - component: {fileID: -8816030018852873839}
   - component: {fileID: -2433659502835482600}
   - component: {fileID: -3468047890847993128}
+  - component: {fileID: 6209552322976834699}
   m_Layer: 12
   m_Name: Geode_Rare
   m_TagString: Untagged
@@ -250,7 +251,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   NumberWobbles: 1
   WobbleDuration: 0.3
-  MaxWobbleAngle: 5
+  MaxWobbleAngle: 15
+--- !u!114 &6209552322976834699
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05cf5af599c3cdd46b6d20f6f347a318, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GltrValue: 5
 --- !u!1 &6525230415705073668
 GameObject:
   m_ObjectHideFlags: 0

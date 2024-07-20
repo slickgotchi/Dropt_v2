@@ -233,6 +233,9 @@ public class PlayerGotchi : NetworkBehaviour
         // make camera follow player and warp it to our new spawn point
         m_virtualCamera.Follow = transform;
         m_virtualCamera.OnTargetObjectWarped(transform, m_spawnPoint - m_preSpawnPoint);
+
+        // renable collider
+        GetComponent<Collider2D>().enabled = true;
     }
 
     void UpdateDustParticles()
@@ -257,6 +260,8 @@ public class PlayerGotchi : NetworkBehaviour
 
     public void SetWeaponSprites(Hand hand, Wearable.NameEnum wearableNameEnum)
     {
+        if (wearableNameEnum == Wearable.NameEnum.Unarmed) wearableNameEnum = Wearable.NameEnum.None;
+
         if (hand == Hand.Left)
         {
             // set sprite

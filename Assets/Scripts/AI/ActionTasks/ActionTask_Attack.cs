@@ -19,6 +19,9 @@ public class ActionTask_Attack : ActionTask
         // Note: this should only run server side (because we remove NavMeshAgent from our client side players)
         var navMeshAgent = GameObject.GetComponent<NavMeshAgent>();
         if (navMeshAgent == null) return UpdateStatus.Running;
+        navMeshAgent.stoppingDistance = 0;
+        navMeshAgent.isStopped = true;
+        navMeshAgent.velocity = Vector3.zero;
 
         // try get target
         var target = Context.Target.GetComponent<Transform>();

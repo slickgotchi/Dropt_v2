@@ -15,7 +15,6 @@ namespace CarlosLab.Common
     public abstract class DataAsset : ScriptableObject, IDataAsset,
         ISerializationCallbackReceiver
     {
-
         public event EventHandler<BindablePropertyChangedEventArgs> propertyChanged;
 
         protected void Notify([CallerMemberName] string property = "")
@@ -56,8 +55,21 @@ namespace CarlosLab.Common
 
         public bool BlockRecording { get; set; }
         public bool IsInUndoRedo { get; set; }
-        public abstract int DataVersion { get; }
-        public abstract string FrameworkVersion { get; }
+
+        [SerializeField]
+        private int dataVersion = 1;
+        public int DataVersion { 
+            get => dataVersion;
+            internal set => dataVersion = value;
+        }
+
+        [SerializeField]
+        private string frameworkVersion = "1.0.0";
+        public string FrameworkVersion
+        {
+            get => frameworkVersion;
+            internal set => frameworkVersion = value;
+        }
         public string SerializedModel => serializedModel;
 
         public abstract string FormattedSerializedModel { get; }

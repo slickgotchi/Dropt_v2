@@ -1,0 +1,89 @@
+using System.Collections.Generic;
+using Unity.Netcode;
+using Unity.VisualScripting;
+using UnityEngine;
+
+public class FussPot_EruptProjectile : NetworkBehaviour
+{
+    [Header("FussPot_EruptProjectile Parameters")]
+    public float HitRadius = 3f;
+    public GameObject TargetMarker;
+    public LobArc LobArcBody;
+
+    [HideInInspector] public Vector3 Direction;
+    [HideInInspector] public float Distance;
+    [HideInInspector] public float Duration;
+
+    [HideInInspector] public float DamagePerHit = 1f;
+    [HideInInspector] public float CriticalChance = 0.1f;
+    [HideInInspector] public float CriticalDamage = 1.5f;
+
+    [HideInInspector] public float Scale = 1f;
+
+    private float m_timer = 0;
+    private bool m_isSpawned = false;
+    private float m_speed = 1;
+
+    private Collider2D m_collider;
+
+    private float m_damage = 10f;
+    private bool m_isCritical = false;
+
+    private Vector3 m_finalPosition = Vector3.zero;
+
+    private void Awake()
+    {
+        m_collider = GetComponentInChildren<Collider2D>();  
+    }
+
+    public void Init(Vector3 position, Quaternion rotation, Vector3 direction, float distance, float duration, float damagePerHit,
+        float criticalChance, float criticalDamage)
+    {
+        transform.position = position;
+        transform.rotation = rotation;
+        Direction = direction.normalized;
+        Distance = distance;
+        Duration = duration;
+        DamagePerHit = damagePerHit;
+        CriticalChance = criticalChance;
+        CriticalDamage = criticalDamage;
+
+        m_finalPosition = transform.position + Direction * Distance;
+    }
+
+    public void Fire()
+    {
+        gameObject.SetActive(true);
+
+        m_timer = Duration;
+        m_isSpawned = true;
+        m_speed = Distance / Duration;
+
+        LobArcBody.Duration_s = Duration;
+    }
+
+    private void Update()
+    {
+        if (!m_isSpawned) return;
+
+        m_timer -= Time.deltaTime;
+
+        if (m_timer < 0)
+        {
+            m_collider.GetComponent<CircleCollider2D>().radius = HitRadius;
+            EnemyAbility.PlayerCollisionCheckAndDamage(m_collider, m_damage, m_isCritical);
+
+            gameObject.SetActive(false);
+            gameObject.GetComponent<NetworkObject>().Despawn();
+        }
+
+        transform.position += Direction * m_speed * Time.deltaTime;
+
+        TargetMarker.transform.position = m_finalPosition;
+
+        // update target marker size
+        float alpha = (Duration - m_timer) / Duration;
+        float targetScale = alpha * HitRadius * 2;
+        TargetMarker.transform.localScale = new Vector3(targetScale, targetScale * 0.7f, 1);
+    }
+}

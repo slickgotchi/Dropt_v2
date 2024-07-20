@@ -8,9 +8,10 @@ namespace CarlosLab.Common
 {
     public class Blackboard : ItemValueContainer<Variable>
     {
-        public Variable<TValue> GetVariable<TValue>(string name)
+        public TVariable GetVariable<TVariable>(string name)
+            where TVariable : Variable
         {
-            return GetItem<TValue>(name) as Variable<TValue>;
+            return GetItem<TVariable>(name);
         }
     }
 }

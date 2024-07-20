@@ -61,7 +61,7 @@ namespace CarlosLab.UtilityIntelligence.UI
             else
                 LoadStyleSheet(UIBuilderResourcePaths.UtilityIntelligenceView_Light);
 #else
-            //LoadStyleSheet(UIBuilderResourcePaths.AgentView_Dark);
+            LoadStyleSheet(UIBuilderResourcePaths.AgentView_Dark);
 #endif
         }
 

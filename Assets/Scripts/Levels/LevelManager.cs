@@ -10,8 +10,12 @@ public class LevelManager : NetworkBehaviour
 
     // level tracking variables
     [SerializeField] private List<GameObject> m_levels = new List<GameObject>();
+    public int TutorialStartLevel = 0;
+    public int DegenapeVillageLevel = 2;
+    public int DungeonStartLevel = 3;
+
     private GameObject m_currentLevel;
-    private int m_currentLevelIndex = 0;
+    [HideInInspector] public int m_currentLevelIndex = 0;
 
     // variables to keep track of spawning levels
     [HideInInspector] public int LevelSpawningCount = 0;
@@ -43,6 +47,12 @@ public class LevelManager : NetworkBehaviour
         CreateLevel(0);
     }
 
+    public void GoToDegenapeVillageLevel()
+    {
+        m_currentLevelIndex = DegenapeVillageLevel - 1;
+        GoToNextLevel();
+    }
+
     private void DestroyCurrentLevel()
     {
         var networkObjects = new List<NetworkObject>(FindObjectsByType<NetworkObject>(FindObjectsSortMode.None));
@@ -66,11 +76,14 @@ public class LevelManager : NetworkBehaviour
                 networkObject.HasComponent<PlayerController>() ||
                 networkObject.HasComponent<PlayerAbility>()) continue;
 
-            // destroy everything else (remove onDestroy components first too to prevent the new objects appearing
-            // in the next level)
+            // remove onDestroy components first too to prevent the new objects appearing
             if (networkObject.HasComponent<OnDestroySpawnNetworkObject>())
             {
-                networkObject.GetComponent<OnDestroySpawnNetworkObject>().SpawnPrefab = null;
+                networkObject.GetComponent<OnDestroySpawnNetworkObject>().enabled = false;
+            }
+            if (networkObject.HasComponent<OnDestroySpawnGltr>())
+            {
+                networkObject.GetComponent<OnDestroySpawnGltr>().enabled = false;
             }
 
             // Ensure the object is active before despawning
@@ -179,7 +192,8 @@ public class LevelManager : NetworkBehaviour
         int nextLevelIndex = m_currentLevelIndex + 1;
         if (nextLevelIndex >= m_levels.Count)
         {
-            nextLevelIndex = 0;
+            // just keep replaying the last level
+            nextLevelIndex -= 1;
         }
 
         // create next level and update current level index
@@ -189,9 +203,15 @@ public class LevelManager : NetworkBehaviour
         // drop spawn players
         var no_playerSpawnPoints = m_currentLevel.GetComponentInChildren<PlayerSpawnPoints>();
         m_playerSpawnPoints.Clear();
-        for (int i = 0; i < no_playerSpawnPoints.transform.childCount; i++)
+        if (no_playerSpawnPoints == null)
         {
-            m_playerSpawnPoints.Add(no_playerSpawnPoints.transform.GetChild(i).transform.position);
+            m_playerSpawnPoints.Add(Vector3.zero);
+        } else
+        {
+            for (int i = 0; i < no_playerSpawnPoints.transform.childCount; i++)
+            {
+                m_playerSpawnPoints.Add(no_playerSpawnPoints.transform.GetChild(i).transform.position);
+            }
         }
 
         // set each player spawn position
@@ -204,6 +224,7 @@ public class LevelManager : NetworkBehaviour
 
             player.GetComponent<PlayerPrediction>().SetPlayerPosition(spawnPoint);
             player.GetComponent<PlayerGotchi>().DropSpawn(player.transform.position, spawnPoint);
+            player.GetComponent<Collider2D>().enabled = false;  
         }
     }
 

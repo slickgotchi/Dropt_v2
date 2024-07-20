@@ -20,6 +20,27 @@ public class Destructible : NetworkBehaviour
     {
         var damage = CalculateDamageToDestructible(type, weaponType);
 
+        if (CurrentHp.Value <= damage)
+        {
+            VisualEffectsManager.Singleton.SpawnCloudExplosion(transform.position + new Vector3(0, 0.5f, 0));
+        }
+
+        if (IsServer)
+        {
+            CurrentHp.Value -= damage;
+            if (CurrentHp.Value <= 0)
+            {
+                GetComponent<NetworkObject>().Despawn();
+            }
+        }
+
+        var damageWobble = GetComponent<DamageWobble>();
+        if (damageWobble != null) damageWobble.Play();
+
+    }
+
+    public void TakeDamage(int damage)
+    {
         if (IsServer)
         {
             CurrentHp.Value -= damage;
