@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Level.Traps
 {
-    public sealed class TimedTrap : Trap
+    public sealed class TimedTrap : DamagedTrap
     {
         [SerializeField] private SpriteRenderer m_trapImage;
         [SerializeField] private TimedTrapFrame[] m_frames;
