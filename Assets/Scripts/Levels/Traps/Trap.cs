@@ -14,10 +14,27 @@ namespace Level.Traps
 
         [SerializeField] protected BoxCollider2D m_collider;
         [SerializeField] protected float m_cooldownDuration;
+
+        protected TrapsGroup m_group;
+        protected float m_cooldownTimer;
+
+        protected virtual void Update()
+        {
+        }
+
+        //setup group order
+        public void SetupGroup(TrapsGroup spawner, int group, int maxGroup)
+        {
+            m_group = spawner;
+            Group.Value = group;
+            MaxGroup.Value = maxGroup + 1;
+        }
+    }
+
+    public abstract class DamagedTrap : Trap
+    {
         [SerializeField] protected float m_damage;
         [SerializeField] protected BuffDamageAbility m_buffDamageAbility;
-
-        private float m_cooldownTimer;
 
         //is available trap for attack
         protected abstract bool IsAvailableForAttack
@@ -30,7 +47,7 @@ namespace Level.Traps
             m_cooldownTimer = 0;
         }
 
-        protected virtual void Update()
+        protected override void Update()
         {
             if (IsServer)
             {
@@ -58,13 +75,6 @@ namespace Level.Traps
 
                 ListPool<NetworkCharacter>.Release(result);
             }
-        }
-
-        //setup group order
-        public void SetupGroup(int group, int maxGroup)
-        {
-            Group.Value = group;
-            MaxGroup.Value = maxGroup + 1;
         }
     }
 }

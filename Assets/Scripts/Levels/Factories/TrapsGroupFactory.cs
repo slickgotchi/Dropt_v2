@@ -14,6 +14,8 @@ namespace Level
 
             foreach (var group in groups)
             {
+                TrapsGroup trapsGroup = new TrapsGroup();
+                
                 var maxGroup = group.Spawners.Max(temp => temp.Group);
 
                 foreach (var spawner in group.Spawners)
@@ -22,7 +24,9 @@ namespace Level
                     trap.transform.position = spawner.transform.position;
                     trap.GetComponent<NetworkObject>().Spawn();
                     trap.GetComponent<NetworkObject>().TrySetParent(parent);
-                    trap.GetComponent<Trap>().SetupGroup(spawner.Group, maxGroup);
+                    trap.GetComponent<Trap>().SetupGroup(trapsGroup, spawner.Group, maxGroup);
+
+                    trapsGroup.Traps.Add(trap.GetComponent<Trap>());
                 }
                 
                 CleanupFactory.DestroyAllChildren(group.transform);

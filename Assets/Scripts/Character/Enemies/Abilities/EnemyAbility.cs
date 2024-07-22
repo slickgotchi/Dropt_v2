@@ -126,4 +126,22 @@ public class EnemyAbility : NetworkBehaviour
 
         ListPool<Collider2D>.Release(playerHitColliders);
     }
+
+    public static bool IsOverlapPlayer(Collider2D collider)
+    {
+        // sync colliders to current transform
+        Physics2D.SyncTransforms();
+
+        // do a collision check
+        List<Collider2D> playerHitColliders = ListPool<Collider2D>.Get();
+        // clear out colliders
+        playerHitColliders.Clear();
+
+        collider.Overlap(PlayerAbility.GetContactFilter(new string[] { "PlayerHurt" }), playerHitColliders);
+
+        var result = playerHitColliders.Count > 0;
+
+        ListPool<Collider2D>.Release(playerHitColliders);
+        return result;
+    }
 }
