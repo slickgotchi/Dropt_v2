@@ -65,16 +65,21 @@ namespace Level.Traps
                 //cause damage
                 List<NetworkCharacter> result = ListPool<NetworkCharacter>.Get();
                 result.Clear();
-                EnemyAbility.FillPlayerCollisionCheckAndDamage(result, m_collider, m_damage, false, gameObject);
+                EnemyAbility.FillPlayerCollisionWithBottomCheckAndDamage(result, m_collider, m_damage, false, gameObject);
 
                 foreach (var character in result)
                 {
                     m_cooldownTimer = m_cooldownDuration;
                     m_buffDamageAbility?.Damage(character);
+                    ActivateDamage();
                 }
 
                 ListPool<NetworkCharacter>.Release(result);
             }
+        }
+
+        protected virtual void ActivateDamage()
+        {
         }
     }
 }
