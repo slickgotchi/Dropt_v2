@@ -43,6 +43,15 @@ namespace GotchiHub
         private void Awake()
         {
             Instance = this;
+
+            if (Instance != null && Instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
         }
 
         public bool SetSelectedGotchiById(int id)
