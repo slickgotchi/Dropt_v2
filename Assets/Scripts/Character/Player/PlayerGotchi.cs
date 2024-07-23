@@ -73,6 +73,9 @@ public class PlayerGotchi : NetworkBehaviour
     private float m_bodyRotation = 0;
     private float m_bodyRotationTimer = 0;
 
+    public NetworkVariable<int> GotchiId;
+    public GotchiSvgSet GotchiSvgSet;
+
     public GameObject GetGotchi()
     {
         return m_gotchi;
@@ -90,7 +93,25 @@ public class PlayerGotchi : NetworkBehaviour
 
     private void Start()
     {
-        GotchiDataManager.Instance.onSelectedGotchi += SetBodySpriteFromDataManager;
+        //GotchiDataManager.Instance.onSelectedGotchi += SetBodySpriteFromDataManager;
+        GotchiDataManager.Instance.onSelectedGotchi += HandleOnSelectedGotchi;
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        GotchiId = new NetworkVariable<int>(-1);
+    }
+
+    void HandleOnSelectedGotchi(int id)
+    {
+        if (!IsLocalPlayer) return;
+        UpdateGotchiIdServerRpc(id);
+    }
+
+    [Rpc(SendTo.Server)]
+    void UpdateGotchiIdServerRpc(int gotchiId)
+    {
+        GotchiId.Value = gotchiId;
     }
 
     private void Update()
@@ -108,6 +129,7 @@ public class PlayerGotchi : NetworkBehaviour
         UpdateFacingFromSpinning();
         SetActiveBodyPartsFromFacing(m_facing);
         UpdateDustParticles();
+        PollSvgs();
 
         m_bodyRotationTimer -= Time.deltaTime;
         if (m_bodyRotationTimer > 0)
@@ -709,10 +731,38 @@ public class PlayerGotchi : NetworkBehaviour
         animator.SetBool(name, value);
     }
 
-
-    void SetBodySpriteFromDataManager(int gotchiId)
+    float k_pollInterval = 1f;
+    float m_pollTimer = 1f;
+    void PollSvgs()
     {
-        var gotchiSvgSet = GotchiDataManager.Instance.GetGotchiSvgsById(gotchiId);
+        if (!IsLocalPlayer) return;
+
+        m_pollTimer -= Time.deltaTime;
+        if (m_pollTimer > 0) return;
+        m_pollTimer = k_pollInterval;
+
+        if (GotchiId.Value < 0) return;
+
+        var newGotchiSvgs = GotchiDataManager.Instance.GetGotchiSvgsById(GotchiId.Value);
+
+        if (newGotchiSvgs == null)
+        {
+            GotchiDataManager.Instance.FetchRemoteGotchiSvgsById(GotchiId.Value);
+        }
+        else
+        {
+            if (GotchiSvgSet == null || GotchiSvgSet.id != newGotchiSvgs.id)
+            {
+                SetBodySpriteFromDataManager(newGotchiSvgs);
+                GotchiSvgSet = newGotchiSvgs;
+            }
+        }
+    }
+
+    void SetBodySpriteFromDataManager(GotchiSvgSet gotchiSvgSet)
+    {
+        if (gotchiSvgSet == null) return;
+
         var newMaterial = GotchiDataManager.Instance.Material_Unlit_VectorGradient;
 
         m_bodyFaceFront.GetComponent<SpriteRenderer>().sprite = GetSpriteFromSvgString(gotchiSvgSet.Front);
@@ -733,4 +783,5 @@ public class PlayerGotchi : NetworkBehaviour
         // Convert SVG string to a Sprite
         return CustomSvgLoader.CreateSvgSprite(GotchiDataManager.Instance.stylingGame.CustomizeSVG(svgString), new Vector2(0.5f, 0.15f));
     }
+
 }

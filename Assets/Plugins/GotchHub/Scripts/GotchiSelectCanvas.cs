@@ -114,6 +114,7 @@ namespace GotchiHub
                 {
                     HideAllMenus();
                     GotchiSelect_NotConnected.SetActive(true);
+                    return;
                 }
 
                 var address = await ThirdwebManager.Instance.SDK.Wallet.GetAddress();
@@ -124,7 +125,7 @@ namespace GotchiHub
                     WalletInfoText.text = m_walletAddress;
                     await m_gotchiDataManager.FetchGotchiData();
 
-                    if (m_gotchiDataManager.gotchiData.Count > 0)
+                    if (m_gotchiDataManager.localGotchiData.Count > 0)
                     {
                         // Highlight the highest brs gotchi
                         HighlightById(m_gotchiDataManager.GetSelectedGotchiId());
@@ -133,8 +134,8 @@ namespace GotchiHub
 
                 // Show menu
                 HideAllMenus();
-                GotchiSelect_Menu.SetActive(m_gotchiDataManager.gotchiData.Count > 0);
-                GotchiSelect_NoGotchis.SetActive(m_gotchiDataManager.gotchiData.Count <= 0);
+                GotchiSelect_Menu.SetActive(m_gotchiDataManager.localGotchiData.Count > 0);
+                GotchiSelect_NoGotchis.SetActive(m_gotchiDataManager.localGotchiData.Count <= 0);
 
             }
             catch (System.Exception e)
@@ -217,8 +218,8 @@ namespace GotchiHub
             ClearGotchiListChildren();
 
             // Create new instance of gotchi list item and set parent to gotchi list
-            var gotchiSvgs = m_gotchiDataManager.gotchiSvgSets;
-            var gotchiData = m_gotchiDataManager.gotchiData;
+            var gotchiSvgs = m_gotchiDataManager.localGotchiSvgSets;
+            var gotchiData = m_gotchiDataManager.localGotchiData;
             for (int i = 0; i < gotchiSvgs.Count; i++)
             {
                 var newListItem = Instantiate(gotchiListItemPrefab);
