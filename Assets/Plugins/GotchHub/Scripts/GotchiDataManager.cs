@@ -27,9 +27,11 @@ namespace GotchiHub
         public GotchiSvgStyling stylingGame;
         public GotchiSvgStyling stylingUI;
 
-        [HideInInspector] public List<GotchiData> gotchiData = new List<GotchiData>();
-        [HideInInspector] public List<GotchiSvgSet> gotchiSvgSets = new List<GotchiSvgSet>();
-        [HideInInspector] public List<string> gotchiIds = new List<string>();
+        [HideInInspector] public List<GotchiData> localGotchiData = new List<GotchiData>();
+        [HideInInspector] public List<GotchiSvgSet> localGotchiSvgSets = new List<GotchiSvgSet>();
+
+        //[HideInInspector] public List<GotchiData> remoteGotchiData = new List<GotchiData>();
+        [HideInInspector] public List<GotchiSvgSet> remoteGotchiSvgSets = new List<GotchiSvgSet>();
 
         private int m_selectedGotchiId = 0;
         public int GetSelectedGotchiId() { return m_selectedGotchiId; }
@@ -54,11 +56,18 @@ namespace GotchiHub
             DontDestroyOnLoad(gameObject);
         }
 
+        private void Start()
+        {
+            localGotchiData.Clear();
+            localGotchiSvgSets.Clear();
+            remoteGotchiSvgSets.Clear();
+        }
+
         public bool SetSelectedGotchiById(int id)
         {
-            for (int i = 0; i < gotchiData.Count; i++)
+            for (int i = 0; i < localGotchiData.Count; i++)
             {
-                if (id == gotchiData[i].id)
+                if (id == localGotchiData[i].id)
                 {
                     m_selectedGotchiId = id;
                     onSelectedGotchi?.Invoke(m_selectedGotchiId); // Trigger event
@@ -70,41 +79,45 @@ namespace GotchiHub
             return false;
         }
 
-        private int GetGotchiIndexById(int id)
+        public GotchiData GetGotchiDataById(int id)
         {
-            for (int i = 0; i < gotchiData.Count; i++)
+            // now check local
+            for (int i = 0; i < localGotchiData.Count; i++)
             {
-                if (id == gotchiData[i].id)
+                if (id == localGotchiData[i].id)
                 {
-                    return i;
+                    return localGotchiData[i];
                 }
             }
 
-            return -1;
-        }
-
-        public GotchiData GetGotchiDataById(int id)
-        {
-            var index = GetGotchiIndexById(id);
-            if (index < 0)
-            {
-                Debug.Log("Invalid id passed to GetGotchiDataById()");
-                return null;
-            }
-
-            return gotchiData[index];
+            // if got here we were passed invalid id
+            Debug.Log("Invalid id passed to GetGotchiDataById()");
+            return null;
         }
 
         public GotchiSvgSet GetGotchiSvgsById(int id)
         {
-            var index = GetGotchiIndexById(id);
-            if (index < 0)
+            // check remote first
+            for (int i = 0; i < remoteGotchiSvgSets.Count; i++)
             {
-                Debug.Log("Invalid id passed to GetGotchSvgsById()");
-                return null;
+                if (id == remoteGotchiSvgSets[i].id)
+                {
+                    return remoteGotchiSvgSets[i];
+                }
             }
 
-            return gotchiSvgSets[index];
+            // now check local
+            for (int i = 0; i < localGotchiSvgSets.Count; i++)
+            {
+                if (id == localGotchiSvgSets[i].id)
+                {
+                    return localGotchiSvgSets[i];
+                }
+            }
+
+            // if got here we were passed invalid id
+            Debug.Log("Invalid id passed to GetGotchiSvgsById()");
+            return null;
         }
 
         public async UniTask FetchGotchiData()
@@ -112,9 +125,8 @@ namespace GotchiHub
             try
             {
                 // clear all current data
-                gotchiData.Clear();
-                gotchiSvgSets.Clear();
-                gotchiIds.Clear();
+                localGotchiData.Clear();
+                localGotchiSvgSets.Clear();
 
                 // get wallet address
                 StatusString = "Validating wallet address...";
@@ -127,19 +139,22 @@ namespace GotchiHub
                 var userAccount = await graphManager.GetUserAccount(walletAddress);
 
                 // save base gotchi data
+                var gotchiIds = new List<string>();
                 foreach (var gotchi in userAccount.gotchisOwned)
                 {
-                    gotchiData.Add(gotchi);
+                    localGotchiData.Add(gotchi);
                     gotchiIds.Add(gotchi.id.ToString());
                 }
 
                 // get svgs
                 StatusString = userAccount.gotchisOwned.Length.ToString() + " gotchis found. Processing SVGs...";
                 var svgs = await graphManager.GetGotchiSvgs(gotchiIds);
-                foreach (var svgSet in svgs)
+                for (int i = 0; i < svgs.Count; i++)
                 {
-                    gotchiSvgSets.Add(new GotchiSvgSet
+                    var svgSet = svgs[i];
+                    localGotchiSvgSets.Add(new GotchiSvgSet
                     {
+                        id = int.Parse(gotchiIds[i]),
                         Front = svgSet.svg,
                         Back = svgSet.back,
                         Left = svgSet.left,
@@ -147,9 +162,11 @@ namespace GotchiHub
                     });
                 }
 
+                gotchiIds.Clear();
+
                 // default to highest brs gotchi
                 StatusString = "SVGs processed. Updating gotchi inventory...";
-                if (gotchiData.Count > 0)
+                if (localGotchiData.Count > 0)
                 {
                     SetSelectedGotchiById(GetGotchiIdByHighestBRS());
 
@@ -163,18 +180,46 @@ namespace GotchiHub
             }
         }
 
+        public async void FetchRemoteGotchiSvgsById(int id)
+        {
+            if (StatusString == "Fetching") return;
+
+            try
+            {
+                StatusString = "Fetching";
+                var svgs = await graphManager.GetGotchiSvg(id.ToString());
+                if (svgs.svg != null)
+                {
+                    remoteGotchiSvgSets.Add(new GotchiSvgSet
+                    {
+                        id = id,
+                        Front = svgs.svg,
+                        Back = svgs.back,
+                        Left = svgs.left,
+                        Right = svgs.right,
+                    });
+                }
+                StatusString = "FetchComplete";
+            }
+            catch (Exception ex)
+            {
+                Debug.Log(ex);
+                StatusString = "FetchComplete";
+            }
+        }
+
         public int GetGotchiIdByHighestBRS()
         {
             int highestBrs = 0;
             int highestBrsId = -1;
 
-            for (int i = 0; i < gotchiData.Count; i++)
+            for (int i = 0; i < localGotchiData.Count; i++)
             {
-                var brs = DroptStatCalculator.GetBRS(gotchiData[i].numericTraits);
+                var brs = DroptStatCalculator.GetBRS(localGotchiData[i].numericTraits);
                 if (brs > highestBrs)
                 {
                     highestBrs = brs;
-                    highestBrsId = gotchiData[i].id;
+                    highestBrsId = localGotchiData[i].id;
                 }
             }
 
@@ -184,17 +229,18 @@ namespace GotchiHub
 
     public class GotchiSvgSet
     {
+        public int id;
         public string Front;
         public string Back;
         public string Left;
         public string Right;
     }
 
-    public class GotchiSpriteSet
-    {
-        public Sprite Front;
-        public Sprite Back;
-        public Sprite Left;
-        public Sprite Right;
-    }
+    //public class GotchiSpriteSet
+    //{
+    //    public Sprite Front;
+    //    public Sprite Back;
+    //    public Sprite Left;
+    //    public Sprite Right;
+    //}
 }
