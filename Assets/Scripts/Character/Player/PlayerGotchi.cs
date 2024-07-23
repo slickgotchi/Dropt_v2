@@ -1,4 +1,5 @@
 using Cinemachine;
+using GotchiHub;
 using Unity.Mathematics;
 using Unity.Netcode;
 using UnityEngine;
@@ -85,6 +86,11 @@ public class PlayerGotchi : NetworkBehaviour
 
         m_camera = GetComponentInChildren<Camera>();
         m_virtualCamera = GetComponentInChildren<CinemachineVirtualCamera>();
+    }
+
+    private void Start()
+    {
+        GotchiDataManager.Instance.onSelectedGotchi += SetBodySpriteFromDataManager;
     }
 
     private void Update()
@@ -701,5 +707,30 @@ public class PlayerGotchi : NetworkBehaviour
         if (IsLocalPlayer) return;
 
         animator.SetBool(name, value);
+    }
+
+
+    void SetBodySpriteFromDataManager(int gotchiId)
+    {
+        var gotchiSvgSet = GotchiDataManager.Instance.GetGotchiSvgsById(gotchiId);
+        var newMaterial = GotchiDataManager.Instance.Material_Unlit_VectorGradient;
+
+        m_bodyFaceFront.GetComponent<SpriteRenderer>().sprite = GetSpriteFromSvgString(gotchiSvgSet.Front);
+        m_bodyFaceFront.GetComponent<SpriteRenderer>().material = newMaterial;
+
+        m_bodyFaceBack.GetComponent<SpriteRenderer>().sprite = GetSpriteFromSvgString(gotchiSvgSet.Back);
+        m_bodyFaceBack.GetComponent<SpriteRenderer>().material = newMaterial;
+
+        m_bodyFaceLeft.GetComponent<SpriteRenderer>().sprite = GetSpriteFromSvgString(gotchiSvgSet.Left);
+        m_bodyFaceLeft.GetComponent<SpriteRenderer>().material = newMaterial;
+
+        m_bodyFaceRight.GetComponent<SpriteRenderer>().sprite = GetSpriteFromSvgString(gotchiSvgSet.Right);
+        m_bodyFaceRight.GetComponent<SpriteRenderer>().material = newMaterial;
+    }
+
+    private Sprite GetSpriteFromSvgString(string svgString)
+    {
+        // Convert SVG string to a Sprite
+        return CustomSvgLoader.CreateSvgSprite(GotchiDataManager.Instance.stylingGame.CustomizeSVG(svgString), new Vector2(0.5f, 0.15f));
     }
 }
