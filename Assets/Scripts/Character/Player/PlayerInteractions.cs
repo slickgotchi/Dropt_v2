@@ -1,3 +1,4 @@
+using GotchiHub;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -10,6 +11,7 @@ public class PlayerInteractions : NetworkBehaviour
     private int m_interactablesLayer;
 
     private GameObject m_interactableObject;
+    private Interactable m_interactable;
 
     private float m_fHoldTimer = 0;
     private float k_fHoldtime = 0.5f;
@@ -24,34 +26,71 @@ public class PlayerInteractions : NetworkBehaviour
 
     void Update()
     {
-        m_nextLevelCooldownTimer -= Time.deltaTime;
-
-        // reset all UI canvas
-        ResetUICanvii();
+        if (!IsLocalPlayer) return;
 
         // test for any interaction hits
         var interactionHit = Physics2D.OverlapCircle(
             transform.position + new Vector3(0, 0.6f, 0),
             0.5f,
             m_interactablesLayer);
-        if (interactionHit == null) return;
-
-        // get interactable object
-        m_interactableObject = interactionHit.gameObject;
-
-        // show UI based on interaction type
-        if (IsLocalPlayer)
+        if (interactionHit == null || !interactionHit.HasComponent<Interactable>())
         {
-            // reset f hold timer if no f down
-            if (!Input.GetKey(KeyCode.F)) m_fHoldTimer = 0;
+            // finish interactable if its active
+            if (m_interactable != null && m_interactable.status == Interactable.Status.Active)
+            {
+                m_interactable.status = Interactable.Status.Inactive;
+                m_interactable.OnFinishInteraction();
+                m_interactable = null;
+            }
 
-            HandleLocalHoleInteractions();
-            HandleLocalWeaponSwapInteractions();
-            HandleLocalEscapePortalInteractions();
+            return;
         }
 
-        // set interactable fill bar
-        InteractableUICanvas.Instance.InteractSlider.value = m_fHoldTimer / k_fHoldtime;
+        // got a interact so lets process it
+        m_interactable = interactionHit.GetComponent<Interactable>();
+
+        if (m_interactable.status == Interactable.Status.Inactive)
+        {
+            m_interactable.status = Interactable.Status.Active;
+            m_interactable.OnStartInteraction();
+        }
+
+        m_interactable.OnUpdateInteraction();
+
+
+        //m_nextLevelCooldownTimer -= Time.deltaTime;
+
+        //// reset all UI canvas
+        //ResetUICanvii();
+
+        //// test for any interaction hits
+        //var interactionHit = Physics2D.OverlapCircle(
+        //    transform.position + new Vector3(0, 0.6f, 0),
+        //    0.5f,
+        //    m_interactablesLayer);
+        //if (interactionHit == null)
+        //{
+        //    m_interactableObject = null;
+        //    return;
+        //}
+
+        //// get interactable object
+        //m_interactableObject = interactionHit.gameObject;
+
+        //// show UI based on interaction type
+        //if (IsLocalPlayer)
+        //{
+        //    // reset f hold timer if no f down
+        //    if (!Input.GetKey(KeyCode.F)) m_fHoldTimer = 0;
+
+        //    HandleLocalHoleInteractions();
+        //    HandleLocalWeaponSwapInteractions();
+        //    HandleLocalEscapePortalInteractions();
+        //    HandleLocalGotchiSelectPortalInteractions();
+        //}
+
+        //// set interactable fill bar
+        //InteractableUICanvas.Instance.InteractSlider.value = m_fHoldTimer / k_fHoldtime;
     }
 
     private void HandleLocalHoleInteractions()
@@ -90,6 +129,21 @@ public class PlayerInteractions : NetworkBehaviour
         }
     }
 
+    //private void HandleLocalGotchiSelectPortalInteractions()
+    //{
+
+    //    if (m_interactableObject.HasComponent<GotchiSelectPortal>())
+    //    {
+    //        InteractableUICanvas.Instance.InteractTextbox.SetActive(true);
+
+    //        if (Input.GetKey(KeyCode.F))
+    //        {
+    //            ThirdwebCanvas.Instance.Container.SetActive(true);
+    //            GotchiSelectCanvas.Instance.Container.SetActive(true);
+    //        }
+    //    }
+    //}
+
     private void HandleLocalWeaponSwapInteractions()
     {
         if (m_interactableObject.HasComponent<WeaponSwap>())
@@ -113,11 +167,13 @@ public class PlayerInteractions : NetworkBehaviour
         }
     }
 
-    private void ResetUICanvii()
-    {
-        InteractableUICanvas.Instance.InteractTextbox.SetActive(false);
-        WeaponSwapCanvas.Instance.Container.SetActive(false);
-    }
+    //private void ResetUICanvii()
+    //{
+    //    InteractableUICanvas.Instance.InteractTextbox.SetActive(false);
+    //    WeaponSwapCanvas.Instance.Container.SetActive(false);
+    //    ThirdwebCanvas.Instance.Container.SetActive(false);
+    //    GotchiSelectCanvas.Instance.Container.SetActive(false);
+    //}
 
     [Rpc(SendTo.Server)]
     void TryGoToNextLevelServerRpc()

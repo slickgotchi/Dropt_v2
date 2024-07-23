@@ -22,6 +22,7 @@ namespace GotchiHub
         public GotchiStatsCard GotchiStatsCard;
 
         [Header("Menus")]
+        public GameObject Container;
         public GameObject GotchiSelect_Menu;
         public GameObject GotchiSelect_Loading;
         public GameObject GotchiSelect_NoGotchis;
@@ -31,6 +32,7 @@ namespace GotchiHub
         public TMPro.TextMeshProUGUI LoadingInfoText;
         public TMPro.TextMeshProUGUI WalletInfoText;
         public Button VisitAavegotchiButton;
+        public Button ConnectButton;
 
         // private variables
         private GotchiDataManager m_gotchiDataManager;
@@ -50,6 +52,9 @@ namespace GotchiHub
             Instance = this;
             SelectGotchiButton.onClick.AddListener(HandleOnClick_GotchiSelect_ShowButton);
             VisitAavegotchiButton.onClick.AddListener(HandleOnClick_VisitAavegotchiButton);
+
+            Container.SetActive(false);
+
         }
 
         private void Start()
@@ -89,6 +94,11 @@ namespace GotchiHub
         void HandleOnFetchGotchiDataSuccess()
         {
             UpdateGotchiList();
+        }
+
+        public void OpenGotchiSelectMenu()
+        {
+            HandleOnClick_GotchiSelect_ShowButton();
         }
 
         async void HandleOnClick_GotchiSelect_ShowButton()
@@ -137,24 +147,24 @@ namespace GotchiHub
 
         private void Update()
         {
-            // Check for clicks outside menu box
-            if (Input.GetMouseButtonDown(0) && !m_isShowButtonJustClicked)
-            {
-                RectTransform menuRect = null;
-                if (GotchiSelect_Menu.activeSelf) menuRect = GotchiSelect_Menu.GetComponent<RectTransform>();
-                if (GotchiSelect_Loading.activeSelf) menuRect = GotchiSelect_Loading.GetComponent<RectTransform>();
-                if (GotchiSelect_NoGotchis.activeSelf) menuRect = GotchiSelect_NoGotchis.GetComponent<RectTransform>();
-                if (GotchiSelect_NotConnected.activeSelf) menuRect = GotchiSelect_NotConnected.GetComponent<RectTransform>();
+            //// Check for clicks outside menu box
+            //if (Input.GetMouseButtonDown(0) && !m_isShowButtonJustClicked)
+            //{
+            //    RectTransform menuRect = null;
+            //    if (GotchiSelect_Menu.activeSelf) menuRect = GotchiSelect_Menu.GetComponent<RectTransform>();
+            //    if (GotchiSelect_Loading.activeSelf) menuRect = GotchiSelect_Loading.GetComponent<RectTransform>();
+            //    if (GotchiSelect_NoGotchis.activeSelf) menuRect = GotchiSelect_NoGotchis.GetComponent<RectTransform>();
+            //    if (GotchiSelect_NotConnected.activeSelf) menuRect = GotchiSelect_NotConnected.GetComponent<RectTransform>();
 
-                if (menuRect != null)
-                {
-                    // Hide menus
-                    if (!RectTransformUtility.RectangleContainsScreenPoint(menuRect, Input.mousePosition))
-                    {
-                        HideAllMenus();
-                    }
-                }
-            }
+            //    if (menuRect != null)
+            //    {
+            //        // Hide menus
+            //        if (!RectTransformUtility.RectangleContainsScreenPoint(menuRect, Input.mousePosition))
+            //        {
+            //            HideAllMenus();
+            //        }
+            //    }
+            //}
 
             m_isShowButtonJustClicked = false;
 
