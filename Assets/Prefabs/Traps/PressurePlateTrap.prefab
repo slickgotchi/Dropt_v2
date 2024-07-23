@@ -12,9 +12,9 @@ GameObject:
   - component: {fileID: 4152650369224279828}
   - component: {fileID: 950494912577993695}
   - component: {fileID: 7594667461773364436}
-  - component: {fileID: -1636451669494875570}
+  - component: {fileID: 3866265005559516848}
   m_Layer: 15
-  m_Name: StaticTrap
+  m_Name: PressurePlateTrap
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -48,7 +48,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1008281488
+  GlobalObjectIdHash: 1309466449
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -66,7 +66,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3924821971453843158}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a2fe7cf7d4d482742ac6569b5d09da40, type: 3}
+  m_Script: {fileID: 11500000, guid: 3255c1cc74efb3641bbced82be6f9169, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   Group:
@@ -74,15 +74,57 @@ MonoBehaviour:
   MaxGroup:
     m_InternalValue: 0
   m_collider: {fileID: 7594667461773364436}
-<<<<<<< HEAD
   m_cooldownDuration: 1
-  m_damage: 20
-  m_buffDamageAbility: {fileID: 0}
-=======
-  m_cooldownDuration: 3
   m_damage: 1
-  m_buffDamageAbility: {fileID: -1636451669494875570}
->>>>>>> a83fad975891b7cead62fc0fb6b58116dbbf4d80
+  m_buffDamageAbility: {fileID: 3866265005559516848}
+  IsActive:
+    m_InternalValue: 0
+  m_trapImage: {fileID: 7962535334552593988}
+  m_frames:
+  - Frame: {fileID: -7293345685646949109, guid: c7666e377418c9a4ca5e0792481131e6, type: 3}
+    TimeMs: 100
+    IsActive: 0
+    IsGotoToNextGroup: 0
+  - Frame: {fileID: -46482715, guid: c7666e377418c9a4ca5e0792481131e6, type: 3}
+    TimeMs: 100
+    IsActive: 0
+    IsGotoToNextGroup: 0
+  - Frame: {fileID: 932807880, guid: c7666e377418c9a4ca5e0792481131e6, type: 3}
+    TimeMs: 100
+    IsActive: 0
+    IsGotoToNextGroup: 0
+  - Frame: {fileID: -1251562808, guid: c7666e377418c9a4ca5e0792481131e6, type: 3}
+    TimeMs: 100
+    IsActive: 0
+    IsGotoToNextGroup: 0
+  - Frame: {fileID: 247562687, guid: c7666e377418c9a4ca5e0792481131e6, type: 3}
+    TimeMs: 100
+    IsActive: 0
+    IsGotoToNextGroup: 0
+  - Frame: {fileID: -1081091542, guid: c7666e377418c9a4ca5e0792481131e6, type: 3}
+    TimeMs: 100
+    IsActive: 1
+    IsGotoToNextGroup: 0
+  - Frame: {fileID: 765851507, guid: c7666e377418c9a4ca5e0792481131e6, type: 3}
+    TimeMs: 100
+    IsActive: 1
+    IsGotoToNextGroup: 1
+  - Frame: {fileID: 1440998422, guid: c7666e377418c9a4ca5e0792481131e6, type: 3}
+    TimeMs: 100
+    IsActive: 0
+    IsGotoToNextGroup: 0
+  - Frame: {fileID: -1789448457, guid: c7666e377418c9a4ca5e0792481131e6, type: 3}
+    TimeMs: 100
+    IsActive: 0
+    IsGotoToNextGroup: 0
+  - Frame: {fileID: 726861123, guid: c7666e377418c9a4ca5e0792481131e6, type: 3}
+    TimeMs: 100
+    IsActive: 0
+    IsGotoToNextGroup: 0
+  - Frame: {fileID: -7293345685646949109, guid: c7666e377418c9a4ca5e0792481131e6, type: 3}
+    TimeMs: 100
+    IsActive: 0
+    IsGotoToNextGroup: 0
 --- !u!61 &7594667461773364436
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -129,7 +171,7 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1.08, y: 1}
   m_EdgeRadius: 0
---- !u!114 &-1636451669494875570
+--- !u!114 &3866265005559516848
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -218,7 +260,7 @@ SpriteRenderer:
   m_SortingLayerID: -317176571
   m_SortingLayer: -2
   m_SortingOrder: 0
-  m_Sprite: {fileID: -3396879633481297023, guid: 63b9e15c108a8814f867ae6193e784db, type: 3}
+  m_Sprite: {fileID: -7293345685646949109, guid: c7666e377418c9a4ca5e0792481131e6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

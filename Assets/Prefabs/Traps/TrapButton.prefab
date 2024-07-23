@@ -12,9 +12,8 @@ GameObject:
   - component: {fileID: 4152650369224279828}
   - component: {fileID: 950494912577993695}
   - component: {fileID: 7594667461773364436}
-  - component: {fileID: -1636451669494875570}
-  m_Layer: 15
-  m_Name: StaticTrap
+  m_Layer: 14
+  m_Name: TrapButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -48,7 +47,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1008281488
+  GlobalObjectIdHash: 41797898
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -66,7 +65,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3924821971453843158}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a2fe7cf7d4d482742ac6569b5d09da40, type: 3}
+  m_Script: {fileID: 11500000, guid: af285435a3c81024ea817668e199374f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   Group:
@@ -74,15 +73,14 @@ MonoBehaviour:
   MaxGroup:
     m_InternalValue: 0
   m_collider: {fileID: 7594667461773364436}
-<<<<<<< HEAD
-  m_cooldownDuration: 1
-  m_damage: 20
-  m_buffDamageAbility: {fileID: 0}
-=======
   m_cooldownDuration: 3
   m_damage: 1
-  m_buffDamageAbility: {fileID: -1636451669494875570}
->>>>>>> a83fad975891b7cead62fc0fb6b58116dbbf4d80
+  m_buffDamageAbility: {fileID: 0}
+  IsActive:
+    m_InternalValue: 0
+  m_buttonImage: {fileID: 7962535334552593988}
+  m_activeSprite: {fileID: 1243423259, guid: 63b90251415c1644993f5f9749773191, type: 3}
+  m_disabledSprite: {fileID: 1424858921273167655, guid: 63b90251415c1644993f5f9749773191, type: 3}
 --- !u!61 &7594667461773364436
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -129,20 +127,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1.08, y: 1}
   m_EdgeRadius: 0
---- !u!114 &-1636451669494875570
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3924821971453843158}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d2156e8aa17eb5a4dbef29839cbc3798, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_buff: {fileID: 11400000, guid: 496ca1e2613c8ba4db4cf2f30adf8f8d, type: 2}
-  m_buffEffectDuration: 0.2
 --- !u!1 &7024085330230555046
 GameObject:
   m_ObjectHideFlags: 0
@@ -153,7 +137,7 @@ GameObject:
   m_Component:
   - component: {fileID: 9072271609998137630}
   - component: {fileID: 7962535334552593988}
-  m_Layer: 15
+  m_Layer: 14
   m_Name: spike-bush_0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -218,7 +202,7 @@ SpriteRenderer:
   m_SortingLayerID: -317176571
   m_SortingLayer: -2
   m_SortingOrder: 0
-  m_Sprite: {fileID: -3396879633481297023, guid: 63b9e15c108a8814f867ae6193e784db, type: 3}
+  m_Sprite: {fileID: 1424858921273167655, guid: 63b90251415c1644993f5f9749773191, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

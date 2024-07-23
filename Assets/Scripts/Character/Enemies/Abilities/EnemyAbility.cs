@@ -102,7 +102,7 @@ public class EnemyAbility : NetworkBehaviour
         ListPool<Collider2D>.Release(playerHitColliders);
     }
 
-    public static void FillPlayerCollisionCheckAndDamage(List<NetworkCharacter> result, Collider2D collider, float damage,
+    public static void FillPlayerCollisionWithBottomCheckAndDamage(List<NetworkCharacter> result, Collider2D collider, float damage,
         bool isCritical = false, GameObject damageDealer = null)
     {
         // sync colliders to current transform
@@ -113,10 +113,10 @@ public class EnemyAbility : NetworkBehaviour
         // clear out colliders
         playerHitColliders.Clear();
 
-        collider.Overlap(PlayerAbility.GetContactFilter(new string[] { "PlayerHurt" }), playerHitColliders);
+        collider.Overlap(PlayerAbility.GetContactFilter(new string[] { "PlayerMove" }), playerHitColliders);
         foreach (var hit in playerHitColliders)
         {
-            var player = hit.transform.parent;
+            var player = hit.transform;
             if (player.HasComponent<NetworkCharacter>())
             {
                 player.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical, damageDealer);
