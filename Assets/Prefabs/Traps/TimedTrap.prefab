@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4152650369224279828}
   - component: {fileID: 950494912577993695}
   - component: {fileID: 7594667461773364436}
+  - component: {fileID: 1789370027326822055}
   m_Layer: 15
   m_Name: TimedTrap
   m_TagString: Untagged
@@ -68,10 +69,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9289f2b369a85b148af203530c0d768d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Group:
+    m_InternalValue: 0
+  MaxGroup:
+    m_InternalValue: 0
   m_collider: {fileID: 7594667461773364436}
   m_cooldownDuration: 1
   m_damage: 1
-  m_buffDamageAbility: {fileID: 0}
+  m_buffDamageAbility: {fileID: 1789370027326822055}
   m_trapImage: {fileID: 7962535334552593988}
   m_frames:
   - Frame: {fileID: -7293345685646949109, guid: c7666e377418c9a4ca5e0792481131e6, type: 3}
@@ -164,6 +169,20 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1.08, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &1789370027326822055
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3924821971453843158}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2156e8aa17eb5a4dbef29839cbc3798, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_buff: {fileID: 11400000, guid: 496ca1e2613c8ba4db4cf2f30adf8f8d, type: 2}
+  m_buffEffectDuration: 0.2
 --- !u!1 &7024085330230555046
 GameObject:
   m_ObjectHideFlags: 0
