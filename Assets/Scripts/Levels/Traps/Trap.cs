@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
+using Character.Player;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.Pool;
 
 namespace Level.Traps
 {
@@ -12,15 +12,9 @@ namespace Level.Traps
         [HideInInspector]
         public NetworkVariable<int> MaxGroup;
 
-        [SerializeField] protected BoxCollider2D m_collider;
         [SerializeField] protected float m_cooldownDuration;
 
         protected TrapsGroup m_group;
-        protected float m_cooldownTimer;
-
-        protected virtual void Update()
-        {
-        }
 
         //setup group order
         public void SetupGroup(TrapsGroup spawner, int group, int maxGroup)
@@ -29,6 +23,10 @@ namespace Level.Traps
             Group.Value = group;
             MaxGroup.Value = maxGroup + 1;
         }
+
+        protected virtual void Update()
+        {
+        }
     }
 
     public abstract class DamagedTrap : Trap
@@ -36,50 +34,73 @@ namespace Level.Traps
         [SerializeField] protected float m_damage;
         [SerializeField] protected BuffDamageAbility m_buffDamageAbility;
 
+        private readonly HashSet<NetworkCharacter> m_players;
+
         //is available trap for attack
         protected abstract bool IsAvailableForAttack
         {
             get;
         }
 
-        private void Awake()
+        protected DamagedTrap()
         {
-            m_cooldownTimer = 0;
+            m_players = new HashSet<NetworkCharacter>();
+        }
+
+        private void OnTriggerEnter2D(Collider2D collision)
+        {
+            var player = collision.gameObject.GetComponent<NetworkCharacter>();
+
+            if (player == null)
+                return;
+
+            m_players.Add(player);
+        }
+
+        private void OnTriggerExit2D(Collider2D collision)
+        {
+            var player = collision.gameObject.GetComponent<NetworkCharacter>();
+
+            if (player == null)
+                return;
+
+            m_players.Remove(player);
         }
 
         protected override void Update()
         {
-            if (IsServer)
+            if (null == m_group)
             {
-                if (!IsAvailableForAttack)
-                {
-                    m_cooldownTimer = 0;
-                    return;
-                }
-
-                m_cooldownTimer -= Time.deltaTime;
-
-                if (m_cooldownTimer > 0)
-                    return;
-
-                //cause damage
-                List<NetworkCharacter> result = ListPool<NetworkCharacter>.Get();
-                result.Clear();
-                EnemyAbility.FillPlayerCollisionWithBottomCheckAndDamage(result, m_collider, m_damage, false, gameObject);
-
-                foreach (var character in result)
-                {
-                    m_cooldownTimer = m_cooldownDuration;
-                    m_buffDamageAbility?.Damage(character);
-                    ActivateDamage();
-                }
-
-                ListPool<NetworkCharacter>.Release(result);
+                m_group = new TrapsGroup();
+                m_group.Traps.Add(this);
             }
-        }
 
-        protected virtual void ActivateDamage()
-        {
+            m_group.TryToUpdateCooldown(this);
+
+            if (!IsAvailableForAttack)
+            {
+                return;
+            }
+            
+            if (m_group.CooldownTimer > 0 || m_players.Count == 0)
+                return;
+
+            m_group.ResetCooldown(m_cooldownDuration);
+
+            //cause damage
+
+            foreach (var player in m_players)
+            {
+                if (IsServer)
+                {
+                    player.TakeDamage(m_damage, false, gameObject);
+                    m_buffDamageAbility?.Damage(player);
+                }
+                else
+                {
+                    player.GetComponent<PlayerStepSynchronization>().WaitUntilReceiveServerData();
+                }
+            }
         }
     }
 }

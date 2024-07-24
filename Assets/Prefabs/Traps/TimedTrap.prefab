@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 950494912577993695}
   - component: {fileID: 7594667461773364436}
   - component: {fileID: 1789370027326822055}
-  m_Layer: 15
+  m_Layer: 14
   m_Name: TimedTrap
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -48,7 +48,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 25356965
+  GlobalObjectIdHash: 3439782936
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -73,9 +73,8 @@ MonoBehaviour:
     m_InternalValue: 0
   MaxGroup:
     m_InternalValue: 0
-  m_collider: {fileID: 7594667461773364436}
-  m_cooldownDuration: 1
-  m_damage: 10
+  m_cooldownDuration: 3
+  m_damage: 1
   m_buffDamageAbility: {fileID: 1789370027326822055}
   m_trapImage: {fileID: 7962535334552593988}
   m_frames:
@@ -193,7 +192,7 @@ GameObject:
   m_Component:
   - component: {fileID: 9072271609998137630}
   - component: {fileID: 7962535334552593988}
-  m_Layer: 15
+  m_Layer: 14
   m_Name: spike-bush_0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
