@@ -3,6 +3,7 @@ using Unity.Netcode;
 using System.Collections.Generic;
 using Unity.Mathematics;
 using Unity.Hierarchy;
+using Nethereum.Contracts.Standards.ENS.ETHRegistrarController.ContractDefinition;
 
 public class CleaveCyclone : PlayerAbility
 {
@@ -17,7 +18,7 @@ public class CleaveCyclone : PlayerAbility
     [Header("Projectile Prefab")]
     public GameObject ProjectilePrefab;
 
-    // variables for keeping track of the spawned projectile
+    // variables for keeping track of the spawned projectile on both local and remote client
     private GameObject m_projectile;
     private NetworkVariable<ulong> m_projectileId = new NetworkVariable<ulong>(0);
 
@@ -25,12 +26,7 @@ public class CleaveCyclone : PlayerAbility
     {
         if (IsServer)
         {
-            // instantiate/spawn our projectile we'll be using when this ability activates
-            // and initially set to deactivated
-            m_projectile = Instantiate(ProjectilePrefab);
-            m_projectile.GetComponent<NetworkObject>().Spawn();
-            m_projectileId.Value = m_projectile.GetComponent<NetworkObject>().NetworkObjectId;
-            m_projectile.SetActive(false);
+            GenericProjectile.InitSpawnProjectileOnServer(ref m_projectile, ref m_projectileId, ProjectilePrefab);
         }
     }
 
@@ -44,11 +40,9 @@ public class CleaveCyclone : PlayerAbility
 
     private void Update()
     {
-        // ensure remote clients associate projectile with m_projectile
-        if (m_projectile == null && m_projectileId.Value > 0)
+        if (IsClient)
         {
-            m_projectile = NetworkManager.SpawnManager.SpawnedObjects[m_projectileId.Value].gameObject;
-            m_projectile.SetActive(false);
+            GenericProjectile.TryAddProjectileOnClient(ref m_projectile, ref m_projectileId, NetworkManager);
         }
     }
 
@@ -67,51 +61,65 @@ public class CleaveCyclone : PlayerAbility
         // Local Client & Server
         if (Player.GetComponent<NetworkObject>().IsLocalPlayer || IsServer)
         {
-            m_projectile.SetActive(true);
-            m_projectile.transform.position = transform.position;
             var no_projectile = m_projectile.GetComponent<CleaveCycloneProjectile>();
-            no_projectile.Direction = direction;
-            no_projectile.Distance = distance;
-            no_projectile.Duration = duration;
-            no_projectile.Scale = scale;
-            no_projectile.LocalPlayer = Player;
-
             var playerCharacter = Player.GetComponent<NetworkCharacter>();
-            no_projectile.DamagePerHit = playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier;
-            no_projectile.CriticalChance = playerCharacter.CriticalChance.Value;
-            no_projectile.CriticalDamage = playerCharacter.CriticalDamage.Value;
-            no_projectile.Role = IsServer ? PlayerAbility.NetworkRole.Server : PlayerAbility.NetworkRole.LocalClient;
 
+            // init projectile
+            no_projectile.Init(
+                transform.position,
+                direction, 
+                distance,
+                duration,
+                scale,
+                IsServer ? PlayerAbility.NetworkRole.Server : PlayerAbility.NetworkRole.LocalClient,
+                Player,
+                playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier,
+                playerCharacter.CriticalChance.Value,
+                playerCharacter.CriticalDamage.Value
+                );
+
+            // fire projectile
             no_projectile.Fire();
         }
 
         // Server Only
         if (IsServer)
         {
-            ActivateProjectileClientRpc(direction, distance, duration, scale);
+            ulong playerNetworkObjectid = Player.GetComponent<NetworkObject>().NetworkObjectId;
+            ActivateProjectileClientRpc(direction, distance, duration, scale, playerNetworkObjectid);
         }
     }
 
     [Rpc(SendTo.ClientsAndHost)]
-    void ActivateProjectileClientRpc(Vector3 direction, float distance, float duration, float scale)
+    void ActivateProjectileClientRpc(Vector3 direction, float distance, float duration, float scale, ulong playerNetworkObjectId)
     {
         // Remote Client
+        Player = NetworkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId].gameObject;
+        if (!Player)
+        {
+            Debug.Log("Player does not exist for networkObjectId: " + playerNetworkObjectId);
+            return;
+        }
+
         if (!Player.GetComponent<NetworkObject>().IsLocalPlayer)
         {
-            m_projectile.SetActive(true);
-            m_projectile.transform.position = transform.position;
             var no_projectile = m_projectile.GetComponent<CleaveCycloneProjectile>();
-            no_projectile.Direction = direction;
-            no_projectile.Distance = distance;
-            no_projectile.Duration = duration;
-            no_projectile.Scale = scale;
 
-            var playerCharacter = Player.GetComponent<NetworkCharacter>();
-            no_projectile.DamagePerHit = playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier;
-            no_projectile.CriticalChance = playerCharacter.CriticalChance.Value;
-            no_projectile.CriticalDamage = playerCharacter.CriticalDamage.Value;
-            no_projectile.Role = PlayerAbility.NetworkRole.RemoteClient;
+            // init
+            no_projectile.Init(
+                transform.position,
+                direction,
+                distance,
+                duration,
+                scale,
+                PlayerAbility.NetworkRole.RemoteClient,
+                Player,
+                0,
+                0,
+                0
+                );
 
+            // fire
             no_projectile.Fire();
         }
     }
