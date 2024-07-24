@@ -62,8 +62,6 @@ public class PlayerGotchi : NetworkBehaviour
     private float m_spinAngle;
     private float m_spinTimer;
 
-    // z spin variables
-
     private float m_leftHandHideTimer = 0;
     private float m_rightHandHideTimer = 0;
 
@@ -96,7 +94,7 @@ public class PlayerGotchi : NetworkBehaviour
         m_rightHandHideTimer -= Time.deltaTime;
 
         m_facingDirection = m_playerPrediction.GetFacingDirection();
-        m_isMoving = m_playerPrediction.IsMoving;
+        m_isMoving = IsLocalPlayer ? m_playerPrediction.IsMoving : m_localVelocity.IsMoving;
 
         UpdateGotchiAnim();
         UpdateFacingFromMovement();
