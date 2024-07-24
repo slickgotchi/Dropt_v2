@@ -2,7 +2,9 @@ using Language.Lua;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class CleaveCycloneProjectile : NetworkBehaviour
 {
@@ -36,14 +38,46 @@ public class CleaveCycloneProjectile : NetworkBehaviour
     private float m_hitClearTimer = 0;
     private float m_hitClearInterval = 1;
 
+    public void Init(
+        // server, local & remote
+        Vector3 position,
+        Vector3 direction,
+        float distance,
+        float duration,
+        float scale,
+        PlayerAbility.NetworkRole role,
+
+        // server & local only
+        GameObject player,
+        float damagePerHit,
+        float criticalChance,
+        float criticalDamage
+        )
+    {
+        // server, local & remote
+        gameObject.SetActive(true);
+        transform.position = position;
+        Direction = direction;
+        Distance = distance;
+        Duration = duration;
+        Scale = scale;
+        Role = role;
+
+        // server & local only
+        LocalPlayer = player;
+        DamagePerHit = damagePerHit;
+        CriticalChance = criticalChance;
+        CriticalDamage = criticalDamage;
+    }
+
     public void Fire()
     {
         gameObject.SetActive(true);
         m_hitColliders.Clear();
 
+        // ensure grow shrink time is not too large
         if (Duration < 2 * GrowShrinkTime)
         {
-            //Duration = 2 * GrowShrinkTime;
             GrowShrinkTime = Duration / 2;
         }
 
