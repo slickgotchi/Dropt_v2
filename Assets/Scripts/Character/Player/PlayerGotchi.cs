@@ -18,10 +18,10 @@ public class PlayerGotchi : NetworkBehaviour
 
     [Header("Body GameObject and Side Views")]
     [SerializeField] GameObject m_bodyParent;
-    [SerializeField] GameObject m_bodyFaceFront;
-    [SerializeField] GameObject m_bodyFaceBack;
-    [SerializeField] GameObject m_bodyFaceLeft;
-    [SerializeField] GameObject m_bodyFaceRight;
+    [SerializeField] public GameObject BodyFaceFront;
+    [SerializeField] public GameObject BodyFaceBack;
+    [SerializeField] public GameObject BodyFaceLeft;
+    [SerializeField] public GameObject BodyFaceRight;
 
     [Header("Right Hand GameObject and Side Views")]
     [SerializeField] GameObject m_rightHandParent;
@@ -73,9 +73,6 @@ public class PlayerGotchi : NetworkBehaviour
     private float m_bodyRotation = 0;
     private float m_bodyRotationTimer = 0;
 
-    public NetworkVariable<int> GotchiId;
-    public GotchiSvgSet GotchiSvgSet;
-
     public GameObject GetGotchi()
     {
         return m_gotchi;
@@ -89,29 +86,6 @@ public class PlayerGotchi : NetworkBehaviour
 
         m_camera = GetComponentInChildren<Camera>();
         m_virtualCamera = GetComponentInChildren<CinemachineVirtualCamera>();
-    }
-
-    private void Start()
-    {
-        //GotchiDataManager.Instance.onSelectedGotchi += SetBodySpriteFromDataManager;
-        GotchiDataManager.Instance.onSelectedGotchi += HandleOnSelectedGotchi;
-    }
-
-    public override void OnNetworkSpawn()
-    {
-        GotchiId = new NetworkVariable<int>(-1);
-    }
-
-    void HandleOnSelectedGotchi(int id)
-    {
-        if (!IsLocalPlayer) return;
-        UpdateGotchiIdServerRpc(id);
-    }
-
-    [Rpc(SendTo.Server)]
-    void UpdateGotchiIdServerRpc(int gotchiId)
-    {
-        GotchiId.Value = gotchiId;
     }
 
     private void Update()
@@ -129,7 +103,6 @@ public class PlayerGotchi : NetworkBehaviour
         UpdateFacingFromSpinning();
         SetActiveBodyPartsFromFacing(m_facing);
         UpdateDustParticles();
-        PollSvgs();
 
         m_bodyRotationTimer -= Time.deltaTime;
         if (m_bodyRotationTimer > 0)
@@ -388,10 +361,10 @@ public class PlayerGotchi : NetworkBehaviour
         if (facing == Facing.Front)
         {
             // body
-            m_bodyFaceFront.SetActive(true);
-            m_bodyFaceBack.SetActive(false);
-            m_bodyFaceLeft.SetActive(false);
-            m_bodyFaceRight.SetActive(false);
+            BodyFaceFront.SetActive(true);
+            BodyFaceBack.SetActive(false);
+            BodyFaceLeft.SetActive(false);
+            BodyFaceRight.SetActive(false);
 
             // right hand
             if (m_rightHandHideTimer < 0) m_rightHandFaceFront.SetActive(true);
@@ -408,10 +381,10 @@ public class PlayerGotchi : NetworkBehaviour
         if (facing == Facing.Back)
         {
             // body
-            m_bodyFaceFront.SetActive(false);
-            m_bodyFaceBack.SetActive(true);
-            m_bodyFaceLeft.SetActive(false);
-            m_bodyFaceRight.SetActive(false);
+            BodyFaceFront.SetActive(false);
+            BodyFaceBack.SetActive(true);
+            BodyFaceLeft.SetActive(false);
+            BodyFaceRight.SetActive(false);
 
             // right hand
             m_rightHandFaceFront.SetActive(false);
@@ -428,10 +401,10 @@ public class PlayerGotchi : NetworkBehaviour
         if (facing == Facing.Left)
         {
             // body
-            m_bodyFaceFront.SetActive(false);
-            m_bodyFaceBack.SetActive(false);
-            m_bodyFaceLeft.SetActive(true);
-            m_bodyFaceRight.SetActive(false);
+            BodyFaceFront.SetActive(false);
+            BodyFaceBack.SetActive(false);
+            BodyFaceLeft.SetActive(true);
+            BodyFaceRight.SetActive(false);
 
             // right hand
             m_rightHandFaceFront.SetActive(false);
@@ -448,10 +421,10 @@ public class PlayerGotchi : NetworkBehaviour
         if (facing == Facing.Right)
         {
             // body
-            m_bodyFaceFront.SetActive(false);
-            m_bodyFaceBack.SetActive(false);
-            m_bodyFaceLeft.SetActive(false);
-            m_bodyFaceRight.SetActive(true);
+            BodyFaceFront.SetActive(false);
+            BodyFaceBack.SetActive(false);
+            BodyFaceLeft.SetActive(false);
+            BodyFaceRight.SetActive(true);
 
             // right hand
             m_rightHandFaceFront.SetActive(false);
@@ -731,57 +704,9 @@ public class PlayerGotchi : NetworkBehaviour
         animator.SetBool(name, value);
     }
 
-    float k_pollInterval = 1f;
-    float m_pollTimer = 1f;
-    void PollSvgs()
-    {
-        if (!IsLocalPlayer) return;
+    
+    
 
-        m_pollTimer -= Time.deltaTime;
-        if (m_pollTimer > 0) return;
-        m_pollTimer = k_pollInterval;
-
-        if (GotchiId.Value < 0) return;
-
-        var newGotchiSvgs = GotchiDataManager.Instance.GetGotchiSvgsById(GotchiId.Value);
-
-        if (newGotchiSvgs == null)
-        {
-            GotchiDataManager.Instance.FetchRemoteGotchiSvgsById(GotchiId.Value);
-        }
-        else
-        {
-            if (GotchiSvgSet == null || GotchiSvgSet.id != newGotchiSvgs.id)
-            {
-                SetBodySpriteFromDataManager(newGotchiSvgs);
-                GotchiSvgSet = newGotchiSvgs;
-            }
-        }
-    }
-
-    void SetBodySpriteFromDataManager(GotchiSvgSet gotchiSvgSet)
-    {
-        if (gotchiSvgSet == null) return;
-
-        var newMaterial = GotchiDataManager.Instance.Material_Unlit_VectorGradient;
-
-        m_bodyFaceFront.GetComponent<SpriteRenderer>().sprite = GetSpriteFromSvgString(gotchiSvgSet.Front);
-        m_bodyFaceFront.GetComponent<SpriteRenderer>().material = newMaterial;
-
-        m_bodyFaceBack.GetComponent<SpriteRenderer>().sprite = GetSpriteFromSvgString(gotchiSvgSet.Back);
-        m_bodyFaceBack.GetComponent<SpriteRenderer>().material = newMaterial;
-
-        m_bodyFaceLeft.GetComponent<SpriteRenderer>().sprite = GetSpriteFromSvgString(gotchiSvgSet.Left);
-        m_bodyFaceLeft.GetComponent<SpriteRenderer>().material = newMaterial;
-
-        m_bodyFaceRight.GetComponent<SpriteRenderer>().sprite = GetSpriteFromSvgString(gotchiSvgSet.Right);
-        m_bodyFaceRight.GetComponent<SpriteRenderer>().material = newMaterial;
-    }
-
-    private Sprite GetSpriteFromSvgString(string svgString)
-    {
-        // Convert SVG string to a Sprite
-        return CustomSvgLoader.CreateSvgSprite(GotchiDataManager.Instance.stylingGame.CustomizeSVG(svgString), new Vector2(0.5f, 0.15f));
-    }
+    
 
 }
