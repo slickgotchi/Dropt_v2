@@ -26,48 +26,52 @@ public class BallisticShot : PlayerAbility
     private GameObject m_basketballProjectile;
     private NetworkVariable<ulong> m_basketballProjectileId = new NetworkVariable<ulong>(0);
 
-    void InitProjectile(ref GameObject projectile, ref NetworkVariable<ulong> projectileId, GameObject prefab)
-    {
-        // instantiate/spawn our projectile we'll be using when this ability activates
-        // and initially set to deactivated
-        projectile = Instantiate(prefab);
-        projectile.GetComponent<NetworkObject>().Spawn();
-        projectileId.Value = projectile.GetComponent<NetworkObject>().NetworkObjectId;
-        projectile.SetActive(false);
-    }
+    //void InitProjectile(ref GameObject projectile, ref NetworkVariable<ulong> projectileId, GameObject prefab)
+    //{
+    //    // instantiate/spawn our projectile we'll be using when this ability activates
+    //    // and initially set to deactivated
+    //    projectile = Instantiate(prefab);
+    //    projectile.GetComponent<NetworkObject>().Spawn();
+    //    projectileId.Value = projectile.GetComponent<NetworkObject>().NetworkObjectId;
+    //    projectile.SetActive(false);
+    //}
 
     public override void OnNetworkSpawn()
     {
-        if (IsServer)
-        {
-            InitProjectile(ref m_bulletProjectile, ref m_bulletProjectileId, BulletPrefab);
-            InitProjectile(ref m_arrowProjectile, ref m_arrowProjectileId, ArrowPrefab);
-            InitProjectile(ref m_basketballProjectile, ref m_basketballProjectileId, BasketballPrefab);
-        }
+        if (!IsServer) return;
+
+        GenericProjectile.InitSpawnProjectileOnServer(ref m_bulletProjectile, ref m_bulletProjectileId, BulletPrefab);
+        GenericProjectile.InitSpawnProjectileOnServer(ref m_arrowProjectile, ref m_arrowProjectileId, ArrowPrefab);
+        GenericProjectile.InitSpawnProjectileOnServer(ref m_basketballProjectile, ref m_basketballProjectileId, BasketballPrefab);
     }
 
     public override void OnNetworkDespawn()
     {
+        if (!IsServer) return;
+
         if (m_bulletProjectile != null) m_bulletProjectile.GetComponent<NetworkObject>().Despawn();
         if (m_arrowProjectile != null) m_arrowProjectile.GetComponent<NetworkObject>().Despawn();
         if (m_basketballProjectile != null) m_basketballProjectile.GetComponent<NetworkObject>().Despawn();
     }
 
-    void TryAddProjectile(ref GameObject projectile, ref NetworkVariable<ulong> projectileId)
-    {
-        if (projectile == null && projectileId.Value > 0)
-        {
-            projectile = NetworkManager.SpawnManager.SpawnedObjects[projectileId.Value].gameObject;
-            projectile.SetActive(false);
-        }
-    }
+    //void TryAddProjectile(ref GameObject projectile, ref NetworkVariable<ulong> projectileId)
+    //{
+    //    if (projectile == null && projectileId.Value > 0)
+    //    {
+    //        projectile = NetworkManager.SpawnManager.SpawnedObjects[projectileId.Value].gameObject;
+    //        projectile.SetActive(false);
+    //    }
+    //}
 
     private void Update()
     {
-        // ensure remote clients associate projectiles with local projectile variables
-        TryAddProjectile(ref m_bulletProjectile, ref m_bulletProjectileId);
-        TryAddProjectile(ref m_arrowProjectile, ref m_arrowProjectileId);
-        TryAddProjectile(ref m_basketballProjectile, ref m_basketballProjectileId);
+        if (IsClient)
+        {
+            // ensure remote clients associate projectiles with local projectile variables
+            GenericProjectile.TryAddProjectileOnClient(ref m_bulletProjectile, ref m_bulletProjectileId, NetworkManager);
+            GenericProjectile.TryAddProjectileOnClient(ref m_arrowProjectile, ref m_arrowProjectileId, NetworkManager);
+            GenericProjectile.TryAddProjectileOnClient(ref m_basketballProjectile, ref m_basketballProjectileId, NetworkManager);
+        }
     }
 
     public override void OnStart()
@@ -131,14 +135,24 @@ public class BallisticShot : PlayerAbility
         // Server Only
         if (IsServer)
         {
-            ActivateProjectileClientRpc(ActivationWearableNameEnum, projectile.transform.position, direction, distance, duration);
+            ulong playerId = Player.GetComponent<NetworkObject>().NetworkObjectId;
+            ulong projectileId = projectile.GetComponent<NetworkObject>().NetworkObjectId;
+
+            ActivateProjectileClientRpc(ActivationWearableNameEnum, projectile.transform.position, 
+                direction, distance, duration,
+                playerId, projectileId);
         }
     }
 
     [Rpc(SendTo.ClientsAndHost)]
-    void ActivateProjectileClientRpc(Wearable.NameEnum activationWearable, Vector3 startPosition, Vector3 direction, float distance, float duration)
+    void ActivateProjectileClientRpc(Wearable.NameEnum activationWearable, Vector3 startPosition, Vector3 direction, 
+        float distance, float duration, ulong playerId, ulong projectileId)
     {
-        GameObject projectile = GetProjectileInstance(activationWearable);
+        // Remote Client
+        Player = NetworkManager.SpawnManager.SpawnedObjects[playerId].gameObject;
+        if (!Player) return;
+
+        var projectile = NetworkManager.SpawnManager.SpawnedObjects[projectileId].gameObject;
 
         // Remote Client
         if (!Player.GetComponent<NetworkObject>().IsLocalPlayer)

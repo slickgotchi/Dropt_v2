@@ -2,8 +2,6 @@ using UnityEngine;
 using Unity.Netcode;
 using System.Collections.Generic;
 using Unity.Mathematics;
-using Unity.Hierarchy;
-using Nethereum.Contracts.Standards.ENS.ETHRegistrarController.ContractDefinition;
 
 public class CleaveCyclone : PlayerAbility
 {
@@ -32,7 +30,7 @@ public class CleaveCyclone : PlayerAbility
 
     public override void OnNetworkDespawn()
     {
-        if (m_projectile != null)
+        if (m_projectile != null && IsServer)
         {
             m_projectile.GetComponent<NetworkObject>().Despawn();
         }
@@ -58,12 +56,14 @@ public class CleaveCyclone : PlayerAbility
 
     void ActivateProjectile(Vector3 direction, float distance, float duration, float scale)
     {
+        var no_projectile = m_projectile.GetComponent<CleaveCycloneProjectile>();
+        var projectileId = no_projectile.GetComponent<NetworkObject>().NetworkObjectId;
+        var playerCharacter = Player.GetComponent<NetworkCharacter>();
+
         // Local Client & Server
         if (Player.GetComponent<NetworkObject>().IsLocalPlayer || IsServer)
         {
-            var no_projectile = m_projectile.GetComponent<CleaveCycloneProjectile>();
-            var playerCharacter = Player.GetComponent<NetworkCharacter>();
-
+            Debug.Log("Fire cyclone");
             // init projectile
             no_projectile.Init(
                 transform.position,
@@ -86,24 +86,22 @@ public class CleaveCyclone : PlayerAbility
         if (IsServer)
         {
             ulong playerNetworkObjectid = Player.GetComponent<NetworkObject>().NetworkObjectId;
-            ActivateProjectileClientRpc(direction, distance, duration, scale, playerNetworkObjectid);
+            ActivateProjectileClientRpc(direction, distance, duration, scale, playerNetworkObjectid, projectileId);
         }
     }
 
     [Rpc(SendTo.ClientsAndHost)]
-    void ActivateProjectileClientRpc(Vector3 direction, float distance, float duration, float scale, ulong playerNetworkObjectId)
+    void ActivateProjectileClientRpc(Vector3 direction, float distance, float duration, float scale, 
+        ulong playerNetworkObjectId, ulong projectileId)
     {
         // Remote Client
         Player = NetworkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId].gameObject;
-        if (!Player)
-        {
-            Debug.Log("Player does not exist for networkObjectId: " + playerNetworkObjectId);
-            return;
-        }
+        if (!Player) return;
 
         if (!Player.GetComponent<NetworkObject>().IsLocalPlayer)
         {
-            var no_projectile = m_projectile.GetComponent<CleaveCycloneProjectile>();
+            //var no_projectile = m_projectile.GetComponent<CleaveCycloneProjectile>();
+            var no_projectile = NetworkManager.SpawnManager.SpawnedObjects[projectileId].GetComponent<CleaveCycloneProjectile>();
 
             // init
             no_projectile.Init(
