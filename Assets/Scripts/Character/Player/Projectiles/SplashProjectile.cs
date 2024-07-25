@@ -43,6 +43,7 @@ public class SplashProjectile : NetworkBehaviour
 
         PlayerAbility.NetworkRole role,
         Wearable.WeaponTypeEnum weaponType,
+        Wearable.NameEnum wearableNameEnum,
 
         // server & local only
         GameObject player,
@@ -61,6 +62,7 @@ public class SplashProjectile : NetworkBehaviour
         Role = role;
         WeaponType = weaponType;
         ExplosionRadius = explosionRadius;
+        WearableNameEnum = wearableNameEnum;
 
         // server & local only
         LocalPlayer = player;

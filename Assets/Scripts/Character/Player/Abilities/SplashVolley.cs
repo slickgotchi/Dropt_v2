@@ -13,6 +13,7 @@ public class SplashVolley : PlayerAbility
     public float LobHeight = 2f;
     public float DistanceDelta = 0.5f; // New: Distance variation
     public float ReleaseTimeDelta = 0.1f; // New: Release time variation
+    public float Scale = 1f;
 
     [Header("Projectile Prefab")]
     public GameObject SplashProjectilePrefab;
@@ -97,7 +98,9 @@ public class SplashVolley : PlayerAbility
             if (currentTime >= m_scheduledProjectiles[i].ActivationTime)
             {
                 var scheduledProjectile = m_scheduledProjectiles[i];
-                ActivateProjectile(scheduledProjectile.Index, scheduledProjectile.Wearable, scheduledProjectile.Direction, scheduledProjectile.Distance, scheduledProjectile.Duration);
+                ActivateProjectile(scheduledProjectile.Index, scheduledProjectile.Wearable, 
+                    scheduledProjectile.Direction, scheduledProjectile.Distance, scheduledProjectile.Duration,
+                    scheduledProjectile.Scale, scheduledProjectile.ExplosionRadius);
                 m_scheduledProjectiles.RemoveAt(i);
             }
         }
@@ -114,7 +117,9 @@ public class SplashVolley : PlayerAbility
 
         // Activate projectiles
         var holdChargePercentage = math.min(HoldDuration / HoldChargeTime, 1);
-        ActivateMultipleProjectiles(ActivationWearableNameEnum, ActivationInput.actionDirection, Distance, Duration, holdChargePercentage);
+        ActivateMultipleProjectiles(ActivationWearableNameEnum, 
+            ActivationInput.actionDirection, Distance, Duration, Scale, ExplosionRadius,
+            holdChargePercentage);
     }
 
     GameObject GetProjectileInstance(int index)
@@ -122,7 +127,9 @@ public class SplashVolley : PlayerAbility
         return m_splashProjectiles[index];
     }
 
-    void ActivateMultipleProjectiles(Wearable.NameEnum activationWearable, Vector3 direction, float distance, float duration, float holdChargePercentage)
+    void ActivateMultipleProjectiles(Wearable.NameEnum activationWearable, 
+        Vector3 direction, float distance, float duration, float scale, float explosionRadius,
+        float holdChargePercentage)
     {
         int numProjectiles = Mathf.Clamp(Mathf.CeilToInt(holdChargePercentage * 5), 1, 5);
 
@@ -137,11 +144,14 @@ public class SplashVolley : PlayerAbility
             float randomDistance = distance + UnityEngine.Random.Range(-DistanceDelta, DistanceDelta);
             float releaseDelay = UnityEngine.Random.Range(0, ReleaseTimeDelta);
 
-            ScheduleProjectile(i, activationWearable, newDirection, randomDistance, duration, Time.time + releaseDelay);
+            ScheduleProjectile(i, activationWearable, 
+                newDirection, randomDistance, duration, scale, explosionRadius,
+                Time.time + releaseDelay);
         }
     }
 
-    void ScheduleProjectile(int index, Wearable.NameEnum activationWearable, Vector3 direction, float distance, float duration, float activationTime)
+    void ScheduleProjectile(int index, Wearable.NameEnum activationWearable, 
+        Vector3 direction, float distance, float duration, float scale, float explosionRadius, float activationTime)
     {
         m_scheduledProjectiles.Add(new ScheduledProjectile
         {
@@ -150,37 +160,49 @@ public class SplashVolley : PlayerAbility
             Direction = direction,
             Distance = distance,
             Duration = duration,
+            Scale = scale,
+            ExplosionRadius = explosionRadius,
             ActivationTime = activationTime
         });
     }
 
-    void ActivateProjectile(int index, Wearable.NameEnum activationWearable, Vector3 direction, float distance, float duration)
+    void ActivateProjectile(int index, Wearable.NameEnum activationWearable, 
+        Vector3 direction, float distance, float duration, float scale, float explosionRadius)
     {
         GameObject projectile = GetProjectileInstance(index);
+        var no_projectile = projectile.GetComponent<SplashProjectile>();
+        var playerCharacter = Player.GetComponent<NetworkCharacter>();
 
         // Local Client & Server
         if (Player.GetComponent<NetworkObject>().IsLocalPlayer || IsServer)
         {
-            projectile.SetActive(true);
-            projectile.transform.position =
+            var position =
                 Player.GetComponent<PlayerPrediction>().GetInterpPositionAtTick(ActivationInput.tick)
                 + new Vector3(0, 0.5f, 0)
                 + ActivationInput.actionDirection * Projection;
-            var no_projectile = projectile.GetComponent<SplashProjectile>();
-            no_projectile.Direction = direction;
-            no_projectile.Distance = distance;
-            no_projectile.Duration = duration;
-            no_projectile.ExplosionRadius = 1;
-            no_projectile.LocalPlayer = Player;
-            no_projectile.WeaponType = Wearable.WeaponTypeEnum.Magic;
-            no_projectile.ExplosionRadius = ExplosionRadius;
-            no_projectile.WearableNameEnum = activationWearable;
 
-            var playerCharacter = Player.GetComponent<NetworkCharacter>();
-            no_projectile.DamagePerHit = playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier;
-            no_projectile.CriticalChance = playerCharacter.CriticalChance.Value;
-            no_projectile.CriticalDamage = playerCharacter.CriticalDamage.Value;
-            no_projectile.Role = IsServer ? PlayerAbility.NetworkRole.Server : PlayerAbility.NetworkRole.LocalClient;
+            no_projectile.Init(
+                position, direction, distance, duration, scale,
+                explosionRadius, IsServer ? PlayerAbility.NetworkRole.Server : PlayerAbility.NetworkRole.LocalClient,
+                Wearable.WeaponTypeEnum.Splash, activationWearable,
+                Player,
+                playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier,
+                playerCharacter.CriticalChance.Value,
+                playerCharacter.CriticalDamage.Value);
+
+            //no_projectile.Direction = direction;
+            //no_projectile.Distance = distance;
+            //no_projectile.Duration = duration;
+            //no_projectile.ExplosionRadius = 1;
+            //no_projectile.LocalPlayer = Player;
+            //no_projectile.WeaponType = Wearable.WeaponTypeEnum.Magic;
+            //no_projectile.ExplosionRadius = ExplosionRadius;
+            //no_projectile.WearableNameEnum = activationWearable;
+
+            //no_projectile.DamagePerHit = ;
+            //no_projectile.CriticalChance =
+            //no_projectile.CriticalDamage = 
+            //no_projectile.Role = IsServer ? PlayerAbility.NetworkRole.Server : PlayerAbility.NetworkRole.LocalClient;
 
             no_projectile.Fire();
         }
@@ -191,13 +213,15 @@ public class SplashVolley : PlayerAbility
             var playerNetworkObjectId = Player.GetComponent<NetworkObject>().NetworkObjectId;
             var projectileNetworkObjectId = projectile.GetComponent<NetworkObject>().NetworkObjectId;
             ActivateProjectileClientRpc(index, activationWearable, projectile.transform.position, 
-                direction, distance, duration, playerNetworkObjectId, projectileNetworkObjectId);
+                direction, distance, duration, scale, explosionRadius,
+                playerNetworkObjectId, projectileNetworkObjectId);
         }
     }
 
     [Rpc(SendTo.ClientsAndHost)]
     void ActivateProjectileClientRpc(int index,Wearable.NameEnum activationWearable, Vector3 startPosition, 
-        Vector3 direction, float distance, float duration, ulong playerNetworkObjectId, ulong projectileNetworkObjectId)
+        Vector3 direction, float distance, float duration, float scale, float explosionRadius,
+        ulong playerNetworkObjectId, ulong projectileNetworkObjectId)
     {
         // Remote Client
         Player = NetworkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId].gameObject;
@@ -212,19 +236,26 @@ public class SplashVolley : PlayerAbility
             projectile.SetActive(true);
             projectile.transform.position = startPosition;
             var no_projectile = projectile.GetComponent<SplashProjectile>();
-            no_projectile.Direction = direction;
-            no_projectile.Distance = distance;
-            no_projectile.Duration = duration;
-            no_projectile.ExplosionRadius = 1;
-            no_projectile.WeaponType = Wearable.WeaponTypeEnum.Magic;
-            no_projectile.ExplosionRadius = ExplosionRadius;
-            no_projectile.WearableNameEnum = activationWearable;
+            no_projectile.Init(
+                startPosition, direction, distance, duration, scale, explosionRadius,
+                NetworkRole.RemoteClient, Wearable.WeaponTypeEnum.Splash, activationWearable,
+                Player, 0, 0, 0
+                );
 
-            var playerCharacter = Player.GetComponent<NetworkCharacter>();
-            no_projectile.DamagePerHit = playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier;
-            no_projectile.CriticalChance = playerCharacter.CriticalChance.Value;
-            no_projectile.CriticalDamage = playerCharacter.CriticalDamage.Value;
-            no_projectile.Role = PlayerAbility.NetworkRole.RemoteClient;
+
+            //no_projectile.Direction = direction;
+            //no_projectile.Distance = distance;
+            //no_projectile.Duration = duration;
+            //no_projectile.ExplosionRadius = 1;
+            //no_projectile.WeaponType = Wearable.WeaponTypeEnum.Magic;
+            //no_projectile.ExplosionRadius = ExplosionRadius;
+            //no_projectile.WearableNameEnum = activationWearable;
+
+            //var playerCharacter = Player.GetComponent<NetworkCharacter>();
+            //no_projectile.DamagePerHit = playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier;
+            //no_projectile.CriticalChance = playerCharacter.CriticalChance.Value;
+            //no_projectile.CriticalDamage = playerCharacter.CriticalDamage.Value;
+            //no_projectile.Role = PlayerAbility.NetworkRole.RemoteClient;
 
             no_projectile.Fire();
         }
@@ -247,6 +278,8 @@ public class SplashVolley : PlayerAbility
         public Vector3 Direction;
         public float Distance;
         public float Duration;
+        public float Scale;
+        public float ExplosionRadius;
         public float ActivationTime;
     }
 }

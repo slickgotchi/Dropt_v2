@@ -113,6 +113,9 @@ public class BallisticShot : PlayerAbility
                 direction, distance, duration,
                 playerId, no_projectileId);
         }
+
+        // set hand wearable
+
     }
 
     [Rpc(SendTo.ClientsAndHost)]
