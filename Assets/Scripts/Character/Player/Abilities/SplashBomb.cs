@@ -63,10 +63,10 @@ public class SplashBomb : PlayerAbility
         return ref m_splashProjectile;
     }
 
-    void ActivateProjectile(Wearable.NameEnum activationWearable, Vector3 direction, float distance, float duration,
+    void ActivateProjectile(Wearable.NameEnum wearableNameEnum, Vector3 direction, float distance, float duration,
         float scale, float explosionRadius)
     {
-        GameObject projectile = GetProjectileInstance(activationWearable);
+        GameObject projectile = GetProjectileInstance(wearableNameEnum);
         var no_projectile = projectile.GetComponent<SplashProjectile>();
         var no_projectileId = no_projectile.GetComponent<NetworkObject>().NetworkObjectId;
         var playerCharacter = Player.GetComponent<NetworkCharacter>();
@@ -83,7 +83,7 @@ public class SplashBomb : PlayerAbility
                 startPosition, direction, distance, duration, scale, explosionRadius,
 
                 IsServer ? PlayerAbility.NetworkRole.Server : PlayerAbility.NetworkRole.LocalClient,
-                Wearable.WeaponTypeEnum.Splash,
+                Wearable.WeaponTypeEnum.Splash, wearableNameEnum,
 
                 Player,
                 playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier,
@@ -99,14 +99,14 @@ public class SplashBomb : PlayerAbility
         {
             ulong playerId = Player.GetComponent<NetworkObject>().NetworkObjectId;
             ActivateProjectileClientRpc(
-                startPosition, direction, distance, duration, scale, explosionRadius,
+                startPosition, direction, distance, duration, scale, explosionRadius, wearableNameEnum,
                 playerId, no_projectileId);
         }
     }
 
     [Rpc(SendTo.ClientsAndHost)]
     void ActivateProjectileClientRpc(Vector3 startPosition, Vector3 direction, 
-        float distance, float duration, float scale, float explosionRadius, 
+        float distance, float duration, float scale, float explosionRadius, Wearable.NameEnum wearableNameEnum,
         ulong playerNetworkObjectId, ulong projectileNetworkObjectId)
     {
         // Remote Client
@@ -122,7 +122,7 @@ public class SplashBomb : PlayerAbility
             // init
             no_projectile.Init(startPosition, direction, distance, duration, scale, explosionRadius,
                 PlayerAbility.NetworkRole.RemoteClient,
-                Wearable.WeaponTypeEnum.Splash,
+                Wearable.WeaponTypeEnum.Splash, wearableNameEnum,
 
                 Player,
                 0, 0, 0);

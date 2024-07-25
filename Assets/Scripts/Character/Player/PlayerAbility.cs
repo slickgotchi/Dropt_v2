@@ -1,4 +1,5 @@
 using Dropt;
+using Nethereum.RPC.Shh.KeyPair;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Mathematics;
@@ -109,6 +110,18 @@ public class PlayerAbility : NetworkBehaviour
         var secSlashTransform = transform.Find("SecondarySlash");
         if (secSlashTransform == null) return;
         secSlashTransform.GetComponent<SpriteRenderer>().color = ActivationWearable.RarityColor;
+
+        if (IsServer && !IsHost)
+        {
+            InitClientRpc(playerObject.GetComponent<NetworkObject>().NetworkObjectId, abilityHand);
+        }
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    void InitClientRpc(ulong playerNetworkObjectId, Hand abilityHand)
+    {
+        var playerObject = NetworkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId].gameObject;
+        Init(playerObject, abilityHand);
     }
 
     public bool Activate(GameObject playerObject, StatePayload state, InputPayload input, float holdDuration)
