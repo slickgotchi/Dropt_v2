@@ -3,6 +3,7 @@ using Unity.Netcode;
 using System.Collections.Generic;
 using Unity.Mathematics;
 using Unity.Hierarchy;
+using UnityEngine.UIElements;
 
 public class SplashBomb : PlayerAbility
 {
@@ -21,42 +22,27 @@ public class SplashBomb : PlayerAbility
     private GameObject m_splashProjectile;
     private NetworkVariable<ulong> m_splashProjectileId = new NetworkVariable<ulong>(0);
 
-    void InitProjectile(ref GameObject projectile, ref NetworkVariable<ulong> projectileId, GameObject prefab)
-    {
-        // instantiate/spawn our projectile we'll be using when this ability activates
-        // and initially set to deactivated
-        projectile = Instantiate(prefab);
-        projectile.GetComponent<NetworkObject>().Spawn();
-        projectileId.Value = projectile.GetComponent<NetworkObject>().NetworkObjectId;
-        projectile.SetActive(false);
-    }
-
     public override void OnNetworkSpawn()
     {
-        if (IsServer)
-        {
-            InitProjectile(ref m_splashProjectile, ref m_splashProjectileId, SplashProjectilePrefab);
-        }
+        if (!IsServer) return;
+
+        GenericProjectile.InitSpawnProjectileOnServer(ref m_splashProjectile, ref m_splashProjectileId, SplashProjectilePrefab);
     }
 
     public override void OnNetworkDespawn()
     {
-        if (m_splashProjectile != null) m_splashProjectile.GetComponent<NetworkObject>().Despawn();
-    }
-
-    void TryAddProjectile(ref GameObject projectile, ref NetworkVariable<ulong> projectileId)
-    {
-        if (projectile == null && projectileId.Value > 0)
+        if (m_splashProjectile != null)
         {
-            projectile = NetworkManager.SpawnManager.SpawnedObjects[projectileId.Value].gameObject;
-            projectile.SetActive(false);
+            if (IsServer) m_splashProjectile.GetComponent<NetworkObject>().Despawn();
         }
     }
 
     private void Update()
     {
-        // ensure remote clients associate projectiles with local projectile variables
-        TryAddProjectile(ref m_splashProjectile, ref m_splashProjectileId);
+        if (IsClient)
+        {
+            GenericProjectile.TryAddProjectileOnClient(ref m_splashProjectile, ref m_splashProjectileId, NetworkManager);
+        }
     }
 
     public override void OnStart()
@@ -69,7 +55,7 @@ public class SplashBomb : PlayerAbility
         PlayAnimation("SplashLob");
 
         // activate projectile
-        ActivateProjectile(ActivationWearableNameEnum, ActivationInput.actionDirection, Distance, Duration);
+        ActivateProjectile(ActivationWearableNameEnum, ActivationInput.actionDirection, Distance, Duration, 1f, ExplosionRadius);
     }
 
     ref GameObject GetProjectileInstance(Wearable.NameEnum activationWearable)
@@ -77,69 +63,71 @@ public class SplashBomb : PlayerAbility
         return ref m_splashProjectile;
     }
 
-    void ActivateProjectile(Wearable.NameEnum activationWearable, Vector3 direction, float distance, float duration)
+    void ActivateProjectile(Wearable.NameEnum activationWearable, Vector3 direction, float distance, float duration,
+        float scale, float explosionRadius)
     {
         GameObject projectile = GetProjectileInstance(activationWearable);
+        var no_projectile = projectile.GetComponent<SplashProjectile>();
+        var no_projectileId = no_projectile.GetComponent<NetworkObject>().NetworkObjectId;
+        var playerCharacter = Player.GetComponent<NetworkCharacter>();
+        var startPosition =
+                Player.GetComponent<PlayerPrediction>().GetInterpPositionAtTick(ActivationInput.tick)
+                + new Vector3(0, 0.5f, 0)
+                + ActivationInput.actionDirection * Projection;
 
         // Local Client & Server
         if (Player.GetComponent<NetworkObject>().IsLocalPlayer || IsServer)
         {
-            projectile.SetActive(true);
-            projectile.transform.position =
-                Player.GetComponent<PlayerPrediction>().GetInterpPositionAtTick(ActivationInput.tick)
-                + new Vector3(0, 0.5f, 0)
-                + ActivationInput.actionDirection * Projection;
-            var no_projectile = projectile.GetComponent<SplashProjectile>();
-            no_projectile.Direction = direction;
-            no_projectile.Distance = distance;
-            no_projectile.Duration = duration;
-            no_projectile.ExplosionRadius = 1;
-            no_projectile.LocalPlayer = Player;
-            no_projectile.WeaponType = Wearable.WeaponTypeEnum.Magic;
-            no_projectile.ExplosionRadius = ExplosionRadius;
-            no_projectile.WearableNameEnum = activationWearable;
+            // init
+            no_projectile.Init(
+                startPosition, direction, distance, duration, scale, explosionRadius,
 
-            var playerCharacter = Player.GetComponent<NetworkCharacter>();
-            no_projectile.DamagePerHit = playerCharacter.AttackPower.Value * DamageMultiplier;
-            no_projectile.CriticalChance = playerCharacter.CriticalChance.Value;
-            no_projectile.CriticalDamage = playerCharacter.CriticalDamage.Value;
-            no_projectile.NetworkRole = IsServer ? PlayerAbility.NetworkRole.Server : PlayerAbility.NetworkRole.LocalClient;
+                IsServer ? PlayerAbility.NetworkRole.Server : PlayerAbility.NetworkRole.LocalClient,
+                Wearable.WeaponTypeEnum.Splash,
 
+                Player,
+                playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier,
+                playerCharacter.CriticalChance.Value,
+                playerCharacter.CriticalDamage.Value);
+
+            // fire
             no_projectile.Fire();
         }
 
         // Server Only
         if (IsServer)
         {
-            ActivateProjectileClientRpc(ActivationWearableNameEnum, projectile.transform.position, direction, distance, duration);
+            ulong playerId = Player.GetComponent<NetworkObject>().NetworkObjectId;
+            ActivateProjectileClientRpc(
+                startPosition, direction, distance, duration, scale, explosionRadius,
+                playerId, no_projectileId);
         }
     }
 
     [Rpc(SendTo.ClientsAndHost)]
-    void ActivateProjectileClientRpc(Wearable.NameEnum activationWearable, Vector3 startPosition, Vector3 direction, float distance, float duration)
+    void ActivateProjectileClientRpc(Vector3 startPosition, Vector3 direction, 
+        float distance, float duration, float scale, float explosionRadius, 
+        ulong playerNetworkObjectId, ulong projectileNetworkObjectId)
     {
-        GameObject projectile = GetProjectileInstance(activationWearable);
+        // Remote Client
+        Player = NetworkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId].gameObject;
+        if (!Player) return;
 
         // Remote Client
         if (!Player.GetComponent<NetworkObject>().IsLocalPlayer)
         {
-            projectile.SetActive(true);
-            projectile.transform.position = startPosition;
-            var no_projectile = projectile.GetComponent<SplashProjectile>();
-            no_projectile.Direction = direction;
-            no_projectile.Distance = distance;
-            no_projectile.Duration = duration;
-            no_projectile.ExplosionRadius = 1;
-            no_projectile.WeaponType = Wearable.WeaponTypeEnum.Magic;
-            no_projectile.ExplosionRadius = ExplosionRadius;
-            no_projectile.WearableNameEnum = activationWearable;
+            var no_projectile = NetworkManager.SpawnManager.SpawnedObjects[projectileNetworkObjectId].
+                GetComponent<SplashProjectile>();
 
-            var playerCharacter = Player.GetComponent<NetworkCharacter>();
-            no_projectile.DamagePerHit = playerCharacter.AttackPower.Value * DamageMultiplier * ActivationWearable.RarityMultiplier;
-            no_projectile.CriticalChance = playerCharacter.CriticalChance.Value;
-            no_projectile.CriticalDamage = playerCharacter.CriticalDamage.Value;
-            no_projectile.NetworkRole = PlayerAbility.NetworkRole.RemoteClient;
+            // init
+            no_projectile.Init(startPosition, direction, distance, duration, scale, explosionRadius,
+                PlayerAbility.NetworkRole.RemoteClient,
+                Wearable.WeaponTypeEnum.Splash,
 
+                Player,
+                0, 0, 0);
+
+            // init
             no_projectile.Fire();
         }
     }

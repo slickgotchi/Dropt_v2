@@ -59,7 +59,7 @@ public class GenericEnemyProjectile : NetworkBehaviour
         if (m_timer < 0)
         {
             gameObject.SetActive(false);
-            gameObject.GetComponent<NetworkObject>().Despawn();
+            if (IsServer) gameObject.GetComponent<NetworkObject>().Despawn();
         }
 
         transform.position += Direction * m_speed * Time.deltaTime;

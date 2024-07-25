@@ -30,7 +30,7 @@ public class Destructible : NetworkBehaviour
             CurrentHp.Value -= damage;
             if (CurrentHp.Value <= 0)
             {
-                GetComponent<NetworkObject>().Despawn();
+                if (IsServer) GetComponent<NetworkObject>().Despawn();
             }
         }
 
@@ -46,7 +46,7 @@ public class Destructible : NetworkBehaviour
             CurrentHp.Value -= damage;
             if (CurrentHp.Value <= 0)
             {
-                GetComponent<NetworkObject>().Despawn();
+                if (IsServer) GetComponent<NetworkObject>().Despawn();
             }
         }
 

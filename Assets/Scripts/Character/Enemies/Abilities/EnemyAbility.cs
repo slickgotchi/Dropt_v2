@@ -61,7 +61,7 @@ public class EnemyAbility : NetworkBehaviour
                     m_timer = 0;
                     EnemyAbilityState = State.None;
                     OnFinish();
-                    GetComponent<NetworkObject>().Despawn();
+                    if (IsServer) GetComponent<NetworkObject>().Despawn();
                     m_isActive = false;
                 }
                 break;

@@ -83,7 +83,7 @@ public class FudWisp_Explode : EnemyAbility
         m_explosionGrowFadeTimer += Time.deltaTime;
         if (m_explosionGrowFadeTimer > ExplosionDuration)
         {
-            GetComponent<NetworkObject>().Despawn();
+            if (IsServer) GetComponent<NetworkObject>().Despawn();
             return;
         }
 

@@ -1,6 +1,8 @@
 using System.Collections.Generic;
+using System.Data;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class SplashProjectile : NetworkBehaviour
 {
@@ -9,6 +11,7 @@ public class SplashProjectile : NetworkBehaviour
     [HideInInspector] public float Duration;
     [HideInInspector] public float ExplosionRadius = 1f;
     [HideInInspector] public float LobHeight = 2f;
+    [HideInInspector] public float Scale = 1f;
 
     [HideInInspector] public float DamagePerHit = 1f;
     [HideInInspector] public float CriticalChance = 0.1f;
@@ -19,7 +22,7 @@ public class SplashProjectile : NetworkBehaviour
 
     [HideInInspector] public GameObject LocalPlayer;
 
-    [HideInInspector] public PlayerAbility.NetworkRole NetworkRole = PlayerAbility.NetworkRole.LocalClient;
+    [HideInInspector] public PlayerAbility.NetworkRole Role = PlayerAbility.NetworkRole.LocalClient;
 
     public SpriteRenderer bodySpriteRenderer;
     public CircleCollider2D Collider;
@@ -29,11 +32,50 @@ public class SplashProjectile : NetworkBehaviour
     private float m_speed = 1;
     private Vector3 m_finalPosition;
 
+    public void Init(
+        // server, local & remote
+        Vector3 position,
+        Vector3 direction,
+        float distance,
+        float duration,
+        float scale,
+        float explosionRadius,
+
+        PlayerAbility.NetworkRole role,
+        Wearable.WeaponTypeEnum weaponType,
+
+        // server & local only
+        GameObject player,
+        float damagePerHit,
+        float criticalChance,
+        float criticalDamage
+        )
+    {
+        // server, local & remote
+        gameObject.SetActive(true);
+        transform.position = position;
+        Direction = direction;
+        Distance = distance;
+        Duration = duration;
+        Scale = scale;
+        Role = role;
+        WeaponType = weaponType;
+        ExplosionRadius = explosionRadius;
+
+        // server & local only
+        LocalPlayer = player;
+        DamagePerHit = damagePerHit;
+        CriticalChance = criticalChance;
+        CriticalDamage = criticalDamage;
+    }
+
     public void Fire()
     {
         gameObject.SetActive(true);
 
         transform.rotation = Quaternion.identity;
+
+        transform.localScale = new Vector3(Scale, Scale, 1f);
 
         m_timer = Duration;
         m_isSpawned = true;
@@ -61,7 +103,7 @@ public class SplashProjectile : NetworkBehaviour
         if (m_timer < 0)
         {
             transform.position = m_finalPosition;
-            if (NetworkRole != PlayerAbility.NetworkRole.RemoteClient) CollisionCheck();
+            if (Role != PlayerAbility.NetworkRole.RemoteClient) CollisionCheck();
             gameObject.SetActive(false);
             VisualEffectsManager.Singleton.SpawnSplashExplosion(m_finalPosition, new Color(1, 0, 0, 0.5f), ExplosionRadius);
         }
@@ -112,7 +154,7 @@ public class SplashProjectile : NetworkBehaviour
         VisualEffectsManager.Singleton.SpawnBulletExplosion(hitPosition);
         gameObject.SetActive(false);
 
-        if (NetworkRole == PlayerAbility.NetworkRole.Server)
+        if (Role == PlayerAbility.NetworkRole.Server)
         {
             DeactivateClientRpc(hitPosition);
         }
@@ -121,7 +163,7 @@ public class SplashProjectile : NetworkBehaviour
     [Rpc(SendTo.ClientsAndHost)]
     void DeactivateClientRpc(Vector3 hitPosition)
     {
-        if (NetworkRole == PlayerAbility.NetworkRole.RemoteClient)
+        if (Role == PlayerAbility.NetworkRole.RemoteClient)
         {
             VisualEffectsManager.Singleton.SpawnBulletExplosion(hitPosition);
             gameObject.SetActive(false);

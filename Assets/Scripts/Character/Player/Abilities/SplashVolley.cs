@@ -65,7 +65,9 @@ public class SplashVolley : PlayerAbility
         foreach (var projectile in m_splashProjectiles)
         {
             if (projectile != null)
-                projectile.GetComponent<NetworkObject>().Despawn();
+            {
+                if (IsServer) projectile.GetComponent<NetworkObject>().Despawn();
+            }
         }
     }
 
@@ -178,7 +180,7 @@ public class SplashVolley : PlayerAbility
             no_projectile.DamagePerHit = playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier;
             no_projectile.CriticalChance = playerCharacter.CriticalChance.Value;
             no_projectile.CriticalDamage = playerCharacter.CriticalDamage.Value;
-            no_projectile.NetworkRole = IsServer ? PlayerAbility.NetworkRole.Server : PlayerAbility.NetworkRole.LocalClient;
+            no_projectile.Role = IsServer ? PlayerAbility.NetworkRole.Server : PlayerAbility.NetworkRole.LocalClient;
 
             no_projectile.Fire();
         }
@@ -186,14 +188,23 @@ public class SplashVolley : PlayerAbility
         // Server Only
         if (IsServer)
         {
-            ActivateProjectileClientRpc(index, activationWearable, projectile.transform.position, direction, distance, duration);
+            var playerNetworkObjectId = Player.GetComponent<NetworkObject>().NetworkObjectId;
+            var projectileNetworkObjectId = projectile.GetComponent<NetworkObject>().NetworkObjectId;
+            ActivateProjectileClientRpc(index, activationWearable, projectile.transform.position, 
+                direction, distance, duration, playerNetworkObjectId, projectileNetworkObjectId);
         }
     }
 
     [Rpc(SendTo.ClientsAndHost)]
-    void ActivateProjectileClientRpc(int index,Wearable.NameEnum activationWearable, Vector3 startPosition, Vector3 direction, float distance, float duration)
+    void ActivateProjectileClientRpc(int index,Wearable.NameEnum activationWearable, Vector3 startPosition, 
+        Vector3 direction, float distance, float duration, ulong playerNetworkObjectId, ulong projectileNetworkObjectId)
     {
-        GameObject projectile = GetProjectileInstance(index);
+        // Remote Client
+        Player = NetworkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId].gameObject;
+        if (!Player) return;
+
+        //GameObject projectile = GetProjectileInstance(index);
+        GameObject projectile = NetworkManager.SpawnManager.SpawnedObjects[projectileNetworkObjectId].gameObject;
 
         // Remote Client
         if (!Player.GetComponent<NetworkObject>().IsLocalPlayer)
@@ -213,7 +224,7 @@ public class SplashVolley : PlayerAbility
             no_projectile.DamagePerHit = playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier;
             no_projectile.CriticalChance = playerCharacter.CriticalChance.Value;
             no_projectile.CriticalDamage = playerCharacter.CriticalDamage.Value;
-            no_projectile.NetworkRole = PlayerAbility.NetworkRole.RemoteClient;
+            no_projectile.Role = PlayerAbility.NetworkRole.RemoteClient;
 
             no_projectile.Fire();
         }

@@ -55,7 +55,7 @@ public class ShieldWallEffect : NetworkBehaviour
         timer_s -= Time.deltaTime;
         if (timer_s <= 0)
         {
-            gameObject.GetComponent<NetworkObject>().Despawn();
+            if (IsServer) gameObject.GetComponent<NetworkObject>().Despawn();
         }
     }
 }
