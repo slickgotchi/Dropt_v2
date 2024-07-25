@@ -9,6 +9,8 @@ public static class EnsureBootstrapScene
     private const string BootstrapSceneName = "Bootstrap";
     private const string BootstrapScenePath = "Assets/Scenes/Bootstrap.unity"; // Adjust the path as needed
 
+    private static string previousScenePath;
+
     static EnsureBootstrapScene()
     {
         EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
@@ -16,9 +18,33 @@ public static class EnsureBootstrapScene
 
     private static void OnPlayModeStateChanged(PlayModeStateChange state)
     {
-        if (state == PlayModeStateChange.EnteredPlayMode)
+        if (state == PlayModeStateChange.ExitingEditMode)
+        {
+            // Store the current scene path before switching to Bootstrap
+            previousScenePath = SceneManager.GetActiveScene().path;
+
+            Debug.Log("save scene path: " + previousScenePath);
+
+            // Save the current scene
+            EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo();
+
+            // Set the Bootstrap scene to be the first scene in play mode
+            EditorSceneManager.OpenScene(BootstrapScenePath);
+        }
+        else if (state == PlayModeStateChange.EnteredPlayMode)
         {
             EnsureBootstrapIsFirstScene();
+        }
+        else if (state == PlayModeStateChange.ExitingPlayMode)
+        {
+            // Return to the previous scene after play mode
+            if (!string.IsNullOrEmpty(previousScenePath) && previousScenePath != BootstrapScenePath)
+            {
+                EditorApplication.delayCall += () =>
+                {
+                    EditorSceneManager.OpenScene(previousScenePath);
+                };
+            }
         }
     }
 
@@ -65,12 +91,6 @@ public static class EnsureBootstrapScene
                     }
                 }
             }
-        }
-
-        // Ensure the Bootstrap scene is loaded first in Play mode
-        if (SceneManager.GetActiveScene().name != BootstrapSceneName)
-        {
-            SceneManager.LoadScene("Bootstrap");
         }
     }
 }
