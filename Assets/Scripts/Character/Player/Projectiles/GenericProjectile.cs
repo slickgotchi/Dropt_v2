@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Data;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -16,13 +17,47 @@ public class GenericProjectile : NetworkBehaviour
 
     [HideInInspector] public GameObject LocalPlayer;
 
-    [HideInInspector] public PlayerAbility.NetworkRole NetworkRole = PlayerAbility.NetworkRole.LocalClient;
+    [HideInInspector] public PlayerAbility.NetworkRole Role = PlayerAbility.NetworkRole.LocalClient;
 
     private float m_timer = 0;
     private bool m_isSpawned = false;
     private float m_speed = 1;
 
     private Collider2D m_collider;
+
+    public void Init(
+        // server, local & remote
+        Vector3 position,
+        Vector3 direction,
+        float distance,
+        float duration,
+        float scale,
+        PlayerAbility.NetworkRole role,
+        Wearable.WeaponTypeEnum weaponType,
+
+        // server & local only
+        GameObject player,
+        float damagePerHit,
+        float criticalChance,
+        float criticalDamage
+        )
+    {
+        // server, local & remote
+        gameObject.SetActive(true);
+        transform.position = position;
+        Direction = direction;
+        Distance = distance;
+        Duration = duration;
+        Scale = scale;
+        Role = role;
+        WeaponType = weaponType;
+
+        // server & local only
+        LocalPlayer = player;
+        DamagePerHit = damagePerHit;
+        CriticalChance = criticalChance;
+        CriticalDamage = criticalDamage;
+    }
 
     public void Fire()
     {
@@ -51,7 +86,7 @@ public class GenericProjectile : NetworkBehaviour
         transform.position += Direction * m_speed * Time.deltaTime;
         transform.rotation = PlayerAbility.GetRotationFromDirection(Direction);
 
-        if (NetworkRole != PlayerAbility.NetworkRole.RemoteClient) CollisionCheck();
+        if (Role != PlayerAbility.NetworkRole.RemoteClient) CollisionCheck();
     }
 
     public void CollisionCheck()
@@ -94,7 +129,7 @@ public class GenericProjectile : NetworkBehaviour
         VisualEffectsManager.Singleton.SpawnBulletExplosion(hitPosition);
         gameObject.SetActive(false);
 
-        if (NetworkRole == PlayerAbility.NetworkRole.Server)
+        if (Role == PlayerAbility.NetworkRole.Server)
         {
             DeactivateClientRpc(hitPosition);
         }
@@ -103,7 +138,7 @@ public class GenericProjectile : NetworkBehaviour
     [Rpc(SendTo.ClientsAndHost)]
     void DeactivateClientRpc(Vector3 hitPosition)
     {
-        if (NetworkRole == PlayerAbility.NetworkRole.RemoteClient)
+        if (Role == PlayerAbility.NetworkRole.RemoteClient)
         {
             VisualEffectsManager.Singleton.SpawnBulletExplosion(hitPosition);
             gameObject.SetActive(false);

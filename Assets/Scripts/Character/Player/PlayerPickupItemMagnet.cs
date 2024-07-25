@@ -47,6 +47,6 @@ public class PlayerPickupItemMagnet : NetworkBehaviour
         attractedItems.Remove(pickupItem);
 
         // Optionally, destroy the item or perform other actions
-        pickupItem.GetComponent<NetworkObject>().Despawn();
+        if (IsServer) pickupItem.GetComponent<NetworkObject>().Despawn();
     }
 }

@@ -19,42 +19,25 @@ public class Throw : PlayerAbility
     private GameObject m_throwProjectile;
     private NetworkVariable<ulong> m_throwProjectileId = new NetworkVariable<ulong>(0);
 
-    void InitProjectile(ref GameObject projectile, ref NetworkVariable<ulong> projectileId, GameObject prefab)
-    {
-        // instantiate/spawn our projectile we'll be using when this ability activates
-        // and initially set to deactivated
-        projectile = Instantiate(prefab);
-        projectile.GetComponent<NetworkObject>().Spawn();
-        projectileId.Value = projectile.GetComponent<NetworkObject>().NetworkObjectId;
-        projectile.SetActive(false);
-    }
-
     public override void OnNetworkSpawn()
     {
-        if (IsServer)
-        {
-            InitProjectile(ref m_throwProjectile, ref m_throwProjectileId, ThrowProjectilePrefab);
-        }
+        if (!IsServer) return;
+
+        GenericProjectile.InitSpawnProjectileOnServer(ref m_throwProjectile, ref m_throwProjectileId, ThrowProjectilePrefab);
     }
 
     public override void OnNetworkDespawn()
     {
-        if (m_throwProjectile != null) m_throwProjectile.GetComponent<NetworkObject>().Despawn();
-    }
-
-    void TryAddProjectile(ref GameObject projectile, ref NetworkVariable<ulong> projectileId)
-    {
-        if (projectile == null && projectileId.Value > 0)
+        if (m_throwProjectile != null)
         {
-            projectile = NetworkManager.SpawnManager.SpawnedObjects[projectileId.Value].gameObject;
-            projectile.SetActive(false);
+            if (IsServer) m_throwProjectile.GetComponent<NetworkObject>().Despawn();
         }
     }
 
     private void Update()
     {
         // ensure remote clients associate projectiles with local projectile variables
-        TryAddProjectile(ref m_throwProjectile, ref m_throwProjectileId);
+        GenericProjectile.TryAddProjectileOnClient(ref m_throwProjectile, ref m_throwProjectileId, NetworkManager);
     }
 
     public override void OnStart()
@@ -101,14 +84,21 @@ public class Throw : PlayerAbility
         // Server Only
         if (IsServer)
         {
-            ActivateProjectileClientRpc(ActivationWearableNameEnum, projectile.transform.position, direction, distance, duration);
+            var playerNetworkObjectId = Player.GetComponent<NetworkObject>().NetworkObjectId;
+            var projectileNetworkObjectId = projectile.GetComponent<NetworkObject>().NetworkObjectId;
+            ActivateProjectileClientRpc(activationWearable, projectile.transform.position, 
+                direction, distance, duration, playerNetworkObjectId, projectileNetworkObjectId);
         }
     }
 
     [Rpc(SendTo.ClientsAndHost)]
-    void ActivateProjectileClientRpc(Wearable.NameEnum activationWearable, Vector3 startPosition, Vector3 direction, float distance, float duration)
+    void ActivateProjectileClientRpc(Wearable.NameEnum activationWearable, Vector3 startPosition, Vector3 direction, float distance, float duration,
+        ulong playerNetworkObjectId, ulong projectileNetworkObjectId)
     {
-        GameObject projectile = GetProjectileInstance(activationWearable);
+        Player = NetworkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId].gameObject;
+        if (!Player) return;
+
+        GameObject projectile = NetworkManager.SpawnManager.SpawnedObjects[projectileNetworkObjectId].gameObject;
 
         // Remote Client
         if (!Player.GetComponent<NetworkObject>().IsLocalPlayer)

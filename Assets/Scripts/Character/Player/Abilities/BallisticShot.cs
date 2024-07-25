@@ -26,16 +26,6 @@ public class BallisticShot : PlayerAbility
     private GameObject m_basketballProjectile;
     private NetworkVariable<ulong> m_basketballProjectileId = new NetworkVariable<ulong>(0);
 
-    //void InitProjectile(ref GameObject projectile, ref NetworkVariable<ulong> projectileId, GameObject prefab)
-    //{
-    //    // instantiate/spawn our projectile we'll be using when this ability activates
-    //    // and initially set to deactivated
-    //    projectile = Instantiate(prefab);
-    //    projectile.GetComponent<NetworkObject>().Spawn();
-    //    projectileId.Value = projectile.GetComponent<NetworkObject>().NetworkObjectId;
-    //    projectile.SetActive(false);
-    //}
-
     public override void OnNetworkSpawn()
     {
         if (!IsServer) return;
@@ -53,15 +43,6 @@ public class BallisticShot : PlayerAbility
         if (m_arrowProjectile != null) m_arrowProjectile.GetComponent<NetworkObject>().Despawn();
         if (m_basketballProjectile != null) m_basketballProjectile.GetComponent<NetworkObject>().Despawn();
     }
-
-    //void TryAddProjectile(ref GameObject projectile, ref NetworkVariable<ulong> projectileId)
-    //{
-    //    if (projectile == null && projectileId.Value > 0)
-    //    {
-    //        projectile = NetworkManager.SpawnManager.SpawnedObjects[projectileId.Value].gameObject;
-    //        projectile.SetActive(false);
-    //    }
-    //}
 
     private void Update()
     {
@@ -89,46 +70,38 @@ public class BallisticShot : PlayerAbility
 
     ref GameObject GetProjectileInstance(Wearable.NameEnum activationWearable)
     {
-        if (activationWearable == Wearable.NameEnum.AagentPistol || activationWearable == Wearable.NameEnum.NailGun)
+        switch (activationWearable)
         {
-            return ref m_bulletProjectile;
-        }
-        else if (activationWearable == Wearable.NameEnum.Basketball)
-        {
-            return ref m_basketballProjectile;
-        }
-        else
-        {
-            return ref m_arrowProjectile;
+            case Wearable.NameEnum.AagentPistol: return ref m_bulletProjectile; 
+            case Wearable.NameEnum.NailGun: return ref m_bulletProjectile; 
+            case Wearable.NameEnum.Basketball: return ref m_basketballProjectile; 
+            default: return ref m_arrowProjectile; 
         }
     }
 
     void ActivateProjectile(Wearable.NameEnum activationWearable, Vector3 direction, float distance, float duration)
     {
         GameObject projectile = GetProjectileInstance(activationWearable);
+        var no_projectile = projectile.GetComponent<GenericProjectile>();
+        var no_projectileId = no_projectile.GetComponent<NetworkObject>().NetworkObjectId;
+        var playerCharacter = Player.GetComponent<NetworkCharacter>();
+        var startPosition =
+                Player.GetComponent<PlayerPrediction>().GetInterpPositionAtTick(ActivationInput.tick)
+                + new Vector3(0, 0.5f, 0)
+                + ActivationInput.actionDirection * Projection;
 
         // Local Client & Server
         if (Player.GetComponent<NetworkObject>().IsLocalPlayer || IsServer)
         {
-            projectile.SetActive(true);
-            projectile.transform.position =
-                Player.GetComponent<PlayerPrediction>().GetInterpPositionAtTick(ActivationInput.tick) 
-                + new Vector3(0,0.5f,0)
-                + ActivationInput.actionDirection * Projection;
-            var no_projectile = projectile.GetComponent<GenericProjectile>();
-            no_projectile.Direction = direction;
-            no_projectile.Distance = distance;
-            no_projectile.Duration = duration;
-            no_projectile.Scale = 1;
-            no_projectile.LocalPlayer = Player;
-            no_projectile.WeaponType = Wearable.WeaponTypeEnum.Ballistic;
+            // init
+            no_projectile.Init(startPosition, direction, distance, duration, 1,
+                IsServer ? PlayerAbility.NetworkRole.Server : PlayerAbility.NetworkRole.LocalClient, 
+                Wearable.WeaponTypeEnum.Ballistic, Player,
+                playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier,
+                playerCharacter.CriticalChance.Value,
+                playerCharacter.CriticalDamage.Value);
 
-            var playerCharacter = Player.GetComponent<NetworkCharacter>();
-            no_projectile.DamagePerHit = playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier;
-            no_projectile.CriticalChance = playerCharacter.CriticalChance.Value;
-            no_projectile.CriticalDamage = playerCharacter.CriticalDamage.Value;
-            no_projectile.NetworkRole = IsServer ? PlayerAbility.NetworkRole.Server : PlayerAbility.NetworkRole.LocalClient;
-
+            // fire
             no_projectile.Fire();
         }
 
@@ -136,42 +109,34 @@ public class BallisticShot : PlayerAbility
         if (IsServer)
         {
             ulong playerId = Player.GetComponent<NetworkObject>().NetworkObjectId;
-            ulong projectileId = projectile.GetComponent<NetworkObject>().NetworkObjectId;
-
-            ActivateProjectileClientRpc(ActivationWearableNameEnum, projectile.transform.position, 
+            ActivateProjectileClientRpc(startPosition, 
                 direction, distance, duration,
-                playerId, projectileId);
+                playerId, no_projectileId);
         }
     }
 
     [Rpc(SendTo.ClientsAndHost)]
-    void ActivateProjectileClientRpc(Wearable.NameEnum activationWearable, Vector3 startPosition, Vector3 direction, 
-        float distance, float duration, ulong playerId, ulong projectileId)
+    void ActivateProjectileClientRpc(Vector3 startPosition, Vector3 direction, 
+        float distance, float duration, ulong playerNetworkObjectId, ulong projectileNetworkObjectId)
     {
         // Remote Client
-        Player = NetworkManager.SpawnManager.SpawnedObjects[playerId].gameObject;
+        Player = NetworkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId].gameObject;
         if (!Player) return;
 
-        var projectile = NetworkManager.SpawnManager.SpawnedObjects[projectileId].gameObject;
 
         // Remote Client
         if (!Player.GetComponent<NetworkObject>().IsLocalPlayer)
         {
-            projectile.SetActive(true);
-            projectile.transform.position = startPosition;
-            var no_projectile = projectile.GetComponent<GenericProjectile>();
-            no_projectile.Direction = direction;
-            no_projectile.Distance = distance;
-            no_projectile.Duration = duration;
-            no_projectile.Scale = 1;
-            no_projectile.WeaponType = Wearable.WeaponTypeEnum.Ballistic;
+            var no_projectile = NetworkManager.SpawnManager.SpawnedObjects[projectileNetworkObjectId].
+                GetComponent<GenericProjectile>();
 
-            var playerCharacter = Player.GetComponent<NetworkCharacter>();
-            no_projectile.DamagePerHit = playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier;
-            no_projectile.CriticalChance = playerCharacter.CriticalChance.Value;
-            no_projectile.CriticalDamage = playerCharacter.CriticalDamage.Value;
-            no_projectile.NetworkRole = PlayerAbility.NetworkRole.RemoteClient;
+            // init
+            no_projectile.Init(startPosition, direction, distance, duration, 1,
+                PlayerAbility.NetworkRole.RemoteClient,
+                Wearable.WeaponTypeEnum.Ballistic, Player,
+                0, 0, 0);
 
+            // init
             no_projectile.Fire();
         }
     }

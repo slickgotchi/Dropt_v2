@@ -221,7 +221,7 @@ public class PlayerAbilities : NetworkBehaviour
     {
         if (ability != null)
         {
-            ability.GetComponent<NetworkObject>().Despawn();
+            if (IsServer) ability.GetComponent<NetworkObject>().Despawn();
         }
     }
 

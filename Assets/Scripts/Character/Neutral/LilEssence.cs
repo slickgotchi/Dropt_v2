@@ -14,7 +14,7 @@ public class LilEssence : NetworkBehaviour
             {
                 Debug.Log("Add 10 essence to player");
                 playerData.AddEssence(10);
-                gameObject.GetComponent<NetworkObject>().Despawn();
+                if (IsServer) gameObject.GetComponent<NetworkObject>().Despawn();
             }
         }
     }

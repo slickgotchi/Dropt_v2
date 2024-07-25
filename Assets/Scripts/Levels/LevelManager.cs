@@ -93,7 +93,7 @@ public class LevelManager : NetworkBehaviour
             }
 
             // despawn
-            networkObject.Despawn();
+            if (IsServer) networkObject.Despawn();
         }
 
         // clear the list

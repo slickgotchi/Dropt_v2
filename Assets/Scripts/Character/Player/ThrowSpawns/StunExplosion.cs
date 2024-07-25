@@ -70,7 +70,7 @@ public class StunExplosion : NetworkBehaviour
 
         if (m_timer <= 0f && IsServer)
         {
-            GetComponent<NetworkObject>().Despawn();
+            if (IsServer) GetComponent<NetworkObject>().Despawn();
         }
     }
 

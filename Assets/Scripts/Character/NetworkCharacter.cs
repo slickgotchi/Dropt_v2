@@ -86,7 +86,7 @@ public class NetworkCharacter : NetworkBehaviour
 
             if (HpCurrent.Value <= 0)
             {
-                gameObject.GetComponent<NetworkObject>().Despawn();
+                if (IsServer) gameObject.GetComponent<NetworkObject>().Despawn();
             }
 
             // do ap leech

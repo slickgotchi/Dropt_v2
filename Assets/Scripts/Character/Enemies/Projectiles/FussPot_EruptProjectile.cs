@@ -74,7 +74,7 @@ public class FussPot_EruptProjectile : NetworkBehaviour
             EnemyAbility.PlayerCollisionCheckAndDamage(m_collider, m_damage, m_isCritical);
 
             gameObject.SetActive(false);
-            gameObject.GetComponent<NetworkObject>().Despawn();
+            if (IsServer) gameObject.GetComponent<NetworkObject>().Despawn();
         }
 
         transform.position += Direction * m_speed * Time.deltaTime;

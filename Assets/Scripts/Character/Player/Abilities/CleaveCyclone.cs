@@ -30,9 +30,9 @@ public class CleaveCyclone : PlayerAbility
 
     public override void OnNetworkDespawn()
     {
-        if (m_projectile != null && IsServer)
+        if (m_projectile != null)
         {
-            m_projectile.GetComponent<NetworkObject>().Despawn();
+            if (IsServer) m_projectile.GetComponent<NetworkObject>().Despawn();
         }
     }
 
@@ -63,7 +63,6 @@ public class CleaveCyclone : PlayerAbility
         // Local Client & Server
         if (Player.GetComponent<NetworkObject>().IsLocalPlayer || IsServer)
         {
-            Debug.Log("Fire cyclone");
             // init projectile
             no_projectile.Init(
                 transform.position,

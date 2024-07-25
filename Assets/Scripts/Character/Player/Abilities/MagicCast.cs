@@ -16,44 +16,29 @@ public class MagicCast : PlayerAbility
 
     // variables for keeping track of the spawned projectile
     private GameObject m_orbProjectile;
-    private NetworkVariable<ulong> m_bulletProjectileId = new NetworkVariable<ulong>(0);
-
-    void InitProjectile(ref GameObject projectile, ref NetworkVariable<ulong> projectileId, GameObject prefab)
-    {
-        // instantiate/spawn our projectile we'll be using when this ability activates
-        // and initially set to deactivated
-        projectile = Instantiate(prefab);
-        projectile.GetComponent<NetworkObject>().Spawn();
-        projectileId.Value = projectile.GetComponent<NetworkObject>().NetworkObjectId;
-        projectile.SetActive(false);
-    }
+    private NetworkVariable<ulong> m_orbProjectileId = new NetworkVariable<ulong>(0);
 
     public override void OnNetworkSpawn()
     {
-        if (IsServer)
-        {
-            InitProjectile(ref m_orbProjectile, ref m_bulletProjectileId, MagicOrbPrefab);
-        }
+        if (!IsServer) return;
+
+        GenericProjectile.InitSpawnProjectileOnServer(ref m_orbProjectile, ref m_orbProjectileId, MagicOrbPrefab);
     }
 
     public override void OnNetworkDespawn()
     {
-        if (m_orbProjectile != null) m_orbProjectile.GetComponent<NetworkObject>().Despawn();
-    }
-
-    void TryAddProjectile(ref GameObject projectile, ref NetworkVariable<ulong> projectileId)
-    {
-        if (projectile == null && projectileId.Value > 0)
+        if (m_orbProjectile != null)
         {
-            projectile = NetworkManager.SpawnManager.SpawnedObjects[projectileId.Value].gameObject;
-            projectile.SetActive(false);
+            if (IsServer) m_orbProjectile.GetComponent<NetworkObject>().Despawn();
         }
     }
 
     private void Update()
     {
-        // ensure remote clients associate projectiles with local projectile variables
-        TryAddProjectile(ref m_orbProjectile, ref m_bulletProjectileId);
+        if (IsClient)
+        {
+            GenericProjectile.TryAddProjectileOnClient(ref m_orbProjectile, ref m_orbProjectileId, NetworkManager);
+        }
     }
 
     public override void OnStart()
@@ -77,62 +62,61 @@ public class MagicCast : PlayerAbility
     void ActivateProjectile(Wearable.NameEnum activationWearable, Vector3 direction, float distance, float duration)
     {
         GameObject projectile = GetProjectileInstance(activationWearable);
+        var no_projectile = projectile.GetComponent<GenericProjectile>();
+        var no_projectileId = no_projectile.GetComponent<NetworkObject>().NetworkObjectId;
+        var playerCharacter = Player.GetComponent<NetworkCharacter>();
+        var startPosition =
+                Player.GetComponent<PlayerPrediction>().GetInterpPositionAtTick(ActivationInput.tick)
+                + new Vector3(0, 0.5f, 0)
+                + ActivationInput.actionDirection * Projection;
 
         // Local Client & Server
         if (Player.GetComponent<NetworkObject>().IsLocalPlayer || IsServer)
         {
-            projectile.SetActive(true);
-            projectile.transform.position =
-                Player.GetComponent<PlayerPrediction>().GetInterpPositionAtTick(ActivationInput.tick)
-                + new Vector3(0, 0.5f, 0)
-                + ActivationInput.actionDirection * Projection;
-            var no_projectile = projectile.GetComponent<GenericProjectile>();
-            no_projectile.Direction = direction;
-            no_projectile.Distance = distance;
-            no_projectile.Duration = duration;
-            no_projectile.Scale = 1;
-            no_projectile.LocalPlayer = Player;
-            no_projectile.WeaponType = Wearable.WeaponTypeEnum.Magic;
+            // init
+            no_projectile.Init(startPosition, direction, distance, duration, 1,
+                IsServer ? PlayerAbility.NetworkRole.Server : PlayerAbility.NetworkRole.LocalClient,
+                Wearable.WeaponTypeEnum.Magic, Player,
+                playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier,
+                playerCharacter.CriticalChance.Value,
+                playerCharacter.CriticalDamage.Value);
 
-            var playerCharacter = Player.GetComponent<NetworkCharacter>();
-            no_projectile.DamagePerHit = playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier;
-            no_projectile.CriticalChance = playerCharacter.CriticalChance.Value;
-            no_projectile.CriticalDamage = playerCharacter.CriticalDamage.Value;
-            no_projectile.NetworkRole = IsServer ? PlayerAbility.NetworkRole.Server : PlayerAbility.NetworkRole.LocalClient;
-
+            // fire
             no_projectile.Fire();
         }
 
         // Server Only
         if (IsServer)
         {
-            ActivateProjectileClientRpc(ActivationWearableNameEnum, projectile.transform.position, direction, distance, duration);
+            ulong playerId = Player.GetComponent<NetworkObject>().NetworkObjectId;
+            ActivateProjectileClientRpc(startPosition,
+                direction, distance, duration,
+                playerId, no_projectileId);
         }
     }
 
     [Rpc(SendTo.ClientsAndHost)]
-    void ActivateProjectileClientRpc(Wearable.NameEnum activationWearable, Vector3 startPosition, Vector3 direction, float distance, float duration)
+    void ActivateProjectileClientRpc(Vector3 startPosition, Vector3 direction,
+        float distance, float duration, ulong playerNetworkObjectId, ulong projectileNetworkObjectId)
     {
-        GameObject projectile = GetProjectileInstance(activationWearable);
+        // Remote Client
+        Player = NetworkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId].gameObject;
+        if (!Player) return;
+
 
         // Remote Client
         if (!Player.GetComponent<NetworkObject>().IsLocalPlayer)
         {
-            projectile.SetActive(true);
-            projectile.transform.position = startPosition;
-            var no_projectile = projectile.GetComponent<GenericProjectile>();
-            no_projectile.Direction = direction;
-            no_projectile.Distance = distance;
-            no_projectile.Duration = duration;
-            no_projectile.Scale = 1;
-            no_projectile.WeaponType = Wearable.WeaponTypeEnum.Magic;
+            var no_projectile = NetworkManager.SpawnManager.SpawnedObjects[projectileNetworkObjectId].
+                GetComponent<GenericProjectile>();
 
-            var playerCharacter = Player.GetComponent<NetworkCharacter>();
-            no_projectile.DamagePerHit = playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier;
-            no_projectile.CriticalChance = playerCharacter.CriticalChance.Value;
-            no_projectile.CriticalDamage = playerCharacter.CriticalDamage.Value;
-            no_projectile.NetworkRole = PlayerAbility.NetworkRole.RemoteClient;
+            // init
+            no_projectile.Init(startPosition, direction, distance, duration, 1,
+                PlayerAbility.NetworkRole.RemoteClient,
+                Wearable.WeaponTypeEnum.Magic, Player,
+                0, 0, 0);
 
+            // init
             no_projectile.Fire();
         }
     }
