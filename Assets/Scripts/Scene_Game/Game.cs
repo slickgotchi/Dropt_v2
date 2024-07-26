@@ -8,11 +8,13 @@ public class Game : MonoBehaviour
 {
     private void Start()
     {
-        var transport = NetworkManager.Singleton.NetworkConfig.NetworkTransport as UnityTransport;
+        //test Nike
+        var transport = NetworkManager.Singleton?.NetworkConfig?.NetworkTransport as UnityTransport;
 
         if (transport == null)
         {
             Debug.Log("Could not get UnityTransport");
+            return;
         }
 
         if (Bootstrap.IsRemoteConnection())

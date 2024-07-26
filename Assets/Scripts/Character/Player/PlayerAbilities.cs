@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -180,6 +179,13 @@ public class PlayerAbilities : NetworkBehaviour
     public override void OnNetworkDespawn()
     {
         Debug.Log("Player disconnected");
+
+#if UNITY_EDITOR
+        // check on application quit action reason
+        if (null == NetworkManager.RpcTarget)
+            return;
+#endif
+
         DestroyAbility(ref Dash);
 
         DestroyAbility(ref CleaveSlash);
@@ -280,7 +286,7 @@ public class PlayerAbilities : NetworkBehaviour
             TryAddAbilityClientSide(ref ShieldWall, ShieldWallId);
 
             // unarmed
-            TryAddAbilityClientSide(ref UnarmedPunch, UnarmedPunchId);  
+            TryAddAbilityClientSide(ref UnarmedPunch, UnarmedPunchId);
         }
     }
 
@@ -330,7 +336,7 @@ public class PlayerAbilities : NetworkBehaviour
         if (abilityEnum == PlayerAbilityEnum.ShieldBash && ShieldBash != null) return ShieldBash.GetComponent<PlayerAbility>();
         if (abilityEnum == PlayerAbilityEnum.ShieldParry && ShieldParry != null) return ShieldParry.GetComponent<PlayerAbility>();
         if (abilityEnum == PlayerAbilityEnum.ShieldWall && ShieldWall != null) return ShieldWall.GetComponent<PlayerAbility>();
-        
+
         // unarmed
         if (abilityEnum == PlayerAbilityEnum.Unarmed && UnarmedPunch != null) return UnarmedPunch.GetComponent<PlayerAbility>();
 
