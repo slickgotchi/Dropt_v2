@@ -43,13 +43,16 @@ public class PlayerPrediction : NetworkBehaviour
 
     // Netcode general
     NetworkTimer timer;
-    const float k_serverTickRate = 10;
+    public NetworkTimer Timer => timer;
+    public const float k_serverTickRate = 10;
     const int k_bufferSize = 128;
 
     // Netcode client
     CircularBuffer<StatePayload> clientStateBuffer;
     CircularBuffer<InputPayload> clientInputBuffer;
     StatePayload lastServerState;
+
+    public StatePayload LastServerState => lastServerState;
     List<StatePayload> lastServerStateArray;
 
     // Netcode server
@@ -783,8 +786,11 @@ public class PlayerPrediction : NetworkBehaviour
 
             statePayload = ProcessInput(inputPayload, false);
 
-            if (m_isSetPlayerPosition) statePayload.position = m_setPlayerPosition;
-
+            if (m_isSetPlayerPosition)
+            {
+                statePayload.position = m_setPlayerPosition;
+            }
+            
             bufferIndex = inputPayload.tick % k_bufferSize;
             serverStateBuffer.Add(statePayload, bufferIndex);
 

@@ -28,9 +28,12 @@ namespace Character.Player
             }
         }
 
-        public void WaitUntilReceiveServerData()
+        public void WaitUntilReceiveServerData(float durationOffset)
         {
-            m_waitingTick = m_playerPrediction.Timer.CurrentTick;
+            if (m_playerPrediction.IsBlocked)
+                return;
+
+            m_waitingTick = m_playerPrediction.Timer.CurrentTick + Mathf.CeilToInt(durationOffset / PlayerPrediction.k_serverTickRate);
             m_playerPrediction.BlockMovement();
         }
     }

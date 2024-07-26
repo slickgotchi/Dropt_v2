@@ -98,7 +98,8 @@ namespace Level.Traps
                 }
                 else
                 {
-                    player.GetComponent<PlayerStepSynchronization>().WaitUntilReceiveServerData();
+                    var timeOffset = (null == m_buffDamageAbility)? 0 : m_buffDamageAbility.BuffEffectDuration;
+                    player.GetComponent<PlayerStepSynchronization>().WaitUntilReceiveServerData(timeOffset);
                 }
             }
         }
