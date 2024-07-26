@@ -10,6 +10,8 @@ namespace Level.Traps
         private NetworkCharacter m_networkCharacter;
         private float m_timer = 0f;
 
+        public float BuffEffectDuration => m_buffEffectDuration;
+
         public void Damage(NetworkCharacter character)
         {
             m_timer = m_buffEffectDuration;
