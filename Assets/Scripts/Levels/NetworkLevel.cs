@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Unity.Mathematics;
+using Level.Traps;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -26,6 +26,7 @@ namespace Level
                 NetworkObjectSpawnerFactory.CreateNetworkObjectSpawners(gameObject, ref m_spawnerActivators);
                 SubLevelFactory.CreateSubLevels(gameObject);
                 NetworkObjectPrefabSpawnerFactory.CreateNetworkObjectPrefabSpawners(gameObject);
+                TrapsGroupSpawnerFactory.CreateTraps(gameObject);
 
                 LevelManager.Instance.LevelSpawningCount--;
             }
@@ -61,6 +62,7 @@ namespace Level
             CleanupFactory.DestroySpawnerObjects<SunkenFloorSpawner>(gameObject);
             CleanupFactory.DestroySpawnerObjects<SunkenFloorButtonGroupSpawner>(gameObject);
             CleanupFactory.DestroySpawnerObjects<NetworkObjectPrefabSpawner>(gameObject);
+            CleanupFactory.DestroySpawnerObjects<TrapsGroupSpawner>(gameObject);
         }
 
         public Vector3 PopPlayerSpawnPoint()
