@@ -21,7 +21,7 @@ public class Game : MonoBehaviour
         {
             transport.UseEncryption = true;
 
-            transport.SetConnectionData("178.128.22.77", 8484, "0.0.0.0");
+            transport.SetConnectionData("178.128.22.77", Bootstrap.Instance.Port, "0.0.0.0");
 
             if (Bootstrap.IsServer() || Bootstrap.IsHost())
             {
@@ -37,12 +37,24 @@ public class Game : MonoBehaviour
         else
         {
             transport.UseEncryption = false;
-            transport.SetConnectionData("127.0.0.1", 8484, "0.0.0.0");
+            transport.SetConnectionData("127.0.0.1", Bootstrap.Instance.Port, "0.0.0.0");
         }
 
         // startup network 
-        if (Bootstrap.IsHost()) NetworkManager.Singleton.StartHost();
-        else if (Bootstrap.IsServer()) NetworkManager.Singleton.StartServer();
-        else if (Bootstrap.IsClient()) NetworkManager.Singleton.StartClient();
+        if (Bootstrap.IsHost())
+        {
+            Debug.Log("StartHost()");
+            NetworkManager.Singleton.StartHost();
+        }
+        else if (Bootstrap.IsServer())
+        {
+            Debug.Log("StartServer()");
+            NetworkManager.Singleton.StartServer();
+        }
+        else if (Bootstrap.IsClient())
+        {
+            Debug.Log("StartClient");
+            NetworkManager.Singleton.StartClient();
+        }
     }
 }

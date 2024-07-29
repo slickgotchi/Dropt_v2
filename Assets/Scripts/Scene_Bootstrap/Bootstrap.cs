@@ -13,7 +13,7 @@ using UnityEngine.SceneManagement;
 public class Bootstrap : MonoBehaviour
 {
     private static Bootstrap _singleton;
-    public static Bootstrap Singleton
+    public static Bootstrap Instance
     {
         get
         {
@@ -49,6 +49,8 @@ public class Bootstrap : MonoBehaviour
     public ConnectionType ConnectionType = ConnectionType.Local;
     public bool AutoBoot = false;
 
+    public ushort Port = 9000;
+
     [SerializeField] private GameObject StartupButtons;
 
     void ProcessCommandLineArgs()
@@ -60,14 +62,18 @@ public class Bootstrap : MonoBehaviour
             var arg = args[i];
             var param = i < args.Length - 1 ? args[i + 1] : "";
 
-            if (arg == "-server")
-            {
-                NetworkRole = NetworkRole.Server;
-                AutoBoot = true;
-                ConnectionType = ConnectionType.Remote;
-            }
+            if (arg == "-server") NetworkRole = NetworkRole.Server;
+
+            if (arg == "-autoboot") AutoBoot = true;
+
+            if (arg == "-local") ConnectionType = ConnectionType.Local;
+
+            if (arg == "-remote") ConnectionType = ConnectionType.Remote;
+
+            if (arg == "-port") Port = ushort.Parse(param);
         }
-        Debug.Log("Bootstrap.Awake(): Command line arguments processed");
+        Debug.Log("Bootstrap.Awake(): CL arguments processed. Connection type: " + ConnectionType
+            + ", Network: " + NetworkRole + ", Port: " + Port);
     }
 
     private void Start()
@@ -87,27 +93,27 @@ public class Bootstrap : MonoBehaviour
 
     public static bool IsServer()
     {
-        return Singleton.NetworkRole == NetworkRole.Server;
+        return Instance.NetworkRole == NetworkRole.Server;
     }
 
     public static bool IsHost()
     {
-        return Singleton.NetworkRole == NetworkRole.Host;
+        return Instance.NetworkRole == NetworkRole.Host;
     }
 
     public static bool IsClient()
     {
-        return Singleton.NetworkRole == NetworkRole.Client;
+        return Instance.NetworkRole == NetworkRole.Client;
     }
 
     public static bool IsLocalConnection()
     {
-        return Singleton.ConnectionType == ConnectionType.Local;
+        return Instance.ConnectionType == ConnectionType.Local;
     }
 
     public static bool IsRemoteConnection()
     {
-        return Singleton.ConnectionType == ConnectionType.Remote;
+        return Instance.ConnectionType == ConnectionType.Remote;
     }
 }
 

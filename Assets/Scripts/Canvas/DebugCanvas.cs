@@ -9,6 +9,8 @@ public class DebugCanvas : MonoBehaviour
 {
     public static DebugCanvas Instance { get; private set; }
 
+    public GameObject Container;
+
     public TextMeshProUGUI fpsText;
     public TextMeshProUGUI pingText;
     public TextMeshProUGUI playerCountText;
@@ -22,6 +24,7 @@ public class DebugCanvas : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+        Container.SetActive(false);
     }
 
     private void Update()
@@ -32,6 +35,11 @@ public class DebugCanvas : MonoBehaviour
         pingText.text = "Ping: " + m_ping.ToString();
 
         //playerCountText.text = "Players: " + NetworkStats.Instance.ConnectedPlayers.ToString();
+
+        if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            Container.SetActive(!Container.activeSelf);
+        }
     }
 
     public void SetPing(int ping)

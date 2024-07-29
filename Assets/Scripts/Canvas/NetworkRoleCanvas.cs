@@ -19,21 +19,21 @@ public class NetworkRoleCanvas : MonoBehaviour
     {
         hostButton.onClick.AddListener(() =>
         {
-            Bootstrap.Singleton.NetworkRole = NetworkRole.Host;
+            Bootstrap.Instance.NetworkRole = NetworkRole.Host;
             SetConnectionTypeFromDropDown();
             SceneManager.LoadScene(isSkipTitle ? "Game" : "Title");
         });
 
         serverButton.onClick.AddListener(() =>
         {
-            Bootstrap.Singleton.NetworkRole = NetworkRole.Server;
+            Bootstrap.Instance.NetworkRole = NetworkRole.Server;
             SetConnectionTypeFromDropDown();
             SceneManager.LoadScene(isSkipTitle ? "Game" : "Title");
         });
 
         clientButton.onClick.AddListener(() =>
         {
-            Bootstrap.Singleton.NetworkRole = NetworkRole.Client;
+            Bootstrap.Instance.NetworkRole = NetworkRole.Client;
             SetConnectionTypeFromDropDown();
             SceneManager.LoadScene(isSkipTitle ? "Game" : "Title");
         });
@@ -45,18 +45,18 @@ public class NetworkRoleCanvas : MonoBehaviour
     private void Start()
     {
         // set initial drop down value
-        connectionDropdown.value = (int)Bootstrap.Singleton.ConnectionType;
+        connectionDropdown.value = (int)Bootstrap.Instance.ConnectionType;
     }
 
     private void OnConnectionDropdownValueChanged(int value)
     {
-        if (value == 0) Bootstrap.Singleton.ConnectionType = ConnectionType.Local;
-        if (value == 1) Bootstrap.Singleton.ConnectionType = ConnectionType.Remote;
+        if (value == 0) Bootstrap.Instance.ConnectionType = ConnectionType.Local;
+        if (value == 1) Bootstrap.Instance.ConnectionType = ConnectionType.Remote;
 
     }
 
     void SetConnectionTypeFromDropDown()
     {
-        Bootstrap.Singleton.ConnectionType = connectionDropdown.value == 0 ? ConnectionType.Local : ConnectionType.Remote;
+        Bootstrap.Instance.ConnectionType = connectionDropdown.value == 0 ? ConnectionType.Local : ConnectionType.Remote;
     }
 }

@@ -6,13 +6,15 @@ using UnityEngine;
 public class PlayerDungeonData : NetworkBehaviour
 {
     // Public properties with private setters
-    public int GltrCount { get; private set; } = 0;
-    public int cGHSTCount { get; private set; } = 0;
-    public float Essence { get; private set; } = 300;
+    public NetworkVariable<int> GltrCount = new NetworkVariable<int>(0);
+    public NetworkVariable<int> cGHSTCount = new NetworkVariable<int>(0);
+    public NetworkVariable<float> Essence = new NetworkVariable<float>(300);
 
     private void Update()
     {
-        Essence -= Time.deltaTime;
+        if (!IsServer) return;
+
+        Essence.Value -= Time.deltaTime;
     }
 
     // Method to add value to GltrCount
@@ -20,7 +22,7 @@ public class PlayerDungeonData : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        GltrCount += value;
+        GltrCount.Value += value;
     }
 
     // Method to add value to CGHSTCount
@@ -28,14 +30,14 @@ public class PlayerDungeonData : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        cGHSTCount += value;
+        cGHSTCount.Value += value;
     }
 
     public void AddEssence(float value)
     {
         if (!IsServer) return;
 
-        Essence += value;
+        Essence.Value += value;
     }
 
     // Method to reset counts
@@ -43,7 +45,8 @@ public class PlayerDungeonData : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        GltrCount = 0;
-        cGHSTCount = 0;
+        GltrCount.Value = 0;
+        cGHSTCount.Value = 0;
+        Essence.Value = 300;
     }
 }
