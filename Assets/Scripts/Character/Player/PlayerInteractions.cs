@@ -40,6 +40,7 @@ public class PlayerInteractions : NetworkBehaviour
             {
                 m_interactable.status = Interactable.Status.Inactive;
                 m_interactable.OnFinishInteraction();
+                m_interactable.playerNetworkObjectId = 0;
                 m_interactable = null;
             }
 
@@ -52,6 +53,7 @@ public class PlayerInteractions : NetworkBehaviour
         if (m_interactable.status == Interactable.Status.Inactive)
         {
             m_interactable.status = Interactable.Status.Active;
+            m_interactable.playerNetworkObjectId = GetComponent<NetworkObject>().NetworkObjectId;
             m_interactable.OnStartInteraction();
         }
 
@@ -59,55 +61,55 @@ public class PlayerInteractions : NetworkBehaviour
     }
 
 
-    private void HandleLocalEscapePortalInteractions()
-    {
-        if (m_interactableObject.HasComponent<EscapePortal>())
-        {
-            InteractableUICanvas.Instance.InteractTextbox.SetActive(true);
+    //private void HandleLocalEscapePortalInteractions()
+    //{
+    //    if (m_interactableObject.HasComponent<EscapePortal>())
+    //    {
+    //        InteractableUICanvas.Instance.InteractTextbox.SetActive(true);
 
-            if (Input.GetKey(KeyCode.F))
-            {
-                m_fHoldTimer += Time.deltaTime;
-                if (m_fHoldTimer >= k_fHoldtime && m_nextLevelCooldownTimer <= 0)
-                {
-                    TryGoToDegenapeVillageLevelServerRpc();
-                    m_nextLevelCooldownTimer = k_nextLevelCooldown;
-                }
-            }
-        }
-    }
+    //        if (Input.GetKey(KeyCode.F))
+    //        {
+    //            m_fHoldTimer += Time.deltaTime;
+    //            if (m_fHoldTimer >= k_fHoldtime && m_nextLevelCooldownTimer <= 0)
+    //            {
+    //                TryGoToDegenapeVillageLevelServerRpc();
+    //                m_nextLevelCooldownTimer = k_nextLevelCooldown;
+    //            }
+    //        }
+    //    }
+    //}
 
-    private void HandleLocalWeaponSwapInteractions()
-    {
-        if (m_interactableObject.HasComponent<WeaponSwap>())
-        {
-            WeaponSwapCanvas.Instance.Container.SetActive(true);
-            WeaponSwapCanvas.Instance.Init(m_interactableObject.GetComponent<WeaponSwap>().WearableNameEnum);
+    //private void HandleLocalWeaponSwapInteractions()
+    //{
+    //    if (m_interactableObject.HasComponent<WeaponSwap>())
+    //    {
+    //        WeaponSwapCanvas.Instance.Container.SetActive(true);
+    //        WeaponSwapCanvas.Instance.Init(m_interactableObject.GetComponent<WeaponSwap>().WearableNameEnum);
 
-            var wearableNameEnum = m_interactableObject.GetComponent<WeaponSwap>().WearableNameEnum;
-            if (Input.GetMouseButtonDown(0))
-            {
-                var ogEquipment = GetComponent<PlayerEquipment>().LeftHand.Value;
-                GetComponent<PlayerEquipment>().SetEquipment(PlayerEquipment.Slot.LeftHand, wearableNameEnum);
-                m_interactableObject.GetComponent<WeaponSwap>().Init(ogEquipment);
-            }
-            if (Input.GetMouseButtonDown(1))
-            {
-                var ogEquipment = GetComponent<PlayerEquipment>().RightHand.Value;
-                GetComponent<PlayerEquipment>().SetEquipment(PlayerEquipment.Slot.RightHand, wearableNameEnum);
-                m_interactableObject.GetComponent<WeaponSwap>().Init(ogEquipment);
-            }
-        }
-    }
+    //        var wearableNameEnum = m_interactableObject.GetComponent<WeaponSwap>().WearableNameEnum;
+    //        if (Input.GetMouseButtonDown(0))
+    //        {
+    //            var ogEquipment = GetComponent<PlayerEquipment>().LeftHand.Value;
+    //            GetComponent<PlayerEquipment>().SetEquipment(PlayerEquipment.Slot.LeftHand, wearableNameEnum);
+    //            m_interactableObject.GetComponent<WeaponSwap>().Init(ogEquipment);
+    //        }
+    //        if (Input.GetMouseButtonDown(1))
+    //        {
+    //            var ogEquipment = GetComponent<PlayerEquipment>().RightHand.Value;
+    //            GetComponent<PlayerEquipment>().SetEquipment(PlayerEquipment.Slot.RightHand, wearableNameEnum);
+    //            m_interactableObject.GetComponent<WeaponSwap>().Init(ogEquipment);
+    //        }
+    //    }
+    //}
 
-    [Rpc(SendTo.Server)]
-    void TryGoToDegenapeVillageLevelServerRpc()
-    {
-        if (m_interactableObject == null) return;
-        if (!m_interactableObject.HasComponent<EscapePortal>()) return;
-        if (m_nextLevelCooldownTimer > 0) return;
+    //[Rpc(SendTo.Server)]
+    //void TryGoToDegenapeVillageLevelServerRpc()
+    //{
+    //    if (m_interactableObject == null) return;
+    //    if (!m_interactableObject.HasComponent<EscapePortal>()) return;
+    //    if (m_nextLevelCooldownTimer > 0) return;
 
-        LevelManager.Instance.GoToDegenapeVillageLevel();
-        m_nextLevelCooldownTimer = k_nextLevelCooldown;
-    }
+    //    LevelManager.Instance.GoToDegenapeVillageLevel();
+    //    m_nextLevelCooldownTimer = k_nextLevelCooldown;
+    //}
 }

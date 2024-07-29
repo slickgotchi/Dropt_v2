@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Unity.Netcode;
 
-public class REKTCanvas : MonoBehaviour
+public class REKTCanvas : NetworkBehaviour
 {
     public static REKTCanvas Instance { get; private set; }
 

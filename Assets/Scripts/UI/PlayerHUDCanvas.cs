@@ -50,6 +50,9 @@ public class PlayerHUDCanvas : MonoBehaviour
 
     [SerializeField] private TextMeshProUGUI m_essenceText;
 
+    [SerializeField] private Image LHWearableImage;
+    [SerializeField] private Image RHWearableImage;
+
     private NetworkCharacter m_localPlayerCharacter;
 
     public void SetLocalPlayerCharacter(NetworkCharacter localPlayerCharacter)
@@ -72,6 +75,7 @@ public class PlayerHUDCanvas : MonoBehaviour
         UpdateCooldowns();
         UpdateGltr();
         UpdateEssence();
+        UpdateAbilityIcons();
     }
 
     void UpdateStatBars()
@@ -107,13 +111,37 @@ public class PlayerHUDCanvas : MonoBehaviour
     void UpdateGltr()
     {
         var gltrCount = m_localPlayerCharacter.GetComponent<PlayerDungeonData>().GltrCount;
-        m_gltrText.text = gltrCount.ToString();
+        m_gltrText.text = gltrCount.Value.ToString();
     }
 
 
     void UpdateEssence()
     {
         var essence = m_localPlayerCharacter.GetComponent<PlayerDungeonData>().Essence;
-        m_essenceText.text = essence.ToString("F0");
+        m_essenceText.text = essence.Value.ToString("F0");
+    }
+
+    Wearable.NameEnum lhOld;
+    Wearable.NameEnum rhOld;
+
+    void UpdateAbilityIcons()
+    {
+        var equipment = m_localPlayerCharacter.GetComponent<PlayerEquipment>();
+        if (equipment == null) return;
+
+        var lhEnum = equipment.LeftHand.Value;
+        var rhEnum = equipment.RightHand.Value;
+
+        if (lhEnum != lhOld)
+        {
+            LHWearableImage.sprite = WeaponSpriteManager.Instance.GetSprite(lhEnum, PlayerGotchi.Facing.Front);
+            lhOld = lhEnum;
+        }
+
+        if (rhEnum != rhOld)
+        {
+            RHWearableImage.sprite = WeaponSpriteManager.Instance.GetSprite(rhEnum, PlayerGotchi.Facing.Front);
+            rhOld = rhEnum;
+        }
     }
 }

@@ -1260,6 +1260,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e5d76047dc79bbc47b0076abbd8bbb85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Container: {fileID: 0}
   fpsText: {fileID: 1246438910}
   pingText: {fileID: 2141141990}
   playerCountText: {fileID: 74152220}
@@ -3196,7 +3197,7 @@ MonoBehaviour:
   m_DisconnectTimeoutMS: 30000
   ConnectionData:
     Address: 178.128.22.77
-    Port: 8484
+    Port: 9000
     ServerListenAddress: 0.0.0.0
   DebugSimulator:
     PacketDelayMS: 0
@@ -5025,7 +5026,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   NetworkRole: 0
   ConnectionType: 0
-  AutoBoot: 0
+  AutoBoot: 1
+  Port: 9000
   StartupButtons: {fileID: 349225739}
 --- !u!1 &1931494698
 GameObject:

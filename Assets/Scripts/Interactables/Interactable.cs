@@ -12,6 +12,8 @@ public class Interactable : NetworkBehaviour
     }
     public Status status;
 
+    public ulong playerNetworkObjectId;
+
     public virtual void OnStartInteraction() { }
 
     public virtual void OnUpdateInteraction() { }
