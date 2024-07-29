@@ -93,6 +93,8 @@ public class PlayerPrediction : NetworkBehaviour
 
     private bool m_isDashAnimPlayed = false;
 
+    public bool IsInputDisabled = false;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -430,6 +432,16 @@ public class PlayerPrediction : NetworkBehaviour
             isHoldStartFlag = m_isHoldStartFlag,
             isHoldFinishFlag = m_isHoldFinishFlag,
         };
+
+        // check for disabled input
+        if (IsInputDisabled)
+        {
+            inputPayload.moveDirection = Vector3.zero;
+            inputPayload.abilityTriggered = PlayerAbilityEnum.Null;
+            inputPayload.holdAbilityPending = PlayerAbilityEnum.Null;
+            inputPayload.isHoldStartFlag = false;
+            inputPayload.isHoldFinishFlag = false;
+        }
 
         // send input to server
         SendToServerRpc(inputPayload);

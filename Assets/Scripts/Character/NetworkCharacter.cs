@@ -84,9 +84,17 @@ public class NetworkCharacter : NetworkBehaviour
             var position = transform.position + popupTextOffset;
             DamagePopupTextClientRpc(damage, position, isCritical);
 
-            if (HpCurrent.Value <= 0)
+            if (HpCurrent.Value <= 0 && IsServer)
             {
-                if (IsServer) gameObject.GetComponent<NetworkObject>().Despawn();
+                if (gameObject.HasComponent<PlayerController>())
+                {
+                    ShowREKTScreenClientRpc(GetComponent<NetworkObject>().NetworkObjectId);
+                    HpCurrent.Value = HpMax.Value;
+                }
+                else
+                {
+                    gameObject.GetComponent<NetworkObject>().Despawn();
+                }
             }
 
             // do ap leech
@@ -99,6 +107,17 @@ public class NetworkCharacter : NetworkBehaviour
                 }
             }
         }
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    void ShowREKTScreenClientRpc(ulong playerNetworkObjectId)
+    {
+        var player = NetworkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId];
+        var localId = GetComponent<NetworkObject>().NetworkObjectId;
+        if (player.NetworkObjectId != localId) return;
+
+        GetComponent<PlayerPrediction>().IsInputDisabled = true;
+        REKTCanvas.Instance.Container.SetActive(true);
     }
 
     [Rpc(SendTo.ClientsAndHost)]

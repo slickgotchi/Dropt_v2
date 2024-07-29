@@ -92,6 +92,7 @@ public class PlayerController : NetworkBehaviour
             {
                 m_localTransition = LevelManager.TransitionState.Null;
                 LoadingCanvas.Instance.Animator.Play("LoadingCanvas_WipeOut");
+                REKTCanvas.Instance.Container.SetActive(false);
             }
         }
     }
