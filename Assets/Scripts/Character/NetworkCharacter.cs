@@ -117,7 +117,7 @@ public class NetworkCharacter : NetworkBehaviour
         if (player.NetworkObjectId != localId) return;
 
         GetComponent<PlayerPrediction>().IsInputDisabled = true;
-        REKTCanvas.Instance.Container.SetActive(true);
+        REKTCanvas.Instance.Show(REKTCanvas.TypeOfREKT.HP);
     }
 
     [Rpc(SendTo.ClientsAndHost)]

@@ -15,6 +15,22 @@ public class PlayerDungeonData : NetworkBehaviour
         if (!IsServer) return;
 
         Essence.Value -= Time.deltaTime;
+
+        if (Essence.Value <= 0)
+        {
+            ShowREKTScreenClientRpc(GetComponent<NetworkObject>().NetworkObjectId);
+        }
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    void ShowREKTScreenClientRpc(ulong playerNetworkObjectId)
+    {
+        var player = NetworkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId];
+        var localId = GetComponent<NetworkObject>().NetworkObjectId;
+        if (player.NetworkObjectId != localId) return;
+
+        GetComponent<PlayerPrediction>().IsInputDisabled = true;
+        REKTCanvas.Instance.Show(REKTCanvas.TypeOfREKT.Essence);
     }
 
     // Method to add value to GltrCount
