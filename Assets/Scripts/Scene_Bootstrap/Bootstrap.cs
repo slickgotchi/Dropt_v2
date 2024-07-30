@@ -48,8 +48,11 @@ public class Bootstrap : MonoBehaviour
     public NetworkRole NetworkRole = NetworkRole.Host;
     public ConnectionType ConnectionType = ConnectionType.Local;
     public bool AutoBoot = false;
+    public bool UseServerManager = false;
 
+    public string IpAddress = "178.128.22.77";
     public ushort Port = 9000;
+    public string GameId = "";
 
     [SerializeField] private GameObject StartupButtons;
 
@@ -71,6 +74,8 @@ public class Bootstrap : MonoBehaviour
             if (arg == "-remote") ConnectionType = ConnectionType.Remote;
 
             if (arg == "-port") Port = ushort.Parse(param);
+
+            if (arg == "-gameid") GameId = param;
         }
         Debug.Log("Bootstrap.Awake(): CL arguments processed. Connection type: " + ConnectionType
             + ", Network: " + NetworkRole + ", Port: " + Port);
