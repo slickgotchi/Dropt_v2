@@ -52,7 +52,7 @@ public class Bootstrap : MonoBehaviour
 
     public string IpAddress = "178.128.22.77";
     public ushort Port = 9000;
-    public string GameId = "";
+    public string GameId = "default";
 
     [SerializeField] private GameObject StartupButtons;
 
@@ -76,6 +76,7 @@ public class Bootstrap : MonoBehaviour
             if (arg == "-port") Port = ushort.Parse(param);
 
             if (arg == "-gameid") GameId = param;
+
         }
         Debug.Log("Bootstrap.Awake(): CL arguments processed. Connection type: " + ConnectionType
             + ", Network: " + NetworkRole + ", Port: " + Port);
@@ -83,6 +84,7 @@ public class Bootstrap : MonoBehaviour
 
     private void Start()
     {
+        Debug.Log("Start with gameid: " + GameId);
         // check for autoboot
         if (AutoBoot)
         {

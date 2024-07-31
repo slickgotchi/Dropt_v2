@@ -550,13 +550,18 @@ public class PlayerPrediction : NetworkBehaviour
         // replay all inputs from rewind state to current state
         int tickToReplay = lastServerState.tick + 1;
 
-        while (tickToReplay <= timer.CurrentTick)
+        // variables to ensure we don't get stuck in an infinite loop if the client cannot keep up
+        int MAX_REPLAYS = 10;
+        int counter = 0;
+
+        while (tickToReplay <= timer.CurrentTick && counter < MAX_REPLAYS)
         {
             bufferIndex = tickToReplay % k_bufferSize;
             StatePayload statePayload = ProcessInput(clientInputBuffer.Get(bufferIndex), true);
 
             clientStateBuffer.Add(statePayload, bufferIndex);
             tickToReplay++;
+            counter++;
         }
     }
 

@@ -20,6 +20,9 @@ public class Game : MonoBehaviour
     }
     public Game.Status status;
 
+    private string createGameUri = "https://alphaserver.playdropt.io/creategame";
+    private string joinGameUri = "https://alphaserver.playdropt.io/joingame";
+
     public bool m_isTryConnecting = false;
     private float m_retryInterval = 2f;
     private float m_retryTimer = 0f;
@@ -42,8 +45,8 @@ public class Game : MonoBehaviour
             QualitySettings.vSyncCount = 0;
         }
 
-        // 1. connect based on if we are using server manager or not
-        if (Bootstrap.Instance.UseServerManager)
+        // 1. connect to a server manager if we are in that mode
+        if (Bootstrap.Instance.UseServerManager && Bootstrap.IsClient())
         {
             ConnectViaServerManager(transport);
         }
@@ -96,10 +99,8 @@ public class Game : MonoBehaviour
 
     async void ConnectViaServerManager(UnityTransport transport)
     {
-        // 1a. request a game instance
-        string uri = "http://localhost:3000/creategame";
-
-        using (UnityWebRequest webRequest = UnityWebRequest.Get(uri))
+        // create a new game
+        using (UnityWebRequest webRequest = UnityWebRequest.Get(createGameUri))
         {
             await webRequest.SendWebRequest();
 
@@ -144,6 +145,7 @@ public class Game : MonoBehaviour
         {
             if (Bootstrap.IsServer() || Bootstrap.IsHost())
             {
+                Debug.Log("Set Server Secrets");
                 transport.SetServerSecrets(SecureParameters.ServerCertificate, SecureParameters.ServerPrivateKey);
             }
 
@@ -168,5 +170,6 @@ public class Game : MonoBehaviour
         public ushort port;
         public string serverCommonName;
         public string clientCA; // Assuming clientCA should also be included
+        public string gameId;
     }
 }
