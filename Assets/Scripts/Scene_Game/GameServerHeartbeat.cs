@@ -2,28 +2,20 @@ using System;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
+using Cysharp.Threading.Tasks;
 
 public class GameServerHeartbeat : MonoBehaviour
 {
-    public static GameServerHeartbeat Instance { get; private set; }
-
     private int activePlayers = 0;
-    public string nodeServerUrl = "http://localhost:3000/serverheartbeat"; // Change to your Node.js server URL
+    private string nodeServerUrl = "https://alphaserver.playdropt.io/serverheartbeat"; // Change to your Node.js server URL
     private float m_timer = 5.0f; // 5 seconds interval
 
-    private void Awake()
+    private void Start()
     {
-        if (Instance != null && Instance != this)
+        if (Bootstrap.IsClient() || Bootstrap.IsHost())
         {
-            Destroy(gameObject);
+            Destroy(gameObject); // Commented out to keep the object alive for testing
         }
-        else
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-
-        if (!Bootstrap.Instance.UseServerManager) Destroy(gameObject);
     }
 
     private void Update()
@@ -32,16 +24,16 @@ public class GameServerHeartbeat : MonoBehaviour
 
         if (m_timer <= 0)
         {
-            SendServerHeartbeat();
+            SendServerHeartbeat().Forget(); // Properly calling the async method
             m_timer = 5.0f; // Reset the timer to 5 seconds
         }
     }
 
-    private void SendServerHeartbeat()
+    private async UniTaskVoid SendServerHeartbeat()
     {
         activePlayers = FindObjectsByType<PlayerController>(FindObjectsSortMode.None).Length;
 
-        var postData = new
+        var postData = new ServerHeartbeatPostData
         {
             port = Bootstrap.Instance.Port,
             ipAddress = Bootstrap.Instance.IpAddress, // Assuming local IP, adjust as needed
@@ -51,10 +43,13 @@ public class GameServerHeartbeat : MonoBehaviour
 
         string json = JsonUtility.ToJson(postData);
 
-        PostRequest(nodeServerUrl, json);
+        Debug.Log($"Post request to: {nodeServerUrl}");
+        Debug.Log($"Payload: {json}");
+
+        await PostRequest(nodeServerUrl, json);
     }
 
-    private async void PostRequest(string url, string json)
+    private async UniTask PostRequest(string url, string json)
     {
         using (UnityWebRequest request = new UnityWebRequest(url, "POST"))
         {
@@ -63,16 +58,40 @@ public class GameServerHeartbeat : MonoBehaviour
             request.downloadHandler = new DownloadHandlerBuffer();
             request.SetRequestHeader("Content-Type", "application/json");
 
-            await request.SendWebRequest();
+            try
+            {
+                await request.SendWebRequest();
 
-            if (request.result == UnityWebRequest.Result.Success)
-            {
-                Debug.Log("Heartbeat sent successfully");
+                switch (request.result)
+                {
+                    case UnityWebRequest.Result.Success:
+                        Debug.Log("Heartbeat sent successfully");
+                        break;
+                    case UnityWebRequest.Result.ConnectionError:
+                    case UnityWebRequest.Result.DataProcessingError:
+                        Debug.LogError($"Error sending heartbeat: {request.error}");
+                        break;
+                    case UnityWebRequest.Result.ProtocolError:
+                        Debug.LogError($"HTTP Error: {request.error}");
+                        break;
+                    default:
+                        Debug.LogError($"Unexpected Error: {request.error}");
+                        break;
+                }
             }
-            else
+            catch (Exception e)
             {
-                Debug.LogError($"Error sending heartbeat: {request.error}");
+                Debug.LogError($"Exception: {e.Message}");
             }
         }
+    }
+
+    [Serializable]
+    struct ServerHeartbeatPostData
+    {
+        public ushort port;
+        public string ipAddress;
+        public string gameId;
+        public int numberPlayers;
     }
 }
