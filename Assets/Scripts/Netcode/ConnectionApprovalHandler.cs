@@ -41,8 +41,11 @@ public class ConnectionApprovalHandler : MonoBehaviour
         // Additional connection data defined by user code
         var connectionData = request.Payload;
 
+        // get number of players already in game
+        int playerCount = FindObjectsByType<PlayerController>(FindObjectsSortMode.None).Length;
+
         // Your approval logic determines the following values
-        response.Approved = true;
+        response.Approved = playerCount < 3;
         response.CreatePlayerObject = true;
 
         // The Prefab hash value of the NetworkPrefab, if null the default NetworkManager player Prefab is used
