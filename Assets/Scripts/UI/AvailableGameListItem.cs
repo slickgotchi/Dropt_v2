@@ -12,11 +12,9 @@ public class AvailableGameListItem : MonoBehaviour
     public TextMeshProUGUI PlayerCountText;
     public Button JoinButton;
 
-    private bool m_isNetworkManagerShuttingDown = false;
-
     private void Awake()
     {
-        JoinButton.onClick.AddListener(HandleClickJoinButton);
+        JoinButton.onClick.AddListener(HandleClick_JoinButton);
     }
 
     public void Init(string gameId, int playerCount)
@@ -25,22 +23,9 @@ public class AvailableGameListItem : MonoBehaviour
         PlayerCountText.text = playerCount.ToString() + "/3";
     }
 
-    void HandleClickJoinButton()
+    void HandleClick_JoinButton()
     {
-        Debug.Log("AvailableGameListItem: Join clicked. Shutting down server");
-        m_isNetworkManagerShuttingDown = true;
-        NetworkManager.Singleton.Shutdown();
+        Game.Instance.TryJoinGame(GameIdText.text);
 
-    }
-
-    private void Update()
-    {
-        if (!NetworkManager.Singleton.ShutdownInProgress && m_isNetworkManagerShuttingDown)
-        {
-            Debug.Log("AvailableGameListItem: Server shutdown, joining new gameID: " + GameIdText.text);
-            m_isNetworkManagerShuttingDown = false;
-            Game.Instance.JoinGameViaServerManager(GameIdText.text);
-
-        }
     }
 }

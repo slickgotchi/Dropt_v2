@@ -60,7 +60,6 @@ public class AvailableGamesHeartbeat : MonoBehaviour
                     break;
                 case UnityWebRequest.Result.Success:
                     string jsonResponse = webRequest.downloadHandler.text;
-                    Debug.Log("Response: " + jsonResponse);
                     GetGamesResponseData responseData = JsonUtility.FromJson<GetGamesResponseData>(jsonResponse);
                     HandleGetGamesResponse(responseData);
                     break;

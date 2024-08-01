@@ -84,7 +84,6 @@ public class Bootstrap : MonoBehaviour
 
     private void Start()
     {
-        Debug.Log("Start with gameid: " + GameId);
         // check for autoboot
         if (AutoBoot)
         {

@@ -29,9 +29,15 @@ public class Game : MonoBehaviour
     private string createGameUri = "https://alphaserver.playdropt.io/creategame";
     private string joinGameUri = "https://alphaserver.playdropt.io/joingame";
 
-    public bool m_isTryConnecting = false;
+    public bool m_isRetryConnect = false;
     private float m_retryInterval = 2f;
-    private float m_retryTimer = 0f;
+    private float m_retryConnectTimer = 0f;
+
+    private bool m_isNetworkManagerShuttingDown = false;
+    private string m_tryJoinGameId = "";
+
+    private bool m_isRetryCreateGame = false;
+    private float m_retryCreateGameTimer = 0f;
 
     UnityTransport m_transport;
 
@@ -42,6 +48,9 @@ public class Game : MonoBehaviour
 
     private void Start()
     {
+        m_isRetryConnect = false;
+        m_isNetworkManagerShuttingDown = false;
+
         // 0. ensure we have access to UnityTransport
         m_transport = NetworkManager.Singleton?.NetworkConfig?.NetworkTransport as UnityTransport;
 
@@ -61,29 +70,45 @@ public class Game : MonoBehaviour
         // 1. connect to a server manager if we are in that mode
         if (Bootstrap.Instance.UseServerManager && Bootstrap.IsClient())
         {
+            statusString = "Using remote server manager and IsClient";
             CreateGameViaServerManager();
         }
         else
         {
             Connect();
         }
-
     }
 
     private void Update()
     {
-        m_retryTimer -= Time.deltaTime;
+        // poll for creating game
+        m_retryCreateGameTimer -= Time.deltaTime;
+        if (m_isRetryCreateGame && m_retryCreateGameTimer <= 0)
+        {
+            m_isRetryCreateGame = false;
+            CreateGameViaServerManager();
+        }
 
-        if (m_isTryConnecting && m_retryTimer <= 0)
+        // poll for connections
+        m_retryConnectTimer -= Time.deltaTime;
+        if (m_isRetryConnect && m_retryConnectTimer <= 0)
         {
             if (StartServerClientOrHost())
             {
                 IsConnected = true;
-                m_isTryConnecting = false;
+                m_isRetryConnect = false;
             } else
             {
-                m_retryTimer = m_retryInterval;
+                m_retryConnectTimer = m_retryInterval;
             }
+        }
+
+        // poll for joining new game instance
+        if (!NetworkManager.Singleton.ShutdownInProgress && m_isNetworkManagerShuttingDown)
+        {
+            Debug.Log("Game.cs: Server shutdown, joining new gameID: " + m_tryJoinGameId);
+            m_isNetworkManagerShuttingDown = false;
+            Game.Instance.JoinGameViaServerManager(m_tryJoinGameId);
         }
     }
 
@@ -105,7 +130,7 @@ public class Game : MonoBehaviour
         {
             success = NetworkManager.Singleton.StartClient();
             if (success) Debug.Log("StartClient() succeeded");
-            statusString = "Client connection to server succeeded";
+            statusString = "Client connection to server with gameId: " + Bootstrap.Instance.GameId + ", port: " + Bootstrap.Instance.Port + " succeeded";
         }
 
         return success;
@@ -113,38 +138,63 @@ public class Game : MonoBehaviour
 
     public async void CreateGameViaServerManager()
     {
+        statusString = "Sending web request to: " + createGameUri;
         // create a new game
-        using (UnityWebRequest webRequest = UnityWebRequest.Get(createGameUri))
+
+        try
         {
-            await webRequest.SendWebRequest();
-
-            switch (webRequest.result)
+            using (UnityWebRequest webRequest = UnityWebRequest.Get(createGameUri))
             {
-                case UnityWebRequest.Result.ConnectionError:
-                    Debug.Log("ConnectionError: Is the ServerManager running and has the correct uri been used?");
-                    break;
-                case UnityWebRequest.Result.DataProcessingError:
-                    Debug.Log("DataProcessingError: ");
-                    break;
-                case UnityWebRequest.Result.ProtocolError:
-                    Debug.Log("ProtocolError");
-                    break;
-                case UnityWebRequest.Result.Success:
-                    Debug.Log(webRequest.result);
-                    CreateGameResponseData data = JsonUtility.FromJson<CreateGameResponseData>(webRequest.downloadHandler.text);
+                await webRequest.SendWebRequest();
 
-                    // using data configure bootstrap
-                    Bootstrap.Instance.IpAddress = data.ipAddress;
-                    Bootstrap.Instance.Port = data.port;
+                switch (webRequest.result)
+                {
+                    case UnityWebRequest.Result.ConnectionError:
+                        Debug.Log("ConnectionError: Is the ServerManager running and has the correct uri been used?");
+                        statusString = "UnityWebRequest.Result.ConnectionError";
+                        break;
+                    case UnityWebRequest.Result.DataProcessingError:
+                        Debug.Log("DataProcessingError: ");
+                        statusString = "UnityWebRequest.Result.DataProcessingError";
+                        break;
+                    case UnityWebRequest.Result.ProtocolError:
+                        Debug.Log("ProtocolError");
+                        statusString = "UnityWebRequest.Result.ProtocolError";
+                        break;
+                    case UnityWebRequest.Result.Success:
+                        Debug.Log(webRequest.result);
+                        CreateGameResponseData data = JsonUtility.FromJson<CreateGameResponseData>(webRequest.downloadHandler.text);
 
-                    statusString = "Server manager allocated gameId: " + data.gameId + ", booting up server instance...";
+                        // using data configure bootstrap
+                        Bootstrap.Instance.IpAddress = data.ipAddress;
+                        Bootstrap.Instance.Port = data.port;
+                        Bootstrap.Instance.GameId = data.gameId;
 
-                    // we can now connect direct
-                    Connect();
+                        Debug.Log("Got back server instance with port: " + data.port + ", gameId: " + data.gameId +
+                            ", ipAddress: " + data.ipAddress);
 
-                    break;
+                        statusString = "Server manager allocated gameId: " + data.gameId + ", port: " + data.port + ", ipAddress: " + data.ipAddress + ", connecting...";
+
+                        // we can now connect direct
+                        Connect();
+
+                        break;
+                }
             }
         }
+        catch (Exception e)
+        {
+            Debug.Log("Exception occurred: " + e.Message);
+            m_isRetryCreateGame = true;
+            m_retryCreateGameTimer = m_retryInterval;
+        }
+    }
+
+    public void TryJoinGame(string gameId)
+    {
+        m_tryJoinGameId = gameId;
+        m_isNetworkManagerShuttingDown = true;
+        NetworkManager.Singleton.Shutdown();
     }
 
     public async void JoinGameViaServerManager(string gameId)
@@ -183,6 +233,7 @@ public class Game : MonoBehaviour
                     // Using data configure bootstrap
                     Bootstrap.Instance.IpAddress = data.ipAddress;
                     Bootstrap.Instance.Port = data.port;
+                    Bootstrap.Instance.GameId = data.gameId;
 
                     statusString = "Server manager allocated gameId: " + data.gameId + ", booting up server instance...";
 
@@ -204,12 +255,13 @@ public class Game : MonoBehaviour
         var ipAddress = Bootstrap.IsRemoteConnection() ? Bootstrap.Instance.IpAddress : "127.0.0.1";
         m_transport.SetConnectionData(ipAddress, Bootstrap.Instance.Port, "0.0.0.0");
 
+        statusString = "Connection data sent to ipAddress: " + ipAddress + ", port: " + Bootstrap.Instance.Port + ", try connecting...";
+
         // if using encryption, set secrets
         if (m_transport.UseEncryption)
         {
             if (Bootstrap.IsServer() || Bootstrap.IsHost())
             {
-                Debug.Log("Set Server Secrets");
                 m_transport.SetServerSecrets(SecureParameters.ServerCertificate, SecureParameters.ServerPrivateKey);
             }
 
@@ -221,7 +273,7 @@ public class Game : MonoBehaviour
 
 
         // start up
-        m_isTryConnecting = true;
+        m_isRetryConnect = true;
     }
 
 
