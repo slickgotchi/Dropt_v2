@@ -2,6 +2,7 @@ using Dropt;
 using Nethereum.RPC.Shh.KeyPair;
 using System.Collections;
 using System.Collections.Generic;
+using Audio.Game;
 using Unity.Mathematics;
 using Unity.Netcode;
 using UnityEditor.Rendering;
@@ -155,6 +156,7 @@ public class PlayerAbility : NetworkBehaviour
 
         if (Player != null) OnStart();
 
+        GameAudioManager.Instance.PlayerAbility(Player.GetComponent<NetworkCharacter>().NetworkObjectId, input.abilityTriggered, transform.position);
         return true;
     }
 

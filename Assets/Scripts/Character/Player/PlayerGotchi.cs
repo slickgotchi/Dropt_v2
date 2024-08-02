@@ -1,3 +1,4 @@
+using Audio.Game;
 using Cinemachine;
 using GotchiHub;
 using Unity.Mathematics;
@@ -142,6 +143,8 @@ public class PlayerGotchi : NetworkBehaviour
         animator.Play("PlayerGotchi_DropSpawn");
         m_spawnPoint = spawnPoint;
         m_preSpawnPoint = currentPosition;
+
+        GameAudioManager.Instance.FallNewLevel(spawnPoint);
     }
 
     public void ResetIdleAnimation()
@@ -473,7 +476,7 @@ public class PlayerGotchi : NetworkBehaviour
         }
     }
 
-    [Rpc(SendTo.ClientsAndHost)] 
+    [Rpc(SendTo.ClientsAndHost)]
     private void HideHandClientRpc(Hand hand, float duration = 0.5f)
     {
         if (!IsLocalPlayer)
@@ -514,7 +517,7 @@ public class PlayerGotchi : NetworkBehaviour
 
         if (IsServer)
         {
-            SetGotchiRotationClientRpc(angleDegrees, duration); 
+            SetGotchiRotationClientRpc(angleDegrees, duration);
         }
     }
 
@@ -636,13 +639,13 @@ public class PlayerGotchi : NetworkBehaviour
             else if (vx < -(math.abs(vy) - 0.05))
             {
                 // left
-                float newAngle = vy < -0.1 ? 3*ROT : vy > 0.1 ? -ROT : ROT;
+                float newAngle = vy < -0.1 ? 3 * ROT : vy > 0.1 ? -ROT : ROT;
                 rotation = newAngle;
             }
             else if (vx > (math.abs(vy) - 0.05))
             {
                 // right
-                float newAngle = vy < -0.1 ? -3*ROT : vy > 0.1 ? ROT : -ROT;
+                float newAngle = vy < -0.1 ? -3 * ROT : vy > 0.1 ? ROT : -ROT;
                 rotation = newAngle;
             }
         }
@@ -704,9 +707,9 @@ public class PlayerGotchi : NetworkBehaviour
         animator.SetBool(name, value);
     }
 
-    
-    
 
-    
+
+
+
 
 }
