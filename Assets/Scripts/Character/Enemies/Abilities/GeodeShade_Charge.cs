@@ -22,16 +22,16 @@ public class GeodeShade_Charge : EnemyAbility
 
     public override void OnNetworkSpawn()
     {
-        transform.position = Parent.transform.position;
     }
 
     public override void OnTelegraphStart()
     {
+        transform.position = Parent.transform.position;
         m_direction = (Target.transform.position - Parent.transform.position).normalized;
         m_speed = ChargeDistance / ExecutionDuration;
 
         EnemyController.Facing facing = m_direction.x > 0 ? EnemyController.Facing.Right : EnemyController.Facing.Left;
-        if (Parent != null) Parent.GetComponent<EnemyController>().SetFacingDirection(facing);
+        Parent.GetComponent<EnemyController>().SetFacingDirection(facing);
     }
 
     public override void OnExecutionStart()
@@ -51,7 +51,7 @@ public class GeodeShade_Charge : EnemyAbility
         ContinuousCollisionCheck();
 
         transform.position += m_direction * m_speed * Time.deltaTime;
-        if (Parent != null) Parent.transform.position = transform.position;
+        Parent.transform.position = transform.position;
     }
 
     public void ContinuousCollisionCheck()

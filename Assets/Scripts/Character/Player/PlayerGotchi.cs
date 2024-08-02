@@ -122,6 +122,8 @@ public class PlayerGotchi : NetworkBehaviour
         }
     }
 
+    private float m_dropSpawnTimer = 0.5f;
+
     public void DropSpawn(Vector3 currentPosition, Vector3 newSpawnPoint)
     {
         if (!IsServer) return;

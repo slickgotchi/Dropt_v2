@@ -4,6 +4,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using Unity.Netcode;
+using System.ComponentModel;
 
 public class CoOpModeCanvas : MonoBehaviour
 {
@@ -17,15 +18,20 @@ public class CoOpModeCanvas : MonoBehaviour
 
     private TextMeshProUGUI m_copyButtonText;
 
-    private float k_updateInterval = 3f;
+    public GameObject Container;
+    public GameObject MenuCard;
+
+    private float k_updateInterval = 2f;
     private float m_updateTimer = 0f;
 
     private void Awake()
     {
         CopyMyGameIdButton.onClick.AddListener(HandleClick_CopyMyGameIdButton);
         JoinPrivateButton.onClick.AddListener(HandleClick_JoinPrivateButton);
+        IsPublicToggle.onValueChanged.AddListener(HandleChange_IsPublicToggle);
 
         m_copyButtonText = CopyMyGameIdButton.GetComponentInChildren<TextMeshProUGUI>();
+        MenuCard.SetActive(false);
     }
 
     private void Update()
@@ -42,6 +48,13 @@ public class CoOpModeCanvas : MonoBehaviour
         {
             m_copyButtonText.text = Bootstrap.Instance.GameId.ToString();
         }
+
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            MenuCard.SetActive(!MenuCard.activeSelf);
+        }
+
+        Container.SetActive(LevelManager.Instance.DegenapeVillageLevel == LevelManager.Instance.CurrentLevelIndex.Value);
     }
 
     void HandleClick_CopyMyGameIdButton()
@@ -53,6 +66,12 @@ public class CoOpModeCanvas : MonoBehaviour
     {
         Debug.Log("CoOpModeCanvas.cs - Join private gameId: " + JoinPrivateInput.text);
         Game.Instance.TryJoinGame(JoinPrivateInput.text);
+    }
+
+    void HandleChange_IsPublicToggle(bool isOn)
+    {
+        Debug.Log("Game.Instance.SetIsPublic to " + isOn);
+        NetworkMessenger.Instance.SetGameIsPublic(isOn);
     }
 
     void UpdateAvailableGamesList()
@@ -68,14 +87,17 @@ public class CoOpModeCanvas : MonoBehaviour
         foreach (var game in AvailableGamesHeartbeat.Instance.AvailableGames)
         {
             // Instantiate new game item and add to the AvailableGameListContent
-            var newGameListItem = Instantiate(PrefabAvailableGameListItem, AvailableGameListContent.transform);
-            newGameListItem.GetComponent<AvailableGameListItem>().Init(
-                game.gameId, game.numberPlayers);
+            var availableGameListItem = Instantiate(PrefabAvailableGameListItem, AvailableGameListContent.transform).GetComponent<AvailableGameListItem>();
+            availableGameListItem.Init(game.gameId, game.numberPlayers);
 
-            // Remove join button if this is our game
+            // Change join button if its ours
             if (Bootstrap.Instance.GameId == game.gameId)
             {
-                Destroy(newGameListItem.GetComponent<AvailableGameListItem>().JoinButton.gameObject);
+                Color color;
+                ColorUtility.TryParseHtmlString("#D3FC7E", out color);
+                availableGameListItem.JoinButton.GetComponent<Image>().color = color;
+                availableGameListItem.JoinButton.GetComponent<Button>().enabled = false;
+                availableGameListItem.JoinButton.GetComponentInChildren<TextMeshProUGUI>().text = "Mine";
             }
         }
     }

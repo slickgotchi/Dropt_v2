@@ -956,8 +956,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6494b87727298314987516d4f17c6c93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseHpMax: 5
-  baseHpCurrent: 5
+  baseHpMax: 256
+  baseHpCurrent: 256
   baseHpBuffer: 0
   baseAttackPower: 10
   baseCriticalChance: 0.05
@@ -1141,6 +1141,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4fab4410d163ddc4d904b5305706efd5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  GltrCount:
+    m_InternalValue: 0
+  cGHSTCount:
+    m_InternalValue: 0
+  Essence:
+    m_InternalValue: 300
 --- !u!114 &3933483105401015273
 MonoBehaviour:
   m_ObjectHideFlags: 0

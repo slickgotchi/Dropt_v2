@@ -14,6 +14,8 @@ namespace Level
         {
             UnityEngine.Random.InitState(System.DateTime.Now.Millisecond);
 
+            ProgressBarCanvas.Instance.Show("Spawning level...", 0.6f);
+
             if (IsServer)
             {
                 if (LevelManager.Instance.LevelSpawningCount == 1)
@@ -35,6 +37,9 @@ namespace Level
             {
                 CleanupSpawnerObjects();
             }
+
+            ProgressBarCanvas.Instance.Show("Level spawn complete", 1f);
+            ProgressBarCanvas.Instance.Hide();
         }
 
         public override void OnNetworkDespawn()

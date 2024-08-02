@@ -31,7 +31,7 @@ public class EnemyAbility : NetworkBehaviour
         m_isActive = true;
         m_timer = TelegraphDuration;
         EnemyAbilityState = State.Telegraph;
-        OnTelegraphStart();
+        if (IsServer) OnTelegraphStart();
     }
 
     private void Update()
@@ -45,7 +45,7 @@ public class EnemyAbility : NetworkBehaviour
                 {
                     m_timer = ExecutionDuration;
                     EnemyAbilityState = State.Execution;
-                    OnExecutionStart();
+                    if (IsServer) OnExecutionStart();
                 }
                 break;
             case State.Execution:
@@ -53,7 +53,7 @@ public class EnemyAbility : NetworkBehaviour
                 {
                     m_timer = CooldownDuration;
                     EnemyAbilityState = State.Cooldown;
-                    OnCooldownStart();
+                    if (IsServer) OnCooldownStart();
                 }
                 break;
             case State.Cooldown:
@@ -61,7 +61,7 @@ public class EnemyAbility : NetworkBehaviour
                 {
                     m_timer = 0;
                     EnemyAbilityState = State.None;
-                    OnFinish();
+                    if (IsServer) OnFinish();
                     if (IsServer) GetComponent<NetworkObject>().Despawn();
                     m_isActive = false;
                 }
@@ -70,7 +70,7 @@ public class EnemyAbility : NetworkBehaviour
             default: break;
         }
 
-        if (m_isActive) OnUpdate();
+        if (m_isActive && IsServer) OnUpdate();
     }
 
     public virtual void OnTelegraphStart() { }
