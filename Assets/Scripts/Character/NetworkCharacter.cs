@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Audio.Game;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -79,6 +80,12 @@ public class NetworkCharacter : NetworkBehaviour
         }
         if (IsServer)
         {
+            bool isPlayer = gameObject.HasComponent<PlayerController>();
+            if (!isPlayer)
+            {
+                GameAudioManager.Instance.EnemyHurt(gameObject.transform.position);
+            }
+
             HpCurrent.Value -= (int)damage;
             if (HpCurrent.Value < 0) { HpCurrent.Value = 0; }
             var position = transform.position + popupTextOffset;
@@ -86,7 +93,7 @@ public class NetworkCharacter : NetworkBehaviour
 
             if (HpCurrent.Value <= 0 && IsServer)
             {
-                if (gameObject.HasComponent<PlayerController>())
+                if (isPlayer)
                 {
                     ShowREKTScreenClientRpc(GetComponent<NetworkObject>().NetworkObjectId);
                     HpCurrent.Value = HpMax.Value;

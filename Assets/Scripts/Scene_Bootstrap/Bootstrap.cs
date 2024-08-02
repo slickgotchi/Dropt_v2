@@ -1,5 +1,7 @@
 using Cysharp.Threading.Tasks;
 using System;
+using Audio;
+using Audio.Game;
 using Unity.Netcode;
 using Unity.Networking.Transport;
 using UnityEngine;
@@ -95,6 +97,14 @@ public class Bootstrap : MonoBehaviour
                 SceneManager.LoadScene("Title");
             }
         }
+
+        GameAudioManager.TryToInitialize();
+        GameAudioManager.Instance.PlayMusic(MusicType.RestFloor, MusicType.UndergroundForest);
+    }
+
+    private void OnDestroy()
+    {
+        GameAudioManager.TryToDispose();
     }
 
     public static bool IsServer()
