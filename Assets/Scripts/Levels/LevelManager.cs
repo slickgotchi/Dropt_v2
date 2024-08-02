@@ -25,6 +25,7 @@ public class LevelManager : NetworkBehaviour
     private List<Vector3> m_playerSpawnPoints = new List<Vector3>();
 
     public NetworkVariable<TransitionState> State;
+    public NetworkVariable<int> CurrentLevelIndex = new NetworkVariable<int>(0);
 
     private void Awake()
     {
@@ -63,7 +64,8 @@ public class LevelManager : NetworkBehaviour
             // things to save for next level
             if (networkObject.HasComponent<LevelManager>() ||
                 networkObject.HasComponent<PlayerController>() ||
-                networkObject.HasComponent<PlayerAbility>()) continue;
+                networkObject.HasComponent<PlayerAbility>() ||
+                networkObject.HasComponent<DontDestroyAtLevelChange>()) continue;
 
             networkObject.TryRemoveParent(); 
         }
@@ -74,7 +76,8 @@ public class LevelManager : NetworkBehaviour
             // things to save for next level
             if (networkObject.HasComponent<LevelManager>() ||
                 networkObject.HasComponent<PlayerController>() ||
-                networkObject.HasComponent<PlayerAbility>()) continue;
+                networkObject.HasComponent<PlayerAbility>() ||
+                networkObject.HasComponent<DontDestroyAtLevelChange>()) continue;
 
             // remove onDestroy components first too to prevent the new objects appearing
             if (networkObject.HasComponent<OnDestroySpawnNetworkObject>())
@@ -120,6 +123,8 @@ public class LevelManager : NetworkBehaviour
         HandleBuildNavMesh();
 
         HandleState();
+
+        CurrentLevelIndex.Value = m_currentLevelIndex;
     }
 
     // 1. Receive GoToNextLevel message from other part of server
@@ -203,15 +208,19 @@ public class LevelManager : NetworkBehaviour
         // drop spawn players
         var no_playerSpawnPoints = m_currentLevel.GetComponentInChildren<PlayerSpawnPoints>();
         m_playerSpawnPoints.Clear();
-        if (no_playerSpawnPoints == null)
-        {
-            m_playerSpawnPoints.Add(Vector3.zero);
-        } else
+        int count = 3;
+        if (no_playerSpawnPoints != null)
         {
             for (int i = 0; i < no_playerSpawnPoints.transform.childCount; i++)
             {
                 m_playerSpawnPoints.Add(no_playerSpawnPoints.transform.GetChild(i).transform.position);
+                count--;
             }
+        } 
+
+        for (int i = 0; i < count; i++)
+        {
+            m_playerSpawnPoints.Add(Vector3.zero);
         }
 
         // set each player spawn position
@@ -224,7 +233,6 @@ public class LevelManager : NetworkBehaviour
 
             player.GetComponent<PlayerPrediction>().SetPlayerPosition(spawnPoint);
             player.GetComponent<PlayerGotchi>().DropSpawn(player.transform.position, spawnPoint);
-            player.GetComponent<Collider2D>().enabled = false;  
         }
     }
 

@@ -6,15 +6,23 @@ using Cysharp.Threading.Tasks;
 
 public class GameServerHeartbeat : MonoBehaviour
 {
+    public static GameServerHeartbeat Instance { get; private set; }
+
     private int activePlayers = 0;
     private string nodeServerUrl = "https://alphaserver.playdropt.io/serverheartbeat"; // Change to your Node.js server URL
     private float m_timer = 5.0f; // 5 seconds interval
+    public bool IsPublic = false;
+
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     private void Start()
     {
-        if (Bootstrap.IsClient() || Bootstrap.IsHost())
+        if (Bootstrap.IsClient() || Bootstrap.IsHost() || (Bootstrap.IsServer() && Bootstrap.IsLocalConnection()))
         {
-            Destroy(gameObject); // Commented out to keep the object alive for testing
+            Destroy(gameObject); 
         }
     }
 
@@ -38,13 +46,12 @@ public class GameServerHeartbeat : MonoBehaviour
             port = Bootstrap.Instance.Port,
             ipAddress = Bootstrap.Instance.IpAddress, // Assuming local IP, adjust as needed
             gameId = Bootstrap.Instance.GameId,
-            numberPlayers = activePlayers
+            numberPlayers = activePlayers,
+            isPublic = IsPublic,
+            isLocked = LevelManager.Instance.CurrentLevelIndex.Value != LevelManager.Instance.DegenapeVillageLevel,
         };
 
         string json = JsonUtility.ToJson(postData);
-
-        Debug.Log($"Post request to: {nodeServerUrl}");
-        Debug.Log($"Payload: {json}");
 
         await PostRequest(nodeServerUrl, json);
     }
@@ -65,7 +72,8 @@ public class GameServerHeartbeat : MonoBehaviour
                 switch (request.result)
                 {
                     case UnityWebRequest.Result.Success:
-                        Debug.Log("Heartbeat sent successfully");
+                        Debug.Log("Heartbeat sent successfully with isPublic: " + IsPublic);
+                        Debug.Log(json);
                         break;
                     case UnityWebRequest.Result.ConnectionError:
                     case UnityWebRequest.Result.DataProcessingError:
@@ -93,5 +101,7 @@ public class GameServerHeartbeat : MonoBehaviour
         public string ipAddress;
         public string gameId;
         public int numberPlayers;
+        public bool isPublic;
+        public bool isLocked;
     }
 }

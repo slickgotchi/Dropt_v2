@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 484721965298291010}
   - component: {fileID: -7570118115833448723}
   - component: {fileID: 1713839675129830672}
+  - component: {fileID: 5568382194620853100}
   m_Layer: 0
   m_Name: Snail_Slash
   m_TagString: Untagged
@@ -71,7 +72,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 749816016
+  GlobalObjectIdHash: 3705004947
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -125,6 +126,20 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &5568382194620853100
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3159421716010617349}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8d0727d5ae3244e3b569694d3912374, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  TransitionStateInfoList: []
+  m_Animator: {fileID: 8297840239847146040}
 --- !u!1 &5040530899546771599
 GameObject:
   m_ObjectHideFlags: 0

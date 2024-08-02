@@ -21,12 +21,7 @@ public class Snail_Slash : EnemyAbility
 
     public override void OnTelegraphStart()
     {
-        // check parent
-        if (Parent == null)
-        {
-            Debug.Log("No parent for SnailSlash!");
-            return;
-        }
+        if (Parent == null) return;
 
         if (Parent.HasComponent<Animator>())
         {

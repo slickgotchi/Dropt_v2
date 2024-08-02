@@ -96,20 +96,4 @@ public class PlayerController : NetworkBehaviour
             }
         }
     }
-
-    //[ServerRpc]
-    //void PingServerRpc(float elapsedTime)
-    //{
-    //    PongClientRpc(elapsedTime);
-    //}
-
-    //[ClientRpc]
-    //void PongClientRpc(float elapsedTime)
-    //{
-    //    if (!IsLocalPlayer) return;
-
-    //    var rtt = (int)((Time.time - elapsedTime) * 1000);
-    //    DebugCanvas.Instance.SetPing(rtt);
-    //    PingServerRpc(Time.time);
-    //}
 }

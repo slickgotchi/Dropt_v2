@@ -8,7 +8,7 @@ public class AvailableGamesHeartbeat : MonoBehaviour
 {
     public static AvailableGamesHeartbeat Instance { get; private set; }
 
-    private float k_heartbeatInterval = 3f;
+    private float k_heartbeatInterval = 2f;
     private float m_heartbeatTimer = 0f;
 
     private string getGamesUri = "https://alphaserver.playdropt.io/getgames";
@@ -73,12 +73,15 @@ public class AvailableGamesHeartbeat : MonoBehaviour
 
         foreach (var game in responseData.availableGames)
         {
-            AvailableGames.Add(new AvailableGame
+            if (game.isPublic)
             {
-                gameId = game.gameId,
-                numberPlayers = game.numberPlayers,
-                isPublic = game.isPublic,
-            });
+                AvailableGames.Add(new AvailableGame
+                {
+                    gameId = game.gameId,
+                    numberPlayers = game.numberPlayers,
+                    isPublic = game.isPublic,
+                });
+            }
         }
     }
 
