@@ -56,7 +56,7 @@ public class AvailableGamesHeartbeat : MonoBehaviour
                     Debug.Log("DataProcessingError: ");
                     break;
                 case UnityWebRequest.Result.ProtocolError:
-                    Debug.Log("ProtocolError");
+                    //Debug.Log("ProtocolError");
                     break;
                 case UnityWebRequest.Result.Success:
                     string jsonResponse = webRequest.downloadHandler.text;

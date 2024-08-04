@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: -3599212634581151793}
   - component: {fileID: 3387859537420111930}
   - component: {fileID: 3280724935253903593}
-  m_Layer: 12
+  m_Layer: 9
   m_Name: ApeHouse
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -128,7 +128,8 @@ GameObject:
   m_Component:
   - component: {fileID: 2228045280187910979}
   - component: {fileID: 361146906994616670}
-  m_Layer: 12
+  - component: {fileID: 2478714913066084146}
+  m_Layer: 9
   m_Name: Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -204,3 +205,17 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 1
+--- !u!114 &2478714913066084146
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6525230415705073668}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d7b5c2d243625b45ad7856320609381, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetToTrack: {fileID: 0}
+  sortingOrderOffset: 0
