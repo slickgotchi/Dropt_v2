@@ -197,8 +197,9 @@ public class LevelManager : NetworkBehaviour
         int nextLevelIndex = m_currentLevelIndex + 1;
         if (nextLevelIndex >= m_levels.Count)
         {
-            // just keep replaying the last level
-            nextLevelIndex -= 1;
+            // return to the degenape village
+            //nextLevelIndex -= 1;
+            nextLevelIndex = DegenapeVillageLevel;
         }
 
         // create next level and update current level index
