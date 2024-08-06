@@ -21,6 +21,8 @@ public class WispHollow : MonoBehaviour
 
     private void Update()
     {
+        if (Bootstrap.IsClient()) return;
+
         m_spawnTimer -= Time.deltaTime;
 
         for (int i = m_liveWisps.Count-1; i >= 0; i--)

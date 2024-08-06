@@ -91,6 +91,7 @@ namespace Level.Traps
 
             foreach (var player in m_players)
             {
+                
                 if (IsServer)
                 {
                     player.TakeDamage(m_damage, false, gameObject);
@@ -99,6 +100,7 @@ namespace Level.Traps
                 else
                 {
                     var timeOffset = (null == m_buffDamageAbility)? 0 : m_buffDamageAbility.BuffEffectDuration;
+                    if (player == null || !player.HasComponent<PlayerStepSynchronization>()) return;
                     player.GetComponent<PlayerStepSynchronization>().WaitUntilReceiveServerData(timeOffset);
                 }
             }
