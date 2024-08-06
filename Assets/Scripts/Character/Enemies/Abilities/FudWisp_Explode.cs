@@ -66,11 +66,15 @@ public class FudWisp_Explode : EnemyAbility
             var player = hit.transform.parent;
             if (player.HasComponent<NetworkCharacter>())
             {
-                Debug.Log("Root a player");
+                // apply rooted
+                RootedEffect.ApplyRootedEffect(player.gameObject, RootDuration, FudWisp_RootBuff);
 
                 // create buff
-                var buffTimer = Instantiate(BuffTimerPrefab).GetComponent<BuffTimer>();
-                buffTimer.StartBuff(FudWisp_RootBuff, player.GetComponent<NetworkCharacter>(), RootDuration);
+                //var buffTimer = Instantiate(BuffTimerPrefab).GetComponent<BuffTimer>();
+                //buffTimer.StartBuff(FudWisp_RootBuff, player.GetComponent<NetworkCharacter>(), RootDuration);
+
+                // show the buff on the player
+                player.GetComponent<PlayerStatusEffects>().SetVisualEffect(PlayerStatusEffects.Effect.Rooted, RootDuration);
             }
         }
 
