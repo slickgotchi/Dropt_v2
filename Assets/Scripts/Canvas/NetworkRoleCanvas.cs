@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Assets.Plugins;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
@@ -40,6 +41,10 @@ public class NetworkRoleCanvas : MonoBehaviour
 
         connectionDropdown.onValueChanged.AddListener(OnConnectionDropdownValueChanged);
 
+        if (Defines.FAST_START)
+        {
+            hostButton.onClick.Invoke();
+        }
     }
 
     private void Start()

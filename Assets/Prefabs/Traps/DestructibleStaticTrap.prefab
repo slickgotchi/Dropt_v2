@@ -14,7 +14,8 @@ GameObject:
   - component: {fileID: 7594667461773364436}
   - component: {fileID: 220211837992606003}
   - component: {fileID: 7417984562047935400}
-  m_Layer: 15
+  - component: {fileID: 6456610632495439875}
+  m_Layer: 12
   m_Name: DestructibleStaticTrap
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -49,7 +50,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3319937619
+  GlobalObjectIdHash: 3385837614
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -74,7 +75,6 @@ MonoBehaviour:
     m_InternalValue: 0
   MaxGroup:
     m_InternalValue: 0
-  m_collider: {fileID: 7594667461773364436}
   m_cooldownDuration: 3
   m_damage: 1
   m_buffDamageAbility: {fileID: 7417984562047935400}
@@ -152,6 +152,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_buff: {fileID: 11400000, guid: 496ca1e2613c8ba4db4cf2f30adf8f8d, type: 2}
   m_buffEffectDuration: 0.2
+--- !u!114 &6456610632495439875
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3924821971453843158}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd03bbcc1645c3f479166c0d837fd86b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  NumberWobbles: 1
+  WobbleDuration: 0.3
+  MaxWobbleAngle: 15
 --- !u!1 &7024085330230555046
 GameObject:
   m_ObjectHideFlags: 0
@@ -163,8 +178,8 @@ GameObject:
   - component: {fileID: 9072271609998137630}
   - component: {fileID: 7962535334552593988}
   - component: {fileID: 134075614834430424}
-  m_Layer: 15
-  m_Name: spike-bush_0
+  m_Layer: 12
+  m_Name: Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

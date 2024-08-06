@@ -12,6 +12,13 @@ namespace Level.Traps
         [SerializeField] private Sprite m_activeSprite;
         [SerializeField] private Sprite m_disabledSprite;
 
+        private float m_cooldownTimer;
+
+        private void Awake()
+        {
+            m_cooldownTimer = 0;
+        }
+
         private void OnTriggerEnter2D(Collider2D collision)
         {
             if (!IsServer || null == m_group)
