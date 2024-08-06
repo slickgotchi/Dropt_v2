@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
@@ -99,31 +98,6 @@ public class EnemyAbility : NetworkBehaviour
         }
 
         // clear out colliders
-        ListPool<Collider2D>.Release(playerHitColliders);
-    }
-
-    public static void FillPlayerCollisionWithBottomCheckAndDamage(List<NetworkCharacter> result, Collider2D collider, float damage,
-        bool isCritical = false, GameObject damageDealer = null)
-    {
-        // sync colliders to current transform
-        Physics2D.SyncTransforms();
-
-        // do a collision check
-        List<Collider2D> playerHitColliders = ListPool<Collider2D>.Get();
-        // clear out colliders
-        playerHitColliders.Clear();
-
-        collider.Overlap(PlayerAbility.GetContactFilter(new string[] { "PlayerMove" }), playerHitColliders);
-        foreach (var hit in playerHitColliders)
-        {
-            var player = hit.transform;
-            if (player.HasComponent<NetworkCharacter>())
-            {
-                player.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical, damageDealer);
-                result.Add(player.GetComponent<NetworkCharacter>());
-            }
-        }
-
         ListPool<Collider2D>.Release(playerHitColliders);
     }
 }

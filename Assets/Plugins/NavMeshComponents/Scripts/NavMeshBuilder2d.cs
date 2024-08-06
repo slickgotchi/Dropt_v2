@@ -297,6 +297,9 @@ namespace NavMeshPlus.Extensions
                 return;
             }
 
+            if (null == tilemap.layoutGrid)
+                return;
+
             var vec3int = new Vector3Int(0, 0, 0);
 
             var size = new Vector3(tilemap.layoutGrid.cellSize.x, tilemap.layoutGrid.cellSize.y, 0);
@@ -313,24 +316,31 @@ namespace NavMeshPlus.Extensions
             {
                 for (int j = bound.yMin; j < bound.yMax; j++)
                 {
-                    var src = new NavMeshBuildSource();
-                    src.area = area;
-
-                    vec3int.x = i;
-                    vec3int.y = j;
-                    if (!tilemap.HasTile(vec3int))
+                    for (int z = 0; z >= -1; z--)
                     {
-                        continue;
+                        var src = new NavMeshBuildSource();
+                        src.area = area;
+
+                        vec3int.x = i;
+                        vec3int.y = j;
+                        vec3int.z = z;
+
+                        if (!tilemap.HasTile(vec3int))
+                        {
+                            continue;
+                        }
+
+                        CollectTile(tilemap, builder, vec3int, size, sharedMesh, rot, ref src);
+                        if (modifierTilemap && modifierTilemap.TryGetTileModifier(vec3int, tilemap,
+                            out NavMeshModifierTilemap.TileModifier tileModifier))
+                        {
+                            src.area = tileModifier.overrideArea ? tileModifier.area : area;
+                        }
+
+                        sources.Add(src);
+
+                        builder.lookupCallback?.Invoke(tilemap.GetInstantiatedObject(vec3int), src);
                     }
-
-                    CollectTile(tilemap, builder, vec3int, size, sharedMesh, rot, ref src);
-                    if (modifierTilemap && modifierTilemap.TryGetTileModifier(vec3int, tilemap, out NavMeshModifierTilemap.TileModifier tileModifier))
-                    {
-                        src.area = tileModifier.overrideArea ? tileModifier.area : area;
-                    }    
-                    sources.Add(src);
-
-                    builder.lookupCallback?.Invoke(tilemap.GetInstantiatedObject(vec3int), src);
                 }
             }
         }
