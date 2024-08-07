@@ -46,7 +46,7 @@ namespace Audio
             PlaySound(type.ToString(), position);
         }
 
-        public async void PlaySound(string name, Vector3 position = default)
+        public void PlaySound(string name, Vector3 position = default)
         {
             if (CountPlayingDuplicates(name) >= m_config.MaxNumberOfDuplicates)
             {
@@ -60,7 +60,7 @@ namespace Audio
             if (m_soundChannels.TryGetFreeChannel(out var channel))
             {
                 channel.transform.position = position;
-                await PlayWithStop(name, channel);
+                PlayWithStop(name, channel);
                 return;
             }
 
