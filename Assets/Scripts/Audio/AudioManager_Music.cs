@@ -64,7 +64,7 @@ namespace Audio
                 return;
             }
 
-            await Preload(names);
+            await PreloadAsync(names);
 
             var tasks = new List<UniTask>();
 
@@ -83,7 +83,7 @@ namespace Audio
                 if (null == channel)
                     break;
 
-                await Play(name, channel);
+                await PlayAsync(name, channel);
 
                 tasks.Add(channel.FadeIn(m_config.FadingDuration, kShowLogs));
             }

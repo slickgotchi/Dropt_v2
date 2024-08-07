@@ -17,7 +17,8 @@ namespace Dropt.Utils
                 Debug.Log("Chanel " + source.gameObject.name + " Fade In: " + source.clip);
             }
 
-            source.DOKill();
+            source.DOComplete();
+
             await source.DOFade(1, duration).ToUniTask();
         }
 
@@ -27,23 +28,11 @@ namespace Dropt.Utils
             {
                 Debug.Log("Chanel " + source.gameObject.name + "Fade Out: " + source.clip);
             }
-            
-            bool isCompleted = false;
 
             var tween = source.DOFade(0, duration);
-            
-            tween.onComplete += () =>
-            {
-                isCompleted = true;
-            };
 
             await tween.ToUniTask();
-            
-            if (!isCompleted)
-            {
-                return;
-            }
-            
+
             source.StopSingle();
         }
 
@@ -123,14 +112,14 @@ namespace Dropt.Utils
             {
                 return;
             }
-            
+
             while (source != null && source.isPlaying)
             {
                 if (cancellationToken.IsCancellationRequested)
                 {
                     return;
                 }
-                
+
                 await UniTask.Yield();
             }
         }

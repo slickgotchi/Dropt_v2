@@ -78,7 +78,7 @@ namespace Audio
             m_soundChannels.Clear();
             ClearUpWorld();
         }
-        
+
         private void ClearUpWorld()
         {
             foreach (var goAudio in m_goAudious)
@@ -95,7 +95,18 @@ namespace Audio
 
         #region WarmUp
 
-        public async UniTask Preload(params string[] names)
+        public void Preload(params string[] names)
+        {
+            PreloadAsync(names).Forget();
+        }
+
+        public void Preload(params SoundType[] types)
+        {
+            var names = types.Select(type => type.ToString()).ToArray();
+            PreloadAsync(names).Forget();
+        }
+
+        private async UniTask PreloadAsync(params string[] names)
         {
             if (names.IsNullOrEmpty())
             {
@@ -109,16 +120,10 @@ namespace Audio
 
             foreach (var name in names)
             {
-                tasks.Add(Load(name));
+                tasks.Add(LoadAsync(name));
             }
 
             await UniTask.WhenAll(tasks);
-        }
-
-        public void Preload(params SoundType[] types)
-        {
-            var names = types.Select(type => type.ToString()).ToArray();
-            Preload(names);
         }
 
         #endregion
@@ -130,7 +135,7 @@ namespace Audio
             m_config = Resources.Load<AudioConfig>(kConfigKey);
         }
 
-        private async UniTask<LoadingClip> Load(string name)
+        private async UniTask<LoadingClip> LoadAsync(string name)
         {
             var path = name;
             var assets = await Assets;
@@ -152,9 +157,11 @@ namespace Audio
 
         #endregion
 
-        private async UniTask Play(string name, AudioSource channel)
+        #region Methods
+
+        private async UniTask PlayAsync(string name, AudioSource channel)
         {
-            var response = await Load(name);
+            var response = await LoadAsync(name);
 
             if (!response.Success || channel == null)
             {
@@ -165,9 +172,19 @@ namespace Audio
             channel.Play();
         }
 
-        private async UniTask PlayWithStop(string name, AudioSource channel)
+        private void Play(string name, AudioSource channel)
         {
-            await Play(name, channel);
+            PlayAsync(name, channel).Forget();
+        }
+
+        private void PlayWithStop(string name, AudioSource channel)
+        {
+            PlayWithStopAsync(name, channel).Forget();
+        }
+
+        private async UniTask PlayWithStopAsync(string name, AudioSource channel)
+        {
+            await PlayAsync(name, channel);
 
             if (channel.loop)
             {
@@ -193,5 +210,7 @@ namespace Audio
         {
             m_audioListener.enabled = isActive;
         }
+
+        #endregion
     }
 }

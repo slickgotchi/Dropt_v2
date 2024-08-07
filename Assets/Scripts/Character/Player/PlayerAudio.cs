@@ -27,16 +27,16 @@ public sealed class PlayerAudio : NetworkBehaviour
 
     private void OnPlaySound(string type, Vector3 position, ulong id)
     {
-        if (!IsServer)
+        if (!IsServer || NetworkObjectId != id)
             return;
 
         PlaySoundClientRpc(type, position, id);
     }
 
-    [Rpc(SendTo.NotMe)]
+    [Rpc(SendTo.NotOwner)]
     void PlaySoundClientRpc(string type, Vector3 position, ulong id)
     {
-        if (NetworkObjectId == id)
+        if (IsServer)
             return;
 
         GameAudioManager.Instance.PlaySoundForMe(type, position);

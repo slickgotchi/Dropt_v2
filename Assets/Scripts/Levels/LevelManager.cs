@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Audio.Game;
 using UnityEngine;
 using Unity.Netcode;
 using Unity.VisualScripting;
@@ -34,6 +35,14 @@ public class LevelManager : NetworkBehaviour
         State = new NetworkVariable<TransitionState>(TransitionState.Null);
     }
 
+    private void OnDestroy()
+    {
+        if (null != GameAudioManager.Instance)
+        {
+            GameAudioManager.Instance.PLAY_SOUND -= OnPlaySound;
+        }
+    }
+
     // Start is called before the first frame update
     public override void OnNetworkSpawn()
     {
@@ -47,6 +56,8 @@ public class LevelManager : NetworkBehaviour
 
         // spawn first level
         CreateLevel(0);
+
+        GameAudioManager.Instance.PLAY_SOUND += OnPlaySound;
     }
 
     public void GoToDegenapeVillageLevel()
@@ -309,5 +320,19 @@ public class LevelManager : NetworkBehaviour
             NavigationSurfaceSingleton.Instance.Surface.UpdateNavMesh(NavigationSurfaceSingleton.Instance.Surface.navMeshData);
             Debug.Log("Rebuilt NavMesh!");
         }
+    }
+
+    private void OnPlaySound(string type, Vector3 position, ulong id)
+    {
+        if (!IsServer || id != 0)
+            return;
+
+        PlaySoundClientRpc(type, position, id);
+    }
+
+    [Rpc(SendTo.NotMe)]
+    void PlaySoundClientRpc(string type, Vector3 position, ulong id)
+    {
+        GameAudioManager.Instance.PlaySoundForMe(type, position);
     }
 }
