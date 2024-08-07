@@ -90,6 +90,7 @@ public class GenericEnemyProjectile : NetworkBehaviour
                 hit.transform.parent.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical, Parent);
             }
             gameObject.SetActive(false);
+            if (IsServer) gameObject.GetComponent<NetworkObject>().Despawn();
         }
     }
 }

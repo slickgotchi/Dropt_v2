@@ -1,5 +1,6 @@
 using Unity.Netcode;
 using UnityEngine;
+using System.Collections.Generic;
 
 public class CharacterStatus : NetworkBehaviour
 {
@@ -21,6 +22,23 @@ public class CharacterStatus : NetworkBehaviour
     private const ushort AlertingBit = 1 << 15;  // 1000 0000 0000 0000
 
     private NetworkVariable<ushort> statusEffects = new NetworkVariable<ushort>();
+    private Dictionary<ushort, float> statusEffectEndTimes = new Dictionary<ushort, float>();
+
+    private void Update()
+    {
+        if (IsServer)
+        {
+            List<ushort> keys = new List<ushort>(statusEffectEndTimes.Keys);
+            foreach (ushort bit in keys)
+            {
+                if (Time.time >= statusEffectEndTimes[bit])
+                {
+                    SetStatusEffect(bit, false);
+                    statusEffectEndTimes.Remove(bit);
+                }
+            }
+        }
+    }
 
     public bool IsPoisoned() => HasStatusEffect(PoisonedBit);
     public bool IsStunned() => HasStatusEffect(StunnedBit);
@@ -39,39 +57,44 @@ public class CharacterStatus : NetworkBehaviour
     public bool IsSlowed() => HasStatusEffect(SlowedBit);
     public bool IsAlerting() => HasStatusEffect(AlertingBit);
 
-    public void SetPoisoned(bool value) => SetStatusEffect(PoisonedBit, value);
-    public void SetStunned(bool value) => SetStatusEffect(StunnedBit, value);
-    public void SetBurning(bool value) => SetStatusEffect(BurningBit, value);
-    public void SetFrozen(bool value) => SetStatusEffect(FrozenBit, value);
-    public void SetShielded(bool value) => SetStatusEffect(ShieldedBit, value);
-    public void SetSilenced(bool value) => SetStatusEffect(SilencedBit, value);
-    public void SetBleeding(bool value) => SetStatusEffect(BleedingBit, value);
-    public void SetInvisible(bool value) => SetStatusEffect(InvisibleBit, value);
-    public void SetCursed(bool value) => SetStatusEffect(CursedBit, value);
-    public void SetRooted(bool value) => SetStatusEffect(RootedBit, value);
-    public void SetConfused(bool value) => SetStatusEffect(ConfusedBit, value);
-    public void SetEmpowered(bool value) => SetStatusEffect(EmpoweredBit, value);
-    public void SetWeakened(bool value) => SetStatusEffect(WeakenedBit, value);
-    public void SetHasted(bool value) => SetStatusEffect(HastedBit, value);
-    public void SetSlowed(bool value) => SetStatusEffect(SlowedBit, value);
-    public void SetAlerting(bool value) => SetStatusEffect(AlertingBit, value);
+    public void SetPoisoned(bool value, float duration = 0) => SetStatusEffect(PoisonedBit, value, duration);
+    public void SetStunned(bool value, float duration = 0) => SetStatusEffect(StunnedBit, value, duration);
+    public void SetBurning(bool value, float duration = 0) => SetStatusEffect(BurningBit, value, duration);
+    public void SetFrozen(bool value, float duration = 0) => SetStatusEffect(FrozenBit, value, duration);
+    public void SetShielded(bool value, float duration = 0) => SetStatusEffect(ShieldedBit, value, duration);
+    public void SetSilenced(bool value, float duration = 0) => SetStatusEffect(SilencedBit, value, duration);
+    public void SetBleeding(bool value, float duration = 0) => SetStatusEffect(BleedingBit, value, duration);
+    public void SetInvisible(bool value, float duration = 0) => SetStatusEffect(InvisibleBit, value, duration);
+    public void SetCursed(bool value, float duration = 0) => SetStatusEffect(CursedBit, value, duration);
+    public void SetRooted(bool value, float duration = 0) => SetStatusEffect(RootedBit, value, duration);
+    public void SetConfused(bool value, float duration = 0) => SetStatusEffect(ConfusedBit, value, duration);
+    public void SetEmpowered(bool value, float duration = 0) => SetStatusEffect(EmpoweredBit, value, duration);
+    public void SetWeakened(bool value, float duration = 0) => SetStatusEffect(WeakenedBit, value, duration);
+    public void SetHasted(bool value, float duration = 0) => SetStatusEffect(HastedBit, value, duration);
+    public void SetSlowed(bool value, float duration = 0) => SetStatusEffect(SlowedBit, value, duration);
+    public void SetAlerting(bool value, float duration = 0) => SetStatusEffect(AlertingBit, value, duration);
 
-    private void SetStatusEffect(ushort bit, bool value)
+    private void SetStatusEffect(ushort bit, bool value, float duration = 0)
     {
         if (IsServer)
         {
             if (value)
             {
                 statusEffects.Value |= bit;
+                if (duration > 0)
+                {
+                    statusEffectEndTimes[bit] = Time.time + duration;
+                }
             }
             else
             {
                 statusEffects.Value &= (ushort)~bit;
+                statusEffectEndTimes.Remove(bit);
             }
         }
         else
         {
-            SubmitStatusEffectServerRpc(bit, value);
+            SubmitStatusEffectServerRpc(bit, value, duration);
         }
     }
 
@@ -81,15 +104,8 @@ public class CharacterStatus : NetworkBehaviour
     }
 
     [ServerRpc]
-    private void SubmitStatusEffectServerRpc(ushort bit, bool value)
+    private void SubmitStatusEffectServerRpc(ushort bit, bool value, float duration)
     {
-        if (value)
-        {
-            statusEffects.Value |= bit;
-        }
-        else
-        {
-            statusEffects.Value &= (ushort)~bit;
-        }
+        SetStatusEffect(bit, value, duration);
     }
 }

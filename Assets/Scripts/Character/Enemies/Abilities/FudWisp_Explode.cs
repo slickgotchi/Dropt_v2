@@ -11,17 +11,14 @@ public class FudWisp_Explode : EnemyAbility
     public float ExplosionDuration = 1f;
     public float ExplosionRadius = 3f;
     public float RootDuration = 3f;
-    public BuffObject FudWisp_RootBuff;
-    public GameObject BuffTimerPrefab;
 
-    [SerializeField] private Transform SpriteTransform;
     [SerializeField] private Collider2D Collider;
 
-    private float m_explosionGrowFadeTimer = 0;
+    private float m_explosionTimer = 0;
 
     private void Awake()
     {
-        SpriteTransform.localScale = Vector3.one;
+        transform.localScale = new Vector3(ExplosionRadius * 2, ExplosionRadius * 2, 1);
     }
 
     public override void OnTelegraphStart()
@@ -33,13 +30,8 @@ public class FudWisp_Explode : EnemyAbility
     {
         Debug.Log("OnExecutionStart()");
 
-        // reset explosion fade timer & set fade out duration
-        m_explosionGrowFadeTimer = 0f;
-        GetComponentInChildren<FadeOut>().duration = ExplosionDuration;
-
         // set position of explosion and initial scale
         transform.position = Parent.transform.position + new Vector3(0, 0.6f, 0);
-        SpriteTransform.localScale = new Vector3(0f, 0f, 1);
 
         // resize explosion collider and check collisions
         Collider.GetComponent<CircleCollider2D>().radius = ExplosionRadius;
@@ -51,6 +43,18 @@ public class FudWisp_Explode : EnemyAbility
             transform.parent = null;
             Parent.GetComponent<UtilityAgentFacade>().Destroy();
         }
+
+        // spawn visual effect
+        SpawnFudWispExplosionClientRpc(transform.position, ExplosionRadius);
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    void SpawnFudWispExplosionClientRpc(Vector3 position, float explosionRadius)
+    {
+        Color color;
+        ColorUtility.TryParseHtmlString("#99e65f", out color);
+        color.a = 0.5f;
+        VisualEffectsManager.Singleton.SpawnFudWispExplosion(position, color, explosionRadius);
     }
 
     private void HandleCollisions(Collider2D collider)
@@ -67,14 +71,7 @@ public class FudWisp_Explode : EnemyAbility
             if (player.HasComponent<NetworkCharacter>())
             {
                 // apply rooted
-                RootedEffect.ApplyRootedEffect(player.gameObject, RootDuration, FudWisp_RootBuff);
-
-                // create buff
-                //var buffTimer = Instantiate(BuffTimerPrefab).GetComponent<BuffTimer>();
-                //buffTimer.StartBuff(FudWisp_RootBuff, player.GetComponent<NetworkCharacter>(), RootDuration);
-
-                // show the buff on the player
-                player.GetComponent<PlayerStatusEffects>().SetVisualEffect(PlayerStatusEffects.Effect.Rooted, RootDuration);
+                player.GetComponent<CharacterStatus>().SetRooted(true, RootDuration);
             }
         }
 
@@ -84,16 +81,11 @@ public class FudWisp_Explode : EnemyAbility
 
     public override void OnUpdate()
     {
-        m_explosionGrowFadeTimer += Time.deltaTime;
-        if (m_explosionGrowFadeTimer > ExplosionDuration)
+        m_explosionTimer += Time.deltaTime;
+        if (m_explosionTimer > ExplosionDuration)
         {
             if (IsServer) GetComponent<NetworkObject>().Despawn();
             return;
         }
-
-        m_explosionGrowFadeTimer = math.min(m_explosionGrowFadeTimer, ExplosionDuration);
-        var alpha = m_explosionGrowFadeTimer / ExplosionDuration;
-
-        SpriteTransform.localScale = new Vector3(alpha * ExplosionRadius, alpha * ExplosionRadius, 1);
     }
 }

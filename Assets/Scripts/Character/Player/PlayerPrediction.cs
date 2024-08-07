@@ -98,6 +98,8 @@ public class PlayerPrediction : NetworkBehaviour
 
     public bool IsInputDisabled = false;
 
+    public float MovementMultiplier = 1f;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -444,7 +446,7 @@ public class PlayerPrediction : NetworkBehaviour
         InputPayload inputPayload = new InputPayload
         {
             tick = currentTick,
-            moveDirection = GetComponent<PlayerGotchi>().IsDropSpawning ? Vector3.zero : m_moveDirection,
+            moveDirection = GetComponent<PlayerGotchi>().IsDropSpawning ? Vector3.zero : m_moveDirection * MovementMultiplier,
             actionDirection = m_actionDirection,
             abilityTriggered = m_abilityTriggered,
             holdAbilityPending = m_holdAbilityPending,
@@ -452,6 +454,14 @@ public class PlayerPrediction : NetworkBehaviour
             isHoldStartFlag = m_isHoldStartFlag,
             isHoldFinishFlag = m_isHoldFinishFlag,
         };
+
+        if (m_abilityTriggered == PlayerAbilityEnum.Dash)
+        {
+            if (MovementMultiplier <= 0)
+            {
+                m_abilityTriggered = PlayerAbilityEnum.Null;
+            }
+        }
 
         //// check for click input blockers
         //if (isClickInputDisabled || isAllInputDisabled)
