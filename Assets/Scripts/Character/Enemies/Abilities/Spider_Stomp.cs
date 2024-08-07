@@ -12,17 +12,22 @@ public class Spider_Stomp : EnemyAbility
     private float m_speed;
     private Collider2D m_collider;
     private bool m_isExecuting = false;
-    private GameObject m_stompCircle;
+    //private GameObject m_stompCircle;
+
+    // need to account for positions being delayed due to interpolation
+    private float m_interpolationDelay = 0.3f;
 
     private void Awake()
     {
         m_collider = GetComponent<Collider2D>();
-        m_stompCircle = transform.Find("StompCircle").gameObject;
-        m_stompCircle.SetActive(false);
+        //m_stompCircle = transform.Find("StompCircle").gameObject;
+        //m_stompCircle.SetActive(false);
     }
 
     public override void OnNetworkSpawn()
     {
+        m_interpolationDelay = IsHost ? 0 : 3 * 1 / (float)NetworkManager.Singleton.NetworkTickSystem.TickRate;
+
         if (Parent == null) return;
 
         transform.position = Parent.transform.position;
@@ -42,7 +47,32 @@ public class Spider_Stomp : EnemyAbility
         if (Parent == null) return;
 
         m_isExecuting = true;
+
+        Invoke("PlayJumpAnimation", m_interpolationDelay);
+    }
+
+    void PlayJumpAnimation()
+    {
+        if (Parent == null) return;
         Parent.GetComponent<Animator>().Play("Spider_Jump");
+    }
+
+    void PlayWalkAnimation()
+    {
+        if (Parent == null) return;
+        Parent.GetComponent<Animator>().Play("Spider_Walk");
+    }
+
+    void SpawnStompCircle()
+    {
+        SpawnStompCircleClientRpc();
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    void SpawnStompCircleClientRpc()
+    {
+        VisualEffectsManager.Singleton.SpawnStompCircle(transform.position);
+
     }
 
     public override void OnCooldownStart()
@@ -50,7 +80,7 @@ public class Spider_Stomp : EnemyAbility
         if (Parent == null) return;
 
         m_isExecuting = false;
-        Parent.GetComponent<Animator>().Play("Spider_Walk");
+        Invoke("PlayWalkAnimation", m_interpolationDelay);
 
         // do single collision check
         var damage = Parent.GetComponent<NetworkCharacter>().GetAttackPower();
@@ -58,8 +88,7 @@ public class Spider_Stomp : EnemyAbility
         EnemyAbility.PlayerCollisionCheckAndDamage(m_collider, damage, isCritical);
 
         // activate the stomp circle
-        m_stompCircle.SetActive(true);
-        m_stompCircle.transform.position = transform.position;
+        Invoke("SpawnStompCircle", m_interpolationDelay);
     }
 
     public override void OnUpdate()

@@ -29,7 +29,6 @@ public class SpiderPod_SpawnSpiders : EnemyAbility
             spider.transform.position = Parent.transform.position + new Vector3(0f, 1f, 0f);
             spider.GetComponent<EnemyController>().SpawnDuration = SpawnDuration;
             spider.GetComponent<NetworkObject>().Spawn();
-            spider.GetComponent<Animator>().Play("Spider_Jump");
             m_spiderDirections.Add(dir);
             m_spiders.Add(spider);
         }
