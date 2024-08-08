@@ -11,6 +11,7 @@ public class EnemyAbility : NetworkBehaviour
     public float CooldownDuration = 1f;
     [HideInInspector] public GameObject Parent;
     [HideInInspector] public GameObject Target;
+    [HideInInspector] public Vector3 AttackDirection;
 
     public bool isStartRotationAlignedWithParentDirection = false;
     public float axialOffsetWhenAlignedWithParentDirection = 0;

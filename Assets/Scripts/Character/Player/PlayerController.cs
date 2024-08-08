@@ -20,6 +20,8 @@ public class PlayerController : NetworkBehaviour
 
     private bool m_isPlayerHUDInitialized = false;
 
+    public GameObject TestFernPrefab;
+
     public override void OnNetworkSpawn()
     {
         if (IsLocalPlayer) {
@@ -63,6 +65,9 @@ public class PlayerController : NetworkBehaviour
                 PlayerHUDCanvas.Singleton.SetLocalPlayerCharacter(GetComponent<NetworkCharacter>());
             }
         }
+
+        HandleNextLevelCheat();
+        HandleSpawnFern();
     }
 
     private LevelManager.TransitionState m_localTransition = LevelManager.TransitionState.Null;
@@ -95,5 +100,38 @@ public class PlayerController : NetworkBehaviour
                 REKTCanvas.Instance.Container.SetActive(false);
             }
         }
+    }
+
+
+    // cheat to go to next level
+    void HandleNextLevelCheat()
+    {
+        if (UnityEngine.Input.GetKeyDown(KeyCode.N))
+        {
+            GoNextLevelServerRpc();
+        }
+    }
+
+    [Rpc(SendTo.Server)]
+    void GoNextLevelServerRpc()
+    {
+        LevelManager.Instance.GoToNextLevel();
+    }
+
+    // cheat to go to next level
+    void HandleSpawnFern()
+    {
+        if (UnityEngine.Input.GetKeyDown(KeyCode.R))
+        {
+            SpawnFernServerRpc();
+        }
+    }
+
+    [Rpc(SendTo.Server)]
+    void SpawnFernServerRpc()
+    {
+        var obj = Instantiate(TestFernPrefab);
+        obj.transform.position = transform.position;
+        obj.GetComponent<NetworkObject>().Spawn();
     }
 }

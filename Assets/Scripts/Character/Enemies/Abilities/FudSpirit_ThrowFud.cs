@@ -14,7 +14,7 @@ public class FudSpirit_ThrowFud : EnemyAbility
     public override void OnExecutionStart()
     {
         // get direction
-        var dir = (Target.transform.position - Parent.transform.position).normalized;
+        var dir = (Target.GetComponent<AttackCentre>().transform.position - Parent.GetComponent<AttackCentre>().transform.position).normalized;
 
         // init and spawn projectile
         var projectile = Instantiate(FudProjectile);

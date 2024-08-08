@@ -23,7 +23,6 @@ public class LeafShade_Charge : EnemyAbility
 
     private void Awake()
     {
-        //m_collider = GetComponent<Collider2D>();
     }
 
     public override void OnNetworkSpawn()
@@ -33,7 +32,7 @@ public class LeafShade_Charge : EnemyAbility
     public override void OnTelegraphStart()
     {
         transform.position = Parent.transform.position;
-        m_direction = (Target.transform.position - Parent.transform.position).normalized;
+        m_direction = AttackDirection;
         m_speed = ChargeDistance / ExecutionDuration;
 
         EnemyController.Facing facing = m_direction.x > 0 ? EnemyController.Facing.Right : EnemyController.Facing.Left;
@@ -55,11 +54,6 @@ public class LeafShade_Charge : EnemyAbility
         if (!m_isExecuting) return;
 
         HandleCharge();
-
-        //ContinuousCollisionCheck();
-
-        //transform.position += m_direction * m_speed * Time.deltaTime;
-        //if (Parent != null) Parent.transform.position = transform.position;
     }
 
     public void HandleCharge()
@@ -76,7 +70,6 @@ public class LeafShade_Charge : EnemyAbility
 
         if (hitCount > 0)
         {
-            Debug.Log("Hit a wall");
             var rayHit = m_wallHits[0];
             castDistance = rayHit.distance;
         }
@@ -123,51 +116,4 @@ public class LeafShade_Charge : EnemyAbility
         transform.position += m_direction * castDistance;
         if (Parent != null) Parent.transform.position = transform.position;
     }
-
-    //public void ContinuousCollisionCheck()
-    //{
-    //    Physics2D.SyncTransforms();
-
-    //    // Use ColliderCast to perform continuous collision detection
-    //    Vector2 castDirection = m_direction;
-    //    float castDistance = m_speed * Time.deltaTime;
-    //    RaycastHit2D[] rayHits = new RaycastHit2D[1];
-    //    m_collider.Cast(castDirection,
-    //        PlayerAbility.GetContactFilter(new string[] { "PlayerHurt", "Destructible" }),
-    //        rayHits, castDistance);
-
-    //    // loop through ray hits
-    //    for (int i = 0; i < rayHits.Length; i++) 
-    //    {
-    //        var collider = rayHits[i].collider;
-    //        if (collider == null) continue;
-    //        var colliderTransform = rayHits[i].collider.transform;
-    //        if (colliderTransform == null) continue;
-
-    //        bool isAlreadyHit = false;
-    //        for (int j = 0; j < m_hitTransforms.Count; j++)
-    //        {
-    //            if (m_hitTransforms[j] == colliderTransform)
-    //            {
-    //                isAlreadyHit = true;
-    //                break;
-    //            }
-    //        }
-
-    //        if (isAlreadyHit) continue; 
-    //        m_hitTransforms.Add(colliderTransform);
-
-    //        // handle players
-    //        if (colliderTransform.parent != null && colliderTransform.parent.HasComponent<NetworkCharacter>())
-    //        {
-    //            colliderTransform.parent.GetComponent<NetworkCharacter>().TakeDamage(10, false);
-    //        }
-
-    //        // handle destructibles
-    //        if (colliderTransform.HasComponent<Destructible>())
-    //        {
-    //            colliderTransform.GetComponent<Destructible>().TakeDamage(100);
-    //        }
-    //    }
-    //}
 }

@@ -14,7 +14,7 @@ public class FussPot_Erupt : EnemyAbility
     {
         var spawnPosition = Parent.transform.position + new Vector3(0, 1.5f, 0);
 
-        var dir = Target.transform.position - spawnPosition;
+        var dir = AttackDirection;
         var distance = dir.magnitude;
         var damage = Parent.GetComponent<NetworkCharacter>().AttackPower.Value;
         var criticalChance = Parent.GetComponent<NetworkCharacter>().CriticalChance.Value;

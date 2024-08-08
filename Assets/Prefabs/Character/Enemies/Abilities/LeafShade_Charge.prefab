@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2001655958969596074}
   - component: {fileID: 601258585932272102}
-  m_Layer: 16
+  m_Layer: 20
   m_Name: MoveCollider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -62,7 +62,7 @@ CircleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -143,7 +143,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 4513444023045694773, guid: 169030ce1c8b30b4e8f59917fe278a10, type: 3}
+  m_Sprite: {fileID: -3599907312673860206, guid: a40958ecf3deafe40add55ae256dfd9d, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -302,6 +302,9 @@ MonoBehaviour:
   CooldownDuration: 1
   Parent: {fileID: 0}
   Target: {fileID: 0}
+  AttackDirection: {x: 0, y: 0, z: 0}
+  isStartRotationAlignedWithParentDirection: 0
+  axialOffsetWhenAlignedWithParentDirection: 0
   EnemyAbilityState: 0
   ChargeDistance: 7
   m_damageCollider: {fileID: 8262758190809219330}

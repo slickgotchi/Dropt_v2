@@ -63,8 +63,9 @@ public class EnemyAbilities : MonoBehaviour
             startPosition += attackDir * no_enemyAbility.axialOffsetWhenAlignedWithParentDirection;
         }
 
-        // set position
+        // set position and attack direction
         no_ability.transform.position = startPosition;
+        no_enemyAbility.AttackDirection = attackDir;
 
         // spawn and activate
         no_ability.GetComponent<NetworkObject>().Spawn();

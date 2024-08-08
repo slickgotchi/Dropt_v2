@@ -23,16 +23,10 @@ public class FudWisp_Explode : EnemyAbility
 
     public override void OnTelegraphStart()
     {
-        Debug.Log("OnTelegraphStart()");
     }
 
     public override void OnExecutionStart()
     {
-        Debug.Log("OnExecutionStart()");
-
-        // set position of explosion and initial scale
-        transform.position = Parent.transform.position + new Vector3(0, 0.6f, 0);
-
         // resize explosion collider and check collisions
         Collider.GetComponent<CircleCollider2D>().radius = ExplosionRadius;
         HandleCollisions(Collider);
@@ -45,21 +39,11 @@ public class FudWisp_Explode : EnemyAbility
         }
 
         // spawn visual effect
-        //SpawnFudWispExplosionClientRpc(transform.position, ExplosionRadius);
         SpawnBasicCircleClientRpc(
             transform.position,
             Dropt.Utils.Color.HexToColor("#99e65f", 0.5f),
             ExplosionRadius);
     }
-
-    //[Rpc(SendTo.ClientsAndHost)]
-    //void SpawnFudWispExplosionClientRpc(Vector3 position, float explosionRadius)
-    //{
-    //    Color color;
-    //    ColorUtility.TryParseHtmlString("#99e65f", out color);
-    //    color.a = 0.5f;
-    //    VisualEffectsManager.Singleton.SpawnFudWispExplosion(position, color, explosionRadius);
-    //}
 
     private void HandleCollisions(Collider2D collider)
     {
