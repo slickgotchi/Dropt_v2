@@ -45,17 +45,21 @@ public class FudWisp_Explode : EnemyAbility
         }
 
         // spawn visual effect
-        SpawnFudWispExplosionClientRpc(transform.position, ExplosionRadius);
+        //SpawnFudWispExplosionClientRpc(transform.position, ExplosionRadius);
+        SpawnBasicCircleClientRpc(
+            transform.position,
+            Dropt.Utils.Color.HexToColor("#99e65f", 0.5f),
+            ExplosionRadius);
     }
 
-    [Rpc(SendTo.ClientsAndHost)]
-    void SpawnFudWispExplosionClientRpc(Vector3 position, float explosionRadius)
-    {
-        Color color;
-        ColorUtility.TryParseHtmlString("#99e65f", out color);
-        color.a = 0.5f;
-        VisualEffectsManager.Singleton.SpawnFudWispExplosion(position, color, explosionRadius);
-    }
+    //[Rpc(SendTo.ClientsAndHost)]
+    //void SpawnFudWispExplosionClientRpc(Vector3 position, float explosionRadius)
+    //{
+    //    Color color;
+    //    ColorUtility.TryParseHtmlString("#99e65f", out color);
+    //    color.a = 0.5f;
+    //    VisualEffectsManager.Singleton.SpawnFudWispExplosion(position, color, explosionRadius);
+    //}
 
     private void HandleCollisions(Collider2D collider)
     {

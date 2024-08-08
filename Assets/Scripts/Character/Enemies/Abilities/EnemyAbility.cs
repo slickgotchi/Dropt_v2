@@ -12,6 +12,9 @@ public class EnemyAbility : NetworkBehaviour
     [HideInInspector] public GameObject Parent;
     [HideInInspector] public GameObject Target;
 
+    public bool isStartRotationAlignedWithParentDirection = false;
+    public float axialOffsetWhenAlignedWithParentDirection = 0;
+
     private float m_timer = 0;
     private bool m_isActive = false;
 
@@ -77,6 +80,12 @@ public class EnemyAbility : NetworkBehaviour
     public virtual void OnCooldownStart() { }
     public virtual void OnFinish() { }
     public virtual void OnUpdate() { }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    protected void SpawnBasicCircleClientRpc(Vector3 position, Color color, float explosionRadius)
+    {
+        VisualEffectsManager.Singleton.SpawnBasicCircle(position, color, explosionRadius);
+    }
 
     public static void PlayerCollisionCheckAndDamage(Collider2D collider, float damage, 
         bool isCritical = false, GameObject damageDealer = null)

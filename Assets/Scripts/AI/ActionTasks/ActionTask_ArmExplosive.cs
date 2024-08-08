@@ -7,8 +7,7 @@ public class ActionTask_ArmExplosive : ActionTask
 {
     public VariableReference<float> PursueSpeed = 3.0f;
     public VariableReference<float> StopShortDistance = 1.5f;
-    public VariableReference<float> DetonationTime = 3f;
-    private bool m_isActivated = false;
+    //public VariableReference<float> DetonationTime = 3f;
 
     protected override UpdateStatus OnUpdate(float deltaTime)
     {
@@ -29,16 +28,19 @@ public class ActionTask_ArmExplosive : ActionTask
         navMeshAgent.SetDestination(target.position + dir * StopShortDistance);
         navMeshAgent.speed = PursueSpeed;
 
-        // reduce detonation time
-        DetonationTime.Value -= Time.deltaTime;
-        if (DetonationTime.Value <= 0)
-        {
-            var attackAbility = GameObject.GetComponent<EnemyAbilities>().PrimaryAttack;
-            attackAbility.transform.position = self.position;
-            m_isActivated = GameObject.GetComponent<EnemyAbilities>().TryActivate(attackAbility, GameObject, target.gameObject);
+        // make sure enemy is armed
+        GameObject.GetComponent<EnemyController>().IsArmed = true;
 
-            return UpdateStatus.Success;
-        }
+        //// reduce detonation time
+        //DetonationTime.Value -= Time.deltaTime;
+        //if (DetonationTime.Value <= 0)
+        //{
+        //    var attackAbility = GameObject.GetComponent<EnemyAbilities>().PrimaryAttack;
+        //    attackAbility.transform.position = self.position;
+        //    GameObject.GetComponent<EnemyAbilities>().TryActivate(attackAbility, GameObject, target.gameObject);
+
+        //    return UpdateStatus.Success;
+        //}
 
         return UpdateStatus.Running;
     }
