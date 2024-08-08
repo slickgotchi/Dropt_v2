@@ -11,12 +11,14 @@ public class VisualEffectsManager : MonoBehaviour
     [SerializeField] private GameObject splashExplosionPrefab;
     [SerializeField] private GameObject fudWispExplosionPrefab;
     [SerializeField] private GameObject stompCirclePrefab;
+    [SerializeField] private GameObject basicCirclePrefab;
 
     private Queue<GameObject> m_cloudExplosionPool = new Queue<GameObject>();
     private Queue<GameObject> m_bulletExplosionPool = new Queue<GameObject>();
     private Queue<GameObject> m_splashExplosionPool = new Queue<GameObject>();
     private Queue<GameObject> m_fudWispExplosionPool = new Queue<GameObject>();
     private Queue<GameObject> m_stompCirclePool = new Queue<GameObject>();
+    private Queue<GameObject> m_basicCirclePool = new Queue<GameObject>();
 
     private void Awake()
     {
@@ -111,6 +113,31 @@ public class VisualEffectsManager : MonoBehaviour
         return instance;
     }
 
+    public GameObject SpawnBasicCircle(Vector3 position, Color? color = null, float radius = 0.5f)
+    {
+        if (color == null) color = Color.white;
+
+        float scale = 2 * radius;
+
+        GameObject instance;
+
+        if (m_basicCirclePool.Count > 0)
+        {
+            instance = m_basicCirclePool.Dequeue();
+            instance.SetActive(true);
+        }
+        else
+        {
+            instance = Instantiate(basicCirclePrefab);
+        }
+
+        instance.transform.position = position;
+        instance.transform.localScale = new Vector3(scale, scale, 1);
+        instance.GetComponentInChildren<SpriteRenderer>().color = (Color)color;
+        return instance;
+    }
+
+
     public GameObject SpawnStompCircle(Vector3 position)
     {
         GameObject instance;
@@ -138,5 +165,6 @@ public class VisualEffectsManager : MonoBehaviour
         if (instance.HasComponent<SplashExplosion>()) m_splashExplosionPool.Enqueue(instance);
         if (instance.HasComponent<FudWispExplosion>()) m_fudWispExplosionPool.Enqueue(instance);
         if (instance.HasComponent<StompCircle>()) m_stompCirclePool.Enqueue(instance);
+        if (instance.HasComponent<BasicCircle>()) m_basicCirclePool.Enqueue(instance);
     }
 }

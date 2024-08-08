@@ -27,6 +27,8 @@ public class EnemyController : NetworkBehaviour
     [HideInInspector] public bool IsSpawning = true;
     public float SpawnDuration = 0f;
 
+    [HideInInspector] public bool IsArmed = false;
+
     private void Awake()
     {
         m_localVelocity = GetComponent<LocalVelocity>();

@@ -30,7 +30,7 @@ public class Snail_Slash : EnemyAbility
 
         // setup attack
         Vector3 attackDir = (Target.transform.position - Parent.transform.position).normalized;
-        transform.rotation = PlayerAbility.GetRotationFromDirection(attackDir);
+        //transform.rotation = PlayerAbility.GetRotationFromDirection(attackDir);
 
         EnemyController.Facing facing = attackDir.x > 0 ? EnemyController.Facing.Right : EnemyController.Facing.Left;
         Parent.GetComponent<EnemyController>().SetFacingDirection(facing, 1f);
@@ -40,7 +40,7 @@ public class Snail_Slash : EnemyAbility
     {
         if (Parent == null) return;
 
-        transform.position = Parent.transform.position + new Vector3(0, 0.35f, 0f);
+        //transform.position = Parent.transform.position + new Vector3(0, 0.35f, 0f);
         m_animator.Play("SnailSlash_Attack");
         var damage = Parent.GetComponent<NetworkCharacter>().GetAttackPower();
         var isCritical = Parent.GetComponent<NetworkCharacter>().IsCriticalAttack();
