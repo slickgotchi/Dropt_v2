@@ -55,7 +55,7 @@ public enum DestructibleSpawnType
     Fern_FOMO,
     Fern_ALPHA,
     Fern_KEK,
-    Mangrove,
+    Mangrove_Plain,
     Mangrove_AP,
     Mangrove_HP,
     Flower_FUD,

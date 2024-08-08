@@ -23,13 +23,10 @@ public class BombSnail_Explode : EnemyAbility
 
     public override void OnTelegraphStart()
     {
-        Debug.Log("OnTelegraphStart()");
     }
 
     public override void OnExecutionStart()
     {
-        Debug.Log("OnExecutionStart()");
-
         // reset explosion fade timer & set fade out duration
         m_explosionTimer = 0f;
 

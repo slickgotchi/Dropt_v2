@@ -40,6 +40,7 @@ public class SpiderPod_SpawnSpiders : EnemyAbility
     {
         for (int i = 0; i < m_spiders.Count; i++)
         {
+            if (m_spiders[i] == null) continue;
             m_spiders[i].transform.position += m_speed * m_spiderDirections[i] * Time.deltaTime;
         }
     }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 using Unity.VisualScripting;
+using UnityEngine.AI;
 
 public class LevelManager : NetworkBehaviour
 {
@@ -18,8 +19,8 @@ public class LevelManager : NetworkBehaviour
     [HideInInspector] public int m_currentLevelIndex = 0;
 
     // variables to keep track of spawning levels
-    [HideInInspector] public int LevelSpawningCount = 0;
-    private bool isBuildNavMeshOnLevelSpawnsComplete = false;    // when no levels spawing we can build nav mesh
+    //[HideInInspector] public int LevelSpawningCount = 0;
+    //private bool isBuildNavMeshOnLevelSpawnsComplete = false;    // when no levels spawing we can build nav mesh
 
     // variable for player spawning
     private List<Vector3> m_playerSpawnPoints = new List<Vector3>();
@@ -107,8 +108,8 @@ public class LevelManager : NetworkBehaviour
     {
         // increment the spawning level counter and start watching this number so we can
         // build nav mesh once it goes back to zero
-        LevelSpawningCount++;
-        isBuildNavMeshOnLevelSpawnsComplete = true;
+        //LevelSpawningCount++;
+        //isBuildNavMeshOnLevelSpawnsComplete = true;
 
         // spawn the level
         m_currentLevel = Instantiate(m_levels[index]);
@@ -240,23 +241,73 @@ public class LevelManager : NetworkBehaviour
     bool isBuildNextFrame = false;
     bool isNavMeshBuilt = false;
 
+    // lets poll for new NavMeshObstacle's every 2s for our navmesh regen code
+    private float m_navMeshObstaclePollInterval = 2f;
+    private float m_navMeshObstaclePollTimer = 0f;
+
+    private List<NavMeshObstacle> m_navMeshObstacles = new List<NavMeshObstacle>();
+
     void HandleBuildNavMesh()
     {
         if (!IsServer) return;
 
-        if (isBuildNextFrame && !isNavMeshBuilt)
+        //// 1. reduce timer
+        //m_navMeshObstaclePollTimer -= Time.deltaTime;
+
+        //// 2. check time to poll
+        //if (m_navMeshObstaclePollTimer <= 0)
+        //{
+        //    m_navMeshObstaclePollTimer = m_navMeshObstaclePollInterval;
+
+        //    // get all navmeshobstacles
+        //    var navMeshObstacles = FindObjectsByType<NavMeshObstacle>(FindObjectsSortMode.None);
+        //    bool isNeedToRebuildNavMesh = false;
+        //    foreach (var nmo in navMeshObstacles)
+        //    {
+        //        if (!nmo.HasComponent<NavMeshBuiltByThisObstacle>())
+        //        {
+        //            nmo.AddComponent<NavMeshBuiltByThisObstacle>();
+        //            isNeedToRebuildNavMesh = true;
+        //        }
+        //    }
+
+        //    //if (isNeedToRebuildNavMesh)
+        //    //{
+        //    //    //NavigationSurfaceSingleton.Instance.Surface.RemoveData();
+        //    //    NavigationSurfaceSingleton.Instance.Surface.BuildNavMesh();
+        //    //    Debug.Log("Rebuilt navmesh");
+        //    //}
+        //}
+
+        if (UnityEngine.Input.GetKeyDown(KeyCode.P))
         {
-            NavigationSurfaceSingleton.Instance.Surface.RemoveData();
-            NavigationSurfaceSingleton.Instance.Surface.BuildNavMesh();
-            isNavMeshBuilt = true;
+            Debug.Log("Populating nav mesh obstacle list");
+            var obstacles = FindObjectsByType<NavMeshObstacle>(FindObjectsSortMode.None);
+            m_navMeshObstacles.Clear();
+            foreach (var o in obstacles)
+            {
+                m_navMeshObstacles.Add(o);
+            }
         }
 
-        // this code ensures we only build a navmesh once level is finished loading
-        if (isBuildNavMeshOnLevelSpawnsComplete && LevelSpawningCount <= 0)
+        if (UnityEngine.Input.GetKeyDown(KeyCode.C))
         {
-            isBuildNavMeshOnLevelSpawnsComplete = false;
-            isBuildNextFrame = true;
-            isNavMeshBuilt = false;
+            foreach (var nmo in m_navMeshObstacles)
+            {
+                nmo.carving = !nmo.carving;
+                nmo.enabled = !nmo.enabled;
+            }
+            Debug.Log("Toggled carving and enabled");
+        }
+
+        if (UnityEngine.Input.GetKeyDown(KeyCode.M))
+        {
+            //NavigationSurfaceSingleton.Instance.Surface.RemoveData();
+            //NavigationSurfaceSingleton.Instance.Surface.BuildNavMesh();
+
+            //NavigationSurfaceSingleton.Instance.Surface.ignoreNavMeshObstacle = false;
+            NavigationSurfaceSingleton.Instance.Surface.UpdateNavMesh(NavigationSurfaceSingleton.Instance.Surface.navMeshData);
+            Debug.Log("Rebuilt NavMesh!");
         }
     }
 }

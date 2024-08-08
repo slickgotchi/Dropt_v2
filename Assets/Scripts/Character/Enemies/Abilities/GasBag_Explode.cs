@@ -13,14 +13,12 @@ public class GasBag_Explode : EnemyAbility
     public float PoisonDuration = 5f;
     public float PoisonDamagePerSecond = 4f;
 
-    [SerializeField] private Transform SpriteTransform;
     [SerializeField] private Collider2D Collider;
 
-    private float m_explosionGrowFadeTimer = 0;
+    private float m_explosionTimer = 0;
 
     private void Awake()
     {
-        SpriteTransform.localScale = Vector3.one;
     }
 
     public override void OnTelegraphStart()
@@ -30,12 +28,11 @@ public class GasBag_Explode : EnemyAbility
     public override void OnExecutionStart()
     {
         // reset explosion fade timer & set fade out duration
-        m_explosionGrowFadeTimer = 0f;
+        m_explosionTimer = 0f;
         GetComponentInChildren<FadeOut>().duration = ExplosionDuration;
 
         // set position of explosion and initial scale
         transform.position = Parent.transform.position + new Vector3(0, 0.6f, 0);
-        SpriteTransform.localScale = new Vector3(0f, 0f, 1);
 
         // resize explosion collider and check collisions
         Collider.GetComponent<CircleCollider2D>().radius = ExplosionRadius;
@@ -47,6 +44,12 @@ public class GasBag_Explode : EnemyAbility
             transform.parent = null;
             Parent.GetComponent<UtilityAgentFacade>().Destroy();
         }
+
+        // do visual explosion
+        SpawnBasicCircleClientRpc(
+            transform.position,
+            Dropt.Utils.Color.HexToColor("#7a09fa", 0.5f),
+            ExplosionRadius);
     }
 
     private void HandleCollisions(Collider2D collider)
@@ -73,16 +76,11 @@ public class GasBag_Explode : EnemyAbility
 
     public override void OnUpdate()
     {
-        m_explosionGrowFadeTimer += Time.deltaTime;
-        if (m_explosionGrowFadeTimer > ExplosionDuration)
+        m_explosionTimer += Time.deltaTime;
+        if (m_explosionTimer > ExplosionDuration)
         {
             if (IsServer) GetComponent<NetworkObject>().Despawn();
             return;
         }
-
-        m_explosionGrowFadeTimer = math.min(m_explosionGrowFadeTimer, ExplosionDuration);
-        var alpha = m_explosionGrowFadeTimer / ExplosionDuration;
-
-        SpriteTransform.localScale = new Vector3(alpha * ExplosionRadius * 2, alpha * ExplosionRadius * 2, 1);
     }
 }

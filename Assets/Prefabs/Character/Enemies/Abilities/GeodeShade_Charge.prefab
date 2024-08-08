@@ -86,6 +86,74 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &5238439338935135804
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 55955254775311427}
+  - component: {fileID: 3373699734558102006}
+  m_Layer: 20
+  m_Name: MoveCollider
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &55955254775311427
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5238439338935135804}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6391319267341890573}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!58 &3373699734558102006
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5238439338935135804}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_Radius: 0.5
 --- !u!1 &6780689125281501319
 GameObject:
   m_ObjectHideFlags: 0
@@ -96,9 +164,9 @@ GameObject:
   m_Component:
   - component: {fileID: 6391319267341890573}
   - component: {fileID: 1769727369739597659}
-  - component: {fileID: 4735471187462852666}
   - component: {fileID: 8262758190809219330}
   - component: {fileID: 3693699894952571400}
+  - component: {fileID: -2448115368421265013}
   m_Layer: 16
   m_Name: GeodeShade_Charge
   m_TagString: Untagged
@@ -120,6 +188,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2490605819765368282}
+  - {fileID: 55955254775311427}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1769727369739597659
@@ -134,7 +203,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3279110569
+  GlobalObjectIdHash: 3500688818
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -143,25 +212,6 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
---- !u!114 &4735471187462852666
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6780689125281501319}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4bb2c4676652bed45b025c0c6d06ca48, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  TelegraphDuration: 1
-  ExecutionDuration: 0.5
-  CooldownDuration: 1
-  Parent: {fileID: 0}
-  Target: {fileID: 0}
-  EnemyAbilityState: 0
-  ChargeDistance: 7
 --- !u!61 &8262758190809219330
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -235,3 +285,27 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &-2448115368421265013
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6780689125281501319}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e77e4be2a90611a4b98b21f2a925878a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  TelegraphDuration: 1
+  ExecutionDuration: 0.5
+  CooldownDuration: 1
+  Parent: {fileID: 0}
+  Target: {fileID: 0}
+  AttackDirection: {x: 0, y: 0, z: 0}
+  isStartRotationAlignedWithParentDirection: 0
+  axialOffsetWhenAlignedWithParentDirection: 0
+  EnemyAbilityState: 0
+  ChargeDistance: 7
+  m_damageCollider: {fileID: 8262758190809219330}
+  m_moveCollider: {fileID: 3373699734558102006}

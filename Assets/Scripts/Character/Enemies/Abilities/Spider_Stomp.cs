@@ -12,7 +12,6 @@ public class Spider_Stomp : EnemyAbility
     private float m_speed;
     private Collider2D m_collider;
     private bool m_isExecuting = false;
-    //private GameObject m_stompCircle;
 
     // need to account for positions being delayed due to interpolation
     private float m_interpolationDelay = 0.3f;
@@ -20,8 +19,6 @@ public class Spider_Stomp : EnemyAbility
     private void Awake()
     {
         m_collider = GetComponent<Collider2D>();
-        //m_stompCircle = transform.Find("StompCircle").gameObject;
-        //m_stompCircle.SetActive(false);
     }
 
     public override void OnNetworkSpawn()
@@ -30,12 +27,12 @@ public class Spider_Stomp : EnemyAbility
 
         if (Parent == null) return;
 
-        transform.position = Parent.transform.position;
+        //transform.position = Parent.transform.position;
     }
 
     public override void OnTelegraphStart()
     {
-        m_direction = (Target.transform.position - Parent.transform.position).normalized;
+        m_direction = AttackDirection;
         m_speed = StompDistance / ExecutionDuration;
 
         EnemyController.Facing facing = m_direction.x > 0 ? EnemyController.Facing.Right : EnemyController.Facing.Left;
@@ -65,14 +62,10 @@ public class Spider_Stomp : EnemyAbility
 
     void SpawnStompCircle()
     {
-        SpawnStompCircleClientRpc();
-    }
-
-    [Rpc(SendTo.ClientsAndHost)]
-    void SpawnStompCircleClientRpc()
-    {
-        VisualEffectsManager.Singleton.SpawnStompCircle(transform.position);
-
+        SpawnBasicCircleClientRpc(
+            transform.position,
+            Dropt.Utils.Color.HexToColor("#622461", 0.5f),
+            1f);
     }
 
     public override void OnCooldownStart()
