@@ -222,7 +222,12 @@ namespace NavMeshPlus.Extensions
                 }
 
                 if (!builder.hideEditorLogs) Debug.Log($"Walkable Bounds [{tilemap.name}]: {tilemap.localBounds}");
-                var box = BoxBoundSource(NavMeshSurface.GetWorldBounds(tilemap.transform.localToWorldMatrix, tilemap.localBounds));
+                var bounds = tilemap.localBounds;
+                //make bounds flat
+                bounds.center = new Vector3(bounds.center.x, bounds.center.y, 0);
+                bounds.size = new Vector3(bounds.size.x, bounds.size.y, 0);
+
+                var box = BoxBoundSource(NavMeshSurface.GetWorldBounds(tilemap.transform.localToWorldMatrix, bounds));
                 box.area = builder.defaultArea;
                 sources.Add(box);
             }
@@ -253,7 +258,7 @@ namespace NavMeshPlus.Extensions
         }
 
         public static void CollectSources(List<NavMeshBuildSource> sources, Collider2D collider, int area, NavMeshBuilder2dState builder)
-        { 
+        {
             if (collider.usedByComposite)
             {
                 collider = collider.GetComponent<CompositeCollider2D>();
