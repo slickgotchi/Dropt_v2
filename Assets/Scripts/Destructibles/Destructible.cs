@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Audio.Game;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -20,6 +21,8 @@ public class Destructible : NetworkBehaviour
     {
         var damage = CalculateDamageToDestructible(type, weaponType);
 
+        GameAudioManager.Instance.PlayHit(type, gameObject.transform.position);
+        
         if (CurrentHp.Value <= damage)
         {
             VisualEffectsManager.Singleton.SpawnCloudExplosion(transform.position + new Vector3(0, 0.5f, 0));
