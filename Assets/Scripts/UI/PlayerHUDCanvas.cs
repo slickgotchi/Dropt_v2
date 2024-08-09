@@ -60,6 +60,16 @@ public class PlayerHUDCanvas : MonoBehaviour
         m_localPlayerCharacter = localPlayerCharacter;
     }
 
+    public void Hide()
+    {
+        gameObject.SetActive(false);
+    }
+
+    public void Show()
+    {
+        gameObject.SetActive(true);
+    }
+
     // Update is called once per frame
     void Update()
     {
