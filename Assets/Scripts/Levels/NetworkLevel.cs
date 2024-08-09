@@ -18,12 +18,6 @@ namespace Level
 
             if (IsServer)
             {
-                //if (LevelManager.Instance.LevelSpawningCount == 1)
-                //if (gameObject.transform.p)
-                //{
-                //    m_availablePlayerSpawnPoints.Clear();
-                //}
-
                 SunkenFloorFactory.CreateSunkenFloors(gameObject);
                 ApeDoorFactory.CreateApeDoors(gameObject);
                 NetworkObjectSpawnerFactory.CreateNetworkObjectSpawners(gameObject, ref m_spawnerActivators);
@@ -31,7 +25,7 @@ namespace Level
                 NetworkObjectPrefabSpawnerFactory.CreateNetworkObjectPrefabSpawners(gameObject);
                 TrapsGroupSpawnerFactory.CreateTraps(gameObject);
 
-                //LevelManager.Instance.LevelSpawningCount--;
+                LevelManager.Instance.LevelSpawningCount--;
             }
 
             if (IsClient)
@@ -70,19 +64,5 @@ namespace Level
             CleanupFactory.DestroySpawnerObjects<NetworkObjectPrefabSpawner>(gameObject);
             CleanupFactory.DestroySpawnerObjects<TrapsGroupSpawner>(gameObject);
         }
-
-        //public Vector3 PopPlayerSpawnPoint()
-        //{
-        //    if (m_availablePlayerSpawnPoints.Count > 0)
-        //    {
-        //        var randIndex = UnityEngine.Random.Range(0, m_availablePlayerSpawnPoints.Count);
-        //        var spawnPoint = m_availablePlayerSpawnPoints[randIndex];
-        //        m_availablePlayerSpawnPoints.RemoveAt(randIndex);
-        //        return spawnPoint;
-        //    }
-
-        //    Debug.Log("NetworkLevel: Ran out of spawn points! Returning Vector3.zero");
-        //    return Vector3.zero;
-        //}
     }
 }
