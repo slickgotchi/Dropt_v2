@@ -20,6 +20,7 @@ public class NetworkCharacter : NetworkBehaviour
     public float baseEvasion = 0f;
     public float baseDamageReduction = 0f;
     public float baseApLeech = 0f;
+    public float baseApRegen = 1f;
 
     [Header("Damage/Health Popup Offset")]
     public Vector3 popupTextOffset = new Vector3(0, 1.5f, 0f);
@@ -42,6 +43,7 @@ public class NetworkCharacter : NetworkBehaviour
     [HideInInspector] public NetworkVariable<float> Evasion = new NetworkVariable<float>();
     [HideInInspector] public NetworkVariable<float> DamageReduction = new NetworkVariable<float>();
     [HideInInspector] public NetworkVariable<float> ApLeech = new NetworkVariable<float>();
+    [HideInInspector] public NetworkVariable<float> ApRegen = new NetworkVariable<float>();
 
     public override void OnNetworkSpawn()
     {
@@ -150,6 +152,7 @@ public class NetworkCharacter : NetworkBehaviour
         Evasion.Value = baseEvasion;
         DamageReduction.Value = baseDamageReduction;
         ApLeech.Value = baseApLeech;
+        ApRegen.Value = baseApRegen;
     }
 
     public void AddBuffObject(BuffObject buffObject)
@@ -205,6 +208,7 @@ public class NetworkCharacter : NetworkBehaviour
             { CharacterStat.Evasion, baseEvasion },
             { CharacterStat.DamageReduction, baseDamageReduction },
             { CharacterStat.ApLeech, baseApLeech },
+            { CharacterStat.ApRegen, baseApRegen }
         };
 
         // Apply Add/Subtract buffs
@@ -266,6 +270,7 @@ public class NetworkCharacter : NetworkBehaviour
         Evasion.Value = baseStats[CharacterStat.Evasion];
         DamageReduction.Value = baseStats[CharacterStat.DamageReduction];
         ApLeech.Value = baseStats[CharacterStat.ApLeech];
+        ApRegen.Value = baseStats[CharacterStat.ApRegen];
 
         // Optionally, you can log the final stats for debugging
         Debug.Log("Player Stats Updated");
