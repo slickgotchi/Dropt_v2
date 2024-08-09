@@ -13,13 +13,19 @@ public class JoostInteractable : Interactable
     private int m_cost;
     [HideInInspector] BuffObject BuffObject;
 
-    private void Awake()
+    private void Start()
     {
         Init(type);
     }
 
     public void Init(Joost.Type joostType)
     {
+        if (JoostDataManager.Instance == null)
+        {
+            Debug.Log("no joost data manager");
+            return;
+        }
+
         var joostData = JoostDataManager.Instance.GetJoostData(joostType);
         m_sprite = joostData.sprite;
         m_name = AddSpacesToCamelCase(joostType.ToString());

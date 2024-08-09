@@ -6,8 +6,6 @@ using UnityEngine;
 
 public class PlayerInteractions : NetworkBehaviour
 {
-    //private NetworkVariable<int> m_interactingNetworkObjectId;
-
     private int m_interactablesLayer;
 
     private Interactable m_interactable;
@@ -15,7 +13,6 @@ public class PlayerInteractions : NetworkBehaviour
     private void Awake()
     {
         m_interactablesLayer = 1 << LayerMask.NameToLayer("Interactable");
-        //m_interactingNetworkObjectId = new NetworkVariable<int>(-1);
     }
 
     void Update()

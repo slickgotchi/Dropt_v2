@@ -8,7 +8,7 @@ public class FussPot_Erupt : EnemyAbility
 {
     [Header("FussPot Erupt Parameters")]
     public GameObject FussPot_EruptProjectilePrefab;
-    public float LobProjectileDuraton = 3f;
+    public float LobProjectileDuraton = 1f;
 
     public override void OnExecutionStart()
     {

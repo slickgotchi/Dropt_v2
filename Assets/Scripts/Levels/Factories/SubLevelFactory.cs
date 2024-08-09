@@ -17,7 +17,7 @@ namespace Level
                 var subLevelPrefab = GetRandomSubLevel(subLevelSpawner);
                 if (subLevelPrefab != null)
                 {
-                    //LevelManager.Instance.LevelSpawningCount++;
+                    LevelManager.Instance.LevelSpawningCount++;
 
                     var newSubLevel = Object.Instantiate(subLevelPrefab);
                     newSubLevel.GetComponent<NetworkObject>().Spawn();
