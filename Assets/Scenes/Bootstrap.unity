@@ -6038,6 +6038,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1898465532}
   - component: {fileID: 1898465533}
+  - component: {fileID: 1898465534}
   m_Layer: 0
   m_Name: Bootstrap
   m_TagString: Untagged
@@ -6072,14 +6073,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f317c851cd91fae4fb1b24f6bb0b6a24, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NetworkRole: 0
+  NetworkRole: 2
   ConnectionType: 0
-  AutoBoot: 0
+  AutoBoot: 1
   UseServerManager: 0
   IpAddress: 178.128.22.77
   Port: 9000
   GameId: 
   StartupButtons: {fileID: 349225739}
+--- !u!114 &1898465534
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1898465531}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e40232dfb0d54ef48d1b65d6ffea3cc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1931494698
 GameObject:
   m_ObjectHideFlags: 0
