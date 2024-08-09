@@ -50,4 +50,7 @@ public enum CharacterStat
     SlowChance,
     ShockChance,
     BlindChance,
+
+    // regen
+    ApRegen,
 }
