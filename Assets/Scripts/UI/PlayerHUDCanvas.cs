@@ -71,6 +71,16 @@ public class PlayerHUDCanvas : MonoBehaviour
         m_levelName.text = name;
     }
 
+    public void Hide()
+    {
+        gameObject.SetActive(false);
+    }
+
+    public void Show()
+    {
+        gameObject.SetActive(true);
+    }
+
     // Update is called once per frame
     void Update()
     {

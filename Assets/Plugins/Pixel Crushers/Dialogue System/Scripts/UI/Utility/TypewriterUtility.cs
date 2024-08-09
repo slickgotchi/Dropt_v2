@@ -14,7 +14,7 @@ namespace PixelCrushers.DialogueSystem
 #if TMP_PRESENT
             if (textField.textMeshProUGUI != null) typewriter = textField.textMeshProUGUI.GetComponent<AbstractTypewriterEffect>();
 #endif
-            if (typewriter == null && textField.uiText != null) typewriter = textField.uiText.GetComponent<AbstractTypewriterEffect>();
+            if (textField.uiText != null) typewriter = textField.uiText.GetComponent<AbstractTypewriterEffect>();
             return typewriter;
         }
 
