@@ -63,11 +63,15 @@ namespace NavMeshPlus.Components
 
         public virtual bool TryGetTileModifier(Vector3Int coords, Tilemap tilemap, out TileModifier modifier)
         {
+            modifier = new TileModifier();
+            
+            if (null == m_ModifierMap)
+                return false;
+
             if (tilemap.GetTile(coords) is TileBase tileBase)
             {
                 return m_ModifierMap.TryGetValue(tileBase, out modifier);
             }
-            modifier = new TileModifier();
             return false;
         }
 
