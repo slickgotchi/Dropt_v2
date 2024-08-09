@@ -20,7 +20,6 @@ public class JoostInteractable : Interactable
 
     public void Init(Joost.Type joostType)
     {
-        Debug.Log("Init joost: " + joostType);
         var joostData = JoostDataManager.Instance.GetJoostData(joostType);
         m_sprite = joostData.sprite;
         m_name = AddSpacesToCamelCase(joostType.ToString());
@@ -29,13 +28,10 @@ public class JoostInteractable : Interactable
         BuffObject = joostData.buffObject;
 
         m_spriteRenderer.sprite = m_sprite;
-
-        Debug.Log("init " + m_name + " " + m_sprite);
     }
 
     public override void OnStartInteraction()
     {
-        Debug.Log("Start interacting with Joost: " + type);
         JoostInteractionCanvas.Instance.Container.SetActive(true);
         JoostInteractionCanvas.Instance.Init(m_name, m_description, m_cost.ToString());
     }
@@ -50,7 +46,6 @@ public class JoostInteractable : Interactable
 
     public override void OnFinishInteraction()
     {
-        Debug.Log("Finish interacting with Joost: " + type);
         JoostInteractionCanvas.Instance.Container.SetActive(false);
     }
 
