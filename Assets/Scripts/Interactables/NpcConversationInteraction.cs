@@ -1,0 +1,127 @@
+using AI.NPC;
+using Dialogue.View;
+using PixelCrushers.DialogueSystem;
+using UnityEngine;
+
+namespace Interactables
+{
+    public class NpcConversationInteraction : Interactable
+    {
+        [SerializeField] private NpcMover m_mover;
+
+        [SerializeField] private NpcDialogueView _viewPrefab;
+
+        [SerializeField] private DialogueSystemEvents _conversationEvents;
+
+        [SerializeField] private Transform m_actor;
+
+        [SerializeField] [ConversationPopup(true)]
+        private string m_conversation;
+
+        private PlayerController m_player;
+
+        private PlayerController Player
+        {
+            get
+            {
+                if (m_player == null)
+                {
+                    m_player = NetworkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId]
+                        .GetComponent<PlayerController>();
+                }
+
+                return m_player;
+            }
+        }
+
+        private PlayerHUDCanvas PlayerHUD => PlayerHUDCanvas.Singleton;
+        private bool IsConversationActive => DialogueManager.isConversationActive;
+        private PlayerPrediction PlayerPrediction => Player.GetComponent<PlayerPrediction>();
+        protected virtual bool ShouldHideHUD { get; } = true;
+        protected virtual bool ShouldStopPlayerMove { get; } = true;
+
+        public override void OnStartInteraction()
+        {
+            base.OnStartInteraction();
+
+            if (IsConversationActive)
+            {
+                return;
+            }
+
+            SetActiveTextBox(true);
+            m_mover.FaceTo(Player.transform);
+            m_mover.Stop();
+        }
+
+        public override void OnUpdateInteraction()
+        {
+            base.OnUpdateInteraction();
+
+            if (Input.GetKeyDown(KeyCode.F))
+            {
+                if (IsConversationActive)
+                {
+                    return;
+                }
+
+                OnFinishInteraction();
+                StartConversation();
+            }
+        }
+
+        private void StartConversation()
+        {
+            _conversationEvents.conversationEvents.onConversationEnd.AddListener(OnConversationEnded);
+
+            if (ShouldStopPlayerMove)
+            {
+                PlayerPrediction.IsInputDisabled = true;
+            }
+
+            if (ShouldHideHUD)
+            {
+                PlayerHUD.Hide();
+            }
+
+            m_mover.Stop();
+
+            DialogueManager.StartConversation(m_conversation, m_actor, null, 0, _viewPrefab);
+        }
+
+        protected virtual void OnConversationEnded(Transform actor)
+        {
+            _conversationEvents.conversationEvents.onConversationEnd.RemoveListener(OnConversationEnded);
+
+            if (ShouldStopPlayerMove)
+            {
+                PlayerPrediction.IsInputDisabled = false;
+            }
+
+            if (ShouldHideHUD)
+            {
+                PlayerHUD.Show();
+                m_mover.Resume();
+            }
+        }
+
+        public override void OnFinishInteraction()
+        {
+            base.OnFinishInteraction();
+
+            SetActiveTextBox(false);
+            
+            if (DialogueManager.isConversationActive)
+            {
+                return;
+            }
+
+            m_mover.Resume();
+        }
+
+        private void SetActiveTextBox(bool value)
+        {
+            InteractableUICanvas.Instance.InteractTextbox.SetActive(value);
+        }
+    }
+}
