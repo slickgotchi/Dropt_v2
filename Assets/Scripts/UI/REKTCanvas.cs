@@ -12,7 +12,7 @@ public class REKTCanvas : NetworkBehaviour
     public GameObject Container;
     public Button DegenapeButton;
 
-    public enum TypeOfREKT { HP, Essence }
+    public enum TypeOfREKT { HP, Essence, InActive }
     public TypeOfREKT Type = TypeOfREKT.HP;
 
     public TextMeshProUGUI REKTReasonText;
@@ -34,30 +34,34 @@ public class REKTCanvas : NetworkBehaviour
         if (type == TypeOfREKT.HP)
         {
             REKTReasonText.text = "You ran out of HP... dungeons can be tough huh?";
-        } else
+        } else if (type == TypeOfREKT.Essence)
         {
             REKTReasonText.text = "You ran out of Essence... maybe catch a lil essence once in a while?";
+        } else
+        {
+            REKTReasonText.text = "You have been inactive for longer than " + PlayerController.InactiveTimerDuration.ToString("F0") + "s so... got the boot!";
         }
     }
 
     void HandleClickDegenapeButton()
     {
-        GoToDegenapeServerRpc();
+        Game.Instance.TryCreateGame();
+        //GoToDegenapeServerRpc();
 
-        // get the local player and renable their input
-        var players = GameObject.FindObjectsByType<PlayerPrediction>(FindObjectsSortMode.None);
-        foreach (var player in players)
-        {
-            if (player.GetComponent<NetworkObject>().IsLocalPlayer)
-            {
-                player.IsInputDisabled = false;
-            }
-        }
+        //// get the local player and renable their input
+        //var players = GameObject.FindObjectsByType<PlayerPrediction>(FindObjectsSortMode.None);
+        //foreach (var player in players)
+        //{
+        //    if (player.GetComponent<NetworkObject>().IsLocalPlayer)
+        //    {
+        //        player.IsInputDisabled = false;
+        //    }
+        //}
     }
 
-    [Rpc(SendTo.Server)]
-    void GoToDegenapeServerRpc()
-    {
-        LevelManager.Instance.GoToDegenapeVillageLevel();
-    }
+    //[Rpc(SendTo.Server)]
+    //void GoToDegenapeServerRpc()
+    //{
+    //    LevelManager.Instance.GoToDegenapeVillageLevel();
+    //}
 }

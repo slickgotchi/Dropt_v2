@@ -23,6 +23,19 @@ public class PlayerController : NetworkBehaviour
 
     public GameObject TestFernPrefab;
 
+    private NetworkCharacter m_networkCharacter;
+
+    public static float InactiveTimerDuration = 5 * 60;
+
+    public bool IsDead = false;
+
+    private float m_inactiveTimer = InactiveTimerDuration;
+
+    private void Awake()
+    {
+        m_networkCharacter = GetComponent<NetworkCharacter>();
+    }
+
     public override void OnNetworkSpawn()
     {
         if (IsLocalPlayer) {
@@ -57,6 +70,24 @@ public class PlayerController : NetworkBehaviour
         
     }
 
+    public void KillPlayer(REKTCanvas.TypeOfREKT typeOfREKT)
+    {
+        if (!IsServer) return;
+
+        GetComponent<PlayerController>().IsDead = true;
+        TriggerGameOverClientRpc(GetComponent<NetworkObject>().NetworkObjectId, typeOfREKT);
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    void TriggerGameOverClientRpc(ulong playerNetworkObjectId, REKTCanvas.TypeOfREKT typeOfREKT)
+    {
+         //ensure we only trigger this for the relevant player
+        var player = NetworkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId];
+        var localId = GetComponent<NetworkObject>().NetworkObjectId;
+        if (player.NetworkObjectId != localId) return;
+
+        Game.Instance.TriggerGameOver(typeOfREKT);
+    }
 
     public void StartTransition()
     {
@@ -85,6 +116,8 @@ public class PlayerController : NetworkBehaviour
 
         HandleNextLevelCheat();
         HandleSpawnFern();
+        HandleDegenapeHpAp();
+        HandleInactivePlayer();
     }
 
     private LevelManager.TransitionState m_localTransition = LevelManager.TransitionState.Null;
@@ -141,6 +174,35 @@ public class PlayerController : NetworkBehaviour
         if (UnityEngine.Input.GetKeyDown(KeyCode.R))
         {
             SpawnFernServerRpc();
+        }
+    }
+
+    void HandleDegenapeHpAp()
+    {
+        if (!IsServer) return;
+
+        if (LevelManager.Instance.CurrentLevelIndex.Value == LevelManager.Instance.DegenapeVillageLevel)
+        {
+            m_networkCharacter.HpCurrent.Value = m_networkCharacter.HpMax.Value;
+            m_networkCharacter.ApCurrent.Value = m_networkCharacter.ApMax.Value;
+        }
+    }
+
+    // need this so that a player that is not playing gets booted off the server
+    void HandleInactivePlayer()
+    {
+        if (!IsServer) return;
+
+        m_inactiveTimer -= Time.deltaTime;
+
+        if (UnityEngine.Input.anyKey)
+        {
+            m_inactiveTimer = InactiveTimerDuration;
+        }
+
+        if (m_inactiveTimer <= 0)
+        {
+            KillPlayer(REKTCanvas.TypeOfREKT.InActive);
         }
     }
 
