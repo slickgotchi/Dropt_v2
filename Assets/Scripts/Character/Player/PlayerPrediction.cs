@@ -351,6 +351,9 @@ public class PlayerPrediction : NetworkBehaviour
 
     private void Update()
     {
+        // don't run if the player is dead
+        if (GetComponent<PlayerController>().IsDead) return;
+
         // timer stuff
         float dt = Time.deltaTime;
         timer.Update(dt);

@@ -48,39 +48,31 @@ public class OptionsMenuCanvas : MonoBehaviour
     public Button exitButton;
     public Button exitToTitleButton;
 
+    // Predefined 16:9 and 16:10 resolutions
     private List<ResItem> resolutions = new List<ResItem> {
-            new ResItem { width = 720, height = 450 },
-            new ResItem { width = 960, height = 600 },
-            new ResItem { width = 1920, height = 1080 },
-            new ResItem { width = 1920, height = 1200 },
+        // 16:9 Resolutions
+        new ResItem { width = 1920, height = 1080 },
+        new ResItem { width = 1600, height = 900 },
+        new ResItem { width = 1280, height = 720 },
+
+        // 16:10 Resolutions
+        new ResItem { width = 1920, height = 1200 },
+        new ResItem { width = 1680, height = 1050 },
+        new ResItem { width = 1440, height = 900 },
+        new ResItem { width = 960, height = 600 }
     };
     private ResItem currentResolution;
 
-
-
-    // Start is called before the first frame update
     void Setup()
     {
-        // Fetch available screen resolutions and remove duplicates
-        resolutions = Screen.resolutions
-            .Select(res => new ResItem { width = res.width, height = res.height })
-            .Where(res =>
-            {
-                int gcd = GreatestCommonDivisor(res.width, res.height);
-                float aspectRatio = (float)res.width / gcd / ((float)res.height / gcd);
-                return aspectRatio == 16f / 9f || aspectRatio == 16f / 10f;
-            })
-            .Distinct(new ResolutionComparer())  // Use a custom comparer for distinct operation
-            .ToList();
-
         // Load saved settings or use default values
-        int defaultWidth = 960;
-        int defaultHeight = 600;
+        int defaultWidth = 1920;
+        int defaultHeight = 1080;
         int savedWidth = PlayerPrefs.GetInt("ResolutionWidth", defaultWidth);
         int savedHeight = PlayerPrefs.GetInt("ResolutionHeight", defaultHeight);
         bool savedFullscreen = PlayerPrefs.GetInt("FullscreenMode", 0) == 1;  // default to windowed mode if not set
 
-        // Find the saved resolution in the available resolutions or use the default
+        // Find the saved resolution in the predefined resolutions or use the default
         currentResolution = resolutions.FirstOrDefault(res => res.width == savedWidth && res.height == savedHeight);
         if (currentResolution.width == 0 && currentResolution.height == 0)
         {
@@ -99,14 +91,14 @@ public class OptionsMenuCanvas : MonoBehaviour
         OnFullscreenToggle(savedFullscreen);  // Apply the loaded fullscreen setting
         OnResolutionDropdownChanged(resolutionDropdown.value); // Apply the loaded resolution setting
 
-        // add all listeners
+        // Add all listeners
         fullscreenToggle.onValueChanged.AddListener(OnFullscreenToggle);
         resolutionDropdown.onValueChanged.AddListener(OnResolutionDropdownChanged);
         exitButton.onClick.AddListener(() => { Container.SetActive(false); });
         saveButton.onClick.AddListener(() => { Container.SetActive(false); });
         exitToTitleButton.onClick.AddListener(OnClickExitToTitleButton);
 
-        // check for player prefs for slider volume
+        // Check for player prefs for slider volume
         CheckPlayerPrefs();
 
         musicVolumeSlider.onValueChanged.AddListener(OnMusicSliderChanged);
@@ -116,7 +108,6 @@ public class OptionsMenuCanvas : MonoBehaviour
     public void ShowMenu()
     {
         Container.SetActive(true);
-        UpdateResolutionOptions();
     }
 
     private void CheckPlayerPrefs()
@@ -133,7 +124,10 @@ public class OptionsMenuCanvas : MonoBehaviour
     {
         ResItem selectedResolution = resolutions[selectedIndex];
         var fullScreenMode = isFullscreen ? FullScreenMode.FullScreenWindow : FullScreenMode.Windowed;
+
+#if !UNITY_WEBGL
         Screen.SetResolution(selectedResolution.width, selectedResolution.height, fullScreenMode);
+#endif
 
         PlayerPrefs.SetInt("ResolutionWidth", selectedResolution.width);
         PlayerPrefs.SetInt("ResolutionHeight", selectedResolution.height);
@@ -142,93 +136,41 @@ public class OptionsMenuCanvas : MonoBehaviour
         currentResolution = selectedResolution;
     }
 
-
-
-
     void OnFullscreenToggle(bool isOn)
     {
         isFullscreen = isOn;
+
+#if !UNITY_WEBGL
         Screen.SetResolution(currentResolution.width, currentResolution.height, isFullscreen ? FullScreenMode.FullScreenWindow : FullScreenMode.Windowed);
+#endif
 
         // Save the fullscreen mode to PlayerPrefs
         PlayerPrefs.SetInt("FullscreenMode", isFullscreen ? 1 : 0);
         PlayerPrefs.Save();  // Make sure to save PlayerPrefs changes
     }
 
-    public void UpdateResolutionOptions()
-    {
-        resolutions = Screen.resolutions
-            .Select(res => new ResItem { width = res.width, height = res.height })
-            .Where(res =>
-            {
-                int gcd = GreatestCommonDivisor(res.width, res.height);
-                float aspectRatio = (float)res.width / gcd / ((float)res.height / gcd);
-                return aspectRatio == 16f / 9f || aspectRatio == 16f / 10f;
-            })
-            .Distinct(new ResolutionComparer())
-            .ToList();
-
-        resolutionDropdown.ClearOptions();
-        List<string> resolutionStrings = resolutions.Select(res => $"{res.width} x {res.height}").ToList();
-        resolutionDropdown.AddOptions(resolutionStrings);
-
-        // Optionally reset the selected index or try to find and set the current resolution
-        int currentResolutionIndex = resolutions.FindIndex(res => res.width == Screen.width && res.height == Screen.height);
-        if (currentResolutionIndex != -1)
-            resolutionDropdown.value = currentResolutionIndex;
-        else
-            resolutionDropdown.value = 0;  // Default to first resolution or handle appropriately
-        resolutionDropdown.RefreshShownValue();
-    }
-
-
     void OnMusicSliderChanged(float value)
     {
+        // Handle music volume changes here
     }
 
     void OnSfxSliderChanged(float value)
     {
+        // Handle sfx volume changes here
     }
 
     void Update()
     {
-        //var currScene = Loader.GetCurrentScene();
-        //if (currScene == Loader.Scene.Title)
-        //{
-        //    exitToTitleButton.gameObject.SetActive(false);
-        //}
-        //else
-        //{
-        //    exitToTitleButton.gameObject.SetActive(true);
-        //}
-
         if (Input.GetKeyDown(KeyCode.Return))
         {
             Container.SetActive(!Container.gameObject.activeSelf);
-            // update res options if on another screen
-            if (Container.activeSelf)
-            {
-                UpdateResolutionOptions();
-            }
         }
-
     }
 
     public void OnClickExitToTitleButton()
     {
         Container.SetActive(false);
-
-    }
-
-    int GreatestCommonDivisor(int a, int b)
-    {
-        while (b != 0)
-        {
-            int t = b;
-            b = a % b;
-            a = t;
-        }
-        return a;
+        // Additional logic for exiting to the title screen can be added here
     }
 }
 
@@ -236,7 +178,6 @@ public struct ResItem
 {
     public int width;
     public int height;
-    //public int refreshRate; // Optional: Store refresh rate
 }
 
 class ResolutionComparer : IEqualityComparer<ResItem>
@@ -255,4 +196,3 @@ class ResolutionComparer : IEqualityComparer<ResItem>
         return hashWidth ^ hashHeight;
     }
 }
-

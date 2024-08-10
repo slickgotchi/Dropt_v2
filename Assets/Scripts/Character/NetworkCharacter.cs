@@ -97,8 +97,7 @@ public class NetworkCharacter : NetworkBehaviour
             {
                 if (isPlayer)
                 {
-                    ShowREKTScreenClientRpc(GetComponent<NetworkObject>().NetworkObjectId);
-                    HpCurrent.Value = HpMax.Value;
+                    GetComponent<PlayerController>().KillPlayer(REKTCanvas.TypeOfREKT.HP);
                 }
                 else
                 {
@@ -118,16 +117,16 @@ public class NetworkCharacter : NetworkBehaviour
         }
     }
 
-    [Rpc(SendTo.ClientsAndHost)]
-    void ShowREKTScreenClientRpc(ulong playerNetworkObjectId)
-    {
-        var player = NetworkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId];
-        var localId = GetComponent<NetworkObject>().NetworkObjectId;
-        if (player.NetworkObjectId != localId) return;
+    //[Rpc(SendTo.ClientsAndHost)]
+    //void TriggerGameOverClientRpc(ulong playerNetworkObjectId)
+    //{
+    //    // ensure we only trigger this for the relevant player
+    //    var player = NetworkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId];
+    //    var localId = GetComponent<NetworkObject>().NetworkObjectId;
+    //    if (player.NetworkObjectId != localId) return;
 
-        GetComponent<PlayerPrediction>().IsInputDisabled = true;
-        REKTCanvas.Instance.Show(REKTCanvas.TypeOfREKT.HP);
-    }
+    //    Game.Instance.TriggerGameOver(REKTCanvas.TypeOfREKT.HP);
+    //}
 
     [Rpc(SendTo.ClientsAndHost)]
     void DamagePopupTextClientRpc(float damage, Vector3 position, bool isCritical)

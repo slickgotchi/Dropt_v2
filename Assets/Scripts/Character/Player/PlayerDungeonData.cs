@@ -16,21 +16,15 @@ public class PlayerDungeonData : NetworkBehaviour
 
         Essence.Value -= Time.deltaTime;
 
-        if (Essence.Value <= 0)
+        if (LevelManager.Instance.CurrentLevelIndex.Value == LevelManager.Instance.DegenapeVillageLevel)
         {
-            ShowREKTScreenClientRpc(GetComponent<NetworkObject>().NetworkObjectId);
+            Essence.Value = 300;
         }
-    }
 
-    [Rpc(SendTo.ClientsAndHost)]
-    void ShowREKTScreenClientRpc(ulong playerNetworkObjectId)
-    {
-        var player = NetworkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId];
-        var localId = GetComponent<NetworkObject>().NetworkObjectId;
-        if (player.NetworkObjectId != localId) return;
-
-        GetComponent<PlayerPrediction>().IsInputDisabled = true;
-        REKTCanvas.Instance.Show(REKTCanvas.TypeOfREKT.Essence);
+        if (Essence.Value <= 0 && LevelManager.Instance.CurrentLevelIndex.Value > LevelManager.Instance.DegenapeVillageLevel)
+        {
+            GetComponent<PlayerController>().KillPlayer(REKTCanvas.TypeOfREKT.Essence);
+        }
     }
 
     // Method to add value to GltrCount
