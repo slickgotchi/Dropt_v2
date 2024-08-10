@@ -724,7 +724,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1051059747
+  GlobalObjectIdHash: 1311497934
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -1590,6 +1590,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5488348261898250879}
   - component: {fileID: 7691548839490841235}
+  - component: {fileID: 8774873082806419662}
   m_Layer: 0
   m_Name: Virtual Camera
   m_TagString: Untagged
@@ -1652,6 +1653,18 @@ MonoBehaviour:
         m_Calls: []
   m_LegacyBlendHint: 0
   m_ComponentOwner: {fileID: 1702146927380263438}
+--- !u!114 &8774873082806419662
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2599869188027470805}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a8a05de0ac134f4f9d01bef6b9da077, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2749890752192525978
 GameObject:
   m_ObjectHideFlags: 0
@@ -8074,6 +8087,7 @@ GameObject:
   - component: {fileID: 27307221334136136}
   - component: {fileID: 917999103875994108}
   - component: {fileID: 2446011495292430855}
+  - component: {fileID: 7435437904486563506}
   m_Layer: 0
   m_Name: Camera
   m_TagString: Untagged
@@ -8124,14 +8138,14 @@ Camera:
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
-    y: 0
-    width: 1
-    height: 1
+    y: 0.7457213
+    width: 1.2580153
+    height: 1.4669927
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 7.5
+  orthographic size: 8.333333
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
@@ -8233,6 +8247,30 @@ MonoBehaviour:
   m_CameraActivatedEvent:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &7435437904486563506
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6639700251126329160}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c88f5cead0c0b2a4eb05b5900433f8d1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ComponentVersion: 1
+  m_AssetsPPU: 36
+  m_RefResolutionX: 960
+  m_RefResolutionY: 600
+  m_CropFrame: 4
+  m_GridSnapping: 0
+  m_FilterMode: 0
+  m_UpscaleRT: 0
+  m_PixelSnapping: 0
+  m_CropFrameX: 0
+  m_CropFrameY: 0
+  m_StretchFill: 0
 --- !u!1 &6678580622358695353
 GameObject:
   m_ObjectHideFlags: 0
