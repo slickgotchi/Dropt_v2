@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 // PlayerController handles:
 // - camera/virtual camera
@@ -27,6 +28,21 @@ public class PlayerController : NetworkBehaviour
         if (IsLocalPlayer) {
             playerCamera.Priority = 100;
             playerAudioListener.enabled = true;
+
+            // Get the currently active scene to ensure we're working with the "Game" scene
+            Scene gameScene = SceneManager.GetSceneByName("Game");
+
+            // change all canvas to camera mode and set players camera to them
+            var canvii = FindObjectsByType<Canvas>(FindObjectsSortMode.None);
+            foreach (var canvas in canvii)
+            {
+                // Check if the Canvas is in the "Game" scene and has a parent named "Game"
+                //if (canvas.gameObject.scene == gameScene)
+                {
+                    canvas.renderMode = RenderMode.ScreenSpaceCamera;
+                    canvas.worldCamera = GetComponentInChildren<Camera>();
+                }
+            }
         } else
         {
             playerAudioListener.enabled = false;
@@ -38,6 +54,7 @@ public class PlayerController : NetworkBehaviour
             //PingServerRpc(Time.time);
         }
 
+        
     }
 
 
