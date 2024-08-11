@@ -771,6 +771,7 @@ MonoBehaviour:
   playerAudioListener: {fileID: 27307221334136136}
   m_positionText: {fileID: 7164068991811045600}
   TestFernPrefab: {fileID: 1249991746567512264, guid: 7c88d2a926d487949ab476a5b63b936d, type: 3}
+  IsDead: 0
 --- !u!114 &3992886838419682707
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -963,8 +964,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6494b87727298314987516d4f17c6c93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseHpMax: 69420
-  baseHpCurrent: 69420
+  baseHpMax: 420
+  baseHpCurrent: 420
   baseHpBuffer: 0
   baseAttackPower: 10
   baseCriticalChance: 0.05
@@ -1590,7 +1591,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5488348261898250879}
   - component: {fileID: 7691548839490841235}
-  - component: {fileID: 8774873082806419662}
+  - component: {fileID: 708870701763756347}
   m_Layer: 0
   m_Name: Virtual Camera
   m_TagString: Untagged
@@ -1653,7 +1654,7 @@ MonoBehaviour:
         m_Calls: []
   m_LegacyBlendHint: 0
   m_ComponentOwner: {fileID: 1702146927380263438}
---- !u!114 &8774873082806419662
+--- !u!114 &708870701763756347
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8138,9 +8139,9 @@ Camera:
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
-    y: 0.7457213
-    width: 1.2580153
-    height: 1.4669927
+    y: 0.8847118
+    width: 1.316119
+    height: 1.3173559
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
@@ -8264,7 +8265,7 @@ MonoBehaviour:
   m_RefResolutionX: 960
   m_RefResolutionY: 600
   m_CropFrame: 4
-  m_GridSnapping: 0
+  m_GridSnapping: 1
   m_FilterMode: 0
   m_UpscaleRT: 0
   m_PixelSnapping: 0
@@ -9357,7 +9358,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3199090954834604453, guid: 09f60cc09ff4b6947a24f717d4d9d2d9, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 2.03
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 3199090954834604453, guid: 09f60cc09ff4b6947a24f717d4d9d2d9, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x

@@ -25,15 +25,18 @@ public class PlayerController : NetworkBehaviour
 
     private NetworkCharacter m_networkCharacter;
 
-    public static float InactiveTimerDuration = 5 * 60;
+    public static float InactiveTimerDuration = 30; //5 * 60;
 
     public bool IsDead = false;
 
     private float m_inactiveTimer = InactiveTimerDuration;
 
+    private HoldBarCanvas m_holdBarCanvas;
+
     private void Awake()
     {
         m_networkCharacter = GetComponent<NetworkCharacter>();
+        m_holdBarCanvas = GetComponentInChildren<HoldBarCanvas>();
     }
 
     public override void OnNetworkSpawn()
@@ -118,6 +121,9 @@ public class PlayerController : NetworkBehaviour
         HandleSpawnFern();
         HandleDegenapeHpAp();
         HandleInactivePlayer();
+
+        // keep the hold bar in position (webgl it is weirdly in wrong position);
+        if (m_holdBarCanvas != null) m_holdBarCanvas.transform.localPosition = new Vector3(0, 2, 0);
     }
 
     private LevelManager.TransitionState m_localTransition = LevelManager.TransitionState.Null;
@@ -195,15 +201,18 @@ public class PlayerController : NetworkBehaviour
 
         m_inactiveTimer -= Time.deltaTime;
 
-        if (UnityEngine.Input.anyKey)
-        {
-            m_inactiveTimer = InactiveTimerDuration;
-        }
-
         if (m_inactiveTimer <= 0)
         {
             KillPlayer(REKTCanvas.TypeOfREKT.InActive);
         }
+    }
+
+    // this gets called by the server side of PlayerPrediction
+    public void ResetInactiveTimer()
+    {
+        if (!IsServer) return;
+
+        m_inactiveTimer = InactiveTimerDuration;
     }
 
     [Rpc(SendTo.Server)]

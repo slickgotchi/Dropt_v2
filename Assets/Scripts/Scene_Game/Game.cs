@@ -40,9 +40,29 @@ public class Game : MonoBehaviour
 
     UnityTransport m_transport;
 
+    // certs
+    private string m_serverCommonName;
+    private string m_clientCA;
+    private string m_serverCertificate;
+    private string m_serverPrivateKey;
+
     private void Awake()
     {
         Instance = this;
+        SetupServerCerts();
+    }
+
+    void SetupServerCerts()
+    {
+        if (Bootstrap.IsServer() && Bootstrap.IsRemoteConnection())
+        {
+            m_serverCertificate = System.Environment.GetEnvironmentVariable("DROPT_SERVER_CERTIFICATE");
+            m_serverPrivateKey = System.Environment.GetEnvironmentVariable("DROPT_SERVER_PRIVATE_KEY");
+            Debug.Log("ServerCertificate");
+            Debug.Log(m_serverCertificate);
+            Debug.Log("ServerPrivateKey");
+            Debug.Log(m_serverPrivateKey);
+        }
     }
 
     private void Start()
@@ -86,13 +106,16 @@ public class Game : MonoBehaviour
         }
     }
 
+    bool isCreatedGameOnce = false;
 
     private void Update()
     {
         // CreateGame polling
         m_tryCreateGameTimer -= Time.deltaTime;
-        if (m_isTryCreateGame && m_tryCreateGameTimer <= 0)
+        if (m_isTryCreateGame && m_tryCreateGameTimer <= 0 && !isCreatedGameOnce)
         {
+            Debug.Log("TryCreateGame");
+            isCreatedGameOnce = true;
             m_isTryCreateGame = false;
             CreateGameViaServerManager();
         }
@@ -101,6 +124,7 @@ public class Game : MonoBehaviour
         m_tryConnectTimer -= Time.deltaTime;
         if (m_isTryConnect && m_tryConnectTimer <= 0 && !NetworkManager.Singleton.ShutdownInProgress)
         {
+            Debug.Log("TryConnect");
             if (TryStartServerClientOrHost())
             {
                 IsConnected = true;
@@ -140,12 +164,12 @@ public class Game : MonoBehaviour
         {
             if (Bootstrap.IsServer() || Bootstrap.IsHost())
             {
-                m_transport.SetServerSecrets(SecureParameters.ServerCertificate, SecureParameters.ServerPrivateKey);
+                m_transport.SetServerSecrets(m_serverCertificate, m_serverPrivateKey);
             }
 
             if (Bootstrap.IsClient() || Bootstrap.IsHost())
             {
-                m_transport.SetClientSecrets(SecureParameters.ServerCommonName, SecureParameters.ClientCA);
+                m_transport.SetClientSecrets(m_serverCommonName, m_clientCA);
             }
         }
 
@@ -212,6 +236,12 @@ public class Game : MonoBehaviour
                         Bootstrap.Instance.IpAddress = data.ipAddress;
                         Bootstrap.Instance.Port = data.port;
                         Bootstrap.Instance.GameId = data.gameId;
+
+                        // set client side cert data
+                        m_serverCommonName = data.serverCommonName;
+                        m_clientCA = data.clientCA;
+                        Debug.Log(m_serverCommonName);
+                        Debug.Log(m_clientCA);
 
                         Debug.Log("Got back server instance with port: " + data.port + ", gameId: " + data.gameId +
                             ", ipAddress: " + data.ipAddress);
@@ -284,6 +314,10 @@ public class Game : MonoBehaviour
                         Bootstrap.Instance.IpAddress = data.ipAddress;
                         Bootstrap.Instance.Port = data.port;
                         Bootstrap.Instance.GameId = data.gameId;
+
+                        // set client sider cert data
+                        m_serverCommonName = data.serverCommonName;
+                        m_clientCA = data.clientCA;
 
                         // shut down our existing server
                         NetworkManager.Singleton.Shutdown();

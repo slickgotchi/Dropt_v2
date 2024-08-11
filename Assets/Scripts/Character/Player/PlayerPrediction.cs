@@ -100,11 +100,14 @@ public class PlayerPrediction : NetworkBehaviour
 
     public float MovementMultiplier = 1f;
 
+    private PlayerController m_playerController;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         m_networkCharacter = GetComponent<NetworkCharacter>();
         m_playerAbilities = GetComponent<PlayerAbilities>();
+        m_playerController = GetComponent<PlayerController>();
     }
 
     public override void OnNetworkSpawn()
@@ -466,22 +469,6 @@ public class PlayerPrediction : NetworkBehaviour
             }
         }
 
-        //// check for click input blockers
-        //if (isClickInputDisabled || isAllInputDisabled)
-        //{
-        //    m_abilityTriggered = PlayerAbilityEnum.Null;
-        //    inputPayload.abilityTriggered = PlayerAbilityEnum.Null;
-        //    inputPayload.holdAbilityPending = PlayerAbilityEnum.Null;
-        //    inputPayload.isHoldStartFlag = false;
-        //    inputPayload.isHoldFinishFlag = false;
-        //}
-
-        //// check for movement blockers
-        //if (isMoveInputDisabled || isAllInputDisabled)
-        //{
-        //    inputPayload.moveDirection = Vector3.zero;
-        //}
-
         // send input to server
         SendToServerRpc(inputPayload);
 
@@ -738,8 +725,10 @@ public class PlayerPrediction : NetworkBehaviour
 
         while (serverInputQueue.Count > 0)
         {
+            // 1. get the oldest input
             inputPayload = serverInputQueue.Dequeue();
 
+            // 2. check if ability triggered
             var ability = m_playerAbilities.GetAbility(inputPayload.abilityTriggered);
             if (ability != null)
             {
@@ -765,7 +754,7 @@ public class PlayerPrediction : NetworkBehaviour
                 }
             }
 
-            // check if we can start our hold ability
+            // 3. check if we can start our hold ability
             var holdAbility = m_playerAbilities.GetAbility(inputPayload.holdAbilityPending);
             if (!m_isHoldStarted && inputPayload.isHoldStartFlag && holdAbility != null && !IsHost)
             {
@@ -784,7 +773,7 @@ public class PlayerPrediction : NetworkBehaviour
             }
 
 
-            // perform ability if applicable
+            // 4. handle auto-move
             if (ability != null && inputPayload.abilityTriggered != PlayerAbilityEnum.Null)
             {
                 // check automove (THIS MIGHT NEED TO BE MOVED BEFORE processInput)
@@ -797,17 +786,20 @@ public class PlayerPrediction : NetworkBehaviour
                 }
             }
 
+            // 5. process input
             statePayload = ProcessInput(inputPayload, false);
 
+            // 6. set position if it has been triggered (level teleportation to player spawns)
             if (m_isSetPlayerPosition)
             {
                 statePayload.position = m_setPlayerPosition;
             }
-            
+
+            // 7. add to the server state buffer
             bufferIndex = inputPayload.tick % k_bufferSize;
             serverStateBuffer.Add(statePayload, bufferIndex);
 
-            // perform ability if applicable
+            // 8. perform ability if applicable
             if (ability != null && inputPayload.abilityTriggered != PlayerAbilityEnum.Null)
             {
                 var holdDuration = (m_holdFinishTick - m_holdStartTick) / k_serverTickRate;
@@ -838,8 +830,14 @@ public class PlayerPrediction : NetworkBehaviour
                 m_cooldownSlowFactor = ability.CooldownSlowFactor;
             }
 
-            // tell client the last state we have as a server
+            // 9. tell client the last state we have as a server
             SendToClientRpc(statePayload);
+
+            // 10. resest player inactive state (if we moved or ability triggered)
+            if (ability != null || inputPayload.moveDirection.magnitude > 0.01)
+            {
+                m_playerController.ResetInactiveTimer();
+            }
         }
 
         // reset state of setting player position
