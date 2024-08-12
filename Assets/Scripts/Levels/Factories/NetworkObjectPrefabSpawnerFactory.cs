@@ -17,6 +17,7 @@ namespace Level
                 no_object.GetComponent<NetworkObject>().Spawn();
 
                 CleanupFactory.DestroyAllChildren(no_prefabSpawners[i].transform);
+                //GameObject.Destroy(no_prefabSpawners[i].gameObject);
             }
         }
     }

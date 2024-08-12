@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Level
 {
-    public class NetworkLevel : NetworkBehaviour
+    public partial class NetworkLevel : NetworkBehaviour
     {
         //private List<Vector3> m_availablePlayerSpawnPoints = new List<Vector3>();
         private List<SpawnerActivator> m_spawnerActivators = new List<SpawnerActivator>();
@@ -22,7 +22,8 @@ namespace Level
                 ApeDoorFactory.CreateApeDoors(gameObject);
                 NetworkObjectSpawnerFactory.CreateNetworkObjectSpawners(gameObject, ref m_spawnerActivators);
                 SubLevelFactory.CreateSubLevels(gameObject);
-                NetworkObjectPrefabSpawnerFactory.CreateNetworkObjectPrefabSpawners(gameObject);
+                CreateNetworkObjectPrefabSpawners();    // refer NetworkLevel_NetworkObjectPrefabSpawners.cs
+                //NetworkObjectPrefabSpawnerFactory.CreateNetworkObjectPrefabSpawners(gameObject);
                 TrapsGroupSpawnerFactory.CreateTraps(gameObject);
 
                 LevelManager.Instance.LevelSpawningCount--;
@@ -61,8 +62,28 @@ namespace Level
             CleanupFactory.DestroySpawnerObjects<PlayerSpawnPoints>(gameObject);
             CleanupFactory.DestroySpawnerObjects<SunkenFloorSpawner>(gameObject);
             CleanupFactory.DestroySpawnerObjects<SunkenFloorButtonGroupSpawner>(gameObject);
-            CleanupFactory.DestroySpawnerObjects<NetworkObjectPrefabSpawner>(gameObject);
+            //CleanupFactory.DestroySpawnerObjects<NetworkObjectPrefabSpawner>(gameObject);
+            DestroySpawnerObjects<NetworkObjectPrefabSpawner>();
             CleanupFactory.DestroySpawnerObjects<TrapsGroupSpawner>(gameObject);
+        }
+
+        public void DestroySpawnerObjects<T>() where T : Component
+        {
+            var spawnerObjects = new List<T>(GetComponentsInChildren<T>());
+            foreach (var spawnerObject in spawnerObjects)
+            {
+                Object.Destroy(spawnerObject.gameObject);
+            }
+        }
+
+        public void DestroyAllChildren(Transform parent)
+        {
+            while (parent.childCount > 0)
+            {
+                var child = parent.GetChild(0);
+                child.parent = null;
+                Object.Destroy(child.gameObject);
+            }
         }
     }
 }

@@ -14,8 +14,14 @@ using UnityEngine.SceneManagement;
 
 public class PlayerController : NetworkBehaviour
 {
-    [SerializeField] CinemachineVirtualCamera playerCamera;
-    [SerializeField] AudioListener playerAudioListener;
+    //[SerializeField] CinemachineVirtualCamera playerCamera;
+    //[SerializeField] AudioListener playerAudioListener;
+
+    public GameObject ScreenBlockers;
+
+    private GameObject m_cameraFollower;
+    private Vector3 m_lastCameraFollowerPosition;
+    private PlayerPrediction m_playerPrediction;
 
     [SerializeField] TextMeshProUGUI m_positionText;
 
@@ -37,13 +43,17 @@ public class PlayerController : NetworkBehaviour
     {
         m_networkCharacter = GetComponent<NetworkCharacter>();
         m_holdBarCanvas = GetComponentInChildren<HoldBarCanvas>();
+        m_playerPrediction = GetComponent<PlayerPrediction>();
     }
 
     public override void OnNetworkSpawn()
     {
         if (IsLocalPlayer) {
-            playerCamera.Priority = 100;
-            playerAudioListener.enabled = true;
+            //playerCamera.Priority = 100;
+            //playerAudioListener.enabled = true;
+
+            m_cameraFollower = GameObject.FindGameObjectWithTag("CameraFollower");
+            //m_cameraFollower.transform.SetParent(transform);
 
             // Get the currently active scene to ensure we're working with the "Game" scene
             Scene gameScene = SceneManager.GetSceneByName("Game");
@@ -55,14 +65,15 @@ public class PlayerController : NetworkBehaviour
                 // Check if the Canvas is in the "Game" scene and has a parent named "Game"
                 //if (canvas.gameObject.scene == gameScene)
                 {
-                    canvas.renderMode = RenderMode.ScreenSpaceCamera;
-                    canvas.worldCamera = GetComponentInChildren<Camera>();
+                    //canvas.renderMode = RenderMode.ScreenSpaceCamera;
+                    //canvas.worldCamera = GetComponentInChildren<Camera>();
                 }
             }
         } else
         {
-            playerAudioListener.enabled = false;
-            playerCamera.Priority = 0;
+            //playerAudioListener.enabled = false;
+            //playerCamera.Priority = 0;
+            ScreenBlockers.SetActive(false);
         }
 
         if (IsServer && !IsHost)
@@ -114,6 +125,16 @@ public class PlayerController : NetworkBehaviour
             if (!m_isPlayerHUDInitialized && GetComponent<NetworkCharacter>() != null)
             {
                 PlayerHUDCanvas.Singleton.SetLocalPlayerCharacter(GetComponent<NetworkCharacter>());
+            }
+
+            if (m_cameraFollower != null)
+            {
+                var newPos = m_playerPrediction.GetLocalPlayerInterpPosition();
+                //if ((newPos - m_lastCameraFollowerPosition).magnitude > 0.2)
+                {
+                    m_cameraFollower.transform.position = m_playerPrediction.GetLocalPlayerInterpPosition();
+                    m_lastCameraFollowerPosition = m_cameraFollower.transform.position;
+                }
             }
         }
 
