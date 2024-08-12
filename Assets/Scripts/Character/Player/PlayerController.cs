@@ -20,7 +20,7 @@ public class PlayerController : NetworkBehaviour
     public GameObject ScreenBlockers;
 
     private GameObject m_cameraFollower;
-    private Vector3 m_lastCameraFollowerPosition;
+    //private Vector3 m_lastCameraFollowerPosition;
     private PlayerPrediction m_playerPrediction;
 
     [SerializeField] TextMeshProUGUI m_positionText;
@@ -55,20 +55,20 @@ public class PlayerController : NetworkBehaviour
             m_cameraFollower = GameObject.FindGameObjectWithTag("CameraFollower");
             //m_cameraFollower.transform.SetParent(transform);
 
-            // Get the currently active scene to ensure we're working with the "Game" scene
-            Scene gameScene = SceneManager.GetSceneByName("Game");
+            //// Get the currently active scene to ensure we're working with the "Game" scene
+            //Scene gameScene = SceneManager.GetSceneByName("Game");
 
-            // change all canvas to camera mode and set players camera to them
-            var canvii = FindObjectsByType<Canvas>(FindObjectsSortMode.None);
-            foreach (var canvas in canvii)
-            {
-                // Check if the Canvas is in the "Game" scene and has a parent named "Game"
-                //if (canvas.gameObject.scene == gameScene)
-                {
-                    //canvas.renderMode = RenderMode.ScreenSpaceCamera;
-                    //canvas.worldCamera = GetComponentInChildren<Camera>();
-                }
-            }
+            ////// change all canvas to camera mode and set players camera to them
+            //var canvii = FindObjectsByType<Canvas>(FindObjectsSortMode.None);
+            //foreach (var canvas in canvii)
+            //{
+            //    // Check if the Canvas is in the "Game" scene and has a parent named "Game"
+            //    //if (canvas.gameObject.scene == gameScene)
+            //    {
+            //        //canvas.renderMode = RenderMode.ScreenSpaceCamera;
+            //        //canvas.worldCamera = GetComponentInChildren<Camera>();
+            //    }
+            //}
         } else
         {
             //playerAudioListener.enabled = false;
@@ -127,14 +127,16 @@ public class PlayerController : NetworkBehaviour
                 PlayerHUDCanvas.Singleton.SetLocalPlayerCharacter(GetComponent<NetworkCharacter>());
             }
 
+            // set camera to follow player
             if (m_cameraFollower != null)
             {
-                var newPos = m_playerPrediction.GetLocalPlayerInterpPosition();
-                //if ((newPos - m_lastCameraFollowerPosition).magnitude > 0.2)
-                {
-                    m_cameraFollower.transform.position = m_playerPrediction.GetLocalPlayerInterpPosition();
-                    m_lastCameraFollowerPosition = m_cameraFollower.transform.position;
-                }
+                m_cameraFollower.transform.position = m_playerPrediction.GetLocalPlayerInterpPosition();
+                //var newPos = m_playerPrediction.GetLocalPlayerInterpPosition();
+                ////if ((newPos - m_lastCameraFollowerPosition).magnitude > 0.2)
+                //{
+                //    m_cameraFollower.transform.position = m_playerPrediction.GetLocalPlayerInterpPosition();
+                //    //m_lastCameraFollowerPosition = m_cameraFollower.transform.position;
+                //}
             }
         }
 

@@ -51,8 +51,8 @@ public class PlayerGotchi : NetworkBehaviour
 
     private LocalVelocity m_localVelocity;
 
-    private Camera m_camera;
-    private CinemachineVirtualCamera m_virtualCamera;
+    //private Camera m_camera;
+    //private CinemachineVirtualCamera m_virtualCamera;
     private Vector3 m_spawnPoint;
     private Vector3 m_preSpawnPoint;
 
@@ -83,8 +83,8 @@ public class PlayerGotchi : NetworkBehaviour
         m_playerPrediction = GetComponent<PlayerPrediction>();
         m_localVelocity = GetComponent<LocalVelocity>();
 
-        m_camera = GetComponentInChildren<Camera>();
-        m_virtualCamera = GetComponentInChildren<CinemachineVirtualCamera>();
+        //m_camera = GetComponentInChildren<Camera>();
+        //m_virtualCamera = GetComponentInChildren<CinemachineVirtualCamera>();
     }
 
     private void Update()
@@ -137,7 +137,7 @@ public class PlayerGotchi : NetworkBehaviour
     {
         if (!IsLocalPlayer) return;
 
-        m_virtualCamera.Follow = null;
+        //m_virtualCamera.Follow = null;
 
         IsDropSpawning = true;
         animator.Play("PlayerGotchi_DropSpawn");
@@ -234,9 +234,9 @@ public class PlayerGotchi : NetworkBehaviour
 
         GetComponent<PlayerCamera>().Shake(1.75f, 0.3f);
 
-        // make camera follow player and warp it to our new spawn point
-        m_virtualCamera.Follow = transform;
-        m_virtualCamera.OnTargetObjectWarped(transform, m_spawnPoint - m_preSpawnPoint);
+        //// make camera follow player and warp it to our new spawn point
+        //m_virtualCamera.Follow = transform;
+        //m_virtualCamera.OnTargetObjectWarped(transform, m_spawnPoint - m_preSpawnPoint);
 
         // renable collider
         GetComponent<Collider2D>().enabled = true;

@@ -29,6 +29,14 @@ public class LevelManager : NetworkBehaviour
     public NetworkVariable<TransitionState> State;
     public NetworkVariable<int> CurrentLevelIndex = new NetworkVariable<int>(0);
 
+    private List<NetworkObject> m_networkObjectSpawns = new List<NetworkObject>();
+
+    public void AddToSpawnList(NetworkObject networkObject)
+    {
+        m_networkObjectSpawns.Add(networkObject);
+    }
+
+
     private void Awake()
     {
         Instance = this;
@@ -262,6 +270,13 @@ public class LevelManager : NetworkBehaviour
             //NavigationSurfaceSingleton.Instance.Surface.BuildNavMesh();
             NavigationSurfaceSingleton.Instance.Surface.UpdateNavMesh(NavigationSurfaceSingleton.Instance.Surface.navMeshData);
             isNavMeshBuilt = true;
+
+            // now spawn everything in the spawn list
+            foreach (var no in m_networkObjectSpawns)
+            {
+                no.Spawn();
+            }
+            m_networkObjectSpawns.Clear();
         }
 
         // this code ensures we only build a navmesh once level is finished loading
