@@ -465,10 +465,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 77043777}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 960, y: 600}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &251867793
 MonoBehaviour:
@@ -636,7 +636,7 @@ MonoBehaviour:
   m_ReferencePixelsPerUnit: 1
   m_ScaleFactor: 0.6
   m_ReferenceResolution: {x: 960, y: 600}
-  m_ScreenMatchMode: 1
+  m_ScreenMatchMode: 0
   m_MatchWidthOrHeight: 0.5
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
@@ -652,7 +652,7 @@ Canvas:
   m_GameObject: {fileID: 1145985541}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 1
+  m_RenderMode: 0
   m_Camera: {fileID: 2106054968}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
@@ -6280,7 +6280,7 @@ AudioListener:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2106054966}
-  m_Enabled: 0
+  m_Enabled: 1
 --- !u!20 &2106054968
 Camera:
   m_ObjectHideFlags: 0
@@ -6309,9 +6309,9 @@ Camera:
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
-    y: 0
-    width: 0.999084
-    height: 1
+    y: 0.88942313
+    width: 1.1984962
+    height: 1.197416
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
@@ -6398,7 +6398,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2106054966}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c88f5cead0c0b2a4eb05b5900433f8d1, type: 3}
   m_Name: 
