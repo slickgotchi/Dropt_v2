@@ -99,7 +99,6 @@ public class Bootstrap : MonoBehaviour
         }
 
         GameAudioManager.TryToInitialize();
-        //GameAudioManager.Instance.PlayMusic(MusicType.RestFloor, MusicType.UndergroundForest);
         GameAudioManager.Instance.PlayMusic(MusicType.UndergroundForest);
     }
 
