@@ -180,11 +180,12 @@ public class PlayerAbilities : NetworkBehaviour
     {
         Debug.Log("Player disconnected");
 
-#if UNITY_EDITOR
-        // check on application quit action reason
-        if (null == NetworkManager.RpcTarget)
-            return;
-#endif
+        if (Bootstrap.IsUnityEditor())
+        {
+            // check on application quit action reason
+            if (null == NetworkManager.RpcTarget)
+                return;
+        }
 
         DestroyAbility(ref Dash);
 

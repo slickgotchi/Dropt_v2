@@ -43,7 +43,7 @@ public class JoostDataManager : MonoBehaviour
             if (!joostDataDictionary.ContainsKey(joostObject.joostType))
             {
                 joostDataDictionary.Add(joostObject.joostType, joostObject);
-                Debug.Log($"Added {joostObject.joostType} to the dictionary.");
+                //Debug.Log($"Added {joostObject.joostType} to the dictionary.");
             }
             else
             {

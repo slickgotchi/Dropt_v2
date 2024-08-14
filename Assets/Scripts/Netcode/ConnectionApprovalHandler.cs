@@ -35,6 +35,7 @@ public class ConnectionApprovalHandler : MonoBehaviour
 
     private void ApprovalCheck(NetworkManager.ConnectionApprovalRequest request, NetworkManager.ConnectionApprovalResponse response)
     {
+        Debug.Log("Approval Check");
         // The client identifier to be authenticated
         var clientId = request.ClientNetworkId;
 

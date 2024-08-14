@@ -4,14 +4,23 @@ using Assets.Plugins;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using Audio.Game;
 
 public class TitleCanvas : MonoBehaviour
 {
     [SerializeField] private Button playButton;
     [SerializeField] private Button optionsButton;
 
-    private void Awake()
+    private void Start()
     {
+        // disable duplicate audio
+        var audioListeners = FindObjectsByType<AudioListener>(FindObjectsSortMode.None);
+        if (audioListeners.Length > 1 && GameAudioManager.Instance != null)
+        {
+            GameAudioManager.Instance.GetComponent<AudioListener>().enabled = false;
+        }
+
+
         playButton.onClick.AddListener(() =>
         {
             //SceneManager.LoadScene("Game");
