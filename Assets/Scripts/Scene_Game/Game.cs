@@ -386,19 +386,77 @@ public class Game : MonoBehaviour
 
 public class SecureParameters
 {
-    public static string serverCommonName = "<insert-common-name>";
+    public static string serverCommonName = "alphaserver.playdropt.io";
     public static string clientCA =
-        @"";
+        @"-----BEGIN CERTIFICATE-----
+MIICwjCCAaoCCQCXeUQ0rdG30jANBgkqhkiG9w0BAQsFADAjMSEwHwYDVQQDDBhh
+bHBoYXNlcnZlci5wbGF5ZHJvcHQuaW8wHhcNMjQwODExMDcxNTM4WhcNMjcwODEx
+MDcxNTM4WjAjMSEwHwYDVQQDDBhhbHBoYXNlcnZlci5wbGF5ZHJvcHQuaW8wggEi
+MA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDPN8j6taqkNUysXjW0xrmsYbAA
+aFgy20IYm4tLN9xxqNmUrqaiGA2ktrsfW43x/Iv7tsAiP8o/j7TEuicAKKAaQOL4
++znyDJ31AQH8aot4NDhvleLagXltCdmd308+s0bcduguXcZhEUUx3RAdIXiUkWQQ
+EI6HacwQm+QEkdmDvTu1igHKS8Q3ORTpakFduox3sUQmB0Nxm0FpnhjHcZHck+cd
+XoyZlNVhu30e2s2orTNvBHtbxGmOde81GATXt0idskv3xDZGu7eXHMjxHmXKVRrO
+809IZxeokapFcYtFcw+6vjQiNx9dA6CKH1VtQRWfQuF704Jnx2IZk1jtIznbAgMB
+AAEwDQYJKoZIhvcNAQELBQADggEBAFf1K3ZRc2WFX/1GDPblYcY68Zlg46SPAwDQ
+h/uTcf5dU91hIR85t8bpu0Dr9tzCaHxtUfxs3JA/1OhmkVMgoMhnmImc4nUODewm
+oyUka02qK1Mb2ZgXmI5jTyRCpMu/2h+KLOub3JK9aS/wxaisrafFVH6YqYrFsPs4
+BD23sHya4BHBxTdoVtr0EIvMxxCmSVJw2kGnlhhjHpMZDBczPswfI1ulFu0DhybJ
+L0syomyNjQNUby6Tn8X4+AF9O6GTejQJqw01NwpvpUkrPW8HU5ZVdws9P/ngYw2j
+MTohCE7+ySBc05b9th1CC9IvxsrENapURWqGCE7zmUXK59iyCA4=
+-----END CERTIFICATE-----";
 
 #if CLIENT
     public static string serverCert = "";
     public static string serverPrivKey = "";
 #else
     public static string serverCert =
-        @"";
+        @"-----BEGIN CERTIFICATE-----
+MIICwjCCAaoCCQCrDfq7bynlvjANBgkqhkiG9w0BAQsFADAjMSEwHwYDVQQDDBhh
+bHBoYXNlcnZlci5wbGF5ZHJvcHQuaW8wHhcNMjQwODExMDcxNzUxWhcNMjUwODEx
+MDcxNzUxWjAjMSEwHwYDVQQDDBhhbHBoYXNlcnZlci5wbGF5ZHJvcHQuaW8wggEi
+MA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCiwxnDVXVO3aUZYA+CQ4eLOpW2
+DNhimRovF2gqvpXEDedgnGLJqHPlctbGPT0IdTwjPdRbwNlU5U0/fauRx3UwL3Af
+MWCvEw/+ulsBfp+BB+8ejNlV2gZtZUNgUrDck0X7zM5m2+Yi0S+PQXnBroNL0zP6
+vPPWah0gyAm4MududoIgDDv8oPDQmYfZ288jACEUNS/AgE0TwLaIkSD2YopR1Xfw
+wUqdbcyb4Fqu/OREPQShK51F++u+r9d3jCXl+A+CRLr94BMZ7pxrDe5/K3Y7qs6+
+h7h+rsX7JkNI+5cqXd8CYRXRL9AlEhpvUvky6jVL4YsQ4NaEzJ6k595LXyMZAgMB
+AAEwDQYJKoZIhvcNAQELBQADggEBALcf8GIBszwmI4V0MjajQJgk/KUy4pt/MCQo
+Hv/eOEVe9d4GTtkvWWUFFozlt0A1OwQjS19V1r6NHs5E6wF+sV7fS88i+OuK30B4
+mmXO8Iq4pphPCJLJVCJTYENftSjPX/bVkVt82kGo8a5bsi5rfc9fybErXLPYVfsu
+AwUEuClkUIdxMxTYJoDhjpJoIPpwudoS/nUgD4lwaPM+Nlb1sDjGjdyLXLZvVdLu
+H5FkMDSCXZsgKLpNdBSHcco1FbxljV7gZch6HKRU8sFRmVM+5cbh749UAo05EDB4
+oJWwI6f4aqYK1Gh7nsx/prR2AhXre+BRBlOr9ZIU5WKYpLdBcIo=
+-----END CERTIFICATE-----";
 
     public static string serverPrivKey =
-        @"";
+        @"-----BEGIN RSA PRIVATE KEY-----
+MIIEogIBAAKCAQEAosMZw1V1Tt2lGWAPgkOHizqVtgzYYpkaLxdoKr6VxA3nYJxi
+yahz5XLWxj09CHU8Iz3UW8DZVOVNP32rkcd1MC9wHzFgrxMP/rpbAX6fgQfvHozZ
+VdoGbWVDYFKw3JNF+8zOZtvmItEvj0F5wa6DS9Mz+rzz1modIMgJuDLnbnaCIAw7
+/KDw0JmH2dvPIwAhFDUvwIBNE8C2iJEg9mKKUdV38MFKnW3Mm+BarvzkRD0EoSud
+Rfvrvq/Xd4wl5fgPgkS6/eATGe6caw3ufyt2O6rOvoe4fq7F+yZDSPuXKl3fAmEV
+0S/QJRIab1L5Muo1S+GLEODWhMyepOfeS18jGQIDAQABAoIBAB7FT8uUDnd4g8wG
+UyhHaAq0arVePFJ3q3GXtUPPgDTug/3J0wtY44BPc7dKwI0mzNXEzK8ECJJ6P15v
+fc4zrT4M2d+r0CGJMw7vYGEp9THJtDVMX5JRg8GO0WwWdgVdem+eSq87h4ixj5I/
+yKsLORtOtJcEvfydVyBpcRz30rUZOU9SoZSPN4yDasxr0o8vHh6Bpb8CNh65NNbn
+CCJVXSuTrY78wE70y3Muiw6rEJKRgh6pJWmxxvAypRWXmDFWXcCmoG/SraUTOolh
+l+tbVPF3TaaV39TrH2RFoZMAYw5IlRxCRKnNhFTLT5mkm8CjlVCbOTWVDOsyyIqy
+5wCpr7kCgYEA0XsWkSqd2ChHTQAvydcaKSMBL3KLfCwmTedwNw5p2r67Ct89wKmh
+2grzoKmU8Q+7c4lRvikyETVC4myzkFuUSaecbePKh6qZMKAz/dNDZC+WFf6VvOuH
+2knPShUvGVyJOqCY9nhwz0Tmd2z0hQeEN4Ym4RzduoSsKEwUIBRsdI8CgYEAxugS
+CbdXhK7fKGHHewxO0i4ed2K+NETNSYKs+rzsLM6iEXCtAESaWcsGobKh3DIGaHfx
+lvw+AFk1o8D8lNwy8nZwkw20ka4LgEa8p/atLZf01ovjI49KChP/3cqsF63vriiF
+HiWVbdb2cfA5O9HSjKpnMaS06ii2ePYIpLoYUdcCgYBiKSGcCLJKdiVjKbE7DbbO
+i/6kMzK1jyKr4sWspu5neHTBVXbkbxjOyc77/Ds08sBOFYzeZQN3GNQsse86uA82
+rHoa7GEdTY3XQVrbmEG+EqZrzA5yppPUcD3YYzDc24XamSLUa//AwHKWh9HU/H6y
+XgSd/B7SphTeFThhB/ECdQKBgB5PkSgf41tZ1rHtrJtotb47vvLMflWywmHYYwnW
+rlrppjLoK8Tlr2vNj5YmhZnrmaRj2tH6YGxnK9BngVYh9DWUrPUL2p90mVYT8X3b
+DmrrRClJqfRqSoscnxoqX21AWUz96cM9UPcrEeUtCVu/TsmW0iDzi4o/aAco3wpT
+PY+DAoGASrxEcGaVMjlpiO1LZC8H/AvBTG4hv4SMh2crlN/CdqikwR6c2VWLknfK
+GPWVnAA+lPJPHehg9Hh+BTCZICrvCs2Npqs2ktdNnKaJ+uvHvxGL7UVYVf0JAs1M
+qtN8A4cN3Qeq8DTgU6t3IMhmTqeFjpRzY3JaPbByyqT43vJ6I/4=
+-----END RSA PRIVATE KEY-----";
 
 #endif
 
