@@ -7,6 +7,7 @@ using UnityEngine.Networking;
 using Cysharp.Threading.Tasks;
 using System;
 using System.Text;
+using Audio.Game;
 
 public class Game : MonoBehaviour
 {
@@ -54,14 +55,10 @@ public class Game : MonoBehaviour
 
     void SetupServerCerts()
     {
-        if (Bootstrap.IsServer() && Bootstrap.IsRemoteConnection())
+        if (Bootstrap.IsServer() && Bootstrap.IsRemoteConnection() && Bootstrap.IsUseServerManager())
         {
             m_serverCertificate = System.Environment.GetEnvironmentVariable("DROPT_SERVER_CERTIFICATE");
             m_serverPrivateKey = System.Environment.GetEnvironmentVariable("DROPT_SERVER_PRIVATE_KEY");
-            Debug.Log("ServerCertificate");
-            Debug.Log(m_serverCertificate);
-            Debug.Log("ServerPrivateKey");
-            Debug.Log(m_serverPrivateKey);
         }
     }
 
@@ -88,6 +85,7 @@ public class Game : MonoBehaviour
         {
             if (Bootstrap.Instance.UseServerManager)
             {
+                Debug.Log("Try create game using server manager...");
                 ProgressBarCanvas.Instance.Show("Engaging remote server manager...", 0.1f);
 
                 // try create game (via server manager)
@@ -104,6 +102,13 @@ public class Game : MonoBehaviour
         {
             m_isTryConnect = true;
         }
+
+        // disable audio duplicate audio listeners
+        var audioListeners = FindObjectsByType<AudioListener>(FindObjectsSortMode.None);
+        if (audioListeners.Length > 1 && GameAudioManager.Instance != null)
+        {
+            GameAudioManager.Instance.GetComponent<AudioListener>().enabled = false;
+        }
     }
 
     bool isCreatedGameOnce = false;
@@ -114,10 +119,10 @@ public class Game : MonoBehaviour
         m_tryCreateGameTimer -= Time.deltaTime;
         if (m_isTryCreateGame && m_tryCreateGameTimer <= 0 && !isCreatedGameOnce)
         {
-            Debug.Log("TryCreateGame");
+            Debug.Log("Calling CreateGameViaServerManager()");
             isCreatedGameOnce = true;
             m_isTryCreateGame = false;
-            CreateGameViaServerManager();
+            CreateGameViaServerManager().Forget(); // Use UniTask with Forget to avoid unhandled exceptions
         }
 
         // Connect polling
@@ -129,7 +134,8 @@ public class Game : MonoBehaviour
             {
                 IsConnected = true;
                 m_isTryConnect = false;
-            } else
+            }
+            else
             {
                 m_tryConnectTimer = k_pollInterval;
             }
@@ -155,23 +161,29 @@ public class Game : MonoBehaviour
 
         // set connection data
         var ipAddress = Bootstrap.IsRemoteConnection() ? Bootstrap.Instance.IpAddress : "127.0.0.1";
-        m_transport.SetConnectionData(ipAddress, Bootstrap.Instance.Port, "0.0.0.0");
 
-        ProgressBarCanvas.Instance.Show("Connection data set, awaiting final server setup...", 0.4f);
-
-        // if using encryption, set secrets
-        if (m_transport.UseEncryption)
+        if (Bootstrap.IsServer() || Bootstrap.IsHost())
         {
-            if (Bootstrap.IsServer() || Bootstrap.IsHost())
+            m_transport.SetConnectionData(ipAddress, Bootstrap.Instance.Port, "0.0.0.0");
+            if (m_transport.UseEncryption)
             {
-                m_transport.SetServerSecrets(m_serverCertificate, m_serverPrivateKey);
-            }
-
-            if (Bootstrap.IsClient() || Bootstrap.IsHost())
-            {
-                m_transport.SetClientSecrets(m_serverCommonName, m_clientCA);
+                //m_transport.SetServerSecrets(m_serverCertificate, m_serverPrivateKey);
+                m_transport.SetServerSecrets(SecureParameters.serverCert, SecureParameters.serverPrivKey);
+                Debug.Log("Server Secrets Set");
             }
         }
+        else if (Bootstrap.IsClient() || Bootstrap.IsHost())
+        {
+            m_transport.SetConnectionData(ipAddress, Bootstrap.Instance.Port);
+            if (m_transport.UseEncryption)
+            {
+                //m_transport.SetClientSecrets(m_serverCommonName, m_clientCA);
+                m_transport.SetClientSecrets(SecureParameters.serverCommonName, SecureParameters.clientCA);
+                Debug.Log("Client Secrets Set");
+            }
+        }
+
+        ProgressBarCanvas.Instance.Show("Connection data set, awaiting final server setup...", 0.4f);
 
         // store a bool for our connection success
         bool success = false;
@@ -192,24 +204,28 @@ public class Game : MonoBehaviour
             success = NetworkManager.Singleton.StartClient();
             if (success) Debug.Log("StartClient() succeeded");
 
-            //statusString = "Client connection to server with gameId: " + Bootstrap.Instance.GameId + ", port: " + Bootstrap.Instance.Port + " succeeded";
             ProgressBarCanvas.Instance.Show("Client connected to server with gameId: " + Bootstrap.Instance.GameId + " on port: " + Bootstrap.Instance.Port, 0.5f);
         }
 
         return success;
     }
 
-    public async void CreateGameViaServerManager()
+    public UniTask CreateGameViaServerManager()
     {
-        //statusString = "Sending web request to: " + createGameUri;
+        return CreateGameViaServerManagerAsync();
+    }
+
+    private async UniTask CreateGameViaServerManagerAsync()
+    {
         ProgressBarCanvas.Instance.Show("Requesting game instance... ", 0.2f);
+        Debug.Log("Requesting game isntance");
 
         // create a new game
         try
         {
             using (UnityWebRequest webRequest = UnityWebRequest.Get(createGameUri))
             {
-                await webRequest.SendWebRequest();
+                await webRequest.SendWebRequest().ToUniTask();
 
                 switch (webRequest.result)
                 {
@@ -270,10 +286,15 @@ public class Game : MonoBehaviour
     // other gameobjects call this to try join a game
     public void TryJoinGame(string gameId)
     {
-        JoinGameViaServerManager(gameId);
+        JoinGameViaServerManager(gameId).Forget(); // Use UniTask with Forget to avoid unhandled exceptions
     }
 
-    public async void JoinGameViaServerManager(string gameId)
+    public UniTask JoinGameViaServerManager(string gameId)
+    {
+        return JoinGameViaServerManagerAsync(gameId);
+    }
+
+    private async UniTask JoinGameViaServerManagerAsync(string gameId)
     {
         try
         {
@@ -286,13 +307,13 @@ public class Game : MonoBehaviour
             using (UnityWebRequest webRequest = new UnityWebRequest(joinGameUri, "POST"))
             {
                 // 3. populate the requests body
-                byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(json);
+                byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
                 webRequest.uploadHandler = new UploadHandlerRaw(bodyRaw);
                 webRequest.downloadHandler = new DownloadHandlerBuffer();
                 webRequest.SetRequestHeader("Content-Type", "application/json");
 
                 // 4. perform the request
-                await webRequest.SendWebRequest();
+                await webRequest.SendWebRequest().ToUniTask();
 
                 // 5. process results
                 switch (webRequest.result)
@@ -315,7 +336,7 @@ public class Game : MonoBehaviour
                         Bootstrap.Instance.Port = data.port;
                         Bootstrap.Instance.GameId = data.gameId;
 
-                        // set client sider cert data
+                        // set client side cert data if using server manager
                         m_serverCommonName = data.serverCommonName;
                         m_clientCA = data.clientCA;
 
@@ -344,7 +365,7 @@ public class Game : MonoBehaviour
         public string ipAddress;
         public ushort port;
         public string serverCommonName;
-        public string clientCA; // Assuming clientCA should also be included
+        public string clientCA;
         public string gameId;
     }
 
@@ -353,4 +374,32 @@ public class Game : MonoBehaviour
     {
         public string gameId;
     }
+
+
+
+
+
+
+
+}
+
+
+public class SecureParameters
+{
+    public static string serverCommonName = "<insert-common-name>";
+    public static string clientCA =
+        @"";
+
+#if CLIENT
+    public static string serverCert = "";
+    public static string serverPrivKey = "";
+#else
+    public static string serverCert =
+        @"";
+
+    public static string serverPrivKey =
+        @"";
+
+#endif
+
 }

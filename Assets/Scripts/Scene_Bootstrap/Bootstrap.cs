@@ -45,6 +45,10 @@ public class Bootstrap : MonoBehaviour
         {
             StartupButtons.gameObject.SetActive(false);
         }
+
+#if UNITY_EDITOR
+        m_isUnityEditor = true;
+#endif
     }
 
     public NetworkRole NetworkRole = NetworkRole.Host;
@@ -55,6 +59,8 @@ public class Bootstrap : MonoBehaviour
     public string IpAddress = "178.128.22.77";
     public ushort Port = 9000;
     public string GameId = "default";
+
+    private bool m_isUnityEditor = false;
 
     [SerializeField] private GameObject StartupButtons;
 
@@ -100,6 +106,13 @@ public class Bootstrap : MonoBehaviour
 
         GameAudioManager.TryToInitialize();
         GameAudioManager.Instance.PlayMusic(MusicType.UndergroundForest);
+
+        // disable duplicate audio
+        var audioListeners = FindObjectsByType<AudioListener>(FindObjectsSortMode.None);
+        if (audioListeners.Length > 1 && GameAudioManager.Instance != null)
+        {
+            GameAudioManager.Instance.GetComponent<AudioListener>().enabled = false;
+        }
     }
 
     private void OnDestroy()
@@ -130,6 +143,16 @@ public class Bootstrap : MonoBehaviour
     public static bool IsRemoteConnection()
     {
         return Instance.ConnectionType == ConnectionType.Remote;
+    }
+
+    public static bool IsUnityEditor()
+    {
+        return Instance.m_isUnityEditor;
+    }
+
+    public static bool IsUseServerManager()
+    {
+        return Instance.UseServerManager;
     }
 }
 

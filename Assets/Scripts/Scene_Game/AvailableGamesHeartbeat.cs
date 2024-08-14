@@ -33,6 +33,7 @@ public class AvailableGamesHeartbeat : MonoBehaviour
         //if (!Game.Instance.IsConnected) return;
         if (!Bootstrap.IsClient()) return;
         if (Bootstrap.IsLocalConnection()) return;
+        if (!Bootstrap.IsUseServerManager()) return;
 
         m_heartbeatTimer -= Time.deltaTime;
 

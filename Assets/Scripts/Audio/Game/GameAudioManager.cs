@@ -58,6 +58,12 @@ namespace Audio.Game
         private void Awake()
         {
             _audioManager = new AudioManager(transform);
+            //var audioListener = GetComponent<AudioListener>();
+            //Destroy(audioListener);
+        }
+
+        private void Start()
+        {
         }
 
         private void OnApplicationQuit()
