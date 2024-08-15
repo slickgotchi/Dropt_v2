@@ -49,6 +49,7 @@ public class NetworkRoleCanvas : MonoBehaviour
 
     private void Start()
     {
+        isSkipTitle = Bootstrap.Instance.AutoPlay;
         // set initial drop down value
         connectionDropdown.value = (int)Bootstrap.Instance.ConnectionType;
     }

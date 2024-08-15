@@ -54,6 +54,7 @@ public class Bootstrap : MonoBehaviour
     public NetworkRole NetworkRole = NetworkRole.Host;
     public ConnectionType ConnectionType = ConnectionType.Local;
     public bool AutoBoot = false;
+    public bool AutoPlay = false;
     public bool UseServerManager = false;
 
     public string IpAddress = "178.128.22.77";
@@ -97,24 +98,18 @@ public class Bootstrap : MonoBehaviour
         // check for autoboot
         if (AutoBoot)
         {
-            if (NetworkRole == NetworkRole.Server)
-            {
-                SceneManager.LoadScene("Game");
-            } else
-            {
-                SceneManager.LoadScene("Title");
-            }
+            SceneManager.LoadScene("Title");
+            //if (NetworkRole == NetworkRole.Server)
+            //{
+            //    SceneManager.LoadScene("Game");
+            //} else
+            //{
+            //    SceneManager.LoadScene("Title");
+            //}
         }
 
         GameAudioManager.TryToInitialize();
         GameAudioManager.Instance.PlayMusic(MusicType.UndergroundForest);
-
-        // disable duplicate audio
-        var audioListeners = FindObjectsByType<AudioListener>(FindObjectsSortMode.None);
-        if (audioListeners.Length > 1 && GameAudioManager.Instance != null)
-        {
-            GameAudioManager.Instance.GetComponent<AudioListener>().enabled = false;
-        }
     }
 
     private void OnDestroy()

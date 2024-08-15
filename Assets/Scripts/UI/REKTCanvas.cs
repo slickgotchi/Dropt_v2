@@ -31,15 +31,27 @@ public class REKTCanvas : NetworkBehaviour
         Type = type;
         Container.SetActive(true);
 
+        // display text based on how we game over'd
         if (type == TypeOfREKT.HP)
         {
             REKTReasonText.text = "You ran out of HP... dungeons can be tough huh?";
-        } else if (type == TypeOfREKT.Essence)
+        }
+        else if (type == TypeOfREKT.Essence)
         {
             REKTReasonText.text = "You ran out of Essence... maybe catch a lil essence once in a while?";
-        } else
+        }
+        else
         {
             REKTReasonText.text = "You have been inactive for longer than " + PlayerController.InactiveTimerDuration.ToString("F0") + "s so... got the boot!";
+        }
+
+        // set button based on if tutorial is completed
+        if (Game.Instance.IsTutorialCompleted())
+        {
+            DegenapeButton.GetComponentInChildren<TextMeshProUGUI>().text = "Return to Degenape Village";
+        } else
+        {
+            DegenapeButton.GetComponentInChildren<TextMeshProUGUI>().text = "Return to Tutorial Level";
         }
     }
 

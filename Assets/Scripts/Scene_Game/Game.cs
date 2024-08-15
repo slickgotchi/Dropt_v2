@@ -49,11 +49,13 @@ public class Game : MonoBehaviour
     private string m_serverCertificate;
     private string m_serverPrivateKey;
 
+    public bool m_isTutorialCompleted = false;
+
+    private const string TutorialCompletedKey = "TutorialCompleted";
 
     private void Awake()
     {
         Instance = this;
-        SetupServerCerts();
 
         NetworkManager.Singleton.OnTransportFailure += HandleTransportFailure;
         NetworkManager.Singleton.OnConnectionEvent += HandleConnectionEvent;
@@ -67,15 +69,6 @@ public class Game : MonoBehaviour
     void HandleConnectionEvent(NetworkManager nm, ConnectionEventData ev)
     {
         Debug.Log("Connection event: " + ev);
-    }
-
-    void SetupServerCerts()
-    {
-        if (Bootstrap.IsServer() && Bootstrap.IsRemoteConnection() && Bootstrap.IsUseServerManager())
-        {
-            m_serverCertificate = System.Environment.GetEnvironmentVariable("DROPT_SERVER_CERTIFICATE");
-            m_serverPrivateKey = System.Environment.GetEnvironmentVariable("DROPT_SERVER_PRIVATE_KEY");
-        }
     }
 
     private void Start()
@@ -94,6 +87,13 @@ public class Game : MonoBehaviour
             Application.targetFrameRate = 30;
             QualitySettings.vSyncCount = 0;
             m_isTryConnect = true;
+
+            if (Bootstrap.IsRemoteConnection() && Bootstrap.IsUseServerManager())
+            {
+                m_serverCertificate = System.Environment.GetEnvironmentVariable("DROPT_SERVER_CERTIFICATE");
+                m_serverPrivateKey = System.Environment.GetEnvironmentVariable("DROPT_SERVER_PRIVATE_KEY");
+                m_isTutorialCompleted = System.Environment.GetEnvironmentVariable("IS_TUTORIAL_COMPLETED") == "true";
+            }
         }
 
         // 4. Client instances
@@ -118,13 +118,6 @@ public class Game : MonoBehaviour
         {
             m_isTryConnect = true;
         }
-
-        // disable audio duplicate audio listeners
-        var audioListeners = FindObjectsByType<AudioListener>(FindObjectsSortMode.None);
-        if (audioListeners.Length > 1 && GameAudioManager.Instance != null)
-        {
-            GameAudioManager.Instance.GetComponent<AudioListener>().enabled = false;
-        }
     }
 
     bool m_isCreatedGameOnce = false;
@@ -146,23 +139,29 @@ public class Game : MonoBehaviour
             m_tryConnectTimer <= 0 &&
             !NetworkManager.Singleton.ShutdownInProgress)
         {
-            if (AvailableGamesHeartbeat.Instance.IsServerReady(Bootstrap.Instance.GameId))
+            if (Bootstrap.IsServer() || Bootstrap.IsHost())
             {
-                ProgressBarCanvas.Instance.Show("Server is ready, starting client...");
-
                 if (TryStartServerClientOrHost())
                 {
                     IsConnected = true;
                     m_isTryConnect = false;
-                    ProgressBarCanvas.Instance.Show("Client started, loading level...");
                     ProgressBarCanvas.Instance.Hide();
                 }
-                else
-                {
-                    Debug.Log("Connection failed, restart try timer");
-                    m_tryConnectTimer = k_pollInterval;
-                }
+            }
 
+            else if (Bootstrap.IsClient())
+            {
+                if (Bootstrap.IsUseServerManager() && AvailableGamesHeartbeat.Instance.IsServerReady(Bootstrap.Instance.GameId) ||
+                    !Bootstrap.IsUseServerManager())
+                {
+                    if (TryStartServerClientOrHost())
+                    {
+                        IsConnected = true;
+                        m_isTryConnect = false;
+                        ProgressBarCanvas.Instance.Show("Client started, loading level...");
+                        ProgressBarCanvas.Instance.Hide();
+                    }
+                }
             }
         }
     }
@@ -245,8 +244,20 @@ public class Game : MonoBehaviour
         // create a new game
         try
         {
-            using (UnityWebRequest webRequest = UnityWebRequest.Get(createGameUri))
+            // 1. assemble post data into json
+            var postData = new CreateGamePostData { isTutorialCompleted = IsTutorialCompleted() };
+            string json = JsonUtility.ToJson(postData);
+
+            // 2. Create a new UnityWebRequest
+            using (UnityWebRequest webRequest = new UnityWebRequest(createGameUri, "POST"))
             {
+                // 3. populate the requests body
+                byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+                webRequest.uploadHandler = new UploadHandlerRaw(bodyRaw);
+                webRequest.downloadHandler = new DownloadHandlerBuffer();
+                webRequest.SetRequestHeader("Content-Type", "application/json");
+
+                // 4. send web request
                 await webRequest.SendWebRequest().ToUniTask();
 
                 switch (webRequest.result)
@@ -321,7 +332,6 @@ public class Game : MonoBehaviour
             string json = JsonUtility.ToJson(postData);
 
             // 2. Create a new UnityWebRequest
-            Debug.Log("Game: Sending POST request to " + joinGameUri + " with json data: " + json);
             using (UnityWebRequest webRequest = new UnityWebRequest(joinGameUri, "POST"))
             {
                 // 3. populate the requests body
@@ -377,6 +387,46 @@ public class Game : MonoBehaviour
         }
     }
 
+    public void CompleteTutorial()
+    {
+        if (!Bootstrap.IsClient()) return;
+
+        // Mark the tutorial as completed
+        SetTutorialCompleted(true);
+        Debug.Log("Tutorial marked as completed.");
+    }
+
+    public bool IsTutorialCompleted()
+    {
+        if (Bootstrap.IsServer())
+        {
+            return m_isTutorialCompleted;
+        } else
+        {
+            // Retrieve the boolean value from PlayerPrefs
+            return PlayerPrefs.GetInt(TutorialCompletedKey, 0) == 1;
+        }
+
+    }
+
+    private void SetTutorialCompleted(bool completed)
+    {
+        if (!Bootstrap.IsClient()) return;
+
+        // Convert the boolean to an integer (1 for true, 0 for false) and store it in PlayerPrefs
+        PlayerPrefs.SetInt(TutorialCompletedKey, completed ? 1 : 0);
+        PlayerPrefs.Save(); // Ensure the data is saved
+    }
+
+    public void ResetTutorialCompletion()
+    {
+        if (!Bootstrap.IsClient()) return;
+
+        // Optionally, allow resetting the tutorial completion status
+        PlayerPrefs.DeleteKey(TutorialCompletedKey);
+        Debug.Log("Tutorial completion status reset.");
+    }
+
     [System.Serializable]
     public struct CreateOrJoinGameResponseData
     {
@@ -391,6 +441,12 @@ public class Game : MonoBehaviour
     struct JoinGamePostData
     {
         public string gameId;
+    }
+
+    [System.Serializable]
+    struct CreateGamePostData
+    {
+        public bool isTutorialCompleted;
     }
 }
 
