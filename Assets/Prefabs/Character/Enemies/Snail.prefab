@@ -147,7 +147,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2137105859
+  GlobalObjectIdHash: 1218351389
   InScenePlacedSourceGlobalObjectIdHash: 2137105859
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -202,7 +202,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29cf3e7c9f82b7644ab0cfa54edb7528, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  editorAsset: {fileID: 11400000, guid: 92c3b9a1946d19b4f8e7d684d8fcc9fd, type: 2}
+  editorAsset: {fileID: 11400000, guid: ddfe72ee5af454c21b1238bb2ed41dee, type: 2}
 --- !u!114 &5346642218723636926
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -276,6 +276,7 @@ MonoBehaviour:
   baseEvasion: 0
   baseDamageReduction: 0
   baseApLeech: 0
+  baseApRegen: 1
   popupTextOffset: {x: 0, y: 1.5, z: 0}
   HpMax:
     m_InternalValue: 100
@@ -306,6 +307,8 @@ MonoBehaviour:
   DamageReduction:
     m_InternalValue: 0
   ApLeech:
+    m_InternalValue: 0
+  ApRegen:
     m_InternalValue: 0
 --- !u!61 &7690168732021353646
 BoxCollider2D:
@@ -386,6 +389,7 @@ MonoBehaviour:
   FacingDirection: 0
   IsSpawning: 1
   SpawnDuration: 0
+  IsArmed: 0
 --- !u!114 &6834886257311113157
 MonoBehaviour:
   m_ObjectHideFlags: 0

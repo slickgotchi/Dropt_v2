@@ -5,7 +5,7 @@ namespace CarlosLab.UtilityIntelligence
 {
     public class MyDistanceToTargetXYInput : Input<float>
     {
-        protected override float OnGetRawInput(InputContext context)
+        protected override float OnGetRawInput(in InputContext context)
         {
             var myPosition = AgentFacade.Position;
             var targetPosition = context.TargetFacade.Position;

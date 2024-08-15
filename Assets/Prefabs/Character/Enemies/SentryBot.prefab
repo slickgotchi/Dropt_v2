@@ -189,7 +189,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1780407932
+  GlobalObjectIdHash: 3385146398
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -222,7 +222,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29cf3e7c9f82b7644ab0cfa54edb7528, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  editorAsset: {fileID: 11400000, guid: b9d12af1779bf1140b600971ca0912ac, type: 2}
+  editorAsset: {fileID: 11400000, guid: 46227e973a0a34ea484251a481fc96a0, type: 2}
 --- !u!114 &-2943007521765018699
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -296,6 +296,7 @@ MonoBehaviour:
   baseEvasion: 0
   baseDamageReduction: 0
   baseApLeech: 0
+  baseApRegen: 1
   popupTextOffset: {x: 0, y: 1.5, z: 0}
   HpMax:
     m_InternalValue: 100
@@ -326,6 +327,8 @@ MonoBehaviour:
   DamageReduction:
     m_InternalValue: 0
   ApLeech:
+    m_InternalValue: 0
+  ApRegen:
     m_InternalValue: 0
 --- !u!114 &-1411043297097001130
 MonoBehaviour:

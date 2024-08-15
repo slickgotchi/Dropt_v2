@@ -177,7 +177,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29cf3e7c9f82b7644ab0cfa54edb7528, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  editorAsset: {fileID: 11400000, guid: cfa218693527ae145902fcfbc8678077, type: 2}
+  editorAsset: {fileID: 11400000, guid: 79bd9f8c0bf4c40dda6e93319f63f02a, type: 2}
 --- !u!114 &-5678054719775932641
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -251,6 +251,7 @@ MonoBehaviour:
   baseEvasion: 0
   baseDamageReduction: 0
   baseApLeech: 0
+  baseApRegen: 1
   popupTextOffset: {x: 0, y: 1.5, z: 0}
   HpMax:
     m_InternalValue: 100
@@ -281,6 +282,8 @@ MonoBehaviour:
   DamageReduction:
     m_InternalValue: 0
   ApLeech:
+    m_InternalValue: 0
+  ApRegen:
     m_InternalValue: 0
 --- !u!114 &7990397586326303742
 MonoBehaviour:

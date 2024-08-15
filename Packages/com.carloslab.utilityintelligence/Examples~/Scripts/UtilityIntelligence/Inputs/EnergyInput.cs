@@ -1,0 +1,17 @@
+﻿namespace CarlosLab.UtilityIntelligence.Examples
+{
+    [Category("Examples")]
+    public class EnergyInput : InputFromSource<int>
+    {
+        protected override int OnGetRawInput(in InputContext context)
+        {
+            UtilityEntity inputSource = GetInputSource(in context);
+            if (inputSource.EntityFacade is Character character)
+            {
+                return character.Energy;
+            }
+
+            return 0;
+        }
+    }
+}

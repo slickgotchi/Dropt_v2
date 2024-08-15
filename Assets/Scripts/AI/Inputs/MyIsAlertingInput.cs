@@ -7,7 +7,7 @@ namespace Dropt.UtilityIntelligence
 {
     public class MyIsAlertingInput : Input<bool>
     {
-        protected override bool OnGetRawInput(InputContext context)
+        protected override bool OnGetRawInput(in InputContext context)
         {
             var alertObject = AgentFacade.GetComponent<Transform>();
 

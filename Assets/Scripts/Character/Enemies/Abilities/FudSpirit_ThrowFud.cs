@@ -13,15 +13,14 @@ public class FudSpirit_ThrowFud : EnemyAbility
 
     public override void OnExecutionStart()
     {
-        // get direction
-        var dir = (Target.GetComponent<AttackCentre>().transform.position - Parent.GetComponent<AttackCentre>().transform.position).normalized;
+        if (Parent == null) return;
 
         // init and spawn projectile
         var projectile = Instantiate(FudProjectile);
         projectile.GetComponent<GenericEnemyProjectile>().Init(
             Parent.transform.position + new Vector3(0, 0.3f, 0),
-            PlayerAbility.GetRotationFromDirection(dir),
-            dir,
+            PlayerAbility.GetRotationFromDirection(AttackDirection),
+            AttackDirection,
             Distance,
             Duration,
             Parent.GetComponent<NetworkCharacter>().AttackPower.Value,
@@ -33,7 +32,7 @@ public class FudSpirit_ThrowFud : EnemyAbility
         projectile.GetComponent<GenericEnemyProjectile>().Fire();
 
         // orient the parent fud spirit sprite
-        EnemyController.Facing facing = dir.x > 0 ? EnemyController.Facing.Right : EnemyController.Facing.Left;
+        EnemyController.Facing facing = AttackDirection.x > 0 ? EnemyController.Facing.Right : EnemyController.Facing.Left;
         Parent.GetComponent<EnemyController>().SetFacingDirection(facing, 1f);
     }
 }

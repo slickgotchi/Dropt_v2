@@ -1,0 +1,24 @@
+{
+  "name": "com.carloslab.utilityintelligence",
+  "version": "2.0.0",
+  "displayName": "CarlosLab - Utility Intelligence",
+  "description": "Utility Intelligence is a robust and powerful Utility AI Framework. It seamlessly integrates Utility AI, Behavior Tree, and Finite State Machine into a unified and coherent framework. Each method is used where it performs optimally, leveraging their strengths while eliminating their weaknesses.\r\n- Utility AI is used for decision-making. It allows agents to make the best decisions based on the current decision.\r\n- Behavior Tree is used for designing and executing decision tasks. It allows agents to execute the tasks of their chosen decision sequentially or simultaneously.\r\n- Finite State Machine is used for transitioning between decisions. It allows agents to transition from the current decision to the chosen decision once it's been made.\r\n\r\nUtility Intelligence allows agents to make decisions based on scores. Therefore, designers can adjust the decision-making process by tweaking the decision scores, without needing support from developers to change the behavioral structure, as required in Behavior Trees and Finite State Machines.\r\n-> Designers and developers can work independently without affecting each other.\r\n- Designers: Focus on adjusting the decision scores to ensure the best decision is chosen in any situation.\r\n- Developers: Focus on creating and executing new decisions based on the game design document.\r\n\r\nDesigned with modularity in mind, Utility Intelligence makes it easy to manage and customize your AI Behaviors, as well as adapt to constant changes from game design, thereby keeping your AI System manageable and scalable as its complexity increases.\r\n\r\nAdditionally, Utility Intelligence offers an intuitive and powerful Editor with many robust features that allow you to create complex AI Behaviours and Logic with ease.",
+  "type": "library",
+  "unity": "2023.2",
+  "author": {
+    "name": "Carlos"
+  },
+  "dependencies": {
+    "com.carloslab.common": "2.0.0",
+    "com.unity.ai.navigation": "2.0.0"
+  },
+  "samples": [
+    {
+      "displayName": "Examples",
+      "description": "A set of examples demonstrates how to create agents using Utility Intelligence.",
+      "path": "Examples~"
+    }
+  ],
+  "documentationUrl": "https://carloslab-ai.github.io/UtilityIntelligence/",
+  "changelogUrl": "https://carloslab-ai.github.io/UtilityIntelligence/ReleaseNotes/1.1.x/"
+}

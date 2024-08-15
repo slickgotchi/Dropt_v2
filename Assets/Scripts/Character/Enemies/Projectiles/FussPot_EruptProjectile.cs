@@ -36,6 +36,14 @@ public class FussPot_EruptProjectile : NetworkBehaviour
         m_collider = GetComponentInChildren<Collider2D>();  
     }
 
+    public override void OnNetworkDespawn()
+    {
+        if (IsClient)
+        {
+            VisualEffectsManager.Singleton.SpawnCloudExplosion(transform.position);
+        }
+    }
+
     public void Init(Vector3 position, Quaternion rotation, Vector3 direction, float distance, float duration, float damagePerHit,
         float criticalChance, float criticalDamage)
     {
