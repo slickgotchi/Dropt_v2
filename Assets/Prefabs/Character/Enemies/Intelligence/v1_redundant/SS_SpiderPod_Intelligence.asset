@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1eabfad2a45452ca2fe01e338896493, type: 3}
+  m_Name: SS_SpiderPod_Intelligence
+  m_EditorClassIdentifier: 
+  serializedModel: '{"$type":"CarlosLab.UtilityIntelligence.UtilityIntelligenceModel","DataVersion":1,"FrameworkVersion":"1.0.11","Blackboard":[],"TargetFilters":[{"$type":"PlayerTargetFilter","Id":"faec7424-3c82-4f55-b3e9-c966886da80c","Name":"PlayerTargetFilter"}],"Considerations":[{"$type":"CarlosLab.UtilityIntelligence.ConsiderationModel","Input":"MyDistanceToTarget","InputNormalization":{"$type":"CarlosLab.UtilityIntelligence.DivideByMaxValueNormalizationFloat","MaxValue":{"$type":"CarlosLab.Common.VariableReference`1[[System.Single]]","Name":null,"ReferenceType":0,"Value":10.0}},"HasNoTarget":false,"ResponseCurve":{"$type":"CarlosLab.Common.InfluenceCurve","Type":0,"Slope":-10.0,"Exponent":0.0,"XShift":0.5,"YShift":1.0},"Name":"TargetDistance_LessThan5","Id":"2d8db153-dbb3-4af8-ac0f-c107659d35f6"},{"$type":"CarlosLab.UtilityIntelligence.ConsiderationModel","Input":"MyDistanceToTarget","InputNormalization":{"$type":"CarlosLab.UtilityIntelligence.DivideByMaxValueNormalizationFloat","MaxValue":{"$type":"CarlosLab.Common.VariableReference`1[[System.Single]]","Name":null,"ReferenceType":0,"Value":10.0}},"HasNoTarget":false,"ResponseCurve":{"$type":"CarlosLab.Common.InfluenceCurve","Type":0,"Slope":-10.0,"Exponent":0.0,"XShift":0.5,"YShift":1.0},"Name":"TargetDistance_MoreThan5","Id":"20e65dfc-abfa-49e8-81d2-d0885aa8abd7"}],"EnableCompensationFactor":true,"EnableMomentumBonus":false,"Inputs":[{"$type":"CarlosLab.UtilityIntelligence.MyDistanceToTargetXYInput","Id":"49e3cadb-ec69-4767-b4c7-d6ec942daf9d","Name":"MyDistanceToTarget"}],"DecisionMakers":[{"$type":"CarlosLab.UtilityIntelligence.DecisionMakerModel","Decisions":[{"$type":"CarlosLab.UtilityIntelligence.DecisionModel","Weight":1.0,"HasNoTarget":false,"KeepRunningUntilFinished":false,"MaxRepeatCount":0,"TargetFilters":[],"Actions":[{"$type":"ActionTask_Idle","Id":"35ce695c-2e1f-4dc7-a5c7-3e2fe049c530"}],"ActionExecutionMode":0,"Considerations":["TargetDistance_MoreThan5"],"Name":"Idle","Id":"e3087518-50cd-4c9d-945c-1640aa0f2761"},{"$type":"CarlosLab.UtilityIntelligence.DecisionModel","Weight":1.1,"HasNoTarget":false,"KeepRunningUntilFinished":true,"MaxRepeatCount":1,"TargetFilters":["PlayerTargetFilter"],"Actions":[{"$type":"ActionTask_SpawnSpiders","Id":"855a6210-77e0-48c6-ad85-a572df9420a9"}],"ActionExecutionMode":0,"Considerations":["TargetDistance_LessThan5"],"Name":"SpawnSpiders","Id":"d7f724e9-10ef-4807-970c-1878544e5719"}],"Name":"SpiderPod","Id":"697f1f06-1071-4c7c-aedc-f4d3acb0bbc1"}]}'
+  dataVersion: 1
+  frameworkVersion: 1.0.11
+  agentType: 
+  agentDescription: 

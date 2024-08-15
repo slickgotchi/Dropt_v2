@@ -7,7 +7,7 @@ namespace Dropt.UtilityIntelligence
 {
     public class MyIsSpawningInput : Input<bool>
     {
-        protected override bool OnGetRawInput(InputContext context)
+        protected override bool OnGetRawInput(in InputContext context)
         {
             var enemyTransform = AgentFacade.GetComponent<Transform>();
             if (enemyTransform == null)

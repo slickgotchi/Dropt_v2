@@ -1,5 +1,22 @@
 {
   "dependencies": {
+    "com.carloslab.common": {
+      "version": "file:com.carloslab.common",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.unity.nuget.newtonsoft-json": "3.2.1"
+      }
+    },
+    "com.carloslab.utilityintelligence": {
+      "version": "file:com.carloslab.utilityintelligence",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.carloslab.common": "2.0.0",
+        "com.unity.ai.navigation": "2.0.0"
+      }
+    },
     "com.cysharp.unitask": {
       "version": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
       "depth": 0,

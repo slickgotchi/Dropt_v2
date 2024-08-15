@@ -27,12 +27,12 @@ public class GasBag_Explode : EnemyAbility
 
     public override void OnExecutionStart()
     {
-        // reset explosion fade timer & set fade out duration
-        m_explosionTimer = 0f;
-        GetComponentInChildren<FadeOut>().duration = ExplosionDuration;
+        //// reset explosion fade timer & set fade out duration
+        //m_explosionTimer = 0f;
+        //GetComponentInChildren<FadeOut>().duration = ExplosionDuration;
 
-        // set position of explosion and initial scale
-        transform.position = Parent.transform.position + new Vector3(0, 0.6f, 0);
+        //// set position of explosion and initial scale
+        //transform.position = Parent.transform.position + new Vector3(0, 0.6f, 0);
 
         // resize explosion collider and check collisions
         Collider.GetComponent<CircleCollider2D>().radius = ExplosionRadius;
