@@ -12,7 +12,8 @@ public class SpiderController : NetworkBehaviour
     {
         m_spawnTimer = GetComponent<EnemyController>().SpawnDuration;
 
-        if (m_spawnTimer > 0)
+        //if (m_spawnTimer > 0)
+        // just make spiders always jump on spawn
         {
             GetComponent<Animator>().Play("Spider_Jump");
         }
@@ -20,14 +21,14 @@ public class SpiderController : NetworkBehaviour
 
     private void Update()
     {
-        if (!IsSpawned) return;
+        //if (!IsSpawned) return;
 
-        m_spawnTimer -= Time.deltaTime;
+        //m_spawnTimer -= Time.deltaTime;
 
-        if (m_spawnTimer <= 0 && !m_isSpawnFinished)
-        {
-            m_isSpawnFinished = true;
-            GetComponent<Animator>().Play("Spider_Walk");
-        }
+        //if (m_spawnTimer <= 0 && !m_isSpawnFinished)
+        //{
+        //    m_isSpawnFinished = true;
+        //    GetComponent<Animator>().Play("Spider_Walk");
+        //}
     }
 }

@@ -13,17 +13,10 @@ public class TitleCanvas : MonoBehaviour
 
     private void Start()
     {
-        // disable duplicate audio
-        var audioListeners = FindObjectsByType<AudioListener>(FindObjectsSortMode.None);
-        if (audioListeners.Length > 1 && GameAudioManager.Instance != null)
-        {
-            GameAudioManager.Instance.GetComponent<AudioListener>().enabled = false;
-        }
-
 
         playButton.onClick.AddListener(() =>
         {
-            //SceneManager.LoadScene("Game");
+            Debug.Log("Load Game");
             SceneManager.LoadScene("Game");
         });
 
@@ -33,6 +26,11 @@ public class TitleCanvas : MonoBehaviour
         });
 
         if (Defines.FAST_START)
+        {
+            playButton.onClick.Invoke();
+        }
+
+        if (Bootstrap.Instance.AutoPlay)
         {
             playButton.onClick.Invoke();
         }

@@ -31,7 +31,7 @@ public class LevelManager : NetworkBehaviour
 
     private List<NetworkObject> m_networkObjectSpawns = new List<NetworkObject>();
 
-    private const string TutorialCompletedKey = "TutorialCompleted";
+
 
 
     public void AddToSpawnList(NetworkObject networkObject)
@@ -65,10 +65,11 @@ public class LevelManager : NetworkBehaviour
             return;
         }
 
-        if (IsTutorialCompleted())
+        if (Game.Instance.IsTutorialCompleted())
         {
             GoToDegenapeVillageLevel();
-        } else
+        }
+        else
         {
             GoToTutorialLevel();
         }
@@ -269,6 +270,18 @@ public class LevelManager : NetworkBehaviour
             player.GetComponent<PlayerPrediction>().SetPlayerPosition(spawnPoint);
             player.GetComponent<PlayerGotchi>().DropSpawn(player.transform.position, spawnPoint);
         }
+
+        // if our new level is degenape, tell client they can mark tutorial as complete
+        if (m_currentLevelIndex == DegenapeVillageLevel)
+        {
+            MarkTutorialCompletedClientRpc();
+        }
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    void MarkTutorialCompletedClientRpc()
+    {
+        Game.Instance.CompleteTutorial();
     }
 
     bool isBuildNextFrame = false;
@@ -318,30 +331,5 @@ public class LevelManager : NetworkBehaviour
     }
 
 
-    public void CompleteTutorial()
-    {
-        // Mark the tutorial as completed
-        SetTutorialCompleted(true);
-        Debug.Log("Tutorial marked as completed.");
-    }
 
-    public bool IsTutorialCompleted()
-    {
-        // Retrieve the boolean value from PlayerPrefs
-        return PlayerPrefs.GetInt(TutorialCompletedKey, 0) == 1;
-    }
-
-    private void SetTutorialCompleted(bool completed)
-    {
-        // Convert the boolean to an integer (1 for true, 0 for false) and store it in PlayerPrefs
-        PlayerPrefs.SetInt(TutorialCompletedKey, completed ? 1 : 0);
-        PlayerPrefs.Save(); // Ensure the data is saved
-    }
-
-    public void ResetTutorialCompletion()
-    {
-        // Optionally, allow resetting the tutorial completion status
-        PlayerPrefs.DeleteKey(TutorialCompletedKey);
-        Debug.Log("Tutorial completion status reset.");
-    }
 }
