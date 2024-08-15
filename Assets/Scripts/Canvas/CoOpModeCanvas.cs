@@ -86,18 +86,21 @@ public class CoOpModeCanvas : MonoBehaviour
         // Add new items to the list (example logic)
         foreach (var game in AvailableGamesHeartbeat.Instance.AvailableGames)
         {
-            // Instantiate new game item and add to the AvailableGameListContent
-            var availableGameListItem = Instantiate(PrefabAvailableGameListItem, AvailableGameListContent.transform).GetComponent<AvailableGameListItem>();
-            availableGameListItem.Init(game.gameId, game.numberPlayers);
-
-            // Change join button if its ours
-            if (Bootstrap.Instance.GameId == game.gameId)
+            if (game.isPublic)
             {
-                Color color;
-                ColorUtility.TryParseHtmlString("#D3FC7E", out color);
-                availableGameListItem.JoinButton.GetComponent<Image>().color = color;
-                availableGameListItem.JoinButton.GetComponent<Button>().enabled = false;
-                availableGameListItem.JoinButton.GetComponentInChildren<TextMeshProUGUI>().text = "Mine";
+                // Instantiate new game item and add to the AvailableGameListContent
+                var availableGameListItem = Instantiate(PrefabAvailableGameListItem, AvailableGameListContent.transform).GetComponent<AvailableGameListItem>();
+                availableGameListItem.Init(game.gameId, game.numberPlayers);
+
+                // Change join button if its ours
+                if (Bootstrap.Instance.GameId == game.gameId)
+                {
+                    Color color;
+                    ColorUtility.TryParseHtmlString("#D3FC7E", out color);
+                    availableGameListItem.JoinButton.GetComponent<Image>().color = color;
+                    availableGameListItem.JoinButton.GetComponent<Button>().enabled = false;
+                    availableGameListItem.JoinButton.GetComponentInChildren<TextMeshProUGUI>().text = "Mine";
+                }
             }
         }
     }
