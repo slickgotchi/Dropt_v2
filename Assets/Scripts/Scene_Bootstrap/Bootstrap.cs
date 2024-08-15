@@ -85,6 +85,8 @@ public class Bootstrap : MonoBehaviour
 
             if (arg == "-gameid") GameId = param;
 
+            if (arg == "-noservermanager") UseServerManager = false;
+
         }
         Debug.Log("Bootstrap.Awake(): CL arguments processed. Connection type: " + ConnectionType
             + ", Network: " + NetworkRole + ", Port: " + Port);

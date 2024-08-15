@@ -31,6 +31,9 @@ public class LevelManager : NetworkBehaviour
 
     private List<NetworkObject> m_networkObjectSpawns = new List<NetworkObject>();
 
+    private const string TutorialCompletedKey = "TutorialCompleted";
+
+
     public void AddToSpawnList(NetworkObject networkObject)
     {
         m_networkObjectSpawns.Add(networkObject);
@@ -62,10 +65,21 @@ public class LevelManager : NetworkBehaviour
             return;
         }
 
-        // spawn first level
-        CreateLevel(0);
+        if (IsTutorialCompleted())
+        {
+            GoToDegenapeVillageLevel();
+        } else
+        {
+            GoToTutorialLevel();
+        }
+
 
         GameAudioManager.Instance.PLAY_SOUND += OnPlaySound;
+    }
+
+    public void GoToTutorialLevel()
+    {
+        CreateLevel(0);
     }
 
     public void GoToDegenapeVillageLevel()
@@ -301,5 +315,33 @@ public class LevelManager : NetworkBehaviour
     void PlaySoundClientRpc(string type, Vector3 position, ulong id)
     {
         GameAudioManager.Instance.PlaySoundForMe(type, position);
+    }
+
+
+    public void CompleteTutorial()
+    {
+        // Mark the tutorial as completed
+        SetTutorialCompleted(true);
+        Debug.Log("Tutorial marked as completed.");
+    }
+
+    public bool IsTutorialCompleted()
+    {
+        // Retrieve the boolean value from PlayerPrefs
+        return PlayerPrefs.GetInt(TutorialCompletedKey, 0) == 1;
+    }
+
+    private void SetTutorialCompleted(bool completed)
+    {
+        // Convert the boolean to an integer (1 for true, 0 for false) and store it in PlayerPrefs
+        PlayerPrefs.SetInt(TutorialCompletedKey, completed ? 1 : 0);
+        PlayerPrefs.Save(); // Ensure the data is saved
+    }
+
+    public void ResetTutorialCompletion()
+    {
+        // Optionally, allow resetting the tutorial completion status
+        PlayerPrefs.DeleteKey(TutorialCompletedKey);
+        Debug.Log("Tutorial completion status reset.");
     }
 }

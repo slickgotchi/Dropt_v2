@@ -45,23 +45,11 @@ public class REKTCanvas : NetworkBehaviour
 
     void HandleClickDegenapeButton()
     {
+        ProgressBarCanvas.Instance.ResetProgress();
+
         Game.Instance.TryCreateGame();
-        //GoToDegenapeServerRpc();
 
-        //// get the local player and renable their input
-        //var players = GameObject.FindObjectsByType<PlayerPrediction>(FindObjectsSortMode.None);
-        //foreach (var player in players)
-        //{
-        //    if (player.GetComponent<NetworkObject>().IsLocalPlayer)
-        //    {
-        //        player.IsInputDisabled = false;
-        //    }
-        //}
+        Container.SetActive(false);
+        
     }
-
-    //[Rpc(SendTo.Server)]
-    //void GoToDegenapeServerRpc()
-    //{
-    //    LevelManager.Instance.GoToDegenapeVillageLevel();
-    //}
 }

@@ -10,7 +10,8 @@ public class GameServerHeartbeat : MonoBehaviour
 
     private int activePlayers = 0;
     private string nodeServerUrl = "https://alphaserver.playdropt.io/serverheartbeat"; // Change to your Node.js server URL
-    private float m_timer = 5.0f; // 5 seconds interval
+    private float m_timer = 3.0f; // 3 seconds interval
+    private float k_heartbeatInterval = 3f;
     public bool IsPublic = false;
 
     private void Awake()
@@ -35,7 +36,7 @@ public class GameServerHeartbeat : MonoBehaviour
         if (m_timer <= 0)
         {
             SendServerHeartbeat().Forget(); // Properly calling the async method
-            m_timer = 5.0f; // Reset the timer to 5 seconds
+            m_timer = k_heartbeatInterval; // Reset the timer
         }
     }
 
