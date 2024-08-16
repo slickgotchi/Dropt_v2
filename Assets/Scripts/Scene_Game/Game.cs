@@ -293,14 +293,16 @@ public class Game : MonoBehaviour
 
                         // set client side cert data if using server manager
                         m_serverCommonName = data.serverCommonName;
-                        m_clientCA = data.clientCA;
+                        //m_clientCA = data.clientCA;
 
                         // update progress bar
-                        ProgressBarCanvas.Instance.Show("Allocated gameId: " + data.gameId + "on port: " + data.port + ", connecting...");
+                        ProgressBarCanvas.Instance.Show("Allocated gameId & port, connecting...");
 
                         // save gameid for joins and try connect
                         m_isTryConnect = true;
                         //m_tryConnectTimer = 10f;
+
+                        webRequest.Dispose();
 
                         break;
                 }
@@ -320,6 +322,9 @@ public class Game : MonoBehaviour
     // other gameobjects call this to try join a game
     public void TryJoinGame(string gameId)
     {
+        ProgressBarCanvas.Instance.ResetProgress();
+        ProgressBarCanvas.Instance.Show("Try joining gameId: " + gameId);
+        Debug.Log("Attempting to join: " + gameId);
         JoinGameViaServerManager(gameId).Forget(); // Use UniTask with Forget to avoid unhandled exceptions
     }
 
@@ -361,8 +366,9 @@ public class Game : MonoBehaviour
                         ErrorDialogCanvas.Instance.Show("UnityWebRequest.Result.DataProcessingError: " + webRequest.error);
                         break;
                     case UnityWebRequest.Result.Success:
-                        Debug.Log("Response: " + webRequest.downloadHandler.text);
                         CreateOrJoinGameResponseData data = JsonUtility.FromJson<CreateOrJoinGameResponseData>(webRequest.downloadHandler.text);
+                        Debug.Log("Response Data Below...");
+                        Debug.Log(webRequest.downloadHandler.text);
 
                         // Using data configure bootstrap
                         Bootstrap.Instance.IpAddress = data.ipAddress;
@@ -371,13 +377,22 @@ public class Game : MonoBehaviour
 
                         // set client side cert data if using server manager
                         m_serverCommonName = data.serverCommonName;
-                        m_clientCA = data.clientCA;
+                        //m_clientCA = data.clientCA;
+
+                        Debug.Log("JOIN GAME gameId: " + data.gameId);
 
                         // shut down our existing server
+                        Debug.Log("Received joinGame data, gameId: " + data.gameId + ", port: " + data.port);
+                        ProgressBarCanvas.Instance.Show("Received data for new game, switching...");
                         NetworkManager.Singleton.Shutdown();
+
+                        Debug.Log(m_serverCommonName);
+                        //Debug.Log(m_clientCA);
 
                         // We can now connect direct
                         m_isTryConnect = true;
+
+                        webRequest.Dispose();
 
                         break;
                 }
