@@ -1,6 +1,8 @@
 using Unity.Netcode;
 using UnityEngine;
 using System.Collections.Generic;
+using PickupItems;
+using PickupItems.Orb;
 
 public class PlayerPickupItemMagnet : NetworkBehaviour
 {
@@ -41,6 +43,11 @@ public class PlayerPickupItemMagnet : NetworkBehaviour
         if (pickupItem.gameObject.HasComponent<GltrOrb>())
         {
             PlayerDungeonData.AddGltr(pickupItem.GetComponent<GltrOrb>().GetValue());
+        }
+
+        if (pickupItem.gameObject.TryGetComponent(out CGHSTOrb orb))
+        {
+            PlayerDungeonData.AddCGHST(orb.GetValue());
         }
 
         // Remove the item from the set of attracted items

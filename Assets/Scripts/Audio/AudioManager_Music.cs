@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using Dropt.Utils;
 using UnityEngine;
 
@@ -8,6 +9,7 @@ namespace Audio
     public partial class AudioManager
     {
         #region Properties
+
         public bool MuteMusic
         {
             set
@@ -34,7 +36,11 @@ namespace Audio
                     }
                 }
 
+                MuteMusic = value <= 0;
+                
                 m_volumeMusic = value;
+                
+                PlayerPrefs.SetFloat(kMusicVolumeKey, value);
             }
             get => m_volumeMusic;
         }

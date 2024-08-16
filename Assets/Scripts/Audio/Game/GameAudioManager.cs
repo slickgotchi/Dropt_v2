@@ -13,6 +13,7 @@ namespace Audio.Game
         {
             get
             {
+                TryToInitialize();
                 return m_instance;
             }
         }
@@ -40,26 +41,34 @@ namespace Audio.Game
 
         public bool MuteSounds
         {
-            get { return _audioManager.MuteSounds; }
-            set { _audioManager.MuteSounds = value; }
+            get => m_audioManager.MuteSounds;
+            set => m_audioManager.MuteSounds = value;
         }
 
         public bool MuteMusic
         {
-            get { return _audioManager.MuteMusic; }
-            set { _audioManager.MuteMusic = value; }
+            get => m_audioManager.MuteMusic;
+            set => m_audioManager.MuteMusic = value;
         }
 
-
-        private AudioManager _audioManager;
-
-        public GameAudioManager()
+        public float VolumeMusic
         {
+            get => m_audioManager.VolumeMusic;
+            set => m_audioManager.VolumeMusic = value;
+        }
+        
+        public float VolumeSounds
+        {
+            get => m_audioManager.VolumeSounds;
+            set => m_audioManager.VolumeSounds = value;
         }
 
+
+        private AudioManager m_audioManager;
+        
         private void Awake()
         {
-            _audioManager = new AudioManager(transform);
+            m_audioManager = new AudioManager(transform);
         }
 
         private void Start()
@@ -80,7 +89,7 @@ namespace Audio.Game
         public void Dispose()
         {
             m_instance = null;
-            _audioManager.Dispose();
+            m_audioManager.Dispose();
             GameObject.Destroy(gameObject);
         }
 #region Game triggers
@@ -108,32 +117,32 @@ namespace Audio.Game
 
         public void PlayMusic(params MusicType[] types)
         {
-            _audioManager.PlayMusic(types);
+            m_audioManager.PlayMusic(types);
         }
 
         public void PlaySoundForMe(SoundType type, Vector3 position)
         {
-            _audioManager.PlaySound(type, position);
+            m_audioManager.PlaySound(type, position);
         }
 
         public void PlaySoundForMe(string type, Vector3 position)
         {
-            _audioManager.PlaySound(type, position);
+            m_audioManager.PlaySound(type, position);
         }
         
         public void InitPlayer()
         {
-            _audioManager.SetActiveListener(false);
+            m_audioManager.SetActiveListener(false);
         }
 
         public void DestroyPlayer()
         {
-            _audioManager.SetActiveListener(true);
+            m_audioManager.SetActiveListener(true);
         }
 
         private void PlaySoundForAll(SoundType type, Vector3 position, ulong id = 0)
         {
-            _audioManager.PlaySound(type, position);
+            m_audioManager.PlaySound(type, position);
 
             if (null != PLAY_SOUND)
             {
@@ -143,7 +152,7 @@ namespace Audio.Game
 
         private void PlaySoundForAll(string type, Vector3 position)
         {
-            _audioManager.PlaySound(type, position);
+            m_audioManager.PlaySound(type, position);
 
             if (null != PLAY_SOUND)
             {

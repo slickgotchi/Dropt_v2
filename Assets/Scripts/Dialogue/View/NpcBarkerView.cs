@@ -8,7 +8,6 @@ namespace Dialogue.View
     public class NpcBarkerView : StandardBarkUI
     {
         [SerializeField] private UnityUITypewriterEffect m_typewriter;
-        
         public event Action OnSkipClick;
         public AbstractTypewriterEffect Typewriter => m_typewriter;
 

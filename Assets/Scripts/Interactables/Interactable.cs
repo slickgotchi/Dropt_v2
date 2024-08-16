@@ -10,9 +10,9 @@ public class Interactable : NetworkBehaviour
         Inactive,
         Active,
     }
-    [HideInInspector] public Status status;
+    public Status status;
 
-    [HideInInspector] public ulong playerNetworkObjectId;
+    public ulong playerNetworkObjectId;
 
     public virtual void OnStartInteraction() { }
 

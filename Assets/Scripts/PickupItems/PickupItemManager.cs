@@ -1,11 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+using PickupItems;
+using PickupItems.Orb;
 using Unity.Netcode;
 using UnityEngine;
 
 public class PickupItemManager : NetworkBehaviour
 {
-    public static PickupItemManager Instance {  get; private set; }
+    public static PickupItemManager Instance { get; private set; }
 
     private void Awake()
     {
@@ -15,7 +17,8 @@ public class PickupItemManager : NetworkBehaviour
     public enum Size { Tiny, Small, Medium, Large }
 
     public GameObject GltrOrbPrefab;
-    
+    public GameObject CGHSTOrbPrefab;
+
     public void SpawnGltr(int value, Vector3 position)
     {
         if (!IsServer) return;
@@ -45,6 +48,20 @@ public class PickupItemManager : NetworkBehaviour
         }
     }
 
+    public void SpawnBigCGHST(Vector3 position)
+    {
+        if (!IsServer) return;
+
+        GenerateCGHSTOrb(Size.Large, position);
+    }
+
+    public void SpawnSmallCGHST(Vector3 position)
+    {
+        if (!IsServer) return;
+
+        GenerateCGHSTOrb(Size.Small, position);
+    }
+
     private void GenerateGltrOrb(Size size, Vector3 position, float rand = 0.3f)
     {
         // vary position from that specified slightly
@@ -56,5 +73,17 @@ public class PickupItemManager : NetworkBehaviour
         gltrOrb.GetComponent<GltrOrb>().Init(size);
         gltrOrb.transform.position = randPosition;
         gltrOrb.GetComponent<NetworkObject>().Spawn();
+    }
+
+    private void GenerateCGHSTOrb(Size size, Vector3 position, float rand = 0.5f)
+    {
+        var deltaX = UnityEngine.Random.Range(-rand, rand);
+        var deltaY = UnityEngine.Random.Range(-rand, rand);
+        var randPosition = position + new Vector3(deltaX, deltaY, 0);
+
+        var cghstOrb = Instantiate(CGHSTOrbPrefab);
+        cghstOrb.GetComponent<CGHSTOrb>().Init(size);
+        cghstOrb.transform.position = randPosition;
+        cghstOrb.GetComponent<NetworkObject>().Spawn();
     }
 }
