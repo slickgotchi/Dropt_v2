@@ -17,11 +17,8 @@ public class WeaponSwap : Interactable
 
     public override void OnStartInteraction()
     {
-        
         WeaponSwapCanvas.Instance.Container.SetActive(true);
         WeaponSwapCanvas.Instance.Init(GetComponent<WeaponSwap>().WearableNameEnum);
-        
-
         m_player = NetworkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId].gameObject;
     }
 

@@ -5,6 +5,8 @@ using UnityEngine;
 
 namespace Interactables
 {
+    [RequireComponent(typeof(NpcMover))]
+    [RequireComponent(typeof(DialogueSystemEvents))]
     public class NpcConversationInteraction : Interactable
     {
         [SerializeField] private NpcMover m_mover;
@@ -110,7 +112,7 @@ namespace Interactables
             base.OnFinishInteraction();
 
             SetActiveTextBox(false);
-            
+
             if (DialogueManager.isConversationActive)
             {
                 return;

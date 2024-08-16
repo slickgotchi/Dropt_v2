@@ -5,6 +5,9 @@ using UnityEngine;
 namespace Interactables
 {
     [RequireComponent(typeof(Collider2D))]
+    [RequireComponent(typeof(DialogueActor))]
+    [RequireComponent(typeof(NpcMover))]
+    [RequireComponent(typeof(BarkTrigger))]
     public class NpcDialogueInteraction : Interactable
     {
         [SerializeField] private DialogueActor m_actor;
@@ -34,6 +37,7 @@ namespace Interactables
 
         private void Start()
         {
+            m_barkTrigger.trigger = DialogueTriggerEvent.OnUse;
             m_collider = GetComponent<Collider2D>();
         }
 

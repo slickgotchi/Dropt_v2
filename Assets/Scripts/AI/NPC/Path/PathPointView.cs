@@ -18,13 +18,5 @@ namespace AI.NPC.Path
             if (_renderer != null)
                 _renderer.enabled = false;
         }
-
-        public void SetPosition(Vector3 position)
-        {
-#if UNITY_EDITOR
-            transform.position = position;
-#endif
-            _position = position;
-        }
     }
 }

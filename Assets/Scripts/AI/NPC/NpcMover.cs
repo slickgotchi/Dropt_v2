@@ -75,7 +75,7 @@ namespace AI.NPC
 
         private void UpdateView(PlayerGotchi.Facing facing)
         {
-            m_animator.SetActiveBodyPartsFromFacing(facing);
+            m_animator.UpdateFacing(facing);
         }
 
         private void UpdateDust(bool value)

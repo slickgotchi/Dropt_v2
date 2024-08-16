@@ -6,6 +6,7 @@ namespace Audio
     public sealed partial class AudioManager
     {
         #region Properties
+
         public bool MuteSounds
         {
             set
@@ -31,8 +32,12 @@ namespace Audio
                         source.volume = value;
                     }
                 }
+                
+                MuteSounds = value <= 0;
 
                 m_volumeSounds = value;
+                
+                PlayerPrefs.SetFloat(kSoundsVolumeKey, value);
             }
             get => m_volumeSounds;
         }

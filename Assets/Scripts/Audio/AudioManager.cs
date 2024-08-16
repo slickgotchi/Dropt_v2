@@ -15,6 +15,8 @@ namespace Audio
 
         private const bool kShowLogs = true;
         private const string kConfigKey = "Configs/Audio Configuration";
+        private const string kMusicVolumeKey = "musicVolume";
+        private const string kSoundsVolumeKey = "soundsVolume";
 
         private readonly List<GameObject> m_goAudious;
         private AudioListener m_audioListener;
@@ -68,7 +70,14 @@ namespace Audio
                 }
             }
 
+            ApplyPersistentData();
             SetupAudioListener(parent);
+        }
+
+        private void ApplyPersistentData()
+        {
+            VolumeMusic = PlayerPrefs.GetFloat(kMusicVolumeKey, 0.5f);
+            VolumeSounds = PlayerPrefs.GetFloat(kSoundsVolumeKey, 0.5f);
         }
 
         public void Dispose()
