@@ -42,6 +42,15 @@ public class AvailableGamesHeartbeat : MonoBehaviour
             m_heartbeatTimer = k_heartbeatInterval;
             GetGames();
         }
+
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            for (int i = 0; i < AvailableGames.Count; i++)
+            {
+                var ag = AvailableGames[i];
+                Debug.Log("Available gameId: " + ag.gameId + ", isServerReady: " + ag.isServerReady + ", isPublic: " + ag.isPublic);
+            }
+        }
     }
 
     public bool IsServerReady(string gameId)
@@ -50,7 +59,7 @@ public class AvailableGamesHeartbeat : MonoBehaviour
         for (int i = 0; i < AvailableGames.Count; i++)
         {
             var game = AvailableGames[i];
-            if (game.gameId == gameId)
+            if (game.gameId.ToUpper() == gameId.ToUpper())
             {
                 if (game.isServerReady) isReady = true;
             }
@@ -91,16 +100,13 @@ public class AvailableGamesHeartbeat : MonoBehaviour
 
         foreach (var game in responseData.availableGames)
         {
-            //if (game.isPublic)
-            //{
-                AvailableGames.Add(new AvailableGame
-                {
-                    gameId = game.gameId,
-                    numberPlayers = game.numberPlayers,
-                    isPublic = game.isPublic,
-                    isServerReady = game.isServerReady,
-                });
-            //}
+            AvailableGames.Add(new AvailableGame
+            {
+                gameId = game.gameId,
+                numberPlayers = game.numberPlayers,
+                isPublic = game.isPublic,
+                isServerReady = game.isServerReady,
+            });
         }
     }
 

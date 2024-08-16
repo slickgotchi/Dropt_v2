@@ -64,13 +64,13 @@ public class CoOpModeCanvas : MonoBehaviour
 
     void HandleClick_JoinPrivateButton()
     {
-        Debug.Log("CoOpModeCanvas.cs - Join private gameId: " + JoinPrivateInput.text);
+        //Debug.Log("CoOpModeCanvas.cs - Join private gameId: " + JoinPrivateInput.text);
         Game.Instance.TryJoinGame(JoinPrivateInput.text);
     }
 
     void HandleChange_IsPublicToggle(bool isOn)
     {
-        Debug.Log("Game.Instance.SetIsPublic to " + isOn);
+        //Debug.Log("Game.Instance.SetIsPublic to " + isOn);
         NetworkMessenger.Instance.SetGameIsPublic(isOn);
     }
 

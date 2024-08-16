@@ -31,7 +31,7 @@ public class PlayerController : NetworkBehaviour
 
     private NetworkCharacter m_networkCharacter;
 
-    public static float InactiveTimerDuration = 30; //5 * 60;
+    public static float InactiveTimerDuration = 60; //5 * 60;
 
     public bool IsDead = false;
 
