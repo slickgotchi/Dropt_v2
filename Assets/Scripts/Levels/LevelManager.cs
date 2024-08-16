@@ -233,7 +233,6 @@ public class LevelManager : NetworkBehaviour
         if (nextLevelIndex >= m_levels.Count)
         {
             // return to the degenape village
-            //nextLevelIndex -= 1;
             nextLevelIndex = DegenapeVillageLevel;
         }
 
@@ -242,21 +241,27 @@ public class LevelManager : NetworkBehaviour
         m_currentLevelIndex = nextLevelIndex;
 
         // drop spawn players
-        var no_playerSpawnPoints = m_currentLevel.GetComponentInChildren<PlayerSpawnPoints>();
+        var no_playerSpawnPoints = m_currentLevel.GetComponentsInChildren<PlayerSpawnPoints>();
         m_playerSpawnPoints.Clear();
-        int count = 3;
+        int makeupCount = 3;
         if (no_playerSpawnPoints != null)
         {
-            for (int i = 0; i < no_playerSpawnPoints.transform.childCount; i++)
+            for (int i = 0; i < no_playerSpawnPoints.Length; i++)
             {
-                m_playerSpawnPoints.Add(no_playerSpawnPoints.transform.GetChild(i).transform.position);
-                count--;
+                var playerSpawnPoints = no_playerSpawnPoints[i];
+                for (int j = 0; j < playerSpawnPoints.transform.childCount; j++)
+                {
+                    m_playerSpawnPoints.Add(playerSpawnPoints.transform.GetChild(j).transform.position);
+                    makeupCount--;
+                    Debug.Log("add spawn point: " + playerSpawnPoints.transform.GetChild(j).transform.position);
+                }
             }
         } 
 
-        for (int i = 0; i < count; i++)
+        for (int i = 0; i < makeupCount; i++)
         {
             m_playerSpawnPoints.Add(Vector3.zero);
+            Debug.Log("adding filler spawn posiiton");
         }
 
         // set each player spawn position
@@ -268,7 +273,7 @@ public class LevelManager : NetworkBehaviour
             m_playerSpawnPoints.RemoveAt(randIndex);
 
             player.GetComponent<PlayerPrediction>().SetPlayerPosition(spawnPoint);
-            player.GetComponent<PlayerGotchi>().DropSpawn(player.transform.position, spawnPoint);
+            player.GetComponent<PlayerGotchi>().DropSpawn(spawnPoint);
         }
 
         // if our new level is degenape, tell client they can mark tutorial as complete
@@ -299,11 +304,17 @@ public class LevelManager : NetworkBehaviour
             isNavMeshBuilt = true;
 
             // now spawn everything in the spawn list
-            foreach (var no in m_networkObjectSpawns)
+            for (int i = 0; i < m_networkObjectSpawns.Count; i++)
             {
+                var no = m_networkObjectSpawns[i];
+                //if (no == null) continue;
+
                 no.Spawn();
             }
             m_networkObjectSpawns.Clear();
+
+            // drop spawn players
+
         }
 
         // this code ensures we only build a navmesh once level is finished loading

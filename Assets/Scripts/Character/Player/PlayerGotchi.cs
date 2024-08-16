@@ -53,8 +53,8 @@ public class PlayerGotchi : NetworkBehaviour
 
     //private Camera m_camera;
     //private CinemachineVirtualCamera m_virtualCamera;
-    private Vector3 m_spawnPoint;
-    private Vector3 m_preSpawnPoint;
+    //private Vector3 m_spawnPoint;
+    //private Vector3 m_preSpawnPoint;
 
     // facing spin variables
     public enum SpinDirection { AntiClockwise, Clockwise }
@@ -82,9 +82,6 @@ public class PlayerGotchi : NetworkBehaviour
         animator = GetComponent<Animator>();
         m_playerPrediction = GetComponent<PlayerPrediction>();
         m_localVelocity = GetComponent<LocalVelocity>();
-
-        //m_camera = GetComponentInChildren<Camera>();
-        //m_virtualCamera = GetComponentInChildren<CinemachineVirtualCamera>();
     }
 
     private void Update()
@@ -125,15 +122,15 @@ public class PlayerGotchi : NetworkBehaviour
 
     private float m_dropSpawnTimer = 0.5f;
 
-    public void DropSpawn(Vector3 currentPosition, Vector3 newSpawnPoint)
+    public void DropSpawn(Vector3 newSpawnPoint)
     {
         if (!IsServer) return;
 
-        PlayDropAnimationClientRpc(currentPosition, newSpawnPoint);
+        PlayDropAnimationClientRpc(newSpawnPoint);
     }
 
     [Rpc(SendTo.ClientsAndHost)]
-    void PlayDropAnimationClientRpc(Vector3 currentPosition, Vector3 spawnPoint)
+    void PlayDropAnimationClientRpc(Vector3 spawnPoint)
     {
         if (!IsLocalPlayer) return;
 
@@ -141,8 +138,8 @@ public class PlayerGotchi : NetworkBehaviour
 
         IsDropSpawning = true;
         animator.Play("PlayerGotchi_DropSpawn");
-        m_spawnPoint = spawnPoint;
-        m_preSpawnPoint = currentPosition;
+        //m_spawnPoint = spawnPoint;
+        //m_preSpawnPoint = currentPosition;
 
         GameAudioManager.Instance.FallNewLevel(spawnPoint);
     }
@@ -706,10 +703,4 @@ public class PlayerGotchi : NetworkBehaviour
 
         animator.SetBool(name, value);
     }
-
-
-
-
-
-
 }

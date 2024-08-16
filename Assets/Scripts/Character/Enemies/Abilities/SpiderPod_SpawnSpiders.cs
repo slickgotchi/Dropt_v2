@@ -18,6 +18,8 @@ public class SpiderPod_SpawnSpiders : EnemyAbility
 
     public override void OnExecutionStart()
     {
+        if (Parent == null) return;
+
         Parent.GetComponent<Animator>().Play("SpiderPod_Burst");
 
         float startAngle = UnityEngine.Random.Range(0, 360.0f);

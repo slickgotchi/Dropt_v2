@@ -11605,6 +11605,7 @@ MonoBehaviour:
   status: 0
   IsConnected: 0
   m_isTryConnect: 0
+  m_isTutorialCompleted: 0
 --- !u!1 &1196204722
 GameObject:
   m_ObjectHideFlags: 0
@@ -11635,7 +11636,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25e9d31f78ebf304c8102b7266c64e99, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  makeDecisionInterval: 0.1
+  makeDecisionInterval: 0.5
 --- !u!4 &1196204724
 Transform:
   m_ObjectHideFlags: 0
@@ -11663,7 +11664,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1dfc9e17396659c43bffc3c6c257ba75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  World: {fileID: 0}
+  World: {fileID: 1196204723}
 --- !u!1 &1196659321
 GameObject:
   m_ObjectHideFlags: 3

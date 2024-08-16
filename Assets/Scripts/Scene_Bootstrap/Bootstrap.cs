@@ -98,14 +98,20 @@ public class Bootstrap : MonoBehaviour
         // check for autoboot
         if (AutoBoot)
         {
-            SceneManager.LoadScene("Title");
-            //if (NetworkRole == NetworkRole.Server)
-            //{
-            //    SceneManager.LoadScene("Game");
-            //} else
-            //{
-            //    SceneManager.LoadScene("Title");
-            //}
+            if (NetworkRole == NetworkRole.Server)
+            {
+                SceneManager.LoadScene("Game");
+            }
+            else
+            {
+                if (AutoPlay)
+                {
+                    SceneManager.LoadScene("Game");
+                } else
+                {
+                    SceneManager.LoadScene("Title");
+                }
+            }
         }
 
         GameAudioManager.TryToInitialize();

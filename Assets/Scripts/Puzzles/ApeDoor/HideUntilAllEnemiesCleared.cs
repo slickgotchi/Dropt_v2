@@ -31,6 +31,9 @@ public class HideUntilAllEnemiesCleared : MonoBehaviour
         {
             // show our things
             SetEnabled(true);
+        } else
+        {
+            SetEnabled(false);
         }
     }
 
