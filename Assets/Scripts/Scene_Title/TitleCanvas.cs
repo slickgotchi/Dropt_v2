@@ -16,7 +16,6 @@ public class TitleCanvas : MonoBehaviour
 
         playButton.onClick.AddListener(() =>
         {
-            Debug.Log("Load Game");
             SceneManager.LoadScene("Game");
         });
 

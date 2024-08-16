@@ -16,10 +16,10 @@ namespace Level
             {
                 var no_object = Object.Instantiate(no_prefabSpawners[i].NetworkObjectPrefab);
                 no_object.transform.position = no_prefabSpawners[i].transform.position;
-                //no_object.GetComponent<NetworkObject>().Spawn();
                 LevelManager.Instance.AddToSpawnList(no_object.GetComponent<NetworkObject>());
 
-                DestroyAllChildren(no_prefabSpawners[i].transform);
+                //DestroyAllChildren(no_prefabSpawners[i].transform);
+                Debug.Log("added to spawn list");
             }
         }
     }

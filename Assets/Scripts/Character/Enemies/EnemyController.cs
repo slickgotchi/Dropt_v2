@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.AI;
-
+using Unity.Mathematics;
 
 public class EnemyController : NetworkBehaviour
 {
@@ -36,6 +36,7 @@ public class EnemyController : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        Debug.Log("Spawn Enemy");
         // Utility AI
         m_utilityAgentController = GetComponent<UtilityAgentController>();
         m_utilityAgentFacade = GetComponent<UtilityAgentFacade>();
@@ -61,6 +62,11 @@ public class EnemyController : NetworkBehaviour
             m_utilityAgentFacade.enabled = false;
             return;
         }
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        //if (m_utilityAgentFacade != null) m_utilityAgentFacade.Destroy();
     }
 
     // Update is called once per frame

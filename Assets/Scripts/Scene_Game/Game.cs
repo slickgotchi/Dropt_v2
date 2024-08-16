@@ -174,9 +174,16 @@ public class Game : MonoBehaviour
 
     public void TryCreateGame()
     {
-        m_isTryConnect = false;
-        m_isTryCreateGame = true;
-        m_isCreatedGameOnce = false;
+        if (Bootstrap.IsRemoteConnection() && Bootstrap.IsUseServerManager())
+        {
+            m_isTryConnect = false;
+            m_isCreatedGameOnce = false;
+            m_isTryCreateGame = true;
+        }
+        else if (Bootstrap.IsHost())
+        {
+            LevelManager.Instance.GoToDegenapeVillageLevel();
+        }
     }
 
     bool TryStartServerClientOrHost()
