@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using GotchiHub;
 
 public class PlayerEquipment : NetworkBehaviour
 {
@@ -12,6 +13,26 @@ public class PlayerEquipment : NetworkBehaviour
     public NetworkVariable<Wearable.NameEnum> RightHand;
     public NetworkVariable<Wearable.NameEnum> LeftHand;
     public NetworkVariable<Wearable.NameEnum> Pet;
+
+    private void Awake()
+    {
+        GotchiDataManager.Instance.onSelectedGotchi += HandleOnSelectedGotchi;
+    }
+
+    void HandleOnSelectedGotchi(int id)
+    {
+        if (!IsClient) return;
+
+        var gotchiData = GotchiDataManager.Instance.GetGotchiDataById(id);
+        var rightHandWearableId = gotchiData.equippedWearables[4];
+        var leftHandWearableId = gotchiData.equippedWearables[5];
+
+        var lhWearable = WearableManager.Instance.GetWearable(leftHandWearableId);
+        var rhWearable = WearableManager.Instance.GetWearable(rightHandWearableId);
+
+        SetEquipment(Slot.LeftHand, lhWearable != null ? lhWearable.NameType : Wearable.NameEnum.Unarmed);
+        SetEquipment(Slot.RightHand, rhWearable != null ? rhWearable.NameType : Wearable.NameEnum.Unarmed);
+    }
 
     public override void OnNetworkSpawn()
     {

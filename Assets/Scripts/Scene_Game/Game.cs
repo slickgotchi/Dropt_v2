@@ -283,8 +283,9 @@ public class Game : MonoBehaviour
                         m_tryCreateGameTimer = k_pollInterval;
                         break;
                     case UnityWebRequest.Result.Success:
-                        Debug.Log(webRequest.result);
                         CreateOrJoinGameResponseData data = JsonUtility.FromJson<CreateOrJoinGameResponseData>(webRequest.downloadHandler.text);
+                        Debug.Log("Response Data to CreateGame below...");
+                        Debug.Log(webRequest.downloadHandler.text);
 
                         // using data configure bootstrap
                         Bootstrap.Instance.IpAddress = data.ipAddress;
@@ -293,14 +294,13 @@ public class Game : MonoBehaviour
 
                         // set client side cert data if using server manager
                         m_serverCommonName = data.serverCommonName;
-                        //m_clientCA = data.clientCA;
+                        m_clientCA = data.clientCA;
 
                         // update progress bar
                         ProgressBarCanvas.Instance.Show("Allocated gameId & port, connecting...");
 
                         // save gameid for joins and try connect
                         m_isTryConnect = true;
-                        //m_tryConnectTimer = 10f;
 
                         webRequest.Dispose();
 
@@ -367,7 +367,7 @@ public class Game : MonoBehaviour
                         break;
                     case UnityWebRequest.Result.Success:
                         CreateOrJoinGameResponseData data = JsonUtility.FromJson<CreateOrJoinGameResponseData>(webRequest.downloadHandler.text);
-                        Debug.Log("Response Data Below...");
+                        Debug.Log("Response Data to JoinGame below...");
                         Debug.Log(webRequest.downloadHandler.text);
 
                         // Using data configure bootstrap
@@ -377,17 +377,12 @@ public class Game : MonoBehaviour
 
                         // set client side cert data if using server manager
                         m_serverCommonName = data.serverCommonName;
-                        //m_clientCA = data.clientCA;
-
-                        Debug.Log("JOIN GAME gameId: " + data.gameId);
+                        m_clientCA = data.clientCA;
 
                         // shut down our existing server
                         Debug.Log("Received joinGame data, gameId: " + data.gameId + ", port: " + data.port);
                         ProgressBarCanvas.Instance.Show("Received data for new game, switching...");
                         NetworkManager.Singleton.Shutdown();
-
-                        Debug.Log(m_serverCommonName);
-                        //Debug.Log(m_clientCA);
 
                         // We can now connect direct
                         m_isTryConnect = true;
