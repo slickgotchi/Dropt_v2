@@ -6,6 +6,7 @@ using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using GotchiHub;
 
 // PlayerController handles:
 // - camera/virtual camera
@@ -31,7 +32,7 @@ public class PlayerController : NetworkBehaviour
 
     private NetworkCharacter m_networkCharacter;
 
-    public static float InactiveTimerDuration = 60; //5 * 60;
+    public static float InactiveTimerDuration = 120; //5 * 60;
 
     public bool IsDead = false;
 
@@ -44,44 +45,63 @@ public class PlayerController : NetworkBehaviour
         m_networkCharacter = GetComponent<NetworkCharacter>();
         m_holdBarCanvas = GetComponentInChildren<HoldBarCanvas>();
         m_playerPrediction = GetComponent<PlayerPrediction>();
+
+        GotchiDataManager.Instance.onSelectedGotchi += HandleOnSelectedGotchi;
     }
 
     public override void OnNetworkSpawn()
     {
         if (IsLocalPlayer) {
-            //playerCamera.Priority = 100;
-            //playerAudioListener.enabled = true;
-
             m_cameraFollower = GameObject.FindGameObjectWithTag("CameraFollower");
-            //m_cameraFollower.transform.SetParent(transform);
-
-            //// Get the currently active scene to ensure we're working with the "Game" scene
-            //Scene gameScene = SceneManager.GetSceneByName("Game");
-
-            ////// change all canvas to camera mode and set players camera to them
-            //var canvii = FindObjectsByType<Canvas>(FindObjectsSortMode.None);
-            //foreach (var canvas in canvii)
-            //{
-            //    // Check if the Canvas is in the "Game" scene and has a parent named "Game"
-            //    //if (canvas.gameObject.scene == gameScene)
-            //    {
-            //        //canvas.renderMode = RenderMode.ScreenSpaceCamera;
-            //        //canvas.worldCamera = GetComponentInChildren<Camera>();
-            //    }
-            //}
         } else
         {
-            //playerAudioListener.enabled = false;
-            //playerCamera.Priority = 0;
             ScreenBlockers.SetActive(false);
-        }
+        }   
+    }
 
-        if (IsServer && !IsHost)
-        {
-            //PingServerRpc(Time.time);
-        }
+    void HandleOnSelectedGotchi(int id)
+    {
+        if (!IsClient) return;
 
-        
+        var gotchiData = GotchiDataManager.Instance.GetGotchiDataById(id);
+
+        // update character stats
+        var hp = DroptStatCalculator.GetPrimaryGameStat(gotchiData.numericTraits[0], TraitType.NRG);
+        var attack = DroptStatCalculator.GetPrimaryGameStat(gotchiData.numericTraits[1], TraitType.AGG);
+        var critChance = DroptStatCalculator.GetPrimaryGameStat(gotchiData.numericTraits[2], TraitType.SPK);
+        var ap = DroptStatCalculator.GetPrimaryGameStat(gotchiData.numericTraits[3], TraitType.BRN);
+        var doubleStrikeChance = DroptStatCalculator.GetPrimaryGameStat(gotchiData.numericTraits[4], TraitType.EYS);
+        var critDamage = DroptStatCalculator.GetPrimaryGameStat(gotchiData.numericTraits[5], TraitType.EYC);
+
+        SetBaseStats(hp, attack, critChance, ap, doubleStrikeChance, critDamage);
+    }
+
+    void SetBaseStats(float hp, float atk, float critChance, float ap, float doubleStrike, float critDamage)
+    {
+        SetBaseStatsServerRpc(hp, atk, critChance, ap, doubleStrike, critDamage);
+    }
+
+    [Rpc(SendTo.Server)]
+    void SetBaseStatsServerRpc(float hp, float atk, float critChance, float ap, float doubleStrike, float critDamage)
+    {
+        var networkCharacter = GetComponent<NetworkCharacter>();
+
+        networkCharacter.HpMax.Value = (int)hp;
+        networkCharacter.HpCurrent.Value = (int)hp;
+        networkCharacter.HpBuffer.Value = 0;
+
+        networkCharacter.AttackPower.Value = (int)atk;
+
+        networkCharacter.CriticalChance.Value = critChance;
+
+        networkCharacter.ApMax.Value = (int)ap;
+        networkCharacter.ApCurrent.Value = (int)ap;
+        networkCharacter.ApBuffer.Value = 0;
+
+        networkCharacter.DoubleStrikeChance.Value = doubleStrike;
+
+        networkCharacter.CriticalDamage.Value = critDamage;
+
     }
 
     public void KillPlayer(REKTCanvas.TypeOfREKT typeOfREKT)
@@ -131,12 +151,6 @@ public class PlayerController : NetworkBehaviour
             if (m_cameraFollower != null)
             {
                 m_cameraFollower.transform.position = m_playerPrediction.GetLocalPlayerInterpPosition();
-                //var newPos = m_playerPrediction.GetLocalPlayerInterpPosition();
-                ////if ((newPos - m_lastCameraFollowerPosition).magnitude > 0.2)
-                //{
-                //    m_cameraFollower.transform.position = m_playerPrediction.GetLocalPlayerInterpPosition();
-                //    //m_lastCameraFollowerPosition = m_cameraFollower.transform.position;
-                //}
             }
         }
 
