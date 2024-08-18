@@ -26,6 +26,6 @@ public class AvailableGameListItem : MonoBehaviour
     void HandleClick_JoinButton()
     {
         Game.Instance.TryJoinGame(GameIdText.text);
-
+        
     }
 }

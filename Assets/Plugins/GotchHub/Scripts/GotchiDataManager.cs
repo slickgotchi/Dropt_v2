@@ -147,8 +147,9 @@ namespace GotchiHub
                 }
 
                 // get svgs
-                StatusString = userAccount.gotchisOwned.Length.ToString() + " gotchis found. Processing SVGs...";
+                StatusString = userAccount.gotchisOwned.Length.ToString() + " gotchis found. Downloading SVGs...";
                 var svgs = await graphManager.GetGotchiSvgs(gotchiIds);
+                StatusString = "Gotchi SVGs downloaded. Converting...";
                 for (int i = 0; i < svgs.Count; i++)
                 {
                     var svgSet = svgs[i];
@@ -165,9 +166,10 @@ namespace GotchiHub
                 gotchiIds.Clear();
 
                 // default to highest brs gotchi
-                StatusString = "SVGs processed. Updating gotchi inventory...";
+                StatusString = "SVGs converted. Updating gotchi inventory...";
                 if (localGotchiData.Count > 0)
                 {
+                    StatusString = "Set selected gotchi to highest BRS";
                     SetSelectedGotchiById(GetGotchiIdByHighestBRS());
 
                     onFetchGotchiDataSuccess?.Invoke();
