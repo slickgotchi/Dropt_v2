@@ -19,6 +19,7 @@ public class ProgressBarCanvas : MonoBehaviour
     private bool isShowingMessage = false;
     private bool shouldHide = false;
 
+
     private void Awake()
     {
         Instance = this;

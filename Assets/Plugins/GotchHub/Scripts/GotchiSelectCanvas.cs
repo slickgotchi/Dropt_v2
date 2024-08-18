@@ -4,7 +4,6 @@ using Unity.VectorGraphics;
 using UnityEngine;
 using UnityEngine.UI;
 using Thirdweb;
-using GotchiHub;
 
 namespace GotchiHub
 {
@@ -39,6 +38,8 @@ namespace GotchiHub
         private string m_walletAddress = "";
         private bool m_isShowButtonJustClicked = false;
 
+        private bool m_isConnected = false;
+
         public enum ReorganizeMethod
         {
             BRSLowToHigh,
@@ -47,11 +48,22 @@ namespace GotchiHub
             IdHighToLow
         }
 
+        public enum MenuScreen
+        {
+            NotConnected,
+            Loading,
+            GotchiSelect,
+            NoGotchis,
+            Hidden,
+        }
+        private MenuScreen m_menuScreen = MenuScreen.NotConnected;
+
         private void Awake()
         {
             Instance = this;
-            SelectGotchiButton.onClick.AddListener(HandleOnClick_GotchiSelect_ShowButton);
+            //SelectGotchiButton.onClick.AddListener(HandleOnClick_GotchiSelect_ShowButton);
             VisitAavegotchiButton.onClick.AddListener(HandleOnClick_VisitAavegotchiButton);
+
 
             Container.SetActive(false);
 
@@ -77,10 +89,26 @@ namespace GotchiHub
             m_gotchiDataManager.onFetchGotchiDataSuccess += HandleOnFetchGotchiDataSuccess;
         }
 
+        public void SetMenuScreen(MenuScreen menuScreen)
+        {
+            HideAllMenus();
+
+            switch (menuScreen)
+            {
+                case MenuScreen.NotConnected: GotchiSelect_NotConnected.SetActive(true); break;
+                case MenuScreen.Loading: GotchiSelect_Loading.SetActive(true); break;
+                case MenuScreen.GotchiSelect: GotchiSelect_Menu.SetActive(true); break;
+                case MenuScreen.NoGotchis: GotchiSelect_NoGotchis.SetActive(true); break;
+                default: break;
+            }
+
+            m_menuScreen = menuScreen;
+        }
+
         private void OnDestroy()
         {
             // Unsubscribe from events
-            SelectGotchiButton.onClick.RemoveListener(HandleOnClick_GotchiSelect_ShowButton);
+            //SelectGotchiButton.onClick.RemoveListener(HandleOnClick_GotchiSelect_ShowButton);
             VisitAavegotchiButton.onClick.RemoveListener(HandleOnClick_VisitAavegotchiButton);
             m_gotchiDataManager.onFetchGotchiDataSuccess -= HandleOnFetchGotchiDataSuccess;
         }
@@ -89,6 +117,7 @@ namespace GotchiHub
         void HandleOnClick_VisitAavegotchiButton()
         {
             Application.OpenURL("https://dapp.aavegotchi.com/baazaar/aavegotchis");
+
         }
 
         void HandleOnFetchGotchiDataSuccess()
@@ -96,83 +125,61 @@ namespace GotchiHub
             UpdateGotchiList();
         }
 
-        public void OpenGotchiSelectMenu()
+        public void SetVisible(bool isVisible)
         {
-            HandleOnClick_GotchiSelect_ShowButton();
+            if (isVisible)
+            {
+                Container.SetActive(true);
+            } else
+            {
+                Container.SetActive(false);
+            }
         }
 
-        async void HandleOnClick_GotchiSelect_ShowButton()
+        private float k_updateInterval = 0.5f;
+        private float m_updateTimer = 0f;
+
+        private async void Update()
         {
+            m_updateTimer -= Time.deltaTime;
+            if (m_updateTimer > 0) return;
+            m_updateTimer = k_updateInterval;
+
             try
             {
-                // Show loading
-                GotchiSelect_Loading.SetActive(true);
-                GotchiSelect_Menu.SetActive(false);
-
-                var connected = await ThirdwebManager.Instance.SDK.Wallet.IsConnected();
-                if (!connected)
+                // connection check
+                var isConnected = await ThirdwebManager.Instance.SDK.Wallet.IsConnected();
+                if (!isConnected)
                 {
-                    HideAllMenus();
-                    GotchiSelect_NotConnected.SetActive(true);
+                    SetMenuScreen(MenuScreen.NotConnected);
                     return;
                 }
 
-                var address = await ThirdwebManager.Instance.SDK.Wallet.GetAddress();
 
+                // address check
+                var address = await ThirdwebManager.Instance.SDK.Wallet.GetAddress();
                 if (address != m_walletAddress)
                 {
                     m_walletAddress = address;
                     WalletInfoText.text = m_walletAddress;
-                    await m_gotchiDataManager.FetchGotchiData();
 
-                    if (m_gotchiDataManager.localGotchiData.Count > 0)
-                    {
-                        // Highlight the highest brs gotchi
-                        HighlightById(m_gotchiDataManager.GetSelectedGotchiId());
-                    }
+                    // fetch new gotchis due to different address
+                    await m_gotchiDataManager.FetchGotchiData();
                 }
 
-                // Show menu
-                HideAllMenus();
-                GotchiSelect_Menu.SetActive(m_gotchiDataManager.localGotchiData.Count > 0);
-                GotchiSelect_NoGotchis.SetActive(m_gotchiDataManager.localGotchiData.Count <= 0);
-
+                // show screen depending on gotchi count
+                var numGotchis = m_gotchiDataManager.localGotchiData.Count;
+                if (numGotchis <= 0)
+                {
+                    SetMenuScreen(MenuScreen.NoGotchis);
+                } else
+                {
+                    SetMenuScreen(MenuScreen.GotchiSelect);
+                }
             }
             catch (System.Exception e)
             {
                 Debug.Log(e);
-            }
-
-            m_isShowButtonJustClicked = true;
-        }
-
-        private void Update()
-        {
-            //// Check for clicks outside menu box
-            //if (Input.GetMouseButtonDown(0) && !m_isShowButtonJustClicked)
-            //{
-            //    RectTransform menuRect = null;
-            //    if (GotchiSelect_Menu.activeSelf) menuRect = GotchiSelect_Menu.GetComponent<RectTransform>();
-            //    if (GotchiSelect_Loading.activeSelf) menuRect = GotchiSelect_Loading.GetComponent<RectTransform>();
-            //    if (GotchiSelect_NoGotchis.activeSelf) menuRect = GotchiSelect_NoGotchis.GetComponent<RectTransform>();
-            //    if (GotchiSelect_NotConnected.activeSelf) menuRect = GotchiSelect_NotConnected.GetComponent<RectTransform>();
-
-            //    if (menuRect != null)
-            //    {
-            //        // Hide menus
-            //        if (!RectTransformUtility.RectangleContainsScreenPoint(menuRect, Input.mousePosition))
-            //        {
-            //            HideAllMenus();
-            //        }
-            //    }
-            //}
-
-            m_isShowButtonJustClicked = false;
-
-            // update loading info text (if its active)
-            if (LoadingInfoText.enabled)
-            {
-                LoadingInfoText.text = m_gotchiDataManager.StatusString;
             }
         }
 
@@ -290,7 +297,6 @@ namespace GotchiHub
                 gotchiListItems[i].transform.SetSiblingIndex(i);
             }
 
-            Debug.Log("Gotchi list has been reorganized by " + method.ToString());
         }
     }
 }

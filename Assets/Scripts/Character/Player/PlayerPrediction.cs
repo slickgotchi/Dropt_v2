@@ -40,6 +40,7 @@ public class PlayerPrediction : NetworkBehaviour
     // for access
     private Rigidbody2D rb;
     private PlayerAbilities m_playerAbilities;
+    private PlayerGotchi m_playerGotchi;
 
     // Netcode general
     NetworkTimer timer;
@@ -53,7 +54,7 @@ public class PlayerPrediction : NetworkBehaviour
     StatePayload lastServerState;
 
     public StatePayload LastServerState => lastServerState;
-    List<StatePayload> lastServerStateArray;
+    List<StatePayload> m_lastServerStateArray;
 
     // Netcode server
     CircularBuffer<StatePayload> serverStateBuffer;
@@ -108,6 +109,7 @@ public class PlayerPrediction : NetworkBehaviour
         m_networkCharacter = GetComponent<NetworkCharacter>();
         m_playerAbilities = GetComponent<PlayerAbilities>();
         m_playerController = GetComponent<PlayerController>();
+        m_playerGotchi = GetComponent<PlayerGotchi>();
     }
 
     public override void OnNetworkSpawn()
@@ -127,7 +129,7 @@ public class PlayerPrediction : NetworkBehaviour
 
         m_remoteClientTickDelta = 0;
 
-        lastServerStateArray = new List<StatePayload>();
+        m_lastServerStateArray = new List<StatePayload>();
 
         // transform.position is the intitial position given to us by the ConnectionApprovalHandler
         // thus we need to set all states to this position to start with
@@ -172,16 +174,20 @@ public class PlayerPrediction : NetworkBehaviour
 
     private void OnMovement(InputValue value)
     {
-        if (IsInputDisabled || PlayerInputBlocker.Instance.IsMoveInputBlockerActive()) return;
         if (!IsLocalPlayer) return;
 
+        if (IsInputDisabled || PlayerInputBlocker.Instance.IsMoveInputBlockerActive()) return;
+
         m_moveDirection = value.Get<Vector2>();
+
+
     }
 
     private void OnDash_CursorAim(InputValue value)
     {
-        if (IsInputDisabled || PlayerInputBlocker.Instance.IsMoveInputBlockerActive()) return;
         if (!IsLocalPlayer) return;
+
+        if (IsInputDisabled || PlayerInputBlocker.Instance.IsMoveInputBlockerActive()) return;
 
         SetActionDirectionAndLastMoveFromCursorAim();
 
@@ -190,8 +196,9 @@ public class PlayerPrediction : NetworkBehaviour
 
     private void OnDash_MoveAim(InputValue value)
     {
-        if (IsInputDisabled || PlayerInputBlocker.Instance.IsMoveInputBlockerActive()) return;
         if (!IsLocalPlayer) return;
+
+        if (IsInputDisabled || PlayerInputBlocker.Instance.IsMoveInputBlockerActive()) return;
         m_actionDirection = m_lastMoveDirection;
         m_actionDirectionTimer = k_actionDirectionTime;
         m_abilityTriggered = PlayerAbilityEnum.Dash;
@@ -200,15 +207,17 @@ public class PlayerPrediction : NetworkBehaviour
     private void OnMousePosition(InputValue value)
     {
         if (!IsLocalPlayer) return;
+
         m_cursorScreenPosition = value.Get<Vector2>();
     }
 
     private void OnLeftAttack_CursorAim(InputValue value)
     {
+        if (!IsLocalPlayer) return;
+
         if (IsInputDisabled || PlayerInputBlocker.Instance.IsCursorWithinClickInputBlocker()) return;
         if (PlayerEquipmentDebugCanvas.IsActive()) return;
 
-        if (!IsLocalPlayer) return;
 
         SetActionDirectionAndLastMoveFromCursorAim();
 
@@ -219,6 +228,8 @@ public class PlayerPrediction : NetworkBehaviour
 
     private void OnLeftHoldStart_CursorAim(InputValue value)
     {
+        if (!IsLocalPlayer) return;
+
         if (IsInputDisabled || PlayerInputBlocker.Instance.IsCursorWithinClickInputBlocker()) return;
 
         var lhWearable = GetComponent<PlayerEquipment>().LeftHand.Value;
@@ -234,6 +245,8 @@ public class PlayerPrediction : NetworkBehaviour
 
     private void OnLeftHoldFinish_CursorAim(InputValue value)
     {
+        if (!IsLocalPlayer) return;
+
         if (IsInputDisabled || PlayerInputBlocker.Instance.IsCursorWithinClickInputBlocker()) return;
 
         // if hold time > 0, trigger our hold ability
@@ -257,8 +270,9 @@ public class PlayerPrediction : NetworkBehaviour
 
     private void OnLeftSpecial_CursorAim(InputValue value)
     {
-        if (IsInputDisabled || PlayerInputBlocker.Instance.IsCursorWithinClickInputBlocker()) return;
         if (!IsLocalPlayer) return;
+
+        if (IsInputDisabled || PlayerInputBlocker.Instance.IsCursorWithinClickInputBlocker()) return;
 
         SetActionDirectionAndLastMoveFromCursorAim();
 
@@ -269,8 +283,9 @@ public class PlayerPrediction : NetworkBehaviour
 
     private void OnRightAttack_CursorAim(InputValue value)
     {
-        if (IsInputDisabled || PlayerInputBlocker.Instance.IsCursorWithinClickInputBlocker()) return;
         if (!IsLocalPlayer) return;
+
+        if (IsInputDisabled || PlayerInputBlocker.Instance.IsCursorWithinClickInputBlocker()) return;
 
         SetActionDirectionAndLastMoveFromCursorAim();
 
@@ -281,6 +296,8 @@ public class PlayerPrediction : NetworkBehaviour
 
     private void OnRightHoldStart_CursorAim(InputValue value)
     {
+        if (!IsLocalPlayer) return;
+
         if (IsInputDisabled || PlayerInputBlocker.Instance.IsCursorWithinClickInputBlocker()) return;
 
         var rhWearable = GetComponent<PlayerEquipment>().RightHand.Value;
@@ -296,6 +313,8 @@ public class PlayerPrediction : NetworkBehaviour
 
     private void OnRightHoldFinish_CursorAim(InputValue value)
     {
+        if (!IsLocalPlayer) return;
+
         if (IsInputDisabled || PlayerInputBlocker.Instance.IsCursorWithinClickInputBlocker()) return;
 
         // if hold time > 0, trigger our hold ability
@@ -319,9 +338,10 @@ public class PlayerPrediction : NetworkBehaviour
 
     private void OnRightSpecial_CursorAim(InputValue value)
     {
+        if (!IsLocalPlayer) return;
+
         if (IsInputDisabled || PlayerInputBlocker.Instance.IsCursorWithinClickInputBlocker()) return;
 
-        if (!IsLocalPlayer) return;
 
         SetActionDirectionAndLastMoveFromCursorAim();
 
@@ -361,6 +381,12 @@ public class PlayerPrediction : NetworkBehaviour
         float dt = Time.deltaTime;
         timer.Update(dt);
         m_actionDirectionTimer -= dt;
+
+        //if (math.abs(m_moveDirection.x) > 0.1f || math.abs(m_moveDirection.y) > 0.1f)
+        //{
+        m_playerGotchi.SetMoveDirection(m_moveDirection);
+        //m_playerGotchi.SetFacingFromDirection(m_moveDirection);
+        //}
 
         // set updated render position
         if (IsLocalPlayer)
@@ -532,6 +558,13 @@ public class PlayerPrediction : NetworkBehaviour
             }
         }
 
+        // set facing
+        if (m_abilityTriggered != PlayerAbilityEnum.Null)
+        {
+            m_playerGotchi.SetFacingFromDirection(m_actionDirection, k_actionDirectionTime, true);
+            SetFacingParametersServerRpc(m_actionDirection, k_actionDirectionTime, m_lastMoveDirection);
+        }
+
         // reset any triggers or booleans
         m_abilityTriggered = PlayerAbilityEnum.Null;
         m_isHoldStartFlag = false;
@@ -540,8 +573,11 @@ public class PlayerPrediction : NetworkBehaviour
         // do server reconciliation
         HandleServerReconciliation();
 
+        
+
         // sync facing direction with remote clients
-        SetFacingParametersServerRpc(m_actionDirection, m_actionDirectionTimer, m_lastMoveDirection);
+        //SetFacingParametersServerRpc(m_actionDirection, m_actionDirectionTimer, m_lastMoveDirection);
+
     }
 
     [Rpc(SendTo.Server)]
@@ -555,9 +591,11 @@ public class PlayerPrediction : NetworkBehaviour
     {
         if (IsLocalPlayer) return;
 
-        m_actionDirection = actionDirection;
-        m_actionDirectionTimer = actionDirectionTimer;
-        m_lastMoveDirection = lastMoveDirection;
+        m_playerGotchi.SetFacingFromDirection(actionDirection, actionDirectionTimer, true);
+
+        //m_actionDirection = actionDirection;
+        //m_actionDirectionTimer = actionDirectionTimer;
+        //m_lastMoveDirection = lastMoveDirection;
     }
 
     // 3. set transform to whatever the latest server state is then rewind
@@ -844,6 +882,8 @@ public class PlayerPrediction : NetworkBehaviour
         m_isSetPlayerPosition = false;
     }
 
+    private bool m_isRemoteClientTickDeltaSet = false;
+
     // this function executed on CLIENT
     [ClientRpc]
     void SendToClientRpc(StatePayload statePayload)
@@ -852,16 +892,29 @@ public class PlayerPrediction : NetworkBehaviour
         lastServerState = statePayload;
 
         // append state to last server state array
-        lastServerStateArray.Add(statePayload);
-        if (lastServerStateArray.Count > 5) lastServerStateArray.RemoveAt(0);
+        m_lastServerStateArray.Add(statePayload);
+        if (m_lastServerStateArray.Count > 10) m_lastServerStateArray.RemoveAt(0);
 
         // get average delta tick
-        var deltaTick = timer.CurrentTick - statePayload.tick;
-        m_remoteClientTickDeltas.Add(deltaTick);
-        if (m_remoteClientTickDeltas.Count > 10) m_remoteClientTickDeltas.RemoveAt(0);
-        float sum = 0;
-        foreach (var delta in m_remoteClientTickDeltas) sum += delta;
-        m_remoteClientTickDelta = (int)math.round(sum/m_remoteClientTickDeltas.Count);
+        if (!m_isRemoteClientTickDeltaSet)
+        {
+            var deltaTick = timer.CurrentTick - statePayload.tick;
+            m_remoteClientTickDeltas.Add(deltaTick);
+            if (m_remoteClientTickDeltas.Count >= 10)
+            {
+                float sum = 0;
+                foreach (var delta in m_remoteClientTickDeltas) sum += delta;
+                m_remoteClientTickDelta = (int)math.round(sum/m_remoteClientTickDeltas.Count);
+                m_isRemoteClientTickDeltaSet = true;
+            }
+        }
+
+        //var deltaTick = timer.CurrentTick - statePayload.tick;
+        //m_remoteClientTickDeltas.Add(deltaTick);
+        //if (m_remoteClientTickDeltas.Count > 10) m_remoteClientTickDeltas.RemoveAt(0);
+        //float sum = 0;
+        //foreach (var delta in m_remoteClientTickDeltas) sum += delta;
+        //m_remoteClientTickDelta = (int)math.round(sum / m_remoteClientTickDeltas.Count);
     }
 
     // this function executed on SERVER
@@ -874,7 +927,7 @@ public class PlayerPrediction : NetworkBehaviour
     public Vector3 GetRemotePlayerInterpPosition()
     {
         //return lastServerState.position;
-        if (lastServerStateArray.Count < 5) return transform.position;
+        if (m_lastServerStateArray.Count < 5) return transform.position;
 
         var targetTick = timer.CurrentTickAndFraction.Tick - m_remoteClientTickDelta - 3;
 
@@ -882,9 +935,9 @@ public class PlayerPrediction : NetworkBehaviour
         int a = 0;
         int b = 0;
 
-        for (int i = 0; i < lastServerStateArray.Count - 1; i++)
+        for (int i = 0; i < m_lastServerStateArray.Count - 1; i++)
         {
-            if (targetTick == lastServerStateArray[i].tick)
+            if (targetTick == m_lastServerStateArray[i].tick)
             {
                 a = i;
                 b = i + 1;
@@ -893,11 +946,15 @@ public class PlayerPrediction : NetworkBehaviour
         }
 
         // something went wrong so just return original position
-        if (a == 0 && b == 0) return transform.position;
+        if (a == 0 && b == 0)
+        {
+            Debug.Log("Remote player outside interp range");
+            return transform.position;
+        }
 
         // store interp values
-        var start = lastServerStateArray[a];
-        var finish = lastServerStateArray[b];
+        var start = m_lastServerStateArray[a];
+        var finish = m_lastServerStateArray[b];
         var fraction = timer.CurrentTickAndFraction.Fraction;
 
         // Draw dash shadow if we dashed
@@ -982,24 +1039,24 @@ public class PlayerPrediction : NetworkBehaviour
         return lastServerState.position;
     }
 
-    public Vector3 GetFacingDirection()
-    {
-        if (m_actionDirectionTimer > 0)
-        {
-            return math.normalize(m_actionDirection);
-        }
-        else
-        {
-            return m_lastMoveDirection;
-        }
-    }
+    //public Vector3 GetFacingDirection()
+    //{
+    //    if (m_actionDirectionTimer > 0)
+    //    {
+    //        return math.normalize(m_actionDirection);
+    //    }
+    //    else
+    //    {
+    //        return m_lastMoveDirection;
+    //    }
+    //}
 
-    public bool IsMoving { get
-        {
-            return math.abs(m_velocity.x) > 0.1f || math.abs(m_velocity.y) > 0.1f;
-        }
-        private set { }
-    }
+    //public bool IsMoving { get
+    //    {
+    //        return math.abs(m_velocity.x) > 0.1f || math.abs(m_velocity.y) > 0.1f;
+    //    }
+    //    private set { }
+    //}
 
     public float GetServerTickRate()
     {

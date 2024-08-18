@@ -44,17 +44,11 @@ public class PlayerGotchi : NetworkBehaviour
     private Animator animator;
     private PlayerPrediction m_playerPrediction;
 
-    private Vector3 m_facingDirection;
     private bool m_isMoving;
 
     public bool IsDropSpawning { get; private set; }
 
-    private LocalVelocity m_localVelocity;
-
-    //private Camera m_camera;
-    //private CinemachineVirtualCamera m_virtualCamera;
-    //private Vector3 m_spawnPoint;
-    //private Vector3 m_preSpawnPoint;
+    //private LocalVelocity m_localVelocity;
 
     // facing spin variables
     public enum SpinDirection { AntiClockwise, Clockwise }
@@ -68,6 +62,8 @@ public class PlayerGotchi : NetworkBehaviour
 
     public enum Facing { Front, Back, Left, Right, NA }
     private Facing m_facing;
+    private float m_facingTimer;
+    private Vector3 m_moveDirection;
 
     private float m_bodyRotation = 0;
     private float m_bodyRotationTimer = 0;
@@ -81,7 +77,7 @@ public class PlayerGotchi : NetworkBehaviour
     {
         animator = GetComponent<Animator>();
         m_playerPrediction = GetComponent<PlayerPrediction>();
-        m_localVelocity = GetComponent<LocalVelocity>();
+        //m_localVelocity = GetComponent<LocalVelocity>();
     }
 
     private void Update()
@@ -91,36 +87,35 @@ public class PlayerGotchi : NetworkBehaviour
         m_leftHandHideTimer -= Time.deltaTime;
         m_rightHandHideTimer -= Time.deltaTime;
 
-        m_facingDirection = m_playerPrediction.GetFacingDirection();
-        m_isMoving = IsLocalPlayer ? m_playerPrediction.IsMoving : m_localVelocity.IsMoving;
-
-        UpdateGotchiAnim();
-        UpdateFacingFromMovement();
-        UpdateFacingFromSpinning();
-        SetActiveBodyPartsFromFacing(m_facing);
-        UpdateDustParticles();
-
+        m_facingTimer -= Time.deltaTime;
+        m_moveDirectionTimer -= Time.deltaTime;
         m_bodyRotationTimer -= Time.deltaTime;
-        if (m_bodyRotationTimer > 0)
+
+        HandleGotchiAnim();
+        HandleFacingFromSpinning();
+        HandleFacingFromMoveDirection();
+        HandleSetActiveBodyPartsFromFacing(m_facing);
+        HandleDustParticles();
+
+        //if (Input.GetKeyDown(KeyCode.M))
+        //{
+        //    ResetIdleAnimation();
+        //}
+    }
+
+    private void LateUpdate()
+    {
+        if (m_bodyRotationTimer <= 0)
         {
-            // need to disable animator as PlayerGotchi_DropSpawn controls the Gotchi z position
-            GetComponent<Animator>().enabled = false;
-            m_gotchi.transform.rotation = Quaternion.Euler(new Vector3(0, 0, m_bodyRotation));
+            // use normal sprite lean to calc rotation
+            m_gotchi.transform.rotation = Quaternion.Euler(new Vector3(0, 0, CalculateSpriteLean()));
         }
         else
         {
-            m_gotchi.transform.rotation = Quaternion.identity;
-            m_bodyParent.transform.rotation = Quaternion.Euler(new Vector3(0, 0, CalculateSpriteLean()));
-            GetComponent<Animator>().enabled = true;
-        }
-
-        if (Input.GetKeyDown(KeyCode.M))
-        {
-            ResetIdleAnimation();
+            // keep using the preset rotation
+            m_gotchi.transform.rotation = Quaternion.Euler(new Vector3(0, 0, m_bodyRotation));
         }
     }
-
-    private float m_dropSpawnTimer = 0.5f;
 
     public void DropSpawn(Vector3 newSpawnPoint)
     {
@@ -134,12 +129,8 @@ public class PlayerGotchi : NetworkBehaviour
     {
         if (!IsLocalPlayer) return;
 
-        //m_virtualCamera.Follow = null;
-
         IsDropSpawning = true;
         animator.Play("PlayerGotchi_DropSpawn");
-        //m_spawnPoint = spawnPoint;
-        //m_preSpawnPoint = currentPosition;
 
         GameAudioManager.Instance.FallNewLevel(spawnPoint);
     }
@@ -231,15 +222,11 @@ public class PlayerGotchi : NetworkBehaviour
 
         GetComponent<PlayerCamera>().Shake(1.75f, 0.3f);
 
-        //// make camera follow player and warp it to our new spawn point
-        //m_virtualCamera.Follow = transform;
-        //m_virtualCamera.OnTargetObjectWarped(transform, m_spawnPoint - m_preSpawnPoint);
-
         // renable collider
         GetComponent<Collider2D>().enabled = true;
     }
 
-    void UpdateDustParticles()
+    void HandleDustParticles()
     {
         if (m_isMoving)
         {
@@ -249,14 +236,6 @@ public class PlayerGotchi : NetworkBehaviour
         {
             if (DustParticleSystem.isPlaying) DustParticleSystem.Stop();
         }
-    }
-
-    void UpdateFacingFromMovement()
-    {
-        if (m_facingDirection.y < -math.abs(m_facingDirection.x)) m_facing = Facing.Front;
-        if (m_facingDirection.y > math.abs(m_facingDirection.x)) m_facing = Facing.Back;
-        if (m_facingDirection.x <= -math.abs(m_facingDirection.y)) m_facing = Facing.Left;
-        if (m_facingDirection.x >= math.abs(m_facingDirection.y)) m_facing = Facing.Right;
     }
 
     public void SetWeaponSprites(Hand hand, Wearable.NameEnum wearableNameEnum)
@@ -356,7 +335,7 @@ public class PlayerGotchi : NetworkBehaviour
         }
     }
 
-    void SetActiveBodyPartsFromFacing(Facing facing)
+    void HandleSetActiveBodyPartsFromFacing(Facing facing)
     {
         if (facing == Facing.Front)
         {
@@ -440,8 +419,6 @@ public class PlayerGotchi : NetworkBehaviour
         }
     }
 
-
-
     public void HideHand(Hand hand, float duration = 0.5f)
     {
         if (IsLocalPlayer)
@@ -500,69 +477,73 @@ public class PlayerGotchi : NetworkBehaviour
         }
     }
 
+    // call this function when needing to set gotchi rotation for a certain period of time
     public void SetGotchiRotation(float angleDegrees, float duration = 0.5f)
     {
-        if (IsLocalPlayer)
-        {
-            // Normalize angleDegrees to be within the range [0, 360)
-            angleDegrees = angleDegrees % 360;  // Result will be in the range (-360, 360)
-            if (angleDegrees < 0) angleDegrees += 360;
+        if (!IsLocalPlayer) return;
 
-            m_bodyRotation = angleDegrees;
-            m_bodyRotationTimer = duration;
-        }
+        if (m_bodyRotationTimer > 0) return;
 
-        if (IsServer)
-        {
-            SetGotchiRotationClientRpc(angleDegrees, duration);
-        }
+        // Normalize angleDegrees to be within the range [0, 360)
+        angleDegrees = angleDegrees % 360;  // Result will be in the range (-360, 360)
+        if (angleDegrees < 0) angleDegrees += 360;
+
+        m_bodyRotation = angleDegrees;
+        m_bodyRotationTimer = duration;
+
+        SetGotchiRotationServerRpc(angleDegrees, duration);
+    }
+
+    [Rpc(SendTo.Server)]
+    private void SetGotchiRotationServerRpc(float angleDegrees, float duration)
+    {
+        SetGotchiRotationClientRpc(angleDegrees, duration);
     }
 
     [Rpc(SendTo.ClientsAndHost)]
     private void SetGotchiRotationClientRpc(float angleDegrees, float duration)
     {
-        if (!IsLocalPlayer)
-        {
-            // Normalize angleDegrees to be within the range [0, 360)
-            angleDegrees = angleDegrees % 360;  // Result will be in the range (-360, 360)
-            if (angleDegrees < 0) angleDegrees += 360;
+        if (IsLocalPlayer) return;
 
-            m_bodyRotation = angleDegrees;
-            m_bodyRotationTimer = duration;
-        }
+        // Normalize angleDegrees to be within the range [0, 360)
+        angleDegrees = angleDegrees % 360;  // Result will be in the range (-360, 360)
+        if (angleDegrees < 0) angleDegrees += 360;
+
+        m_bodyRotation = angleDegrees;
+        m_bodyRotationTimer = duration;
     }
 
+    // call this to spin the gotchi
     public void PlayFacingSpin(int spinNumber, float spinPeriod, SpinDirection spinDirection, float startAngle)
     {
-        if (IsLocalPlayer)
-        {
-            m_spinPeriod = spinPeriod;
-            m_spinDirection = spinDirection;
-            m_spinAngle = startAngle;
-            m_spinTimer = spinNumber * spinPeriod;
-        }
+        if (!IsLocalPlayer) return;
 
-        if (IsServer)
-        {
-            PlayFacingSpinClientRpc(spinNumber, spinPeriod, spinDirection, startAngle);
-        }
+        m_spinPeriod = spinPeriod;
+        m_spinDirection = spinDirection;
+        m_spinAngle = startAngle;
+        m_spinTimer = spinNumber * spinPeriod;
+
+        PlayFacingSpinServerRpc(spinNumber, spinPeriod, spinDirection, startAngle);
+    }
+
+    [Rpc(SendTo.Server)]
+    private void PlayFacingSpinServerRpc(int spinNumber, float spinPeriod, SpinDirection spinDirection, float startAngle)
+    {
+        PlayFacingSpinClientRpc(spinNumber, spinPeriod, spinDirection, startAngle);
     }
 
     [Rpc(SendTo.ClientsAndHost)]
     private void PlayFacingSpinClientRpc(int spinNumber, float spinPeriod, SpinDirection spinDirection, float startAngle)
     {
-        if (!IsLocalPlayer)
-        {
-            m_spinPeriod = spinPeriod;
-            m_spinDirection = spinDirection;
-            m_spinAngle = startAngle;
-            m_spinTimer = spinNumber * spinPeriod;
-        }
+        if (IsLocalPlayer) return;
 
-        //PlayFacingSpin(spinNumber, spinPeriod, spinDirection, startAngle);
+        m_spinPeriod = spinPeriod;
+        m_spinDirection = spinDirection;
+        m_spinAngle = startAngle;
+        m_spinTimer = spinNumber * spinPeriod;
     }
 
-    void UpdateFacingFromSpinning()
+    void HandleFacingFromSpinning()
     {
         if (m_spinTimer <= 0) return;
 
@@ -572,6 +553,82 @@ public class PlayerGotchi : NetworkBehaviour
         m_spinAngle += angleDelta;
 
         m_facing = GetFacingFromAngle(m_spinAngle);
+    }
+
+    // moveDirection updates
+    private float k_moveDirectionInterval = 0.1f;
+    private float m_moveDirectionTimer = 0f;
+
+    public void SetMoveDirection(Vector3 direction)
+    {
+        if (!IsLocalPlayer) return;
+        if (m_moveDirectionTimer <= 0)
+        {
+            m_moveDirectionTimer = k_moveDirectionInterval;
+            m_moveDirection = direction;
+            m_isMoving = math.abs(m_moveDirection.x) > 0.1f || math.abs(m_moveDirection.y) > 0.1f;
+            SetMoveDirectionServerRpc(direction);
+        }
+    }
+
+    [Rpc(SendTo.Server)]
+    void SetMoveDirectionServerRpc(Vector3 direction)
+    {
+        SetMoveDirectionClientRpc(direction);
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    void SetMoveDirectionClientRpc(Vector3 direction)
+    {
+        if (IsLocalPlayer) return;
+        m_moveDirection = direction;
+        m_isMoving = math.abs(m_moveDirection.x) > 0.1f || math.abs(m_moveDirection.y) > 0.1f;
+    }
+
+    private float k_facingFromMoveDirectionInterval = 0.1f;
+    private float m_facingFromMoveDirectionTimer = 0f;
+
+    void HandleFacingFromMoveDirection()
+    {
+        m_facingFromMoveDirectionTimer -= Time.deltaTime;
+        if (m_facingFromMoveDirectionTimer <= 0)
+        {
+            m_facingFromMoveDirectionTimer = k_facingFromMoveDirectionInterval;
+
+            bool isMoving = math.abs(m_moveDirection.x) > 0.1f || math.abs(m_moveDirection.y) > 0.1f;
+            if (isMoving) SetFacingFromDirection(m_moveDirection);
+        }
+    }
+
+    // facingDirection updates
+    public void SetFacingFromDirection(Vector3 direction, float timer = 0.1f, bool isForceChange = false)
+    {
+        if (!IsLocalPlayer) return;
+
+        m_moveDirection = direction;
+
+        bool isMoving = math.abs(direction.x) > 0.1f || math.abs(direction.y) > 0.1f;
+        if ((m_facingTimer < 0 && isMoving) || isForceChange)
+        {
+            m_facing = GetFacingFromDirection(direction);
+            m_facingTimer = timer;
+
+            SetFacingServerRpc(m_facing);
+        }
+    }
+
+    [Rpc(SendTo.Server)]
+    void SetFacingServerRpc(Facing facing)
+    {
+        SetFacingClientRpc(facing);
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    void SetFacingClientRpc(Facing facing)
+    {
+        if (IsLocalPlayer) return;
+
+        m_facing = facing;
     }
 
     /// <summary>
@@ -612,10 +669,11 @@ public class PlayerGotchi : NetworkBehaviour
     {
         float rotation = 0;
 
+
+
         if (m_isMoving)
         {
-            //Vector2 direction = m_playerMovement.GetDirection();
-            Vector2 direction = m_facingDirection;
+            Vector2 direction = m_moveDirection;
 
             float vx = direction.x;
             float vy = direction.y;
@@ -658,7 +716,7 @@ public class PlayerGotchi : NetworkBehaviour
     bool m_isHoldStart = false;
     bool m_isHoldReleased = false;
 
-    void UpdateGotchiAnim()
+    void HandleGotchiAnim()
     {
         if (IsDropSpawning) return;
 
