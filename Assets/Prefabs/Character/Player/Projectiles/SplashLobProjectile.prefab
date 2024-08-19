@@ -185,6 +185,7 @@ GameObject:
   - component: {fileID: 2334808591066055042}
   - component: {fileID: 4439656798072857240}
   - component: {fileID: 530519674281010827}
+  - component: {fileID: -7404316788897961159}
   m_Layer: 8
   m_Name: SplashLobProjectile
   m_TagString: Untagged
@@ -222,7 +223,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2943082052
+  GlobalObjectIdHash: 1842612552
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -275,13 +276,14 @@ MonoBehaviour:
   Duration: 0
   ExplosionRadius: 1
   LobHeight: 2
+  Scale: 1
   DamagePerHit: 1
   CriticalChance: 0.1
   CriticalDamage: 1.5
   WeaponType: 0
   WearableNameEnum: 0
   LocalPlayer: {fileID: 0}
-  NetworkRole: 0
+  Role: 0
   bodySpriteRenderer: {fileID: 1988679027168017655}
   Collider: {fileID: 3779021136035652299}
 --- !u!114 &530519674281010827
@@ -299,6 +301,18 @@ MonoBehaviour:
   MaxHeight: 1
   Duration_s: 0.5
   Body: {fileID: 2265606378113938481}
+--- !u!114 &-7404316788897961159
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2544078778212307353}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99bcbbc6eb0cd5241a5893ffa9f590e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3733025194124998147
 GameObject:
   m_ObjectHideFlags: 0

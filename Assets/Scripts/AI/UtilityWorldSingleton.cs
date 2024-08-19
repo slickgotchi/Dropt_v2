@@ -34,7 +34,7 @@ public class UtilityWorldSingleton : MonoBehaviour
         var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
         var enemies = FindObjectsByType<EnemyController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
 
-        float activationDistanceSq = 15 * 15;
+        float activationDistanceSq = 20 * 20;
 
         for (int i = 0; i < enemies.Length; i++)
         {
