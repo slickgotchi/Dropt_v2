@@ -25,17 +25,12 @@ public class PlayerSVGs : NetworkBehaviour
     }
 
     [Rpc(SendTo.Server)]
-    void UpdateGotchiIdServerRpc(int gotchiId)
+    public void UpdateGotchiIdServerRpc(int gotchiId)
     {
         GotchiId.Value = gotchiId;
     }
 
     private void Update()
-    {
-        PollSvgs();
-    }
-
-    void PollSvgs()
     {
         if (IsServer && !IsHost) return;
 
@@ -83,11 +78,11 @@ public class PlayerSVGs : NetworkBehaviour
         playerGotchi.BodyFaceRight.GetComponent<SpriteRenderer>().sprite = GetSpriteFromSvgString(gotchiSvgSet.Right);
         playerGotchi.BodyFaceRight.GetComponent<SpriteRenderer>().material = newMaterial;
 
-        if (!m_isGotSvg)
-        {
-            m_isGotSvg = true;
-            SaveSvgToFile(GotchiDataManager.Instance.stylingGame.CustomizeSVG(gotchiSvgSet.Left), "GotchiFront.svg");
-        }
+        //if (!m_isGotSvg)
+        //{
+        //    m_isGotSvg = true;
+        //    SaveSvgToFile(GotchiDataManager.Instance.stylingGame.CustomizeSVG(gotchiSvgSet.Left), "GotchiFront.svg");
+        //}
     }
 
     private void SaveSvgToFile(string svgContent, string fileName)

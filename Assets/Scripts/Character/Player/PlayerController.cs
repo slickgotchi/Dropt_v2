@@ -8,20 +8,11 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using GotchiHub;
 
-// PlayerController handles:
-// - camera/virtual camera
-// - audio listener
-// - level spawning
-
 public class PlayerController : NetworkBehaviour
 {
-    //[SerializeField] CinemachineVirtualCamera playerCamera;
-    //[SerializeField] AudioListener playerAudioListener;
-
     public GameObject ScreenBlockers;
 
     private GameObject m_cameraFollower;
-    //private Vector3 m_lastCameraFollowerPosition;
     private PlayerPrediction m_playerPrediction;
 
     [SerializeField] TextMeshProUGUI m_positionText;
@@ -32,7 +23,7 @@ public class PlayerController : NetworkBehaviour
 
     private NetworkCharacter m_networkCharacter;
 
-    public static float InactiveTimerDuration = 120; //5 * 60;
+    public static float InactiveTimerDuration = 2 * 60;
 
     public bool IsDead = false;
 
@@ -56,12 +47,40 @@ public class PlayerController : NetworkBehaviour
         } else
         {
             ScreenBlockers.SetActive(false);
-        }   
+        }
+
+        // if gotchi id not 0, try get the gotchi data manager to add this gotchi
+        //if (Game.Instance.LocalGotchiId != 0)
+        //{
+        //    GetComponent<PlayerSVGs>().UpdateGotchiIdServerRpc(Game.Instance.LocalGotchiId);
+        //    GetComponent<PlayerEquipment>().SetPlayerEquipmentByGotchiId(Game.Instance.LocalGotchiId);
+        //}
+
+
+        // if player spawns and is not local, let them decide their gotchi id from their local instance, not here
+        if (!IsLocalPlayer)
+        {
+            // Do nothing
+        } else if (IsLocalPlayer)
+        {
+            // check player prefs for last used gotchi id
+            if (PlayerPrefs.HasKey("GotchiId"))
+            {
+                var gotchiId = PlayerPrefs.GetInt("GotchiId");
+
+                // set player svg to the stored gotchi id
+                GetComponent<PlayerSVGs>().UpdateGotchiIdServerRpc(gotchiId);
+
+                // set equipment to the stored gotchi id
+                GetComponent<PlayerEquipment>().SetPlayerEquipmentByGotchiId(gotchiId);
+            }
+            
+        }
     }
 
     void HandleOnSelectedGotchi(int id)
     {
-        if (!IsClient) return;
+        if (!IsLocalPlayer) return;
 
         var gotchiData = GotchiDataManager.Instance.GetGotchiDataById(id);
 
@@ -73,13 +92,16 @@ public class PlayerController : NetworkBehaviour
         var doubleStrikeChance = DroptStatCalculator.GetPrimaryGameStat(gotchiData.numericTraits[4], TraitType.EYS);
         var critDamage = DroptStatCalculator.GetPrimaryGameStat(gotchiData.numericTraits[5], TraitType.EYC);
 
-        SetBaseStats(hp, attack, critChance, ap, doubleStrikeChance, critDamage);
+        SetBaseStatsServerRpc(hp, attack, critChance, ap, doubleStrikeChance, critDamage);
+
+        // save our selected gotchi into our player prefs
+        PlayerPrefs.SetInt("GotchiId", gotchiData.id);
     }
 
-    void SetBaseStats(float hp, float atk, float critChance, float ap, float doubleStrike, float critDamage)
-    {
-        SetBaseStatsServerRpc(hp, atk, critChance, ap, doubleStrike, critDamage);
-    }
+    //void SetBaseStats(float hp, float atk, float critChance, float ap, float doubleStrike, float critDamage)
+    //{
+    //    SetBaseStatsServerRpc(hp, atk, critChance, ap, doubleStrike, critDamage);
+    //}
 
     [Rpc(SendTo.Server)]
     void SetBaseStatsServerRpc(float hp, float atk, float critChance, float ap, float doubleStrike, float critDamage)

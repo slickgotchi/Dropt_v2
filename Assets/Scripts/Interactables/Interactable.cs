@@ -19,4 +19,9 @@ public class Interactable : NetworkBehaviour
     public virtual void OnUpdateInteraction() { }
 
     public virtual void OnFinishInteraction() { }
+
+    public bool IsPlayerIdLocal(ulong playerNetworkObjectId)
+    {
+        return NetworkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId].IsLocalPlayer;
+    }
 }

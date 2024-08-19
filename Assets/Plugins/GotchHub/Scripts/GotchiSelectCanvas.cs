@@ -136,11 +136,13 @@ namespace GotchiHub
             }
         }
 
-        private float k_updateInterval = 0.5f;
+        private float k_updateInterval = 0.3f;
         private float m_updateTimer = 0f;
 
         private async void Update()
         {
+            if (!Container.activeSelf) return;
+
             m_updateTimer -= Time.deltaTime;
             if (m_updateTimer > 0) return;
             m_updateTimer = k_updateInterval;

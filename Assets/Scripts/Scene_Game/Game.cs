@@ -50,8 +50,10 @@ public class Game : MonoBehaviour
     private string m_serverPrivateKey;
 
     public bool m_isTutorialCompleted = false;
-
     private const string TutorialCompletedKey = "TutorialCompleted";
+
+    // TempCarryOverData is data used when joining another instance
+    //public int LocalGotchiId = 0;
 
     private void Awake()
     {
@@ -284,8 +286,8 @@ public class Game : MonoBehaviour
                         break;
                     case UnityWebRequest.Result.Success:
                         CreateOrJoinGameResponseData data = JsonUtility.FromJson<CreateOrJoinGameResponseData>(webRequest.downloadHandler.text);
-                        Debug.Log("Response Data to CreateGame below...");
-                        Debug.Log(webRequest.downloadHandler.text);
+                        //Debug.Log("Response Data to CreateGame below...");
+                        //Debug.Log(webRequest.downloadHandler.text);
 
                         // using data configure bootstrap
                         Bootstrap.Instance.IpAddress = data.ipAddress;
@@ -367,8 +369,8 @@ public class Game : MonoBehaviour
                         break;
                     case UnityWebRequest.Result.Success:
                         CreateOrJoinGameResponseData data = JsonUtility.FromJson<CreateOrJoinGameResponseData>(webRequest.downloadHandler.text);
-                        Debug.Log("Response Data to JoinGame below...");
-                        Debug.Log(webRequest.downloadHandler.text);
+                        // Debug.Log("Response Data to JoinGame below...");
+                        // Debug.Log(webRequest.downloadHandler.text);
 
                         // Using data configure bootstrap
                         Bootstrap.Instance.IpAddress = data.ipAddress;
@@ -380,7 +382,7 @@ public class Game : MonoBehaviour
                         m_clientCA = data.clientCA;
 
                         // shut down our existing server
-                        Debug.Log("Received joinGame data, gameId: " + data.gameId + ", port: " + data.port);
+                        // Debug.Log("Received joinGame data, gameId: " + data.gameId + ", port: " + data.port);
                         ProgressBarCanvas.Instance.Show("Received data for new game, switching...");
                         NetworkManager.Singleton.Shutdown();
 

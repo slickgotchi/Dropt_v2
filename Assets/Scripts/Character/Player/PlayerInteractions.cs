@@ -10,14 +10,22 @@ public class PlayerInteractions : NetworkBehaviour
 
     private Interactable m_interactable;
 
+    private ulong m_playerNetworkObjectId = 0;
+
     private void Awake()
     {
         m_interactablesLayer = 1 << LayerMask.NameToLayer("Interactable");
     }
 
+    public override void OnNetworkSpawn()
+    {
+        m_playerNetworkObjectId = GetComponent<NetworkObject>().NetworkObjectId;
+    }
+
     void Update()
     {
         if (!IsLocalPlayer) return;
+        if (!IsSpawned) return;
 
         // test for any interaction hits
         var interactionHit = Physics2D.OverlapCircle(

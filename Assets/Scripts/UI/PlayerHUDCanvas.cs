@@ -53,6 +53,8 @@ public class PlayerHUDCanvas : MonoBehaviour
     [SerializeField] private Image LHWearableImage;
     [SerializeField] private Image RHWearableImage;
 
+    [SerializeField] private GameObject m_dungeonCollectibles;
+
     private NetworkCharacter m_localPlayerCharacter;
 
     public void SetLocalPlayerCharacter(NetworkCharacter localPlayerCharacter)
@@ -76,6 +78,14 @@ public class PlayerHUDCanvas : MonoBehaviour
         UpdateGltr();
         UpdateEssence();
         UpdateAbilityIcons();
+
+        if (Screen.fullScreen)
+        {
+            m_dungeonCollectibles.transform.position = new Vector3(-10, 50, 0);
+        } else
+        {
+            m_dungeonCollectibles.transform.position = new Vector3(-10, 10, 0);
+        }
     }
 
     void UpdateStatBars()

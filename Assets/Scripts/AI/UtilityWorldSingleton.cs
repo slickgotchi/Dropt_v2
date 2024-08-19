@@ -32,7 +32,7 @@ public class UtilityWorldSingleton : MonoBehaviour
         enableDisableTimer = enableDisableInterval;
 
         var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
-        var enemies = Resources.FindObjectsOfTypeAll<EnemyController>();
+        var enemies = FindObjectsByType<EnemyController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
 
         float activationDistanceSq = 15 * 15;
 
@@ -41,7 +41,7 @@ public class UtilityWorldSingleton : MonoBehaviour
             var enemy = enemies[i];
 
             // IMPORTANT: FILTER OUT PREFABS
-            if (!enemy.gameObject.scene.isLoaded) continue;
+            //if (!enemy.gameObject.scene.isLoaded) continue;
 
             // also ensure we don't deactivate anything that has not yet spawned
             if (!enemy.HasComponent<NetworkObject>()) continue;
@@ -53,7 +53,7 @@ public class UtilityWorldSingleton : MonoBehaviour
             {
                 var player = players[j];
 
-                if (!player.gameObject.scene.isLoaded) continue;
+                //if (!player.gameObject.scene.isLoaded) continue;
 
                 var distSq = math.distancesq(enemy.transform.position,
                     player.transform.position);

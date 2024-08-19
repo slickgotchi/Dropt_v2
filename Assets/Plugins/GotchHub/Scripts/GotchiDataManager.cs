@@ -30,7 +30,7 @@ namespace GotchiHub
         [HideInInspector] public List<GotchiData> localGotchiData = new List<GotchiData>();
         [HideInInspector] public List<GotchiSvgSet> localGotchiSvgSets = new List<GotchiSvgSet>();
 
-        //[HideInInspector] public List<GotchiData> remoteGotchiData = new List<GotchiData>();
+        [HideInInspector] public List<GotchiData> remoteGotchiData = new List<GotchiData>();
         [HideInInspector] public List<GotchiSvgSet> remoteGotchiSvgSets = new List<GotchiSvgSet>();
 
         private int m_selectedGotchiId = 0;
@@ -237,12 +237,4 @@ namespace GotchiHub
         public string Left;
         public string Right;
     }
-
-    //public class GotchiSpriteSet
-    //{
-    //    public Sprite Front;
-    //    public Sprite Back;
-    //    public Sprite Left;
-    //    public Sprite Right;
-    //}
 }
