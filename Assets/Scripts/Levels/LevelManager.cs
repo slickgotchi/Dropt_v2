@@ -91,7 +91,7 @@ public class LevelManager : NetworkBehaviour
 
     private void DestroyCurrentLevel()
     {
-        var networkObjects = new List<NetworkObject>(FindObjectsByType<NetworkObject>(FindObjectsSortMode.None));
+        var networkObjects = new List<NetworkObject>(FindObjectsByType<NetworkObject>(FindObjectsInactive.Include, FindObjectsSortMode.None));
 
         // deparent every single network object
         foreach (var networkObject in networkObjects) 

@@ -45,7 +45,7 @@ public class PlayerPrediction : NetworkBehaviour
     // Netcode general
     NetworkTimer timer;
     public NetworkTimer Timer => timer;
-    public const float k_serverTickRate = 10;
+    public const float k_serverTickRate = 15;
     const int k_bufferSize = 128;
 
     // Netcode client
@@ -127,9 +127,11 @@ public class PlayerPrediction : NetworkBehaviour
         serverStateBuffer = new CircularBuffer<StatePayload>(k_bufferSize);
         serverInputQueue = new Queue<InputPayload>();
 
-        m_remoteClientTickDelta = 0;
 
         m_lastServerStateArray = new List<StatePayload>();
+
+        Debug.Log("Joined new instance, resetting tick data");
+        ResetRemoteClientTickDelta();
 
         // transform.position is the intitial position given to us by the ConnectionApprovalHandler
         // thus we need to set all states to this position to start with
@@ -139,6 +141,13 @@ public class PlayerPrediction : NetworkBehaviour
             serverStateBuffer.Add(startState, i);
             clientStateBuffer.Add(startState, i);
         }
+    }
+
+    void ResetRemoteClientTickDelta()
+    {
+        m_remoteClientTickDelta = 0;
+        m_isRemoteClientTickDeltaSet = false;
+        m_remoteClientTickDeltas.Clear();
     }
 
     public float GetSpecialCooldownRemaining(Hand hand)
@@ -382,11 +391,8 @@ public class PlayerPrediction : NetworkBehaviour
         timer.Update(dt);
         m_actionDirectionTimer -= dt;
 
-        //if (math.abs(m_moveDirection.x) > 0.1f || math.abs(m_moveDirection.y) > 0.1f)
-        //{
+        // update playerGotchi on the current move direction
         m_playerGotchi.SetMoveDirection(m_moveDirection);
-        //m_playerGotchi.SetFacingFromDirection(m_moveDirection);
-        //}
 
         // set updated render position
         if (IsLocalPlayer)
@@ -410,7 +416,22 @@ public class PlayerPrediction : NetworkBehaviour
         {
             rb.position = lastServerState.position;
         }
+
+        //HandlePeriodicRemoteClientTickDeltaReset();
     }
+
+    //private float k_remoteTickDeltaResetInterval = 60f;
+    //private float m_remoteTickDeltaResetTimer = 0f;
+
+    //void HandlePeriodicRemoteClientTickDeltaReset()
+    //{
+    //    m_remoteTickDeltaResetTimer -= Time.deltaTime;
+    //    if (m_remoteTickDeltaResetTimer <= 0)
+    //    {
+    //        m_remoteTickDeltaResetTimer = k_remoteTickDeltaResetInterval;
+    //        ResetRemoteClientTickDelta();
+    //    }
+    //}
 
     // 1. See if time to do a tick
     private void FixedUpdate()
@@ -883,6 +904,9 @@ public class PlayerPrediction : NetworkBehaviour
     }
 
     private bool m_isRemoteClientTickDeltaSet = false;
+    public void SetIsRemoteClientTickDeltaSet(bool isSet) { m_isRemoteClientTickDeltaSet = isSet; }
+
+    private bool isFirstSet = true;
 
     // this function executed on CLIENT
     [ClientRpc]
@@ -893,28 +917,39 @@ public class PlayerPrediction : NetworkBehaviour
 
         // append state to last server state array
         m_lastServerStateArray.Add(statePayload);
-        if (m_lastServerStateArray.Count > 10) m_lastServerStateArray.RemoveAt(0);
+        if (m_lastServerStateArray.Count > k_serverTickRate * 2) m_lastServerStateArray.RemoveAt(0);
 
-        // get average delta tick
-        if (!m_isRemoteClientTickDeltaSet)
+        // track tick deltas
+        var deltaTick = timer.CurrentTickAndFraction.Tick - statePayload.tick;
+        m_remoteClientTickDeltas.Add(deltaTick);
+        if (m_remoteClientTickDeltas.Count > 10) m_remoteClientTickDeltas.RemoveAt(0);
+
+        // get average
+        float sum = 0;
+        foreach (var delta in m_remoteClientTickDeltas) sum += delta;
+
+        // if new remote client tick delta is 5 or more different from the old, replace the old delta
+        int newRemoteClientTickDelta = (int)math.round(sum / m_remoteClientTickDeltas.Count);
+        if (math.abs(m_remoteClientTickDelta - newRemoteClientTickDelta) > 5 || isFirstSet)
         {
-            var deltaTick = timer.CurrentTick - statePayload.tick;
-            m_remoteClientTickDeltas.Add(deltaTick);
-            if (m_remoteClientTickDeltas.Count >= 10)
-            {
-                float sum = 0;
-                foreach (var delta in m_remoteClientTickDeltas) sum += delta;
-                m_remoteClientTickDelta = (int)math.round(sum/m_remoteClientTickDeltas.Count);
-                m_isRemoteClientTickDeltaSet = true;
-            }
+            m_remoteClientTickDelta = newRemoteClientTickDelta;
+            isFirstSet = false;
         }
 
-        //var deltaTick = timer.CurrentTick - statePayload.tick;
-        //m_remoteClientTickDeltas.Add(deltaTick);
-        //if (m_remoteClientTickDeltas.Count > 10) m_remoteClientTickDeltas.RemoveAt(0);
-        //float sum = 0;
-        //foreach (var delta in m_remoteClientTickDeltas) sum += delta;
-        //m_remoteClientTickDelta = (int)math.round(sum / m_remoteClientTickDeltas.Count);
+        //// get average delta tick
+        //if (!m_isRemoteClientTickDeltaSet)
+        //{
+        //    var deltaTick = timer.CurrentTickAndFraction.Tick - statePayload.tick;
+        //    m_remoteClientTickDeltas.Add(deltaTick);
+        //    if (m_remoteClientTickDeltas.Count >= 10)
+        //    {
+        //        float sum = 0;
+        //        foreach (var delta in m_remoteClientTickDeltas) sum += delta;
+        //        m_remoteClientTickDelta = (int)math.round(sum / m_remoteClientTickDeltas.Count);
+        //        m_isRemoteClientTickDeltaSet = true;
+        //        m_remoteClientTickDeltas.Clear();
+        //    }
+        //}
     }
 
     // this function executed on SERVER
@@ -932,8 +967,8 @@ public class PlayerPrediction : NetworkBehaviour
         var targetTick = timer.CurrentTickAndFraction.Tick - m_remoteClientTickDelta - 3;
 
         // find out where we are in last server state array
-        int a = 0;
-        int b = 0;
+        int a = -1;
+        int b = -1;
 
         for (int i = 0; i < m_lastServerStateArray.Count - 1; i++)
         {
@@ -946,9 +981,10 @@ public class PlayerPrediction : NetworkBehaviour
         }
 
         // something went wrong so just return original position
-        if (a == 0 && b == 0)
+        if (a == -1 || b == -1)
         {
-            Debug.Log("Remote player outside interp range");
+            Debug.Log("Remote player outside interp range. Target tick: " + targetTick +
+                ", LastServerOldest Tick: " + m_lastServerStateArray[0].tick + ", LastServerNewest Tick: " + m_lastServerStateArray[m_lastServerStateArray.Count-1].tick);
             return transform.position;
         }
 

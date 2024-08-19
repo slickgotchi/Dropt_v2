@@ -23,6 +23,13 @@ public class PlayerEquipment : NetworkBehaviour
     {
         if (!IsClient) return;
 
+        SetPlayerEquipmentByGotchiId(id);
+    }
+
+    public void SetPlayerEquipmentByGotchiId(int id)
+    {
+        if (!IsClient) return;
+
         var gotchiData = GotchiDataManager.Instance.GetGotchiDataById(id);
         var rightHandWearableId = gotchiData.equippedWearables[4];
         var leftHandWearableId = gotchiData.equippedWearables[5];
@@ -36,11 +43,16 @@ public class PlayerEquipment : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        LeftHand.Value = Wearable.NameEnum.OliversSpoon;
-        RightHand.Value = Wearable.NameEnum.Pitchfork;
+        //if (IsServer) return;
 
-        SetEquipment(Slot.LeftHand, LeftHand.Value);
-        SetEquipment(Slot.RightHand, RightHand.Value);  
+        //LeftHand.Value = Wearable.NameEnum.Unarmed;
+        //RightHand.Value = Wearable.NameEnum.Unarmed;
+
+        if (IsClient)
+        {
+            SetEquipment(Slot.LeftHand, Wearable.NameEnum.Unarmed);
+            SetEquipment(Slot.RightHand, Wearable.NameEnum.Unarmed);  
+        }
     }
 
     public void SetEquipment(Slot slot, Wearable.NameEnum equipmentNameEnum)

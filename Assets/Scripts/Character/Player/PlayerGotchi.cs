@@ -47,8 +47,8 @@ public class PlayerGotchi : NetworkBehaviour
     private bool m_isMoving;
 
     public bool IsDropSpawning { get; private set; }
-
-    //private LocalVelocity m_localVelocity;
+    private float k_dropSpawnDuration = 2f;
+    private float m_dropSpawnTimer = 2f;
 
     // facing spin variables
     public enum SpinDirection { AntiClockwise, Clockwise }
@@ -77,7 +77,6 @@ public class PlayerGotchi : NetworkBehaviour
     {
         animator = GetComponent<Animator>();
         m_playerPrediction = GetComponent<PlayerPrediction>();
-        //m_localVelocity = GetComponent<LocalVelocity>();
     }
 
     private void Update()
@@ -91,16 +90,20 @@ public class PlayerGotchi : NetworkBehaviour
         m_moveDirectionTimer -= Time.deltaTime;
         m_bodyRotationTimer -= Time.deltaTime;
 
+        m_dropSpawnTimer -= Time.deltaTime;
+
         HandleGotchiAnim();
         HandleFacingFromSpinning();
         HandleFacingFromMoveDirection();
         HandleSetActiveBodyPartsFromFacing(m_facing);
         HandleDustParticles();
 
-        //if (Input.GetKeyDown(KeyCode.M))
-        //{
-        //    ResetIdleAnimation();
-        //}
+        if (IsDropSpawning && m_dropSpawnTimer <= 0)
+        {
+            IsDropSpawning = false;
+            GetComponent<Collider2D>().enabled = true;
+            GetComponent<PlayerCamera>().Shake(1.75f, 0.3f);
+        }
     }
 
     private void LateUpdate()
@@ -124,12 +127,16 @@ public class PlayerGotchi : NetworkBehaviour
         PlayDropAnimationClientRpc(newSpawnPoint);
     }
 
+    
+
     [Rpc(SendTo.ClientsAndHost)]
     void PlayDropAnimationClientRpc(Vector3 spawnPoint)
     {
         if (!IsLocalPlayer) return;
 
         IsDropSpawning = true;
+        m_dropSpawnTimer = k_dropSpawnDuration;
+
         animator.Play("PlayerGotchi_DropSpawn");
 
         GameAudioManager.Instance.FallNewLevel(spawnPoint);
@@ -218,12 +225,10 @@ public class PlayerGotchi : NetworkBehaviour
 
     public void AnimEvent_EndDropSpawn()
     {
-        IsDropSpawning = false;
-
-        GetComponent<PlayerCamera>().Shake(1.75f, 0.3f);
+        
 
         // renable collider
-        GetComponent<Collider2D>().enabled = true;
+        
     }
 
     void HandleDustParticles()
