@@ -47,8 +47,8 @@ public class PlayerGotchi : NetworkBehaviour
     private bool m_isMoving;
 
     public bool IsDropSpawning { get; private set; }
-    private float k_dropSpawnDuration = 2f;
-    private float m_dropSpawnTimer = 2f;
+    private float k_dropSpawnDuration = 1f;
+    private float m_dropSpawnTimer = 1f;
 
     // facing spin variables
     public enum SpinDirection { AntiClockwise, Clockwise }
