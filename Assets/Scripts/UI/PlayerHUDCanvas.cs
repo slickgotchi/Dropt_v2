@@ -81,10 +81,10 @@ public class PlayerHUDCanvas : MonoBehaviour
 
         if (Screen.fullScreen)
         {
-            m_dungeonCollectibles.GetComponent<RectTransform>().anchoredPosition = new Vector3(-10, 50, 0);
+            m_dungeonCollectibles.GetComponent<RectTransform>().anchoredPosition = new Vector3(-10, 10, 0);
         } else
         {
-            m_dungeonCollectibles.GetComponent<RectTransform>().anchoredPosition = new Vector3(-10, 10, 0);
+            m_dungeonCollectibles.GetComponent<RectTransform>().anchoredPosition = new Vector3(-10, 50, 0);
         }
     }
 
