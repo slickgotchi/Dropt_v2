@@ -12,9 +12,13 @@ namespace Level
 
             foreach (var buttonGroupSpawner in buttonGroupSpawners)
             {
-                var no_buttonGroup = Object.Instantiate(buttonGroupSpawner.ApeDoorButtonGroupPrefab, buttonGroupSpawner.transform);
-                no_buttonGroup.GetComponent<NetworkObject>().Spawn();
-                no_buttonGroup.GetComponent<NetworkObject>().TrySetParent(parent);
+                var no_buttonGroup = Object.Instantiate(buttonGroupSpawner.ApeDoorButtonGroupPrefab);
+
+                
+
+                //var no_buttonGroup = Object.Instantiate(buttonGroupSpawner.ApeDoorButtonGroupPrefab, buttonGroupSpawner.transform);
+                //no_buttonGroup.GetComponent<NetworkObject>().Spawn();
+                //no_buttonGroup.GetComponent<NetworkObject>().TrySetParent(parent);
 
                 CreateButtons(buttonGroupSpawner, no_buttonGroup);
                 CreateApeDoors(buttonGroupSpawner, no_buttonGroup);
