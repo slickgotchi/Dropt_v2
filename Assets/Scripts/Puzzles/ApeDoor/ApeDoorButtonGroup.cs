@@ -9,6 +9,7 @@ public class ApeDoorButtonGroup : NetworkBehaviour
     public NetworkVariable<ApeDoorType> Type;
     public NetworkVariable<DoorState> State;
     public int NumberButtons = 2;
+    public int spawnerId = -1;
 
     [HideInInspector] public List<GameObject> ApeDoors = new List<GameObject>();
 
@@ -16,7 +17,17 @@ public class ApeDoorButtonGroup : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        var no_buttons = new List<ApeDoorButton>(GetComponentsInChildren<ApeDoorButton>());
+        //var no_buttons = new List<ApeDoorButton>(GetComponentsInChildren<ApeDoorButton>());
+        var no_allButtons = FindObjectsByType<ApeDoorButton>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        var no_buttons = new List<ApeDoorButton>();
+        for (int i = 0; i < no_allButtons.Length; i++)
+        {
+            if (spawnerId == no_allButtons[i].spawnerId)
+            {
+                Debug.Log("found matching button for the group");
+                no_buttons.Add(no_allButtons[i]);
+            }
+        }
 
         // count our down buttons
         int pressedDownCount = 0;
@@ -28,9 +39,10 @@ public class ApeDoorButtonGroup : NetworkBehaviour
         // if all our buttons are pressed, raise the floor and lock the buttons
         if (pressedDownCount >= NumberButtons)
         {
-            // raise all sunken floors
+            // open all ape doors
             foreach (var apeDoor in ApeDoors)
             {
+                Debug.Log("Open door");
                 apeDoor.GetComponent<ApeDoor>().Open();
             }
 
@@ -41,14 +53,12 @@ public class ApeDoorButtonGroup : NetworkBehaviour
             }
         }
 
-        // ask the level parent to pop up all other platform buttons except ours
+        // pop up all other buttons except ours
         PopupAllOtherDoorButtons();
     }
 
     private void PopupAllOtherDoorButtons()
     {
-        var no_networkLevel = transform.parent.gameObject;
-
         var no_apeDoorButtonGroups = FindObjectsByType<ApeDoorButtonGroup>(FindObjectsSortMode.None);
         foreach (var no_apeDoorButtonGroup in no_apeDoorButtonGroups)
         {

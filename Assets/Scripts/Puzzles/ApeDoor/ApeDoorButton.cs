@@ -6,6 +6,7 @@ public class ApeDoorButton : NetworkBehaviour
     [Header("State")]
     public NetworkVariable<ApeDoorType> Type;
     public NetworkVariable<ButtonState> State;
+    public int spawnerId = -1;
 
     [Header("Sprites")]
     public Sprite CrescentUp;
@@ -42,14 +43,23 @@ public class ApeDoorButton : NetworkBehaviour
         // update button state
         State.Value = ButtonState.Down;
 
-        // grab the parent sunken floor and get it to check status of all its buttons
-        var parentApeDoorButtonGroup = transform.parent.gameObject.GetComponent<ApeDoorButtonGroup>();
-        if (parentApeDoorButtonGroup != null)
+        // find ape door button group with matching id
+        var apeDoorButtonGroups = FindObjectsByType<ApeDoorButtonGroup>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        bool isFoundButtonGroup = false;
+        for (int i = 0; i < apeDoorButtonGroups.Length; i++)
         {
-            parentApeDoorButtonGroup.ButtonPressedDown();
-        } else
+            if (apeDoorButtonGroups[i].spawnerId == spawnerId)
+            {
+                Debug.Log("Button was pressed down!");
+                apeDoorButtonGroups[i].ButtonPressedDown();
+                isFoundButtonGroup = true;
+                break;
+            }
+        }
+
+        if (!isFoundButtonGroup)
         {
-            Debug.Log("Error: ApeDoorButton does not have a parent ApeDoorButtonGroup");
+            Debug.LogWarning("Warning: ApeDoorButton spawnerId: " + spawnerId + ", does not have a parent ApeDoorButtonGroup with matching spawnerId");
         }
     }
 
