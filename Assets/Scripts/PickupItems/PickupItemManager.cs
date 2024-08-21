@@ -1,20 +1,28 @@
-using System.Collections;
 using System.Collections.Generic;
-using PickupItems;
+using Core.Pool;
 using PickupItems.Orb;
 using Unity.Netcode;
 using UnityEngine;
 
-public class PickupItemManager : NetworkBehaviour
+public sealed class PickupItemManager : NetworkBehaviour
 {
     public static PickupItemManager Instance { get; private set; }
 
+    private Dictionary<GameObject, GameObject> m_prefabByInstanceMap;
+
     private void Awake()
     {
+        m_prefabByInstanceMap = new Dictionary<GameObject, GameObject>();
         Instance = this;
     }
 
-    public enum Size { Tiny, Small, Medium, Large }
+    public enum Size
+    {
+        Tiny,
+        Small,
+        Medium,
+        Large
+    }
 
     public GameObject GltrOrbPrefab;
     public GameObject CGHSTOrbPrefab;
@@ -64,26 +72,56 @@ public class PickupItemManager : NetworkBehaviour
 
     private void GenerateGltrOrb(Size size, Vector3 position, float rand = 0.3f)
     {
-        // vary position from that specified slightly
-        var deltaX = UnityEngine.Random.Range(-rand, rand);
-        var deltaY = UnityEngine.Random.Range(-rand, rand);
+        GenerateOrb<GltrOrb>(GltrOrbPrefab, size, position, rand);
+    }
+
+    private TOrb GenerateOrb<TOrb>(GameObject prefab, Size size, Vector3 position, float rand = 0.3f)
+        where TOrb : BaseOrb
+    {
+        var deltaX = Random.Range(-rand, rand);
+        var deltaY = Random.Range(-rand, rand);
         var randPosition = position + new Vector3(deltaX, deltaY, 0);
 
-        var gltrOrb = Instantiate(GltrOrbPrefab);
-        gltrOrb.GetComponent<GltrOrb>().Init(size);
-        gltrOrb.transform.position = randPosition;
-        gltrOrb.GetComponent<NetworkObject>().Spawn();
+        var networkObj = GetFromPool(prefab, randPosition);
+        var orb = networkObj.GetComponent<TOrb>();
+
+        orb.Init(size);
+
+        if (!networkObj.IsSpawned)
+        {
+            networkObj.Spawn();
+        }
+
+        m_prefabByInstanceMap.Add(orb.gameObject, prefab);
+        return orb;
+    }
+
+    private NetworkObject GetFromPool(GameObject prefab, Vector3 randPosition)
+    {
+        return NetworkObjectPool.Singleton
+            .GetNetworkObject(prefab, randPosition, Quaternion.identity);
     }
 
     private void GenerateCGHSTOrb(Size size, Vector3 position, float rand = 0.5f)
     {
-        var deltaX = UnityEngine.Random.Range(-rand, rand);
-        var deltaY = UnityEngine.Random.Range(-rand, rand);
-        var randPosition = position + new Vector3(deltaX, deltaY, 0);
+        GenerateOrb<CGHSTOrb>(CGHSTOrbPrefab, size, position, rand);
+    }
 
-        var cghstOrb = Instantiate(CGHSTOrbPrefab);
-        cghstOrb.GetComponent<CGHSTOrb>().Init(size);
-        cghstOrb.transform.position = randPosition;
-        cghstOrb.GetComponent<NetworkObject>().Spawn();
+    public void ReturnToPool(PickupItem item)
+    {
+        if (!IsServer)
+        {
+            return;
+        }
+
+        if (m_prefabByInstanceMap.TryGetValue(item.gameObject, out var prefab))
+        {
+            var networkObj = item.GetComponent<NetworkObject>();
+            networkObj.gameObject.SetActive(false);
+            networkObj.Despawn(false);
+
+            NetworkObjectPool.Singleton.ReturnNetworkObject(networkObj, prefab);
+            m_prefabByInstanceMap.Remove(item.gameObject);
+        }
     }
 }
