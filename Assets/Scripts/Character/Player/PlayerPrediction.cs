@@ -766,12 +766,16 @@ public class PlayerPrediction : NetworkBehaviour
         }
     }
 
+    private int m_isSetPlayerPositionCounter = 0;
+
     public void SetPlayerPosition(Vector3 position)
     {
         if (!IsServer) return;
 
         m_isSetPlayerPosition = true;
+        m_isSetPlayerPositionCounter = 0;
         m_setPlayerPosition = position;
+        Debug.Log("Set player position to: " + position);
     }
 
     void HandleServerTick()
@@ -852,6 +856,8 @@ public class PlayerPrediction : NetworkBehaviour
             if (m_isSetPlayerPosition)
             {
                 statePayload.position = m_setPlayerPosition;
+                rb.position = m_setPlayerPosition;
+                m_isSetPlayerPositionCounter++;
             }
 
             // 7. add to the server state buffer
@@ -900,7 +906,10 @@ public class PlayerPrediction : NetworkBehaviour
         }
 
         // reset state of setting player position
-        m_isSetPlayerPosition = false;
+        if (m_isSetPlayerPositionCounter > 10)
+        {
+            m_isSetPlayerPosition = false;
+        }
     }
 
     private bool m_isRemoteClientTickDeltaSet = false;

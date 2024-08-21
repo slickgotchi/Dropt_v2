@@ -5,6 +5,7 @@ using UnityEngine;
 using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEngine.AI;
+using CarlosLab.UtilityIntelligence;
 
 public class LevelManager : NetworkBehaviour
 {
@@ -21,7 +22,7 @@ public class LevelManager : NetworkBehaviour
 
     // variables to keep track of spawning levels
     [HideInInspector] public int LevelSpawningCount = 0;
-    private bool isBuildNavMeshOnLevelSpawnsComplete = false;    // when no levels spawing we can build nav mesh
+    private bool isHandleLevelLoaded = false;    // when no levels spawing we can call level loaded code
 
     // variable for player spawning
     private List<Vector3> m_playerSpawnPoints = new List<Vector3>();
@@ -30,9 +31,6 @@ public class LevelManager : NetworkBehaviour
     public NetworkVariable<int> CurrentLevelIndex = new NetworkVariable<int>(0);
 
     private List<NetworkObject> m_networkObjectSpawns = new List<NetworkObject>();
-
-
-
 
     public void AddToSpawnList(NetworkObject networkObject)
     {
@@ -131,7 +129,20 @@ public class LevelManager : NetworkBehaviour
             }
 
             // despawn
-            if (IsServer) networkObject.Despawn();
+            if (IsServer)
+            {
+                if (networkObject.HasComponent<UtilityAgentFacade>())
+                {
+                    networkObject.GetComponent<UtilityAgentFacade>().Destroy();
+                } else
+                {
+                    if (networkObject.IsSpawned)
+                    {
+                        networkObject.Despawn();
+                    }
+                }
+            }
+
         }
 
         // clear the list
@@ -143,7 +154,7 @@ public class LevelManager : NetworkBehaviour
         // increment the spawning level counter and start watching this number so we can
         // build nav mesh once it goes back to zero
         LevelSpawningCount++;
-        isBuildNavMeshOnLevelSpawnsComplete = true;
+        isHandleLevelLoaded = true;
 
         // spawn the level
         m_currentLevel = Instantiate(m_levels[index]);
@@ -153,13 +164,28 @@ public class LevelManager : NetworkBehaviour
 
     private void Update()
     {
-        if (!IsServer) return;
+        if (IsServer)
+        {
+            HandleLevelLoaded();
 
-        HandleBuildNavMesh();
+            HandleState();
 
-        HandleState();
+            CurrentLevelIndex.Value = m_currentLevelIndex;
+        }
 
-        CurrentLevelIndex.Value = m_currentLevelIndex;
+        if (IsClient)
+        {
+            NumberAndNameLevel();
+        }
+
+    }
+
+    void NumberAndNameLevel()
+    {
+        string number = CurrentLevelIndex.Value <= DegenapeVillageLevel ? "-" : (CurrentLevelIndex.Value - DegenapeVillageLevel).ToString();
+        string name = m_levels[CurrentLevelIndex.Value].name;
+        PlayerHUDCanvas.Singleton.SetLevelNumberAndName(number, Dropt.Utils.String.ConvertToReadableString(name));
+        Debug.Log("Set to " + number + " " + name);
     }
 
     // 1. Receive GoToNextLevel message from other part of server
@@ -240,42 +266,6 @@ public class LevelManager : NetworkBehaviour
         CreateLevel(nextLevelIndex);
         m_currentLevelIndex = nextLevelIndex;
 
-        // drop spawn players
-        var no_playerSpawnPoints = m_currentLevel.GetComponentsInChildren<PlayerSpawnPoints>();
-        m_playerSpawnPoints.Clear();
-        int makeupCount = 3;
-        if (no_playerSpawnPoints != null)
-        {
-            for (int i = 0; i < no_playerSpawnPoints.Length; i++)
-            {
-                var playerSpawnPoints = no_playerSpawnPoints[i];
-                for (int j = 0; j < playerSpawnPoints.transform.childCount; j++)
-                {
-                    m_playerSpawnPoints.Add(playerSpawnPoints.transform.GetChild(j).transform.position);
-                    makeupCount--;
-                    Debug.Log("add spawn point: " + playerSpawnPoints.transform.GetChild(j).transform.position);
-                }
-            }
-        } 
-
-        for (int i = 0; i < makeupCount; i++)
-        {
-            m_playerSpawnPoints.Add(Vector3.zero);
-            Debug.Log("adding filler spawn posiiton");
-        }
-
-        // set each player spawn position
-        var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
-        foreach (var player in players)
-        {
-            var randIndex = UnityEngine.Random.Range(0, m_playerSpawnPoints.Count);
-            var spawnPoint = m_playerSpawnPoints[randIndex];
-            m_playerSpawnPoints.RemoveAt(randIndex);
-
-            player.GetComponent<PlayerPrediction>().SetPlayerPosition(spawnPoint);
-            player.GetComponent<PlayerGotchi>().DropSpawn(spawnPoint);
-        }
-
         // if our new level is degenape, tell client they can mark tutorial as complete
         if (m_currentLevelIndex == DegenapeVillageLevel)
         {
@@ -289,40 +279,84 @@ public class LevelManager : NetworkBehaviour
         Game.Instance.CompleteTutorial();
     }
 
-    bool isBuildNextFrame = false;
-    bool isNavMeshBuilt = false;
+    bool isHandleLevelLoadedNextFrame = false;
+    bool isLevelLoaded = false;
 
-    void HandleBuildNavMesh()
+    // update nav mesh, spawn things, drop spawn players
+    void HandleLevelLoaded()
     {
         if (!IsServer) return;
 
-        if (isBuildNextFrame && !isNavMeshBuilt)
+        if (isHandleLevelLoadedNextFrame && !isLevelLoaded)
         {
-            //NavigationSurfaceSingleton.Instance.Surface.RemoveData();
-            //NavigationSurfaceSingleton.Instance.Surface.BuildNavMesh();
-            NavigationSurfaceSingleton.Instance.Surface.UpdateNavMesh(NavigationSurfaceSingleton.Instance.Surface.navMeshData);
-            isNavMeshBuilt = true;
+            isLevelLoaded = true;
 
-            // now spawn everything in the spawn list
+            // Update nav mesh
+            NavigationSurfaceSingleton.Instance.Surface.UpdateNavMesh(NavigationSurfaceSingleton.Instance.Surface.navMeshData);
+
+            // Spawn everything in the spawn list
             for (int i = 0; i < m_networkObjectSpawns.Count; i++)
             {
                 var no = m_networkObjectSpawns[i];
-                //if (no == null) continue;
 
                 no.Spawn();
             }
             m_networkObjectSpawns.Clear();
 
             // drop spawn players
+            var no_playerSpawnPoints = m_currentLevel.GetComponentsInChildren<PlayerSpawnPoints>();
+            m_playerSpawnPoints.Clear();
+            int makeupCount = 3;
+            if (no_playerSpawnPoints != null)
+            {
+                for (int i = 0; i < no_playerSpawnPoints.Length; i++)
+                {
+                    var playerSpawnPoints = no_playerSpawnPoints[i];
+                    for (int j = 0; j < playerSpawnPoints.transform.childCount; j++)
+                    {
+                        m_playerSpawnPoints.Add(playerSpawnPoints.transform.GetChild(j).transform.position);
+                        makeupCount--;
+                        Debug.Log("add legit spawn point: " + playerSpawnPoints.transform.GetChild(j).transform.position);
+                    }
+                }
+            }
 
+            for (int i = 0; i < makeupCount; i++)
+            {
+                // if we got at least one legit spawn use that
+                if (m_playerSpawnPoints.Count > 0)
+                {
+                    m_playerSpawnPoints.Add(m_playerSpawnPoints[0]);
+                } else
+                {
+                    m_playerSpawnPoints.Add(Vector3.zero);
+                    //Debug.Log("adding filler spawn posiiton");
+                }
+
+            }
+
+            // set each player spawn position
+            var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+            foreach (var player in players)
+            {
+                var randIndex = UnityEngine.Random.Range(0, m_playerSpawnPoints.Count);
+                var spawnPoint = m_playerSpawnPoints[randIndex];
+                m_playerSpawnPoints.RemoveAt(randIndex);
+
+                player.GetComponent<PlayerPrediction>().SetPlayerPosition(spawnPoint);
+                player.GetComponent<PlayerGotchi>().DropSpawn(spawnPoint);
+                Debug.Log("Spawn player at: " + spawnPoint);
+            }
+
+            m_playerSpawnPoints.Clear();
         }
 
         // this code ensures we only build a navmesh once level is finished loading
-        if (isBuildNavMeshOnLevelSpawnsComplete && LevelSpawningCount <= 0)
+        if (isHandleLevelLoaded && LevelSpawningCount <= 0)
         {
-            isBuildNavMeshOnLevelSpawnsComplete = false;
-            isBuildNextFrame = true;
-            isNavMeshBuilt = false;
+            isHandleLevelLoaded = false;
+            isHandleLevelLoadedNextFrame = true;
+            isLevelLoaded = false;
         }
     }
 

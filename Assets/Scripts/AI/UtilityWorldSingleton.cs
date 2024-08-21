@@ -11,6 +11,9 @@ public class UtilityWorldSingleton : MonoBehaviour
 
     public UtilityWorldController World;
 
+    float k_xDist = 16f;
+    float k_yDist = 10f;
+
     private void Awake()
     {
         Instance = this;
@@ -34,14 +37,16 @@ public class UtilityWorldSingleton : MonoBehaviour
         var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
         var enemies = FindObjectsByType<EnemyController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
 
-        float activationDistanceSq = 20 * 20;
+        //float activationDistanceSq = 20 * 20;
 
-        for (int i = 0; i < enemies.Length; i++)
+        
+
+        int numEnemies = enemies.Length;
+        int numPlayers = players.Length;
+        for (int i = 0; i < numEnemies; i++)
         {
             var enemy = enemies[i];
-
-            // IMPORTANT: FILTER OUT PREFABS
-            //if (!enemy.gameObject.scene.isLoaded) continue;
+            var enemyPos = enemy.transform.position;
 
             // also ensure we don't deactivate anything that has not yet spawned
             if (!enemy.HasComponent<NetworkObject>()) continue;
@@ -49,18 +54,27 @@ public class UtilityWorldSingleton : MonoBehaviour
 
             bool inRange = false;
 
-            for (int j = 0; j < players.Length; j++)
+            for (int j = 0; j < numPlayers; j++)
             {
                 var player = players[j];
+                var playerPos = player.transform.position;
 
-                //if (!player.gameObject.scene.isLoaded) continue;
+                float xLow = playerPos.x - k_xDist;
+                float xHigh = playerPos.x + k_xDist;
+                float yLow = playerPos.y - k_yDist;
+                float yHigh = playerPos.y + k_yDist;
 
-                var distSq = math.distancesq(enemy.transform.position,
-                    player.transform.position);
-                if (distSq < activationDistanceSq)
+                if (enemyPos.x > xLow && enemyPos.x < xHigh && enemyPos.y > yLow && enemyPos.y < yHigh)
                 {
                     inRange = true;
                 }
+
+                //var distSq = math.distancesq(enemy.transform.position,
+                //    player.transform.position);
+                //if (distSq < activationDistanceSq)
+                //{
+                //    inRange = true;
+                //}
             }
 
 

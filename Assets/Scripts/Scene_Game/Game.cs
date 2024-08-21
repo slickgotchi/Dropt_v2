@@ -86,7 +86,7 @@ public class Game : MonoBehaviour
         // 3. Server instances
         if (Bootstrap.IsServer())
         {
-            Application.targetFrameRate = 30;
+            Application.targetFrameRate = 15;
             QualitySettings.vSyncCount = 0;
             m_isTryConnect = true;
 
