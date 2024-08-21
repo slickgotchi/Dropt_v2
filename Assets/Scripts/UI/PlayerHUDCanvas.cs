@@ -55,11 +55,20 @@ public class PlayerHUDCanvas : MonoBehaviour
 
     [SerializeField] private GameObject m_dungeonCollectibles;
 
+    [SerializeField] private TMPro.TextMeshProUGUI m_levelNumber;
+    [SerializeField] private TMPro.TextMeshProUGUI m_levelName;
+
     private NetworkCharacter m_localPlayerCharacter;
 
     public void SetLocalPlayerCharacter(NetworkCharacter localPlayerCharacter)
     {
         m_localPlayerCharacter = localPlayerCharacter;
+    }
+
+    public void SetLevelNumberAndName(string number, string name)
+    {
+        m_levelNumber.text = number;
+        m_levelName.text = name;
     }
 
     // Update is called once per frame
