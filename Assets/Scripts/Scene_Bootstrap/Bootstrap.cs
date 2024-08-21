@@ -51,6 +51,9 @@ public class Bootstrap : MonoBehaviour
 #endif
     }
 
+    public enum Region { America, Europe, Asia };
+    public Region region = Region.America;
+
     public NetworkRole NetworkRole = NetworkRole.Host;
     public ConnectionType ConnectionType = ConnectionType.Local;
     public bool AutoBoot = false;
