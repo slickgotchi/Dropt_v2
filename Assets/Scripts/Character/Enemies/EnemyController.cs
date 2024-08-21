@@ -36,7 +36,7 @@ public class EnemyController : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        Debug.Log("Spawn Enemy");
+        //Debug.Log("Spawn Enemy");
         // Utility AI
         m_utilityAgentController = GetComponent<UtilityAgentController>();
         m_utilityAgentFacade = GetComponent<UtilityAgentFacade>();
