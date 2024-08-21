@@ -1,4 +1,5 @@
 using System;
+using Chests.WeightRandom;
 using UnityEngine;
 
 namespace Chest
@@ -7,24 +8,14 @@ namespace Chest
     public struct ChestConfig
     {
         public ActivePlayersData[] PlayersToPercent;
-        public WeaponData[] Weapons;
-        public int MinCGHST;
-        public int MaxCGHST;
-        public int MinGltr;
-        public int MaxGltr;
+        public WeightVariable<Wearable.RarityEnum>[] Weapons;
         public float OrbsSpawnRange;
+        public int ItemsDropCount;
     }
 
     [Serializable]
     public struct ActivePlayersData
     {
         public int[] Percents;
-    }
-
-    [Serializable]
-    public struct WeaponData
-    {
-        public Wearable.RarityEnum Rarity;
-        [Range(0, 100)] public int Chance;
     }
 }

@@ -1,11 +1,15 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 using System.IO;
 
 public class WearableLoader : MonoBehaviour
 {
     public TextAsset wearableCsv;
+
+    private static readonly CultureInfo m_culture = CultureInfo.CreateSpecificCulture("en-US");
 
     void Start()
     {
@@ -44,10 +48,11 @@ public class WearableLoader : MonoBehaviour
                 SpecialAp = int.Parse(row[10]),
                 SpecialCooldown = int.Parse(row[11]),
                 SecondaryBuff = (CharacterStat)System.Enum.Parse(typeof(CharacterStat), row[12]),
-                SecondaryBuffValue = float.Parse(row[13]),
+                SecondaryBuffValue = ParseFloat(row[13]),
                 TertiaryBuff = (CharacterStat)System.Enum.Parse(typeof(CharacterStat), row[14]),
-                TertiaryBuffValue = float.Parse(row[15]),
+                TertiaryBuffValue = ParseFloat(row[15]),
                 BaseDescription = row[16],
+<<<<<<< HEAD
                 AttackName = row[17],
                 AttackDescription = row[18],
                 HoldName = row[19],
@@ -57,11 +62,24 @@ public class WearableLoader : MonoBehaviour
                 EffectDuration = int.Parse(row[23]),
                 AttackView = (PlayerGotchi.Facing)System.Enum.Parse(typeof(PlayerGotchi.Facing), row[24]),
                 AttackAngle = float.Parse(row[25]),
+=======
+                AttackDescription = row[17],
+                HoldDescription = row[18],
+                SpecialDescription = row[19],
+                EffectDuration = int.Parse(row[20]),
+                AttackView = (PlayerGotchi.Facing)System.Enum.Parse(typeof(PlayerGotchi.Facing), row[21]),
+                AttackAngle = ParseFloat(row[22]),
+>>>>>>> 65f8b13b ([CHG] finalize chests logic)
             };
 
             WearableManager.Instance.AddWearable(wearable);
         }
 
         Debug.Log(WearableManager.Instance.GetWearableCount() + " wearables loaded.");
+    }
+
+    private static float ParseFloat(string value)
+    {
+        return Convert.ToSingle(value, m_culture);
     }
 }

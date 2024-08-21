@@ -1,16 +1,15 @@
 using Unity.Netcode;
 using UnityEngine;
 using System.Collections.Generic;
-using PickupItems;
 using PickupItems.Orb;
 
 public class PlayerPickupItemMagnet : NetworkBehaviour
 {
     public float Radius = 5f;
     private Collider2D magnetCollider;
-    private HashSet<PickupItem> attractedItems;
 
     public PlayerDungeonData PlayerDungeonData;
+    private PickupItem m_currentPickupItem;
 
     void Start()
     {
@@ -18,42 +17,34 @@ public class PlayerPickupItemMagnet : NetworkBehaviour
         magnetCollider = gameObject.AddComponent<CircleCollider2D>();
         magnetCollider.isTrigger = true;
         ((CircleCollider2D)magnetCollider).radius = Radius;
-
-        // Initialize the set of attracted items
-        attractedItems = new HashSet<PickupItem>();
     }
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        // Check if the other collider is a PickupItem
-        PickupItem pickupItem = other.GetComponent<PickupItem>();
-        if (pickupItem != null && !attractedItems.Contains(pickupItem))
+        m_currentPickupItem = other.GetComponent<PickupItem>();
+
+        if (m_currentPickupItem != null)
         {
-            attractedItems.Add(pickupItem);
-            pickupItem.GoTo(gameObject);
+            m_currentPickupItem.TryGoTo(gameObject);
         }
     }
+
 
     // Collect method to be called when the item is picked up
     public void Collect(PickupItem pickupItem)
     {
         if (!IsServer) return;
 
-        // check for gltr
         if (pickupItem.gameObject.HasComponent<GltrOrb>())
         {
             PlayerDungeonData.AddGltr(pickupItem.GetComponent<GltrOrb>().GetValue());
         }
 
-        if (pickupItem.gameObject.TryGetComponent(out CGHSTOrb orb))
+        if (pickupItem.gameObject.HasComponent<CGHSTOrb>())
         {
-            PlayerDungeonData.AddCGHST(orb.GetValue());
+            PlayerDungeonData.AddCGHST(pickupItem.GetComponent<CGHSTOrb>().GetValue());
         }
 
-        // Remove the item from the set of attracted items
-        attractedItems.Remove(pickupItem);
-
-        // Optionally, destroy the item or perform other actions
-        if (IsServer) pickupItem.GetComponent<NetworkObject>().Despawn();
+        PickupItemManager.Instance.ReturnToPool(pickupItem);
     }
 }
