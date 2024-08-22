@@ -180,12 +180,18 @@ public class LevelManager : NetworkBehaviour
 
     }
 
+    private float k_numberAndLevelInterval = 0.5f;
+    private float m_numberAndLevelTimer = 0f;
+
     void NumberAndNameLevel()
     {
+        m_numberAndLevelTimer -= Time.deltaTime;
+        if (m_numberAndLevelTimer > 0) return;
+        m_numberAndLevelTimer = k_numberAndLevelInterval;
+
         string number = CurrentLevelIndex.Value <= DegenapeVillageLevel ? "-" : (CurrentLevelIndex.Value - DegenapeVillageLevel).ToString();
         string name = m_levels[CurrentLevelIndex.Value].name;
         PlayerHUDCanvas.Singleton.SetLevelNumberAndName(number, Dropt.Utils.String.ConvertToReadableString(name));
-        Debug.Log("Set to " + number + " " + name);
     }
 
     // 1. Receive GoToNextLevel message from other part of server
