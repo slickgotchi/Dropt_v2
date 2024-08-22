@@ -17,19 +17,18 @@ namespace Level
 
             if (IsServer)
             {
-                SunkenFloorFactory.CreateSunkenFloors(gameObject);
-
-
+                //SunkenFloorFactory.CreateSunkenFloors(gameObject);
                 //ApeDoorFactory.CreateApeDoors(gameObject);
-                NetworkObjectSpawnerFactory.CreateNetworkObjectSpawners(gameObject, ref m_spawnerActivators);
+                //NetworkObjectSpawnerFactory.CreateNetworkObjectSpawners(gameObject, ref m_spawnerActivators);
                 SubLevelFactory.CreateSubLevels(gameObject);
-                CreateNetworkObjectPrefabSpawners();    // refer NetworkLevel_NetworkObjectPrefabSpawners.cs
+                //CreateNetworkObjectPrefabSpawners();    // refer NetworkLevel_NetworkObjectPrefabSpawners.cs
                 //NetworkObjectPrefabSpawnerFactory.CreateNetworkObjectPrefabSpawners(gameObject);
                 TrapsGroupSpawnerFactory.CreateTraps(gameObject);
 
 
                 // UPDATE: simplified "create" game logic
                 CreateSpawners_ApeDoorsAndButtons();
+                CreateSpawners_SunkenFloorsAndButtons();
                 CreateSpawners_NetworkObject_v2();
 
                 LevelManager.Instance.LevelSpawningCount--;
@@ -63,14 +62,16 @@ namespace Level
             //CleanupFactory.DestroySpawnerObjects<ApeDoorButtonGroupSpawner>(gameObject);
             CleanupFactory.DestroySpawnerObjects<NetworkObjectSpawner>(gameObject);
             CleanupFactory.DestroySpawnerObjects<PlayerSpawnPoints>(gameObject);
-            CleanupFactory.DestroySpawnerObjects<SunkenFloorSpawner>(gameObject);
-            CleanupFactory.DestroySpawnerObjects<SunkenFloorButtonGroupSpawner>(gameObject);
+            //CleanupFactory.DestroySpawnerObjects<SunkenFloorSpawner>(gameObject);
+            //CleanupFactory.DestroySpawnerObjects<SunkenFloorButtonGroupSpawner>(gameObject);
             //CleanupFactory.DestroySpawnerObjects<NetworkObjectPrefabSpawner>(gameObject);
             CleanupFactory.DestroySpawnerObjects<TrapsGroupSpawner>(gameObject);
 
             // UPDATE: simplified cleanup
             DestroySpawnerObjects<ApeDoorSpawner>();
             DestroySpawnerObjects<ApeDoorButtonGroupSpawner>();
+            DestroySpawnerObjects<SunkenFloorSpawner>();
+            DestroySpawnerObjects<SunkenFloorButtonGroupSpawner>();
             DestroySpawnerObjects<NetworkObjectPrefabSpawner>();
             DestroySpawnerObjects<Spawner_NetworkObject_v2>();
         }

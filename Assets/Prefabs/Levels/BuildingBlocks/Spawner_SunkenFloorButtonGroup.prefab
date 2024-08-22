@@ -182,6 +182,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4623639106961700397}
   - component: {fileID: 5866373348201792969}
+  - component: {fileID: 2531038864360154454}
   m_Layer: 0
   m_Name: Spawner_SunkenFloorButtonGroup
   m_TagString: Untagged
@@ -218,8 +219,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f99adadc8277124c935c3512dd9465b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  spawnerId: -1
   SunkenFloorType: 0
   NumberButtons: 2
   SunkenFloorSpawners: []
   SunkenFloorButtonGroupPrefab: {fileID: 3518968117341066901, guid: 3a6da292b85567e4b8f72b7b554f2386, type: 3}
   SunkenFloorButtonPrefab: {fileID: 3924821971453843158, guid: dfd6baf1cb4ee604780bf9502a825f29, type: 3}
+--- !u!114 &2531038864360154454
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6847809376303897810}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7cb2e9a8c63d34ed981b289c8ba137aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spawnCondition: 0
+  elapsedTime: 0
+  destroyAllWithSpawnerId: -1
+  touchTriggerWithSpawnerId: -1

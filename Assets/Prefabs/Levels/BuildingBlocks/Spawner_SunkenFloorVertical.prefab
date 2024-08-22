@@ -2044,6 +2044,7 @@ GameObject:
   m_Component:
   - component: {fileID: 441851488702186266}
   - component: {fileID: 7625721804556437628}
+  - component: {fileID: -7418124474922941134}
   m_Layer: 0
   m_Name: Spawner_SunkenFloorVertical
   m_TagString: Untagged
@@ -2088,6 +2089,22 @@ MonoBehaviour:
   NumberButtons: 4
   SunkenFloor3x3Prefab: {fileID: 3924821971453843158, guid: 2fa4db0941dcd44eab28be7ba3998e40, type: 3}
   SunkenFloorButtonPrefab: {fileID: 3924821971453843158, guid: dfd6baf1cb4ee604780bf9502a825f29, type: 3}
+--- !u!114 &-7418124474922941134
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3924821971453843158}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7cb2e9a8c63d34ed981b289c8ba137aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spawnCondition: 0
+  elapsedTime: 0
+  destroyAllWithSpawnerId: -1
+  touchTriggerWithSpawnerId: -1
 --- !u!1 &4177621796977937732
 GameObject:
   m_ObjectHideFlags: 0

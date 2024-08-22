@@ -96,6 +96,7 @@ GameObject:
   m_Component:
   - component: {fileID: 855988470644254525}
   - component: {fileID: 5682218950720887772}
+  - component: {fileID: -3880799771715663251}
   m_Layer: 0
   m_Name: Spawner_ApeDoorButtonGroup
   m_TagString: Untagged
@@ -132,11 +133,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d94744f935c50f74280dd95d725fc374, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  spawnerId: -1
   ApeDoorType: 0
   NumberButtons: 2
   ApeDoorSpawners: []
   ApeDoorButtonGroupPrefab: {fileID: 3518968117341066901, guid: 193caf7701ebd554fbf9175e803a1df8, type: 3}
   ApeDoorButtonPrefab: {fileID: 3924821971453843158, guid: 6ddad91f00c96da4aacb292a4ab6e634, type: 3}
+--- !u!114 &-3880799771715663251
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4680168845167055056}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7cb2e9a8c63d34ed981b289c8ba137aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spawnCondition: 0
+  elapsedTime: 0
+  destroyAllWithSpawnerId: -1
+  touchTriggerWithSpawnerId: -1
 --- !u!1 &5672267512626321725
 GameObject:
   m_ObjectHideFlags: 0

@@ -18,13 +18,13 @@ public class ApeDoorButtonGroup : NetworkBehaviour
         if (!IsServer) return;
 
         //var no_buttons = new List<ApeDoorButton>(GetComponentsInChildren<ApeDoorButton>());
-        var no_allButtons = FindObjectsByType<ApeDoorButton>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        var no_allButtons = FindObjectsByType<ApeDoorButton>
+            (FindObjectsInactive.Include, FindObjectsSortMode.None);
         var no_buttons = new List<ApeDoorButton>();
         for (int i = 0; i < no_allButtons.Length; i++)
         {
             if (spawnerId == no_allButtons[i].spawnerId)
             {
-                Debug.Log("found matching button for the group");
                 no_buttons.Add(no_allButtons[i]);
             }
         }
@@ -42,7 +42,6 @@ public class ApeDoorButtonGroup : NetworkBehaviour
             // open all ape doors
             foreach (var apeDoor in ApeDoors)
             {
-                Debug.Log("Open door");
                 apeDoor.GetComponent<ApeDoor>().Open();
             }
 

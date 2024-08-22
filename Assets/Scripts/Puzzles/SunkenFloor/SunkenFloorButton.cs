@@ -6,6 +6,7 @@ public class SunkenFloorButton : NetworkBehaviour
     [Header("State")]
     public NetworkVariable<SunkenFloorType> Type;
     public NetworkVariable<ButtonState> State;
+    public int spawnerId = -1;
 
     [Header("Sprites")]
     public Sprite DropletUp;
@@ -42,14 +43,24 @@ public class SunkenFloorButton : NetworkBehaviour
         // update button state
         State.Value = ButtonState.Down;
 
-        // grab the parent sunken floor and get it to check status of all its buttons
-        var parentButtonGroup = transform.parent.gameObject.GetComponent<SunkenFloorButtonGroup>();
-        if (parentButtonGroup != null)
+        // find sunken floor button group with matchin id
+        var sunkenFloorButtonGroups = FindObjectsByType<SunkenFloorButtonGroup>
+            (FindObjectsInactive.Include, FindObjectsSortMode.None);
+        bool isFoundButtonGroup = false;
+        for (int i = 0; i < sunkenFloorButtonGroups.Length; i++)
         {
-            parentButtonGroup.ButtonPressedDown();
-        } else
+            if (sunkenFloorButtonGroups[i].spawnerId == spawnerId)
+            {
+                sunkenFloorButtonGroups[i].ButtonPressedDown();
+                isFoundButtonGroup = true;
+                break;
+            }
+        }
+
+        if (!isFoundButtonGroup)
         {
-            Debug.Log("Error: SunkenFloorButton does not have a parent SunkenFloor");
+            Debug.LogWarning("Warning: SunkenFloorButton spawnerId: "
+                + spawnerId + ", does not have a parent SunkenFloorButtonGroup");
         }
     }
 
