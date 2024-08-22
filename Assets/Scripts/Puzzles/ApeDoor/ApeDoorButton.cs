@@ -44,13 +44,13 @@ public class ApeDoorButton : NetworkBehaviour
         State.Value = ButtonState.Down;
 
         // find ape door button group with matching id
-        var apeDoorButtonGroups = FindObjectsByType<ApeDoorButtonGroup>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        var apeDoorButtonGroups = FindObjectsByType<ApeDoorButtonGroup>
+            (FindObjectsInactive.Include, FindObjectsSortMode.None);
         bool isFoundButtonGroup = false;
         for (int i = 0; i < apeDoorButtonGroups.Length; i++)
         {
             if (apeDoorButtonGroups[i].spawnerId == spawnerId)
             {
-                Debug.Log("Button was pressed down!");
                 apeDoorButtonGroups[i].ButtonPressedDown();
                 isFoundButtonGroup = true;
                 break;
@@ -59,7 +59,8 @@ public class ApeDoorButton : NetworkBehaviour
 
         if (!isFoundButtonGroup)
         {
-            Debug.LogWarning("Warning: ApeDoorButton spawnerId: " + spawnerId + ", does not have a parent ApeDoorButtonGroup with matching spawnerId");
+            Debug.LogWarning("Warning: ApeDoorButton spawnerId: "
+                + spawnerId + ", does not have a parent ApeDoorButtonGroup with matching spawnerId");
         }
     }
 

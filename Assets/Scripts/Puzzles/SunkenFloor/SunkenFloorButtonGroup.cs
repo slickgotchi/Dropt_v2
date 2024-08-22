@@ -9,6 +9,7 @@ public class SunkenFloorButtonGroup : NetworkBehaviour
     public NetworkVariable<SunkenFloorType> Type;
     public NetworkVariable<SunkenFloorState> State;
     public int NumberButtons = 2;
+    public int spawnerId = -1;
 
     [HideInInspector] public List<GameObject> SunkenFloors = new List<GameObject>();
 
@@ -16,7 +17,19 @@ public class SunkenFloorButtonGroup : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        var no_buttons = new List<SunkenFloorButton>(GetComponentsInChildren<SunkenFloorButton>());
+        //var no_buttons = new List<SunkenFloorButton>(GetComponentsInChildren<SunkenFloorButton>());
+        // get all buttons
+        var no_allButtons = FindObjectsByType<SunkenFloorButton>
+            (FindObjectsInactive.Include, FindObjectsSortMode.None);
+        var no_buttons = new List<SunkenFloorButton>();
+        for (int i = 0; i < no_allButtons.Length; i++)
+        {
+            if (spawnerId == no_allButtons[i].spawnerId)
+            {
+                no_buttons.Add(no_allButtons[i]);
+            }
+        }
+
 
         // count our down buttons
         int pressedDownCount = 0;
@@ -47,8 +60,6 @@ public class SunkenFloorButtonGroup : NetworkBehaviour
 
     private void PopupAllOtherPlatformButtons()
     {
-        var no_networkLevel = transform.parent.gameObject;
-
         var no_sunkenFloorButtonGroups = FindObjectsByType<SunkenFloorButtonGroup>(FindObjectsSortMode.None);
         foreach (var no_sfButtonGroup in no_sunkenFloorButtonGroups)
         {
