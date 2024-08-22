@@ -18,10 +18,17 @@ namespace Dropt.Utils
                 {
                     result.Append(' ');
                 }
-                // Replace underscores, hyphens with space and capitalize the following character
+
+                // Replace underscores, hyphens with space
                 if (c == '_' || c == '-')
                 {
                     result.Append(' ');
+                }
+                // Add a space before numbers if the previous character is a letter
+                else if (char.IsDigit(c) && result.Length > 0 && char.IsLetter(result[result.Length - 1]))
+                {
+                    result.Append(' ');
+                    result.Append(c);
                 }
                 else
                 {
