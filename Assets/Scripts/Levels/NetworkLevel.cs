@@ -30,6 +30,7 @@ namespace Level
                 CreateSpawners_ApeDoorsAndButtons();
                 CreateSpawners_SunkenFloorsAndButtons();
                 CreateSpawners_NetworkObject_v2();
+                CreateSpawners_SpawnOnDestroyGroup();
 
                 LevelManager.Instance.LevelSpawningCount--;
             }
@@ -74,6 +75,7 @@ namespace Level
             DestroySpawnerObjects<SunkenFloorButtonGroupSpawner>();
             DestroySpawnerObjects<NetworkObjectPrefabSpawner>();
             DestroySpawnerObjects<Spawner_NetworkObject_v2>();
+            DestroySpawnerObjects<Spawner_SpawnOnDestroyGroup>();
         }
 
         public void DestroySpawnerObjects<T>() where T : Component
