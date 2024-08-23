@@ -22,8 +22,10 @@ public class Spawner_NetworkObject_v2 : MonoBehaviour
     [SerializeField]
     public int spawnerId = -1;
 
+    [HideInInspector] public GameObject spawnedNetworkObject;
+
     /// <summary>
-    /// Use this to normalize the spawn chances of the entire list
+    /// Use this to normalize the spawn chances of the entire list (if sum of all spawn chances > 1)
     /// </summary>
     private void Normalize()
     {
@@ -33,6 +35,9 @@ public class Spawner_NetworkObject_v2 : MonoBehaviour
         {
             sum += spawnOptions[i].Chance;
         }
+
+        // if sum < 1, don't do any normalization
+        if (sum <= 1) return;
 
         // don't allow division by zero
         if (sum <= 0) sum = 1;

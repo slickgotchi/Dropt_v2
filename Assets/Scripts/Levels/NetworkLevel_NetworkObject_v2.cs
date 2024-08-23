@@ -23,6 +23,9 @@ namespace Level
                 no_object.transform.position = spawners[i].transform.position;
 
                 AddLevelSpawnComponent(no_object, spawners[i].spawnerId, spawners[i].GetComponent<Spawner_SpawnCondition>());
+
+                // add no_object ref to original spawner
+                spawners[i].spawnedNetworkObject = no_object;
             }
 
         }
