@@ -336,7 +336,6 @@ public class LevelManager : NetworkBehaviour
                 } else
                 {
                     m_playerSpawnPoints.Add(Vector3.zero);
-                    //Debug.Log("adding filler spawn posiiton");
                 }
 
             }
@@ -351,10 +350,20 @@ public class LevelManager : NetworkBehaviour
 
                 player.GetComponent<PlayerPrediction>().SetPlayerPosition(spawnPoint);
                 player.GetComponent<PlayerGotchi>().DropSpawn(spawnPoint);
-                Debug.Log("Spawn player at: " + spawnPoint);
             }
 
+            // destroy all spawn points
             m_playerSpawnPoints.Clear();
+
+            // if is host we should delete spawn points
+            if (IsHost)
+            {
+                var playerSpawns = new List<PlayerSpawnPoints>(m_currentLevel.GetComponentsInChildren<PlayerSpawnPoints>());
+                foreach (var playerSpawn in playerSpawns)
+                {
+                    Object.Destroy(playerSpawn.gameObject);
+                }
+            }
         }
 
         // this code ensures we only build a navmesh once level is finished loading
@@ -380,7 +389,4 @@ public class LevelManager : NetworkBehaviour
     {
         GameAudioManager.Instance.PlaySoundForMe(type, position);
     }
-
-
-
 }

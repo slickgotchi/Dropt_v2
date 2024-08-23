@@ -29,6 +29,9 @@ namespace Level
 
                 for (int j = 0; j < numSpawners; j++)
                 {
+                    // continue if this was a null spawner
+                    if (spawners[j].spawnedNetworkObject == null) continue;
+
                     // check if we are at max adds
                     if (onDestroyAddedCount >= maxNumberSpawns) break;
 

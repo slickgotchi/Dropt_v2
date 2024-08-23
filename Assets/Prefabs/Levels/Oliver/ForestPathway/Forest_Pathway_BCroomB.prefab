@@ -208,6 +208,7 @@ MonoBehaviour:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 4bb9bfaa252e58843a820485979974bb, type: 3}
     Chance: 0.1
   spawnerId: -1
+  spawnedNetworkObject: {fileID: 0}
 --- !u!114 &8130586109038136458
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -320,6 +321,7 @@ MonoBehaviour:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 4bb9bfaa252e58843a820485979974bb, type: 3}
     Chance: 0.1
   spawnerId: -1
+  spawnedNetworkObject: {fileID: 0}
 --- !u!114 &6214415317681300955
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -432,6 +434,7 @@ MonoBehaviour:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 4bb9bfaa252e58843a820485979974bb, type: 3}
     Chance: 0.1
   spawnerId: -1
+  spawnedNetworkObject: {fileID: 0}
 --- !u!114 &4825049396149470246
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -539,6 +542,7 @@ MonoBehaviour:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 4bb9bfaa252e58843a820485979974bb, type: 3}
     Chance: 0.1
   spawnerId: -1
+  spawnedNetworkObject: {fileID: 0}
 --- !u!114 &7465612836120455924
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -622,6 +626,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 730285175077156296, guid: bdc66fba857ab451e88e1a466fa898e0, type: 3}
+    - {fileID: 7328357541752191431, guid: bdc66fba857ab451e88e1a466fa898e0, type: 3}
     m_RemovedGameObjects:
     - {fileID: 5114371570727781306, guid: bdc66fba857ab451e88e1a466fa898e0, type: 3}
     m_AddedGameObjects:
@@ -685,8 +690,33 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 7100864601673292601, guid: bdc66fba857ab451e88e1a466fa898e0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 96517641865973686}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6128675704014357241, guid: bdc66fba857ab451e88e1a466fa898e0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6212361979320739592}
   m_SourcePrefab: {fileID: 100100000, guid: bdc66fba857ab451e88e1a466fa898e0, type: 3}
+--- !u!1 &4674279903594489079 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6128675704014357241, guid: bdc66fba857ab451e88e1a466fa898e0, type: 3}
+  m_PrefabInstance: {fileID: 1572617026414372366}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &6212361979320739592
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4674279903594489079}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc2d1349f2b5d4172a38f28982df173d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SpawnOnDestroyPrefab: {fileID: 1249991746567512264, guid: 970b46789a867e74ebfdba09e3228b83, type: 3}
+  Offset: {x: 0, y: 0, z: 0}
+  SpawnChance: 0.15
+  MinNumberSpawns: 1
+  MaxNumberSpawns: 1
 --- !u!4 &8599720665585106231 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7100864601673292601, guid: bdc66fba857ab451e88e1a466fa898e0, type: 3}
@@ -783,6 +813,7 @@ MonoBehaviour:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 4bb9bfaa252e58843a820485979974bb, type: 3}
     Chance: 0.1
   spawnerId: -1
+  spawnedNetworkObject: {fileID: 0}
 --- !u!114 &2500102512677525158
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -895,6 +926,7 @@ MonoBehaviour:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 4bb9bfaa252e58843a820485979974bb, type: 3}
     Chance: 0.1
   spawnerId: -1
+  spawnedNetworkObject: {fileID: 0}
 --- !u!114 &6061887108761459633
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1012,6 +1044,7 @@ MonoBehaviour:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 4bb9bfaa252e58843a820485979974bb, type: 3}
     Chance: 0.1
   spawnerId: -1
+  spawnedNetworkObject: {fileID: 0}
 --- !u!114 &3440791535989496244
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1124,6 +1157,7 @@ MonoBehaviour:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 4bb9bfaa252e58843a820485979974bb, type: 3}
     Chance: 0.1
   spawnerId: -1
+  spawnedNetworkObject: {fileID: 0}
 --- !u!114 &2970517796915259765
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1236,6 +1270,7 @@ MonoBehaviour:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 4bb9bfaa252e58843a820485979974bb, type: 3}
     Chance: 0.1
   spawnerId: -1
+  spawnedNetworkObject: {fileID: 0}
 --- !u!114 &8131398772842773877
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1343,6 +1378,7 @@ MonoBehaviour:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 4bb9bfaa252e58843a820485979974bb, type: 3}
     Chance: 0.1
   spawnerId: -1
+  spawnedNetworkObject: {fileID: 0}
 --- !u!114 &4430331795771563919
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1455,6 +1491,7 @@ MonoBehaviour:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 4bb9bfaa252e58843a820485979974bb, type: 3}
     Chance: 0.1
   spawnerId: -1
+  spawnedNetworkObject: {fileID: 0}
 --- !u!114 &6199255908650166862
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1567,6 +1604,7 @@ MonoBehaviour:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 4bb9bfaa252e58843a820485979974bb, type: 3}
     Chance: 0.1
   spawnerId: -1
+  spawnedNetworkObject: {fileID: 0}
 --- !u!114 &8677336363483869702
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1679,6 +1717,7 @@ MonoBehaviour:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 4bb9bfaa252e58843a820485979974bb, type: 3}
     Chance: 0.1
   spawnerId: -1
+  spawnedNetworkObject: {fileID: 0}
 --- !u!114 &1337603693307510974
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1796,6 +1835,7 @@ MonoBehaviour:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 4bb9bfaa252e58843a820485979974bb, type: 3}
     Chance: 0.1
   spawnerId: -1
+  spawnedNetworkObject: {fileID: 0}
 --- !u!114 &1328225960492814696
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1908,6 +1948,7 @@ MonoBehaviour:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 4bb9bfaa252e58843a820485979974bb, type: 3}
     Chance: 0.1
   spawnerId: -1
+  spawnedNetworkObject: {fileID: 0}
 --- !u!114 &8834645065369154230
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2015,6 +2056,7 @@ MonoBehaviour:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 4bb9bfaa252e58843a820485979974bb, type: 3}
     Chance: 0.1
   spawnerId: -1
+  spawnedNetworkObject: {fileID: 0}
 --- !u!114 &8385794866754181554
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2127,6 +2169,7 @@ MonoBehaviour:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 4bb9bfaa252e58843a820485979974bb, type: 3}
     Chance: 0.1
   spawnerId: -1
+  spawnedNetworkObject: {fileID: 0}
 --- !u!114 &337359959902451331
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2239,6 +2282,7 @@ MonoBehaviour:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 4bb9bfaa252e58843a820485979974bb, type: 3}
     Chance: 0.1
   spawnerId: -1
+  spawnedNetworkObject: {fileID: 0}
 --- !u!114 &8182821930494398074
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2356,6 +2400,7 @@ MonoBehaviour:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 4bb9bfaa252e58843a820485979974bb, type: 3}
     Chance: 0.1
   spawnerId: -1
+  spawnedNetworkObject: {fileID: 0}
 --- !u!114 &10980482421940754
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2463,6 +2508,7 @@ MonoBehaviour:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 4bb9bfaa252e58843a820485979974bb, type: 3}
     Chance: 0.1
   spawnerId: -1
+  spawnedNetworkObject: {fileID: 0}
 --- !u!114 &3884858306601790867
 MonoBehaviour:
   m_ObjectHideFlags: 0
