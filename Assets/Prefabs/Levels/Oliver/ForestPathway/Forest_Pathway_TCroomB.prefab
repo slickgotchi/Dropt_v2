@@ -61,7 +61,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1795657262
+  GlobalObjectIdHash: 3518632020
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -168,13 +168,39 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2496325578545699433, guid: 4389218c30a944a01b662c81d883fd29, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1558219510002416546}
   m_SourcePrefab: {fileID: 100100000, guid: 4389218c30a944a01b662c81d883fd29, type: 3}
 --- !u!4 &3701847303560757525 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2465625737384937525, guid: 4389218c30a944a01b662c81d883fd29, type: 3}
   m_PrefabInstance: {fileID: 1254308610316028192}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &3732509830043784009 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2496325578545699433, guid: 4389218c30a944a01b662c81d883fd29, type: 3}
+  m_PrefabInstance: {fileID: 1254308610316028192}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1558219510002416546
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3732509830043784009}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53d84f81f4d474f5a85c8dc0809c63ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  nillSpawnChance: 0
+  spawnOptions:
+  - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: ba980819af736ba49aa3f3477aa92e22, type: 3}
+    Chance: 1
+  spawnerId: -1
+  spawnedNetworkObject: {fileID: 0}
 --- !u!1001 &8593747085021533447
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -239,7 +265,8 @@ PrefabInstance:
       propertyPath: SpawnDestructibles.Array.data[0].DestructiblePrefabType
       value: 30
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 936875392068141111, guid: b75a6a9c278d2427b98fe498a2a45c85, type: 3}
     m_RemovedGameObjects:
     - {fileID: 62739048565016655, guid: b75a6a9c278d2427b98fe498a2a45c85, type: 3}
     m_AddedGameObjects:

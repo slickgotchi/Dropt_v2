@@ -16,7 +16,11 @@ namespace Level
             {
                 // instantiate new object and set start position
                 var randPrefab = spawners[i].GetRandom();
-                if (randPrefab == null) continue;
+                if (randPrefab == null)
+                {
+                    spawners[i].spawnedNetworkObject = null;
+                    continue;
+                }
 
                 // now instantiate
                 var no_object = Object.Instantiate(randPrefab);

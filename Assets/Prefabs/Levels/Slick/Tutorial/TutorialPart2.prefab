@@ -533,8 +533,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Press and hold the F key in front of the portal to teleport to the DEGENAPE
-    VILLAGE and begin your adventure!
+  m_text: Press and hold the F key in front of the cyan portal to teleport to the
+    DEGENAPE VILLAGE and begin your adventure!
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: ab305ece792064d47b813980fae95512, type: 2}
   m_sharedMaterial: {fileID: 399644130094720955, guid: ab305ece792064d47b813980fae95512, type: 2}
@@ -671,7 +671,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 699695362
+  GlobalObjectIdHash: 3055416164
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -37508,7 +37508,7 @@ PrefabInstance:
       objectReference: {fileID: -3273423849983404864, guid: e94be8ebfe5994548a1edbd3845e6a94, type: 3}
     - target: {fileID: 3351952414275564328, guid: f8c290153cbbf1947a64646544f394f8, type: 3}
       propertyPath: m_Name
-      value: Spawner_PrefabNetworkObject
+      value: Spawner_EscapePortal
       objectReference: {fileID: 0}
     - target: {fileID: 6774061351001920819, guid: f8c290153cbbf1947a64646544f394f8, type: 3}
       propertyPath: NetworkObjectPrefab
@@ -37554,16 +37554,43 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 6774061351001920819, guid: f8c290153cbbf1947a64646544f394f8, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3351952414275564328, guid: f8c290153cbbf1947a64646544f394f8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2437406969286235859}
   m_SourcePrefab: {fileID: 100100000, guid: f8c290153cbbf1947a64646544f394f8, type: 3}
 --- !u!4 &1274206890533336974 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8942969733934465967, guid: f8c290153cbbf1947a64646544f394f8, type: 3}
   m_PrefabInstance: {fileID: 7905273087294436385}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &4841841337966495497 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3351952414275564328, guid: f8c290153cbbf1947a64646544f394f8, type: 3}
+  m_PrefabInstance: {fileID: 7905273087294436385}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2437406969286235859
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4841841337966495497}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53d84f81f4d474f5a85c8dc0809c63ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  nillSpawnChance: 0
+  spawnOptions:
+  - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: b44d08990896f9a43be8783d44f209b0, type: 3}
+    Chance: 1
+  spawnerId: -1
+  spawnedNetworkObject: {fileID: 0}
 --- !u!1001 &8149834191494842380
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -37578,7 +37605,7 @@ PrefabInstance:
       objectReference: {fileID: -3623974082758994877, guid: 3ee57477ed4a87c42bf371e2875956ac, type: 3}
     - target: {fileID: 3351952414275564328, guid: f8c290153cbbf1947a64646544f394f8, type: 3}
       propertyPath: m_Name
-      value: Spawner_PrefabNetworkObject (1)
+      value: Spawner_GotchiSelectPortal
       objectReference: {fileID: 0}
     - target: {fileID: 6774061351001920819, guid: f8c290153cbbf1947a64646544f394f8, type: 3}
       propertyPath: NetworkObjectPrefab
@@ -37624,13 +37651,40 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 6774061351001920819, guid: f8c290153cbbf1947a64646544f394f8, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3351952414275564328, guid: f8c290153cbbf1947a64646544f394f8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2484748578949040877}
   m_SourcePrefab: {fileID: 100100000, guid: f8c290153cbbf1947a64646544f394f8, type: 3}
 --- !u!4 &937250731933158307 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8942969733934465967, guid: f8c290153cbbf1947a64646544f394f8, type: 3}
   m_PrefabInstance: {fileID: 8149834191494842380}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &6890087358025857828 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3351952414275564328, guid: f8c290153cbbf1947a64646544f394f8, type: 3}
+  m_PrefabInstance: {fileID: 8149834191494842380}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2484748578949040877
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6890087358025857828}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53d84f81f4d474f5a85c8dc0809c63ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  nillSpawnChance: 0
+  spawnOptions:
+  - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: bc66edff83c8e714980b7ccd53c9801c, type: 3}
+    Chance: 1
+  spawnerId: -1
+  spawnedNetworkObject: {fileID: 0}

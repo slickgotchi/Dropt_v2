@@ -66,7 +66,6 @@ namespace Level
             // iterate over all apedoor spawners
             foreach (var apeDoorSpawner in buttonGroupSpawner.ApeDoorSpawners)
             {
-                Debug.Log("create a new apedoor");
                 var no_apeDoor = Object.Instantiate(apeDoorSpawner.ApeDoorPrefab);
                 no_apeDoor.transform.position = apeDoorSpawner.transform.position;
                 no_apeDoor.GetComponent<ApeDoor>().SetTypeAndState(buttonGroupSpawner.ApeDoorType, DoorState.Closed);
