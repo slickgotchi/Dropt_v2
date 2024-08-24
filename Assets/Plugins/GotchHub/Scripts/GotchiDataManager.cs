@@ -81,6 +81,15 @@ namespace GotchiHub
 
         public GotchiData GetGotchiDataById(int id)
         {
+            // check remote first
+            for (int i = 0; i < remoteGotchiData.Count; i++)
+            {
+                if (id == remoteGotchiData[i].id)
+                {
+                    return remoteGotchiData[i];
+                }
+            }
+
             // now check local
             for (int i = 0; i < localGotchiData.Count; i++)
             {
@@ -120,7 +129,7 @@ namespace GotchiHub
             return null;
         }
 
-        public async UniTask FetchGotchiData()
+        public async UniTask FetchWalletGotchiData()
         {
             try
             {
@@ -179,6 +188,35 @@ namespace GotchiHub
             catch (Exception ex)
             {
                 Debug.Log(ex);
+            }
+        }
+
+        public async UniTask<bool> FetchGotchiById(int id)
+        {
+            try
+            {
+                var gotchiData = await graphManager.GetGotchiData(id.ToString());
+                if (gotchiData == null) return false;
+
+                var svgs = await graphManager.GetGotchiSvg(id.ToString());
+                if (svgs == null) return false;
+
+                remoteGotchiData.Add(gotchiData);
+                remoteGotchiSvgSets.Add(new GotchiSvgSet
+                {
+                    id = id,
+                    Front = svgs.svg,
+                    Back = svgs.back,
+                    Left = svgs.left,
+                    Right = svgs.right,
+                });
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Debug.Log(ex);
+                return false;
             }
         }
 

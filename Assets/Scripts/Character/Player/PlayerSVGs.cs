@@ -32,31 +32,45 @@ public class PlayerSVGs : NetworkBehaviour
 
     private void Update()
     {
-        if (IsServer && !IsHost) return;
+        //if (IsServer && !IsHost) return;
 
-        m_pollTimer -= Time.deltaTime;
-        if (m_pollTimer > 0) return;
-        m_pollTimer = k_pollInterval;
+        //m_pollTimer -= Time.deltaTime;
+        //if (m_pollTimer > 0) return;
+        //m_pollTimer = k_pollInterval;
 
-        if (GotchiId.Value < 0) return;
+        //if (GotchiId.Value < 0) return;
 
-        var newGotchiSvgs = GotchiDataManager.Instance.GetGotchiSvgsById(GotchiId.Value);
+        //var newGotchiSvgs = GotchiDataManager.Instance.GetGotchiSvgsById(GotchiId.Value);
 
-        if (newGotchiSvgs == null)
-        {
-            GotchiDataManager.Instance.FetchRemoteGotchiSvgsById(GotchiId.Value);
-        }
-        else
-        {
-            if (GotchiSvgSet == null || GotchiSvgSet.id != newGotchiSvgs.id)
-            {
-                SetBodySpriteFromDataManager(newGotchiSvgs);
-                GotchiSvgSet = newGotchiSvgs;
-            }
-        }
+        //if (newGotchiSvgs == null)
+        //{
+        //    GotchiDataManager.Instance.FetchRemoteGotchiSvgsById(GotchiId.Value);
+        //}
+        //else
+        //{
+        //    if (GotchiSvgSet == null || GotchiSvgSet.id != newGotchiSvgs.id)
+        //    {
+        //        SetBodySpriteFromDataManager(newGotchiSvgs);
+        //        GotchiSvgSet = newGotchiSvgs;
+        //    }
+        //}
     }
 
     bool m_isGotSvg = false;
+
+    public void Init(int gotchiId)
+    {
+        if (!IsClient) return;
+
+        var newGotchiSvgs = GotchiDataManager.Instance.GetGotchiSvgsById(gotchiId);
+        if (newGotchiSvgs == null)
+        {
+            Debug.LogWarning("No gotchis svgs for id: " + gotchiId);
+        } else
+        {
+            SetBodySpriteFromDataManager(newGotchiSvgs);
+        }
+    }
 
     void SetBodySpriteFromDataManager(GotchiSvgSet gotchiSvgSet)
     {

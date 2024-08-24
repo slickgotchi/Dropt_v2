@@ -166,7 +166,7 @@ namespace GotchiHub
                     WalletInfoText.text = m_walletAddress;
 
                     // fetch new gotchis due to different address
-                    await m_gotchiDataManager.FetchGotchiData();
+                    await m_gotchiDataManager.FetchWalletGotchiData();
                 }
 
                 // show screen depending on gotchi count
