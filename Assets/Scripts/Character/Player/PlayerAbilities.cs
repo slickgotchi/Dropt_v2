@@ -107,9 +107,9 @@ public class PlayerAbilities : NetworkBehaviour
     [HideInInspector] public GameObject ShieldBash;
     private NetworkVariable<ulong> ShieldBashId = new NetworkVariable<ulong>(0);
 
-    public GameObject shieldParryPrefab;
-    [HideInInspector] public GameObject ShieldParry;
-    private NetworkVariable<ulong> ShieldParryId = new NetworkVariable<ulong>(0);
+    public GameObject shieldBlockPrefab;
+    [HideInInspector] public GameObject shieldBlock;
+    private NetworkVariable<ulong> ShieldBlockId = new NetworkVariable<ulong>(0);
 
     public GameObject shieldWallPrefab;
     [HideInInspector] public GameObject ShieldWall;
@@ -169,7 +169,7 @@ public class PlayerAbilities : NetworkBehaviour
 
         // shield
         CreateAbility(ref ShieldBash, shieldBashPrefab, ShieldBashId);
-        CreateAbility(ref ShieldParry, shieldParryPrefab, ShieldParryId);
+        CreateAbility(ref shieldBlock, shieldBlockPrefab, ShieldBlockId);
         CreateAbility(ref ShieldWall, shieldWallPrefab, ShieldWallId);
 
         // unarmed
@@ -218,7 +218,7 @@ public class PlayerAbilities : NetworkBehaviour
         DestroyAbility(ref Throw);
 
         DestroyAbility(ref ShieldBash);
-        DestroyAbility(ref ShieldParry);
+        DestroyAbility(ref shieldBlock);
         DestroyAbility(ref ShieldWall);
 
         DestroyAbility(ref UnarmedPunch);
@@ -283,7 +283,7 @@ public class PlayerAbilities : NetworkBehaviour
 
             // shield
             TryAddAbilityClientSide(ref ShieldBash, ShieldBashId);
-            TryAddAbilityClientSide(ref ShieldParry, ShieldParryId);
+            TryAddAbilityClientSide(ref shieldBlock, ShieldBlockId);
             TryAddAbilityClientSide(ref ShieldWall, ShieldWallId);
 
             // unarmed
@@ -335,7 +335,7 @@ public class PlayerAbilities : NetworkBehaviour
 
         // shield
         if (abilityEnum == PlayerAbilityEnum.ShieldBash && ShieldBash != null) return ShieldBash.GetComponent<PlayerAbility>();
-        if (abilityEnum == PlayerAbilityEnum.ShieldParry && ShieldParry != null) return ShieldParry.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.ShieldBlock && shieldBlock != null) return shieldBlock.GetComponent<PlayerAbility>();
         if (abilityEnum == PlayerAbilityEnum.ShieldWall && ShieldWall != null) return ShieldWall.GetComponent<PlayerAbility>();
 
         // unarmed
@@ -457,6 +457,6 @@ public enum PlayerAbilityEnum
     MagicCast, MagicBeam, MagicBlast,
     SplashLob, SplashVolley, SplashBomb,
     Consume, Aura, Throw,
-    ShieldBash, ShieldParry, ShieldWall,
+    ShieldBash, ShieldBlock, ShieldWall,
     Unarmed,
 }

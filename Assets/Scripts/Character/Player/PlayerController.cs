@@ -76,26 +76,50 @@ public class PlayerController : NetworkBehaviour
             }
             
         }
+
+        // if in host mode, set a starting gotchi id
+        SetupGotchi();
+    }
+
+    private async void SetupGotchi()
+    {
+        try
+        {
+            var testGotchiId = Bootstrap.Instance.TestBlockChainGotchiId;
+            var isFetchSuccess = await GotchiDataManager.Instance.FetchGotchiById(testGotchiId);
+
+            if (isFetchSuccess)
+            {
+                GetComponent<PlayerSVGs>().Init(testGotchiId);
+                GetComponent<PlayerEquipment>().Init(testGotchiId);
+                GetComponent<PlayerCharacter>().InitWearableBuffs(testGotchiId);
+                GetComponent<PlayerCharacter>().InitGotchiStats(testGotchiId);
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.Log(ex);
+        }
     }
 
     void HandleOnSelectedGotchi(int id)
     {
         if (!IsLocalPlayer) return;
 
-        var gotchiData = GotchiDataManager.Instance.GetGotchiDataById(id);
+        //var gotchiData = GotchiDataManager.Instance.GetGotchiDataById(id);
 
-        // update character stats
-        var hp = DroptStatCalculator.GetPrimaryGameStat(gotchiData.numericTraits[0], TraitType.NRG);
-        var attack = DroptStatCalculator.GetPrimaryGameStat(gotchiData.numericTraits[1], TraitType.AGG);
-        var critChance = DroptStatCalculator.GetPrimaryGameStat(gotchiData.numericTraits[2], TraitType.SPK);
-        var ap = DroptStatCalculator.GetPrimaryGameStat(gotchiData.numericTraits[3], TraitType.BRN);
-        var doubleStrikeChance = DroptStatCalculator.GetPrimaryGameStat(gotchiData.numericTraits[4], TraitType.EYS);
-        var critDamage = DroptStatCalculator.GetPrimaryGameStat(gotchiData.numericTraits[5], TraitType.EYC);
+        //// update character stats
+        //var hp = DroptStatCalculator.GetPrimaryGameStat(gotchiData.numericTraits[0], TraitType.NRG);
+        //var attack = DroptStatCalculator.GetPrimaryGameStat(gotchiData.numericTraits[1], TraitType.AGG);
+        //var critChance = DroptStatCalculator.GetPrimaryGameStat(gotchiData.numericTraits[2], TraitType.SPK);
+        //var ap = DroptStatCalculator.GetPrimaryGameStat(gotchiData.numericTraits[3], TraitType.BRN);
+        //var doubleStrikeChance = DroptStatCalculator.GetPrimaryGameStat(gotchiData.numericTraits[4], TraitType.EYS);
+        //var critDamage = DroptStatCalculator.GetPrimaryGameStat(gotchiData.numericTraits[5], TraitType.EYC);
 
-        SetBaseStatsServerRpc(hp, attack, critChance, ap, doubleStrikeChance, critDamage);
+        //SetBaseStatsServerRpc(hp, attack, critChance, ap, doubleStrikeChance, critDamage);
 
         // save our selected gotchi into our player prefs
-        PlayerPrefs.SetInt("GotchiId", gotchiData.id);
+        //PlayerPrefs.SetInt("GotchiId", gotchiData.id);
     }
 
     //void SetBaseStats(float hp, float atk, float critChance, float ap, float doubleStrike, float critDamage)
@@ -106,23 +130,23 @@ public class PlayerController : NetworkBehaviour
     [Rpc(SendTo.Server)]
     void SetBaseStatsServerRpc(float hp, float atk, float critChance, float ap, float doubleStrike, float critDamage)
     {
-        var networkCharacter = GetComponent<NetworkCharacter>();
+        //var networkCharacter = GetComponent<NetworkCharacter>();
 
-        networkCharacter.HpMax.Value = (int)hp;
-        networkCharacter.HpCurrent.Value = (int)hp;
-        networkCharacter.HpBuffer.Value = 0;
+        //networkCharacter.HpMax.Value = (int)hp;
+        //networkCharacter.HpCurrent.Value = (int)hp;
+        //networkCharacter.HpBuffer.Value = 0;
 
-        networkCharacter.AttackPower.Value = (int)atk;
+        //networkCharacter.AttackPower.Value = (int)atk;
 
-        networkCharacter.CriticalChance.Value = critChance;
+        //networkCharacter.CriticalChance.Value = critChance;
 
-        networkCharacter.ApMax.Value = (int)ap;
-        networkCharacter.ApCurrent.Value = (int)ap;
-        networkCharacter.ApBuffer.Value = 0;
+        //networkCharacter.ApMax.Value = (int)ap;
+        //networkCharacter.ApCurrent.Value = (int)ap;
+        //networkCharacter.ApBuffer.Value = 0;
 
-        networkCharacter.DoubleStrikeChance.Value = doubleStrike;
+        //networkCharacter.DoubleStrikeChance.Value = doubleStrike;
 
-        networkCharacter.CriticalDamage.Value = critDamage;
+        //networkCharacter.CriticalDamage.Value = critDamage;
 
     }
 

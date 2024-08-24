@@ -608,7 +608,6 @@ GameObject:
   - component: {fileID: 4878605696326581850}
   - component: {fileID: -66779552448143468}
   - component: {fileID: 2486501417752755360}
-  - component: {fileID: 4011541931376708870}
   - component: {fileID: 6173716106985737149}
   - component: {fileID: 2488828689398098102}
   - component: {fileID: 969674464929535031}
@@ -618,6 +617,7 @@ GameObject:
   - component: {fileID: 14916200125085451}
   - component: {fileID: 7498740830769928446}
   - component: {fileID: 3484423785512578415}
+  - component: {fileID: 407757288669581628}
   m_Layer: 6
   m_Name: Player
   m_TagString: Untagged
@@ -952,67 +952,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b9e754e80175e5489f33f53e097480e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &4011541931376708870
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1519051571170098037}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6494b87727298314987516d4f17c6c93, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  baseHpMax: 420
-  baseHpCurrent: 420
-  baseHpBuffer: 0
-  baseAttackPower: 10
-  baseCriticalChance: 0.05
-  baseApMax: 128
-  baseApCurrent: 128
-  baseApBuffer: 0
-  baseDoubleStrikeChance: 0.05
-  baseCriticalDamage: 1.5
-  baseMoveSpeed: 6.22
-  baseAccuracy: 1
-  baseEvasion: 0
-  baseDamageReduction: 0
-  baseApLeech: 0
-  baseApRegen: 1
-  popupTextOffset: {x: 0, y: 1.5, z: 0}
-  HpMax:
-    m_InternalValue: 100
-  HpCurrent:
-    m_InternalValue: 100
-  HpBuffer:
-    m_InternalValue: 0
-  AttackPower:
-    m_InternalValue: 10
-  CriticalChance:
-    m_InternalValue: 0.1
-  ApMax:
-    m_InternalValue: 50
-  ApCurrent:
-    m_InternalValue: 50
-  ApBuffer:
-    m_InternalValue: 0
-  DoubleStrikeChance:
-    m_InternalValue: 0.05
-  CriticalDamage:
-    m_InternalValue: 0
-  MoveSpeed:
-    m_InternalValue: 6.22
-  Accuracy:
-    m_InternalValue: 1
-  Evasion:
-    m_InternalValue: 0
-  DamageReduction:
-    m_InternalValue: 0
-  ApLeech:
-    m_InternalValue: 0
-  ApRegen:
-    m_InternalValue: 0
 --- !u!114 &6173716106985737149
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1210,6 +1149,74 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c37feabcbe495d44a9ae37f49a47e972, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &407757288669581628
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1519051571170098037}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8155b730471d24c6d88ac78639bbd0c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseHpMax: 420
+  baseHpCurrent: 420
+  baseHpBuffer: 0
+  baseAttackPower: 30
+  baseCriticalChance: 0.1
+  baseApMax: 50
+  baseApCurrent: 50
+  baseApBuffer: 0
+  baseDoubleStrikeChance: 0.05
+  baseCriticalDamage: 1.5
+  baseMoveSpeed: 6.22
+  baseAccuracy: 1
+  baseEvasion: 0
+  baseDamageReduction: 0
+  baseApLeech: 0
+  baseApRegen: 1
+  popupTextOffset: {x: 0, y: 1.5, z: 0}
+  HpMax:
+    m_InternalValue: 0
+  HpCurrent:
+    m_InternalValue: 0
+  HpBuffer:
+    m_InternalValue: 0
+  AttackPower:
+    m_InternalValue: 0
+  CriticalChance:
+    m_InternalValue: 0
+  ApMax:
+    m_InternalValue: 0
+  ApCurrent:
+    m_InternalValue: 0
+  ApBuffer:
+    m_InternalValue: 0
+  DoubleStrikeChance:
+    m_InternalValue: 0
+  CriticalDamage:
+    m_InternalValue: 0
+  MoveSpeed:
+    m_InternalValue: 0
+  Accuracy:
+    m_InternalValue: 0
+  Evasion:
+    m_InternalValue: 0
+  DamageReduction:
+    m_InternalValue: 0
+  ApLeech:
+    m_InternalValue: 0
+  ApRegen:
+    m_InternalValue: 0
+  bodyBuffObject: {fileID: 0}
+  faceBuffObject: {fileID: 0}
+  eyesBuffObject: {fileID: 0}
+  headBuffObject: {fileID: 0}
+  rightHandBuffObject: {fileID: 0}
+  leftHandBuffObject: {fileID: 0}
+  petBuffObject: {fileID: 0}
 --- !u!1 &1722710475381033325
 GameObject:
   m_ObjectHideFlags: 0
@@ -10009,7 +10016,7 @@ PrefabInstance:
     - target: {fileID: 5272144323970760193, guid: 5ef640013bf57374c9d35ac60df66d89, type: 3}
       propertyPath: networkCharacter
       value: 
-      objectReference: {fileID: 4011541931376708870}
+      objectReference: {fileID: 407757288669581628}
     - target: {fileID: 6411582197230323221, guid: 5ef640013bf57374c9d35ac60df66d89, type: 3}
       propertyPath: m_AnchorMax.y
       value: 1

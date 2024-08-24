@@ -34,11 +34,20 @@ public class PlayerEquipment : NetworkBehaviour
         var rightHandWearableId = gotchiData.equippedWearables[4];
         var leftHandWearableId = gotchiData.equippedWearables[5];
 
+        Debug.Log("gotchidata: " + gotchiData);
+
         var lhWearable = WearableManager.Instance.GetWearable(leftHandWearableId);
         var rhWearable = WearableManager.Instance.GetWearable(rightHandWearableId);
 
         SetEquipment(Slot.LeftHand, lhWearable != null ? lhWearable.NameType : Wearable.NameEnum.Unarmed);
         SetEquipment(Slot.RightHand, rhWearable != null ? rhWearable.NameType : Wearable.NameEnum.Unarmed);
+    }
+
+    public void Init(int gotchiId)
+    {
+        if (!IsClient) return;
+
+        SetPlayerEquipmentByGotchiId(gotchiId);
     }
 
     public override void OnNetworkSpawn()
@@ -48,11 +57,11 @@ public class PlayerEquipment : NetworkBehaviour
         //LeftHand.Value = Wearable.NameEnum.Unarmed;
         //RightHand.Value = Wearable.NameEnum.Unarmed;
 
-        if (IsClient)
-        {
-            SetEquipment(Slot.LeftHand, Wearable.NameEnum.Unarmed);
-            SetEquipment(Slot.RightHand, Wearable.NameEnum.Unarmed);  
-        }
+        //if (IsClient)
+        //{
+        //    SetEquipment(Slot.LeftHand, Wearable.NameEnum.Unarmed);
+        //    SetEquipment(Slot.RightHand, Wearable.NameEnum.Unarmed);  
+        //}
     }
 
     public void SetEquipment(Slot slot, Wearable.NameEnum equipmentNameEnum)

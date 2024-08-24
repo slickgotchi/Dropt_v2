@@ -6,14 +6,14 @@ using UnityEngine;
 public class NetworkCharacter : NetworkBehaviour
 {
     [Header("Base Stats")]
-    public int baseHpMax = 100;
-    public int baseHpCurrent = 100;
-    public int baseHpBuffer = 0;
-    public int baseAttackPower = 10;
+    public float baseHpMax = 100;
+    public float baseHpCurrent = 100;
+    public float baseHpBuffer = 0;
+    public float baseAttackPower = 10;
     public float baseCriticalChance = 0.1f;
-    public int baseApMax = 50;
-    public int baseApCurrent = 50;
-    public int baseApBuffer = 0;
+    public float baseApMax = 50;
+    public float baseApCurrent = 50;
+    public float baseApBuffer = 0;
     public float baseDoubleStrikeChance = 0.05f;
     public float baseCriticalDamage = 1.5f;
     public float baseMoveSpeed = 6.22f;
@@ -29,14 +29,14 @@ public class NetworkCharacter : NetworkBehaviour
     private List<BuffObject> activeBuffObjects = new List<BuffObject>();
 
     // NetworkVariables
-    [HideInInspector] public NetworkVariable<int> HpMax = new NetworkVariable<int>();
-    [HideInInspector] public NetworkVariable<int> HpCurrent = new NetworkVariable<int>();
-    [HideInInspector] public NetworkVariable<int> HpBuffer = new NetworkVariable<int>();
-    [HideInInspector] public NetworkVariable<int> AttackPower = new NetworkVariable<int>();
+    [HideInInspector] public NetworkVariable<float> HpMax = new NetworkVariable<float>();
+    [HideInInspector] public NetworkVariable<float> HpCurrent = new NetworkVariable<float>();
+    [HideInInspector] public NetworkVariable<float> HpBuffer = new NetworkVariable<float>();
+    [HideInInspector] public NetworkVariable<float> AttackPower = new NetworkVariable<float>();
     [HideInInspector] public NetworkVariable<float> CriticalChance = new NetworkVariable<float>();
-    [HideInInspector] public NetworkVariable<int> ApMax = new NetworkVariable<int>();
-    [HideInInspector] public NetworkVariable<int> ApCurrent = new NetworkVariable<int>();
-    [HideInInspector] public NetworkVariable<int> ApBuffer = new NetworkVariable<int>();
+    [HideInInspector] public NetworkVariable<float> ApMax = new NetworkVariable<float>();
+    [HideInInspector] public NetworkVariable<float> ApCurrent = new NetworkVariable<float>();
+    [HideInInspector] public NetworkVariable<float> ApBuffer = new NetworkVariable<float>();
     [HideInInspector] public NetworkVariable<float> DoubleStrikeChance = new NetworkVariable<float>();
     [HideInInspector] public NetworkVariable<float> CriticalDamage = new NetworkVariable<float>();
     [HideInInspector] public NetworkVariable<float> MoveSpeed = new NetworkVariable<float>();
@@ -52,6 +52,18 @@ public class NetworkCharacter : NetworkBehaviour
         {
             // baseize default values on the server
             InitializeStats();
+        }
+    }
+
+    private void Update()
+    {
+        if (!IsServer) return;
+
+        // handle ap regen
+        ApCurrent.Value += ApRegen.Value * Time.deltaTime;
+        if (ApCurrent.Value > ApMax.Value)
+        {
+            ApCurrent.Value = ApMax.Value;
         }
     }
 
@@ -117,17 +129,6 @@ public class NetworkCharacter : NetworkBehaviour
         }
     }
 
-    //[Rpc(SendTo.ClientsAndHost)]
-    //void TriggerGameOverClientRpc(ulong playerNetworkObjectId)
-    //{
-    //    // ensure we only trigger this for the relevant player
-    //    var player = NetworkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId];
-    //    var localId = GetComponent<NetworkObject>().NetworkObjectId;
-    //    if (player.NetworkObjectId != localId) return;
-
-    //    Game.Instance.TriggerGameOver(REKTCanvas.TypeOfREKT.HP);
-    //}
-
     [Rpc(SendTo.ClientsAndHost)]
     void DamagePopupTextClientRpc(float damage, Vector3 position, bool isCritical)
     {
@@ -172,7 +173,7 @@ public class NetworkCharacter : NetworkBehaviour
         if (!activeBuffObjects.Contains(buffObject))
         {
             activeBuffObjects.Add(buffObject);
-            CalculateFinalStats(); // Recalculate stats after adding a new buff
+            RecalculateStats(); // Recalculate stats after adding a new buff
         }
     }
 
@@ -187,17 +188,19 @@ public class NetworkCharacter : NetworkBehaviour
         if (activeBuffObjects.Contains(buffObject))
         {
             activeBuffObjects.Remove(buffObject);
-            CalculateFinalStats(); // Recalculate stats after removing a buff
+            RecalculateStats(); // Recalculate stats after removing a buff
         }
     }
 
-    public void CalculateFinalStats()
+    public void RecalculateStats()
     {
         if (!IsServer)
         {
             Debug.LogError("Cannot call CalculateFinalStats() from client");
             return;
         }
+
+        Debug.Log("RecalculateStats()");
 
         Dictionary<CharacterStat, float> baseStats = new Dictionary<CharacterStat, float>
         {
@@ -263,12 +266,14 @@ public class NetworkCharacter : NetworkBehaviour
         }
 
         // Update network variables with final calculated stats
-        HpMax.Value = (int)baseStats[CharacterStat.HpMax];
-        HpBuffer.Value = (int)baseStats[CharacterStat.HpBuffer];
-        AttackPower.Value = (int)baseStats[CharacterStat.AttackPower];
+        HpMax.Value = baseStats[CharacterStat.HpMax];
+        HpCurrent.Value = HpMax.Value;
+        HpBuffer.Value = baseStats[CharacterStat.HpBuffer];
+        AttackPower.Value = baseStats[CharacterStat.AttackPower];
         CriticalChance.Value = baseStats[CharacterStat.CriticalChance];
-        ApMax.Value = (int)baseStats[CharacterStat.ApMax];
-        ApBuffer.Value = (int)baseStats[CharacterStat.ApBuffer];
+        ApMax.Value = baseStats[CharacterStat.ApMax];
+        ApCurrent.Value = ApMax.Value;
+        ApBuffer.Value = baseStats[CharacterStat.ApBuffer];
         DoubleStrikeChance.Value = baseStats[CharacterStat.DoubleStrikeChance];
         CriticalDamage.Value = baseStats[CharacterStat.CriticalDamage];
         MoveSpeed.Value = baseStats[CharacterStat.MoveSpeed];

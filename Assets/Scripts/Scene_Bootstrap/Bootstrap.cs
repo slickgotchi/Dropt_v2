@@ -64,6 +64,8 @@ public class Bootstrap : MonoBehaviour
     public ushort Port = 9000;
     public string GameId = "default";
 
+    public int TestBlockChainGotchiId = 0;
+
     private bool m_isUnityEditor = false;
 
     [SerializeField] private GameObject StartupButtons;

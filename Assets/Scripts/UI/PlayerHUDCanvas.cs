@@ -106,7 +106,7 @@ public class PlayerHUDCanvas : MonoBehaviour
         m_healthSlider.maxValue = maxHp;
         m_healthSlider.value = currHp;
 
-        m_healthText.text = currHp + " / " + maxHp;
+        m_healthText.text = currHp.ToString("F0") + " / " + maxHp.ToString("F0");
 
         // AP
         var maxAp = m_localPlayerCharacter.ApMax.Value + m_localPlayerCharacter.ApBuffer.Value;
@@ -115,7 +115,7 @@ public class PlayerHUDCanvas : MonoBehaviour
         m_abilitySlider.maxValue = maxAp;
         m_abilitySlider.value = currAp;
 
-        m_abilityText.text = currAp + " / " + maxAp;
+        m_abilityText.text = currAp.ToString("F0") + " / " + maxAp.ToString("F0");
     }
 
     void UpdateCooldowns()
