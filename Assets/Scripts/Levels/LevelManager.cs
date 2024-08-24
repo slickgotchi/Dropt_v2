@@ -122,6 +122,7 @@ public class LevelManager : NetworkBehaviour
                 networkObject.GetComponent<OnDestroySpawnGltr>().enabled = false;
             }
 
+
             // Ensure the object is active before despawning
             if (!networkObject.gameObject.activeInHierarchy)
             {
@@ -155,6 +156,12 @@ public class LevelManager : NetworkBehaviour
         // build nav mesh once it goes back to zero
         LevelSpawningCount++;
         isHandleLevelLoaded = true;
+
+        // check for a valid level
+        if (m_levels[index] == null)
+        {
+            Debug.LogError("No valid level in LevelManager m_levels at index: " + index);
+        }
 
         // spawn the level
         m_currentLevel = Instantiate(m_levels[index]);
