@@ -7,60 +7,38 @@ using GotchiHub;
 
 public class PlayerSVGs : NetworkBehaviour
 {
-    private NetworkVariable<int> GotchiId = new NetworkVariable<int>(-1);
-    private GotchiSvgSet GotchiSvgSet;
+    //private NetworkVariable<int> GotchiId = new NetworkVariable<int>(-1);
+    //private GotchiSvgSet GotchiSvgSet;
 
-    float k_pollInterval = 1f;
-    float m_pollTimer = 1f;
+    //float k_pollInterval = 1f;
+    //float m_pollTimer = 1f;
 
     private void Start()
     {
-        GotchiDataManager.Instance.onSelectedGotchi += HandleOnSelectedGotchi;
+        //GotchiDataManager.Instance.onSelectedGotchi += HandleOnSelectedGotchi;
     }
 
-    void HandleOnSelectedGotchi(int id)
-    {
-        if (!IsLocalPlayer) return;
-        UpdateGotchiIdServerRpc(id);
-    }
+    //void HandleOnSelectedGotchi(int id)
+    //{
+    //    if (!IsLocalPlayer) return;
+    //    UpdateGotchiIdServerRpc(id);
+    //}
 
-    [Rpc(SendTo.Server)]
-    public void UpdateGotchiIdServerRpc(int gotchiId)
-    {
-        GotchiId.Value = gotchiId;
-    }
+    //[Rpc(SendTo.Server)]
+    //public void UpdateGotchiIdServerRpc(int gotchiId)
+    //{
+    //    GotchiId.Value = gotchiId;
+    //}
 
     private void Update()
     {
-        //if (IsServer && !IsHost) return;
 
-        //m_pollTimer -= Time.deltaTime;
-        //if (m_pollTimer > 0) return;
-        //m_pollTimer = k_pollInterval;
-
-        //if (GotchiId.Value < 0) return;
-
-        //var newGotchiSvgs = GotchiDataManager.Instance.GetGotchiSvgsById(GotchiId.Value);
-
-        //if (newGotchiSvgs == null)
-        //{
-        //    GotchiDataManager.Instance.FetchRemoteGotchiSvgsById(GotchiId.Value);
-        //}
-        //else
-        //{
-        //    if (GotchiSvgSet == null || GotchiSvgSet.id != newGotchiSvgs.id)
-        //    {
-        //        SetBodySpriteFromDataManager(newGotchiSvgs);
-        //        GotchiSvgSet = newGotchiSvgs;
-        //    }
-        //}
     }
-
-    bool m_isGotSvg = false;
 
     public void Init(int gotchiId)
     {
         if (!IsClient) return;
+        if (gotchiId <= 0) return;
 
         var newGotchiSvgs = GotchiDataManager.Instance.GetGotchiSvgsById(gotchiId);
         if (newGotchiSvgs == null)
@@ -99,17 +77,17 @@ public class PlayerSVGs : NetworkBehaviour
         //}
     }
 
+    private Sprite GetSpriteFromSvgString(string svgString)
+    {
+        // Convert SVG string to a Sprite
+        return CustomSvgLoader.CreateSvgSprite(GotchiDataManager.Instance.stylingGame.CustomizeSVG(svgString), new Vector2(0.5f, 0.15f));
+    }
+
     private void SaveSvgToFile(string svgContent, string fileName)
     {
         string path = Path.Combine(Application.dataPath, "Builds", fileName);
         Directory.CreateDirectory(Path.GetDirectoryName(path));
         File.WriteAllText(path, svgContent);
         Debug.Log($"SVG saved to {path}");
-    }
-
-    private Sprite GetSpriteFromSvgString(string svgString)
-    {
-        // Convert SVG string to a Sprite
-        return CustomSvgLoader.CreateSvgSprite(GotchiDataManager.Instance.stylingGame.CustomizeSVG(svgString), new Vector2(0.5f, 0.15f));
     }
 }

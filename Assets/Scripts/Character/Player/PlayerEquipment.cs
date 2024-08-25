@@ -6,13 +6,21 @@ using GotchiHub;
 
 public class PlayerEquipment : NetworkBehaviour
 {
-    public NetworkVariable<Wearable.NameEnum> Body;
-    public NetworkVariable<Wearable.NameEnum> Face;
-    public NetworkVariable<Wearable.NameEnum> Eyes;
-    public NetworkVariable<Wearable.NameEnum> Head;
-    public NetworkVariable<Wearable.NameEnum> RightHand;
-    public NetworkVariable<Wearable.NameEnum> LeftHand;
-    public NetworkVariable<Wearable.NameEnum> Pet;
+    public NetworkVariable<Wearable.NameEnum> Body = new NetworkVariable<Wearable.NameEnum>(Wearable.NameEnum.Null);
+    public NetworkVariable<Wearable.NameEnum> Face = new NetworkVariable<Wearable.NameEnum>(Wearable.NameEnum.Null);
+    public NetworkVariable<Wearable.NameEnum> Eyes = new NetworkVariable<Wearable.NameEnum>(Wearable.NameEnum.Null);
+    public NetworkVariable<Wearable.NameEnum> Head = new NetworkVariable<Wearable.NameEnum>(Wearable.NameEnum.Null);
+    public NetworkVariable<Wearable.NameEnum> RightHand = new NetworkVariable<Wearable.NameEnum>(Wearable.NameEnum.Null);
+    public NetworkVariable<Wearable.NameEnum> LeftHand = new NetworkVariable<Wearable.NameEnum>(Wearable.NameEnum.Null);
+    public NetworkVariable<Wearable.NameEnum> Pet = new NetworkVariable<Wearable.NameEnum>(Wearable.NameEnum.Null);
+
+    private Wearable.NameEnum m_localBody = Wearable.NameEnum.Null;
+    private Wearable.NameEnum m_localFace = Wearable.NameEnum.Null;
+    private Wearable.NameEnum m_localEyes = Wearable.NameEnum.Null;
+    private Wearable.NameEnum m_localHead = Wearable.NameEnum.Null;
+    private Wearable.NameEnum m_localRightHand = Wearable.NameEnum.Null;
+    private Wearable.NameEnum m_localLeftHand = Wearable.NameEnum.Null;
+    private Wearable.NameEnum m_localPet = Wearable.NameEnum.Null;
 
     private PlayerGotchi m_playerGotchi;
 
@@ -23,47 +31,81 @@ public class PlayerEquipment : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        RightHand.OnValueChanged += OnRightHandChanged;
-        LeftHand.OnValueChanged += OnLeftHandChanged;
     }
 
     public override void OnNetworkDespawn()
     {
-        RightHand.OnValueChanged -= OnRightHandChanged;
-        LeftHand.OnValueChanged -= OnLeftHandChanged;
-    }
-
-    void OnRightHandChanged(Wearable.NameEnum prev, Wearable.NameEnum curr)
-    {
-        if (IsClient) m_playerGotchi.SetWeaponSprites(Hand.Right, curr);
-    }
-
-    void OnLeftHandChanged(Wearable.NameEnum prev, Wearable.NameEnum curr)
-    {
-        if (IsClient) m_playerGotchi.SetWeaponSprites(Hand.Left, curr);
-    }
-
-    public void SetPlayerEquipmentByGotchiId(int id)
-    {
-        if (!IsClient) return;
-
-        var gotchiData = GotchiDataManager.Instance.GetGotchiDataById(id);
-        var rightHandWearableId = gotchiData.equippedWearables[4];
-        var leftHandWearableId = gotchiData.equippedWearables[5];
-
-        var lhWearable = WearableManager.Instance.GetWearable(leftHandWearableId);
-        var rhWearable = WearableManager.Instance.GetWearable(rightHandWearableId);
-
-        // tell server to change our equipment
-        SetEquipmentServerRpc(Slot.LeftHand, lhWearable != null ? lhWearable.NameType : Wearable.NameEnum.Unarmed);
-        SetEquipmentServerRpc(Slot.RightHand, rhWearable != null ? rhWearable.NameType : Wearable.NameEnum.Unarmed);
     }
 
     public void Init(int gotchiId)
     {
         if (!IsClient) return;
 
-        SetPlayerEquipmentByGotchiId(gotchiId);
+        SetPlayerWeaponsByGotchiId(gotchiId);
+    }
+
+    private void Update()
+    {
+        // right hand changes
+        if (RightHand.Value != m_localRightHand)
+        {
+            m_localRightHand = RightHand.Value;
+            m_playerGotchi.SetWeaponSprites(Hand.Right, m_localRightHand);
+        }
+
+        // left hand changes
+        if (LeftHand.Value != m_localLeftHand)
+        {
+            m_localLeftHand = LeftHand.Value;
+            m_playerGotchi.SetWeaponSprites(Hand.Left, m_localLeftHand);
+        }
+    }
+
+    public void SetPlayerWeaponsByGotchiId(int id)
+    {
+        if (!IsClient) return;
+
+        if (id <= 0)
+        {
+            //m_playerGotchi.SetWeaponSprites(Hand.Left, Wearable.NameEnum.Unarmed);
+            //m_playerGotchi.SetWeaponSprites(Hand.Right, Wearable.NameEnum.Unarmed);
+
+            // tell server to change our equipment if we're the local player
+            if (IsLocalPlayer)
+            {
+                SetEquipmentServerRpc(Slot.LeftHand, Wearable.NameEnum.Unarmed);
+                SetEquipmentServerRpc(Slot.RightHand, Wearable.NameEnum.Unarmed);
+            }
+        } else
+        {
+            var gotchiData = GotchiDataManager.Instance.GetGotchiDataById(id);
+            var rightHandWearableId = gotchiData.equippedWearables[4];
+            var leftHandWearableId = gotchiData.equippedWearables[5];
+
+            var lhWearable = WearableManager.Instance.GetWearable(leftHandWearableId);
+            var rhWearable = WearableManager.Instance.GetWearable(rightHandWearableId);
+
+            //m_playerGotchi.SetWeaponSprites(Hand.Left, lhWearable.NameType);
+            //m_playerGotchi.SetWeaponSprites(Hand.Right, rhWearable.NameType);
+
+            // tell server to change our equipment if we're the local player
+            if (IsLocalPlayer)
+            {
+                SetEquipmentServerRpc(Slot.LeftHand, lhWearable != null ? lhWearable.NameType : Wearable.NameEnum.Unarmed);
+                SetEquipmentServerRpc(Slot.RightHand, rhWearable != null ? rhWearable.NameType : Wearable.NameEnum.Unarmed);
+            }
+        }
+
+    }
+
+    public void SetPlayerWeapon(Hand hand, Wearable.NameEnum nameEnum)
+    {
+        m_playerGotchi.SetWeaponSprites(hand, nameEnum);
+
+        if (IsLocalPlayer)
+        {
+            SetEquipmentServerRpc(hand == Hand.Left ? Slot.LeftHand : Slot.RightHand, nameEnum);
+        }
     }
 
     [Rpc(SendTo.Server)]
@@ -80,6 +122,9 @@ public class PlayerEquipment : NetworkBehaviour
             case Slot.Pet: Pet.Value = equipmentNameEnum; break;
             default: break;
         }
+
+        var wearable = WearableManager.Instance.GetWearable(equipmentNameEnum);
+        GetComponent<PlayerCharacter>().SetWearableBuffServerRpc(slot, wearable.Id);
     }
 
     public enum Slot

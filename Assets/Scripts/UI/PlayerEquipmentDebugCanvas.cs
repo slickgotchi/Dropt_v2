@@ -155,11 +155,11 @@ public class PlayerEquipmentDebugCanvas : MonoBehaviour
                 // Handle both left and right hand separately
                 if (dropdown == rightHandWearableDropdown)
                 {
-                    playerEquipment.SetEquipmentServerRpc(PlayerEquipment.Slot.RightHand, selectedNameEnum);
+                    playerEquipment.SetPlayerWeapon(Hand.Right, selectedNameEnum);
                 }
                 else if (dropdown == leftHandWearableDropdown)
                 {
-                    playerEquipment.SetEquipmentServerRpc(PlayerEquipment.Slot.LeftHand, selectedNameEnum);
+                    playerEquipment.SetPlayerWeapon(Hand.Left, selectedNameEnum);
                 }
                 break;
             case Wearable.SlotEnum.Pet:

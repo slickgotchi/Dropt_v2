@@ -365,6 +365,7 @@ public partial class Wearable {
 
         Unarmed,
         None,
+        Nil,
     }
 
 }

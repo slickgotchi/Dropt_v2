@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Mathematics;
+using Unity.Netcode;
 
 public class PlayerCharacter : NetworkCharacter
 {
@@ -16,7 +17,8 @@ public class PlayerCharacter : NetworkCharacter
 
     public void InitGotchiStats(int gotchiId)
     {
-        if (!IsServer) return;
+        if (!IsClient) return;
+        if (gotchiId <= 0) return;
 
         // get gotchi data
         var gotchiData = GotchiHub.GotchiDataManager.Instance.GetGotchiDataById(gotchiId);
@@ -26,13 +28,22 @@ public class PlayerCharacter : NetworkCharacter
             return;
         }
 
+        if (IsLocalPlayer)
+        {
+            InitGotchiStatsServerRpc(gotchiData.numericTraits);
+        }
+    }
+
+    [Rpc(SendTo.Server)]
+    private void InitGotchiStatsServerRpc(short[] numericTraits)
+    {
         // update character stats
-        var hp = DroptStatCalculator.GetPrimaryGameStat(gotchiData.numericTraits[0], TraitType.NRG);
-        var attack = DroptStatCalculator.GetPrimaryGameStat(gotchiData.numericTraits[1], TraitType.AGG);
-        var critChance = DroptStatCalculator.GetPrimaryGameStat(gotchiData.numericTraits[2], TraitType.SPK);
-        var ap = DroptStatCalculator.GetPrimaryGameStat(gotchiData.numericTraits[3], TraitType.BRN);
-        var doubleStrikeChance = DroptStatCalculator.GetPrimaryGameStat(gotchiData.numericTraits[4], TraitType.EYS);
-        var critDamage = DroptStatCalculator.GetPrimaryGameStat(gotchiData.numericTraits[5], TraitType.EYC);
+        var hp = DroptStatCalculator.GetPrimaryGameStat(numericTraits[0], TraitType.NRG);
+        var attack = DroptStatCalculator.GetPrimaryGameStat(numericTraits[1], TraitType.AGG);
+        var critChance = DroptStatCalculator.GetPrimaryGameStat(numericTraits[2], TraitType.SPK);
+        var ap = DroptStatCalculator.GetPrimaryGameStat(numericTraits[3], TraitType.BRN);
+        var doubleStrikeChance = DroptStatCalculator.GetPrimaryGameStat(numericTraits[4], TraitType.EYS);
+        var critDamage = DroptStatCalculator.GetPrimaryGameStat(numericTraits[5], TraitType.EYC);
 
         baseHpMax = hp;
         baseHpCurrent = hp;
@@ -57,7 +68,8 @@ public class PlayerCharacter : NetworkCharacter
 
     public void InitWearableBuffs(int gotchiId)
     {
-        if (!IsServer) return;
+        if (!IsClient) return;
+        if (gotchiId <= 0) return;
 
         // get gotchi data
         var gotchiData = GotchiHub.GotchiDataManager.Instance.GetGotchiDataById(gotchiId);
@@ -67,6 +79,15 @@ public class PlayerCharacter : NetworkCharacter
             return;
         }
 
+        if (IsLocalPlayer)
+        {
+            InitWearableBuffsServerRpc(gotchiData.equippedWearables);
+        }
+    }
+
+    [Rpc(SendTo.Server)]
+    private void InitWearableBuffsServerRpc(ushort[] equipment)
+    {
         // remove all existing buffs
         RemoveBuffObject(bodyBuffObject);
         RemoveBuffObject(faceBuffObject);
@@ -77,7 +98,7 @@ public class PlayerCharacter : NetworkCharacter
         RemoveBuffObject(petBuffObject);
 
         // get ref to equipment
-        var equipment = gotchiData.equippedWearables;
+        //var equipment = gotchiData.equippedWearables;
 
         // create new buffs based on gotchi data
         bodyBuffObject = CreateBuffObjectFromWearableId(equipment[0]);
@@ -96,6 +117,50 @@ public class PlayerCharacter : NetworkCharacter
         AddBuffObject(rightHandBuffObject);
         AddBuffObject(leftHandBuffObject);
         AddBuffObject(petBuffObject);
+    }
+
+    [Rpc(SendTo.Server)]
+    public void SetWearableBuffServerRpc(PlayerEquipment.Slot slot, int wearableId)
+    {
+        switch (slot)
+        {
+            case PlayerEquipment.Slot.Body:
+                RemoveBuffObject(bodyBuffObject);
+                bodyBuffObject = CreateBuffObjectFromWearableId(wearableId);
+                AddBuffObject(bodyBuffObject);
+                break;
+            case PlayerEquipment.Slot.Face:
+                RemoveBuffObject(faceBuffObject);
+                faceBuffObject = CreateBuffObjectFromWearableId(wearableId);
+                AddBuffObject(faceBuffObject);
+                break;
+            case PlayerEquipment.Slot.Eyes:
+                RemoveBuffObject(eyesBuffObject);
+                eyesBuffObject = CreateBuffObjectFromWearableId(wearableId);
+                AddBuffObject(eyesBuffObject);
+                break;
+            case PlayerEquipment.Slot.Head:
+                RemoveBuffObject(headBuffObject);
+                headBuffObject = CreateBuffObjectFromWearableId(wearableId);
+                AddBuffObject(headBuffObject);
+                break;
+            case PlayerEquipment.Slot.RightHand:
+                RemoveBuffObject(rightHandBuffObject);
+                rightHandBuffObject = CreateBuffObjectFromWearableId(wearableId);
+                AddBuffObject(rightHandBuffObject);
+                break;
+            case PlayerEquipment.Slot.LeftHand:
+                RemoveBuffObject(leftHandBuffObject);
+                leftHandBuffObject = CreateBuffObjectFromWearableId(wearableId);
+                AddBuffObject(leftHandBuffObject);
+                break;
+            case PlayerEquipment.Slot.Pet:
+                RemoveBuffObject(petBuffObject);
+                petBuffObject = CreateBuffObjectFromWearableId(wearableId);
+                AddBuffObject(petBuffObject);
+                break;
+            default: break;
+        }
     }
 
     BuffObject CreateBuffObjectFromWearableId(int wearableId)

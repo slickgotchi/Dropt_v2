@@ -7,6 +7,7 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using GotchiHub;
+using Cysharp.Threading.Tasks;
 
 public class PlayerController : NetworkBehaviour
 {
@@ -29,6 +30,10 @@ public class PlayerController : NetworkBehaviour
 
     private HoldBarCanvas m_holdBarCanvas;
 
+    // variables for trackign current gotchi
+    private int m_localGotchiId = -1;
+    private NetworkVariable<int> m_networkGotchiId = new NetworkVariable<int>(-1);
+
     private void Awake()
     {
         m_networkCharacter = GetComponent<NetworkCharacter>();
@@ -41,35 +46,63 @@ public class PlayerController : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         if (IsLocalPlayer) {
-            Debug.Log("Set camera follower");
             m_cameraFollower = GameObject.FindGameObjectWithTag("CameraFollower");
         } else
         {
             ScreenBlockers.SetActive(false);
         }
 
-        // if in host mode, set a starting gotchi id
-        int gotchiId;
-        if (PlayerPrefs.HasKey("GotchiId"))
+        // local player
+        if (IsLocalPlayer)
         {
-            gotchiId = PlayerPrefs.GetInt("GotchiId");
+            int gotchiId = 0;
+            if (PlayerPrefs.HasKey("GotchiId"))
+            {
+                gotchiId = PlayerPrefs.GetInt("GotchiId");
+            } else if (Bootstrap.Instance.TestBlockChainGotchiId > 0)
+            {
+                gotchiId = Bootstrap.Instance.TestBlockChainGotchiId;
+            }
+
+            SetNetworkGotchiIdServerRpc(gotchiId);
+            //SetupGotchi(gotchiId);
         }
-        else if (Bootstrap.Instance.TestBlockChainGotchiId > 0)
-        {
-            gotchiId = Bootstrap.Instance.TestBlockChainGotchiId;
-        }
-        else
-        {
-            return;
-        }
+
+        // remote player
+        //if (IsClient && !IsLocalPlayer)
+        //{
+        //    SetupGotchi(m_gotchiId.Value);
+        //}
+
+        //// if in host mode, set a starting gotchi id
+        //int gotchiId;
+        //if (PlayerPrefs.HasKey("GotchiId"))
+        //{
+        //    gotchiId = PlayerPrefs.GetInt("GotchiId");
+        //}
+        //else if (Bootstrap.Instance.TestBlockChainGotchiId > 0)
+        //{
+        //    gotchiId = Bootstrap.Instance.TestBlockChainGotchiId;
+        //}
+        //else
+        //{
+        //    GetComponent<PlayerEquipment>().InitDefault();
+        //    return;
+        //}
 
         // setup gotchi if we got a valid id
-        SetupGotchi(gotchiId);
+        //SetupGotchi(gotchiId);
     }
 
-    private async void SetupGotchi(int gotchiId)
+    [Rpc(SendTo.Server)]
+    private void SetNetworkGotchiIdServerRpc(int gotchiId)
     {
-        if (!IsLocalPlayer) return;
+        m_networkGotchiId.Value = gotchiId;
+    }
+
+    private async UniTask SetupGotchi(int gotchiId)
+    {
+        if (!IsClient) return;
 
         try
         {
@@ -93,9 +126,18 @@ public class PlayerController : NetworkBehaviour
     {
         if (!IsLocalPlayer) return;
 
-        SetupGotchi(id);
+        SetNetworkGotchiIdServerRpc(id);
     }
 
+    void HandleGotchiIdChanges()
+    {
+        if (!IsClient) return;
+        if (m_networkGotchiId.Value == m_localGotchiId) return;
+        m_localGotchiId = m_networkGotchiId.Value;
+
+        // update player components
+        SetupGotchi(m_localGotchiId);
+    }
 
 
     public void KillPlayer(REKTCanvas.TypeOfREKT typeOfREKT)
@@ -146,11 +188,18 @@ public class PlayerController : NetworkBehaviour
             {
                 m_cameraFollower.transform.position = m_playerPrediction.GetLocalPlayerInterpPosition();
             }
+
+            if (UnityEngine.Input.GetKeyDown(KeyCode.F))
+            {
+                SetupGotchi(1011);
+            }
         }
 
         HandleNextLevelCheat();
         HandleDegenapeHpAp();
         HandleInactivePlayer();
+
+        HandleGotchiIdChanges();
 
         // keep the hold bar in position (webgl it is weirdly in wrong position);
         if (m_holdBarCanvas != null) m_holdBarCanvas.transform.localPosition = new Vector3(0, 2, 0);

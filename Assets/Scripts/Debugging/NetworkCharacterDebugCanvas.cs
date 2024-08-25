@@ -38,20 +38,20 @@ public class NetworkCharacterDebugCanvas : MonoBehaviour
 
     private void UpdateText()
     {
-        HpMax.text = "HpMax: " + networkCharacter.HpMax.Value;
-        HpCurrent.text = "HpCurrent: " + networkCharacter.HpCurrent.Value;
-        HpBuffer.text = "HpBuffer: " + networkCharacter.HpBuffer.Value;
-        AttackPower.text = "AttackPower: " + networkCharacter.AttackPower.Value;
-        CriticalChance.text = "CriticalChance: " + networkCharacter.CriticalChance.Value;
-        ApMax.text = "ApMax: " + networkCharacter.ApMax.Value;
-        ApCurrent.text = "ApCurrent: " + networkCharacter.ApCurrent.Value;
-        ApBuffer.text = "ApBuffer: " + networkCharacter.ApBuffer.Value;
-        DoubleStrikeChance.text = "DoubleStrikeChance: " + networkCharacter.DoubleStrikeChance.Value;
-        CriticalDamage.text = "CriticalDamage: " + networkCharacter.CriticalDamage.Value;
-        MoveSpeed.text = "MoveSpeed: " + networkCharacter.MoveSpeed.Value;
-        Accuracy.text = "Accuracy: " + networkCharacter.Accuracy.Value;
-        Evasion.text = "Evasion: " + networkCharacter.Evasion.Value;
-        DamageReduction.text = "DamageReduction: " + networkCharacter.DamageReduction.Value;
-        ApLeech.text = "ApLeech: " + networkCharacter.ApLeech.Value;
+        HpMax.text = "HpMax: " + networkCharacter.HpMax.Value.ToString("F0");
+        HpCurrent.text = "HpCurrent: " + networkCharacter.HpCurrent.Value.ToString("F0");
+        HpBuffer.text = "HpBuffer: " + networkCharacter.HpBuffer.Value.ToString("F0");
+        AttackPower.text = "AttackPower: " + networkCharacter.AttackPower.Value.ToString("F0");
+        CriticalChance.text = "CriticalChance: " + networkCharacter.CriticalChance.Value.ToString("F2");
+        ApMax.text = "ApMax: " + networkCharacter.ApMax.Value.ToString("F0");
+        ApCurrent.text = "ApCurrent: " + networkCharacter.ApCurrent.Value.ToString("F0");
+        ApBuffer.text = "ApBuffer: " + networkCharacter.ApBuffer.Value.ToString("F0");
+        DoubleStrikeChance.text = "DoubleStrikeChance: " + networkCharacter.DoubleStrikeChance.Value.ToString("F2");
+        CriticalDamage.text = "CriticalDamage: " + networkCharacter.CriticalDamage.Value.ToString("F2");
+        MoveSpeed.text = "MoveSpeed: " + networkCharacter.MoveSpeed.Value.ToString("F2");
+        Accuracy.text = "Accuracy: " + networkCharacter.Accuracy.Value.ToString("F2");
+        Evasion.text = "Evasion: " + networkCharacter.Evasion.Value.ToString("F2");
+        DamageReduction.text = "DamageReduction: " + networkCharacter.DamageReduction.Value.ToString("F2");
+        ApLeech.text = "ApLeech: " + networkCharacter.ApLeech.Value.ToString("F2");
     }
 }
