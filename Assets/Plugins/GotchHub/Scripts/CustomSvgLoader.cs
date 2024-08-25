@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using Unity.VectorGraphics;
 using UnityEngine;
+using Cysharp.Threading.Tasks;
 
 namespace GotchiHub
 {
