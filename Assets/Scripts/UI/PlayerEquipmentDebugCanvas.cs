@@ -140,30 +140,30 @@ public class PlayerEquipmentDebugCanvas : MonoBehaviour
         switch (slot)
         {
             case Wearable.SlotEnum.Body:
-                playerEquipment.SetEquipment(PlayerEquipment.Slot.Body, selectedNameEnum);
+                playerEquipment.SetEquipmentServerRpc(PlayerEquipment.Slot.Body, selectedNameEnum);
                 break;
             case Wearable.SlotEnum.Face:
-                playerEquipment.SetEquipment(PlayerEquipment.Slot.Face, selectedNameEnum);
+                playerEquipment.SetEquipmentServerRpc(PlayerEquipment.Slot.Face, selectedNameEnum);
                 break;
             case Wearable.SlotEnum.Eyes:
-                playerEquipment.SetEquipment(PlayerEquipment.Slot.Eyes, selectedNameEnum);
+                playerEquipment.SetEquipmentServerRpc(PlayerEquipment.Slot.Eyes, selectedNameEnum);
                 break;
             case Wearable.SlotEnum.Head:
-                playerEquipment.SetEquipment(PlayerEquipment.Slot.Head, selectedNameEnum);
+                playerEquipment.SetEquipmentServerRpc(PlayerEquipment.Slot.Head, selectedNameEnum);
                 break;
             case Wearable.SlotEnum.Hand:
                 // Handle both left and right hand separately
                 if (dropdown == rightHandWearableDropdown)
                 {
-                    playerEquipment.SetEquipment(PlayerEquipment.Slot.RightHand, selectedNameEnum);
+                    playerEquipment.SetEquipmentServerRpc(PlayerEquipment.Slot.RightHand, selectedNameEnum);
                 }
                 else if (dropdown == leftHandWearableDropdown)
                 {
-                    playerEquipment.SetEquipment(PlayerEquipment.Slot.LeftHand, selectedNameEnum);
+                    playerEquipment.SetEquipmentServerRpc(PlayerEquipment.Slot.LeftHand, selectedNameEnum);
                 }
                 break;
             case Wearable.SlotEnum.Pet:
-                playerEquipment.SetEquipment(PlayerEquipment.Slot.Pet, selectedNameEnum);
+                playerEquipment.SetEquipmentServerRpc(PlayerEquipment.Slot.Pet, selectedNameEnum);
                 break;
         }
     }

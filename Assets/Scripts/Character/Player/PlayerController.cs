@@ -19,8 +19,6 @@ public class PlayerController : NetworkBehaviour
 
     private bool m_isPlayerHUDInitialized = false;
 
-    public GameObject TestFernPrefab;
-
     private NetworkCharacter m_networkCharacter;
 
     public static float InactiveTimerDuration = 2 * 60;
@@ -43,57 +41,46 @@ public class PlayerController : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         if (IsLocalPlayer) {
+            Debug.Log("Set camera follower");
             m_cameraFollower = GameObject.FindGameObjectWithTag("CameraFollower");
         } else
         {
             ScreenBlockers.SetActive(false);
         }
 
-        // if gotchi id not 0, try get the gotchi data manager to add this gotchi
-        //if (Game.Instance.LocalGotchiId != 0)
-        //{
-        //    GetComponent<PlayerSVGs>().UpdateGotchiIdServerRpc(Game.Instance.LocalGotchiId);
-        //    GetComponent<PlayerEquipment>().SetPlayerEquipmentByGotchiId(Game.Instance.LocalGotchiId);
-        //}
-
-
-        // if player spawns and is not local, let them decide their gotchi id from their local instance, not here
-        if (!IsLocalPlayer)
+        // if in host mode, set a starting gotchi id
+        int gotchiId;
+        if (PlayerPrefs.HasKey("GotchiId"))
         {
-            // Do nothing
-        } else if (IsLocalPlayer)
+            gotchiId = PlayerPrefs.GetInt("GotchiId");
+        }
+        else if (Bootstrap.Instance.TestBlockChainGotchiId > 0)
         {
-            // check player prefs for last used gotchi id
-            if (PlayerPrefs.HasKey("GotchiId"))
-            {
-                var gotchiId = PlayerPrefs.GetInt("GotchiId");
-
-                // set player svg to the stored gotchi id
-                GetComponent<PlayerSVGs>().UpdateGotchiIdServerRpc(gotchiId);
-
-                // set equipment to the stored gotchi id
-                GetComponent<PlayerEquipment>().SetPlayerEquipmentByGotchiId(gotchiId);
-            }
-            
+            gotchiId = Bootstrap.Instance.TestBlockChainGotchiId;
+        }
+        else
+        {
+            return;
         }
 
-        // if in host mode, set a starting gotchi id
-        SetupGotchi();
+        // setup gotchi if we got a valid id
+        SetupGotchi(gotchiId);
     }
 
-    private async void SetupGotchi()
+    private async void SetupGotchi(int gotchiId)
     {
+        if (!IsLocalPlayer) return;
+
         try
         {
-            var testGotchiId = Bootstrap.Instance.TestBlockChainGotchiId;
-            var isFetchSuccess = await GotchiDataManager.Instance.FetchGotchiById(testGotchiId);
+            var isFetchSuccess = await GotchiDataManager.Instance.FetchGotchiById(gotchiId);
 
             if (isFetchSuccess)
             {
-                GetComponent<PlayerSVGs>().Init(testGotchiId);
-                GetComponent<PlayerEquipment>().Init(testGotchiId);
-                GetComponent<PlayerCharacter>().InitWearableBuffs(testGotchiId);
-                GetComponent<PlayerCharacter>().InitGotchiStats(testGotchiId);
+                GetComponent<PlayerSVGs>().Init(gotchiId);
+                GetComponent<PlayerEquipment>().Init(gotchiId);
+                GetComponent<PlayerCharacter>().InitWearableBuffs(gotchiId);
+                GetComponent<PlayerCharacter>().InitGotchiStats(gotchiId);
             }
         }
         catch (System.Exception ex)
@@ -106,49 +93,10 @@ public class PlayerController : NetworkBehaviour
     {
         if (!IsLocalPlayer) return;
 
-        //var gotchiData = GotchiDataManager.Instance.GetGotchiDataById(id);
-
-        //// update character stats
-        //var hp = DroptStatCalculator.GetPrimaryGameStat(gotchiData.numericTraits[0], TraitType.NRG);
-        //var attack = DroptStatCalculator.GetPrimaryGameStat(gotchiData.numericTraits[1], TraitType.AGG);
-        //var critChance = DroptStatCalculator.GetPrimaryGameStat(gotchiData.numericTraits[2], TraitType.SPK);
-        //var ap = DroptStatCalculator.GetPrimaryGameStat(gotchiData.numericTraits[3], TraitType.BRN);
-        //var doubleStrikeChance = DroptStatCalculator.GetPrimaryGameStat(gotchiData.numericTraits[4], TraitType.EYS);
-        //var critDamage = DroptStatCalculator.GetPrimaryGameStat(gotchiData.numericTraits[5], TraitType.EYC);
-
-        //SetBaseStatsServerRpc(hp, attack, critChance, ap, doubleStrikeChance, critDamage);
-
-        // save our selected gotchi into our player prefs
-        //PlayerPrefs.SetInt("GotchiId", gotchiData.id);
+        SetupGotchi(id);
     }
 
-    //void SetBaseStats(float hp, float atk, float critChance, float ap, float doubleStrike, float critDamage)
-    //{
-    //    SetBaseStatsServerRpc(hp, atk, critChance, ap, doubleStrike, critDamage);
-    //}
 
-    [Rpc(SendTo.Server)]
-    void SetBaseStatsServerRpc(float hp, float atk, float critChance, float ap, float doubleStrike, float critDamage)
-    {
-        //var networkCharacter = GetComponent<NetworkCharacter>();
-
-        //networkCharacter.HpMax.Value = (int)hp;
-        //networkCharacter.HpCurrent.Value = (int)hp;
-        //networkCharacter.HpBuffer.Value = 0;
-
-        //networkCharacter.AttackPower.Value = (int)atk;
-
-        //networkCharacter.CriticalChance.Value = critChance;
-
-        //networkCharacter.ApMax.Value = (int)ap;
-        //networkCharacter.ApCurrent.Value = (int)ap;
-        //networkCharacter.ApBuffer.Value = 0;
-
-        //networkCharacter.DoubleStrikeChance.Value = doubleStrike;
-
-        //networkCharacter.CriticalDamage.Value = critDamage;
-
-    }
 
     public void KillPlayer(REKTCanvas.TypeOfREKT typeOfREKT)
     {
@@ -201,7 +149,6 @@ public class PlayerController : NetworkBehaviour
         }
 
         HandleNextLevelCheat();
-        HandleSpawnFern();
         HandleDegenapeHpAp();
         HandleInactivePlayer();
 
@@ -241,7 +188,6 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
-
     // cheat to go to next level
     void HandleNextLevelCheat()
     {
@@ -255,15 +201,6 @@ public class PlayerController : NetworkBehaviour
     void GoNextLevelServerRpc()
     {
         LevelManager.Instance.GoToNextLevel();
-    }
-
-    // cheat to go to next level
-    void HandleSpawnFern()
-    {
-        if (UnityEngine.Input.GetKeyDown(KeyCode.R))
-        {
-            SpawnFernServerRpc();
-        }
     }
 
     void HandleDegenapeHpAp()
@@ -296,13 +233,5 @@ public class PlayerController : NetworkBehaviour
         if (!IsServer) return;
 
         m_inactiveTimer = InactiveTimerDuration;
-    }
-
-    [Rpc(SendTo.Server)]
-    void SpawnFernServerRpc()
-    {
-        var obj = Instantiate(TestFernPrefab);
-        obj.transform.position = transform.position;
-        obj.GetComponent<NetworkObject>().Spawn();
     }
 }
