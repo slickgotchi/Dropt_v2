@@ -31,13 +31,13 @@ public class WeaponSwap : Interactable
         if (Input.GetMouseButtonDown(0))
         {
             var ogEquipment = m_player.GetComponent<PlayerEquipment>().LeftHand.Value;
-            m_player.GetComponent<PlayerEquipment>().SetEquipment(PlayerEquipment.Slot.LeftHand, wearableNameEnum);
+            m_player.GetComponent<PlayerEquipment>().SetEquipmentServerRpc(PlayerEquipment.Slot.LeftHand, wearableNameEnum);
             GetComponent<WeaponSwap>().Init(ogEquipment);
         }
         if (Input.GetMouseButtonDown(1))
         {
             var ogEquipment = m_player.GetComponent<PlayerEquipment>().RightHand.Value;
-            m_player.GetComponent<PlayerEquipment>().SetEquipment(PlayerEquipment.Slot.RightHand, wearableNameEnum);
+            m_player.GetComponent<PlayerEquipment>().SetEquipmentServerRpc(PlayerEquipment.Slot.RightHand, wearableNameEnum);
             GetComponent<WeaponSwap>().Init(ogEquipment);
         }
     }

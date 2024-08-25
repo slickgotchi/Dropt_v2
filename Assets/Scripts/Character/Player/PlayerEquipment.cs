@@ -14,16 +14,33 @@ public class PlayerEquipment : NetworkBehaviour
     public NetworkVariable<Wearable.NameEnum> LeftHand;
     public NetworkVariable<Wearable.NameEnum> Pet;
 
+    private PlayerGotchi m_playerGotchi;
+
     private void Awake()
     {
-        GotchiDataManager.Instance.onSelectedGotchi += HandleOnSelectedGotchi;
+        m_playerGotchi = GetComponent<PlayerGotchi>();
     }
 
-    void HandleOnSelectedGotchi(int id)
+    public override void OnNetworkSpawn()
     {
-        if (!IsClient) return;
+        RightHand.OnValueChanged += OnRightHandChanged;
+        LeftHand.OnValueChanged += OnLeftHandChanged;
+    }
 
-        SetPlayerEquipmentByGotchiId(id);
+    public override void OnNetworkDespawn()
+    {
+        RightHand.OnValueChanged -= OnRightHandChanged;
+        LeftHand.OnValueChanged -= OnLeftHandChanged;
+    }
+
+    void OnRightHandChanged(Wearable.NameEnum prev, Wearable.NameEnum curr)
+    {
+        if (IsClient) m_playerGotchi.SetWeaponSprites(Hand.Right, curr);
+    }
+
+    void OnLeftHandChanged(Wearable.NameEnum prev, Wearable.NameEnum curr)
+    {
+        if (IsClient) m_playerGotchi.SetWeaponSprites(Hand.Left, curr);
     }
 
     public void SetPlayerEquipmentByGotchiId(int id)
@@ -34,13 +51,12 @@ public class PlayerEquipment : NetworkBehaviour
         var rightHandWearableId = gotchiData.equippedWearables[4];
         var leftHandWearableId = gotchiData.equippedWearables[5];
 
-        Debug.Log("gotchidata: " + gotchiData);
-
         var lhWearable = WearableManager.Instance.GetWearable(leftHandWearableId);
         var rhWearable = WearableManager.Instance.GetWearable(rightHandWearableId);
 
-        SetEquipment(Slot.LeftHand, lhWearable != null ? lhWearable.NameType : Wearable.NameEnum.Unarmed);
-        SetEquipment(Slot.RightHand, rhWearable != null ? rhWearable.NameType : Wearable.NameEnum.Unarmed);
+        // tell server to change our equipment
+        SetEquipmentServerRpc(Slot.LeftHand, lhWearable != null ? lhWearable.NameType : Wearable.NameEnum.Unarmed);
+        SetEquipmentServerRpc(Slot.RightHand, rhWearable != null ? rhWearable.NameType : Wearable.NameEnum.Unarmed);
     }
 
     public void Init(int gotchiId)
@@ -48,37 +64,6 @@ public class PlayerEquipment : NetworkBehaviour
         if (!IsClient) return;
 
         SetPlayerEquipmentByGotchiId(gotchiId);
-    }
-
-    public override void OnNetworkSpawn()
-    {
-        //if (IsServer) return;
-
-        //LeftHand.Value = Wearable.NameEnum.Unarmed;
-        //RightHand.Value = Wearable.NameEnum.Unarmed;
-
-        //if (IsClient)
-        //{
-        //    SetEquipment(Slot.LeftHand, Wearable.NameEnum.Unarmed);
-        //    SetEquipment(Slot.RightHand, Wearable.NameEnum.Unarmed);  
-        //}
-    }
-
-    public void SetEquipment(Slot slot, Wearable.NameEnum equipmentNameEnum)
-    {
-        SetEquipmentServerRpc(slot, equipmentNameEnum);
-
-        if (IsLocalPlayer)
-        {
-            if (slot == Slot.LeftHand)
-            {
-                GetComponent<PlayerGotchi>().SetWeaponSprites(Hand.Left, equipmentNameEnum);
-            } 
-            else if (slot == Slot.RightHand)
-            {
-                GetComponent<PlayerGotchi>().SetWeaponSprites(Hand.Right, equipmentNameEnum);
-            }
-        }
     }
 
     [Rpc(SendTo.Server)]
@@ -94,24 +79,6 @@ public class PlayerEquipment : NetworkBehaviour
             case Slot.LeftHand: LeftHand.Value = equipmentNameEnum; break;
             case Slot.Pet: Pet.Value = equipmentNameEnum; break;
             default: break;
-        }
-
-        SetEquipmentClientRpc(slot, equipmentNameEnum);
-    }
-
-    [Rpc(SendTo.ClientsAndHost)]
-    public void SetEquipmentClientRpc(Slot slot, Wearable.NameEnum equipmentNameEnum)
-    {
-        if (!IsLocalPlayer)
-        {
-            if (slot == Slot.LeftHand)
-            {
-                GetComponent<PlayerGotchi>().SetWeaponSprites(Hand.Left, equipmentNameEnum);
-            }
-            else if (slot == Slot.RightHand)
-            {
-                GetComponent<PlayerGotchi>().SetWeaponSprites(Hand.Right, equipmentNameEnum);
-            }
         }
     }
 

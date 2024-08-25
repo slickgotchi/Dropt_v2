@@ -68,8 +68,7 @@ public class PlayerPrediction : NetworkBehaviour
     [SerializeField] GameObject m_clientCircle;
     [SerializeField] GameObject m_serverCircle;
 
-    [Header("Utility")]
-    [SerializeField] Camera playerCamera;
+    private Camera playerCamera;
 
     // for calculating mouse positions
     private Vector2 m_cursorScreenPosition;
@@ -374,7 +373,7 @@ public class PlayerPrediction : NetworkBehaviour
     private void UpdateCursorWorldPosition()
     {
         // Convert screen position to world position
-        Vector3 screenToWorldPosition = playerCamera.ScreenToWorldPoint(
+        Vector3 screenToWorldPosition = Camera.main.ScreenToWorldPoint(
             new Vector3(m_cursorScreenPosition.x, m_cursorScreenPosition.y, Camera.main.transform.position.z));
 
         // Since it's a 2D game, we set the Z coordinate to 0
