@@ -26,8 +26,11 @@ public partial class Wearable
     public CharacterStat TertiaryBuff;
     public float TertiaryBuffValue;
     public string BaseDescription;
+    public string AttackName;
     public string AttackDescription;
+    public string HoldName;
     public string HoldDescription;
+    public string SpecialName;
     public string SpecialDescription;
     public int EffectDuration;
     public PlayerGotchi.Facing AttackView;
@@ -97,13 +100,17 @@ public partial class Wearable {
         AlchemicaApron,
         AllSeeingEyes,
         AlluringEyes,
+        AlohaFlowers,
         AnimalSkins,
         ApeMask,
         AppleJuice,
         APYShades,
         Aviators,
+        BaableGum,
         BabyBottle,
+        BabyLicky,
         Bandage,
+        BasedShades,
         Basketball,
         BeardofDivinity,
         BeardofWisdom,
@@ -120,6 +127,7 @@ public partial class Wearable {
         BlueHawaiianShirt,
         BluePlaid,
         BowandArrow,
+        Braces,
         BrunettePonytail,
         BushyEyebrows,
         CamoHat,
@@ -128,6 +136,7 @@ public partial class Wearable {
         CaptainAaveMask,
         CaptainAaveShield,
         CaptainAaveSuit,
+        CheapMask,
         CitaadelHelm,
         Clutch,
         Coconut,
@@ -135,6 +144,7 @@ public partial class Wearable {
         CoinGeckoTee,
         ComfyPoncho,
         CommonRofl,
+        CommonStohn,
         CommonWizardHat,
         CommonWizardStaff,
         CoolShades,
@@ -164,6 +174,7 @@ public partial class Wearable {
         ForkedBeard,
         FoxyMask,
         FoxyTail,
+        Freckles,
         GalaxyBrain,
         GameController,
         GamerJacket,
@@ -183,6 +194,7 @@ public partial class Wearable {
         GodliLocks,
         GoldNecklace,
         GotchiMug,
+        GrannyGlasses,
         GuyFawkesMask,
         H4xx0rShirt,
         HaanzoKatana,
@@ -203,6 +215,7 @@ public partial class Wearable {
         JordanHair,
         JordanSuit,
         KabutoHelmet,
+        KawaiiMouth,
         Kimono,
         L2Sign,
         Lasso,
@@ -285,6 +298,8 @@ public partial class Wearable {
         RadarEyes,
         RainbowVomit,
         RareRofl,
+        RareStohn,
+        RastaGlasses,
         RastaHat,
         RastaShirt,
         RedHair,
@@ -339,6 +354,7 @@ public partial class Wearable {
         uGOTCHIToken,
         UncommonCacti,
         UncommonRofl,
+        UncommonStohn,
         UpArrow,
         UpOnlyShirt,
         UraniumRod,
@@ -353,6 +369,7 @@ public partial class Wearable {
         WaterJug,
         WavyHair,
         WGMIShirt,
+        WildFungi,
         Wine,
         WitchyCloak,
         WitchyHat,

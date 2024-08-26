@@ -57,9 +57,9 @@ public class PlayerAbilities : NetworkBehaviour
     [HideInInspector] public GameObject BallisticSnipe;
     private NetworkVariable<ulong> BallisticSnipeId = new NetworkVariable<ulong>(0);
 
-    public GameObject ballisticKillPrefab;
-    [HideInInspector] public GameObject BallisticKill;
-    private NetworkVariable<ulong> BallisticKillId = new NetworkVariable<ulong>(0);
+    public GameObject ballisticExplosionPrefab;
+    [HideInInspector] public GameObject BallisticExplosion;
+    private NetworkVariable<ulong> BallisticExplosionId = new NetworkVariable<ulong>(0);
 
     [Header("Magic")]
     public GameObject magicCastPrefab;
@@ -150,7 +150,7 @@ public class PlayerAbilities : NetworkBehaviour
         // ballistic
         CreateAbility(ref BallisticShot, ballisticShotPrefab, BallisticShotId);
         CreateAbility(ref BallisticSnipe, ballisticSnipePrefab, BallisticSnipeId);
-        CreateAbility(ref BallisticKill, ballisticKillPrefab, BallisticKillId);
+        CreateAbility(ref BallisticExplosion, ballisticExplosionPrefab, BallisticExplosionId);
 
         // magic
         CreateAbility(ref MagicCast, magicCastPrefab, MagicCastId);
@@ -162,15 +162,15 @@ public class PlayerAbilities : NetworkBehaviour
         CreateAbility(ref SplashVolley, splashVolleyPrefab, SplashVolleyId);
         CreateAbility(ref SplashBomb, splashBombPrefab, SplashBombId);
 
-        // consume, aura, throw
-        CreateAbility(ref Consume, consumePrefab, ConsumeId);
-        CreateAbility(ref Aura, auraPrefab, AuraId);
-        CreateAbility(ref Throw, throwPrefab, ThrowId);
-
         // shield
         CreateAbility(ref ShieldBash, shieldBashPrefab, ShieldBashId);
         CreateAbility(ref shieldBlock, shieldBlockPrefab, ShieldBlockId);
         CreateAbility(ref ShieldWall, shieldWallPrefab, ShieldWallId);
+
+        // consume, aura, throw
+        CreateAbility(ref Consume, consumePrefab, ConsumeId);
+        CreateAbility(ref Aura, auraPrefab, AuraId);
+        CreateAbility(ref Throw, throwPrefab, ThrowId);
 
         // unarmed
         CreateAbility(ref UnarmedPunch, unarmedPunchPrefab, UnarmedPunchId);
@@ -203,7 +203,7 @@ public class PlayerAbilities : NetworkBehaviour
 
         DestroyAbility(ref BallisticShot);
         DestroyAbility(ref BallisticSnipe);
-        DestroyAbility(ref BallisticKill);
+        DestroyAbility(ref BallisticExplosion);
 
         DestroyAbility(ref MagicCast);
         DestroyAbility(ref MagicBeam);
@@ -264,7 +264,7 @@ public class PlayerAbilities : NetworkBehaviour
             // ballistic
             TryAddAbilityClientSide(ref BallisticShot, BallisticShotId);
             TryAddAbilityClientSide(ref BallisticSnipe, BallisticSnipeId);
-            TryAddAbilityClientSide(ref BallisticKill, BallisticKillId);
+            TryAddAbilityClientSide(ref BallisticExplosion, BallisticExplosionId);
 
             // magic
             TryAddAbilityClientSide(ref MagicCast, MagicCastId);
@@ -316,7 +316,7 @@ public class PlayerAbilities : NetworkBehaviour
         // ballistic
         if (abilityEnum == PlayerAbilityEnum.BallisticShot && BallisticShot != null) return BallisticShot.GetComponent<PlayerAbility>();
         if (abilityEnum == PlayerAbilityEnum.BallisticSnipe && BallisticSnipe != null) return BallisticSnipe.GetComponent<PlayerAbility>();
-        if (abilityEnum == PlayerAbilityEnum.BallisticKill && BallisticKill != null) return BallisticKill.GetComponent<PlayerAbility>();
+        if (abilityEnum == PlayerAbilityEnum.BallisticKill && BallisticExplosion != null) return BallisticExplosion.GetComponent<PlayerAbility>();
 
         // magic
         if (abilityEnum == PlayerAbilityEnum.MagicCast && MagicCast != null) return MagicCast.GetComponent<PlayerAbility>();

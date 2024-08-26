@@ -7,28 +7,9 @@ using GotchiHub;
 
 public class PlayerSVGs : NetworkBehaviour
 {
-    //private NetworkVariable<int> GotchiId = new NetworkVariable<int>(-1);
-    //private GotchiSvgSet GotchiSvgSet;
-
-    //float k_pollInterval = 1f;
-    //float m_pollTimer = 1f;
-
     private void Start()
     {
-        //GotchiDataManager.Instance.onSelectedGotchi += HandleOnSelectedGotchi;
     }
-
-    //void HandleOnSelectedGotchi(int id)
-    //{
-    //    if (!IsLocalPlayer) return;
-    //    UpdateGotchiIdServerRpc(id);
-    //}
-
-    //[Rpc(SendTo.Server)]
-    //public void UpdateGotchiIdServerRpc(int gotchiId)
-    //{
-    //    GotchiId.Value = gotchiId;
-    //}
 
     private void Update()
     {
