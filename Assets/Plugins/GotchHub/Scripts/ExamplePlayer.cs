@@ -18,7 +18,7 @@ namespace GotchiHub
             if (GotchiDataManager.Instance != null)
             {
                 Debug.Log("Listening to gotchi data manager");
-                GotchiDataManager.Instance.onSelectedGotchi += OnSelectedGotchiChanged;
+                //GotchiDataManager.Instance.onSelectedGotchi += OnSelectedGotchiChanged;
             }
 
             BodySpriteRenderer.material = GotchiDataManager.Instance.Material_Sprite_Unlit_Default;
@@ -28,7 +28,7 @@ namespace GotchiHub
         {
             if (GotchiDataManager.Instance != null)
             {
-                GotchiDataManager.Instance.onSelectedGotchi -= OnSelectedGotchiChanged;
+                //GotchiDataManager.Instance.onSelectedGotchi -= OnSelectedGotchiChanged;
             }
         }
 

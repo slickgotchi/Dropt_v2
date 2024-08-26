@@ -48,12 +48,15 @@ public class WearableLoader : MonoBehaviour
                 TertiaryBuff = (CharacterStat)System.Enum.Parse(typeof(CharacterStat), row[14]),
                 TertiaryBuffValue = float.Parse(row[15]),
                 BaseDescription = row[16],
-                AttackDescription = row[17],
-                HoldDescription = row[18],
-                SpecialDescription = row[19],
-                EffectDuration = int.Parse(row[20]),
-                AttackView = (PlayerGotchi.Facing)System.Enum.Parse(typeof(PlayerGotchi.Facing), row[21]),
-                AttackAngle = float.Parse(row[22]),
+                AttackName = row[17],
+                AttackDescription = row[18],
+                HoldName = row[19],
+                HoldDescription = row[20],
+                SpecialName = row[21],
+                SpecialDescription = row[22],
+                EffectDuration = int.Parse(row[23]),
+                AttackView = (PlayerGotchi.Facing)System.Enum.Parse(typeof(PlayerGotchi.Facing), row[24]),
+                AttackAngle = float.Parse(row[25]),
             };
 
             WearableManager.Instance.AddWearable(wearable);

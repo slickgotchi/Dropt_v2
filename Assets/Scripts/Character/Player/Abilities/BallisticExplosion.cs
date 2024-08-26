@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using Unity.Mathematics;
 using Unity.Hierarchy;
 
-public class BallisticKill : PlayerAbility
+public class BallisticExplosion : PlayerAbility
 {
-    [Header("BallisticKill Parameters")]
+    [Header("BallisticExplosion Parameters")]
     public float Projection = 1.5f;
     public float Distance = 8f;
     public float Duration = 1f;

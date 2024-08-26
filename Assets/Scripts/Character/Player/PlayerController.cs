@@ -11,16 +11,17 @@ using Cysharp.Threading.Tasks;
 
 public class PlayerController : NetworkBehaviour
 {
+    [SerializeField] TextMeshProUGUI m_positionText;
+
     public GameObject ScreenBlockers;
 
     private GameObject m_cameraFollower;
-    private PlayerPrediction m_playerPrediction;
 
-    [SerializeField] TextMeshProUGUI m_positionText;
 
     private bool m_isPlayerHUDInitialized = false;
 
     private NetworkCharacter m_networkCharacter;
+    private PlayerPrediction m_playerPrediction;
 
     public static float InactiveTimerDuration = 2 * 60;
 
@@ -40,21 +41,18 @@ public class PlayerController : NetworkBehaviour
         m_holdBarCanvas = GetComponentInChildren<HoldBarCanvas>();
         m_playerPrediction = GetComponent<PlayerPrediction>();
 
-        GotchiDataManager.Instance.onSelectedGotchi += HandleOnSelectedGotchi;
     }
 
     public override void OnNetworkSpawn()
     {
-        if (IsLocalPlayer) {
-            m_cameraFollower = GameObject.FindGameObjectWithTag("CameraFollower");
-        } else
-        {
-            ScreenBlockers.SetActive(false);
-        }
-
         // local player
         if (IsLocalPlayer)
         {
+            m_cameraFollower = GameObject.FindGameObjectWithTag("CameraFollower");
+
+            GotchiDataManager.Instance.onSelectedGotchi += HandleOnSelectedGotchi;
+
+
             int gotchiId = 0;
             if (PlayerPrefs.HasKey("GotchiId"))
             {
@@ -65,33 +63,20 @@ public class PlayerController : NetworkBehaviour
             }
 
             SetNetworkGotchiIdServerRpc(gotchiId);
-            //SetupGotchi(gotchiId);
         }
+        else
+        {
+            ScreenBlockers.SetActive(false);
 
-        // remote player
-        //if (IsClient && !IsLocalPlayer)
-        //{
-        //    SetupGotchi(m_gotchiId.Value);
-        //}
+        }
+    }
 
-        //// if in host mode, set a starting gotchi id
-        //int gotchiId;
-        //if (PlayerPrefs.HasKey("GotchiId"))
-        //{
-        //    gotchiId = PlayerPrefs.GetInt("GotchiId");
-        //}
-        //else if (Bootstrap.Instance.TestBlockChainGotchiId > 0)
-        //{
-        //    gotchiId = Bootstrap.Instance.TestBlockChainGotchiId;
-        //}
-        //else
-        //{
-        //    GetComponent<PlayerEquipment>().InitDefault();
-        //    return;
-        //}
-
-        // setup gotchi if we got a valid id
-        //SetupGotchi(gotchiId);
+    public override void OnNetworkDespawn()
+    {
+        if (IsLocalPlayer)
+        {
+            GotchiDataManager.Instance.onSelectedGotchi -= HandleOnSelectedGotchi;
+        }
     }
 
     [Rpc(SendTo.Server)]
@@ -125,20 +110,10 @@ public class PlayerController : NetworkBehaviour
     void HandleOnSelectedGotchi(int id)
     {
         if (!IsLocalPlayer) return;
+        if (!GetComponent<NetworkObject>().IsLocalPlayer) return;
 
         SetNetworkGotchiIdServerRpc(id);
     }
-
-    void HandleGotchiIdChanges()
-    {
-        if (!IsClient) return;
-        if (m_networkGotchiId.Value == m_localGotchiId) return;
-        m_localGotchiId = m_networkGotchiId.Value;
-
-        // update player components
-        SetupGotchi(m_localGotchiId);
-    }
-
 
     public void KillPlayer(REKTCanvas.TypeOfREKT typeOfREKT)
     {
@@ -203,6 +178,16 @@ public class PlayerController : NetworkBehaviour
 
         // keep the hold bar in position (webgl it is weirdly in wrong position);
         if (m_holdBarCanvas != null) m_holdBarCanvas.transform.localPosition = new Vector3(0, 2, 0);
+    }
+
+    void HandleGotchiIdChanges()
+    {
+        if (!IsClient) return;
+        if (m_networkGotchiId.Value == m_localGotchiId) return;
+        m_localGotchiId = m_networkGotchiId.Value;
+
+        // update player components
+        SetupGotchi(m_localGotchiId);
     }
 
     private LevelManager.TransitionState m_localTransition = LevelManager.TransitionState.Null;
