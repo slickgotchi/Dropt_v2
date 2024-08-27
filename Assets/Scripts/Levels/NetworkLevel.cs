@@ -27,13 +27,12 @@ namespace Level
 //<<<<<<< HEAD
 //=======
                 //TrapsGroupSpawnerFactory.CreateTraps(gameObject);
-                ChestsSpawnerFactory.CreateChests(gameObject);
 //>>>>>>> 6f6d2b82 ([ADD] chests logic)
 
                 // legacy spawn factories to be replaced one day
                 SubLevelFactory.CreateSubLevels(gameObject);
                 TrapsGroupSpawnerFactory.CreateTraps(gameObject);
-                
+
 
                 // UPDATE: simplified "create" game logic
                 CreateSpawners_ApeDoorsAndButtons();
