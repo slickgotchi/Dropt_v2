@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 968608259130300221}
   - component: {fileID: 6504469520072649070}
-  m_Layer: 11
+  m_Layer: 12
   m_Name: Shadow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -99,7 +99,8 @@ GameObject:
   - component: {fileID: 3387859537420111930}
   - component: {fileID: 3280724935253903593}
   - component: {fileID: -502461040427398018}
-  m_Layer: 11
+  - component: {fileID: -8410415049872253199}
+  m_Layer: 12
   m_Name: Chest_Godlike
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -218,13 +219,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 754c2f534132f5a41b57622e15dcb43f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  status: 0
-  playerNetworkObjectId: 0
+  m_destructible: {fileID: -8410415049872253199}
+  m_config:
+    PlayersToPercent:
+    - Percents: 64000000
+    - Percents: 280000003c000000
+    - Percents: 140000001e00000032000000
+    Weapons:
+    - Data: 5
+      Chance: 20
+    - Data: 6
+      Chance: 80
+    OrbsSpawnRange: 1
+    ItemsDropCount: 1
   m_prefab: {fileID: 387493114870382498, guid: a4a8e89e9ce38be40bc36db29c05f3c4, type: 3}
   m_minCGHST: 12
   m_maxCGHST: 25
   m_minGltr: 150
   m_maxGltr: 500
+--- !u!114 &-8410415049872253199
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 517a0e5d7276e564fadb7ae93628f0e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  type: 1
+  Hp: 1
 --- !u!1 &6525230415705073668
 GameObject:
   m_ObjectHideFlags: 0
@@ -235,7 +261,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2228045280187910979}
   - component: {fileID: 361146906994616670}
-  m_Layer: 11
+  m_Layer: 12
   m_Name: Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -8,10 +8,10 @@ using Random = System.Random;
 
 namespace Interactables
 {
-    public class Chest : Interactable
+    public class Chest : NetworkBehaviour
     {
-        private ChestConfig m_config;
-
+        [SerializeField] private Destructible m_destructible;
+        [SerializeField] private ChestConfig m_config;
         [SerializeField] private WeaponSwap m_prefab;
         [SerializeField] private int m_minCGHST;
         [SerializeField] private int m_maxCGHST;
@@ -26,40 +26,18 @@ namespace Interactables
 
         private WeightVariable<Wearable.RarityEnum>[] WeaponsRarity => m_config.Weapons;
 
-        public void SetUp(ChestConfig config)
+        private void Awake()
         {
-            m_config = config;
+            m_destructible.PRE_DIE += OnDestructed;
         }
 
-        public override void OnStartInteraction()
+        private void OnDestructed()
         {
-            base.OnStartInteraction();
-
-            SetActiveTextBox(true);
-        }
-
-        public override void OnUpdateInteraction()
-        {
-            base.OnUpdateInteraction();
-
-            if (!Input.GetKeyDown(KeyCode.F)) return;
-
-            SetActiveTextBox(false);
-
             SpawnOrbsRpc();
 
             SpawnWearablesRpc();
-
-            DespawnChestRpc();
         }
-
-        public override void OnFinishInteraction()
-        {
-            base.OnFinishInteraction();
-
-            SetActiveTextBox(false);
-        }
-
+        
         private Vector3 GetRandomPosition(Vector3 center, float radius)
         {
             var random = new Random();
@@ -75,12 +53,7 @@ namespace Interactables
         {
             return random.NextDouble() * (maximum - minimum) + minimum;
         }
-
-        private void SetActiveTextBox(bool value)
-        {
-            InteractableUICanvas.Instance.InteractTextbox.SetActive(value);
-        }
-
+        
         private int CalculateAdditionalSpectrals()
         {
             var playersCount = NetworkManager.ConnectedClients.Count;
@@ -102,7 +75,7 @@ namespace Interactables
             {
                 return;
             }
-            
+
             var random = new Random();
             var actualGltr = random.Next(m_minGltr, m_maxGltr);
             var actualCGHST = random.Next(m_minCGHST, m_maxCGHST);
@@ -152,22 +125,11 @@ namespace Interactables
                 var position = GetRandomPosition(transform.position, 1f);
 
                 var swap = Instantiate(m_prefab, position, Quaternion.identity);
-                
+
                 swap.SyncNameEnum.Value = item.NameType;
-                
+
                 swap.NetworkObject.Spawn();
             }
-        }
-        
-        [Rpc(SendTo.Server)]
-        private void DespawnChestRpc()
-        {
-            if (!IsServer)
-            {
-                return;
-            }
-
-            NetworkObject.Despawn();
         }
     }
 }

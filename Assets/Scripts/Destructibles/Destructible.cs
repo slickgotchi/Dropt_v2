@@ -1,12 +1,20 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using Audio.Game;
 using Unity.Netcode;
 using UnityEngine;
 
 public class Destructible : NetworkBehaviour
 {
-    public enum Type { Organic, Inorganic, Crafted }
+    public event Action DIE;
+    public event Action PRE_DIE;
+
+    public enum Type
+    {
+        Organic,
+        Inorganic,
+        Crafted
+    }
+
     public Type type;
     public int Hp = 1;
 
@@ -22,7 +30,7 @@ public class Destructible : NetworkBehaviour
         var damage = CalculateDamageToDestructible(type, weaponType);
 
         GameAudioManager.Instance.PlayHit(type, gameObject.transform.position);
-        
+
         if (CurrentHp.Value <= damage)
         {
             VisualEffectsManager.Singleton.SpawnCloudExplosion(transform.position + new Vector3(0, 0.5f, 0));
@@ -33,13 +41,14 @@ public class Destructible : NetworkBehaviour
             CurrentHp.Value -= damage;
             if (CurrentHp.Value <= 0)
             {
-                if (IsServer) GetComponent<NetworkObject>().Despawn();
+                PRE_DIE?.Invoke();
+                GetComponent<NetworkObject>().Despawn();
+                DIE?.Invoke();
             }
         }
 
         var damageWobble = GetComponent<DamageWobble>();
         if (damageWobble != null) damageWobble.Play();
-
     }
 
     public void TakeDamage(int damage)
@@ -78,6 +87,7 @@ public class Destructible : NetworkBehaviour
             if (weaponType == Wearable.WeaponTypeEnum.Magic) damage = 2;
             if (weaponType == Wearable.WeaponTypeEnum.Shield) damage = 2;
         }
+
         if (destructibleType == Type.Inorganic)
         {
             if (weaponType == Wearable.WeaponTypeEnum.Cleave) damage = 2;
@@ -89,6 +99,7 @@ public class Destructible : NetworkBehaviour
             if (weaponType == Wearable.WeaponTypeEnum.Magic) damage = 3;
             if (weaponType == Wearable.WeaponTypeEnum.Shield) damage = 2;
         }
+
         if (destructibleType == Type.Crafted)
         {
             if (weaponType == Wearable.WeaponTypeEnum.Cleave) damage = 1;
