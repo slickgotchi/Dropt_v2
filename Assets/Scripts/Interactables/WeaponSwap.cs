@@ -21,25 +21,25 @@ public class WeaponSwap : Interactable
         if (Input.GetMouseButtonDown(0))
         {
             var ogEquipment = m_player.GetComponent<PlayerEquipment>().LeftHand.Value;
-<<<<<<< HEAD
+//<<<<<<< HEAD
             m_player.GetComponent<PlayerEquipment>().SetEquipmentServerRpc(PlayerEquipment.Slot.LeftHand, wearableNameEnum);
             GetComponent<WeaponSwap>().Init(ogEquipment);
-=======
-            m_player.GetComponent<PlayerEquipment>().SetEquipment(PlayerEquipment.Slot.LeftHand, wearableNameEnum);
-            SendWearableNameRpc(ogEquipment);
->>>>>>> 65f8b13b ([CHG] finalize chests logic)
+//=======
+//            m_player.GetComponent<PlayerEquipment>().SetEquipment(PlayerEquipment.Slot.LeftHand, wearableNameEnum);
+//            SendWearableNameRpc(ogEquipment);
+//>>>>>>> 65f8b13b ([CHG] finalize chests logic)
         }
 
         if (Input.GetMouseButtonDown(1))
         {
             var ogEquipment = m_player.GetComponent<PlayerEquipment>().RightHand.Value;
-<<<<<<< HEAD
+//<<<<<<< HEAD
             m_player.GetComponent<PlayerEquipment>().SetEquipmentServerRpc(PlayerEquipment.Slot.RightHand, wearableNameEnum);
             GetComponent<WeaponSwap>().Init(ogEquipment);
-=======
-            m_player.GetComponent<PlayerEquipment>().SetEquipment(PlayerEquipment.Slot.RightHand, wearableNameEnum);
-            SendWearableNameRpc(ogEquipment);
->>>>>>> 65f8b13b ([CHG] finalize chests logic)
+//=======
+//            m_player.GetComponent<PlayerEquipment>().SetEquipment(PlayerEquipment.Slot.RightHand, wearableNameEnum);
+//            SendWearableNameRpc(ogEquipment);
+//>>>>>>> 65f8b13b ([CHG] finalize chests logic)
         }
     }
 
