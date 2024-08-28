@@ -99,6 +99,7 @@ GameObject:
   - component: {fileID: 7950454192658432271}
   - component: {fileID: 1314730021262852674}
   - component: {fileID: 6269922449391549801}
+  - component: {fileID: 6429192652035619454}
   m_Layer: 0
   m_Name: Forest_Pathway_BCroomA
   m_TagString: Untagged
@@ -150,7 +151,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 981952571
+  GlobalObjectIdHash: 197800033
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -202,6 +203,18 @@ MonoBehaviour:
   InLocalSpace: 0
   Interpolate: 1
   SlerpPosition: 0
+--- !u!114 &6429192652035619454
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4115972198823356654}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 09698abc2e8964808b00a54103ccdd21, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6987288061460975455
 GameObject:
   m_ObjectHideFlags: 0
@@ -253,6 +266,7 @@ MonoBehaviour:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 5bd58936ebaf643bcac707e73df0832f, type: 3}
     Chance: 1
   spawnerId: -1
+  spawnedNetworkObject: {fileID: 0}
 --- !u!1 &9005108979065485868
 GameObject:
   m_ObjectHideFlags: 0
@@ -424,6 +438,7 @@ MonoBehaviour:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 0fa50369c6fe97a45ab4ce801bc4ccbc, type: 3}
     Chance: 1
   spawnerId: -1
+  spawnedNetworkObject: {fileID: 0}
 --- !u!114 &6878176090194829512
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -609,6 +624,7 @@ MonoBehaviour:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 9a60665ac073507488be6dfaf47609c6, type: 3}
     Chance: 0.7
   spawnerId: -1
+  spawnedNetworkObject: {fileID: 0}
 --- !u!114 &8440253517407587295
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -715,6 +731,7 @@ MonoBehaviour:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 0fa50369c6fe97a45ab4ce801bc4ccbc, type: 3}
     Chance: 1
   spawnerId: -1
+  spawnedNetworkObject: {fileID: 0}
 --- !u!114 &2126897305166958860
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -977,6 +994,7 @@ MonoBehaviour:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 0fa50369c6fe97a45ab4ce801bc4ccbc, type: 3}
     Chance: 1
   spawnerId: -1
+  spawnedNetworkObject: {fileID: 0}
 --- !u!114 &1619329105179408133
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1083,6 +1101,7 @@ MonoBehaviour:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 91617a7b00342bc45be9fab6e8e3119a, type: 3}
     Chance: 1
   spawnerId: -1
+  spawnedNetworkObject: {fileID: 0}
 --- !u!114 &4740740322195524483
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1194,6 +1213,7 @@ MonoBehaviour:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 9a60665ac073507488be6dfaf47609c6, type: 3}
     Chance: 0.7
   spawnerId: -1
+  spawnedNetworkObject: {fileID: 0}
 --- !u!114 &8994508621985343521
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1295,6 +1315,7 @@ MonoBehaviour:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: a5c736ddf094e5547af877e25f832740, type: 3}
     Chance: 1
   spawnerId: 1
+  spawnedNetworkObject: {fileID: 0}
 --- !u!114 &4057746299951567584
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1401,6 +1422,7 @@ MonoBehaviour:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 0fa50369c6fe97a45ab4ce801bc4ccbc, type: 3}
     Chance: 1
   spawnerId: -1
+  spawnedNetworkObject: {fileID: 0}
 --- !u!114 &6961277267679587459
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1590,6 +1612,7 @@ MonoBehaviour:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 91617a7b00342bc45be9fab6e8e3119a, type: 3}
     Chance: 1
   spawnerId: -1
+  spawnedNetworkObject: {fileID: 0}
 --- !u!114 &8743231134901314274
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1701,6 +1724,7 @@ MonoBehaviour:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 0fa50369c6fe97a45ab4ce801bc4ccbc, type: 3}
     Chance: 1
   spawnerId: -1
+  spawnedNetworkObject: {fileID: 0}
 --- !u!114 &2887889112537858837
 MonoBehaviour:
   m_ObjectHideFlags: 0

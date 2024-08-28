@@ -89,65 +89,115 @@ public class LevelManager : NetworkBehaviour
 
     private void DestroyCurrentLevel()
     {
-        var networkObjects = new List<NetworkObject>(FindObjectsByType<NetworkObject>(FindObjectsInactive.Include, FindObjectsSortMode.None));
+        // find everything to destroy
+        var destroyObjects = new List<DestroyAtLevelChange>(FindObjectsByType<DestroyAtLevelChange>(FindObjectsInactive.Include, FindObjectsSortMode.None));
 
-        // deparent every single network object
-        foreach (var networkObject in networkObjects) 
+        // remove any parents
+        foreach (var destroyObject in destroyObjects)
         {
-            // things to save for next level
-            if (networkObject.HasComponent<LevelManager>() ||
-                networkObject.HasComponent<PlayerController>() ||
-                networkObject.HasComponent<PlayerAbility>() ||
-                networkObject.HasComponent<DontDestroyAtLevelChange>()) continue;
-
-            networkObject.TryRemoveParent(); 
+            destroyObject.transform.parent = null;
         }
 
-        // destroy all network objects (except for some)
-        foreach (var networkObject in networkObjects)
+        // despawn/destroy all objects
+        foreach (var destroyObject in destroyObjects)
         {
-            // things to save for next level
-            if (networkObject.HasComponent<LevelManager>() ||
-                networkObject.HasComponent<PlayerController>() ||
-                networkObject.HasComponent<PlayerAbility>() ||
-                networkObject.HasComponent<DontDestroyAtLevelChange>()) continue;
-
-            // remove onDestroy components first too to prevent the new objects appearing
-            if (networkObject.HasComponent<OnDestroySpawnNetworkObject>())
+            // disable any onDestroySpawn something components
+            if (destroyObject.HasComponent<OnDestroySpawnNetworkObject>())
             {
-                networkObject.GetComponent<OnDestroySpawnNetworkObject>().enabled = false;
+                destroyObject.GetComponent<OnDestroySpawnNetworkObject>().enabled = false;
             }
-            if (networkObject.HasComponent<OnDestroySpawnGltr>())
+            if (destroyObject.HasComponent<OnDestroySpawnGltr>())
             {
-                networkObject.GetComponent<OnDestroySpawnGltr>().enabled = false;
+                destroyObject.GetComponent<OnDestroySpawnGltr>().enabled = false;
+            }
+            if (destroyObject.HasComponent<Interactables.Chest>())
+            {
+                destroyObject.GetComponent<Interactables.Chest>().enabled = false;
             }
 
-
-            // Ensure the object is active before despawning
-            if (!networkObject.gameObject.activeInHierarchy)
+            // destroy object
+            if (destroyObject.HasComponent<UtilityAgentFacade>())
             {
-                networkObject.gameObject.SetActive(true);
+                destroyObject.GetComponent<UtilityAgentFacade>().Destroy();
             }
-
-            // despawn
-            if (IsServer)
+            else if (destroyObject.HasComponent<NetworkObject>())
             {
-                if (networkObject.HasComponent<UtilityAgentFacade>())
+                if (destroyObject.GetComponent<NetworkObject>().IsSpawned)
                 {
-                    networkObject.GetComponent<UtilityAgentFacade>().Destroy();
-                } else
-                {
-                    if (networkObject.IsSpawned)
-                    {
-                        networkObject.Despawn();
-                    }
+                    destroyObject.GetComponent<NetworkObject>().Despawn();
                 }
             }
-
+            else
+            {
+                Destroy(destroyObject);
+            }
         }
 
-        // clear the list
-        networkObjects.Clear();
+        // clear our list
+        destroyObjects.Clear();
+
+        //// despawn
+        //foreach (var levelSPawn in l)
+
+        //var networkObjects = new List<NetworkObject>(FindObjectsByType<NetworkObject>(FindObjectsInactive.Include, FindObjectsSortMode.None));
+
+        //// deparent every single network object
+        //foreach (var networkObject in networkObjects) 
+        //{
+        //    // things to save for next level
+        //    if (networkObject.HasComponent<LevelManager>() ||
+        //        networkObject.HasComponent<PlayerController>() ||
+        //        networkObject.HasComponent<PlayerAbility>() ||
+        //        networkObject.HasComponent<DontDestroyAtLevelChange>()) continue;
+
+        //    networkObject.TryRemoveParent(); 
+        //}
+
+        //// destroy all network objects (except for some)
+        //foreach (var networkObject in networkObjects)
+        //{
+        //    // things to save for next level
+        //    if (networkObject.HasComponent<LevelManager>() ||
+        //        networkObject.HasComponent<PlayerController>() ||
+        //        networkObject.HasComponent<PlayerAbility>() ||
+        //        networkObject.HasComponent<DontDestroyAtLevelChange>()) continue;
+
+        //    // remove onDestroy components first too to prevent the new objects appearing
+        //    if (networkObject.HasComponent<OnDestroySpawnNetworkObject>())
+        //    {
+        //        networkObject.GetComponent<OnDestroySpawnNetworkObject>().enabled = false;
+        //    }
+        //    if (networkObject.HasComponent<OnDestroySpawnGltr>())
+        //    {
+        //        networkObject.GetComponent<OnDestroySpawnGltr>().enabled = false;
+        //    }
+
+
+        //    // Ensure the object is active before despawning
+        //    if (!networkObject.gameObject.activeInHierarchy)
+        //    {
+        //        networkObject.gameObject.SetActive(true);
+        //    }
+
+        //    // despawn
+        //    if (IsServer)
+        //    {
+        //        if (networkObject.HasComponent<UtilityAgentFacade>())
+        //        {
+        //            networkObject.GetComponent<UtilityAgentFacade>().Destroy();
+        //        } else
+        //        {
+        //            if (networkObject.IsSpawned)
+        //            {
+        //                networkObject.Despawn();
+        //            }
+        //        }
+        //    }
+
+        //}
+
+        //// clear the list
+        //networkObjects.Clear();
     }
 
     private void CreateLevel(int index = 0)

@@ -4910,6 +4910,7 @@ GameObject:
   - component: {fileID: 6283697609693008196}
   - component: {fileID: 788601851220646825}
   - component: {fileID: 5648269422833118591}
+  - component: {fileID: 5846635000714546373}
   m_Layer: 11
   m_Name: NPC Static Barker
   m_TagString: Untagged
@@ -5183,10 +5184,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_bodyParent: {fileID: 0}
-  BodyFaceFront: {fileID: 0}
-  BodyFaceBack: {fileID: 0}
-  BodyFaceLeft: {fileID: 0}
-  BodyFaceRight: {fileID: 0}
+  m_bodyFaceFront: {fileID: 0}
+  m_bodyFaceBack: {fileID: 0}
+  m_bodyFaceLeft: {fileID: 0}
+  m_bodyFaceRight: {fileID: 0}
   m_rightHandParent: {fileID: 0}
   m_rightHandFaceFront: {fileID: 0}
   m_rightHandFaceBack: {fileID: 0}
@@ -5221,3 +5222,15 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &5846635000714546373
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2944240670350870223}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 09698abc2e8964808b00a54103ccdd21, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
