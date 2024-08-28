@@ -287,7 +287,7 @@ public class Game : MonoBehaviour
                     case UnityWebRequest.Result.Success:
                         CreateOrJoinGameResponseData data = JsonUtility.FromJson<CreateOrJoinGameResponseData>(webRequest.downloadHandler.text);
                         //Debug.Log("Response Data to CreateGame below...");
-                        //Debug.Log(webRequest.downloadHandler.text);
+                        Debug.Log(webRequest.downloadHandler.text);
 
                         // using data configure bootstrap
                         Bootstrap.Instance.IpAddress = data.ipAddress;
@@ -370,7 +370,7 @@ public class Game : MonoBehaviour
                     case UnityWebRequest.Result.Success:
                         CreateOrJoinGameResponseData data = JsonUtility.FromJson<CreateOrJoinGameResponseData>(webRequest.downloadHandler.text);
                         // Debug.Log("Response Data to JoinGame below...");
-                        // Debug.Log(webRequest.downloadHandler.text);
+                         Debug.Log(webRequest.downloadHandler.text);
 
                         // Using data configure bootstrap
                         Bootstrap.Instance.IpAddress = data.ipAddress;
