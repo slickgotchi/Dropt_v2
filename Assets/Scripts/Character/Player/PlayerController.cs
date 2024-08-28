@@ -164,10 +164,10 @@ public class PlayerController : NetworkBehaviour
                 m_cameraFollower.transform.position = m_playerPrediction.GetLocalPlayerInterpPosition();
             }
 
-            if (UnityEngine.Input.GetKeyDown(KeyCode.F))
-            {
-                SetupGotchi(1011);
-            }
+            //if (UnityEngine.Input.GetKeyDown(KeyCode.F))
+            //{
+            //    SetupGotchi(1011);
+            //}
         }
 
         HandleNextLevelCheat();

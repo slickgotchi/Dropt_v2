@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4152650369224279828}
   - component: {fileID: 950494912577993695}
   - component: {fileID: 7594667461773364436}
+  - component: {fileID: 3554665686221165407}
   m_Layer: 14
   m_Name: TrapButton
   m_TagString: Untagged
@@ -47,7 +48,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 41797898
+  GlobalObjectIdHash: 3777783432
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -72,10 +73,7 @@ MonoBehaviour:
     m_InternalValue: 0
   MaxGroup:
     m_InternalValue: 0
-  m_collider: {fileID: 7594667461773364436}
   m_cooldownDuration: 3
-  m_damage: 1
-  m_buffDamageAbility: {fileID: 0}
   IsActive:
     m_InternalValue: 0
   m_buttonImage: {fileID: 7962535334552593988}
@@ -127,6 +125,18 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1.08, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &3554665686221165407
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3924821971453843158}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 09698abc2e8964808b00a54103ccdd21, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7024085330230555046
 GameObject:
   m_ObjectHideFlags: 0
