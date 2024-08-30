@@ -67,9 +67,6 @@ public class PlayerEquipment : NetworkBehaviour
 
         if (id <= 0)
         {
-            //m_playerGotchi.SetWeaponSprites(Hand.Left, Wearable.NameEnum.Unarmed);
-            //m_playerGotchi.SetWeaponSprites(Hand.Right, Wearable.NameEnum.Unarmed);
-
             // tell server to change our equipment if we're the local player
             if (IsLocalPlayer)
             {
@@ -84,9 +81,6 @@ public class PlayerEquipment : NetworkBehaviour
 
             var lhWearable = WearableManager.Instance.GetWearable(leftHandWearableId);
             var rhWearable = WearableManager.Instance.GetWearable(rightHandWearableId);
-
-            //m_playerGotchi.SetWeaponSprites(Hand.Left, lhWearable.NameType);
-            //m_playerGotchi.SetWeaponSprites(Hand.Right, rhWearable.NameType);
 
             // tell server to change our equipment if we're the local player
             if (IsLocalPlayer)
