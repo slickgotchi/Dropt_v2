@@ -15,13 +15,21 @@ using UnityEngine;
 
 public class PlayerAbility : NetworkBehaviour
 {
-    [Header("Base Ability Parameters")]
+    public enum AbilityType { Base, Hold, Special}
 
-    [Tooltip("Set to true if this ability should use Special AP Cost from wearable-data spreadsheet")]
-    public bool IsSpecialAbility = false;
+    //[Header("Base Ability Parameters")]
+
+    [Tooltip("Set the type of ability")]
+    public AbilityType abilityType = AbilityType.Base;
+
+    //[Tooltip("Set to true if this ability should use Special AP Cost from wearable-data spreadsheet")]
+    //public bool IsSpecialAbility = false;
 
     [Tooltip("Cost to cast this ability in AP")]
     public int ApCost = 0;
+
+    [Tooltip("The specific damage multiplier for this ability")]
+    public float DamageMultiplier = 1f;
 
     [Tooltip("Time (s) for the ability to run from Start() to Finish()")]
     public float ExecutionDuration = 1;
@@ -44,8 +52,8 @@ public class PlayerAbility : NetworkBehaviour
     [Tooltip("Time taken to move the AutoMoveDistance. Hard capped to AbilityDuration")]
     public float AutoMoveDuration = 0;
 
-    [Tooltip("Is this ability a hold ability?")]
-    public bool isHoldAbility = false;
+    //[Tooltip("Is this ability a hold ability?")]
+    //public bool isHoldAbility = false;
 
     [Tooltip("Duration it takes to charge hold ability")]
     public float HoldChargeTime = 3f;
@@ -79,6 +87,7 @@ public class PlayerAbility : NetworkBehaviour
     private Transform m_handAndWearableTransform;
     private float m_attackAngleOffset = 0;
 
+    [HideInInspector]
     public enum NetworkRole { LocalClient, RemoteClient, Server }
 
     private void Awake()
@@ -92,7 +101,7 @@ public class PlayerAbility : NetworkBehaviour
         var playerEquipment = playerObject.GetComponent<PlayerEquipment>();
         var wearableNameEnum = (abilityHand == Hand.Left ? playerEquipment.LeftHand : playerEquipment.RightHand).Value;
         ActivationWearable = WearableManager.Instance.GetWearable(wearableNameEnum);
-        ApCost = IsSpecialAbility ? ActivationWearable.SpecialAp : ApCost;
+        //ApCost = abilityType == AbilityType.Special ? ActivationWearable.SpecialAp : ApCost;
         SpecialCooldown = ActivationWearable.SpecialCooldown;
         ActivationWearableNameEnum = wearableNameEnum;
 

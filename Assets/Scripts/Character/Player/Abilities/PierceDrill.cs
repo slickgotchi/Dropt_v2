@@ -9,7 +9,8 @@ public class PierceDrill : PlayerAbility
     [Header("PierceDrill Parameters")]
     [SerializeField] float Projection = 0f;
     [SerializeField] private int NumberHits = 3;
-    [SerializeField] private float DamageMultiplier = 0.5f;
+    [SerializeField] private float m_holdStartDamageMultiplier = 1f;
+    [SerializeField] private float m_holdFinishDamageMultiplier = 2f;
 
     private Collider2D m_collider;
 
@@ -43,7 +44,8 @@ public class PierceDrill : PlayerAbility
         // play the default anim
         PlayAnimation("PierceDefault");
 
-        float chargePower = math.min(1 + (HoldDuration / HoldChargeTime), 2f);
+        var alpha = math.min(HoldDuration / HoldChargeTime, 1f);
+        float chargePower = math.lerp(m_holdStartDamageMultiplier, m_holdFinishDamageMultiplier, alpha);
         OneFrameCollisionDamageCheck(m_collider, Wearable.WeaponTypeEnum.Pierce, chargePower);
     }
 }

@@ -462,7 +462,7 @@ public class PlayerPrediction : NetworkBehaviour
             ability.Init(gameObject, m_abilityHand);
             bool isEnoughAp = GetComponent<NetworkCharacter>().ApCurrent.Value >= ability.ApCost;
             bool isCooldownFinished = currentTick > m_abilityCooldownExpiryTick;
-            if (ability.IsSpecialAbility)
+            if (ability.abilityType == PlayerAbility.AbilityType.Special)
             {
                 if (m_abilityHand == Hand.Left)
                 {
@@ -557,7 +557,7 @@ public class PlayerPrediction : NetworkBehaviour
                     (int)math.ceil((ability.ExecutionDuration + ability.CooldownDuration) * k_serverTickRate);
 
                 // set special cooldown
-                if (ability.IsSpecialAbility)
+                if (ability.abilityType == PlayerAbility.AbilityType.Special)
                 {
                     int expiryTick = currentTick +
                             (int)math.ceil((ability.SpecialCooldown + ability.ExecutionDuration) * k_serverTickRate);
@@ -798,7 +798,7 @@ public class PlayerPrediction : NetworkBehaviour
                 bool isApEnough = GetComponent<NetworkCharacter>().ApCurrent.Value >= ability.ApCost;
                 bool isCooldownFinished = inputPayload.tick > m_abilityCooldownExpiryTick;
 
-                if (ability.IsSpecialAbility)
+                if (ability.abilityType == PlayerAbility.AbilityType.Special)
                 {
                     if (m_abilityHand == Hand.Left)
                     {
@@ -872,7 +872,7 @@ public class PlayerPrediction : NetworkBehaviour
                     (int)math.ceil((ability.ExecutionDuration + ability.CooldownDuration) * k_serverTickRate);
 
                 // set special cooldown
-                if (ability.IsSpecialAbility)
+                if (ability.abilityType == PlayerAbility.AbilityType.Special)
                 {
                     int expiryTick = inputPayload.tick +
                             (int)math.ceil((ability.SpecialCooldown + ability.ExecutionDuration) * k_serverTickRate);

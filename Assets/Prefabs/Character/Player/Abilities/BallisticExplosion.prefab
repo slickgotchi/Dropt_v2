@@ -178,8 +178,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 551d304c17110a149b5d311fdae50aa8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  IsSpecialAbility: 1
+  abilityType: 2
   ApCost: 0
+  DamageMultiplier: 3.5
   ExecutionDuration: 0.5
   ExecutionSlowFactor: 0.5
   CooldownDuration: 0
@@ -187,7 +188,7 @@ MonoBehaviour:
   TeleportDistance: 0
   AutoMoveDistance: 0
   AutoMoveDuration: 0
-  isHoldAbility: 0
+  HoldChargeTime: 3
   HoldSlowFactor: 1
   Player: {fileID: 0}
   SpecialCooldown: 0
