@@ -620,7 +620,7 @@ GameObject:
   - component: {fileID: 407757288669581628}
   m_Layer: 6
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -652,6 +652,7 @@ Transform:
   - {fileID: 2303765656821783588}
   - {fileID: 1683135891876237033}
   - {fileID: 2107494578588454319}
+  - {fileID: 2532512563150813889}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!50 &3292186484427281000
@@ -766,9 +767,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 70377600960fc724d99bc1ed25dc9fb6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ScreenBlockers: {fileID: 5111852839597543851}
   m_positionText: {fileID: 7164068991811045600}
-  TestFernPrefab: {fileID: 1249991746567512264, guid: 7c88d2a926d487949ab476a5b63b936d, type: 3}
+  ScreenBlockers: {fileID: 5111852839597543851}
   IsDead: 0
 --- !u!114 &3992886838419682707
 MonoBehaviour:
@@ -834,7 +834,6 @@ MonoBehaviour:
     m_InternalValue: {x: 0, y: 0, z: 0}
   m_clientCircle: {fileID: 0}
   m_serverCircle: {fileID: 8085241754483361217}
-  playerCamera: {fileID: 0}
   IsInputDisabled: 0
   MovementMultiplier: 1
 --- !u!70 &5988500204368849640
@@ -925,7 +924,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f83d817991c85a49b1e80a63715c8bd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_virtualCamera: {fileID: 0}
 --- !u!114 &-66779552448143468
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1012,8 +1010,8 @@ MonoBehaviour:
   BallisticShot: {fileID: 0}
   ballisticSnipePrefab: {fileID: 2544078778212307353, guid: b0665a972fe31cc488e7f9f4db4f8dbc, type: 3}
   BallisticSnipe: {fileID: 0}
-  ballisticKillPrefab: {fileID: 2544078778212307353, guid: 5ed5b365bb9645b43b8848b0b401334b, type: 3}
-  BallisticKill: {fileID: 0}
+  ballisticExplosionPrefab: {fileID: 0}
+  BallisticExplosion: {fileID: 0}
   magicCastPrefab: {fileID: 2544078778212307353, guid: 3831cf4185879534996557a5c67e6aa8, type: 3}
   MagicCast: {fileID: 0}
   magicBeamPrefab: {fileID: 2544078778212307353, guid: cd9f578c3d55b6a488ad36aa40b328ab, type: 3}
@@ -2011,6 +2009,218 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetToTrack: {fileID: 2776703595897084511}
   sortingOrderOffset: 1
+--- !u!1 &3572577590695421695
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2532512563150813889}
+  - component: {fileID: 3464791590397525371}
+  - component: {fileID: 8716261767279563436}
+  - component: {fileID: 4705936544301507261}
+  - component: {fileID: 5885150569011079401}
+  m_Layer: 6
+  m_Name: DialogueInteractor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &2532512563150813889
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3572577590695421695}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3968243587037172639}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!58 &3464791590397525371
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3572577590695421695}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_Radius: 1
+--- !u!114 &8716261767279563436
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3572577590695421695}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 963d6358c55a0f44d8de57bee560f184, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  useDefaultGUI: 1
+  guiSkin: {fileID: 0}
+  guiStyleName: label
+  alignment: 1
+  color: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  textStyle: 1
+  textStyleColor: {r: 0, g: 0, b: 0, a: 1}
+  m_defaultUseMessage: '[F] to Interact'
+  useKey: 102
+  useButton: Fire2
+  enableTouch: 0
+  touchArea:
+    origin: 0
+    alignment: 0
+    x:
+      scale: 0
+      value: 0
+    y:
+      scale: 0
+      value: 0
+    width:
+      scale: 0
+      value: 0
+    height:
+      scale: 0
+      value: 0
+    minPixelWidth: 0
+    minPixelHeight: 0
+  broadcastToChildren: 1
+  actorTransform: {fileID: 0}
+  onSelectedUsable:
+    m_PersistentCalls:
+      m_Calls: []
+  onDeselectedUsable:
+    m_PersistentCalls:
+      m_Calls: []
+  usablesInRange: []
+--- !u!114 &4705936544301507261
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3572577590695421695}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42f17d3292d455242a47944a59dea99c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tagSpecificElements: []
+  layerSpecificElements: []
+--- !u!114 &5885150569011079401
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3572577590695421695}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a5473918a168c44fa0294bd4d1399f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  conversationEvents:
+    onConversationStart:
+      m_PersistentCalls:
+        m_Calls: []
+    onConversationEnd:
+      m_PersistentCalls:
+        m_Calls: []
+    runOnConversationEndEventsAtEndOfFrame: 0
+    onConversationCancelled:
+      m_PersistentCalls:
+        m_Calls: []
+    onConversationLine:
+      m_PersistentCalls:
+        m_Calls: []
+    onConversationLineEnd:
+      m_PersistentCalls:
+        m_Calls: []
+    onConversationLineCancelled:
+      m_PersistentCalls:
+        m_Calls: []
+    onConversationResponseMenu:
+      m_PersistentCalls:
+        m_Calls: []
+    onConversationResponseMenuTimeout:
+      m_PersistentCalls:
+        m_Calls: []
+    onLinkedConversationStart:
+      m_PersistentCalls:
+        m_Calls: []
+  barkEvents:
+    onBarkStart:
+      m_PersistentCalls:
+        m_Calls: []
+    onBarkEnd:
+      m_PersistentCalls:
+        m_Calls: []
+    onBarkLine:
+      m_PersistentCalls:
+        m_Calls: []
+  sequenceEvents:
+    onSequenceStart:
+      m_PersistentCalls:
+        m_Calls: []
+    onSequenceEnd:
+      m_PersistentCalls:
+        m_Calls: []
+  questEvents:
+    onQuestStateChange:
+      m_PersistentCalls:
+        m_Calls: []
+    onQuestTrackingEnabled:
+      m_PersistentCalls:
+        m_Calls: []
+    onQuestTrackingDisabled:
+      m_PersistentCalls:
+        m_Calls: []
+    onUpdateQuestTracker:
+      m_PersistentCalls:
+        m_Calls: []
+  pauseEvents:
+    onDialogueSystemPause:
+      m_PersistentCalls:
+        m_Calls: []
+    onDialogueSystemUnpause:
+      m_PersistentCalls:
+        m_Calls: []
 --- !u!1 &3884405496853154019
 GameObject:
   m_ObjectHideFlags: 0

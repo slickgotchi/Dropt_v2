@@ -27,7 +27,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2, y: 2, z: 1}
+  m_LocalScale: {x: 3, y: 3, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8086004901219037682}
@@ -185,13 +185,15 @@ MonoBehaviour:
   ExecutionSlowFactor: 0
   CooldownDuration: 0
   CooldownSlowFactor: 1
-  TeleportDistance: 5
+  TeleportDistance: 3.5
   AutoMoveDistance: 0
   AutoMoveDuration: 0
   isHoldAbility: 0
+  HoldChargeTime: 3
   HoldSlowFactor: 1
   Player: {fileID: 0}
   SpecialCooldown: 0
+  PlayerAbilityCentreOffset: {x: 0, y: 0.5, z: 0}
   Projection: 0
   DamageMultiplier: 2
 --- !u!58 &3156338094688859347
@@ -229,7 +231,7 @@ CircleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Radius: 2.5
+  m_Radius: 3.5
 --- !u!1 &4708556748347195212
 GameObject:
   m_ObjectHideFlags: 0
@@ -462,7 +464,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2, y: 2, z: 1}
+  m_LocalScale: {x: 3, y: 3, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8086004901219037682}

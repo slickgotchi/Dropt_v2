@@ -11,8 +11,8 @@ public class UtilityWorldSingleton : MonoBehaviour
 
     public UtilityWorldController World;
 
-    float k_xDist = 16f;
-    float k_yDist = 10f;
+    //float k_xDist = 16f;
+    //float k_yDist = 10f;
 
     private void Awake()
     {
@@ -22,72 +22,72 @@ public class UtilityWorldSingleton : MonoBehaviour
 
     private void Update()
     {
-        HandleAgentEnableDisable();
+        //HandleAgentEnableDisable();
     }
 
-    // handle agent enable/disable based on distance for large levels
-    float enableDisableInterval = 0.1f;
-    float enableDisableTimer = 0f;
-    void HandleAgentEnableDisable()
-    {
-        enableDisableTimer -= Time.deltaTime;
-        if (enableDisableTimer > 0) return;
-        enableDisableTimer = enableDisableInterval;
+    //// handle agent enable/disable based on distance for large levels
+    //float enableDisableInterval = 0.1f;
+    //float enableDisableTimer = 0f;
+    //void HandleAgentEnableDisable()
+    //{
+    //    enableDisableTimer -= Time.deltaTime;
+    //    if (enableDisableTimer > 0) return;
+    //    enableDisableTimer = enableDisableInterval;
 
-        var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
-        var enemies = FindObjectsByType<EnemyController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+    //    var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+    //    var enemies = FindObjectsByType<EnemyController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
 
-        //float activationDistanceSq = 20 * 20;
+    //    //float activationDistanceSq = 20 * 20;
 
         
 
-        int numEnemies = enemies.Length;
-        int numPlayers = players.Length;
-        for (int i = 0; i < numEnemies; i++)
-        {
-            var enemy = enemies[i];
-            var enemyPos = enemy.transform.position;
+    //    int numEnemies = enemies.Length;
+    //    int numPlayers = players.Length;
+    //    for (int i = 0; i < numEnemies; i++)
+    //    {
+    //        var enemy = enemies[i];
+    //        var enemyPos = enemy.transform.position;
 
-            // also ensure we don't deactivate anything that has not yet spawned
-            if (!enemy.HasComponent<NetworkObject>()) continue;
-            if (!enemy.GetComponent<NetworkObject>().IsSpawned) continue;
+    //        // also ensure we don't deactivate anything that has not yet spawned
+    //        if (!enemy.HasComponent<NetworkObject>()) continue;
+    //        if (!enemy.GetComponent<NetworkObject>().IsSpawned) continue;
 
-            bool inRange = false;
+    //        bool inRange = false;
 
-            for (int j = 0; j < numPlayers; j++)
-            {
-                var player = players[j];
-                var playerPos = player.transform.position;
+    //        for (int j = 0; j < numPlayers; j++)
+    //        {
+    //            var player = players[j];
+    //            var playerPos = player.transform.position;
 
-                float xLow = playerPos.x - k_xDist;
-                float xHigh = playerPos.x + k_xDist;
-                float yLow = playerPos.y - k_yDist;
-                float yHigh = playerPos.y + k_yDist;
+    //            float xLow = playerPos.x - k_xDist;
+    //            float xHigh = playerPos.x + k_xDist;
+    //            float yLow = playerPos.y - k_yDist;
+    //            float yHigh = playerPos.y + k_yDist;
 
-                if (enemyPos.x > xLow && enemyPos.x < xHigh && enemyPos.y > yLow && enemyPos.y < yHigh)
-                {
-                    inRange = true;
-                }
+    //            if (enemyPos.x > xLow && enemyPos.x < xHigh && enemyPos.y > yLow && enemyPos.y < yHigh)
+    //            {
+    //                inRange = true;
+    //            }
 
-                //var distSq = math.distancesq(enemy.transform.position,
-                //    player.transform.position);
-                //if (distSq < activationDistanceSq)
-                //{
-                //    inRange = true;
-                //}
-            }
+    //            //var distSq = math.distancesq(enemy.transform.position,
+    //            //    player.transform.position);
+    //            //if (distSq < activationDistanceSq)
+    //            //{
+    //            //    inRange = true;
+    //            //}
+    //        }
 
 
-            // set enabled state
-            if (inRange)
-            {
-                enemy.gameObject.SetActive(true);
-            }
-            else
-            {
-                enemy.gameObject.SetActive(false);
-            }
-        }
+    //        // set enabled state
+    //        if (inRange)
+    //        {
+    //            enemy.gameObject.SetActive(true);
+    //        }
+    //        else
+    //        {
+    //            enemy.gameObject.SetActive(false);
+    //        }
+    //    }
 
-    }
+    //}
 }

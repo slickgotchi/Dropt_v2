@@ -89,6 +89,9 @@ public class LevelManager : NetworkBehaviour
 
     private void DestroyCurrentLevel()
     {
+        // disable proximity manager
+        ProximityManager.Instance.enabled = false;
+
         // find everything to destroy
         var destroyObjects = new List<DestroyAtLevelChange>(FindObjectsByType<DestroyAtLevelChange>(FindObjectsInactive.Include, FindObjectsSortMode.None));
 
@@ -96,6 +99,13 @@ public class LevelManager : NetworkBehaviour
         foreach (var destroyObject in destroyObjects)
         {
             destroyObject.transform.parent = null;
+        }
+
+        // activate objects and add the ignore proximity component
+        foreach (var destroyObject in destroyObjects)
+        {
+            destroyObject.gameObject.SetActive(true);
+            destroyObject.gameObject.AddComponent<IgnoreProximity>();
         }
 
         // despawn/destroy all objects
@@ -136,68 +146,9 @@ public class LevelManager : NetworkBehaviour
         // clear our list
         destroyObjects.Clear();
 
-        //// despawn
-        //foreach (var levelSPawn in l)
 
-        //var networkObjects = new List<NetworkObject>(FindObjectsByType<NetworkObject>(FindObjectsInactive.Include, FindObjectsSortMode.None));
-
-        //// deparent every single network object
-        //foreach (var networkObject in networkObjects) 
-        //{
-        //    // things to save for next level
-        //    if (networkObject.HasComponent<LevelManager>() ||
-        //        networkObject.HasComponent<PlayerController>() ||
-        //        networkObject.HasComponent<PlayerAbility>() ||
-        //        networkObject.HasComponent<DontDestroyAtLevelChange>()) continue;
-
-        //    networkObject.TryRemoveParent(); 
-        //}
-
-        //// destroy all network objects (except for some)
-        //foreach (var networkObject in networkObjects)
-        //{
-        //    // things to save for next level
-        //    if (networkObject.HasComponent<LevelManager>() ||
-        //        networkObject.HasComponent<PlayerController>() ||
-        //        networkObject.HasComponent<PlayerAbility>() ||
-        //        networkObject.HasComponent<DontDestroyAtLevelChange>()) continue;
-
-        //    // remove onDestroy components first too to prevent the new objects appearing
-        //    if (networkObject.HasComponent<OnDestroySpawnNetworkObject>())
-        //    {
-        //        networkObject.GetComponent<OnDestroySpawnNetworkObject>().enabled = false;
-        //    }
-        //    if (networkObject.HasComponent<OnDestroySpawnGltr>())
-        //    {
-        //        networkObject.GetComponent<OnDestroySpawnGltr>().enabled = false;
-        //    }
-
-
-        //    // Ensure the object is active before despawning
-        //    if (!networkObject.gameObject.activeInHierarchy)
-        //    {
-        //        networkObject.gameObject.SetActive(true);
-        //    }
-
-        //    // despawn
-        //    if (IsServer)
-        //    {
-        //        if (networkObject.HasComponent<UtilityAgentFacade>())
-        //        {
-        //            networkObject.GetComponent<UtilityAgentFacade>().Destroy();
-        //        } else
-        //        {
-        //            if (networkObject.IsSpawned)
-        //            {
-        //                networkObject.Despawn();
-        //            }
-        //        }
-        //    }
-
-        //}
-
-        //// clear the list
-        //networkObjects.Clear();
+        // re-enable proximity manager
+        ProximityManager.Instance.enabled = true;
     }
 
     private void CreateLevel(int index = 0)
