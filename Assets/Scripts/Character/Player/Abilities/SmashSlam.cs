@@ -6,7 +6,6 @@ using Unity.Mathematics;
 public class SmashSlam : PlayerAbility
 {
     [Header("SmashSlam Parameters")]
-    [SerializeField] float DamageMultiplier = 3f;
 
     private Collider2D m_collider;
 

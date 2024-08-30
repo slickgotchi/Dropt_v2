@@ -11,7 +11,6 @@ public class SplashBomb : PlayerAbility
     public float Projection = 1.5f;
     public float Distance = 8f;
     public float Duration = 1f;
-    public float DamageMultiplier = 2.5f;
     public float ExplosionRadius = 1f;
     public float LobHeight = 2f;
 

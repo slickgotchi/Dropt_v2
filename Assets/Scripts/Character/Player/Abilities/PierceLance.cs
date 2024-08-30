@@ -7,7 +7,6 @@ public class PierceLance : PlayerAbility
 {
     [Header("PierceLance Parameters")]
     [SerializeField] float Projection = 0f;
-    [SerializeField] float DamageMultiplier = 2f;
 
     private Collider2D m_collider;
 

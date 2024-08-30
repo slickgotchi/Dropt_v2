@@ -7,8 +7,8 @@ public class SmashWave : PlayerAbility
 {
     [Header("SmashWave Parameters")]
     [SerializeField] float Projection = 1f;
-    [SerializeField] float MinChargeDamageMultiplier = 0.5f;
-    [SerializeField] float MaxChargeDamageMultiplier = 2.5f;
+    [SerializeField] float m_holdStartDamageMultiplier = 0.5f;
+    [SerializeField] float m_holdFinishDamageMultiplier = 2.5f;
 
     private Collider2D m_collider;
     private List<Collider2D> m_hitColliders = new List<Collider2D>();
@@ -35,7 +35,7 @@ public class SmashWave : PlayerAbility
         m_hitColliders.Clear();
 
         var alpha = math.min(HoldDuration / HoldChargeTime, 1f);
-        m_damageMultiplier = math.lerp(MinChargeDamageMultiplier, MaxChargeDamageMultiplier, alpha);
+        m_damageMultiplier = math.lerp(m_holdStartDamageMultiplier, m_holdFinishDamageMultiplier, alpha);
     }
 
     public override void OnUpdate()

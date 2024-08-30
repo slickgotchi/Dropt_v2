@@ -8,7 +8,6 @@ public class CleaveWhirlwind : PlayerAbility
 {
     [Header("CleaveWhirlwind Parameters")]
     [SerializeField] private int NumberHits = 3;
-    [SerializeField] private float DamageMultiplier = 0.5f;
 
     private float m_hitInterval;
     private float m_hitTimer;
