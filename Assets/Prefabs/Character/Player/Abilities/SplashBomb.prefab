@@ -135,7 +135,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1161729532
+  GlobalObjectIdHash: 4046823125
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -178,8 +178,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2becbc303ba53154a8844647bd512a2e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  IsSpecialAbility: 1
+  abilityType: 2
   ApCost: 0
+  DamageMultiplier: 2.5
   ExecutionDuration: 0.5
   ExecutionSlowFactor: 0
   CooldownDuration: 0
@@ -187,7 +188,6 @@ MonoBehaviour:
   TeleportDistance: 0
   AutoMoveDistance: 0
   AutoMoveDuration: 0
-  isHoldAbility: 0
   HoldChargeTime: 3
   HoldSlowFactor: 1
   Player: {fileID: 0}
@@ -196,7 +196,6 @@ MonoBehaviour:
   Projection: 0.5
   Distance: 6
   Duration: 0.5
-  DamageMultiplier: 2.5
   ExplosionRadius: 2.5
   LobHeight: 2
   SplashProjectilePrefab: {fileID: 2544078778212307353, guid: 73f179612b812a940ba7677f6f9c6216, type: 3}

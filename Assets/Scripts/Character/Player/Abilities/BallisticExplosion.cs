@@ -10,6 +10,8 @@ public class BallisticExplosion : PlayerAbility
     public float Projection = 1.5f;
     public float Distance = 8f;
     public float Duration = 1f;
+    public float ExplosionRadius = 2f;
+    public float ExplosionDamageMultiplier = 0.5f;
 
     [Header("Projectile Prefab")]
     public GameObject BulletPrefab;
@@ -82,7 +84,7 @@ public class BallisticExplosion : PlayerAbility
     void ActivateProjectile(Wearable.NameEnum activationWearable, Vector3 direction, float distance, float duration)
     {
         GameObject projectile = GetProjectileInstance(activationWearable);
-        var no_projectile = projectile.GetComponent<GenericProjectile>();
+        var no_projectile = projectile.GetComponent<BallisticExplosionProjectile>();
         var no_projectileId = no_projectile.GetComponent<NetworkObject>().NetworkObjectId;
         var playerCharacter = Player.GetComponent<NetworkCharacter>();
         var startPosition =
@@ -99,7 +101,9 @@ public class BallisticExplosion : PlayerAbility
                 Wearable.WeaponTypeEnum.Ballistic, Player,
                 playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier * DamageMultiplier,
                 playerCharacter.CriticalChance.Value,
-                playerCharacter.CriticalDamage.Value);
+                playerCharacter.CriticalDamage.Value,
+                DamageMultiplier,
+                ExplosionDamageMultiplier);
 
             // fire
             no_projectile.Fire();
@@ -128,13 +132,13 @@ public class BallisticExplosion : PlayerAbility
         if (!Player.GetComponent<NetworkObject>().IsLocalPlayer)
         {
             var no_projectile = NetworkManager.SpawnManager.SpawnedObjects[projectileNetworkObjectId].
-                GetComponent<GenericProjectile>();
+                GetComponent<BallisticExplosionProjectile>();
 
             // init
             no_projectile.Init(startPosition, direction, distance, duration, 1,
                 PlayerAbility.NetworkRole.RemoteClient,
                 Wearable.WeaponTypeEnum.Ballistic, Player,
-                0, 0, 0);
+                0, 0, 0, 0, 0);
 
             // init
             no_projectile.Fire();

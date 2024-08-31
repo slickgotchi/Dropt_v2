@@ -46,6 +46,6 @@ public class PierceDrill : PlayerAbility
 
         var alpha = math.min(HoldDuration / HoldChargeTime, 1f);
         float chargePower = math.lerp(m_holdStartDamageMultiplier, m_holdFinishDamageMultiplier, alpha);
-        OneFrameCollisionDamageCheck(m_collider, Wearable.WeaponTypeEnum.Pierce, chargePower);
+        OneFrameCollisionDamageCheck(m_collider, Wearable.WeaponTypeEnum.Pierce, chargePower * DamageMultiplier);
     }
 }
