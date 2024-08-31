@@ -8,7 +8,6 @@ public class MagicBlast : PlayerAbility
     [Header("MagicBlast Parameters")]
     [SerializeField] float Projection = 0f;
     [SerializeField] int NumberHits = 4;
-    [SerializeField] float DamageMultiplierPerHit = 0.75f;
 
     private Collider2D m_collider;
 
@@ -44,7 +43,7 @@ public class MagicBlast : PlayerAbility
 
     private void CollisionCheck()
     {
-        OneFrameCollisionDamageCheck(m_collider, Wearable.WeaponTypeEnum.Magic, DamageMultiplierPerHit);
+        OneFrameCollisionDamageCheck(m_collider, Wearable.WeaponTypeEnum.Magic, DamageMultiplier);
     }
 
     public override void OnUpdate()

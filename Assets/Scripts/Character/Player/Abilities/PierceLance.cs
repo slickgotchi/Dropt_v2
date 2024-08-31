@@ -7,6 +7,7 @@ public class PierceLance : PlayerAbility
 {
     [Header("PierceLance Parameters")]
     [SerializeField] float Projection = 0f;
+    public float HitRadius = 3.5f;
 
     private Collider2D m_collider;
 
@@ -20,6 +21,9 @@ public class PierceLance : PlayerAbility
     {
         // hide the player
         Player.GetComponent<PlayerGotchi>().SetVisible(false);
+
+        var scale = HitRadius / 3.5f;   /// 3.5f is the base size of the lance animation
+        transform.localScale = new Vector3(scale, scale, 1f);
     }
 
     public override void OnTeleport()

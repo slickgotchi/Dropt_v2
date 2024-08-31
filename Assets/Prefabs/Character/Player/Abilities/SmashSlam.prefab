@@ -136,7 +136,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3741206906
+  GlobalObjectIdHash: 72900199
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -215,8 +215,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e11be67b65bd914f9537a00bc02b2fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  IsSpecialAbility: 1
+  abilityType: 2
   ApCost: 0
+  DamageMultiplier: 3
   ExecutionDuration: 1
   ExecutionSlowFactor: 0
   CooldownDuration: 0
@@ -224,13 +225,11 @@ MonoBehaviour:
   TeleportDistance: 0
   AutoMoveDistance: 0
   AutoMoveDuration: 0
-  isHoldAbility: 0
   HoldChargeTime: 3
   HoldSlowFactor: 1
   Player: {fileID: 0}
   SpecialCooldown: 0
   PlayerAbilityCentreOffset: {x: 0, y: 0.5, z: 0}
-  DamageMultiplier: 3
 --- !u!1 &4708556748347195212
 GameObject:
   m_ObjectHideFlags: 0

@@ -9,6 +9,9 @@ public class CleaveWhirlwind : PlayerAbility
     [Header("CleaveWhirlwind Parameters")]
     [SerializeField] private int NumberHits = 3;
 
+    public float m_holdStartScale = 1f;
+    public float m_holdFinishScale = 2f;
+
     private float m_hitInterval;
     private float m_hitTimer;
     private int m_hitCounter;
@@ -28,7 +31,8 @@ public class CleaveWhirlwind : PlayerAbility
         // set transform to activation rotation/position and scale based on hold duration
         SetRotation(quaternion.identity);
         SetLocalPosition(PlayerAbilityCentreOffset);
-        SetScale(math.min(1 + (HoldDuration / HoldChargeTime), 2f));
+        var alpha = math.min(HoldDuration / HoldChargeTime, 1);
+        SetScale(math.lerp(m_holdStartScale, m_holdFinishScale, alpha));
 
         m_hitCounter = NumberHits;
         m_hitTimer = m_hitInterval;
@@ -63,6 +67,7 @@ public class CleaveWhirlwind : PlayerAbility
 
     public override void OnFinish()
     {
+        HoldChargeTime = 0;
         while (m_hitCounter > 0)
         {
             CollisionCheck();
