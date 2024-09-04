@@ -217,7 +217,9 @@ namespace Audio
 
         public void SetActiveListener(bool isActive)
         {
+
             m_audioListener.enabled = isActive;
+
         }
 
         #endregion

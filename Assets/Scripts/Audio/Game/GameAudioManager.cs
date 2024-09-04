@@ -28,8 +28,6 @@ namespace Audio.Game
             m_instance = go.GetComponent<GameAudioManager>();
         }
 
-        private AudioListener m_audioListener;
-
         public static void TryToDispose()
         {
             if (null == m_instance)
@@ -77,8 +75,6 @@ namespace Audio.Game
 
         private void Update()
         {
-            if (m_audioListener != null) m_audioListener.enabled = false;
-            else m_audioListener = GetComponent<AudioListener>();
         }
 
         private void OnApplicationQuit()
