@@ -139,7 +139,7 @@ public class PlayerHUDCanvas : MonoBehaviour
 
     void UpdateGltr()
     {
-        var gltrCount = m_localPlayerCharacter.GetComponent<PlayerDungeonData>().GltrCount;
+        var gltrCount = m_localPlayerCharacter.GetComponent<PlayerDungeonData>().SpiritDust;
         m_gltrText.text = gltrCount.Value.ToString();
     }
 

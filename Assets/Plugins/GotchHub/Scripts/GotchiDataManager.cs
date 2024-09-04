@@ -36,8 +36,6 @@ namespace GotchiHub
         private int m_selectedGotchiId = 0;
         public int GetSelectedGotchiId() { return m_selectedGotchiId; }
 
-        [HideInInspector] public string StatusString = "";
-
         // Event declaration
         public event Action<int> onSelectedGotchi;
         public event Action onFetchGotchiDataSuccess;
@@ -138,13 +136,11 @@ namespace GotchiHub
                 localGotchiSvgSets.Clear();
 
                 // get wallet address
-                StatusString = "Validating wallet address...";
                 var walletAddress = await ThirdwebManager.Instance.SDK.Wallet.GetAddress();
                 walletAddress = walletAddress.ToLower();
 
 
                 // fetch gotchis with aavegotchi kit
-                StatusString = "Wallet validated. Fetching gotchi data...";
                 var userAccount = await graphManager.GetUserAccount(walletAddress);
 
                 // save base gotchi data
@@ -156,9 +152,7 @@ namespace GotchiHub
                 }
 
                 // get svgs
-                StatusString = userAccount.gotchisOwned.Length.ToString() + " gotchis found. Downloading SVGs...";
                 var svgs = await graphManager.GetGotchiSvgs(gotchiIds);
-                StatusString = "Gotchi SVGs downloaded. Converting...";
                 for (int i = 0; i < svgs.Count; i++)
                 {
                     var svgSet = svgs[i];
@@ -175,10 +169,8 @@ namespace GotchiHub
                 gotchiIds.Clear();
 
                 // default to highest brs gotchi
-                StatusString = "SVGs converted. Updating gotchi inventory...";
                 if (localGotchiData.Count > 0)
                 {
-                    StatusString = "Set selected gotchi to highest BRS";
                     SetSelectedGotchiById(GetGotchiIdByHighestBRS());
 
                     onFetchGotchiDataSuccess?.Invoke();
@@ -222,11 +214,8 @@ namespace GotchiHub
 
         public async void FetchRemoteGotchiSvgsById(int id)
         {
-            if (StatusString == "Fetching") return;
-
             try
             {
-                StatusString = "Fetching";
                 var svgs = await graphManager.GetGotchiSvg(id.ToString());
                 if (svgs.svg != null)
                 {
@@ -239,12 +228,10 @@ namespace GotchiHub
                         Right = svgs.right,
                     });
                 }
-                StatusString = "FetchComplete";
             }
             catch (Exception ex)
             {
                 Debug.Log(ex);
-                StatusString = "FetchComplete";
             }
         }
 

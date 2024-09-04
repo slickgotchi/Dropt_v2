@@ -36,9 +36,6 @@ namespace GotchiHub
         // private variables
         private GotchiDataManager m_gotchiDataManager;
         private string m_walletAddress = "";
-        private bool m_isShowButtonJustClicked = false;
-
-        private bool m_isConnected = false;
 
         public enum ReorganizeMethod
         {
