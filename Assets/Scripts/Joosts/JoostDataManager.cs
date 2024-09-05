@@ -62,7 +62,7 @@ public class JoostDataManager : MonoBehaviour
 
         if (joostDataDictionary.TryGetValue(joostType, out JoostObject joostObject))
         {
-            Debug.Log($"JoostObject of type {joostType} found.");
+            //Debug.Log($"JoostObject of type {joostType} found.");
             return joostObject;
         }
         else

@@ -47,6 +47,7 @@ public class PlayerHUDCanvas : MonoBehaviour
     [SerializeField] private TextMeshProUGUI m_rhCooldownText;
 
     [SerializeField] private TextMeshProUGUI m_gltrText;
+    [SerializeField] private TextMeshProUGUI m_cGhstText;
 
     [SerializeField] private TextMeshProUGUI m_essenceText;
 
@@ -59,10 +60,12 @@ public class PlayerHUDCanvas : MonoBehaviour
     [SerializeField] private TMPro.TextMeshProUGUI m_levelName;
 
     private NetworkCharacter m_localPlayerCharacter;
+    private PlayerDungeonData m_localPlayerDungeonData;
 
     public void SetLocalPlayerCharacter(NetworkCharacter localPlayerCharacter)
     {
         m_localPlayerCharacter = localPlayerCharacter;
+        m_localPlayerDungeonData = localPlayerCharacter.GetComponent<PlayerDungeonData>(); 
     }
 
     public void SetLevelNumberAndName(string number, string name)
@@ -96,6 +99,7 @@ public class PlayerHUDCanvas : MonoBehaviour
         UpdateCooldowns();
         UpdateGltr();
         UpdateEssence();
+        UpdateCGHST();
         UpdateAbilityIcons();
 
         if (Screen.fullScreen)
@@ -139,15 +143,21 @@ public class PlayerHUDCanvas : MonoBehaviour
 
     void UpdateGltr()
     {
-        var gltrCount = m_localPlayerCharacter.GetComponent<PlayerDungeonData>().SpiritDust;
+        var gltrCount = m_localPlayerDungeonData.SpiritDust;
         m_gltrText.text = gltrCount.Value.ToString();
     }
 
 
     void UpdateEssence()
     {
-        var essence = m_localPlayerCharacter.GetComponent<PlayerDungeonData>().Essence;
+        var essence = m_localPlayerDungeonData.Essence;
         m_essenceText.text = essence.Value.ToString("F0");
+    }
+
+    void UpdateCGHST()
+    {
+        var cGhst = m_localPlayerDungeonData.cGHST;
+        m_cGhstText.text = cGhst.Value.ToString("F0");
     }
 
     Wearable.NameEnum lhOld;

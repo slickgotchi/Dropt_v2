@@ -75,7 +75,7 @@ public class WearableLoader : MonoBehaviour
             WearableManager.Instance.AddWearable(wearable);
         }
 
-        Debug.Log(WearableManager.Instance.GetWearableCount() + " wearables loaded.");
+        //Debug.Log(WearableManager.Instance.GetWearableCount() + " wearables loaded.");
     }
 
     private static float ParseFloat(string value)

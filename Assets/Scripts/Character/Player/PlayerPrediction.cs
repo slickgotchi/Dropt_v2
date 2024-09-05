@@ -774,7 +774,7 @@ public class PlayerPrediction : NetworkBehaviour
         m_isSetPlayerPosition = true;
         m_isSetPlayerPositionCounter = 0;
         m_setPlayerPosition = position;
-        Debug.Log("Set player position to: " + position);
+        //Debug.Log("Set player position to: " + position);
     }
 
     void HandleServerTick()

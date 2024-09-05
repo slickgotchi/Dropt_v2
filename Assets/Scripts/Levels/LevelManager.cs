@@ -280,6 +280,13 @@ public class LevelManager : NetworkBehaviour
         CreateLevel(nextLevelIndex);
         m_currentLevelIndex = nextLevelIndex;
 
+        // increment all LevelCountBuffs
+        var levelCountBuffs = FindObjectsByType<LevelCountedBuff>(FindObjectsSortMode.None);
+        foreach (var lcb in levelCountBuffs)
+        {
+            lcb.IncrementLevelCount();
+        }
+
         // if our new level is degenape, tell client they can mark tutorial as complete
         if (m_currentLevelIndex == DegenapeVillageLevel)
         {
@@ -330,7 +337,7 @@ public class LevelManager : NetworkBehaviour
                     {
                         m_playerSpawnPoints.Add(playerSpawnPoints.transform.GetChild(j).transform.position);
                         makeupCount--;
-                        Debug.Log("add legit spawn point: " + playerSpawnPoints.transform.GetChild(j).transform.position);
+                        //Debug.Log("add legit spawn point: " + playerSpawnPoints.transform.GetChild(j).transform.position);
                     }
                 }
             }

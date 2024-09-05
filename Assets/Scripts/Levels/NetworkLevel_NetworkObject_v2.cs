@@ -50,7 +50,7 @@ namespace Level
             }
             else
             {
-                Debug.Log("Setting spawn condition to: " + spawnCondition.spawnCondition + " with elapsedTime: " + spawnCondition.elapsedTime);
+                //Debug.Log("Setting spawn condition to: " + spawnCondition.spawnCondition + " with elapsedTime: " + spawnCondition.elapsedTime);
                 levelSpawn.spawnCondition = spawnCondition.spawnCondition;
                 levelSpawn.elapsedTime = spawnCondition.elapsedTime;
                 levelSpawn.destroyAllWithSpawnerId = spawnCondition.destroyAllWithSpawnerId;

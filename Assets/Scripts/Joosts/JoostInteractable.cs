@@ -1,11 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 public class JoostInteractable : Interactable
 {
     public Joost.Type type = Joost.Type.Null;
     [SerializeField] private SpriteRenderer m_spriteRenderer;
+    public int NumberLevels = 3;
 
     private Sprite m_sprite;
     private string m_name;
@@ -34,7 +36,7 @@ public class JoostInteractable : Interactable
         BuffObject = joostData.buffObject;
 
         m_spriteRenderer.sprite = m_sprite;
-        Debug.Log(m_spriteRenderer.sprite);
+        //Debug.Log(m_spriteRenderer.sprite);
     }
 
     public override void OnStartInteraction()
@@ -48,12 +50,32 @@ public class JoostInteractable : Interactable
         if (Input.GetKeyDown(KeyCode.F))
         {
             Debug.Log("Try consume joost!");
+            TryAddJoostBuffServerRpc();
         }
     }
 
     public override void OnFinishInteraction()
     {
         JoostInteractionCanvas.Instance.Container.SetActive(false);
+    }
+
+    [Rpc(SendTo.Server)]
+    void TryAddJoostBuffServerRpc()
+    {
+        var playerController = GetPlayerController();
+        var playerDungeonData = playerController.GetComponent<PlayerDungeonData>();
+        var cGhst = playerDungeonData.cGHST.Value;
+
+        // check we have enough cGHST
+        if (m_cost > cGhst) return;
+
+        var levelCountedBuffObject = new GameObject();
+        var levelCountedBuff = levelCountedBuffObject.AddComponent<LevelCountedBuff>();
+        bool isBuffAdded = levelCountedBuff.TryInit(BuffObject, playerController.GetComponent<NetworkCharacter>(), NumberLevels);
+        if (!isBuffAdded) return;
+
+        // deduct cGHST
+        playerDungeonData.cGHST.Value -= m_cost;
     }
 
     private string AddSpacesToCamelCase(string text)

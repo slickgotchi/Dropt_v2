@@ -94,8 +94,8 @@ public class Bootstrap : MonoBehaviour
             if (arg == "-noservermanager") UseServerManager = false;
 
         }
-        Debug.Log("Bootstrap.Awake(): CL arguments processed. Connection type: " + ConnectionType
-            + ", Network: " + NetworkRole + ", Port: " + Port);
+        //Debug.Log("Bootstrap.Awake(): CL arguments processed. Connection type: " + ConnectionType
+        //    + ", Network: " + NetworkRole + ", Port: " + Port);
     }
 
     private void Start()
