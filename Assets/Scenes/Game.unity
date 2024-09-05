@@ -1555,6 +1555,7 @@ MonoBehaviour:
   - {fileID: 1249991746567512264, guid: e5a9c429137cfff40b915d8772115d37, type: 3}
   - {fileID: 3159421716010617349, guid: f5438282877d9834ba7b0271b18e6d81, type: 3}
   - {fileID: 2544078778212307353, guid: 0606bf8814fd81a4f96a6b9263e89c1f, type: 3}
+  - {fileID: 1249991746567512264, guid: 06a7184707d9d4af2867e7e5d30a9b77, type: 3}
   - {fileID: 3159421716010617349, guid: 060fc45219c1dec4daedca90b92c7985, type: 3}
   - {fileID: 1249991746567512264, guid: 26e40ead255383f4e836624657f0fb9c, type: 3}
   - {fileID: 1249991746567512264, guid: 46523ce6f31b52340966873be83ac35a, type: 3}
@@ -1612,6 +1613,7 @@ MonoBehaviour:
   - {fileID: 3924821971453843158, guid: 6ddad91f00c96da4aacb292a4ab6e634, type: 3}
   - {fileID: 3924821971453843158, guid: ad72d239c69fd0a49b116d83cdd8191b, type: 3}
   - {fileID: 1249991746567512264, guid: bdc6620306f5414408522757f6ae8427, type: 3}
+  - {fileID: 1249991746567512264, guid: cd3acc3a578404c52b00ba5c52342775, type: 3}
   - {fileID: 2544078778212307353, guid: cd9f578c3d55b6a488ad36aa40b328ab, type: 3}
   - {fileID: 2544078778212307353, guid: dd316c056467f40faae5d4bebd986611, type: 3}
   - {fileID: 3159421716010617349, guid: 3ed119fde8550b84387647ba983d8fe5, type: 3}
@@ -3281,7 +3283,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.0002727727}
+  m_AnchoredPosition: {x: 0, y: -0.000004895355}
   m_SizeDelta: {x: 0, y: 300}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &340773159
@@ -3354,15 +3356,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_levels:
-  - {fileID: 6013081601958011756, guid: 2a76efc870a494856af356c0231945d6, type: 3}
-  - {fileID: 1750674975908136129, guid: cef0a3dfad699441c856f7ff0172afc3, type: 3}
-  - {fileID: 8729047646201065849, guid: 7c32b8b984bdc4e279b4a28493848253, type: 3}
-  - {fileID: 7101316793635054011, guid: c4645e6d368534a6c9b7e4a719d01a9b, type: 3}
+  - {fileID: 7180562982002544136, guid: cbb1d0ef1fcb04914882fdabcf5b9b77, type: 3}
   - {fileID: 8575087351279563166, guid: 1c46c4daf9d53e54ca65597006bcf5b9, type: 3}
   - {fileID: 6013081601958011756, guid: 2a76efc870a494856af356c0231945d6, type: 3}
-  - {fileID: 5153219739159366316, guid: b65374327e047405b855698080d7ccc7, type: 3}
+  - {fileID: 1750674975908136129, guid: cef0a3dfad699441c856f7ff0172afc3, type: 3}
+  - {fileID: 7101316793635054011, guid: c4645e6d368534a6c9b7e4a719d01a9b, type: 3}
   - {fileID: 5720455646430653644, guid: 22a24c1e01a3741619341d4da8318f30, type: 3}
+  - {fileID: 5153219739159366316, guid: b65374327e047405b855698080d7ccc7, type: 3}
   - {fileID: 192799261251229401, guid: 41347e69a938f4282a8db5cb5862b71f, type: 3}
+  - {fileID: 8729047646201065849, guid: 7c32b8b984bdc4e279b4a28493848253, type: 3}
   TutorialStartLevel: 0
   DegenapeVillageLevel: 2
   DungeonStartLevel: 3
@@ -13642,8 +13644,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2257310}
   m_HandleRect: {fileID: 2257309}
   m_Direction: 2
-  m_Value: 0
-  m_Size: 0.99999064
+  m_Value: 1
+  m_Size: 0.99999213
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -32375,7 +32377,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 5981013179072031083}
   m_Direction: 2
   m_Value: 1.0000013
-  m_Size: 0.8387595
+  m_Size: 0.83875954
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
