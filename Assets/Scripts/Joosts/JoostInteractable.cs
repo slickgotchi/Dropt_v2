@@ -34,6 +34,7 @@ public class JoostInteractable : Interactable
         BuffObject = joostData.buffObject;
 
         m_spriteRenderer.sprite = m_sprite;
+        Debug.Log(m_spriteRenderer.sprite);
     }
 
     public override void OnStartInteraction()

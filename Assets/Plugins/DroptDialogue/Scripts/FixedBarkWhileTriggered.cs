@@ -12,7 +12,6 @@ public class FixedBarkWhileTriggered : MonoBehaviour
         {
             // If the tag matches, enable the waitForContinueButton property
             GetComponentInChildren<StandardBarkUI>().waitForContinueButton = true;
-            Debug.Log(GetComponentInChildren<StandardBarkUI>().waitForContinueButton);
         }
     }
 

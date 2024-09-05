@@ -2,15 +2,30 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using Thirdweb;
+
+// cGHST bank
+//  
 
 public class PlayerDungeonData : NetworkBehaviour
 {
     // Public properties with private setters
-    public NetworkVariable<int> GltrCount = new NetworkVariable<int>(0);
-    public NetworkVariable<int> cGHSTCount = new NetworkVariable<int>(0);
+    public NetworkVariable<int> SpiritDust = new NetworkVariable<int>(0);
+    public NetworkVariable<int> cGHST = new NetworkVariable<int>(0);
     public NetworkVariable<float> Essence = new NetworkVariable<float>(300);
 
+    private string m_walletAddress;
+    private float k_walletUpdateInterval = 0.2f;
+    private float m_walletUpdateTimer = 0f;
+
     private void Update()
+    {
+        UpdateEssence();
+        UpdateGameOver();
+        UpdateWalletData();
+    }
+
+    private void UpdateEssence()
     {
         if (!IsServer) return;
 
@@ -20,6 +35,11 @@ public class PlayerDungeonData : NetworkBehaviour
         {
             Essence.Value = 300;
         }
+    }
+
+    private void UpdateGameOver()
+    {
+        if (!IsServer) return;
 
         if (Essence.Value <= 0 && LevelManager.Instance.CurrentLevelIndex.Value > LevelManager.Instance.DegenapeVillageLevel)
         {
@@ -27,12 +47,81 @@ public class PlayerDungeonData : NetworkBehaviour
         }
     }
 
+    private async void UpdateWalletData()
+    {
+        if (!IsLocalPlayer) return;
+
+        m_walletUpdateTimer -= Time.deltaTime;
+        if (m_walletUpdateTimer > 0) return;
+        m_walletUpdateTimer = k_walletUpdateInterval;
+
+        try
+        {
+            // address check
+            var address = await ThirdwebManager.Instance.SDK.Wallet.GetAddress();
+            if (address != m_walletAddress && address != null)
+            {
+                m_walletAddress = address;
+
+                CreateOrFetchDroptWalletDataServerRpc(m_walletAddress);
+            }
+        }
+        catch (System.Exception e)
+        {
+            // don't do anything, if we got here it just means we don't have a wallet account
+        }
+    }
+
+    [Rpc(SendTo.Server)]
+    void CreateOrFetchDroptWalletDataServerRpc(string walletAddress)
+    {
+        CreateOrFetchDroptWalletData(walletAddress);
+    }
+
+    async void CreateOrFetchDroptWalletData(string walletAddress)
+    {
+        try
+        {
+            // fetch wallet data (or create new)
+            var fetchResponse = await DroptWalletAPI.FetchDroptWalletDataAsync(walletAddress);
+
+            // if no data, make a new database entry
+            if (fetchResponse == null)
+            {
+                DroptWalletData droptData = new DroptWalletData
+                {
+                    walletAddress = m_walletAddress,
+                    cGhst = 0,
+                    spiritDust = 0,
+                };
+
+                var createResponse = await DroptWalletAPI.CreateDroptWalletDataAsync(droptData);
+
+                cGHST.Value = 0;
+                SpiritDust.Value = 0;
+            }
+
+            // if got data, populate cghst and gltr
+            else
+            {
+                cGHST.Value = fetchResponse.cGhst;
+                SpiritDust.Value = fetchResponse.spiritDust;
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.Log(ex);
+        }
+    }
+
+    
+
     // Method to add value to GltrCount
     public void AddGltr(int value)
     {
         if (!IsServer) return;
 
-        GltrCount.Value += value;
+        SpiritDust.Value += value;
     }
 
     // Method to add value to CGHSTCount
@@ -40,7 +129,7 @@ public class PlayerDungeonData : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        cGHSTCount.Value += value;
+        cGHST.Value += value;
     }
 
     public void AddEssence(float value)
@@ -55,8 +144,8 @@ public class PlayerDungeonData : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        GltrCount.Value = 0;
-        cGHSTCount.Value = 0;
+        SpiritDust.Value = 0;
+        cGHST.Value = 0;
         Essence.Value = 300;
     }
 }
