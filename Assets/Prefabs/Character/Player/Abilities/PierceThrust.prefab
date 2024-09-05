@@ -136,7 +136,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1197388314
+  GlobalObjectIdHash: 3849122308
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -201,7 +201,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 1.6530112, y: 0}
+  m_Offset: {x: 0.62801576, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -211,7 +211,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 3.6060226, y: 1.7}
+  m_Size: {x: 5.65, y: 0.65}
   m_EdgeRadius: 0
 --- !u!114 &-2107224498534324590
 MonoBehaviour:
@@ -225,16 +225,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7c6f816e7c4aea40a64dd16adfff263, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  IsSpecialAbility: 0
+  abilityType: 0
   ApCost: 0
-  ExecutionDuration: 0.4
-  ExecutionSlowFactor: 0
-  CooldownDuration: 2
-  CooldownSlowFactor: 1
-  TeleportDistance: 0.5
+  DamageMultiplier: 1.25
+  ExecutionDuration: 0.3
+  ExecutionSlowFactor: 0.2
+  CooldownDuration: 0.2
+  CooldownSlowFactor: 0.75
+  TeleportDistance: 0.7
   AutoMoveDistance: 0
   AutoMoveDuration: 0
-  isHoldAbility: 0
   HoldChargeTime: 3
   HoldSlowFactor: 1
   Player: {fileID: 0}
