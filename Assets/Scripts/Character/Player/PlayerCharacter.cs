@@ -184,7 +184,7 @@ public class PlayerCharacter : NetworkCharacter
         var crit = GetWearableStat(wearable.Spk, wearable.Rarity, TraitType.SPK);
         var ap = GetWearableStat(wearable.Brn, wearable.Rarity, TraitType.BRN);
 
-        Debug.Log("Create buff from wearable: " + wearable.Name + ", hp + " + hp + ", atk + " + atk + ", crit + " + crit + ", ap + " + ap);
+        //Debug.Log("Create buff from wearable: " + wearable.Name + ", hp + " + hp + ", atk + " + atk + ", crit + " + crit + ", ap + " + ap);
 
         // hp buff
         buffObject.buffs.Add(new Buff

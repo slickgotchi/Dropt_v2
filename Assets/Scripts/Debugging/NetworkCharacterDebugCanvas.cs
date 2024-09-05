@@ -25,6 +25,7 @@ public class NetworkCharacterDebugCanvas : MonoBehaviour
     public TextMeshProUGUI Evasion;
     public TextMeshProUGUI DamageReduction;
     public TextMeshProUGUI ApLeech;
+    public TextMeshProUGUI ApRegen;
 
     private void Awake()
     {
@@ -53,5 +54,6 @@ public class NetworkCharacterDebugCanvas : MonoBehaviour
         Evasion.text = "Evasion: " + networkCharacter.Evasion.Value.ToString("F2");
         DamageReduction.text = "DamageReduction: " + networkCharacter.DamageReduction.Value.ToString("F2");
         ApLeech.text = "ApLeech: " + networkCharacter.ApLeech.Value.ToString("F2");
+        ApRegen.text = "ApRegen: " + networkCharacter.ApRegen.Value.ToString("F2");
     }
 }

@@ -162,6 +162,11 @@ public class NetworkCharacter : NetworkBehaviour
         ApRegen.Value = baseApRegen;
     }
 
+    public bool HasBuffObject(BuffObject buffObject)
+    {
+        return activeBuffObjects.Contains(buffObject);
+    }
+
     public void AddBuffObject(BuffObject buffObject)
     {
         if (!IsServer)
@@ -200,7 +205,7 @@ public class NetworkCharacter : NetworkBehaviour
             return;
         }
 
-        Debug.Log("RecalculateStats()");
+        //Debug.Log("RecalculateStats()");
 
         Dictionary<CharacterStat, float> baseStats = new Dictionary<CharacterStat, float>
         {
@@ -284,6 +289,6 @@ public class NetworkCharacter : NetworkBehaviour
         ApRegen.Value = baseStats[CharacterStat.ApRegen];
 
         // Optionally, you can log the final stats for debugging
-        Debug.Log("Player Stats Updated");
+        //Debug.Log("Player Stats Updated");
     }
 }

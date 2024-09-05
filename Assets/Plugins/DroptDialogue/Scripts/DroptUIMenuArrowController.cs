@@ -10,9 +10,13 @@ public class DroptUIMenuArrowController : MonoBehaviour
 
     public KeyCode upKeyCode = KeyCode.W;
     public KeyCode downKeyCode = KeyCode.S;
-    public KeyCode selectKeyCode = KeyCode.F;
 
     private int m_currentButton = 0;
+
+    private void OnEnable()
+    {
+        m_currentButton = 0;
+    }
 
     void Update()
     {
@@ -26,15 +30,15 @@ public class DroptUIMenuArrowController : MonoBehaviour
             ScrollDown();
         }
 
-        if (Input.GetKeyDown(selectKeyCode))
-        {
-            // select
-            var respBtn = responseButtons[m_currentButton];
-            var standardUIResponseButton = respBtn.GetComponent<StandardUIResponseButton>();
-            standardUIResponseButton.OnClick();
-        }
-
         SetVisibleArrow(m_currentButton);
+    }
+
+    // this function is called from CustomOnFastForward.OnFastForward to avoid fast forwarding twice
+    public void SelectCurrentResponse()
+    {
+        var respBtn = responseButtons[m_currentButton];
+        var standardUIResponseButton = respBtn.GetComponent<StandardUIResponseButton>();
+        standardUIResponseButton.OnClick();
     }
 
     void ScrollUp()

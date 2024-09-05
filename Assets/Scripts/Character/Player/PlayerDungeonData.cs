@@ -4,8 +4,12 @@ using Unity.Netcode;
 using UnityEngine;
 using Thirdweb;
 
-// cGHST bank
-//  
+// cGHST bank logic
+// - cGhstVillageBank is the total cGhst you have when in the village
+// - cGhstDungeonBank is the amount of cGhst from your bank that you can start a dungeon with (automatically available)
+// - cGhstDungeonFound is the cGhst collected as you explore the dungeon
+// - players automatically enter dungeon by withdrawing from their bank up to cGhstDungeonStartAmount
+// - when players have more than their wallet amount
 
 public class PlayerDungeonData : NetworkBehaviour
 {
@@ -13,6 +17,12 @@ public class PlayerDungeonData : NetworkBehaviour
     public NetworkVariable<int> SpiritDust = new NetworkVariable<int>(0);
     public NetworkVariable<int> cGHST = new NetworkVariable<int>(0);
     public NetworkVariable<float> Essence = new NetworkVariable<float>(300);
+
+    public int cGhstDungeonStartAmount = 10;
+
+    public NetworkVariable<int> cGhstVillageBank = new NetworkVariable<int>(0);
+    public NetworkVariable<int> cGhstDungeonBank = new NetworkVariable<int>(0);
+    public NetworkVariable<int> cGhstDungeon = new NetworkVariable<int>(0);
 
     private string m_walletAddress;
     private float k_walletUpdateInterval = 0.2f;
@@ -23,6 +33,7 @@ public class PlayerDungeonData : NetworkBehaviour
         UpdateEssence();
         UpdateGameOver();
         UpdateWalletData();
+        UpdateDebugTopUps();
     }
 
     private void UpdateEssence()
@@ -70,6 +81,23 @@ public class PlayerDungeonData : NetworkBehaviour
         {
             // don't do anything, if we got here it just means we don't have a wallet account
         }
+    }
+
+    private void UpdateDebugTopUps()
+    {
+        if (!IsClient) return;
+
+        if (Input.GetKeyDown(KeyCode.Alpha5))
+        {
+            DebugTopUpsServerRpc();
+        }
+    }
+
+    [Rpc(SendTo.Server)]
+    void DebugTopUpsServerRpc()
+    {
+        cGHST.Value = 100;
+        SpiritDust.Value = 100;
     }
 
     [Rpc(SendTo.Server)]

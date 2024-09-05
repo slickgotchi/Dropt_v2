@@ -13,7 +13,7 @@ namespace Audio
     {
         #region Fields
 
-        private const bool kShowLogs = true;
+        private const bool kShowLogs = false;
         private const string kConfigKey = "Configs/Audio Configuration";
         private const string kMusicVolumeKey = "musicVolume";
         private const string kSoundsVolumeKey = "soundsVolume";

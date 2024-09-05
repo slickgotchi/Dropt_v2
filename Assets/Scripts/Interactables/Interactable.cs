@@ -24,4 +24,12 @@ public class Interactable : NetworkBehaviour
     {
         return NetworkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId].IsLocalPlayer;
     }
+
+    public PlayerController GetPlayerController()
+    {
+        var playerObject = NetworkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId];
+        if (playerObject == null) return null;
+
+        return playerObject.GetComponent<PlayerController>();
+    }
 }
