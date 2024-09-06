@@ -49,9 +49,11 @@ public class FudWisp_Explode : EnemyAbility
         // sync colliders to current transform
         Physics2D.SyncTransforms();
 
-        // do a collision check
+        // create a collision check using OverlapCollider
         List<Collider2D> playerHitColliders = new List<Collider2D>();
-        collider.Overlap(PlayerAbility.GetContactFilter(new string[] { "PlayerHurt" }), playerHitColliders);
+        ContactFilter2D contactFilter = PlayerAbility.GetContactFilter(new string[] { "PlayerHurt" });
+        collider.OverlapCollider(contactFilter, playerHitColliders); // Replacing Overlap method
+
         foreach (var hit in playerHitColliders)
         {
             var player = hit.transform.parent;
