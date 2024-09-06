@@ -97,7 +97,7 @@ public class EnemyAbility : NetworkBehaviour
         // do a collision check
         List<Collider2D> playerHitColliders = ListPool<Collider2D>.Get();
 
-        collider.Overlap(PlayerAbility.GetContactFilter(new string[] { "PlayerHurt" }), playerHitColliders);
+        collider.OverlapCollider(PlayerAbility.GetContactFilter(new string[] { "PlayerHurt" }), playerHitColliders);
         foreach (var hit in playerHitColliders)
         {
             var player = hit.transform.parent;

@@ -383,7 +383,7 @@ public class PlayerAbility : NetworkBehaviour
 
         // do a collision check
         List<Collider2D> enemyHitColliders = new List<Collider2D>();
-        abilityCollider.Overlap(GetContactFilter(new string[] { "EnemyHurt", "Destructible" }), enemyHitColliders);
+        abilityCollider.OverlapCollider(GetContactFilter(new string[] { "EnemyHurt", "Destructible" }), enemyHitColliders);
         bool isLocalPlayer = Player.GetComponent<NetworkObject>().IsLocalPlayer;
         bool isCritical = false;
         foreach (var hit in enemyHitColliders)
