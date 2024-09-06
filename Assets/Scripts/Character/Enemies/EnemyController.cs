@@ -17,7 +17,7 @@ public class EnemyController : NetworkBehaviour
     private float m_facingTimer = 0f;
 
     // AI parameters
-    private NavMeshAgent m_navMeshAgent;
+    //private NavMeshAgent m_navMeshAgent;
 
     // spawn parameters
     [Header("Spawn Parameters")]
@@ -33,25 +33,38 @@ public class EnemyController : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        //Debug.Log("Spawn Enemy");
+        Debug.Log("Spawn Enemy");
         // Utility AI
 
-        // only add nav mesh agent on the server
-        if (IsServer || IsHost)
+        if (IsClient && !IsHost)
         {
-            // NavMeshAgent
-            m_navMeshAgent = gameObject.AddComponent<NavMeshAgent>();
-            m_navMeshAgent.updateRotation = false;
-            m_navMeshAgent.updateUpAxis = false;
-            m_navMeshAgent.obstacleAvoidanceType = ObstacleAvoidanceType.NoObstacleAvoidance;
-            m_navMeshAgent.enabled = true;
+            Debug.Log("Remove NavMeshAgent from client side enemy");
+            Destroy(GetComponent<NavMeshAgent>());
+        } else
+        {
+            var navMeshAgent = GetComponent<NavMeshAgent>();
+            navMeshAgent.updateRotation = false;
+            navMeshAgent.updateUpAxis = false;
+            navMeshAgent.obstacleAvoidanceType = ObstacleAvoidanceType.NoObstacleAvoidance;
+            navMeshAgent.enabled = true;
+        }
 
-            // register with the utility world
-        }
-        else
-        {
-            return;
-        }
+        //// only add nav mesh agent on the server
+        //if (IsServer || IsHost)
+        //{
+        //    // NavMeshAgent
+        //    m_navMeshAgent = gameObject.AddComponent<NavMeshAgent>();
+        //    m_navMeshAgent.updateRotation = false;
+        //    m_navMeshAgent.updateUpAxis = false;
+        //    m_navMeshAgent.obstacleAvoidanceType = ObstacleAvoidanceType.NoObstacleAvoidance;
+        //    m_navMeshAgent.enabled = true;
+
+        //    // register with the utility world
+        //}
+        //else
+        //{
+        //    return;
+        //}
     }
 
     public override void OnNetworkDespawn()
