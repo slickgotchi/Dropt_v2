@@ -105,6 +105,7 @@ GameObject:
   - component: {fileID: 7512630288662385814}
   - component: {fileID: 6519886364617013739}
   - component: {fileID: -2723263135936807629}
+  - component: {fileID: 2975631533240675610}
   m_Layer: 15
   m_Name: Snail
   m_TagString: Untagged
@@ -144,7 +145,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2137105859
+  GlobalObjectIdHash: 1218351389
   InScenePlacedSourceGlobalObjectIdHash: 2137105859
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -412,6 +413,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09698abc2e8964808b00a54103ccdd21, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &2975631533240675610
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0859f92cf3655314fb98c52ff12a04a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PursueSpeedMultiplier: 2
+  RoamSpeedMultiplier: 0.3
+  AggroRange: 6
+  AttackRange: 1.5
+  BreakAggroRange: 10
+  SpawnDuration: 1
+  TelegraphDuration: 1
+  AttackDuration: 0.5
+  CooldownDuration: 1
+  Attack: {fileID: 0}
+  NearestPlayer: {fileID: 0}
+  NearestPlayerDistance: 0
+  state: 1
+  DirectionChangeInterval: 3
+  DirectionChangeIntervalVariance: 1
+  MaxRoamDistance: 10
 --- !u!1 &6525230415705073668
 GameObject:
   m_ObjectHideFlags: 0

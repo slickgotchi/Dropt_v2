@@ -41,6 +41,11 @@ public class LevelManager : NetworkBehaviour
     {
         Instance = this;
         State = new NetworkVariable<TransitionState>(TransitionState.Null);
+
+        if (IsServer)
+        {
+            CurrentLevelIndex.Value = m_currentLevelIndex;
+        }
     }
 
     private void OnDestroy()
