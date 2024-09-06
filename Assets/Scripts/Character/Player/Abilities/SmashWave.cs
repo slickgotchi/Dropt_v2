@@ -55,7 +55,7 @@ public class SmashWave : PlayerAbility
 
         // do a collision check
         List<Collider2D> enemyHitColliders = new List<Collider2D>();
-        m_collider.Overlap(PlayerAbility.GetContactFilter(new string[] { "EnemyHurt", "Destructible" }), enemyHitColliders);
+        m_collider.OverlapCollider(PlayerAbility.GetContactFilter(new string[] { "EnemyHurt", "Destructible" }), enemyHitColliders);
         foreach (var hit in enemyHitColliders)
         {
 

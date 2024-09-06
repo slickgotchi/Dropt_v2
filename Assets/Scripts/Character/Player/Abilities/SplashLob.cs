@@ -2,7 +2,6 @@ using UnityEngine;
 using Unity.Netcode;
 using System.Collections.Generic;
 using Unity.Mathematics;
-using Unity.Hierarchy;
 using UnityEngine.UIElements;
 
 public class SplashLob : PlayerAbility

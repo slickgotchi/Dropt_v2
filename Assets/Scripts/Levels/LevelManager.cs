@@ -5,7 +5,6 @@ using UnityEngine;
 using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEngine.AI;
-using CarlosLab.UtilityIntelligence;
 
 public class LevelManager : NetworkBehaviour
 {
@@ -126,11 +125,7 @@ public class LevelManager : NetworkBehaviour
             }
 
             // destroy object
-            if (destroyObject.HasComponent<UtilityAgentFacade>())
-            {
-                destroyObject.GetComponent<UtilityAgentFacade>().Destroy();
-            }
-            else if (destroyObject.HasComponent<NetworkObject>())
+            if (destroyObject.HasComponent<NetworkObject>())
             {
                 if (destroyObject.GetComponent<NetworkObject>().IsSpawned)
                 {

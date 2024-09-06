@@ -1,4 +1,3 @@
-using CarlosLab.UtilityIntelligence;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Mathematics;
@@ -35,7 +34,7 @@ public class FudWisp_Explode : EnemyAbility
         if (Parent != null)
         {
             transform.parent = null;
-            Parent.GetComponent<UtilityAgentFacade>().Destroy();
+            Parent.GetComponent<NetworkObject>().Despawn();
         }
 
         // spawn visual effect
@@ -50,9 +49,11 @@ public class FudWisp_Explode : EnemyAbility
         // sync colliders to current transform
         Physics2D.SyncTransforms();
 
-        // do a collision check
+        // create a collision check using OverlapCollider
         List<Collider2D> playerHitColliders = new List<Collider2D>();
-        collider.Overlap(PlayerAbility.GetContactFilter(new string[] { "PlayerHurt" }), playerHitColliders);
+        ContactFilter2D contactFilter = PlayerAbility.GetContactFilter(new string[] { "PlayerHurt" });
+        collider.OverlapCollider(contactFilter, playerHitColliders); // Replacing Overlap method
+
         foreach (var hit in playerHitColliders)
         {
             var player = hit.transform.parent;

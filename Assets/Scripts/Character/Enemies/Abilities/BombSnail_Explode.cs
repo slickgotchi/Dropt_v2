@@ -1,4 +1,3 @@
-using CarlosLab.UtilityIntelligence;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Mathematics;
@@ -41,7 +40,7 @@ public class BombSnail_Explode : EnemyAbility
         if (Parent != null)
         {
             transform.parent = null;
-            Parent.GetComponent<UtilityAgentFacade>().Destroy();
+            Parent.GetComponent<NetworkObject>().Despawn();
         }
 
         // show a visual effect
