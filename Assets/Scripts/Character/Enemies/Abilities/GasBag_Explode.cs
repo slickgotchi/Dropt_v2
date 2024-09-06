@@ -1,4 +1,3 @@
-using CarlosLab.UtilityIntelligence;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Mathematics;
@@ -42,7 +41,7 @@ public class GasBag_Explode : EnemyAbility
         if (Parent != null)
         {
             transform.parent = null;
-            Parent.GetComponent<UtilityAgentFacade>().Destroy();
+            Parent.GetComponent<NetworkObject>().Despawn();
         }
 
         // do visual explosion
@@ -59,7 +58,7 @@ public class GasBag_Explode : EnemyAbility
 
         // do a collision check
         List<Collider2D> playerHitColliders = new List<Collider2D>();
-        collider.Overlap(PlayerAbility.GetContactFilter(new string[] { "PlayerHurt" }), playerHitColliders);
+        collider.OverlapCollider(PlayerAbility.GetContactFilter(new string[] { "PlayerHurt" }), playerHitColliders);
         foreach (var hit in playerHitColliders)
         {
             var player = hit.transform.parent;

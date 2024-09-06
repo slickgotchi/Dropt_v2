@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 using System;
+using Cysharp.Threading.Tasks;
 
 public class AvailableGamesHeartbeat : MonoBehaviour
 {
@@ -68,11 +69,11 @@ public class AvailableGamesHeartbeat : MonoBehaviour
         return isReady;
     }
 
-    async void GetGames()
+    async UniTaskVoid GetGames()
     {
         using (UnityWebRequest webRequest = UnityWebRequest.Get(getGamesUri))
         {
-            await webRequest.SendWebRequest();
+            await webRequest.SendWebRequest().ToUniTask();
 
             switch (webRequest.result)
             {

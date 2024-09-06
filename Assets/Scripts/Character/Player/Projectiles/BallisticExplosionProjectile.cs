@@ -156,7 +156,7 @@ public class BallisticExplosionProjectile : NetworkBehaviour
 
         // do a collision check
         List<Collider2D> enemyHitColliders = new List<Collider2D>();
-        ExplosionCollider.Overlap(PlayerAbility.GetContactFilter(new string[] { "EnemyHurt", "Destructible" }), enemyHitColliders);
+        ExplosionCollider.OverlapCollider(PlayerAbility.GetContactFilter(new string[] { "EnemyHurt", "Destructible" }), enemyHitColliders);
         foreach (var hit in enemyHitColliders)
         {
             if (hit.HasComponent<NetworkCharacter>())
