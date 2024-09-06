@@ -602,12 +602,9 @@ GameObject:
   - component: {fileID: -774090055585674696}
   - component: {fileID: -8059371171911978272}
   - component: {fileID: 5988500204368849640}
-  - component: {fileID: 9189566605943384555}
-  - component: {fileID: 4246488769257065849}
   - component: {fileID: -6677643682976111441}
   - component: {fileID: 4878605696326581850}
   - component: {fileID: -66779552448143468}
-  - component: {fileID: 2486501417752755360}
   - component: {fileID: 6173716106985737149}
   - component: {fileID: 2488828689398098102}
   - component: {fileID: 969674464929535031}
@@ -872,30 +869,6 @@ CapsuleCollider2D:
   m_Offset: {x: 0, y: 0.25}
   m_Size: {x: 1.2, y: 0.6}
   m_Direction: 1
---- !u!114 &9189566605943384555
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1519051571170098037}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2050d4a81630378438b38ffc8a88db46, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &4246488769257065849
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1519051571170098037}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 553ccafc59d044e0b584c759144905b8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &-6677643682976111441
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -933,18 +906,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bd029e420286fe04699c65d24ec6ef31, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &2486501417752755360
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1519051571170098037}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2b9e754e80175e5489f33f53e097480e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!114 &6173716106985737149
@@ -1086,12 +1047,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4fab4410d163ddc4d904b5305706efd5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GltrCount:
+  SpiritDust:
     m_InternalValue: 0
-  cGHSTCount:
+  cGHST:
     m_InternalValue: 0
   Essence:
     m_InternalValue: 1000
+  cGhstDungeonStartAmount: 10
+  cGhstVillageBank:
+    m_InternalValue: 0
+  cGhstDungeonBank:
+    m_InternalValue: 0
+  cGhstDungeon:
+    m_InternalValue: 0
 --- !u!114 &3933483105401015273
 MonoBehaviour:
   m_ObjectHideFlags: 0

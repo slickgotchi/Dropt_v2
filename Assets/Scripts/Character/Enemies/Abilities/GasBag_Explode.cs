@@ -1,4 +1,3 @@
-using CarlosLab.UtilityIntelligence;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Mathematics;
@@ -42,7 +41,7 @@ public class GasBag_Explode : EnemyAbility
         if (Parent != null)
         {
             transform.parent = null;
-            Parent.GetComponent<UtilityAgentFacade>().Destroy();
+            Parent.GetComponent<NetworkObject>().Despawn();
         }
 
         // do visual explosion

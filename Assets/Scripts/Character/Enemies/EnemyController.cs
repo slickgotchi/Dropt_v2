@@ -1,4 +1,3 @@
-using CarlosLab.UtilityIntelligence;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -19,8 +18,6 @@ public class EnemyController : NetworkBehaviour
 
     // AI parameters
     private NavMeshAgent m_navMeshAgent;
-    private UtilityAgentController m_utilityAgentController;
-    private UtilityAgentFacade m_utilityAgentFacade;
 
     // spawn parameters
     [Header("Spawn Parameters")]
@@ -38,10 +35,6 @@ public class EnemyController : NetworkBehaviour
     {
         //Debug.Log("Spawn Enemy");
         // Utility AI
-        m_utilityAgentController = GetComponent<UtilityAgentController>();
-        m_utilityAgentFacade = GetComponent<UtilityAgentFacade>();
-
-        if (m_utilityAgentController == null) return;
 
         // only add nav mesh agent on the server
         if (IsServer || IsHost)
@@ -54,12 +47,9 @@ public class EnemyController : NetworkBehaviour
             m_navMeshAgent.enabled = true;
 
             // register with the utility world
-            m_utilityAgentController.Register(UtilityWorldSingleton.Instance.World);
         }
         else
         {
-            m_utilityAgentController.enabled = false;
-            m_utilityAgentFacade.enabled = false;
             return;
         }
     }
