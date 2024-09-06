@@ -2,37 +2,44 @@ using Dropt;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
+using Unity.Mathematics;
 
 namespace Dropt
 {
     public class EnemyAI_Snail : EnemyAI
     {
-        public float DirectionChangeInterval = 3f;
-        public float DirectionChangeIntervalVariance = 1f;
-        public float MaxRoamDistance = 10f;
+        
 
-        private float m_directionChangeTimer = 0f;
-        private Vector3 m_direction;
 
         private NetworkCharacter m_networkCharacter;
+        private NavMeshAgent m_navMeshAgent;
 
         private void Awake()
         {
             m_networkCharacter = GetComponent<NetworkCharacter>();
+            m_navMeshAgent = GetComponent<NavMeshAgent>();
         }
 
-        public override void OnHandleRoam(float dt)
-        {
-            m_directionChangeTimer -= dt;
-            if (m_directionChangeTimer < 0f)
-            {
-                m_directionChangeTimer = UnityEngine.Random.Range(DirectionChangeInterval - DirectionChangeIntervalVariance, DirectionChangeInterval + DirectionChangeIntervalVariance);
-                m_direction = new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f), 0);
-                m_direction = m_direction.normalized;
-            }
+        private bool m_isSpawned = false;
 
-            // roam
-            transform.position += m_direction * m_networkCharacter.MoveSpeed.Value * RoamSpeedMultiplier * dt;
+        public override void OnSpawnUpdate(float dt)
+        {
+            if (!m_isSpawned)
+            {
+                GetComponent<Animator>().Play("Snail_Unburrow");
+                m_isSpawned = true;
+            }
+        }
+
+        public override void OnRoamUpdate(float dt)
+        {
+            SimpleRoam(dt);   
+        }
+
+        public override void OnAggroUpdate(float dt)
+        {
+            SimplePursue(dt);
         }
     }
 }

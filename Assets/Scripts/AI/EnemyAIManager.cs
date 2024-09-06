@@ -11,6 +11,10 @@ public class EnemyAIManager : MonoBehaviour
 
     private void Update()
     {
+        // check for enemydebugcanvas ai toggles
+        HandleToggleDebugCanvases();
+
+
         // do update timer checks
         m_updateTimer -= Time.deltaTime;
         if (m_updateTimer > 0) return;
@@ -34,6 +38,21 @@ public class EnemyAIManager : MonoBehaviour
                     enemy.NearestPlayer = player.gameObject;
                     enemy.NearestPlayerDistance = dist;
                 }
+            }
+        }
+    }
+
+    bool m_isVisibleDebugStates = false;
+    void HandleToggleDebugCanvases()
+    {
+        if (Input.GetKeyDown(KeyCode.Alpha4))
+        {
+            m_isVisibleDebugStates = !m_isVisibleDebugStates;
+
+            var debugCanvases = FindObjectsByType<EnemyAI_DebugCanvas>(FindObjectsSortMode.None);
+            foreach (var dc in debugCanvases)
+            {
+                dc.Container.SetActive(m_isVisibleDebugStates);
             }
         }
     }
