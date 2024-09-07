@@ -36,17 +36,20 @@ namespace Dropt
         private float m_telegraphTimer = 0f;
         private float m_attackTimer = 0f;
         private float m_cooldownTimer = 0f;
+        private float m_knockbackTimer = 0f;
 
         // variables accessible to child classes
         protected Vector3 RoamAnchorPoint;
-        protected NetworkCharacter NetworkCharacter;
-        protected NavMeshAgent NavMeshAgent;
+        protected NetworkCharacter networkCharacter;
+        protected NavMeshAgent navMeshAgent;
 
         [HideInInspector] public Vector3 AttackDirection;
 
         // variables set by the EnemyAIManager
         [HideInInspector] public GameObject NearestPlayer;
         [HideInInspector] public float NearestPlayerDistance;
+
+        [HideInInspector] public float KnockbackDuration;
 
         public enum State
         {
@@ -69,8 +72,8 @@ namespace Dropt
 
         public override void OnNetworkSpawn()
         {
-            NetworkCharacter = GetComponent<NetworkCharacter>();
-            NavMeshAgent = GetComponent<NavMeshAgent>();
+            networkCharacter = GetComponent<NetworkCharacter>();
+            navMeshAgent = GetComponent<NavMeshAgent>();
 
             RoamAnchorPoint = transform.position;
             m_spawnTimer = SpawnDuration;
@@ -145,9 +148,11 @@ namespace Dropt
         public virtual void OnCooldownUpdate(float dt) { }
         public virtual void OnCooldownFinish() { }
 
-        public virtual void OnKnockbackStart() { }
+        public virtual void OnKnockbackStart(Vector3 direction, float distance, float duration) { }
         public virtual void OnKnockbackUpdate(float dt) { }
         public virtual void OnKnockbackFinish() { }
+
+        public virtual void OnKnockbackStun(float dt) { }
 
         public virtual void OnUpdate(float dt) { }
 
@@ -165,6 +170,7 @@ namespace Dropt
                 OnSpawnFinish();
                 state = State.Roam;
                 OnRoamStart();
+                return;
             }
 
             OnSpawnUpdate(dt);
@@ -177,6 +183,7 @@ namespace Dropt
                 OnRoamFinish();
                 state = State.Aggro;
                 OnAggroStart();
+                return;
             }
 
             OnRoamUpdate(dt);
@@ -189,6 +196,7 @@ namespace Dropt
                 OnAggroFinish();
                 state = State.Roam;
                 OnRoamStart();
+                return;
             }
 
             if (NearestPlayerDistance < AttackRange)
@@ -197,6 +205,7 @@ namespace Dropt
                 state = State.Telegraph;
                 OnTelegraphStart();
                 m_telegraphTimer = TelegraphDuration;
+                return;
             }
 
             OnAggroUpdate(dt);
@@ -211,6 +220,7 @@ namespace Dropt
                 state = State.Attack;
                 OnAttackStart();
                 m_attackTimer = AttackDuration;
+                return;
             }
 
             OnTelegraphUpdate(dt);
@@ -225,6 +235,7 @@ namespace Dropt
                 state = State.Cooldown;
                 OnCooldownStart();
                 m_cooldownTimer = CooldownDuration;
+                return;
             }
 
             OnAttackUpdate(dt);
@@ -236,8 +247,9 @@ namespace Dropt
             if (m_cooldownTimer < 0)
             {
                 OnCooldownFinish();
-                state = State.Roam;
-                OnRoamStart();
+                state = State.Aggro;
+                OnAggroStart();
+                return;
             }
 
             OnCooldownUpdate(dt);
@@ -245,6 +257,62 @@ namespace Dropt
 
         void HandleKnockback(float dt)
         {
+            m_knockbackTimer -= dt;
+            if (m_knockbackTimer < 0)
+            {
+                OnKnockbackFinish();
+                state = m_postKnockbackState;
+                if (state == State.Aggro)
+                {
+                    OnAggroStart();
+                }
+                return;
+            }
+
+            OnKnockbackUpdate(dt);
+        }
+
+        State m_postKnockbackState = State.Aggro;
+
+        public void Knockback(Vector3 direction, float distance, float stunTime)
+        {
+            Debug.Log("Knockback() " + direction + ", " + distance + ", " + stunTime);
+            KnockbackDuration = stunTime;
+            m_knockbackTimer = stunTime;
+
+            // handle things based on our state
+            switch (state)
+            {
+                case State.Null:
+                    OnKnockbackStart(direction, distance, stunTime);
+                    m_postKnockbackState = State.Aggro;
+                    break;
+                case State.Spawn:
+                    // do nothing, spawn is uninterruptible
+                    break;
+                case State.Roam:
+                    OnKnockbackStart(direction, distance, stunTime);
+                    m_postKnockbackState = State.Aggro;
+                    break;
+                case State.Aggro:
+                    OnKnockbackStart(direction, distance, stunTime);
+                    m_postKnockbackState = State.Aggro;
+                    break;
+                case State.Telegraph:
+                    OnKnockbackStart(direction, distance, stunTime);
+                    m_postKnockbackState = State.Aggro;
+                    break;
+                case State.Attack:
+                    // do nothing, attacks are uninterruptible
+                    break;
+                case State.Cooldown:
+                    OnKnockbackStart(direction, distance, stunTime);
+                    m_postKnockbackState = State.Cooldown;
+                    break;
+                default: break;
+            }
+
+            state = State.Knockback;
 
         }
 
@@ -270,6 +338,10 @@ namespace Dropt
             else if (state == State.Cooldown)
             {
                 debugCanvas.slider.value = m_cooldownTimer / CooldownDuration;
+            }
+            else if (state == State.Knockback)
+            {
+                debugCanvas.slider.value = m_knockbackTimer / KnockbackDuration;
             }
             else
             {

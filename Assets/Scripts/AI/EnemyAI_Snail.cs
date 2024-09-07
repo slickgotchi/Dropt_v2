@@ -50,6 +50,12 @@ namespace Dropt
             SimpleAttackStart();
         }
 
-        
+        public override void OnKnockbackStart(Vector3 direction, float distance, float duration)
+        {
+            SimpleKnockback(direction, distance, duration);
+
+            // stop animator
+            m_animator.Play("Snail_Idle");
+        }
     }
 }
