@@ -56,7 +56,8 @@ public class PlayerController : NetworkBehaviour
             if (PlayerPrefs.HasKey("GotchiId"))
             {
                 gotchiId = PlayerPrefs.GetInt("GotchiId");
-            } else if (Bootstrap.Instance.TestBlockChainGotchiId > 0)
+            }
+            else if (Bootstrap.Instance.TestBlockChainGotchiId > 0)
             {
                 gotchiId = Bootstrap.Instance.TestBlockChainGotchiId;
             }
@@ -125,7 +126,7 @@ public class PlayerController : NetworkBehaviour
     [Rpc(SendTo.ClientsAndHost)]
     void TriggerGameOverClientRpc(ulong playerNetworkObjectId, REKTCanvas.TypeOfREKT typeOfREKT)
     {
-         //ensure we only trigger this for the relevant player
+        //ensure we only trigger this for the relevant player
         var player = NetworkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId];
         var localId = GetComponent<NetworkObject>().NetworkObjectId;
         if (player.NetworkObjectId != localId) return;
@@ -198,7 +199,7 @@ public class PlayerController : NetworkBehaviour
         LevelManager.TransitionState state = LevelManager.Instance.State.Value;
 
         if (state == LevelManager.TransitionState.Start ||
-            state == LevelManager.TransitionState.ClientHeadsUp || 
+            state == LevelManager.TransitionState.ClientHeadsUp ||
             state == LevelManager.TransitionState.GoToNext)
         {
             if (m_localTransition != LevelManager.TransitionState.ClientHeadsUp)
@@ -224,7 +225,7 @@ public class PlayerController : NetworkBehaviour
     // cheat to go to next level
     void HandleNextLevelCheat()
     {
-        if (UnityEngine.Input.GetKeyDown(KeyCode.N))
+        if (Input.GetKeyDown(KeyCode.N))
         {
             GoNextLevelServerRpc();
         }

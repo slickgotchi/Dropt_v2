@@ -1,4 +1,4 @@
-using Core.Pool;
+using Cysharp.Threading.Tasks;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -6,48 +6,30 @@ public class PetsManager : NetworkBehaviour
 {
     public static PetsManager Instance { get; private set; }
 
-    [SerializeField] private GameObject m_pet;
-
     private void Awake()
     {
         Instance = this;
     }
 
-    public void SpawnPet(Vector3 position)
+    public async void SpawnPet(PetType petType, Vector3 position, ulong senderId)
     {
-        if (!IsServer) return;
-        InstantiatePet(position);
-        //if (!IsServer && IsOwner)
-        //{
-        //    Debug.Log("CALL SERVER RPC");
-        //    SpawnPetServerRpc(position);
-        //}
-        //else
-        //{
-        //    InstantiatePet(position);
-        //}
-    }
+        if (!IsServer)
+        {
+            return;
+        }
 
-    //[Rpc(SendTo.Server)]
-    //public void SpawnPetServerRpc(Vector3 position)
-    //{
-    //    InstantiatePet(position);
-    //}
+        ResourceRequest request = Resources.LoadAsync<GameObject>($"Pets/{petType}");
 
-    public void InstantiatePet(Vector3 position, ServerRpcParams serverRpcParams = default)
-    {
-        var pet = Instantiate(m_pet, position, Quaternion.identity);
+        while (!request.isDone)
+        {
+            await UniTask.Yield();
+        }
+
+        GameObject petPrefab = (GameObject)request.asset;
+
+        var pet = Instantiate(petPrefab, position, Quaternion.identity);
 
         var networkObj = pet.GetComponent<NetworkObject>();
-        if (!networkObj.IsSpawned)
-        {
-            networkObj.Spawn();
-        }
-    }
-
-    private NetworkObject GetFromPool(GameObject prefab, Vector3 randPosition)
-    {
-        return NetworkObjectPool.Singleton
-            .GetNetworkObject(prefab, randPosition, Quaternion.identity);
+        networkObj.SpawnWithOwnership(senderId);
     }
 }

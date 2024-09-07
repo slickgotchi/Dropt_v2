@@ -1,10 +1,10 @@
+using System;
 using Unity.Netcode;
 using UnityEngine;
 
 public class PlayerPetSpawner : NetworkBehaviour
 {
     [SerializeField] private GameObject _spawnPetCanvas;
-    //[SerializeField] private NetworkObject m_pet;
 
     public override void OnNetworkSpawn()
     {
@@ -14,18 +14,26 @@ public class PlayerPetSpawner : NetworkBehaviour
 
     public void SpawnPet()
     {
-        //PetsManager petsManager = FindObjectOfType<PetsManager>();
-        //petsManager?.SpawnPet(transform.position);
-        SpawnPetServerRpc(transform.position);
+        if (IsServer)
+        {
+            PetsManager.Instance.SpawnPet(GetRandomPetType(), transform.position, OwnerClientId);
+        }
+        else
+        {
+            SpawnPetServerRpc(GetRandomPetType(), transform.position, OwnerClientId);
+        }
     }
 
-    [Rpc(SendTo.Server)]
-    public void SpawnPetServerRpc(Vector3 position)
+    [ServerRpc]
+    public void SpawnPetServerRpc(PetType petType, Vector3 position, ulong senderId)
     {
-        if (!IsServer)
-        {
-            return;
-        }
-        PetsManager.Instance.SpawnPet(position);
+        PetsManager.Instance.SpawnPet(petType, position, senderId);
+    }
+
+    private PetType GetRandomPetType()
+    {
+        Array values = Enum.GetValues(typeof(PetType));
+        System.Random random = new();
+        return (PetType)values.GetValue(random.Next(values.Length));
     }
 }
