@@ -15,7 +15,7 @@ namespace Dropt
         private float m_roamChangeInterval = 2.25f;
         private float m_roamChangeIntervalVariance = 0.75f;
 
-        protected void SimpleRoam(float dt)
+        protected void SimpleRoamUpdate(float dt)
         {
             if (NetworkCharacter == null) return;
             if (NavMeshAgent == null) return;
@@ -46,17 +46,54 @@ namespace Dropt
         }
 
         // pursue
-        protected void SimplePursue(float dt)
+        protected void SimplePursueUpdate(float dt)
         {
             if (NetworkCharacter == null) return;
             if (NavMeshAgent == null) return;
 
             // get direction from player to enemy and set a small offset
             var dir = (transform.position - NearestPlayer.transform.position).normalized;
-            var offset = dir * 0.5f;
+            var offset = dir * AttackRange * 0.9f;
 
             NavMeshAgent.SetDestination(NearestPlayer.transform.position + offset);
             NavMeshAgent.speed = NetworkCharacter.MoveSpeed.Value * PursueSpeedMultiplier;
+        }
+
+        // telegraph
+        public Vector3 CalculateAttackDirection()
+        {
+            // get target attack centre
+            var targetCentre = NearestPlayer.GetComponentInChildren<AttackCentre>();
+            var targetCentrePos = (targetCentre == null) ? NearestPlayer.transform.position : targetCentre.transform.position;
+
+            // get our attack centre
+            var enemyCentre = GetComponentInChildren<AttackCentre>();
+            var enemyCentrePos = (enemyCentre == null) ? transform.position : enemyCentre.transform.position;
+
+            // set attack direction
+            AttackDirection = (targetCentrePos - enemyCentrePos).normalized;
+
+            return AttackDirection;
+        }
+
+        // attack
+        protected void SimpleAttackStart()
+        {
+            // check we have a primary attack.
+            if (PrimaryAttack == null) return;
+
+            // instantiate an attack
+            var ability = Instantiate(PrimaryAttack);
+            
+            // get enemy ability of attack
+            var enemyAbility = ability.GetComponent<EnemyAbility>();
+            if (enemyAbility == null) return;
+
+            // initialise the ability
+            ability.GetComponent<NetworkObject>().Spawn();
+            enemyAbility.Init(gameObject, NearestPlayer);
+            enemyAbility.Activate();
+            
         }
     }
 }
