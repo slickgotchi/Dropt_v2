@@ -19,21 +19,46 @@ public class Snail_Slash : EnemyAbility
 
     }
 
-    public override void OnTelegraphStart()
+    public override void OnInit()
+    {
+        
+    }
+
+    public override void OnActivate()
     {
         if (Parent == null) return;
 
-        if (Parent.HasComponent<Animator>())
-        {
-            Parent.GetComponent<Animator>().Play("Snail_TelegraphAttack");
-        }
+        // get direction and parent centre position
+        var dir = Parent.GetComponent<Dropt.EnemyAI>().AttackDirection;
+        var parentCentre = Parent.GetComponentInChildren<AttackCentre>();
+        var parentCentrePos = parentCentre == null ? Parent.transform.position : parentCentre.transform.position;
 
-        // setup attack
-        Vector3 attackDir = (Target.transform.position - Parent.transform.position).normalized;
-        //transform.rotation = PlayerAbility.GetRotationFromDirection(attackDir);
+        // set rotation
+        transform.rotation = PlayerAbility.GetRotationFromDirection(dir);
 
-        EnemyController.Facing facing = attackDir.x > 0 ? EnemyController.Facing.Right : EnemyController.Facing.Left;
-        Parent.GetComponent<EnemyController>().SetFacingDirection(facing, 1f);
+        // set offset
+        transform.position = parentCentrePos + dir * 0.5f;
+
+        // play animation
+        //m_animator.Play("SnailSlash_Attack");
+        Dropt.Utils.Anim.PlayAnimationWithDuration(m_animator, "SnailSlash_Attack", Parent.GetComponent<Dropt.EnemyAI>().AttackDuration);
+    }
+
+    public override void OnTelegraphStart()
+    {
+        //if (Parent == null) return;
+
+        //if (Parent.HasComponent<Animator>())
+        //{
+        //    Parent.GetComponent<Animator>().Play("Snail_TelegraphAttack");
+        //}
+
+        //// setup attack
+        //Vector3 attackDir = (Target.transform.position - Parent.transform.position).normalized;
+        ////transform.rotation = PlayerAbility.GetRotationFromDirection(attackDir);
+
+        //EnemyController.Facing facing = attackDir.x > 0 ? EnemyController.Facing.Right : EnemyController.Facing.Left;
+        //Parent.GetComponent<EnemyController>().SetFacingDirection(facing, 1f);
     }
 
     public override void OnExecutionStart()

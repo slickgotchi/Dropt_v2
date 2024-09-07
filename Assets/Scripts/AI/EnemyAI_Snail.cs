@@ -9,37 +9,47 @@ namespace Dropt
 {
     public class EnemyAI_Snail : EnemyAI
     {
-        
-
-
-        private NetworkCharacter m_networkCharacter;
-        private NavMeshAgent m_navMeshAgent;
+        private Animator m_animator;
 
         private void Awake()
         {
-            m_networkCharacter = GetComponent<NetworkCharacter>();
-            m_navMeshAgent = GetComponent<NavMeshAgent>();
+            m_animator = GetComponent<Animator>();
         }
 
-        private bool m_isSpawned = false;
-
-        public override void OnSpawnUpdate(float dt)
+        public override void OnSpawnStart()
         {
-            if (!m_isSpawned)
-            {
-                GetComponent<Animator>().Play("Snail_Unburrow");
-                m_isSpawned = true;
-            }
+            // play anim
+            Dropt.Utils.Anim.PlayAnimationWithDuration(m_animator, "Snail_Unburrow", SpawnDuration);
         }
 
+        public override void OnTelegraphStart()
+        {
+            // play anim
+            Dropt.Utils.Anim.PlayAnimationWithDuration(m_animator, "Snail_TelegraphAttack", TelegraphDuration);
+
+            // calc our attack direction
+            CalculateAttackDirection();
+
+            // set our facing direction
+            EnemyController.Facing facing = AttackDirection.x > 0 ? EnemyController.Facing.Right : EnemyController.Facing.Left;
+            GetComponent<EnemyController>().SetFacingDirection(facing, 1f);
+        }
+        
         public override void OnRoamUpdate(float dt)
         {
-            SimpleRoam(dt);   
+            SimpleRoamUpdate(dt);   
         }
 
         public override void OnAggroUpdate(float dt)
         {
-            SimplePursue(dt);
+            SimplePursueUpdate(dt);
         }
+
+        public override void OnAttackStart()
+        {
+            SimpleAttackStart();
+        }
+
+        
     }
 }

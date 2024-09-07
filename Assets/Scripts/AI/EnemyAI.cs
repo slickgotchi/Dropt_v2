@@ -26,7 +26,8 @@ namespace Dropt
         public float CooldownDuration = 1f;
 
         [Header("Abilities")]
-        public GameObject Attack;
+        public GameObject PrimaryAttack;
+        public GameObject SecondaryAttack;
 
         [Header("Debug")]
         public EnemyAI_DebugCanvas debugCanvas;
@@ -40,6 +41,8 @@ namespace Dropt
         protected Vector3 RoamAnchorPoint;
         protected NetworkCharacter NetworkCharacter;
         protected NavMeshAgent NavMeshAgent;
+
+        [HideInInspector] public Vector3 AttackDirection;
 
         // variables set by the EnemyAIManager
         [HideInInspector] public GameObject NearestPlayer;
@@ -61,7 +64,7 @@ namespace Dropt
 
         private void Awake()
         {
-            
+            Debug.Log(PrimaryAttack);
         }
 
         public override void OnNetworkSpawn()
@@ -77,12 +80,14 @@ namespace Dropt
 
         private void Update()
         {
+            float dt = Time.deltaTime;
+
+            OnUpdate(dt);
             HandleDebugCanvas();
 
             if (!IsServer) return;
             if (NearestPlayer == null) return;
 
-            float dt = Time.deltaTime;
 
             switch (state)
             {
@@ -143,6 +148,8 @@ namespace Dropt
         public virtual void OnKnockbackStart() { }
         public virtual void OnKnockbackUpdate(float dt) { }
         public virtual void OnKnockbackFinish() { }
+
+        public virtual void OnUpdate(float dt) { }
 
 
         void HandleNull(float dt)

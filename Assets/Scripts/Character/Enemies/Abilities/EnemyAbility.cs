@@ -29,51 +29,69 @@ public class EnemyAbility : NetworkBehaviour
     {
     }
 
+    //public void Activate()
+    //{
+    //    m_isActive = true;
+    //    m_timer = TelegraphDuration;
+    //    EnemyAbilityState = State.Telegraph;
+    //    if (IsServer) OnTelegraphStart();
+    //}
+
+    public void Init(GameObject parent, GameObject target)
+    {
+        if (parent == null) return;
+        if (target == null) return;
+
+        Parent = parent;
+        Target = target;
+
+        Debug.Log("Init");
+        OnInit();
+    }
+
     public void Activate()
     {
-        m_isActive = true;
-        m_timer = TelegraphDuration;
-        EnemyAbilityState = State.Telegraph;
-        if (IsServer) OnTelegraphStart();
+        Debug.Log("Activate");
+        OnActivate();
     }
 
     private void Update()
     {
-        m_timer -= Time.deltaTime;
+        //m_timer -= Time.deltaTime;
 
-        switch (EnemyAbilityState)
-        {
-            case State.Telegraph:
-                if (m_timer <= 0)
-                {
-                    m_timer = ExecutionDuration;
-                    EnemyAbilityState = State.Execution;
-                    if (IsServer) OnExecutionStart();
-                }
-                break;
-            case State.Execution:
-                if (m_timer <= 0)
-                {
-                    m_timer = CooldownDuration;
-                    EnemyAbilityState = State.Cooldown;
-                    if (IsServer) OnCooldownStart();
-                }
-                break;
-            case State.Cooldown:
-                if (m_timer <= 0)
-                {
-                    m_timer = 0;
-                    EnemyAbilityState = State.None;
-                    if (IsServer) OnFinish();
-                    if (IsServer) GetComponent<NetworkObject>().Despawn();
-                    m_isActive = false;
-                }
-                break;
-            case State.None: break;
-            default: break;
-        }
+        //switch (EnemyAbilityState)
+        //{
+        //    case State.Telegraph:
+        //        if (m_timer <= 0)
+        //        {
+        //            m_timer = ExecutionDuration;
+        //            EnemyAbilityState = State.Execution;
+        //            if (IsServer) OnExecutionStart();
+        //        }
+        //        break;
+        //    case State.Execution:
+        //        if (m_timer <= 0)
+        //        {
+        //            m_timer = CooldownDuration;
+        //            EnemyAbilityState = State.Cooldown;
+        //            if (IsServer) OnCooldownStart();
+        //        }
+        //        break;
+        //    case State.Cooldown:
+        //        if (m_timer <= 0)
+        //        {
+        //            m_timer = 0;
+        //            EnemyAbilityState = State.None;
+        //            if (IsServer) OnFinish();
+        //            if (IsServer) GetComponent<NetworkObject>().Despawn();
+        //            m_isActive = false;
+        //        }
+        //        break;
+        //    case State.None: break;
+        //    default: break;
+        //}
 
-        if (m_isActive && IsServer) OnUpdate();
+        //if (m_isActive && IsServer) OnUpdate();
     }
 
     public virtual void OnTelegraphStart() { }
@@ -82,11 +100,15 @@ public class EnemyAbility : NetworkBehaviour
     public virtual void OnFinish() { }
     public virtual void OnUpdate() { }
 
+    public virtual void OnActivate() { }
+    public virtual void OnInit() { }
+
     [Rpc(SendTo.ClientsAndHost)]
     protected void SpawnBasicCircleClientRpc(Vector3 position, Color color, float explosionRadius)
     {
         VisualEffectsManager.Singleton.SpawnBasicCircle(position, color, explosionRadius);
     }
+
 
     public static void PlayerCollisionCheckAndDamage(Collider2D collider, float damage, 
         bool isCritical = false, GameObject damageDealer = null)
