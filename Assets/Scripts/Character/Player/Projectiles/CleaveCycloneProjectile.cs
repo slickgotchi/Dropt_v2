@@ -20,6 +20,9 @@ public class CleaveCycloneProjectile : NetworkBehaviour
     [HideInInspector] public float CriticalChance = 0.1f;
     [HideInInspector] public float CriticalDamage = 1.5f;
 
+    [HideInInspector] public float KnockbackDistance;
+    [HideInInspector] public float KnockbackStunDuration;
+
     [HideInInspector] public GameObject LocalPlayer;
 
     [HideInInspector] public PlayerAbility.NetworkRole Role = PlayerAbility.NetworkRole.LocalClient;
@@ -51,7 +54,10 @@ public class CleaveCycloneProjectile : NetworkBehaviour
         GameObject player,
         float damagePerHit,
         float criticalChance,
-        float criticalDamage
+        float criticalDamage,
+
+        float knockbackDistance,
+        float knockbackStunDuration
         )
     {
         // server, local & remote
@@ -68,6 +74,10 @@ public class CleaveCycloneProjectile : NetworkBehaviour
         DamagePerHit = damagePerHit;
         CriticalChance = criticalChance;
         CriticalDamage = criticalDamage;
+
+        // knockback
+        KnockbackDistance = knockbackDistance;
+        KnockbackStunDuration = knockbackStunDuration;
     }
 
     public void Fire()
@@ -175,6 +185,8 @@ public class CleaveCycloneProjectile : NetworkBehaviour
                     var isCritical = PlayerAbility.IsCriticalAttack(CriticalChance);
                     damage = (int)(isCritical ? damage * CriticalDamage : damage);
                     hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical, LocalPlayer);
+                    var knockbackDirection = (Dropt.Utils.Battle.GetAttackCentrePosition(hit.gameObject) - transform.position).normalized;
+                    hit.GetComponent<Dropt.EnemyAI>().Knockback(knockbackDirection, KnockbackDistance, KnockbackStunDuration);
                 }
 
                 if (hit.HasComponent<Destructible>())

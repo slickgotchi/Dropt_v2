@@ -398,7 +398,8 @@ public class PlayerAbility : NetworkBehaviour
                 isCritical = playerCharacter.IsCriticalAttack();
                 damage = (int)(isCritical ? damage * playerCharacter.CriticalDamage.Value : damage);
                 hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical, Player);
-                hit.GetComponent<Dropt.EnemyAI>().Knockback(GetAttackVectorFromAToB(playerCharacter.gameObject, hit.gameObject), KnockbackDistance, KnockbackStunDuration);
+                var knockbackDir = Dropt.Utils.Battle.GetVectorFromAtoBAttackCentres(playerCharacter.gameObject, hit.gameObject).normalized;
+                hit.GetComponent<Dropt.EnemyAI>().Knockback(knockbackDir, KnockbackDistance, KnockbackStunDuration);
             }
 
             if (hit.HasComponent<Destructible>())

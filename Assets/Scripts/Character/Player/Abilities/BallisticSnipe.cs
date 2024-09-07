@@ -100,7 +100,10 @@ public class BallisticSnipe : PlayerAbility
                 Wearable.WeaponTypeEnum.Ballistic, Player,
                 playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier,
                 playerCharacter.CriticalChance.Value,
-                playerCharacter.CriticalDamage.Value);
+                playerCharacter.CriticalDamage.Value,
+                ActivationInput.actionDirection,
+                KnockbackDistance,
+                KnockbackStunDuration);
 
             // fire
             no_projectile.Fire();
@@ -135,7 +138,8 @@ public class BallisticSnipe : PlayerAbility
             no_projectile.Init(startPosition, direction, distance, duration, scale,
                 PlayerAbility.NetworkRole.RemoteClient,
                 Wearable.WeaponTypeEnum.Ballistic, Player,
-                0, 0, 0);
+                0, 0, 0,
+                Vector3.right, 0, 0);
 
             // init
             no_projectile.Fire();

@@ -276,7 +276,6 @@ namespace Dropt
 
         public void Knockback(Vector3 direction, float distance, float stunTime)
         {
-            Debug.Log("Knockback() " + direction + ", " + distance + ", " + stunTime);
             KnockbackDuration = stunTime;
             m_knockbackTimer = stunTime;
 

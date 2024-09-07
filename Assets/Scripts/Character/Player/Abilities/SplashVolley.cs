@@ -188,7 +188,9 @@ public class SplashVolley : PlayerAbility
                 Player,
                 playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier,
                 playerCharacter.CriticalChance.Value,
-                playerCharacter.CriticalDamage.Value);
+                playerCharacter.CriticalDamage.Value,
+                KnockbackDistance,
+                KnockbackStunDuration);
 
             //no_projectile.Direction = direction;
             //no_projectile.Distance = distance;
@@ -239,8 +241,8 @@ public class SplashVolley : PlayerAbility
             no_projectile.Init(
                 startPosition, direction, distance, duration, scale, explosionRadius,
                 NetworkRole.RemoteClient, Wearable.WeaponTypeEnum.Splash, activationWearable,
-                Player, 0, 0, 0
-                );
+                Player, 0, 0, 0,
+                0, 0);
 
 
             //no_projectile.Direction = direction;

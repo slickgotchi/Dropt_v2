@@ -11,6 +11,8 @@ public class BallisticExplosion : PlayerAbility
     public float Duration = 1f;
     public float ExplosionRadius = 2f;
     public float ExplosionDamageMultiplier = 0.5f;
+    public float ExplosionKnockbackDistance = 0.5f;
+    public float ExplosionKnockbackStunDuration = 0.5f;
 
     [Header("Projectile Prefab")]
     public GameObject BulletPrefab;
@@ -102,7 +104,13 @@ public class BallisticExplosion : PlayerAbility
                 playerCharacter.CriticalChance.Value,
                 playerCharacter.CriticalDamage.Value,
                 DamageMultiplier,
-                ExplosionDamageMultiplier);
+                ExplosionDamageMultiplier,
+
+                ActivationInput.actionDirection,
+                KnockbackDistance,
+                KnockbackStunDuration,
+                ExplosionKnockbackDistance,
+                ExplosionKnockbackStunDuration);
 
             // fire
             no_projectile.Fire();
@@ -137,7 +145,8 @@ public class BallisticExplosion : PlayerAbility
             no_projectile.Init(startPosition, direction, distance, duration, 1,
                 PlayerAbility.NetworkRole.RemoteClient,
                 Wearable.WeaponTypeEnum.Ballistic, Player,
-                0, 0, 0, 0, 0);
+                0, 0, 0, 0, 0,
+                Vector3.right, 0, 0, 0, 0);
 
             // init
             no_projectile.Fire();
