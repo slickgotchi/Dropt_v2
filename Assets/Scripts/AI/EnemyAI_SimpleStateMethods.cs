@@ -17,8 +17,10 @@ namespace Dropt
 
         protected void SimpleRoamUpdate(float dt)
         {
-            if (NetworkCharacter == null) return;
-            if (NavMeshAgent == null) return;
+            if (networkCharacter == null) return;
+            if (navMeshAgent == null) return;
+
+            navMeshAgent.isStopped = false;
 
             m_roamChangeTimer -= dt;
             if (m_roamChangeTimer < 0f)
@@ -37,26 +39,28 @@ namespace Dropt
                 Vector3 finalDirection = math.lerp(randomDirection, toAnchorDirection, influenceFactor);
 
                 // calc a move distance
-                float distance = NetworkCharacter.MoveSpeed.Value * RoamSpeedMultiplier * m_roamChangeTimer;
+                float distance = networkCharacter.MoveSpeed.Value * RoamSpeedMultiplier * m_roamChangeTimer;
 
                 // set nav mesh agent
-                NavMeshAgent.SetDestination(transform.position + finalDirection * distance);
-                NavMeshAgent.speed = NetworkCharacter.MoveSpeed.Value * RoamSpeedMultiplier;
+                navMeshAgent.SetDestination(transform.position + finalDirection * distance);
+                navMeshAgent.speed = networkCharacter.MoveSpeed.Value * RoamSpeedMultiplier;
             }
         }
 
         // pursue
         protected void SimplePursueUpdate(float dt)
         {
-            if (NetworkCharacter == null) return;
-            if (NavMeshAgent == null) return;
+            if (networkCharacter == null) return;
+            if (navMeshAgent == null) return;
+
+            navMeshAgent.isStopped = false;
 
             // get direction from player to enemy and set a small offset
             var dir = (transform.position - NearestPlayer.transform.position).normalized;
             var offset = dir * AttackRange * 0.9f;
 
-            NavMeshAgent.SetDestination(NearestPlayer.transform.position + offset);
-            NavMeshAgent.speed = NetworkCharacter.MoveSpeed.Value * PursueSpeedMultiplier;
+            navMeshAgent.SetDestination(NearestPlayer.transform.position + offset);
+            navMeshAgent.speed = networkCharacter.MoveSpeed.Value * PursueSpeedMultiplier;
         }
 
         // telegraph
@@ -94,6 +98,17 @@ namespace Dropt
             enemyAbility.Init(gameObject, NearestPlayer);
             enemyAbility.Activate();
             
+        }
+
+        // knockback
+        protected void SimpleKnockback(Vector3 direction, float distance, float duration)
+        {
+            // NEEDS TO BE RAY OR COLLIDER CASTED!!!
+            m_knockbackTimer = duration;
+            transform.position += direction.normalized * distance;
+
+            navMeshAgent.isStopped = true;
+            Debug.Log("SimpleKnockback()");
         }
     }
 }

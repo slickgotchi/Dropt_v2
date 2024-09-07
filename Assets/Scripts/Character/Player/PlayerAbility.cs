@@ -61,6 +61,9 @@ public class PlayerAbility : NetworkBehaviour
     [Tooltip("Slows player down during Hold period")]
     public float HoldSlowFactor = 1;
 
+    public float KnockbackDistance = 0f;
+    public float KnockbackStunDuration = 0f;
+
     [HideInInspector] public GameObject Player;
     [HideInInspector] public float SpecialCooldown;
 
@@ -395,6 +398,7 @@ public class PlayerAbility : NetworkBehaviour
                 isCritical = playerCharacter.IsCriticalAttack();
                 damage = (int)(isCritical ? damage * playerCharacter.CriticalDamage.Value : damage);
                 hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical, Player);
+                hit.GetComponent<Dropt.EnemyAI>().Knockback(GetAttackVectorFromAToB(playerCharacter.gameObject, hit.gameObject), KnockbackDistance, KnockbackStunDuration);
             }
 
             if (hit.HasComponent<Destructible>())
@@ -412,6 +416,17 @@ public class PlayerAbility : NetworkBehaviour
 
         // clear out colliders
         enemyHitColliders.Clear();
+    }
+
+    Vector3 GetAttackVectorFromAToB(GameObject a, GameObject b)
+    {
+        var aCentre = a.GetComponent<AttackCentre>();
+        var aCentrePos = aCentre == null ? a.transform.position : aCentre.transform.position;
+
+        var bCentre = b.GetComponent<AttackCentre>();
+        var bCentrePos = bCentre == null ? b.transform.position : bCentre.transform.position;
+
+        return (bCentrePos - aCentrePos).normalized;
     }
 
     public static Quaternion GetRotationFromDirection(Vector3 direction)

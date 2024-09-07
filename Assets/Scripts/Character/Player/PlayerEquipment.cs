@@ -31,6 +31,12 @@ public class PlayerEquipment : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        // set default unarmed
+        if (IsLocalPlayer)
+        {
+            SetEquipmentServerRpc(Slot.LeftHand, Wearable.NameEnum.Unarmed);
+            SetEquipmentServerRpc(Slot.RightHand, Wearable.NameEnum.Unarmed);
+        }
     }
 
     public override void OnNetworkDespawn()
