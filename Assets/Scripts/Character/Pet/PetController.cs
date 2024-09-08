@@ -1,22 +1,27 @@
 using UnityEngine;
 using Unity.Netcode;
 using UnityEngine.AI;
+using System.Collections.Generic;
 
 public class PetController : NetworkBehaviour
 {
     [SerializeField] private PetSettings m_petSettings;
     [SerializeField] private SpriteRenderer m_spriteRenderer;
+    [SerializeField] private LayerMask m_pickItemLayer;
+
+    private PetStateMachine m_petStateMachine;
 
     private NavMeshAgent m_agent;
 
     private Transform m_petOwner;
     private Transform m_transform;
-    private bool m_allowToFollowOwner;
 
     public Sprite LeftSprite;
     public Sprite RightSprite;
     public Sprite UpSprite;
     public Sprite DownSprite;
+
+    private readonly List<PickupItem> m_pickUpItemsInRadius = new List<PickupItem>();
 
     public override void OnNetworkSpawn()
     {
@@ -29,7 +34,8 @@ public class PetController : NetworkBehaviour
         InitializeNavmeshAgent();
         m_transform = transform;
         m_petOwner = NetworkManager.Singleton.LocalClient.PlayerObject.transform;
-        m_allowToFollowOwner = true;
+        m_petStateMachine = new PetStateMachine(this);
+        m_petStateMachine.ChangeState(m_petStateMachine.PetFollowOwnerState);
     }
 
     private void InitializeNavmeshAgent()
@@ -46,22 +52,44 @@ public class PetController : NetworkBehaviour
         {
             return;
         }
-
-        if (!m_allowToFollowOwner)
-        {
-            return;
-        }
-
-        _ = m_agent.SetDestination(m_petOwner.position);
-        SetFacingDirection();
-        float distanceToPlayer = Vector3.Distance(m_transform.position, m_petOwner.position);
-        if (distanceToPlayer > m_petSettings.TeleportDistance)
-        {
-            TeleportCloseToPlayer();
-        }
+        m_petStateMachine.Update();
     }
 
-    private void TeleportCloseToPlayer()
+    public void FollowOwnner()
+    {
+        _ = m_agent.SetDestination(m_petOwner.position);
+    }
+
+    public void FollowPickUpItem(Transform pickUpItem)
+    {
+        _ = m_agent.SetDestination(pickUpItem.position);
+    }
+
+    public void PickItem(PickupItem pickupItem)
+    {
+        m_pickUpItemsInRadius.Remove(pickupItem);
+        pickupItem.TryGoTo(m_petOwner.gameObject);
+        //PlayerPickupItemMagnet playerPickupItemMagnet = m_petOwner.GetComponent<PlayerPickupItemMagnet>();
+        //playerPickupItemMagnet.Collect(pickupItem);
+    }
+
+    public PickupItem GetPickUpItemFromList()
+    {
+        return m_pickUpItemsInRadius[0];
+    }
+
+    public bool IsPetReachToDestination()
+    {
+        return m_agent.remainingDistance <= m_agent.stoppingDistance;
+    }
+
+    public bool IsPlayerOutOfTeleportRange()
+    {
+        float distanceToPlayer = Vector3.Distance(m_transform.position, m_petOwner.position);
+        return distanceToPlayer > m_petSettings.TeleportDistance;
+    }
+
+    public void TeleportCloseToPlayer()
     {
         Vector3 randomDirection = Random.insideUnitSphere * m_petSettings.OffsetDistance;
         randomDirection += m_petOwner.position;
@@ -69,11 +97,40 @@ public class PetController : NetworkBehaviour
         if (NavMesh.SamplePosition(randomDirection, out NavMeshHit navHit, m_petSettings.OffsetDistance, NavMesh.AllAreas))
         {
             m_agent.Warp(navHit.position);
-            Debug.Log("Pet teleported to: " + navHit.position);
         }
     }
 
-    private void SetFacingDirection()
+    public void LookForPickupItems()
+    {
+        Collider2D[] hitColliders = Physics2D.OverlapCircleAll(new Vector2(m_transform.position.x, m_transform.position.y),
+                                                            m_petSettings.ItemPickupRadius,
+                                                            m_pickItemLayer);
+
+        if (hitColliders.Length > 0)
+        {
+            foreach (Collider2D hitCollider in hitColliders)
+            {
+                PickupItem pickupItem = hitCollider.GetComponent<PickupItem>();
+
+                if (!m_pickUpItemsInRadius.Contains(pickupItem))
+                {
+                    m_pickUpItemsInRadius.Add(pickupItem);
+                }
+            }
+        }
+    }
+
+    public bool IsPickupItemsInRange()
+    {
+        return m_pickUpItemsInRadius.Count > 0;
+    }
+
+    public void ClearPicupItemList()
+    {
+        m_pickUpItemsInRadius.Clear();
+    }
+
+    public void SetFacingDirection()
     {
         Vector3 velocity = m_agent.velocity;
         if (velocity.magnitude > 0.1f)

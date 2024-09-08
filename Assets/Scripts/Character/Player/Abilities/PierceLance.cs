@@ -13,6 +13,7 @@ public class PierceLance : PlayerAbility
 
     public override void OnNetworkSpawn()
     {
+        //Debug.Log("On NETWORK SPAWN -> PierceLance");
         Animator = GetComponent<Animator>();
         m_collider = GetComponent<Collider2D>();
     }
