@@ -61,6 +61,61 @@ namespace Dropt
 
             navMeshAgent.SetDestination(NearestPlayer.transform.position + offset);
             navMeshAgent.speed = networkCharacter.MoveSpeed.Value * PursueSpeedMultiplier;
+
+            HandleAntiClumping();
+            HandleAlertOthers();
+        }
+
+        private void HandleAntiClumping()
+        {
+            if (networkCharacter == null) return;
+            if (navMeshAgent == null) return;
+
+            var allEnemies = EnemyAIManager.Instance.allEnemies;
+            //var minDistance = 1.5f;
+            var repellingForce = 5f;
+
+            Vector3 avoidanceForce = Vector3.zero; // Initialize the avoidance force
+
+            // Check all other enemies
+            foreach (Dropt.EnemyAI otherEnemy in allEnemies)
+            {
+                if (otherEnemy == this) continue; // Skip itself
+
+                // Check distance to the other enemy
+                float distance = math.distance(transform.position, otherEnemy.transform.position);
+                float minDistance = avoidanceRadius + otherEnemy.avoidanceRadius;
+
+                // If within the clumping radius, apply a repelling force
+                if (distance < minDistance && distance > 0.1f)
+                {
+                    Vector3 directionAway = (transform.position - otherEnemy.transform.position).normalized;
+                    float repellingStrength = (minDistance - distance) / minDistance; // Scale the repelling force
+                    avoidanceForce += directionAway * repellingStrength * repellingForce;
+                }
+            }
+
+            // Adjust the agent's next destination slightly based on avoidance force
+            Vector3 finalDestination = navMeshAgent.destination + avoidanceForce;
+
+            // Set the adjusted destination
+            navMeshAgent.SetDestination(finalDestination);
+        }
+
+        private void HandleAlertOthers()
+        {
+            var allEnemies = EnemyAIManager.Instance.allEnemies;
+            for (int i = 0; i < allEnemies.Count; i++)
+            {
+                var otherEnemy = allEnemies[i];
+                if (otherEnemy.state != State.Roam) continue;
+
+                var dist = math.distance(transform.position, otherEnemy.transform.position);
+                if (dist < AlertRange)
+                {
+                    otherEnemy.state = State.Aggro;
+                }
+            }
         }
 
         // telegraph
@@ -104,11 +159,10 @@ namespace Dropt
         protected void SimpleKnockback(Vector3 direction, float distance, float duration)
         {
             // NEEDS TO BE RAY OR COLLIDER CASTED!!!
-            m_knockbackTimer = duration;
+            m_stunTimer = duration;
             transform.position += direction.normalized * distance;
 
             navMeshAgent.isStopped = true;
-            Debug.Log("SimpleKnockback()");
         }
     }
 }

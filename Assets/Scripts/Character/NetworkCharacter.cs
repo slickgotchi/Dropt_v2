@@ -22,6 +22,8 @@ public class NetworkCharacter : NetworkBehaviour
     public float baseDamageReduction = 0f;
     public float baseApLeech = 0f;
     public float baseApRegen = 1f;
+    public float baseKnockbackMutliplier = 1f;
+    public float baseStunMultiplier = 1f;
 
     [Header("Damage/Health Popup Offset")]
     public Vector3 popupTextOffset = new Vector3(0, 1.5f, 0f);
@@ -45,6 +47,8 @@ public class NetworkCharacter : NetworkBehaviour
     [HideInInspector] public NetworkVariable<float> DamageReduction = new NetworkVariable<float>();
     [HideInInspector] public NetworkVariable<float> ApLeech = new NetworkVariable<float>();
     [HideInInspector] public NetworkVariable<float> ApRegen = new NetworkVariable<float>();
+    [HideInInspector] public NetworkVariable<float> KnockbackMultiplier = new NetworkVariable<float>();
+    [HideInInspector] public NetworkVariable<float> StunMultiplier = new NetworkVariable<float>();
 
     public override void OnNetworkSpawn()
     {
@@ -160,6 +164,8 @@ public class NetworkCharacter : NetworkBehaviour
         DamageReduction.Value = baseDamageReduction;
         ApLeech.Value = baseApLeech;
         ApRegen.Value = baseApRegen;
+        KnockbackMultiplier.Value = baseKnockbackMutliplier;
+        StunMultiplier.Value = baseStunMultiplier;
     }
 
     public bool HasBuffObject(BuffObject buffObject)

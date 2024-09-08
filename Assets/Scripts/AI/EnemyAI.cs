@@ -29,6 +29,9 @@ namespace Dropt
         public GameObject PrimaryAttack;
         public GameObject SecondaryAttack;
 
+        [Header("NavMeshAgent Avoidance")]
+        public float avoidanceRadius = 1f;
+
         [Header("Debug")]
         public EnemyAI_DebugCanvas debugCanvas;
 
@@ -36,12 +39,13 @@ namespace Dropt
         private float m_telegraphTimer = 0f;
         private float m_attackTimer = 0f;
         private float m_cooldownTimer = 0f;
-        private float m_knockbackTimer = 0f;
+        private float m_stunTimer = 0f;
 
         // variables accessible to child classes
         protected Vector3 RoamAnchorPoint;
         protected NetworkCharacter networkCharacter;
-        protected NavMeshAgent navMeshAgent;
+        [HideInInspector] public NavMeshAgent navMeshAgent;
+
 
         [HideInInspector] public Vector3 AttackDirection;
 
@@ -49,7 +53,7 @@ namespace Dropt
         [HideInInspector] public GameObject NearestPlayer;
         [HideInInspector] public float NearestPlayerDistance;
 
-        [HideInInspector] public float KnockbackDuration;
+        [HideInInspector] public float StunDuration;
 
         public enum State
         {
@@ -60,7 +64,7 @@ namespace Dropt
             Telegraph,
             Attack,
             Cooldown,
-            Knockback,
+            Stun,
         }
 
         public State state = State.Spawn;
@@ -115,8 +119,8 @@ namespace Dropt
                 case State.Cooldown:
                     HandleCooldown(dt);
                     break;
-                case State.Knockback:
-                    HandleKnockback(dt);
+                case State.Stun:
+                    HandleStun(dt);
                     break;
                 default: break;
             }
@@ -148,11 +152,11 @@ namespace Dropt
         public virtual void OnCooldownUpdate(float dt) { }
         public virtual void OnCooldownFinish() { }
 
-        public virtual void OnKnockbackStart(Vector3 direction, float distance, float duration) { }
-        public virtual void OnKnockbackUpdate(float dt) { }
-        public virtual void OnKnockbackFinish() { }
+        public virtual void OnKnockback(Vector3 direction, float distance, float duration) { }
 
-        public virtual void OnKnockbackStun(float dt) { }
+        public virtual void OnStunStart() { }
+        public virtual void OnStunUpdate(float dt) { }
+        public virtual void OnStunFinish() { }
 
         public virtual void OnUpdate(float dt) { }
 
@@ -255,13 +259,13 @@ namespace Dropt
             OnCooldownUpdate(dt);
         }
 
-        void HandleKnockback(float dt)
+        void HandleStun(float dt)
         {
-            m_knockbackTimer -= dt;
-            if (m_knockbackTimer < 0)
+            m_stunTimer -= dt;
+            if (m_stunTimer < 0)
             {
-                OnKnockbackFinish();
-                state = m_postKnockbackState;
+                OnStunFinish();
+                state = m_postStunState;
                 if (state == State.Aggro)
                 {
                     OnAggroStart();
@@ -269,50 +273,56 @@ namespace Dropt
                 return;
             }
 
-            OnKnockbackUpdate(dt);
+            OnStunUpdate(dt);
         }
 
-        State m_postKnockbackState = State.Aggro;
+        State m_postStunState = State.Aggro;
 
         public void Knockback(Vector3 direction, float distance, float stunTime)
         {
-            KnockbackDuration = stunTime;
-            m_knockbackTimer = stunTime;
+            // account for multipliers
+            distance *= GetComponent<NetworkCharacter>().KnockbackMultiplier.Value;
+            stunTime *= GetComponent<NetworkCharacter>().StunMultiplier.Value;
+            
+            // about stun timer parameters
+            StunDuration = stunTime;
+            m_stunTimer = stunTime;
 
             // handle things based on our state
             switch (state)
             {
                 case State.Null:
-                    OnKnockbackStart(direction, distance, stunTime);
-                    m_postKnockbackState = State.Aggro;
+                    OnKnockback(direction, distance, stunTime);
+                    m_postStunState = State.Aggro;
                     break;
                 case State.Spawn:
                     // do nothing, spawn is uninterruptible
                     break;
                 case State.Roam:
-                    OnKnockbackStart(direction, distance, stunTime);
-                    m_postKnockbackState = State.Aggro;
+                    OnKnockback(direction, distance, stunTime);
+                    m_postStunState = State.Aggro;
                     break;
                 case State.Aggro:
-                    OnKnockbackStart(direction, distance, stunTime);
-                    m_postKnockbackState = State.Aggro;
+                    OnKnockback(direction, distance, stunTime);
+                    m_postStunState = State.Aggro;
                     break;
                 case State.Telegraph:
-                    OnKnockbackStart(direction, distance, stunTime);
-                    m_postKnockbackState = State.Aggro;
+                    OnKnockback(direction, distance, stunTime);
+                    m_postStunState = State.Aggro;
                     break;
                 case State.Attack:
                     // do nothing, attacks are uninterruptible
                     break;
                 case State.Cooldown:
-                    OnKnockbackStart(direction, distance, stunTime);
-                    m_postKnockbackState = State.Cooldown;
+                    OnKnockback(direction, distance, stunTime);
+                    m_postStunState = State.Cooldown;
                     break;
                 default: break;
             }
 
-            state = State.Knockback;
-
+            // set our new state to stun
+            state = State.Stun;
+            OnStunStart();
         }
 
 
@@ -322,29 +332,26 @@ namespace Dropt
 
             debugCanvas.stateTMP.text = state.ToString();
 
-            if (state == State.Spawn)
+            switch (state)
             {
-                debugCanvas.slider.value = m_spawnTimer / SpawnDuration;
-            }
-            else if (state == State.Telegraph)
-            {
-                debugCanvas.slider.value = m_telegraphTimer / TelegraphDuration;
-            }
-            else if (state == State.Attack)
-            {
-                debugCanvas.slider.value = m_attackTimer / AttackDuration;
-            }
-            else if (state == State.Cooldown)
-            {
-                debugCanvas.slider.value = m_cooldownTimer / CooldownDuration;
-            }
-            else if (state == State.Knockback)
-            {
-                debugCanvas.slider.value = m_knockbackTimer / KnockbackDuration;
-            }
-            else
-            {
-                debugCanvas.slider.value = 0;
+                case State.Spawn:
+                    debugCanvas.slider.value = m_spawnTimer / SpawnDuration;
+                    break;
+                case State.Telegraph:
+                    debugCanvas.slider.value = m_telegraphTimer / TelegraphDuration;
+                    break;
+                case State.Attack:
+                    debugCanvas.slider.value = m_attackTimer / AttackDuration;
+                    break;
+                case State.Cooldown:
+                    debugCanvas.slider.value = m_cooldownTimer / CooldownDuration;
+                    break;
+                case State.Stun:
+                    debugCanvas.slider.value = m_stunTimer / StunDuration;
+                    break;
+                default:
+                    debugCanvas.slider.value = 0;
+                    break;
             }
         }
     }

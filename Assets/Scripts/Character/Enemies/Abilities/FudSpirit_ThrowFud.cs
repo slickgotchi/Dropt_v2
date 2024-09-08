@@ -33,6 +33,6 @@ public class FudSpirit_ThrowFud : EnemyAbility
 
         // orient the parent fud spirit sprite
         EnemyController.Facing facing = AttackDirection.x > 0 ? EnemyController.Facing.Right : EnemyController.Facing.Left;
-        Parent.GetComponent<EnemyController>().SetFacingDirection(facing, 1f);
+        Parent.GetComponent<EnemyController>().SetFacing(facing, 1f);
     }
 }
