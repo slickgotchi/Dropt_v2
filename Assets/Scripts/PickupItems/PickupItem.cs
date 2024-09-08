@@ -7,11 +7,12 @@ public sealed class PickupItem : NetworkBehaviour
     public float speed = 5f;
     private GameObject target;
 
+    public NetworkVariable<bool> IsItemPicked = new NetworkVariable<bool>(false);
+
     private void Update()
     {
         if (target != null)
         {
-            // Move towards the target
             float step = speed * Time.deltaTime;
             transform.position = Vector3.MoveTowards(transform.position, target.transform.position, step);
 
