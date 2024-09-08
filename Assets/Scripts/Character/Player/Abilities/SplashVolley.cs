@@ -192,19 +192,6 @@ public class SplashVolley : PlayerAbility
                 KnockbackDistance,
                 KnockbackStunDuration);
 
-            //no_projectile.Direction = direction;
-            //no_projectile.Distance = distance;
-            //no_projectile.Duration = duration;
-            //no_projectile.ExplosionRadius = 1;
-            //no_projectile.LocalPlayer = Player;
-            //no_projectile.WeaponType = Wearable.WeaponTypeEnum.Magic;
-            //no_projectile.ExplosionRadius = ExplosionRadius;
-            //no_projectile.WearableNameEnum = activationWearable;
-
-            //no_projectile.DamagePerHit = ;
-            //no_projectile.CriticalChance =
-            //no_projectile.CriticalDamage = 
-            //no_projectile.Role = IsServer ? PlayerAbility.NetworkRole.Server : PlayerAbility.NetworkRole.LocalClient;
 
             no_projectile.Fire();
         }
@@ -244,20 +231,6 @@ public class SplashVolley : PlayerAbility
                 Player, 0, 0, 0,
                 0, 0);
 
-
-            //no_projectile.Direction = direction;
-            //no_projectile.Distance = distance;
-            //no_projectile.Duration = duration;
-            //no_projectile.ExplosionRadius = 1;
-            //no_projectile.WeaponType = Wearable.WeaponTypeEnum.Magic;
-            //no_projectile.ExplosionRadius = ExplosionRadius;
-            //no_projectile.WearableNameEnum = activationWearable;
-
-            //var playerCharacter = Player.GetComponent<NetworkCharacter>();
-            //no_projectile.DamagePerHit = playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier;
-            //no_projectile.CriticalChance = playerCharacter.CriticalChance.Value;
-            //no_projectile.CriticalDamage = playerCharacter.CriticalDamage.Value;
-            //no_projectile.Role = PlayerAbility.NetworkRole.RemoteClient;
 
             no_projectile.Fire();
         }

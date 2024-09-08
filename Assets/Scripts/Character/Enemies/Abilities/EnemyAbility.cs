@@ -45,13 +45,11 @@ public class EnemyAbility : NetworkBehaviour
         Parent = parent;
         Target = target;
 
-        Debug.Log("Init");
         OnInit();
     }
 
     public void Activate()
     {
-        Debug.Log("Activate");
         OnActivate();
     }
 

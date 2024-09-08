@@ -31,8 +31,7 @@ namespace Dropt
             CalculateAttackDirection();
 
             // set our facing direction
-            EnemyController.Facing facing = AttackDirection.x > 0 ? EnemyController.Facing.Right : EnemyController.Facing.Left;
-            GetComponent<EnemyController>().SetFacingDirection(facing, 1f);
+            GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, TelegraphDuration);
         }
         
         public override void OnRoamUpdate(float dt)
@@ -48,9 +47,23 @@ namespace Dropt
         public override void OnAttackStart()
         {
             SimpleAttackStart();
+
+            // set facing
+            GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, AttackDuration);
         }
 
-        public override void OnKnockbackStart(Vector3 direction, float distance, float duration)
+        public override void OnCooldownStart()
+        {
+            // set facing
+            //GetComponent<EnemyController>().SetFacingFromDirection(NearestPlayer.transform.position - transform.position, CooldownDuration);
+        }
+
+        public override void OnCooldownUpdate(float dt)
+        {
+            SimplePursueUpdate(dt);
+        }
+
+        public override void OnKnockback(Vector3 direction, float distance, float duration)
         {
             SimpleKnockback(direction, distance, duration);
 

@@ -183,7 +183,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1249991746567512264}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 68694423375b0af45a8fae47fd1a9350, type: 3}
   m_Name: 
@@ -250,6 +250,8 @@ MonoBehaviour:
   baseDamageReduction: 0
   baseApLeech: 0
   baseApRegen: 1
+  baseKnockbackMutliplier: 1
+  baseStunMultiplier: 1
   popupTextOffset: {x: 0, y: 1.5, z: 0}
   HpMax:
     m_InternalValue: 100
@@ -282,6 +284,10 @@ MonoBehaviour:
   ApLeech:
     m_InternalValue: 0
   ApRegen:
+    m_InternalValue: 0
+  KnockbackMultiplier:
+    m_InternalValue: 0
+  StunMultiplier:
     m_InternalValue: 0
 --- !u!61 &7690168732021353646
 BoxCollider2D:
@@ -415,9 +421,9 @@ MonoBehaviour:
   PursueSpeedMultiplier: 1.7
   RoamSpeedMultiplier: 0.3
   AggroRange: 9
-  AlertRange: 5
+  AlertRange: 10
   AttackRange: 1.5
-  BreakAggroRange: 16
+  BreakAggroRange: 12
   MaxRoamRange: 8
   SpawnDuration: 1
   TelegraphDuration: 1
@@ -425,11 +431,13 @@ MonoBehaviour:
   CooldownDuration: 2
   PrimaryAttack: {fileID: 3159421716010617349, guid: 92ca5efdc97856144bc1de4c9b4fed87, type: 3}
   SecondaryAttack: {fileID: 0}
+  avoidanceRadius: 0.5
   debugCanvas: {fileID: 4504020213834047242}
+  navMeshAgent: {fileID: 0}
   AttackDirection: {x: 0, y: 0, z: 0}
   NearestPlayer: {fileID: 0}
   NearestPlayerDistance: 0
-  KnockbackDuration: 0
+  StunDuration: 0
   state: 1
 --- !u!195 &1232825248513418453
 NavMeshAgent:
@@ -452,7 +460,7 @@ NavMeshAgent:
   m_Height: 2
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
-  m_ObstacleAvoidanceType: 4
+  m_ObstacleAvoidanceType: 1
 --- !u!1 &6525230415705073668
 GameObject:
   m_ObjectHideFlags: 0
