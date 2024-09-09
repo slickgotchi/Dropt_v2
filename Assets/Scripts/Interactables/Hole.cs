@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 
-
-
 public class Hole : Interactable
 {
     private float m_fHoldTimer = 0;

@@ -48,6 +48,7 @@ public class PlayerController : NetworkBehaviour
         if (IsLocalPlayer)
         {
             m_cameraFollower = GameObject.FindGameObjectWithTag("CameraFollower");
+            m_cameraFollower.GetComponent<CameraFollowerAndPlayerInteractor>().Player = gameObject;
 
             GotchiDataManager.Instance.onSelectedGotchi += HandleOnSelectedGotchi;
 
