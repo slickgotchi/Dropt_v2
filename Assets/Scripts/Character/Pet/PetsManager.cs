@@ -8,7 +8,14 @@ public class PetsManager : NetworkBehaviour
 
     private void Awake()
     {
-        Instance = this;
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
     public async void SpawnPet(PetType petType, Vector3 position, ulong senderId)
@@ -26,9 +33,7 @@ public class PetsManager : NetworkBehaviour
         }
 
         GameObject petPrefab = (GameObject)request.asset;
-
         var pet = Instantiate(petPrefab, position, Quaternion.identity);
-
         var networkObj = pet.GetComponent<NetworkObject>();
         networkObj.SpawnWithOwnership(senderId);
     }

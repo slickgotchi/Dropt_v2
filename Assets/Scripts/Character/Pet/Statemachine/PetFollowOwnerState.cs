@@ -1,5 +1,3 @@
-using UnityEngine;
-
 public class PetFollowOwnerState : PetState
 {
     public PetFollowOwnerState(PetController petController, PetStateMachine petStateMachine) : base(petController, petStateMachine)
@@ -9,7 +7,7 @@ public class PetFollowOwnerState : PetState
 
     public override void Enter()
     {
-        Debug.Log("Enter Owner follow State");
+
     }
 
     public override void Exit()
