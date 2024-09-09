@@ -31,24 +31,24 @@ public class NetworkCharacter : NetworkBehaviour
     private List<BuffObject> activeBuffObjects = new List<BuffObject>();
 
     // NetworkVariables
-    [HideInInspector] public NetworkVariable<float> HpMax = new NetworkVariable<float>();
-    [HideInInspector] public NetworkVariable<float> HpCurrent = new NetworkVariable<float>();
-    [HideInInspector] public NetworkVariable<float> HpBuffer = new NetworkVariable<float>();
-    [HideInInspector] public NetworkVariable<float> AttackPower = new NetworkVariable<float>();
-    [HideInInspector] public NetworkVariable<float> CriticalChance = new NetworkVariable<float>();
-    [HideInInspector] public NetworkVariable<float> ApMax = new NetworkVariable<float>();
-    [HideInInspector] public NetworkVariable<float> ApCurrent = new NetworkVariable<float>();
-    [HideInInspector] public NetworkVariable<float> ApBuffer = new NetworkVariable<float>();
-    [HideInInspector] public NetworkVariable<float> DoubleStrikeChance = new NetworkVariable<float>();
-    [HideInInspector] public NetworkVariable<float> CriticalDamage = new NetworkVariable<float>();
-    [HideInInspector] public NetworkVariable<float> MoveSpeed = new NetworkVariable<float>();
-    [HideInInspector] public NetworkVariable<float> Accuracy = new NetworkVariable<float>();
-    [HideInInspector] public NetworkVariable<float> Evasion = new NetworkVariable<float>();
-    [HideInInspector] public NetworkVariable<float> DamageReduction = new NetworkVariable<float>();
-    [HideInInspector] public NetworkVariable<float> ApLeech = new NetworkVariable<float>();
-    [HideInInspector] public NetworkVariable<float> ApRegen = new NetworkVariable<float>();
-    [HideInInspector] public NetworkVariable<float> KnockbackMultiplier = new NetworkVariable<float>();
-    [HideInInspector] public NetworkVariable<float> StunMultiplier = new NetworkVariable<float>();
+    [HideInInspector] public NetworkVariable<float> HpMax = new NetworkVariable<float>(0);
+    [HideInInspector] public NetworkVariable<float> HpCurrent = new NetworkVariable<float>(0);
+    [HideInInspector] public NetworkVariable<float> HpBuffer = new NetworkVariable<float>(0);
+    [HideInInspector] public NetworkVariable<float> AttackPower = new NetworkVariable<float>(0);
+    [HideInInspector] public NetworkVariable<float> CriticalChance = new NetworkVariable<float>(0);
+    [HideInInspector] public NetworkVariable<float> ApMax = new NetworkVariable<float>(0);
+    [HideInInspector] public NetworkVariable<float> ApCurrent = new NetworkVariable<float>(0);
+    [HideInInspector] public NetworkVariable<float> ApBuffer = new NetworkVariable<float>(0);
+    [HideInInspector] public NetworkVariable<float> DoubleStrikeChance = new NetworkVariable<float>(0);
+    [HideInInspector] public NetworkVariable<float> CriticalDamage = new NetworkVariable<float>(0);
+    [HideInInspector] public NetworkVariable<float> MoveSpeed = new NetworkVariable<float>(0);
+    [HideInInspector] public NetworkVariable<float> Accuracy = new NetworkVariable<float>(0);
+    [HideInInspector] public NetworkVariable<float> Evasion = new NetworkVariable<float>(0);
+    [HideInInspector] public NetworkVariable<float> DamageReduction = new NetworkVariable<float>(0);
+    [HideInInspector] public NetworkVariable<float> ApLeech = new NetworkVariable<float>(0);
+    [HideInInspector] public NetworkVariable<float> ApRegen = new NetworkVariable<float>(0);
+    [HideInInspector] public NetworkVariable<float> KnockbackMultiplier = new NetworkVariable<float>(0);
+    [HideInInspector] public NetworkVariable<float> StunMultiplier = new NetworkVariable<float>(0);
 
     public override void OnNetworkSpawn()
     {
@@ -141,15 +141,15 @@ public class NetworkCharacter : NetworkBehaviour
         PopupTextManager.Instance.PopupText(
             damage.ToString("F0"), 
             position, 
-            isCritical ? 30 : 24, 
+            isCritical ? 24 : 16, 
             isCritical ? critColor : Color.white, 
             0.2f);
     }
 
     protected virtual void InitializeStats()
     {
-        HpMax.Value = baseHpMax;
-        HpCurrent.Value = baseHpCurrent;
+        HpMax.Value += baseHpMax;           // needs to be += as we also add to hp from enemy controller with dynamicHp
+        HpCurrent.Value += baseHpCurrent;    
         HpBuffer.Value = baseHpBuffer;
         AttackPower.Value = baseAttackPower;
         CriticalChance.Value = baseCriticalChance;

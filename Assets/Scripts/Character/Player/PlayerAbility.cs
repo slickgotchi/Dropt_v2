@@ -344,6 +344,11 @@ public class PlayerAbility : NetworkBehaviour
         }
     }
 
+    protected void PlayAnimationWithDuration(string animName, float duration)
+    {
+        Dropt.Utils.Anim.PlayAnimationWithDuration(Animator, animName, duration);
+    }
+
     [Rpc(SendTo.ClientsAndHost)]
     private void PlayAnimationClientRpc(string animName, float speed)
     {

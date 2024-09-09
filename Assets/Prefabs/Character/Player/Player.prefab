@@ -711,7 +711,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1051059747
+  GlobalObjectIdHash: 1311497934
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -922,6 +922,8 @@ MonoBehaviour:
     m_InternalValue: 0
   Pet:
     m_InternalValue: 0
+  leftHandStarterWeapon: 264
+  rightHandStarterWeapon: 7
 --- !u!114 &2488828689398098102
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1128,6 +1130,8 @@ MonoBehaviour:
   baseDamageReduction: 0
   baseApLeech: 0
   baseApRegen: 2.5
+  baseKnockbackMutliplier: 1
+  baseStunMultiplier: 1
   popupTextOffset: {x: 0, y: 1.5, z: 0}
   HpMax:
     m_InternalValue: 0
@@ -1160,6 +1164,10 @@ MonoBehaviour:
   ApLeech:
     m_InternalValue: 0
   ApRegen:
+    m_InternalValue: 0
+  KnockbackMultiplier:
+    m_InternalValue: 0
+  StunMultiplier:
     m_InternalValue: 0
   bodyBuffObject: {fileID: 0}
   faceBuffObject: {fileID: 0}

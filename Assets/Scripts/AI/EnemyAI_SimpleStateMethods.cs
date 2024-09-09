@@ -78,9 +78,13 @@ namespace Dropt
             Vector3 avoidanceForce = Vector3.zero; // Initialize the avoidance force
 
             // Check all other enemies
-            foreach (Dropt.EnemyAI otherEnemy in allEnemies)
+            int numEnemies = allEnemies.Count;
+            for (int i = 0; i < numEnemies; i++)
             {
+                var otherEnemy = allEnemies[i];
                 if (otherEnemy == this) continue; // Skip itself
+                if (otherEnemy == null) continue;
+                if (!otherEnemy.gameObject.activeInHierarchy) continue;
 
                 // Check distance to the other enemy
                 float distance = math.distance(transform.position, otherEnemy.transform.position);
@@ -158,6 +162,8 @@ namespace Dropt
         // knockback
         protected void SimpleKnockback(Vector3 direction, float distance, float duration)
         {
+            if (navMeshAgent == null || !navMeshAgent.enabled || !navMeshAgent.gameObject.activeInHierarchy) return;
+
             // NEEDS TO BE RAY OR COLLIDER CASTED!!!
             m_stunTimer = duration;
             transform.position += direction.normalized * distance;

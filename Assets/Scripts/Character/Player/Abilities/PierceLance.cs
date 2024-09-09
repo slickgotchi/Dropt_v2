@@ -31,7 +31,8 @@ public class PierceLance : PlayerAbility
         SetRotation(quaternion.identity);
         SetLocalPosition(PlayerAbilityCentreOffset);
 
-        PlayAnimation("PierceLance");
+        //PlayAnimation("PierceLance");
+        PlayAnimationWithDuration("PierceLance", ExecutionDuration);
 
         Player.GetComponent<PlayerGotchi>().SetVisible(true);
         Player.GetComponent<PlayerGotchi>().PlayAnimation("PlayerGotchi_PierceLance");

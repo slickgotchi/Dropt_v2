@@ -28,8 +28,8 @@ public class ShieldBash : PlayerAbility
 
         // IMPORTANT use PlayAnimation which calls RPC's in the background that play the 
         // animation on remote clients
-        PlayAnimation("ShieldBash");
-
+        //PlayAnimation("ShieldBash");
+        PlayAnimationWithDuration("ShieldBash", ExecutionDuration);
 
     }
 

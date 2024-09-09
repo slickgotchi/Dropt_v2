@@ -234,8 +234,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6494b87727298314987516d4f17c6c93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseHpMax: 3200
-  baseHpCurrent: 3200
+  baseHpMax: 32
+  baseHpCurrent: 32
   baseHpBuffer: 0
   baseAttackPower: 10
   baseCriticalChance: 0.1
@@ -368,6 +368,7 @@ MonoBehaviour:
   IsSpawning: 1
   SpawnDuration: 0
   IsArmed: 0
+  DynamicHpMultiplier: 1
 --- !u!114 &6834886257311113157
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -423,7 +424,7 @@ MonoBehaviour:
   AggroRange: 9
   AlertRange: 10
   AttackRange: 1.5
-  BreakAggroRange: 12
+  BreakAggroRange: 16
   MaxRoamRange: 8
   SpawnDuration: 1
   TelegraphDuration: 1
