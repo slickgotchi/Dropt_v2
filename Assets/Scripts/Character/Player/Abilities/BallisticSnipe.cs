@@ -62,7 +62,8 @@ public class BallisticSnipe : PlayerAbility
         var holdScale = math.min(1 + (HoldDuration / HoldChargeTime), 4f);
 
         // play animation
-        PlayAnimation("BallisticShot");
+        //PlayAnimation("BallisticShot");
+        PlayAnimationWithDuration("BallisticShot", ExecutionDuration);
 
         // activate projectile
         ActivateProjectile(ActivationWearableNameEnum, ActivationInput.actionDirection, Distance, Duration, holdScale);

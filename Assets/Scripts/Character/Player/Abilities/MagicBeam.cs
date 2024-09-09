@@ -34,7 +34,8 @@ public class MagicBeam : PlayerAbility
 
         // IMPORTANT use PlayAnimation which calls RPC's in the background that play the 
         // animation on remote clients
-        PlayAnimation("MagicBeam");
+        //PlayAnimation("MagicBeam");
+        PlayAnimationWithDuration("MagicBeam", ExecutionDuration);
     }
 
     public override void OnUpdate()

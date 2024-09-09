@@ -47,7 +47,8 @@ public class MagicCast : PlayerAbility
         SetLocalPosition(PlayerAbilityCentreOffset);
 
         // play animation
-        PlayAnimation("MagicCast");
+        //PlayAnimation("MagicCast");
+        PlayAnimationWithDuration("MagicCast", ExecutionDuration);
 
         // activate projectile
         ActivateProjectile(ActivationWearableNameEnum, ActivationInput.actionDirection, Distance, Duration);

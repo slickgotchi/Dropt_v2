@@ -61,7 +61,8 @@ public class BallisticShot : PlayerAbility
         SetLocalPosition(PlayerAbilityCentreOffset);
 
         // play animation
-        PlayAnimation("BallisticShot");
+        //PlayAnimation("BallisticShot");
+        PlayAnimationWithDuration("BallisticShot", ExecutionDuration);
 
         // activate projectile
         ActivateProjectile(ActivationWearableNameEnum, ActivationInput.actionDirection, Distance, Duration);
