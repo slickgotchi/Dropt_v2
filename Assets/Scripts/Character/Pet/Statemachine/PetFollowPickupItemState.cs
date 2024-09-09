@@ -1,5 +1,3 @@
-using UnityEngine;
-
 public class PetFollowPickupItemState : PetState
 {
     private PickupItem m_currentPickUpItem;
@@ -10,9 +8,7 @@ public class PetFollowPickupItemState : PetState
 
     public override void Enter()
     {
-        Debug.Log("Enter pet follow State");
-        m_currentPickUpItem = m_PetController.GetPickUpItemFromList();
-        m_PetController.FollowPickUpItem(m_currentPickUpItem.transform);
+        FindPickUpItemsInRangeAndFollowIt();
     }
 
     public override void Exit()
@@ -24,15 +20,7 @@ public class PetFollowPickupItemState : PetState
     {
         if (m_currentPickUpItem == null)
         {
-            if (m_PetController.IsPickupItemsInRange())
-            {
-                m_currentPickUpItem = m_PetController.GetPickUpItemFromList();
-                m_PetController.FollowPickUpItem(m_currentPickUpItem.transform);
-            }
-            else
-            {
-                m_PetStateMachine.ChangeState(m_PetStateMachine.PetFollowOwnerState);
-            }
+            FindPickUpItemsInRangeAndFollowIt();
         }
 
         m_PetController.SetFacingDirection();
@@ -45,11 +33,20 @@ public class PetFollowPickupItemState : PetState
         if (m_PetController.IsPetReachToDestination())
         {
             m_PetController.PickItem(m_currentPickUpItem);
-            if (m_PetController.IsPickupItemsInRange())
-            {
-                m_currentPickUpItem = m_PetController.GetPickUpItemFromList();
-                m_PetController.FollowPickUpItem(m_currentPickUpItem.transform);
-            }
+            FindPickUpItemsInRangeAndFollowIt();
+        }
+    }
+
+    private void FindPickUpItemsInRangeAndFollowIt()
+    {
+        if (m_PetController.IsPickupItemsInRange())
+        {
+            m_currentPickUpItem = m_PetController.GetPickUpItemFromList();
+            m_PetController.FollowPickUpItem(m_currentPickUpItem.transform);
+        }
+        else
+        {
+            m_PetStateMachine.ChangeState(m_PetStateMachine.PetFollowOwnerState);
         }
     }
 }

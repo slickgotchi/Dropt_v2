@@ -19,15 +19,15 @@ public class PlayerPickupItemMagnet : NetworkBehaviour
         ((CircleCollider2D)magnetCollider).radius = Radius;
     }
 
-    void OnTriggerEnter2D(Collider2D other)
-    {
-        m_currentPickupItem = other.GetComponent<PickupItem>();
+    //void OnTriggerEnter2D(Collider2D other)
+    //{
+    //    m_currentPickupItem = other.GetComponent<PickupItem>();
 
-        if (m_currentPickupItem != null)
-        {
-            m_currentPickupItem.TryGoTo(gameObject);
-        }
-    }
+    //    if (m_currentPickupItem != null)
+    //    {
+    //        m_currentPickupItem.TryGoTo(gameObject);
+    //    }
+    //}
 
 
     // Collect method to be called when the item is picked up

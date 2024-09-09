@@ -607,6 +607,7 @@ GameObject:
   - component: {fileID: 3484423785512578415}
   - component: {fileID: 407757288669581628}
   - component: {fileID: 3353798826812701960}
+  - component: {fileID: 1542214025416868672}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -1183,7 +1184,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _spawnPetCanvas: {fileID: 2083900114947718805}
-  m_pet: {fileID: 6409040663767106742, guid: 02db6d311e93c49dca514ee537c82f57, type: 3}
+--- !u!114 &1542214025416868672
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1519051571170098037}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a60c3a24c8a417459bc4c7dc5d5f0fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Radius: 5
+  PlayerDungeonData: {fileID: -4993210810574338119}
 --- !u!1 &1722710475381033325
 GameObject:
   m_ObjectHideFlags: 0

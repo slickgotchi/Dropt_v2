@@ -68,9 +68,14 @@ public class PetController : NetworkBehaviour
     public void PickItem(PickupItem pickupItem)
     {
         m_pickUpItemsInRadius.Remove(pickupItem);
-        pickupItem.TryGoTo(m_petOwner.gameObject);
-        //PlayerPickupItemMagnet playerPickupItemMagnet = m_petOwner.GetComponent<PlayerPickupItemMagnet>();
-        //playerPickupItemMagnet.Collect(pickupItem);
+        if (IsServer)
+        {
+            pickupItem.Pick(OwnerClientId);
+        }
+        else
+        {
+            pickupItem.PickedByServerRpc(OwnerClientId);
+        }
     }
 
     public PickupItem GetPickUpItemFromList()
@@ -111,6 +116,10 @@ public class PetController : NetworkBehaviour
             foreach (Collider2D hitCollider in hitColliders)
             {
                 PickupItem pickupItem = hitCollider.GetComponent<PickupItem>();
+                if (!pickupItem.AllowToPick())
+                {
+                    continue;
+                }
 
                 if (!m_pickUpItemsInRadius.Contains(pickupItem))
                 {
