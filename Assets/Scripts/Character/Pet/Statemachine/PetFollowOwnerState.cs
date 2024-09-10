@@ -7,7 +7,7 @@ public class PetFollowOwnerState : PetState
 
     public override void Enter()
     {
-
+        m_PetController.InitializeNavMeshAgentWhenFollowOwner();
     }
 
     public override void Exit()
