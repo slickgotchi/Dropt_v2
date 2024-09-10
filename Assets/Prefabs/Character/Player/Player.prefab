@@ -925,6 +925,8 @@ MonoBehaviour:
     m_InternalValue: 0
   Pet:
     m_InternalValue: 0
+  leftHandStarterWeapon: 264
+  rightHandStarterWeapon: 7
 --- !u!114 &2488828689398098102
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1131,6 +1133,8 @@ MonoBehaviour:
   baseDamageReduction: 0
   baseApLeech: 0
   baseApRegen: 2.5
+  baseKnockbackMutliplier: 1
+  baseStunMultiplier: 1
   popupTextOffset: {x: 0, y: 1.5, z: 0}
   HpMax:
     m_InternalValue: 0
@@ -1163,6 +1167,10 @@ MonoBehaviour:
   ApLeech:
     m_InternalValue: 0
   ApRegen:
+    m_InternalValue: 0
+  KnockbackMultiplier:
+    m_InternalValue: 0
+  StunMultiplier:
     m_InternalValue: 0
   bodyBuffObject: {fileID: 0}
   faceBuffObject: {fileID: 0}
@@ -1540,7 +1548,7 @@ MonoBehaviour:
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_enableWordWrapping: 0
+  m_enableWordWrapping: 1
   m_wordWrappingRatios: 0.4
   m_overflowMode: 0
   m_linkedTextComponent: {fileID: 0}

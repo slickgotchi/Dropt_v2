@@ -3,50 +3,25 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 
-
-
 public class Hole : Interactable
 {
-    private float m_fHoldTimer = 0;
-    private float k_fHoldtime = 0.5f;
-    private float m_nextLevelCooldownTimer = 0;
-    private float k_nextLevelCooldown = 3;
+    public List<GameObject> Levels = new List<GameObject>();
 
-    public override void OnStartInteraction()
+    public override void OnHoldFinishInteraction()
     {
-        InteractableUICanvas.Instance.InteractTextbox.SetActive(true);
-    }
-
-    public override void OnUpdateInteraction()
-    {
-        m_nextLevelCooldownTimer -= Time.deltaTime;
-        InteractableUICanvas.Instance.InteractSlider.value = m_fHoldTimer / k_fHoldtime;
-
-        if (Input.GetKey(KeyCode.F))
-        {
-            m_fHoldTimer += Time.deltaTime;
-            if (m_fHoldTimer >= k_fHoldtime && m_nextLevelCooldownTimer <= 0)
-            {
-                TryGoToNextLevelServerRpc();
-                m_nextLevelCooldownTimer = k_nextLevelCooldown;
-            }
-        } else
-        {
-            m_fHoldTimer = 0;
-        }
-    }
-
-    public override void OnFinishInteraction()
-    {
-        InteractableUICanvas.Instance.InteractTextbox.SetActive(false);
+        TryGoToNextLevelServerRpc();
     }
 
     [Rpc(SendTo.Server)]
     void TryGoToNextLevelServerRpc()
     {
-        if (m_nextLevelCooldownTimer > 0) return;
+        // see if this hole has a custom levels list
+        if (Levels.Count > 0)
+        {
+            LevelManager.Instance.SetLevelList(Levels);
+        }
 
+        // go to next level
         LevelManager.Instance.GoToNextLevel();
-        m_nextLevelCooldownTimer = k_nextLevelCooldown;
     }
 }

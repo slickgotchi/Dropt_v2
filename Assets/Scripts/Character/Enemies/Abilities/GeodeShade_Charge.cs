@@ -31,7 +31,7 @@ public class GeodeShade_Charge : EnemyAbility
         m_speed = ChargeDistance / ExecutionDuration;
 
         EnemyController.Facing facing = m_direction.x > 0 ? EnemyController.Facing.Right : EnemyController.Facing.Left;
-        Parent.GetComponent<EnemyController>().SetFacingDirection(facing);
+        Parent.GetComponent<EnemyController>().SetFacing(facing);
     }
 
     public override void OnExecutionStart()

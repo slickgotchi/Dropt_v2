@@ -22,6 +22,9 @@ public class PlayerEquipment : NetworkBehaviour
     private Wearable.NameEnum m_localLeftHand = Wearable.NameEnum.Null;
     private Wearable.NameEnum m_localPet = Wearable.NameEnum.Null;
 
+    public Wearable.NameEnum leftHandStarterWeapon = Wearable.NameEnum.Unarmed;
+    public Wearable.NameEnum rightHandStarterWeapon = Wearable.NameEnum.Unarmed;
+
     private PlayerGotchi m_playerGotchi;
 
     private void Awake()
@@ -31,6 +34,7 @@ public class PlayerEquipment : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        // starter weapons get set in Init()
     }
 
     public override void OnNetworkDespawn()
@@ -70,8 +74,8 @@ public class PlayerEquipment : NetworkBehaviour
             // tell server to change our equipment if we're the local player
             if (IsLocalPlayer)
             {
-                SetEquipmentServerRpc(Slot.LeftHand, Wearable.NameEnum.Unarmed);
-                SetEquipmentServerRpc(Slot.RightHand, Wearable.NameEnum.Unarmed);
+                SetEquipmentServerRpc(Slot.LeftHand, leftHandStarterWeapon);
+                SetEquipmentServerRpc(Slot.RightHand, rightHandStarterWeapon);
             }
         } else
         {

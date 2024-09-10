@@ -51,7 +51,7 @@ public class GameServerHeartbeat : MonoBehaviour
             gameId = Bootstrap.Instance.GameId,
             numberPlayers = activePlayers,
             isPublic = IsPublic,
-            isLocked = LevelManager.Instance.CurrentLevelIndex.Value != LevelManager.Instance.DegenapeVillageLevel,
+            isLocked = !LevelManager.Instance.IsDegenapeVillage(),
         };
 
         string json = JsonUtility.ToJson(postData);
