@@ -18,8 +18,10 @@ public class Hole : Interactable
         // see if this hole has a custom levels list
         if (Levels.Count > 0)
         {
-            
+            LevelManager.Instance.SetLevelList(Levels);
         }
+
+        // go to next level
         LevelManager.Instance.GoToNextLevel();
     }
 }

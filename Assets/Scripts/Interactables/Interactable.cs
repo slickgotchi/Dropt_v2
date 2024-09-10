@@ -59,6 +59,9 @@ public class Interactable : NetworkBehaviour
             m_popupAnimator = m_popupCanvas.GetComponentInChildren<Animator>();
             if (m_popupAnimator != null) m_popupAnimator.Play("Hidden");
         }
+
+        m_holdTimer = -0.1f;
+        m_holdCooldownTimer = 0f;
     }
 
     public bool IsPlayerIdLocal(ulong playerNetworkObjectId)
