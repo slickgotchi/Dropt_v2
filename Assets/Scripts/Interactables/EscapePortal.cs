@@ -12,12 +12,12 @@ public class EscapePortal : Interactable
     private float m_nextLevelCooldownTimer = 0;
     private float k_nextLevelCooldown = 3;
 
-    public override void OnStartInteraction()
+    public override void OnTriggerStartInteraction()
     {
         InteractableUICanvas.Instance.InteractTextbox.SetActive(true);
     }
 
-    public override void OnUpdateInteraction()
+    public override void OnTriggerUpdateInteraction()
     {
         m_nextLevelCooldownTimer -= Time.deltaTime;
         InteractableUICanvas.Instance.InteractSlider.value = m_fHoldTimer / k_fHoldtime;
@@ -37,7 +37,7 @@ public class EscapePortal : Interactable
         }
     }
 
-    public override void OnFinishInteraction()
+    public override void OnTriggerFinishInteraction()
     {
         InteractableUICanvas.Instance.InteractTextbox.SetActive(false);
     }
