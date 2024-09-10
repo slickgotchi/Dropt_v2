@@ -36,6 +36,12 @@ public class LevelManager : NetworkBehaviour
         m_networkObjectSpawns.Add(networkObject);
     }
 
+    public void SetLevelList(List<GameObject> levels)
+    {
+        m_levels.Clear();
+        m_levels = levels;
+        m_currentLevelIndex = 0;
+    }
 
     private void Awake()
     {
