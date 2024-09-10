@@ -83,22 +83,24 @@ public sealed class PickupItem : NetworkBehaviour
         IsItemPicked.Value = true;
         NetworkObject client = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
         m_playerPickupItemMagnet = client.GetComponent<PlayerPickupItemMagnet>();
+
+        var tween = transform.DOMove(client.transform.position, 10)
+                           .SetSpeedBased()
+                           .SetEase(Ease.Linear);
+        tween.OnComplete(() =>
+        {
+            m_playerPickupItemMagnet?.Collect(this);
+        });
         GotoClientRpc(client.transform.position);
     }
 
     [ClientRpc]
     public void GotoClientRpc(Vector3 position)
     {
-        var tween = transform.DOMove(position, 10)
+        if (IsServer) return;
+        _ = transform.DOMove(position, 10)
                              .SetSpeedBased()
                              .SetEase(Ease.Linear);
-        if (IsServer)
-        {
-            tween.OnComplete(() =>
-            {
-                m_playerPickupItemMagnet?.Collect(this);
-            });
-        }
     }
 
     public bool AllowToPick()

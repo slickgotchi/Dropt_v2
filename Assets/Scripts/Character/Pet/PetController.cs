@@ -2,6 +2,7 @@ using UnityEngine;
 using Unity.Netcode;
 using UnityEngine.AI;
 using System.Collections.Generic;
+using System.Linq;
 
 public class PetController : NetworkBehaviour
 {
@@ -21,34 +22,46 @@ public class PetController : NetworkBehaviour
     public Sprite UpSprite;
     public Sprite DownSprite;
 
-    private readonly List<PickupItem> m_pickUpItemsInRadius = new List<PickupItem>();
+    private List<PickupItem> m_pickUpItemsInRadius = new List<PickupItem>();
 
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-        if (!IsOwner)
+        if (!IsServer)
         {
             return;
         }
 
         InitializeNavmeshAgent();
         m_transform = transform;
-        m_petOwner = NetworkManager.Singleton.LocalClient.PlayerObject.transform;
+        m_petOwner = NetworkManager.Singleton.ConnectedClients[OwnerClientId].PlayerObject.transform;
         m_petStateMachine = new PetStateMachine(this);
         m_petStateMachine.ChangeState(m_petStateMachine.PetFollowOwnerState);
     }
 
     private void InitializeNavmeshAgent()
     {
-        m_agent = GetComponent<NavMeshAgent>();
+        m_agent = gameObject.AddComponent<NavMeshAgent>();
         m_agent.updateRotation = false;
+        m_agent.updateUpAxis = false;
+        m_agent.obstacleAvoidanceType = ObstacleAvoidanceType.NoObstacleAvoidance;
         m_agent.speed = m_petSettings.Speed;
+        m_agent.enabled = true;
+    }
+
+    public void InitializeNavMeshAgentWhenFollowOwner()
+    {
         m_agent.stoppingDistance = m_petSettings.OffsetDistance;
+    }
+
+    public void InitializeNavMeshAgentWhenFillowPickUpItem()
+    {
+        m_agent.stoppingDistance = 0;
     }
 
     private void Update()
     {
-        if (!IsOwner)
+        if (!IsServer)
         {
             return;
         }
@@ -68,14 +81,7 @@ public class PetController : NetworkBehaviour
     public void PickItem(PickupItem pickupItem)
     {
         m_pickUpItemsInRadius.Remove(pickupItem);
-        if (IsServer)
-        {
-            pickupItem.Pick(OwnerClientId);
-        }
-        else
-        {
-            pickupItem.PickedByServerRpc(OwnerClientId);
-        }
+        pickupItem.Pick(OwnerClientId);
     }
 
     public PickupItem GetPickUpItemFromList()
@@ -126,6 +132,7 @@ public class PetController : NetworkBehaviour
                     m_pickUpItemsInRadius.Add(pickupItem);
                 }
             }
+            m_pickUpItemsInRadius = m_pickUpItemsInRadius.OrderBy(x => Vector2.Distance(m_transform.position, x.transform.position)).ToList();
         }
     }
 
@@ -152,24 +159,18 @@ public class PetController : NetworkBehaviour
 
     private void ChangeSprite(Direction direction)
     {
-        if (IsServer)
-        {
-            SetFacingSpriteClientRpc(direction);
-        }
-        else
-        {
-            SetFacingSpriteServerRpc(direction);
-        }
-    }
-
-    [ServerRpc]
-    public void SetFacingSpriteServerRpc(Direction direction)
-    {
+        SetSprite(direction);
         SetFacingSpriteClientRpc(direction);
     }
 
     [ClientRpc]
     public void SetFacingSpriteClientRpc(Direction direction)
+    {
+        if (IsServer) return;
+        SetSprite(direction);
+    }
+
+    private void SetSprite(Direction direction)
     {
         switch (direction)
         {

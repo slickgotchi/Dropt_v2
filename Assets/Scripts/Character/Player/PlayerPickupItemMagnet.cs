@@ -1,6 +1,5 @@
 using Unity.Netcode;
 using UnityEngine;
-using System.Collections.Generic;
 using PickupItems.Orb;
 
 public class PlayerPickupItemMagnet : NetworkBehaviour

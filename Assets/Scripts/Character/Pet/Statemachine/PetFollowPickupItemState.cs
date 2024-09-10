@@ -8,6 +8,7 @@ public class PetFollowPickupItemState : PetState
 
     public override void Enter()
     {
+        m_PetController.InitializeNavMeshAgentWhenFillowPickUpItem();
         FindPickUpItemsInRangeAndFollowIt();
     }
 
