@@ -42,9 +42,9 @@ public class PlayerDungeonData : NetworkBehaviour
 
         Essence.Value -= Time.deltaTime;
 
-        if (LevelManager.Instance.CurrentLevelIndex.Value == LevelManager.Instance.DegenapeVillageLevel)
+        if (LevelManager.Instance.IsDegenapeVillage())
         {
-            Essence.Value = 300;
+            Essence.Value = 1000;
         }
     }
 
@@ -52,7 +52,7 @@ public class PlayerDungeonData : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        if (Essence.Value <= 0 && LevelManager.Instance.CurrentLevelIndex.Value > LevelManager.Instance.DegenapeVillageLevel)
+        if (Essence.Value <= 0 && !LevelManager.Instance.IsDegenapeVillage())
         {
             GetComponent<PlayerController>().KillPlayer(REKTCanvas.TypeOfREKT.Essence);
         }

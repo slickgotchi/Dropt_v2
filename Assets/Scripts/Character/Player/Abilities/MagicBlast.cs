@@ -38,7 +38,8 @@ public class MagicBlast : PlayerAbility
 
         // IMPORTANT use PlayAnimation which calls RPC's in the background that play the 
         // animation on remote clients
-        PlayAnimation("MagicBlast");
+        //PlayAnimation("MagicBlast");
+        PlayAnimationWithDuration("MagicBlast", ExecutionDuration);
     }
 
     private void CollisionCheck()

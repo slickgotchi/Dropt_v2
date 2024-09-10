@@ -36,7 +36,7 @@ public class Spider_Stomp : EnemyAbility
         m_speed = StompDistance / ExecutionDuration;
 
         EnemyController.Facing facing = m_direction.x > 0 ? EnemyController.Facing.Right : EnemyController.Facing.Left;
-        if (Parent != null) Parent.GetComponent<EnemyController>().SetFacingDirection(facing);
+        if (Parent != null) Parent.GetComponent<EnemyController>().SetFacing(facing);
     }
 
     public override void OnExecutionStart()

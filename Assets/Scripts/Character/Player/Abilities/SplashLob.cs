@@ -86,7 +86,9 @@ public class SplashLob : PlayerAbility
                 Player,
                 playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier,
                 playerCharacter.CriticalChance.Value,
-                playerCharacter.CriticalDamage.Value);
+                playerCharacter.CriticalDamage.Value,
+                KnockbackDistance,
+                KnockbackStunDuration);
 
             // fire
             no_projectile.Fire();
@@ -124,7 +126,8 @@ public class SplashLob : PlayerAbility
                 Wearable.WeaponTypeEnum.Splash, wearableNameEnum,
                 
                 Player,
-                0, 0, 0);
+                0, 0, 0,
+                0, 0);
 
             // init
             no_projectile.Fire();

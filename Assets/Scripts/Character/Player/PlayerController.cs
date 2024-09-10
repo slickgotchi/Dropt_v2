@@ -48,6 +48,7 @@ public class PlayerController : NetworkBehaviour
         if (IsLocalPlayer)
         {
             m_cameraFollower = GameObject.FindGameObjectWithTag("CameraFollower");
+            m_cameraFollower.GetComponent<CameraFollowerAndPlayerInteractor>().Player = gameObject;
 
             GotchiDataManager.Instance.onSelectedGotchi += HandleOnSelectedGotchi;
 
@@ -241,7 +242,7 @@ public class PlayerController : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        if (LevelManager.Instance.CurrentLevelIndex.Value == LevelManager.Instance.DegenapeVillageLevel)
+        if (LevelManager.Instance.IsDegenapeVillage())
         {
             m_networkCharacter.HpCurrent.Value = m_networkCharacter.HpMax.Value;
             m_networkCharacter.ApCurrent.Value = m_networkCharacter.ApMax.Value;

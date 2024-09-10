@@ -74,7 +74,9 @@ public class CleaveCyclone : PlayerAbility
                 Player,
                 playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier,
                 playerCharacter.CriticalChance.Value,
-                playerCharacter.CriticalDamage.Value
+                playerCharacter.CriticalDamage.Value,
+                KnockbackDistance,
+                KnockbackStunDuration
                 );
 
             // fire projectile
@@ -113,8 +115,8 @@ public class CleaveCyclone : PlayerAbility
                 Player,
                 0,
                 0,
-                0
-                );
+                0,
+                0, 0);
 
             // fire
             no_projectile.Fire();
