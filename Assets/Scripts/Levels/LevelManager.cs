@@ -11,13 +11,14 @@ public class LevelManager : NetworkBehaviour
     public static LevelManager Instance { get; private set; }
 
     // level tracking variables
-    [SerializeField] private List<GameObject> m_levels = new List<GameObject>();
-    public int TutorialStartLevel = 0;
-    public int DegenapeVillageLevel = 2;
-    public int DungeonStartLevel = 3;
+    public GameObject ApeVillageLevel;
+    private List<GameObject> m_levels = new List<GameObject>();
+    //public int TutorialStartLevel = 0;
+    //public int DegenapeVillageLevel = 2;
+    //public int DungeonStartLevel = 3;
 
     private GameObject m_currentLevel;
-    [HideInInspector] public int m_currentLevelIndex = 0;
+    [HideInInspector] public int m_currentLevelIndex = -1;
 
     // variables to keep track of spawning levels
     [HideInInspector] public int LevelSpawningCount = 0;
@@ -40,7 +41,7 @@ public class LevelManager : NetworkBehaviour
     {
         m_levels.Clear();
         m_levels = levels;
-        m_currentLevelIndex = 0;
+        m_currentLevelIndex = -1;
     }
 
     private void Awake()
@@ -67,34 +68,28 @@ public class LevelManager : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        if (m_levels.Count <= 0)
-        {
-            Debug.Log("Error: No prefab levels added to the LevelManager!");
-            return;
-        }
-
-        if (Game.Instance.IsTutorialCompleted())
-        {
-            GoToDegenapeVillageLevel();
-        }
-        else
-        {
-            GoToTutorialLevel();
-        }
-
+        GoToDegenapeVillageLevel();
 
         GameAudioManager.Instance.PLAY_SOUND += OnPlaySound;
     }
 
-    public void GoToTutorialLevel()
-    {
-        CreateLevel(0);
-    }
-
     public void GoToDegenapeVillageLevel()
     {
-        m_currentLevelIndex = DegenapeVillageLevel - 1;
+        // set ape village as level
+        var levels = new List<GameObject>();
+        levels.Add(ApeVillageLevel);
+        SetLevelList(levels);
+
+        // proceed to our new next level
         GoToNextLevel();
+    }
+
+    public bool IsDegenapeVillage()
+    {
+        if (m_levels == null) return false;
+        if (m_levels.Count <= 0) return false;
+
+        return (m_levels[0] == ApeVillageLevel);
     }
 
     private void DestroyCurrentLevel()
@@ -203,7 +198,10 @@ public class LevelManager : NetworkBehaviour
         if (m_numberAndLevelTimer > 0) return;
         m_numberAndLevelTimer = k_numberAndLevelInterval;
 
-        string number = CurrentLevelIndex.Value <= DegenapeVillageLevel ? "-" : (CurrentLevelIndex.Value - DegenapeVillageLevel).ToString();
+        if (m_levels == null) return;
+        if (m_currentLevelIndex < 0 || CurrentLevelIndex.Value < 0) return;
+
+        string number = CurrentLevelIndex.Value.ToString();
         string name = m_levels[CurrentLevelIndex.Value].name;
         PlayerHUDCanvas.Singleton.SetLevelNumberAndName(number, Dropt.Utils.String.ConvertToReadableString(name));
     }
@@ -271,16 +269,19 @@ public class LevelManager : NetworkBehaviour
     {
         if (!IsServer) return;
 
+        // if we are on last level, return to degenape
+        if (m_currentLevelIndex >= m_levels.Count - 1)
+        {
+            var levels = new List<GameObject>();
+            levels.Add(ApeVillageLevel);
+            SetLevelList(levels);
+        }
+
         // destroy current level
         DestroyCurrentLevel();
 
         // get index for next level
         int nextLevelIndex = m_currentLevelIndex + 1;
-        if (nextLevelIndex >= m_levels.Count)
-        {
-            // return to the degenape village
-            nextLevelIndex = DegenapeVillageLevel;
-        }
 
         // create next level and update current level index
         CreateLevel(nextLevelIndex);
@@ -292,18 +293,6 @@ public class LevelManager : NetworkBehaviour
         {
             lcb.IncrementLevelCount();
         }
-
-        // if our new level is degenape, tell client they can mark tutorial as complete
-        if (m_currentLevelIndex == DegenapeVillageLevel)
-        {
-            MarkTutorialCompletedClientRpc();
-        }
-    }
-
-    [Rpc(SendTo.ClientsAndHost)]
-    void MarkTutorialCompletedClientRpc()
-    {
-        Game.Instance.CompleteTutorial();
     }
 
     bool isHandleLevelLoadedNextFrame = false;
