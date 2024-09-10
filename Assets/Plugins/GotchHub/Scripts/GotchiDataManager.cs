@@ -1,7 +1,6 @@
 using PortalDefender.AavegotchiKit;
 using PortalDefender.AavegotchiKit.GraphQL;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using Thirdweb;
 using UnityEngine;
