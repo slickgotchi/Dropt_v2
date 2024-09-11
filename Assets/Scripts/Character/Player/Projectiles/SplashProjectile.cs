@@ -13,6 +13,9 @@ public class SplashProjectile : NetworkBehaviour
     [HideInInspector] public float LobHeight = 2f;
     [HideInInspector] public float Scale = 1f;
 
+    [HideInInspector] public float KnockbackDistance;
+    [HideInInspector] public float KnockbackStunDuration;
+
     [HideInInspector] public float DamagePerHit = 1f;
     [HideInInspector] public float CriticalChance = 0.1f;
     [HideInInspector] public float CriticalDamage = 1.5f;
@@ -49,7 +52,11 @@ public class SplashProjectile : NetworkBehaviour
         GameObject player,
         float damagePerHit,
         float criticalChance,
-        float criticalDamage
+        float criticalDamage,
+
+        // knockback
+        float knockbackDistance,
+        float knockbackStunDuration
         )
     {
         // server, local & remote
@@ -69,6 +76,10 @@ public class SplashProjectile : NetworkBehaviour
         DamagePerHit = damagePerHit;
         CriticalChance = criticalChance;
         CriticalDamage = criticalDamage;
+
+        // knockback
+        KnockbackDistance = knockbackDistance;
+        KnockbackStunDuration = knockbackStunDuration;
     }
 
     public void Fire()
@@ -128,6 +139,8 @@ public class SplashProjectile : NetworkBehaviour
                 var isCritical = PlayerAbility.IsCriticalAttack(CriticalChance);
                 var damage = (int)(isCritical ? DamagePerHit * CriticalDamage : DamagePerHit);
                 hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical);
+                var knockbackDirection = (Dropt.Utils.Battle.GetAttackCentrePosition(hit.gameObject) - transform.position).normalized;
+                hit.GetComponent<Dropt.EnemyAI>().Knockback(knockbackDirection, KnockbackDistance, KnockbackStunDuration);
             }
 
             if (hit.HasComponent<Destructible>())

@@ -49,8 +49,6 @@ SpriteRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -108,6 +106,7 @@ GameObject:
   - component: {fileID: 6434513312881309744}
   - component: {fileID: 9213157710925413766}
   - component: {fileID: 4595951465024790159}
+  - component: {fileID: -3820588824164294264}
   m_Layer: 15
   m_Name: Spider
   m_TagString: Untagged
@@ -157,7 +156,7 @@ MonoBehaviour:
   AutoObjectParentSync: 1
 --- !u!95 &166411181886647591
 Animator:
-  serializedVersion: 7
+  serializedVersion: 5
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -171,7 +170,6 @@ Animator:
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
@@ -251,6 +249,8 @@ MonoBehaviour:
   baseDamageReduction: 0
   baseApLeech: 0
   baseApRegen: 1
+  baseKnockbackMutliplier: 1
+  baseStunMultiplier: 1
   popupTextOffset: {x: 0, y: 1.5, z: 0}
   HpMax:
     m_InternalValue: 100
@@ -284,6 +284,10 @@ MonoBehaviour:
     m_InternalValue: 0
   ApRegen:
     m_InternalValue: 0
+  KnockbackMultiplier:
+    m_InternalValue: 0
+  StunMultiplier:
+    m_InternalValue: 0
 --- !u!114 &2642312668980575302
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -301,6 +305,7 @@ MonoBehaviour:
   IsSpawning: 1
   SpawnDuration: 0
   IsArmed: 0
+  DynamicHpMultiplier: 1
 --- !u!61 &9088211342616817470
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -309,7 +314,6 @@ BoxCollider2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1249991746567512264}
   m_Enabled: 1
-  serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -333,8 +337,7 @@ BoxCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 1
   m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
+  m_UsedByComposite: 0
   m_Offset: {x: 0.0022971928, y: 0.20215547}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
@@ -345,6 +348,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
+  serializedVersion: 2
   m_Size: {x: 0.7197389, y: 0.59568906}
   m_EdgeRadius: 0
 --- !u!114 &-4382550609485557648
@@ -429,6 +433,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09698abc2e8964808b00a54103ccdd21, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!195 &-3820588824164294264
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 0
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
 --- !u!1 &2736674369248915178
 GameObject:
   m_ObjectHideFlags: 0
@@ -523,8 +549,6 @@ SpriteRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:

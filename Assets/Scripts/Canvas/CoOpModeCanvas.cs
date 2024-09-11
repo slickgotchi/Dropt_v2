@@ -54,7 +54,7 @@ public class CoOpModeCanvas : MonoBehaviour
             MenuCard.SetActive(!MenuCard.activeSelf);
         }
 
-        Container.SetActive(LevelManager.Instance.DegenapeVillageLevel == LevelManager.Instance.CurrentLevelIndex.Value);
+        Container.SetActive(LevelManager.Instance.IsDegenapeVillage());
     }
 
     void HandleClick_CopyMyGameIdButton()
