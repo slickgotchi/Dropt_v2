@@ -14,44 +14,27 @@ public class Snail_Slash : EnemyAbility
         m_collider = GetComponentInChildren<Collider2D>();
     }
 
-    public override void OnNetworkSpawn()
-    {
-
-    }
-
-    public override void OnTelegraphStart()
+    public override void OnActivate()
     {
         if (Parent == null) return;
 
-        if (Parent.HasComponent<Animator>())
-        {
-            Parent.GetComponent<Animator>().Play("Snail_TelegraphAttack");
-        }
+        // get direction and parent centre position
+        var dir = Parent.GetComponent<Dropt.EnemyAI>().AttackDirection;
+        var parentCentre = Parent.GetComponentInChildren<AttackCentre>();
+        var parentCentrePos = parentCentre == null ? Parent.transform.position : parentCentre.transform.position;
 
-        // setup attack
-        Vector3 attackDir = (Target.transform.position - Parent.transform.position).normalized;
-        //transform.rotation = PlayerAbility.GetRotationFromDirection(attackDir);
+        // set rotation
+        transform.rotation = PlayerAbility.GetRotationFromDirection(dir);
 
-        EnemyController.Facing facing = attackDir.x > 0 ? EnemyController.Facing.Right : EnemyController.Facing.Left;
-        Parent.GetComponent<EnemyController>().SetFacingDirection(facing, 1f);
-    }
+        // set offset
+        transform.position = parentCentrePos + dir * 0.5f;
 
-    public override void OnExecutionStart()
-    {
-        if (Parent == null) return;
+        // play animation
+        Dropt.Utils.Anim.PlayAnimationWithDuration(m_animator, "SnailSlash_Attack", Parent.GetComponent<Dropt.EnemyAI>().AttackDuration);
 
-        //transform.position = Parent.transform.position + new Vector3(0, 0.35f, 0f);
-        m_animator.Play("SnailSlash_Attack");
+        // do damage
         var damage = Parent.GetComponent<NetworkCharacter>().GetAttackPower();
         var isCritical = Parent.GetComponent<NetworkCharacter>().IsCriticalAttack();
         EnemyAbility.PlayerCollisionCheckAndDamage(m_collider, damage, isCritical, Parent);
-    }
-
-    public override void OnCooldownStart()
-    {
-    }
-
-    public override void OnFinish()
-    {
     }
 }

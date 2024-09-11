@@ -33,7 +33,8 @@ public class PierceThrust : PlayerAbility
 
         // IMPORTANT use PlayAnimation which calls RPC's in the background that play the 
         // animation on remote clients
-        PlayAnimation("PierceThrust");
+        //PlayAnimation("PierceThrust");
+        PlayAnimationWithDuration("PierceThrust", ExecutionDuration);
     }
 
     public override void OnUpdate()

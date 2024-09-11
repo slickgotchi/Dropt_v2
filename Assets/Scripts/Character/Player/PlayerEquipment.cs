@@ -22,6 +22,9 @@ public class PlayerEquipment : NetworkBehaviour
     private Wearable.NameEnum m_localLeftHand = Wearable.NameEnum.Null;
     private Wearable.NameEnum m_localPet = Wearable.NameEnum.Null;
 
+    public Wearable.NameEnum leftHandStarterWeapon = Wearable.NameEnum.Unarmed;
+    public Wearable.NameEnum rightHandStarterWeapon = Wearable.NameEnum.Unarmed;
+
     private PlayerGotchi m_playerGotchi;
 
     private void Awake()
@@ -31,6 +34,7 @@ public class PlayerEquipment : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        // starter weapons get set in Init()
     }
 
     public override void OnNetworkDespawn()
@@ -46,18 +50,39 @@ public class PlayerEquipment : NetworkBehaviour
 
     private void Update()
     {
-        // right hand changes
+        // right hand sprite changes
         if (RightHand.Value != m_localRightHand)
         {
             m_localRightHand = RightHand.Value;
             m_playerGotchi.SetWeaponSprites(Hand.Right, m_localRightHand);
         }
 
-        // left hand changes
+        // left hand sprite changes
         if (LeftHand.Value != m_localLeftHand)
         {
             m_localLeftHand = LeftHand.Value;
             m_playerGotchi.SetWeaponSprites(Hand.Left, m_localLeftHand);
+        }
+
+        // pet updates
+        UpdatePets();
+    }
+
+    private void UpdatePets()
+    {
+        if (!IsServer) return;
+        if (m_localPet == Pet.Value) return;
+
+        // see if player owns a pet already
+        var petControllers = FindObjectsByType<PetController>(FindObjectsSortMode.None);
+        for (int i = 0; i < petControllers.Length; i++)
+        {
+            var petController = petControllers[i];
+            if (petController.OwnerClientId == GetComponent<NetworkObject>().NetworkObjectId)
+            {
+                // we have a match, we need to despawn the old pet
+                petController.GetComponent<NetworkObject>().Despawn();
+            }
         }
     }
 
@@ -70,8 +95,8 @@ public class PlayerEquipment : NetworkBehaviour
             // tell server to change our equipment if we're the local player
             if (IsLocalPlayer)
             {
-                SetEquipmentServerRpc(Slot.LeftHand, Wearable.NameEnum.Unarmed);
-                SetEquipmentServerRpc(Slot.RightHand, Wearable.NameEnum.Unarmed);
+                SetEquipmentServerRpc(Slot.LeftHand, leftHandStarterWeapon);
+                SetEquipmentServerRpc(Slot.RightHand, rightHandStarterWeapon);
             }
         } else
         {
