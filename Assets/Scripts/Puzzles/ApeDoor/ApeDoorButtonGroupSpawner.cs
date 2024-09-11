@@ -13,6 +13,6 @@ public class ApeDoorButtonGroupSpawner : MonoBehaviour
     //public int OpenDoorsWithSpawnerId = -1;
 
     [Header("Prefabs")]
-    public GameObject ApeDoorButtonGroupPrefab;
+    //public GameObject ApeDoorButtonGroupPrefab;
     public GameObject ApeDoorButtonPrefab;
 }

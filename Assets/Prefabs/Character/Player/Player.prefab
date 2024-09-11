@@ -1204,7 +1204,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a60c3a24c8a417459bc4c7dc5d5f0fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Radius: 5
+  Radius: 2
+  magnetCollider: {fileID: 710682084458313814}
   PlayerDungeonData: {fileID: -4993210810574338119}
 --- !u!1 &1722710475381033325
 GameObject:
@@ -3258,7 +3259,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5329823270649007181}
-  - component: {fileID: 2833494256357968016}
   - component: {fileID: 710682084458313814}
   m_Layer: 18
   m_Name: PlayerPickupItemMagnet
@@ -3276,26 +3276,12 @@ Transform:
   m_GameObject: {fileID: 5352158927610460361}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.51, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3968243587037172639}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2833494256357968016
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5352158927610460361}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4a60c3a24c8a417459bc4c7dc5d5f0fb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Radius: 3
-  PlayerDungeonData: {fileID: -4993210810574338119}
 --- !u!58 &710682084458313814
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -3330,7 +3316,7 @@ CircleCollider2D:
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
-  m_Radius: 3
+  m_Radius: 1.2
 --- !u!1 &5544583380941057587
 GameObject:
   m_ObjectHideFlags: 0

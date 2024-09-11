@@ -57,7 +57,7 @@ public class Interactable : NetworkBehaviour
             if (m_holdSlider != null) m_holdSlider.value = 0;
 
             m_popupAnimator = m_popupCanvas.GetComponentInChildren<Animator>();
-            if (m_popupAnimator != null) m_popupAnimator.Play("Hidden");
+            //if (m_popupAnimator != null) m_popupAnimator.Play("Hidden");
         }
 
         m_holdTimer = -0.1f;
