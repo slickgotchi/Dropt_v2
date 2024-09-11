@@ -1,10 +1,7 @@
-using System.Collections;
 using System.Collections.Generic;
 using Audio.Game;
 using UnityEngine;
 using Unity.Netcode;
-using Unity.VisualScripting;
-using UnityEngine.AI;
 
 public class LevelManager : NetworkBehaviour
 {
@@ -343,7 +340,8 @@ public class LevelManager : NetworkBehaviour
                 if (m_playerSpawnPoints.Count > 0)
                 {
                     m_playerSpawnPoints.Add(m_playerSpawnPoints[0]);
-                } else
+                }
+                else
                 {
                     m_playerSpawnPoints.Add(Vector3.zero);
                 }

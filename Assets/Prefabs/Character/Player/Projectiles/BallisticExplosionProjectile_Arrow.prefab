@@ -67,7 +67,6 @@ CircleCollider2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2544078778212307353}
   m_Enabled: 1
-  serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -91,9 +90,9 @@ CircleCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 1
   m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
+  m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
+  serializedVersion: 2
   m_Radius: 0.25
 --- !u!50 &2334808591066055042
 Rigidbody2D:
@@ -151,6 +150,8 @@ MonoBehaviour:
   Duration: 0
   ExplosionRadius: 2
   ExplosionCollider: {fileID: 7237793237122501340}
+  ProjectileDamageMultiplier: 1
+  ExplosionDamageMultiplier: 0.5
   DamagePerHit: 1
   CriticalChance: 0.1
   CriticalDamage: 1.5
@@ -197,7 +198,6 @@ CircleCollider2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5176919951278165156}
   m_Enabled: 1
-  serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -221,9 +221,9 @@ CircleCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 1
   m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
+  m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
+  serializedVersion: 2
   m_Radius: 0.5
 --- !u!1 &8059999596395395899
 GameObject:
@@ -274,8 +274,6 @@ SpriteRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -300,7 +298,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -576264442, guid: 8c0e06c28e79bd64488a9400b0612670, type: 3}
+  m_Sprite: {fileID: 1008743766, guid: a3fbd10d98c8d463aadfe925cc46f3c1, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

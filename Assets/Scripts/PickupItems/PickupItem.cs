@@ -72,26 +72,26 @@ public sealed class PickupItem : NetworkBehaviour
         return true;
     }
 
-    [ServerRpc]
-    public void PickedByServerRpc(ulong clientId)
-    {
-        Pick(clientId);
-    }
+    //[ServerRpc(RequireOwnership = false)]
+    //public void PickedByServerRpc(ulong clientId)
+    //{
+    //    Pick(clientId);
+    //}
 
-    public void Pick(ulong clientId)
+    public void Pick(PlayerPickupItemMagnet playerPickupItemMagnet)
     {
         IsItemPicked.Value = true;
-        NetworkObject client = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
-        m_playerPickupItemMagnet = client.GetComponent<PlayerPickupItemMagnet>();
-
-        var tween = transform.DOMove(client.transform.position, 10)
+        //NetworkObject client = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
+        //m_playerPickupItemMagnet = client.GetComponent<PlayerPickupItemMagnet>();
+        Vector3 position = playerPickupItemMagnet.transform.position;
+        var tween = transform.DOMove(position, 10)
                            .SetSpeedBased()
                            .SetEase(Ease.Linear);
         tween.OnComplete(() =>
         {
             m_playerPickupItemMagnet?.Collect(this);
         });
-        GotoClientRpc(client.transform.position);
+        GotoClientRpc(position);
     }
 
     [ClientRpc]
