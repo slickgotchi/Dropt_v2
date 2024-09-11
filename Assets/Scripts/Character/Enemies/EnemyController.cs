@@ -42,6 +42,8 @@ public class EnemyController : NetworkBehaviour
         } else
         {
             m_navMeshAgent = GetComponent<NavMeshAgent>();
+            if (m_navMeshAgent == null) gameObject.AddComponent<NavMeshAgent>();
+
             m_navMeshAgent.updateRotation = false;
             m_navMeshAgent.updateUpAxis = false;
             m_navMeshAgent.obstacleAvoidanceType = ObstacleAvoidanceType.NoObstacleAvoidance;

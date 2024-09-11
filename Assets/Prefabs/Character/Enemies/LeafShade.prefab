@@ -49,8 +49,6 @@ SpriteRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -96,7 +94,6 @@ GameObject:
   m_Component:
   - component: {fileID: 551280027139294499}
   - component: {fileID: -3599212634581151793}
-  - component: {fileID: -1691391478239455132}
   - component: {fileID: -6174702457170576521}
   - component: {fileID: -8295536332313480099}
   - component: {fileID: -206386862709377946}
@@ -105,6 +102,7 @@ GameObject:
   - component: {fileID: 1235791206149504990}
   - component: {fileID: -8391369733495563293}
   - component: {fileID: 5901335369412979862}
+  - component: {fileID: -1844866496177262035}
   m_Layer: 15
   m_Name: LeafShade
   m_TagString: Untagged
@@ -152,21 +150,6 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
---- !u!114 &-1691391478239455132
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1249991746567512264}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 68694423375b0af45a8fae47fd1a9350, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Value: {x: 0, y: 0, z: 0}
-  IsMoving: 0
-  LastNonZeroVelocity: {x: 0, y: 0, z: 0}
 --- !u!114 &-6174702457170576521
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -226,6 +209,8 @@ MonoBehaviour:
   baseDamageReduction: 0
   baseApLeech: 0
   baseApRegen: 1
+  baseKnockbackMutliplier: 1
+  baseStunMultiplier: 1
   popupTextOffset: {x: 0, y: 1.5, z: 0}
   HpMax:
     m_InternalValue: 100
@@ -259,6 +244,10 @@ MonoBehaviour:
     m_InternalValue: 0
   ApRegen:
     m_InternalValue: 0
+  KnockbackMultiplier:
+    m_InternalValue: 0
+  StunMultiplier:
+    m_InternalValue: 0
 --- !u!114 &-206386862709377946
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -276,6 +265,7 @@ MonoBehaviour:
   IsSpawning: 1
   SpawnDuration: 0
   IsArmed: 0
+  DynamicHpMultiplier: 1
 --- !u!61 &-277146688726621620
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -284,7 +274,6 @@ BoxCollider2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1249991746567512264}
   m_Enabled: 1
-  serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -308,8 +297,7 @@ BoxCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 1
   m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
+  m_UsedByComposite: 0
   m_Offset: {x: 0.002459675, y: 0.7772099}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
@@ -320,6 +308,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
+  serializedVersion: 2
   m_Size: {x: 1.6542337, y: 1.8067238}
   m_EdgeRadius: 0
 --- !u!114 &-4429307489550190617
@@ -377,6 +366,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09698abc2e8964808b00a54103ccdd21, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!195 &-1844866496177262035
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 0
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
 --- !u!1 &1308822279949722805
 GameObject:
   m_ObjectHideFlags: 0
@@ -471,8 +482,6 @@ SpriteRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:

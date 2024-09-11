@@ -72,7 +72,7 @@ public sealed class PickupItem : NetworkBehaviour
         return true;
     }
 
-    [ServerRpc(RequireOwnership = false)]
+    [ServerRpc]
     public void PickedByServerRpc(ulong clientId)
     {
         Pick(clientId);
