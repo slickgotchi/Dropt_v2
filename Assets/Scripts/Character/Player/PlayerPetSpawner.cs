@@ -16,6 +16,7 @@ public class PlayerPetSpawner : NetworkBehaviour
     {
         if (IsServer)
         {
+            Debug.Log("NETWORK OBJECT ID -> " + NetworkObjectId);
             PetsManager.Instance.SpawnPet(PetType.FoxyTail, transform.position, NetworkObjectId);
         }
         else
@@ -25,9 +26,9 @@ public class PlayerPetSpawner : NetworkBehaviour
     }
 
     [ServerRpc]
-    public void SpawnPetServerRpc(PetType petType, Vector3 position, ulong playerNetworkObjectId)
+    public void SpawnPetServerRpc(PetType petType, Vector3 position, ulong senderId)
     {
-        PetsManager.Instance.SpawnPet(petType, position, playerNetworkObjectId);
+        PetsManager.Instance.SpawnPet(petType, position, senderId);
     }
 
     private PetType GetRandomPetType()

@@ -22,9 +22,9 @@ public class PetController : NetworkBehaviour
     public Sprite UpSprite;
     public Sprite DownSprite;
 
-    [HideInInspector] public ulong PlayerNetworkObjectId = 0;
-
     private List<PickupItem> m_pickUpItemsInRadius = new List<PickupItem>();
+
+    private ulong m_ownerObjectId;
 
     public override void OnNetworkSpawn()
     {
@@ -36,8 +36,7 @@ public class PetController : NetworkBehaviour
 
         InitializeNavmeshAgent();
         m_transform = transform;
-        //m_petOwner = NetworkManager.Singleton.ConnectedClients[OwnerClientId].PlayerObject.transform;
-        m_petOwner = NetworkManager.SpawnManager.SpawnedObjects[PlayerNetworkObjectId].transform;
+        m_petOwner = NetworkManager.SpawnManager.SpawnedObjects[m_ownerObjectId].transform;
         m_petStateMachine = new PetStateMachine(this);
         m_petStateMachine.ChangeState(m_petStateMachine.PetFollowOwnerState);
     }
@@ -84,7 +83,7 @@ public class PetController : NetworkBehaviour
     public void PickItem(PickupItem pickupItem)
     {
         m_pickUpItemsInRadius.Remove(pickupItem);
-        pickupItem.Pick(OwnerClientId);
+        pickupItem.Pick(m_petOwner.GetComponent<PlayerPickupItemMagnet>());
     }
 
     public PickupItem GetPickUpItemFromList()
@@ -169,7 +168,11 @@ public class PetController : NetworkBehaviour
     [ClientRpc]
     public void SetFacingSpriteClientRpc(Direction direction)
     {
-        if (IsServer) return;
+        if (IsServer)
+        {
+            return;
+        }
+
         SetSprite(direction);
     }
 
@@ -190,6 +193,16 @@ public class PetController : NetworkBehaviour
                 m_spriteRenderer.sprite = DownSprite;
                 break;
         }
+    }
+
+    public void SetOwnerObjectId(ulong ownerObjectId)
+    {
+        m_ownerObjectId = ownerObjectId;
+    }
+
+    public ulong GetPlayerNetworkObjectId()
+    {
+        return m_ownerObjectId;
     }
 }
 
