@@ -16,11 +16,12 @@ public class PlayerPetSpawner : NetworkBehaviour
     {
         if (IsServer)
         {
-            PetsManager.Instance.SpawnPet(PetType.FoxyTail, transform.position, OwnerClientId);
+            Debug.Log("NETWORK OBJECT ID -> " + NetworkObjectId);
+            PetsManager.Instance.SpawnPet(PetType.FoxyTail, transform.position, NetworkObjectId);
         }
         else
         {
-            SpawnPetServerRpc(PetType.FoxyTail, transform.position, OwnerClientId);
+            SpawnPetServerRpc(PetType.FoxyTail, transform.position, NetworkObjectId);
         }
     }
 
