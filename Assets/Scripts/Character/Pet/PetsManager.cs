@@ -18,7 +18,7 @@ public class PetsManager : NetworkBehaviour
         }
     }
 
-    public async void SpawnPet(PetType petType, Vector3 position, ulong senderId)
+    public async void SpawnPet(PetType petType, Vector3 position, ulong ownerObjectId)
     {
         if (!IsServer)
         {
@@ -34,7 +34,8 @@ public class PetsManager : NetworkBehaviour
 
         GameObject petPrefab = (GameObject)request.asset;
         var pet = Instantiate(petPrefab, position, Quaternion.identity);
-        var networkObj = pet.GetComponent<NetworkObject>();
-        networkObj.SpawnWithOwnership(senderId);
+        pet.GetComponent<PetController>().SetOwnerObjectId(ownerObjectId);
+        NetworkObject networkObj = pet.GetComponent<NetworkObject>();
+        networkObj.Spawn();
     }
 }
