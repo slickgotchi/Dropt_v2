@@ -144,6 +144,27 @@ public class PlayerEquipment : NetworkBehaviour
 
         var wearable = WearableManager.Instance.GetWearable(equipmentNameEnum);
         GetComponent<PlayerCharacter>().SetWearableBuffServerRpc(slot, wearable.Id);
+
+        // if slot was pet, we should spawn a pet
+        if (slot == Slot.Pet)
+        {
+            PetType myPet;
+            if (System.Enum.TryParse(equipmentNameEnum.ToString(), out myPet))
+            {
+                // destroy any old pets
+                var playerObjectId = GetComponent<NetworkObject>().NetworkObjectId;
+                var allPets = FindObjectsByType<PetController>(FindObjectsSortMode.None);
+                foreach (var pet in allPets)
+                {
+                    if (pet.GetPlayerNetworkObjectId() == playerObjectId)
+                    {
+                        pet.GetComponent<NetworkObject>().Despawn();
+                    }
+                }
+
+                PetsManager.Instance.SpawnPet(myPet, transform.position, GetComponent<NetworkObject>().NetworkObjectId);
+            }
+        }
     }
 
     public enum Slot

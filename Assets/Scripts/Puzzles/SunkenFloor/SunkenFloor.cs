@@ -11,6 +11,9 @@ public class SunkenFloor : NetworkBehaviour
     public int NumberButtons = 2;
     public int spawnerId = -1;
 
+    public SunkenFloorType initType;
+    public SunkenFloorState initState;
+
     [Header("Emblems")]
     public SpriteRenderer RaisedEmblem;
     public SpriteRenderer SunkenEmblem;
@@ -32,8 +35,8 @@ public class SunkenFloor : NetworkBehaviour
     public Sprite GillsRaised;
 
     [Header("Access")]
-    [SerializeField] private Collider2D SunkenCollider;
-    [SerializeField] private Collider2D RaisedCollider;
+    [SerializeField] private GameObject SunkenCollider;
+    [SerializeField] private GameObject RaisedCollider;
 
     private Animator m_animator;
 
@@ -48,7 +51,7 @@ public class SunkenFloor : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        SetTypeAndState(Type.Value, State.Value);
+        SetTypeAndState(initType, initState);
     }
 
     private void Update()
@@ -62,8 +65,8 @@ public class SunkenFloor : NetworkBehaviour
 
     void UpdateColliders()
     {
-        SunkenCollider.gameObject.SetActive(State.Value == SunkenFloorState.Lowered);
-        RaisedCollider.gameObject.SetActive(State.Value == SunkenFloorState.Raised);
+        SunkenCollider.SetActive(State.Value == SunkenFloorState.Lowered);
+        RaisedCollider.SetActive(State.Value == SunkenFloorState.Raised);
     }
 
     public void Raise()

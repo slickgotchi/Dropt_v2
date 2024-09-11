@@ -18,16 +18,6 @@ namespace Level
 
             if (IsServer)
             {
-                // REDUNDANT spawn factories
-                //SunkenFloorFactory.CreateSunkenFloors(gameObject);
-                //ApeDoorFactory.CreateApeDoors(gameObject);
-                //NetworkObjectSpawnerFactory.CreateNetworkObjectSpawners(gameObject, ref m_spawnerActivators);
-                //CreateNetworkObjectPrefabSpawners();    // refer NetworkLevel_NetworkObjectPrefabSpawners.cs
-                //NetworkObjectPrefabSpawnerFactory.CreateNetworkObjectPrefabSpawners(gameObject);
-//<<<<<<< HEAD
-//=======
-                //TrapsGroupSpawnerFactory.CreateTraps(gameObject);
-//>>>>>>> 6f6d2b82 ([ADD] chests logic)
 
                 // legacy spawn factories to be replaced one day
                 SubLevelFactory.CreateSubLevels(gameObject);
