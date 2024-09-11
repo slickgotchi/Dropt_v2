@@ -1,20 +1,13 @@
 using UnityEngine;
-using TMPro;
+using System.Collections.Generic;
+using System;
 
 public class CodeInjectorCanvas : MonoBehaviour
 {
     public static CodeInjectorCanvas Instance { get; private set; }
 
     [SerializeField] private GameObject m_container;
-
-    [SerializeField] private TextMeshProUGUI m_enemyHpText;
-    [SerializeField] private TextMeshProUGUI m_enemyDamageText;
-    [SerializeField] private TextMeshProUGUI m_enemySpeedText;
-    [SerializeField] private TextMeshProUGUI m_eliteEnemiesText;
-    [SerializeField] private TextMeshProUGUI m_enemyShieldText;
-    [SerializeField] private TextMeshProUGUI m_trapDamageText;
-    [SerializeField] private TextMeshProUGUI m_limitedStockText;
-    [SerializeField] private TextMeshProUGUI m_underPressureText;
+    [SerializeField] private List<CodeInjectorVariableItem> m_variableItemList;
 
     private void Awake()
     {
@@ -35,6 +28,27 @@ public class CodeInjectorCanvas : MonoBehaviour
     }
 
     public void InitializeVariableValues()
+    {
+        foreach (CodeInjectorVariableItem item in m_variableItemList)
+        {
+            item.Initialize();
+        }
+    }
+
+    public void ClickOnConfirm()
+    {
+        CodeInjector.Instance.UpdateVariablesData();
+    }
+
+    public void ClickOnReset()
+    {
+        foreach (var item in m_variableItemList)
+        {
+            item.Reset();
+        }
+    }
+
+    public void UpdateVariableText(CodeInjector.Variable type)
     {
 
     }
