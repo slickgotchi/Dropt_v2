@@ -57,27 +57,7 @@ public class ApeDoorButton : NetworkBehaviour
         PopupAllOtherButtons();
 
         // try open door
-        OpenDoorIfPossible();
-
-        //// find ape door button group with matching id
-        //var apeDoorButtonGroups = FindObjectsByType<ApeDoorButtonGroup>
-        //    (FindObjectsInactive.Include, FindObjectsSortMode.None);
-        //bool isFoundButtonGroup = false;
-        //for (int i = 0; i < apeDoorButtonGroups.Length; i++)
-        //{
-        //    if (apeDoorButtonGroups[i].spawnerId == spawnerId)
-        //    {
-        //        apeDoorButtonGroups[i].ButtonPressedDown();
-        //        isFoundButtonGroup = true;
-        //        break;
-        //    }
-        //}
-
-        //if (!isFoundButtonGroup)
-        //{
-        //    Debug.LogWarning("Warning: ApeDoorButton spawnerId: "
-        //        + spawnerId + ", does not have a parent ApeDoorButtonGroup with matching spawnerId");
-        //}
+        TryOpenDoor();
     }
 
     void PopupAllOtherButtons()
@@ -94,7 +74,7 @@ public class ApeDoorButton : NetworkBehaviour
         }
     }
 
-    void OpenDoorIfPossible()
+    void TryOpenDoor()
     {
         var matchingButtons = new List<ApeDoorButton>();
         var allButtons = FindObjectsByType<ApeDoorButton>(FindObjectsInactive.Include, FindObjectsSortMode.None);

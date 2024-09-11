@@ -69,7 +69,6 @@ public class ApeDoor : NetworkBehaviour
 
     public void Open()
     {
-        Debug.Log("Door is opened, animator: " + m_animator);
         m_animator.Play("ApeDoor_Open");
         State.Value = DoorState.Open;
         UpdateColliders();

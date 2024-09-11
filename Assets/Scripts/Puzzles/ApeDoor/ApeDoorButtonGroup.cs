@@ -14,15 +14,15 @@ public class ApeDoorButtonGroup : NetworkBehaviour
 
     [HideInInspector] public List<GameObject> ApeDoors = new List<GameObject>();
 
-    public override void OnNetworkSpawn()
-    {
+    //public override void OnNetworkSpawn()
+    //{
         //if (!IsServer) return;
 
         //NumberButtons.Value = initNumberButtons;
-    }
+    //}
 
-    public void ButtonPressedDown()
-    {
+    //public void ButtonPressedDown()
+    //{
         //if (!IsServer) return;
 
         ////var no_buttons = new List<ApeDoorButton>(GetComponentsInChildren<ApeDoorButton>());
@@ -62,7 +62,7 @@ public class ApeDoorButtonGroup : NetworkBehaviour
 
         //// pop up all other buttons except ours
         //PopupAllOtherDoorButtons();
-    }
+    //}
 
     //private void PopupAllOtherDoorButtons()
     //{
@@ -84,3 +84,24 @@ public class ApeDoorButtonGroup : NetworkBehaviour
     //    }
     //}
 }
+
+
+
+
+//public class EnemyHp
+//{
+//    public List<CodeInjectorVariableInput> inputs;
+//}
+
+//public struct CodeInjectorVariableInput
+//{
+//    float multiplier;
+//    CodeInjectorValueType valueType;
+//    float value;
+//}
+
+//public enum CodeInjectorValueType
+//{
+//    Percent,
+//    Integer,
+//}
