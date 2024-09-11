@@ -1,5 +1,6 @@
 using UnityEngine;
 using Unity.Netcode;
+using System.Collections.Generic;
 
 public class ApeDoorButton : NetworkBehaviour
 {
@@ -7,6 +8,8 @@ public class ApeDoorButton : NetworkBehaviour
     public NetworkVariable<ApeDoorType> Type;
     public NetworkVariable<ButtonState> State;
     public int spawnerId = -1;
+
+    public ApeDoorType initType;
 
     [Header("Sprites")]
     public Sprite CrescentUp;
@@ -33,6 +36,13 @@ public class ApeDoorButton : NetworkBehaviour
         State = new NetworkVariable<ButtonState>(ButtonState.Up);
     }
 
+    public override void OnNetworkSpawn()
+    {
+        if (!IsServer) return;
+
+        Type.Value = initType;
+    }
+
     // WARNING: TriggerEnter/Exit can be somewhat flakey when combined with my PlayerMovement predictino code
     // therefore using a Physics2D.XXXXOverlap() function should usually be preferred
     private void OnTriggerEnter2D(Collider2D collision)
@@ -43,24 +53,77 @@ public class ApeDoorButton : NetworkBehaviour
         // update button state
         State.Value = ButtonState.Down;
 
-        // find ape door button group with matching id
-        var apeDoorButtonGroups = FindObjectsByType<ApeDoorButtonGroup>
-            (FindObjectsInactive.Include, FindObjectsSortMode.None);
-        bool isFoundButtonGroup = false;
-        for (int i = 0; i < apeDoorButtonGroups.Length; i++)
+        // popup all other buttons
+        PopupAllOtherButtons();
+
+        // try open door
+        OpenDoorIfPossible();
+
+        //// find ape door button group with matching id
+        //var apeDoorButtonGroups = FindObjectsByType<ApeDoorButtonGroup>
+        //    (FindObjectsInactive.Include, FindObjectsSortMode.None);
+        //bool isFoundButtonGroup = false;
+        //for (int i = 0; i < apeDoorButtonGroups.Length; i++)
+        //{
+        //    if (apeDoorButtonGroups[i].spawnerId == spawnerId)
+        //    {
+        //        apeDoorButtonGroups[i].ButtonPressedDown();
+        //        isFoundButtonGroup = true;
+        //        break;
+        //    }
+        //}
+
+        //if (!isFoundButtonGroup)
+        //{
+        //    Debug.LogWarning("Warning: ApeDoorButton spawnerId: "
+        //        + spawnerId + ", does not have a parent ApeDoorButtonGroup with matching spawnerId");
+        //}
+    }
+
+    void PopupAllOtherButtons()
+    {
+        var allButtons = FindObjectsByType<ApeDoorButton>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        for (int i = 0; i < allButtons.Length; i++)
         {
-            if (apeDoorButtonGroups[i].spawnerId == spawnerId)
+            var button = allButtons[i];
+            if (button.State.Value == ButtonState.DownLocked) continue;
+            if (button.spawnerId == spawnerId) continue;
+
+            // pop up the button
+            button.State.Value = ButtonState.Up;
+        }
+    }
+
+    void OpenDoorIfPossible()
+    {
+        var matchingButtons = new List<ApeDoorButton>();
+        var allButtons = FindObjectsByType<ApeDoorButton>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        bool isAllButtonsDown = true;
+        foreach (var btn in allButtons)
+        {
+            if (btn.spawnerId == spawnerId)
             {
-                apeDoorButtonGroups[i].ButtonPressedDown();
-                isFoundButtonGroup = true;
-                break;
+                matchingButtons.Add(btn);
+                if (btn.State.Value == ButtonState.Up) isAllButtonsDown = false;
             }
         }
 
-        if (!isFoundButtonGroup)
+        var allDoors = FindObjectsByType<ApeDoor>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        ApeDoor matchingDoor = null;
+        foreach (var dr in allDoors)
         {
-            Debug.LogWarning("Warning: ApeDoorButton spawnerId: "
-                + spawnerId + ", does not have a parent ApeDoorButtonGroup with matching spawnerId");
+            if (dr.spawnerId == spawnerId) matchingDoor = dr;
+        }
+
+        if (matchingButtons.Count > 0 && matchingDoor != null && isAllButtonsDown)
+        {
+            matchingDoor.Open();
+
+            // lock down all the buttons
+            foreach (var btn in matchingButtons)
+            {
+                btn.State.Value = ButtonState.DownLocked;
+            }
         }
     }
 

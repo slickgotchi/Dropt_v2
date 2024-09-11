@@ -5,7 +5,7 @@ using PickupItems.Orb;
 public class PlayerPickupItemMagnet : NetworkBehaviour
 {
     public float Radius = 5f;
-    private Collider2D magnetCollider;
+    public Collider2D magnetCollider;
 
     public PlayerDungeonData PlayerDungeonData;
     private PickupItem m_currentPickupItem;
@@ -13,7 +13,7 @@ public class PlayerPickupItemMagnet : NetworkBehaviour
     void Start()
     {
         // Create and configure the magnet collider
-        magnetCollider = gameObject.AddComponent<CircleCollider2D>();
+        //magnetCollider = gameObject.AddComponent<CircleCollider2D>();
         magnetCollider.isTrigger = true;
         ((CircleCollider2D)magnetCollider).radius = Radius;
     }

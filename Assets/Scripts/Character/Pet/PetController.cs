@@ -22,6 +22,8 @@ public class PetController : NetworkBehaviour
     public Sprite UpSprite;
     public Sprite DownSprite;
 
+    [HideInInspector] public ulong PlayerNetworkObjectId = 0;
+
     private List<PickupItem> m_pickUpItemsInRadius = new List<PickupItem>();
 
     public override void OnNetworkSpawn()
@@ -34,7 +36,8 @@ public class PetController : NetworkBehaviour
 
         InitializeNavmeshAgent();
         m_transform = transform;
-        m_petOwner = NetworkManager.Singleton.ConnectedClients[OwnerClientId].PlayerObject.transform;
+        //m_petOwner = NetworkManager.Singleton.ConnectedClients[OwnerClientId].PlayerObject.transform;
+        m_petOwner = NetworkManager.SpawnManager.SpawnedObjects[PlayerNetworkObjectId].transform;
         m_petStateMachine = new PetStateMachine(this);
         m_petStateMachine.ChangeState(m_petStateMachine.PetFollowOwnerState);
     }

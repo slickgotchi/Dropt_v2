@@ -16,18 +16,18 @@ public class PlayerPetSpawner : NetworkBehaviour
     {
         if (IsServer)
         {
-            PetsManager.Instance.SpawnPet(PetType.FoxyTail, transform.position, OwnerClientId);
+            PetsManager.Instance.SpawnPet(PetType.FoxyTail, transform.position, NetworkObjectId);
         }
         else
         {
-            SpawnPetServerRpc(PetType.FoxyTail, transform.position, OwnerClientId);
+            SpawnPetServerRpc(PetType.FoxyTail, transform.position, NetworkObjectId);
         }
     }
 
     [ServerRpc]
-    public void SpawnPetServerRpc(PetType petType, Vector3 position, ulong senderId)
+    public void SpawnPetServerRpc(PetType petType, Vector3 position, ulong playerNetworkObjectId)
     {
-        PetsManager.Instance.SpawnPet(petType, position, senderId);
+        PetsManager.Instance.SpawnPet(petType, position, playerNetworkObjectId);
     }
 
     private PetType GetRandomPetType()
