@@ -22,10 +22,4 @@ public class CodeInjectorVariableItem : MonoBehaviour
         CodeInjector.Instance.SubtractVariable(m_variableType);
         m_valueText.text = CodeInjector.Instance.GetVariableString(m_variableType);
     }
-
-    public void Reset()
-    {
-        CodeInjector.Instance.ResetVariable(m_variableType);
-        m_valueText.text = CodeInjector.Instance.GetVariableString(m_variableType);
-    }
 }
