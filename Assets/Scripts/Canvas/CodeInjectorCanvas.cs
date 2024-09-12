@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System;
+using TMPro;
 
 public class CodeInjectorCanvas : MonoBehaviour
 {
@@ -8,6 +8,7 @@ public class CodeInjectorCanvas : MonoBehaviour
 
     [SerializeField] private GameObject m_container;
     [SerializeField] private List<CodeInjectorVariableItem> m_variableItemList;
+    [SerializeField] private OutputMultiplierItem m_outputMultiplierItem;
 
     private void Awake()
     {
@@ -27,12 +28,13 @@ public class CodeInjectorCanvas : MonoBehaviour
         m_container.SetActive(isVisible);
     }
 
-    public void InitializeVariableValues()
+    public void UpdateUI()
     {
         foreach (CodeInjectorVariableItem item in m_variableItemList)
         {
             item.Initialize();
         }
+        m_outputMultiplierItem.Initialize();
     }
 
     public void ClickOnConfirm()
@@ -42,14 +44,7 @@ public class CodeInjectorCanvas : MonoBehaviour
 
     public void ClickOnReset()
     {
-        foreach (var item in m_variableItemList)
-        {
-            item.Reset();
-        }
-    }
-
-    public void UpdateVariableText(CodeInjector.Variable type)
-    {
-
+        CodeInjector.Instance.ResetAllVariable();
+        UpdateUI();
     }
 }

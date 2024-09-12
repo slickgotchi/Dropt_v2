@@ -1,24 +1,52 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
 public abstract class CodeInjectorVariable<T>
 {
     [SerializeField] protected CodeInjector.Variable VariableType;
-    public T MinValue;
-    public T MaxValue;
+    public List<CodeInjectorVariableInput<T>> Inputs;
     public T DefalutValue;
-    public T Value;
-    public T UpdatedValue;
-    public T DeltaValue;
+    protected T Value;
+    protected T UpdatedValue;
+    protected int CurrentIndex;
 
     public abstract void Initialize();
-    public abstract void Add();
-    public abstract void Subtract();
     public abstract bool IsChanged();
     public abstract void SetValue(T value);
+    public abstract void Reset();
+    public abstract float GetMultiplier();
 
-    public void Reset()
+    public void Add()
     {
-        UpdatedValue = Value;
+        CurrentIndex++;
+        if (CurrentIndex > Inputs.Count - 1)
+        {
+            CurrentIndex = Inputs.Count - 1;
+        }
+        UpdatedValue = Inputs[CurrentIndex].Value;
+    }
+
+    public void Subtract()
+    {
+        CurrentIndex--;
+        if (CurrentIndex < 0)
+        {
+            CurrentIndex = 0;
+        }
+        UpdatedValue = Inputs[CurrentIndex].Value;
+    }
+
+    public T GetUpdatedValue()
+    {
+        return UpdatedValue;
     }
 }
+
+[System.Serializable]
+public class CodeInjectorVariableInput<T>
+{
+    public float Multiplier;
+    public T Value;
+}
+

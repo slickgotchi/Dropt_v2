@@ -3,19 +3,11 @@ using UnityEngine;
 [System.Serializable]
 public class CodeInjectorInt : CodeInjectorVariable<int>
 {
-    public override void Add()
-    {
-        UpdatedValue += DeltaValue;
-        if (UpdatedValue > MaxValue)
-        {
-            UpdatedValue = MaxValue;
-        }
-    }
-
     public override void Initialize()
     {
         Value = PlayerPrefs.GetInt(VariableType.ToString(), DefalutValue);
         UpdatedValue = Value;
+        CurrentIndex = Inputs.FindIndex(item => item.Value.Equals(Value));
     }
 
     public override bool IsChanged()
@@ -23,20 +15,23 @@ public class CodeInjectorInt : CodeInjectorVariable<int>
         return Value != UpdatedValue;
     }
 
+    public override void Reset()
+    {
+        UpdatedValue = Value;
+        CurrentIndex = Inputs.FindIndex(item => item.Value.Equals(Value));
+    }
+
     public override void SetValue(int value)
     {
         Value = value;
         UpdatedValue = value;
         PlayerPrefs.SetInt(VariableType.ToString(), value);
+        CurrentIndex = Inputs.FindIndex(item => item.Value.Equals(Value));
     }
 
-    public override void Subtract()
+    public override float GetMultiplier()
     {
-        UpdatedValue -= DeltaValue;
-        if (UpdatedValue < MinValue)
-        {
-            UpdatedValue = MinValue;
-        }
+        return Inputs.Find(item => item.Value.Equals(Value)).Multiplier;
     }
 
     public override string ToString()

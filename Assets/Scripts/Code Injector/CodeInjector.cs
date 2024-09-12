@@ -7,7 +7,6 @@ public class CodeInjector : NetworkBehaviour
 {
     public enum Variable
     {
-        Multiplier,
         EnemyHP,
         EnemyDamage,
         EnemySpeed,
@@ -20,7 +19,6 @@ public class CodeInjector : NetworkBehaviour
 
     public static CodeInjector Instance { get; private set; }
 
-    [SerializeField] private CodeInjectorFloat m_multiplier;
     [SerializeField] private CodeInjectorFloat m_enemyHp;
     [SerializeField] private CodeInjectorFloat m_enemyDamage;
     [SerializeField] private CodeInjectorFloat m_enemySpeed;
@@ -29,6 +27,8 @@ public class CodeInjector : NetworkBehaviour
     [SerializeField] private CodeInjectorFloat m_trapDamage;
     [SerializeField] private CodeInjectorInt m_limitedStock;
     [SerializeField] private CodeInjectorFloat m_underPressure;
+
+    private float m_outputMultiplier;
 
     private void Awake()
     {
@@ -80,7 +80,6 @@ public class CodeInjector : NetworkBehaviour
 
     private void InitializeVariables()
     {
-        m_multiplier.Initialize();
         m_enemyHp.Initialize();
         m_enemyDamage.Initialize();
         m_enemySpeed.Initialize();
@@ -89,16 +88,14 @@ public class CodeInjector : NetworkBehaviour
         m_trapDamage.Initialize();
         m_limitedStock.Initialize();
         m_underPressure.Initialize();
-        CodeInjectorCanvas.Instance.InitializeVariableValues();
+        UpdateOutputMultiplier();
+        CodeInjectorCanvas.Instance.UpdateUI();
     }
 
     public void AddVariable(Variable type)
     {
         switch (type)
         {
-            case Variable.Multiplier:
-                m_multiplier.Add();
-                break;
             case Variable.EnemyHP:
                 m_enemyHp.Add();
                 break;
@@ -132,9 +129,6 @@ public class CodeInjector : NetworkBehaviour
     {
         switch (type)
         {
-            case Variable.Multiplier:
-                m_multiplier.Subtract();
-                break;
             case Variable.EnemyHP:
                 m_enemyHp.Subtract();
                 break;
@@ -166,7 +160,6 @@ public class CodeInjector : NetworkBehaviour
     {
         return type switch
         {
-            Variable.Multiplier => m_multiplier.ToString(),
             Variable.EnemyHP => m_enemyHp.ToString(),
             Variable.EnemyDamage => m_enemyDamage.ToString(),
             Variable.EnemySpeed => m_enemySpeed.ToString(),
@@ -179,40 +172,16 @@ public class CodeInjector : NetworkBehaviour
         };
     }
 
-    public void ResetVariable(Variable type)
+    public void ResetAllVariable()
     {
-        switch (type)
-        {
-            case Variable.Multiplier:
-                m_multiplier.Reset();
-                break;
-            case Variable.EnemyHP:
-                m_enemyHp.Reset();
-                break;
-            case Variable.EnemyDamage:
-                m_enemyDamage.Reset();
-                break;
-            case Variable.EnemySpeed:
-                m_enemySpeed.Reset();
-                break;
-            case Variable.EliteEnemies:
-                m_eliteEnemies.Reset();
-                break;
-            case Variable.EnemyShield:
-                m_enemyShield.Reset();
-                break;
-            case Variable.TrapDamage:
-                m_trapDamage.Reset();
-                break;
-            case Variable.LimitedStock:
-                m_limitedStock.Reset();
-                break;
-            case Variable.UnderPressure:
-                m_underPressure.Reset();
-                break;
-            default:
-                break;
-        }
+        m_enemyHp.Reset();
+        m_enemyDamage.Reset();
+        m_enemySpeed.Reset();
+        m_eliteEnemies.Reset();
+        m_enemyShield.Reset();
+        m_trapDamage.Reset();
+        m_limitedStock.Reset();
+        m_underPressure.Reset();
     }
 
     public void UpdateVariablesData()
@@ -221,11 +190,13 @@ public class CodeInjector : NetworkBehaviour
         {
             SetFloatVariablesClientRpc(GetUpdatedFloatVariables());
             SetIntVariablesClientRpc(GetUpdatedIntVariables());
+            NotifyNewCodeInjectedClientRpc(NetworkManager.SpawnManager.GetLocalPlayerObject().NetworkObjectId);
         }
         else
         {
             SetFloatVariablesServerRpc(GetUpdatedFloatVariables());
             SetIntVariablesServerRpc(GetUpdatedIntVariables());
+            NotifyNewCodeInjectedServerRpc(NetworkManager.SpawnManager.GetLocalPlayerObject().NetworkObjectId);
         }
     }
 
@@ -240,6 +211,8 @@ public class CodeInjector : NetworkBehaviour
             {
                 SetFloatVariable(item.Key, item.Value);
             }
+            UpdateOutputMultiplier();
+            CodeInjectorCanvas.Instance.UpdateUI();
         }
         SetFloatVariablesClientRpc(floatVariablesJson);
     }
@@ -252,6 +225,8 @@ public class CodeInjector : NetworkBehaviour
         {
             SetFloatVariable(item.Key, item.Value);
         }
+        UpdateOutputMultiplier();
+        CodeInjectorCanvas.Instance.UpdateUI();
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -264,6 +239,8 @@ public class CodeInjector : NetworkBehaviour
             {
                 SetIntVariable(item.Key, item.Value);
             }
+            UpdateOutputMultiplier();
+            CodeInjectorCanvas.Instance.UpdateUI();
         }
         SetIntVariablesClientRpc(intVariablesJson);
     }
@@ -276,15 +253,29 @@ public class CodeInjector : NetworkBehaviour
         {
             SetIntVariable(item.Key, item.Value);
         }
+        UpdateOutputMultiplier();
+        CodeInjectorCanvas.Instance.UpdateUI();
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void NotifyNewCodeInjectedServerRpc(ulong networkObjectId)
+    {
+        NotifyNewCodeInjectedClientRpc(networkObjectId);
+    }
+
+    [ClientRpc]
+    public void NotifyNewCodeInjectedClientRpc(ulong networkObjectId)
+    {
+        if (!NetworkManager.SpawnManager.GetLocalPlayerObject().NetworkObjectId.Equals(networkObjectId))
+        {
+            NotifyCanvas.Instance.SetVisible($"Player - {networkObjectId} team mate injected new code and adjusted the difficulty of the dungeon!");
+        }
     }
 
     private void SetFloatVariable(Variable type, float value)
     {
         switch (type)
         {
-            case Variable.Multiplier:
-                m_multiplier.SetValue(value);
-                break;
             case Variable.EnemyHP:
                 m_enemyHp.SetValue(value);
                 break;
@@ -292,7 +283,7 @@ public class CodeInjector : NetworkBehaviour
                 m_enemyDamage.SetValue(value);
                 break;
             case Variable.EnemySpeed:
-                m_multiplier.SetValue(value);
+                m_enemySpeed.SetValue(value);
                 break;
             case Variable.EliteEnemies:
                 m_eliteEnemies.SetValue(value);
@@ -304,7 +295,6 @@ public class CodeInjector : NetworkBehaviour
                 m_underPressure.SetValue(value);
                 break;
         }
-        CodeInjectorCanvas.Instance.UpdateVariableText(type);
     }
 
     private void SetIntVariable(Variable type, int value)
@@ -318,7 +308,6 @@ public class CodeInjector : NetworkBehaviour
                 m_limitedStock.SetValue(value);
                 break;
         }
-        CodeInjectorCanvas.Instance.UpdateVariableText(type);
     }
 
     [ClientRpc]
@@ -337,6 +326,8 @@ public class CodeInjector : NetworkBehaviour
         {
             SetFloatVariable(item.Key, item.Value);
         }
+        UpdateOutputMultiplier();
+        CodeInjectorCanvas.Instance.UpdateUI();
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -347,47 +338,96 @@ public class CodeInjector : NetworkBehaviour
         {
             SetIntVariable(item.Key, item.Value);
         }
+        UpdateOutputMultiplier();
+        CodeInjectorCanvas.Instance.UpdateUI();
     }
 
     private string GetFloatVariables()
     {
         Dictionary<Variable, float> floatVariables = new Dictionary<Variable, float>();
-        floatVariables.Add(Variable.Multiplier, m_multiplier.UpdatedValue);
-        floatVariables.Add(Variable.EnemyHP, m_enemyHp.UpdatedValue);
-        floatVariables.Add(Variable.EnemyDamage, m_enemyDamage.UpdatedValue);
-        floatVariables.Add(Variable.EnemySpeed, m_enemySpeed.UpdatedValue);
-        floatVariables.Add(Variable.EliteEnemies, m_eliteEnemies.UpdatedValue);
-        floatVariables.Add(Variable.TrapDamage, m_trapDamage.UpdatedValue);
-        floatVariables.Add(Variable.UnderPressure, m_underPressure.UpdatedValue);
+        floatVariables.Add(Variable.EnemyHP, m_enemyHp.GetUpdatedValue());
+        floatVariables.Add(Variable.EnemyDamage, m_enemyDamage.GetUpdatedValue());
+        floatVariables.Add(Variable.EnemySpeed, m_enemySpeed.GetUpdatedValue());
+        floatVariables.Add(Variable.EliteEnemies, m_eliteEnemies.GetUpdatedValue());
+        floatVariables.Add(Variable.TrapDamage, m_trapDamage.GetUpdatedValue());
+        floatVariables.Add(Variable.UnderPressure, m_underPressure.GetUpdatedValue());
         return JsonConvert.SerializeObject(floatVariables);
     }
 
     private string GetIntVariables()
     {
         Dictionary<Variable, int> intVariables = new Dictionary<Variable, int>();
-        intVariables.Add(Variable.EnemyShield, m_enemyShield.UpdatedValue);
-        intVariables.Add(Variable.LimitedStock, m_limitedStock.UpdatedValue);
+        intVariables.Add(Variable.EnemyShield, m_enemyShield.GetUpdatedValue());
+        intVariables.Add(Variable.LimitedStock, m_limitedStock.GetUpdatedValue());
         return JsonConvert.SerializeObject(intVariables);
     }
 
     private string GetUpdatedFloatVariables()
     {
         Dictionary<Variable, float> floatVariables = new Dictionary<Variable, float>();
-        if (m_multiplier.IsChanged()) floatVariables.Add(Variable.Multiplier, m_multiplier.UpdatedValue);
-        if (m_enemyHp.IsChanged()) floatVariables.Add(Variable.EnemyHP, m_enemyHp.UpdatedValue);
-        if (m_enemyDamage.IsChanged()) floatVariables.Add(Variable.EnemyDamage, m_enemyDamage.UpdatedValue);
-        if (m_enemySpeed.IsChanged()) floatVariables.Add(Variable.EnemySpeed, m_enemySpeed.UpdatedValue);
-        if (m_eliteEnemies.IsChanged()) floatVariables.Add(Variable.EliteEnemies, m_eliteEnemies.UpdatedValue);
-        if (m_trapDamage.IsChanged()) floatVariables.Add(Variable.TrapDamage, m_trapDamage.UpdatedValue);
-        if (m_underPressure.IsChanged()) floatVariables.Add(Variable.UnderPressure, m_underPressure.UpdatedValue);
+        if (m_enemyHp.IsChanged())
+        {
+            floatVariables.Add(Variable.EnemyHP, m_enemyHp.GetUpdatedValue());
+        }
+
+        if (m_enemyDamage.IsChanged())
+        {
+            floatVariables.Add(Variable.EnemyDamage, m_enemyDamage.GetUpdatedValue());
+        }
+
+        if (m_enemySpeed.IsChanged())
+        {
+            floatVariables.Add(Variable.EnemySpeed, m_enemySpeed.GetUpdatedValue());
+        }
+
+        if (m_eliteEnemies.IsChanged())
+        {
+            floatVariables.Add(Variable.EliteEnemies, m_eliteEnemies.GetUpdatedValue());
+        }
+
+        if (m_trapDamage.IsChanged())
+        {
+            floatVariables.Add(Variable.TrapDamage, m_trapDamage.GetUpdatedValue());
+        }
+
+        if (m_underPressure.IsChanged())
+        {
+            floatVariables.Add(Variable.UnderPressure, m_underPressure.GetUpdatedValue());
+        }
+
         return JsonConvert.SerializeObject(floatVariables);
     }
 
     private string GetUpdatedIntVariables()
     {
         Dictionary<Variable, int> intVariables = new Dictionary<Variable, int>();
-        if (m_enemyShield.IsChanged()) intVariables.Add(Variable.EnemyShield, m_enemyShield.UpdatedValue);
-        if (m_limitedStock.IsChanged()) intVariables.Add(Variable.LimitedStock, m_limitedStock.UpdatedValue);
+        if (m_enemyShield.IsChanged())
+        {
+            intVariables.Add(Variable.EnemyShield, m_enemyShield.GetUpdatedValue());
+        }
+
+        if (m_limitedStock.IsChanged())
+        {
+            intVariables.Add(Variable.LimitedStock, m_limitedStock.GetUpdatedValue());
+        }
+
         return JsonConvert.SerializeObject(intVariables);
+    }
+
+    private void UpdateOutputMultiplier()
+    {
+        m_outputMultiplier = m_enemyHp.GetMultiplier()
+                             * m_enemyDamage.GetMultiplier()
+                             * m_enemySpeed.GetMultiplier()
+                             * m_eliteEnemies.GetMultiplier()
+                             * m_enemyShield.GetMultiplier()
+                             * m_trapDamage.GetMultiplier()
+                             * m_limitedStock.GetMultiplier()
+                             * m_underPressure.GetMultiplier();
+    }
+
+    public float GetOutputMultiplier()
+    {
+        return m_outputMultiplier;
     }
 }
