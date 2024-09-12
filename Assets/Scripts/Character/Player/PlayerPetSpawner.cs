@@ -9,7 +9,6 @@ public class PlayerPetSpawner : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-        _spawnPetCanvas.SetActive(IsOwner);
     }
 
     public void SpawnPet()
