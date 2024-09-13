@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
-using TMPro;
+using Unity.Netcode;
 
 public class CodeInjectorCanvas : MonoBehaviour
 {
@@ -28,23 +28,41 @@ public class CodeInjectorCanvas : MonoBehaviour
         m_container.SetActive(isVisible);
     }
 
-    public void UpdateUI()
+    public void UpdateVariables()
     {
         foreach (CodeInjectorVariableItem item in m_variableItemList)
         {
             item.Initialize();
         }
+    }
+
+    public void UpdateOutputMultiplier()
+    {
         m_outputMultiplierItem.Initialize();
     }
 
     public void ClickOnConfirm()
     {
         CodeInjector.Instance.UpdateVariablesData();
+        SetVisible(false);
+        StartPlayerMovement();
     }
 
     public void ClickOnReset()
     {
-        CodeInjector.Instance.ResetAllVariable();
-        UpdateUI();
+        CodeInjector.Instance.ResetUpdatedVariablesValueToDefalut();
+        UpdateVariables();
+    }
+
+    public void StartPlayerMovement()
+    {
+        var players = FindObjectsByType<PlayerPrediction>(FindObjectsSortMode.None);
+        foreach (var player in players)
+        {
+            if (player.GetComponent<NetworkObject>().IsLocalPlayer)
+            {
+                player.IsInputDisabled = false;
+            }
+        }
     }
 }

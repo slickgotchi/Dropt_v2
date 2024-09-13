@@ -9,6 +9,7 @@ public class CodeInjectorLaptop : Interactable
     public override void OnPressCloseInteraction()
     {
         CodeInjectorCanvas.Instance.SetVisible(false);
+        CodeInjector.Instance.ResetUpdatedVariablesValue();
         SetPlayerInputEnabled(true);
     }
 }

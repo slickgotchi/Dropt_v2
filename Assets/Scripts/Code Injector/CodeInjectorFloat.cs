@@ -24,19 +24,25 @@ public class CodeInjectorFloat : CodeInjectorVariable<float>
         CurrentIndex = Inputs.FindIndex(item => item.Value.ToString("F2").Equals(Value.ToString("F2")));
     }
 
-    public override void Reset()
+    public override void ResetUpdatedValue()
     {
         UpdatedValue = Value;
-        CurrentIndex = Inputs.FindIndex(item => item.Value.ToString("F2").Equals(Value.ToString("F2")));
+        CurrentIndex = Inputs.FindIndex(item => item.Value.ToString("F2").Equals(UpdatedValue.ToString("F2")));
     }
 
     public override float GetMultiplier()
     {
-        return Inputs.Find(item => item.Value.ToString("F2").Equals(Value.ToString("F2"))).Multiplier;
+        return Inputs.Find(item => item.Value.ToString("F2").Equals(UpdatedValue.ToString("F2"))).Multiplier;
     }
 
     public override string ToString()
     {
         return $"{(int)(UpdatedValue * 100)}%";
+    }
+
+    public override void ResetToDefault()
+    {
+        UpdatedValue = DefalutValue;
+        CurrentIndex = Inputs.FindIndex(item => item.Value.ToString("F2").Equals(UpdatedValue.ToString("F2")));
     }
 }
