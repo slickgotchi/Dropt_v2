@@ -15,12 +15,16 @@ public class FudSpirit_ThrowFud : EnemyAbility
     {
         if (Parent == null) return;
 
+        // get direction and parent centre position
+        var attackDir = Parent.GetComponent<Dropt.EnemyAI>().AttackDirection;
+        var attackCentrePos = Dropt.Utils.Battle.GetAttackCentrePosition(Parent);
+
         // init and spawn projectile
         var projectile = Instantiate(FudProjectile);
         projectile.GetComponent<GenericEnemyProjectile>().Init(
-            Parent.transform.position + new Vector3(0, 0.3f, 0),
-            PlayerAbility.GetRotationFromDirection(AttackDirection),
-            AttackDirection,
+            attackCentrePos,
+            PlayerAbility.GetRotationFromDirection(attackDir),
+            attackDir,
             Distance,
             Duration,
             Parent.GetComponent<NetworkCharacter>().AttackPower.Value,

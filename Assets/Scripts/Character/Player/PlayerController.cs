@@ -30,6 +30,8 @@ public class PlayerController : NetworkBehaviour
 
     private HoldBarCanvas m_holdBarCanvas;
 
+
+
     // variables for trackign current gotchi
     private int m_localGotchiId = -1;
     private NetworkVariable<int> m_networkGotchiId = new NetworkVariable<int>(-1);
@@ -151,7 +153,7 @@ public class PlayerController : NetworkBehaviour
                 m_positionText.text = $"({pos.x.ToString("F2")}, {pos.y.ToString("F2")})";
             }
 
-            HandleLevelManagerState();
+            HandleLoadingCanvas();
 
             // setup player hud
             if (!m_isPlayerHUDInitialized && GetComponent<NetworkCharacter>() != null)
@@ -164,11 +166,6 @@ public class PlayerController : NetworkBehaviour
             {
                 m_cameraFollower.transform.position = m_playerPrediction.GetLocalPlayerInterpPosition();
             }
-
-            //if (UnityEngine.Input.GetKeyDown(KeyCode.F))
-            //{
-            //    SetupGotchi(1011);
-            //}
         }
 
         HandleNextLevelCheat();
@@ -191,9 +188,14 @@ public class PlayerController : NetworkBehaviour
         SetupGotchi(m_localGotchiId);
     }
 
-    private LevelManager.TransitionState m_localTransition = LevelManager.TransitionState.Null;
 
-    void HandleLevelManagerState()
+    // parameters for handle loading canvas
+    bool shouldBeBlackedOut = true;
+    bool isBlackedOut = true;
+    bool isFirstLoad = true;
+
+    // handle loading canvas
+    void HandleLoadingCanvas()
     {
         if (!IsLocalPlayer) return;
 
@@ -203,23 +205,33 @@ public class PlayerController : NetworkBehaviour
             state == LevelManager.TransitionState.ClientHeadsUp ||
             state == LevelManager.TransitionState.GoToNext)
         {
-            if (m_localTransition != LevelManager.TransitionState.ClientHeadsUp)
-            {
-                m_localTransition = LevelManager.TransitionState.ClientHeadsUp;
-                LoadingCanvas.Instance.Animator.Play("LoadingCanvas_WipeIn");
-            }
+            shouldBeBlackedOut = true;
         }
 
         if (state == LevelManager.TransitionState.ClientHeadsDown ||
             state == LevelManager.TransitionState.End ||
             state == LevelManager.TransitionState.Null)
         {
-            if (m_localTransition == LevelManager.TransitionState.ClientHeadsUp)
-            {
-                m_localTransition = LevelManager.TransitionState.Null;
-                LoadingCanvas.Instance.Animator.Play("LoadingCanvas_WipeOut");
-                REKTCanvas.Instance.Container.SetActive(false);
-            }
+            shouldBeBlackedOut = false;
+        }
+
+        if (shouldBeBlackedOut && isFirstLoad)
+        {
+            LoadingCanvas.Instance.Animator.Play("LoadingCanvas_Default");
+        }
+
+        if (shouldBeBlackedOut && !isBlackedOut && !isFirstLoad)
+        {
+            LoadingCanvas.Instance.Animator.Play("LoadingCanvas_WipeIn");
+            isBlackedOut = true;
+        }
+
+        if (!shouldBeBlackedOut && isBlackedOut)
+        {
+            LoadingCanvas.Instance.Animator.Play("LoadingCanvas_WipeOut");
+            REKTCanvas.Instance.Container.SetActive(false);
+            isBlackedOut = false;
+            isFirstLoad = false;
         }
     }
 

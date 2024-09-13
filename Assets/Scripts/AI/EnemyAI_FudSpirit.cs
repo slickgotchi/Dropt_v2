@@ -50,17 +50,48 @@ namespace Dropt
         public override void OnCooldownStart()
         {
             // teleport to new location here
+            TeleportToNewAttackPosition();
+
         }
 
         public override void OnCooldownUpdate(float dt)
         {
-            
+            SimplePursueUpdate(dt);
         }
 
         public override void OnKnockback(Vector3 direction, float distance, float duration)
         {
             SimpleKnockback(direction, distance, duration);
 
+        }
+
+
+
+        // fud spirit teleport
+        private void TeleportToNewAttackPosition()
+        {
+            int maxTeleportAttempts = 10;
+
+            for (int i = 0; i < maxTeleportAttempts; i++)
+            {
+                var newPosition = Dropt.Utils.Battle.GetRandomSurroundPosition(
+                    NearestPlayer.transform.position, 0.8f * AttackRange, AttackRange);
+
+                // check for any overlaps
+                // Define the LayerMask using the layers you want to check against
+                LayerMask specificLayerMask = LayerMask.GetMask("EnvironmentWall",
+                    "EnvironmentWater", "Destructible");
+                bool isColliding = Dropt.Utils.Battle.CheckCircleCollision(newPosition, 1f, specificLayerMask);
+                if (isColliding)
+                {
+                    continue;
+                } else
+                {
+                    // teleport to new position
+                    transform.position = newPosition;
+                    return;
+                }
+            }
         }
     }
 }
