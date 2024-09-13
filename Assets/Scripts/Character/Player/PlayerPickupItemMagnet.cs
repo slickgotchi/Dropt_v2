@@ -5,7 +5,7 @@ using PickupItems.Orb;
 public class PlayerPickupItemMagnet : NetworkBehaviour
 {
     public float Radius = 5f;
-    private Collider2D magnetCollider;
+    public Collider2D magnetCollider;
 
     public PlayerDungeonData PlayerDungeonData;
     private PickupItem m_currentPickupItem;
@@ -13,21 +13,20 @@ public class PlayerPickupItemMagnet : NetworkBehaviour
     void Start()
     {
         // Create and configure the magnet collider
-        magnetCollider = gameObject.AddComponent<CircleCollider2D>();
+        //magnetCollider = gameObject.AddComponent<CircleCollider2D>();
         magnetCollider.isTrigger = true;
         ((CircleCollider2D)magnetCollider).radius = Radius;
     }
 
-    //void OnTriggerEnter2D(Collider2D other)
-    //{
-    //    m_currentPickupItem = other.GetComponent<PickupItem>();
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        m_currentPickupItem = other.GetComponent<PickupItem>();
 
-    //    if (m_currentPickupItem != null)
-    //    {
-    //        m_currentPickupItem.TryGoTo(gameObject);
-    //    }
-    //}
-
+        if (m_currentPickupItem != null)
+        {
+            m_currentPickupItem.Pick(gameObject.GetComponent<PlayerPickupItemMagnet>());
+        }
+    }
 
     // Collect method to be called when the item is picked up
     public void Collect(PickupItem pickupItem)

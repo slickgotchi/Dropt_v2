@@ -1,5 +1,6 @@
 using UnityEngine;
 using Unity.Netcode;
+using System.Collections.Generic;
 
 public class SunkenFloorButton : NetworkBehaviour
 {
@@ -7,6 +8,8 @@ public class SunkenFloorButton : NetworkBehaviour
     public NetworkVariable<SunkenFloorType> Type;
     public NetworkVariable<ButtonState> State;
     public int spawnerId = -1;
+
+    public SunkenFloorType initType;
 
     [Header("Sprites")]
     public Sprite DropletUp;
@@ -33,6 +36,13 @@ public class SunkenFloorButton : NetworkBehaviour
         Type = new NetworkVariable<SunkenFloorType>(SunkenFloorType.Droplet);
     }
 
+    public override void OnNetworkSpawn()
+    {
+        if (!IsServer) return;
+
+        Type.Value = initType;
+    }
+
     // WARNING: TriggerEnter/Exit can be somewhat flakey when combined with my PlayerMovement predictino code
     // therefore using a Physics2D.XXXXOverlap() function should usually be preferred
     private void OnTriggerEnter2D(Collider2D collision)
@@ -43,24 +53,57 @@ public class SunkenFloorButton : NetworkBehaviour
         // update button state
         State.Value = ButtonState.Down;
 
-        // find sunken floor button group with matchin id
-        var sunkenFloorButtonGroups = FindObjectsByType<SunkenFloorButtonGroup>
-            (FindObjectsInactive.Include, FindObjectsSortMode.None);
-        bool isFoundButtonGroup = false;
-        for (int i = 0; i < sunkenFloorButtonGroups.Length; i++)
+        // popup all other buttons
+        PopupAllOtherButtons();
+
+        // try raise platform
+        TryRaisePlatform();
+    }
+
+    void PopupAllOtherButtons()
+    {
+        var allButtons = FindObjectsByType<SunkenFloorButton>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        for (int i = 0; i < allButtons.Length; i++)
         {
-            if (sunkenFloorButtonGroups[i].spawnerId == spawnerId)
+            var button = allButtons[i];
+            if (button.State.Value == ButtonState.DownLocked) continue;
+            if (button.spawnerId == spawnerId) continue;
+
+            // pop up the button
+            button.State.Value = ButtonState.Up;
+        }
+    }
+
+    void TryRaisePlatform()
+    {
+        var matchingButtons = new List<SunkenFloorButton>();
+        var allButtons = FindObjectsByType<SunkenFloorButton>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        bool isAllButtonsDown = true;
+        foreach (var btn in allButtons)
+        {
+            if (btn.spawnerId == spawnerId)
             {
-                sunkenFloorButtonGroups[i].ButtonPressedDown();
-                isFoundButtonGroup = true;
-                break;
+                matchingButtons.Add(btn);
+                if (btn.State.Value == ButtonState.Up) isAllButtonsDown = false;
             }
         }
 
-        if (!isFoundButtonGroup)
+        var allPlatforms = FindObjectsByType<SunkenFloor>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        SunkenFloor matchingPlatform = null;
+        foreach (var floor in allPlatforms)
         {
-            Debug.LogWarning("Warning: SunkenFloorButton spawnerId: "
-                + spawnerId + ", does not have a parent SunkenFloorButtonGroup");
+            if (floor.spawnerId == spawnerId) matchingPlatform = floor;
+        }
+
+        if (matchingButtons.Count > 0 && matchingPlatform != null && isAllButtonsDown)
+        {
+            matchingPlatform.Raise();
+
+            // lock down all the buttons
+            foreach (var btn in matchingButtons)
+            {
+                btn.State.Value = ButtonState.DownLocked;
+            }
         }
     }
 
