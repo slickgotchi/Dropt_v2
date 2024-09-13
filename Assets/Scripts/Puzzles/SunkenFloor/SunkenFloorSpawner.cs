@@ -4,6 +4,6 @@ using UnityEngine;
 
 public class SunkenFloorSpawner : MonoBehaviour
 {
-    public int spawnerId = -1;
+    [HideInInspector] public int spawnerId = -1;
     public GameObject SunkenFloorPrefab;
 }

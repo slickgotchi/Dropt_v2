@@ -7,7 +7,7 @@ public sealed class PickupItem : NetworkBehaviour
     private readonly float distanceForMagnet = 0.3f;
     public float speed = 5f;
     private GameObject target;
-    private PlayerPickupItemMagnet m_playerPickupItemMagnet;
+    //private PlayerPickupItemMagnet m_playerPickupItemMagnet;
     public NetworkVariable<bool> IsItemPicked = new NetworkVariable<bool>(false);
 
     private void Update()
@@ -22,7 +22,7 @@ public sealed class PickupItem : NetworkBehaviour
                 if (GetDistanceTo(target) < distanceForMagnet)
                 {
                     // Notify the player's magnet that the item has been collected
-                    PlayerPickupItemMagnet magnet = target.GetComponent<PlayerPickupItemMagnet>();
+                    PlayerPickupItemMagnet magnet = target.GetComponentInChildren<PlayerPickupItemMagnet>();
                     if (magnet != null)
                     {
                         magnet.Collect(this);
@@ -72,24 +72,21 @@ public sealed class PickupItem : NetworkBehaviour
         return true;
     }
 
-    //[ServerRpc(RequireOwnership = false)]
-    //public void PickedByServerRpc(ulong clientId)
-    //{
-    //    Pick(clientId);
-    //}
-
     public void Pick(PlayerPickupItemMagnet playerPickupItemMagnet)
     {
+        if (playerPickupItemMagnet == null)
+        {
+            Debug.Log("no valid PlayerPickupItemMagent");
+        }
+
         IsItemPicked.Value = true;
-        //NetworkObject client = NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject;
-        //m_playerPickupItemMagnet = client.GetComponent<PlayerPickupItemMagnet>();
         Vector3 position = playerPickupItemMagnet.transform.position;
         var tween = transform.DOMove(position, 10)
                            .SetSpeedBased()
                            .SetEase(Ease.Linear);
         tween.OnComplete(() =>
         {
-            m_playerPickupItemMagnet?.Collect(this);
+            playerPickupItemMagnet?.Collect(this);
         });
         GotoClientRpc(position);
     }

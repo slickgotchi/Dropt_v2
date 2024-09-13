@@ -11,6 +11,9 @@ public class ApeDoor : NetworkBehaviour
     public int NumberButtons = 2;
     public int spawnerId = -1;
 
+    public ApeDoorType initType;
+    public DoorState initState;
+
     [Header("Emblems")]
     public SpriteRenderer LeftEmblem;
     public SpriteRenderer RightEmblem;
@@ -46,9 +49,7 @@ public class ApeDoor : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        if (!IsServer) return;
-
-        SetTypeAndState(Type.Value, State.Value);
+        SetTypeAndState(initType, initState);
     }
 
     private void Update()
@@ -68,7 +69,6 @@ public class ApeDoor : NetworkBehaviour
 
     public void Open()
     {
-        Debug.Log("Door is opened, animator: " + m_animator);
         m_animator.Play("ApeDoor_Open");
         State.Value = DoorState.Open;
         UpdateColliders();
@@ -80,6 +80,7 @@ public class ApeDoor : NetworkBehaviour
 
         Type.Value = apeDoorType;
         State.Value = doorState;
+
         UpdateColliders();
     }
 
