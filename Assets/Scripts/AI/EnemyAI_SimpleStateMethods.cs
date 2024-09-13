@@ -64,8 +64,6 @@ namespace Dropt
 
             HandleAntiClumping();
             HandleAlertOthers();
-
-            Debug.Log(NearestPlayer.transform.position + offset);
         }
 
         private void HandleAntiClumping()

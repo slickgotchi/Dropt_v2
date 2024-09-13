@@ -67,7 +67,7 @@ namespace Dropt
             Stun,
         }
 
-        public State state = State.Spawn;
+        [HideInInspector] public State state = State.Spawn;
 
         private void Awake()
         {
