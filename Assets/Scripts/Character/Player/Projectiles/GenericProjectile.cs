@@ -150,6 +150,8 @@ public class GenericProjectile : NetworkBehaviour
         }
     }
 
+
+
     [Rpc(SendTo.ClientsAndHost)]
     void DeactivateClientRpc(Vector3 hitPosition)
     {

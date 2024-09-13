@@ -143,7 +143,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1191495315
+  GlobalObjectIdHash: 3112441056
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -401,15 +401,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2e1b9a3320a240639134fd362309f6b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PursueSpeedMultiplier: 2
-  RoamSpeedMultiplier: 1
+  PursueSpeedMultiplier: 0.1
+  RoamSpeedMultiplier: 0.1
   AggroRange: 6
   AlertRange: 5
-  AttackRange: 5
-  BreakAggroRange: 10
+  AttackRange: 6
+  BreakAggroRange: 30
   MaxRoamRange: 10
   SpawnDuration: 1
-  TelegraphDuration: 0.5
+  TelegraphDuration: 2.5
   AttackDuration: 0.5
   CooldownDuration: 1
   PrimaryAttack: {fileID: 5596135892032325526, guid: 5dfd5ef403603c34598e3e82a2631762, type: 3}
@@ -422,6 +422,8 @@ MonoBehaviour:
   NearestPlayerDistance: 0
   StunDuration: 0
   state: 1
+  InvisibleDuration: 2
+  MaxPursueRange: 16
 --- !u!1 &2682488299147284056
 GameObject:
   m_ObjectHideFlags: 0

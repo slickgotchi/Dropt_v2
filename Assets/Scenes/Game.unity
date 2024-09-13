@@ -3763,7 +3763,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.0009557428}
+  m_AnchoredPosition: {x: 0, y: -0.000030156341}
   m_SizeDelta: {x: 0, y: 300}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &340773159
@@ -13610,6 +13610,7 @@ MonoBehaviour:
   fudWispExplosionPrefab: {fileID: 1690060354673870578, guid: f6dde31ed7a8c4c769cb45bd599aa400, type: 3}
   stompCirclePrefab: {fileID: 6023939188651498083, guid: b7a779ab7c41b42df88197b67424955f, type: 3}
   basicCirclePrefab: {fileID: 6023939188651498083, guid: 2b37fd0cda8c5424aad7bb0845fccb61, type: 3}
+  PixelEffects_Explosion: {fileID: 1381919822695581489, guid: 5586adf6795b7f04db07bff9dfa82522, type: 3}
 --- !u!1 &1292357353
 GameObject:
   m_ObjectHideFlags: 0
@@ -14118,7 +14119,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 2257309}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.99999666
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -18723,6 +18724,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3235999741658333182, guid: e60a7e901d5ee4908804a5af0a4bab03, type: 3}
       propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4280992598524044657, guid: e60a7e901d5ee4908804a5af0a4bab03, type: 3}
+      propertyPath: m_SizeDelta.x
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5360735317818832862, guid: e60a7e901d5ee4908804a5af0a4bab03, type: 3}
