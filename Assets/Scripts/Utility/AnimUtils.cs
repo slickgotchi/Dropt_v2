@@ -9,6 +9,12 @@ namespace Dropt.Utils
     {
         public static void PlayAnimationWithDuration(Animator animator, string animName, float duration)
         {
+            if (animator == null)
+            {
+                Debug.LogWarning("No animator for gameObject trying to play " + animName);
+                return;
+            }
+
             // get our anim clip
             AnimationClip clip = null;
             foreach (var ac in animator.runtimeAnimatorController.animationClips)
@@ -24,6 +30,17 @@ namespace Dropt.Utils
             animator.SetFloat("AnimationSpeed", speedMult);
 
             // play the animation
+            animator.Play(animName);
+        }
+
+        public static void Play(Animator animator, string animName)
+        {
+            if (animator == null)
+            {
+                Debug.LogWarning("No animator for gameObject trying to play " + animName);
+                return;
+            }
+
             animator.Play(animName);
         }
     }

@@ -607,7 +607,6 @@ GameObject:
   - component: {fileID: 3484423785512578415}
   - component: {fileID: 407757288669581628}
   - component: {fileID: 3353798826812701960}
-  - component: {fileID: 1542214025416868672}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -1192,21 +1191,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _spawnPetCanvas: {fileID: 2083900114947718805}
---- !u!114 &1542214025416868672
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1519051571170098037}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4a60c3a24c8a417459bc4c7dc5d5f0fb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Radius: 2
-  magnetCollider: {fileID: 710682084458313814}
-  PlayerDungeonData: {fileID: -4993210810574338119}
 --- !u!1 &1722710475381033325
 GameObject:
   m_ObjectHideFlags: 0
@@ -3260,6 +3244,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5329823270649007181}
   - component: {fileID: 710682084458313814}
+  - component: {fileID: 8415977578331914511}
   m_Layer: 18
   m_Name: PlayerPickupItemMagnet
   m_TagString: Untagged
@@ -3317,6 +3302,21 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 1.2
+--- !u!114 &8415977578331914511
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5352158927610460361}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a60c3a24c8a417459bc4c7dc5d5f0fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Radius: 2
+  magnetCollider: {fileID: 710682084458313814}
+  PlayerDungeonData: {fileID: -4993210810574338119}
 --- !u!1 &5544583380941057587
 GameObject:
   m_ObjectHideFlags: 0
