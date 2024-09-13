@@ -11,7 +11,7 @@ public class FudSpirit_ThrowFud : EnemyAbility
     public float Duration = 2f;
 
 
-    public override void OnExecutionStart()
+    public override void OnActivate()
     {
         if (Parent == null) return;
 
