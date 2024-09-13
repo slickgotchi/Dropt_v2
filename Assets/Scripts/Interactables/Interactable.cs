@@ -30,7 +30,7 @@ public class Interactable : NetworkBehaviour
     [HideInInspector] public ulong playerNetworkObjectId;
 
     // hold timer variables
-    private float k_holdDuration = 1f;
+    private float k_holdDuration = 0.5f;
     private float m_holdTimer = -0.1f;
     private float k_holdCooldownDuration = 2f;
     private float m_holdCooldownTimer = 0f;

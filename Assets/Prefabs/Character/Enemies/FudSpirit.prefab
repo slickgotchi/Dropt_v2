@@ -415,7 +415,7 @@ MonoBehaviour:
   PrimaryAttack: {fileID: 5596135892032325526, guid: 5dfd5ef403603c34598e3e82a2631762, type: 3}
   SecondaryAttack: {fileID: 0}
   avoidanceRadius: 1
-  debugCanvas: {fileID: 0}
+  debugCanvas: {fileID: 5158262231454419993}
   navMeshAgent: {fileID: 0}
   AttackDirection: {x: 0, y: 0, z: 0}
   NearestPlayer: {fileID: 0}
@@ -573,6 +573,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 551280027139294499}
     m_Modifications:
+    - target: {fileID: 1985905379785562293, guid: 96320be60f14e4186970a15e5ff35905, type: 3}
+      propertyPath: m_PresetInfoIsWorld
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4974996773238406466, guid: 96320be60f14e4186970a15e5ff35905, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -639,7 +643,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4974996773238406466, guid: 96320be60f14e4186970a15e5ff35905, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -0.66
       objectReference: {fileID: 0}
     - target: {fileID: 4974996773238406466, guid: 96320be60f14e4186970a15e5ff35905, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -670,6 +674,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 96320be60f14e4186970a15e5ff35905, type: 3}
+--- !u!114 &5158262231454419993 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7271283838154051036, guid: 96320be60f14e4186970a15e5ff35905, type: 3}
+  m_PrefabInstance: {fileID: 2557233197185335749}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db4725c061e5d47c0ba0fe59f698672b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &7383549607852604551 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 4974996773238406466, guid: 96320be60f14e4186970a15e5ff35905, type: 3}
