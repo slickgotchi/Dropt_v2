@@ -15,10 +15,10 @@ public class CodeInjectorInt : CodeInjectorVariable<int>
         return Value != UpdatedValue;
     }
 
-    public override void Reset()
+    public override void ResetUpdatedValue()
     {
         UpdatedValue = Value;
-        CurrentIndex = Inputs.FindIndex(item => item.Value.Equals(Value));
+        CurrentIndex = Inputs.FindIndex(item => item.Value.Equals(UpdatedValue));
     }
 
     public override void SetValue(int value)
@@ -31,11 +31,17 @@ public class CodeInjectorInt : CodeInjectorVariable<int>
 
     public override float GetMultiplier()
     {
-        return Inputs.Find(item => item.Value.Equals(Value)).Multiplier;
+        return Inputs.Find(item => item.Value.Equals(UpdatedValue)).Multiplier;
     }
 
     public override string ToString()
     {
         return $"{UpdatedValue}";
+    }
+
+    public override void ResetToDefault()
+    {
+        UpdatedValue = DefalutValue;
+        CurrentIndex = Inputs.FindIndex(item => item.Value.Equals(UpdatedValue));
     }
 }

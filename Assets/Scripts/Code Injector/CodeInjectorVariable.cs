@@ -14,7 +14,8 @@ public abstract class CodeInjectorVariable<T>
     public abstract void Initialize();
     public abstract bool IsChanged();
     public abstract void SetValue(T value);
-    public abstract void Reset();
+    public abstract void ResetUpdatedValue();
+    public abstract void ResetToDefault();
     public abstract float GetMultiplier();
 
     public void Add()

@@ -89,7 +89,7 @@ public class CodeInjector : NetworkBehaviour
         m_limitedStock.Initialize();
         m_underPressure.Initialize();
         UpdateOutputMultiplier();
-        CodeInjectorCanvas.Instance.UpdateUI();
+        CodeInjectorCanvas.Instance.UpdateVariables();
     }
 
     public void AddVariable(Variable type)
@@ -123,6 +123,7 @@ public class CodeInjector : NetworkBehaviour
             default:
                 break;
         }
+        UpdateOutputMultiplier();
     }
 
     public void SubtractVariable(Variable type)
@@ -154,6 +155,7 @@ public class CodeInjector : NetworkBehaviour
                 m_underPressure.Subtract();
                 break;
         }
+        UpdateOutputMultiplier();
     }
 
     public string GetVariableString(Variable type)
@@ -172,16 +174,30 @@ public class CodeInjector : NetworkBehaviour
         };
     }
 
-    public void ResetAllVariable()
+    public void ResetUpdatedVariablesValue()
     {
-        m_enemyHp.Reset();
-        m_enemyDamage.Reset();
-        m_enemySpeed.Reset();
-        m_eliteEnemies.Reset();
-        m_enemyShield.Reset();
-        m_trapDamage.Reset();
-        m_limitedStock.Reset();
-        m_underPressure.Reset();
+        m_enemyHp.ResetUpdatedValue();
+        m_enemyDamage.ResetUpdatedValue();
+        m_enemySpeed.ResetUpdatedValue();
+        m_eliteEnemies.ResetUpdatedValue();
+        m_enemyShield.ResetUpdatedValue();
+        m_trapDamage.ResetUpdatedValue();
+        m_limitedStock.ResetUpdatedValue();
+        m_underPressure.ResetUpdatedValue();
+        UpdateOutputMultiplier();
+    }
+
+    public void ResetUpdatedVariablesValueToDefalut()
+    {
+        m_enemyHp.ResetToDefault();
+        m_enemyDamage.ResetToDefault();
+        m_enemySpeed.ResetToDefault();
+        m_eliteEnemies.ResetToDefault();
+        m_enemyShield.ResetToDefault();
+        m_trapDamage.ResetToDefault();
+        m_limitedStock.ResetToDefault();
+        m_underPressure.ResetToDefault();
+        UpdateOutputMultiplier();
     }
 
     public void UpdateVariablesData()
@@ -212,7 +228,7 @@ public class CodeInjector : NetworkBehaviour
                 SetFloatVariable(item.Key, item.Value);
             }
             UpdateOutputMultiplier();
-            CodeInjectorCanvas.Instance.UpdateUI();
+            CodeInjectorCanvas.Instance.UpdateVariables();
         }
         SetFloatVariablesClientRpc(floatVariablesJson);
     }
@@ -226,7 +242,7 @@ public class CodeInjector : NetworkBehaviour
             SetFloatVariable(item.Key, item.Value);
         }
         UpdateOutputMultiplier();
-        CodeInjectorCanvas.Instance.UpdateUI();
+        CodeInjectorCanvas.Instance.UpdateVariables();
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -240,7 +256,7 @@ public class CodeInjector : NetworkBehaviour
                 SetIntVariable(item.Key, item.Value);
             }
             UpdateOutputMultiplier();
-            CodeInjectorCanvas.Instance.UpdateUI();
+            CodeInjectorCanvas.Instance.UpdateVariables();
         }
         SetIntVariablesClientRpc(intVariablesJson);
     }
@@ -254,7 +270,7 @@ public class CodeInjector : NetworkBehaviour
             SetIntVariable(item.Key, item.Value);
         }
         UpdateOutputMultiplier();
-        CodeInjectorCanvas.Instance.UpdateUI();
+        CodeInjectorCanvas.Instance.UpdateVariables();
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -327,7 +343,7 @@ public class CodeInjector : NetworkBehaviour
             SetFloatVariable(item.Key, item.Value);
         }
         UpdateOutputMultiplier();
-        CodeInjectorCanvas.Instance.UpdateUI();
+        CodeInjectorCanvas.Instance.UpdateVariables();
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -339,7 +355,7 @@ public class CodeInjector : NetworkBehaviour
             SetIntVariable(item.Key, item.Value);
         }
         UpdateOutputMultiplier();
-        CodeInjectorCanvas.Instance.UpdateUI();
+        CodeInjectorCanvas.Instance.UpdateVariables();
     }
 
     private string GetFloatVariables()
@@ -416,6 +432,7 @@ public class CodeInjector : NetworkBehaviour
 
     private void UpdateOutputMultiplier()
     {
+        //Debug.Log("UpdateOutputMultiplier");
         m_outputMultiplier = m_enemyHp.GetMultiplier()
                              * m_enemyDamage.GetMultiplier()
                              * m_enemySpeed.GetMultiplier()
@@ -424,6 +441,8 @@ public class CodeInjector : NetworkBehaviour
                              * m_trapDamage.GetMultiplier()
                              * m_limitedStock.GetMultiplier()
                              * m_underPressure.GetMultiplier();
+        CodeInjectorCanvas.Instance.UpdateOutputMultiplier();
+        Debug.Log("UpdateOutputMultiplier - " + m_outputMultiplier);
     }
 
     public float GetOutputMultiplier()
