@@ -37,13 +37,15 @@ public class EnemyAbility : NetworkBehaviour
     //    if (IsServer) OnTelegraphStart();
     //}
 
-    public void Init(GameObject parent, GameObject target)
+    public void Init(GameObject parent, GameObject target, float executionDuration)
     {
         if (parent == null) return;
         if (target == null) return;
 
         Parent = parent;
         Target = target;
+        ExecutionDuration = executionDuration;
+        AttackDirection = (target.transform.position - parent.transform.position).normalized;
 
         OnInit();
     }
@@ -51,10 +53,24 @@ public class EnemyAbility : NetworkBehaviour
     public void Activate()
     {
         OnActivate();
+        m_timer = ExecutionDuration;
+        m_isActive = true;
     }
 
     private void Update()
     {
+        m_timer -= Time.deltaTime;
+
+        if (m_timer < 0 && m_isActive)
+        {
+            OnDeactivate();
+            m_isActive = false;
+        } else
+        {
+            OnUpdate(Time.deltaTime);
+        }
+
+
         //m_timer -= Time.deltaTime;
 
         //switch (EnemyAbilityState)
@@ -96,10 +112,11 @@ public class EnemyAbility : NetworkBehaviour
     public virtual void OnExecutionStart() { }
     public virtual void OnCooldownStart() { }
     public virtual void OnFinish() { }
-    public virtual void OnUpdate() { }
+    public virtual void OnUpdate(float dt) { }
 
-    public virtual void OnActivate() { }
     public virtual void OnInit() { }
+    public virtual void OnActivate() { }
+    public virtual void OnDeactivate() { }
 
     [Rpc(SendTo.ClientsAndHost)]
     protected void SpawnBasicCircleClientRpc(Vector3 position, Color color, float explosionRadius)

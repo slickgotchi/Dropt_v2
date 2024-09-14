@@ -102,6 +102,13 @@ public class NetworkCharacter : NetworkBehaviour
             if (!isPlayer)
             {
                 GameAudioManager.Instance.EnemyHurt(gameObject.transform.position);
+
+            } else
+            {
+                if (gameObject.GetComponent<NetworkObject>().IsLocalPlayer)
+                {
+                    BloodBorderCanvas.Instance.DoBlood();
+                }
             }
 
             HpCurrent.Value -= (int)damage;
