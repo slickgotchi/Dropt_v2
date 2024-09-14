@@ -15,17 +15,13 @@ public class FudWisp_Explode : EnemyAbility
 
     private float m_explosionTimer = 0;
 
-    private void Awake()
+
+    public override void OnActivate()
     {
+        base.OnActivate();
+
         transform.localScale = new Vector3(ExplosionRadius * 2, ExplosionRadius * 2, 1);
-    }
 
-    public override void OnTelegraphStart()
-    {
-    }
-
-    public override void OnExecutionStart()
-    {
         // resize explosion collider and check collisions
         Collider.GetComponent<CircleCollider2D>().radius = ExplosionRadius;
         HandleCollisions(Collider);
