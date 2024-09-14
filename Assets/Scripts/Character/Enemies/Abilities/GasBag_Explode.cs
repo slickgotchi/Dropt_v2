@@ -73,7 +73,7 @@ public class GasBag_Explode : EnemyAbility
         playerHitColliders.Clear();
     }
 
-    public override void OnUpdate()
+    public override void OnUpdate(float dt)
     {
         m_explosionTimer += Time.deltaTime;
         if (m_explosionTimer > ExplosionDuration)

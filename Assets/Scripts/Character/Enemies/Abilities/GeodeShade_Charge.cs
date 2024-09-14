@@ -44,7 +44,7 @@ public class GeodeShade_Charge : EnemyAbility
         m_isExecuting = false;
     }
 
-    public override void OnUpdate()
+    public override void OnUpdate(float dt)
     {
         if (!m_isExecuting) return;
 

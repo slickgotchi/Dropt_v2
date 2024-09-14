@@ -6,11 +6,10 @@ using UnityEngine;
 public class LeafShade_Charge : EnemyAbility
 {
     [Header("LeafShade_Charge Parameters")]
-    public float ChargeDistance = 4f;
+    public float ChargeDistance = 5f;
 
     private Vector3 m_direction;
     private float m_speed;
-    //private Collider2D m_collider;
     private bool m_isExecuting = false;
 
     private List<Transform> m_hitTransforms = new List<Transform>();
@@ -25,45 +24,42 @@ public class LeafShade_Charge : EnemyAbility
     {
     }
 
-    public override void OnNetworkSpawn()
+    public override void OnActivate()
     {
-    }
-
-    public override void OnTelegraphStart()
-    {
-        transform.position = Parent.transform.position;
-        m_direction = AttackDirection;
-        m_speed = ChargeDistance / ExecutionDuration;
-
-        EnemyController.Facing facing = m_direction.x > 0 ? EnemyController.Facing.Right : EnemyController.Facing.Left;
-        if (Parent != null) Parent.GetComponent<EnemyController>().SetFacing(facing);
-    }
-
-    public override void OnExecutionStart()
-    {
+        base.OnActivate();
         m_isExecuting = true;
+
+        // set direction, speed and start position
+        m_direction = AttackDirection.normalized;
+        m_speed = ChargeDistance / ExecutionDuration;
+        transform.position = Parent.transform.position;
+        Debug.Log("m_direction: " + m_direction);
+        Debug.Log("m_speed: " + m_speed);
+
     }
 
-    public override void OnCooldownStart()
+    public override void OnDeactivate()
     {
+        base.OnDeactivate();
         m_isExecuting = false;
     }
 
-    public override void OnUpdate()
+    public override void OnUpdate(float dt)
     {
         if (!m_isExecuting) return;
 
-        HandleCharge();
+        HandleCharge(dt);
     }
 
-    public void HandleCharge()
+    public void HandleCharge(float dt)
     {
         // 1. sync transoforms
         Physics2D.SyncTransforms();
 
         // 2. determine how far we can move (check for wall/water collisions)
         Vector2 castDirection = m_direction;
-        float castDistance = m_speed * Time.deltaTime;
+        float castDistance = m_speed * dt;
+        Debug.Log("castDistance: " + castDistance);
         int hitCount = m_moveCollider.Cast(castDirection,
             PlayerAbility.GetContactFilter(new string[] { "EnvironmentWall", "EnvironmentWater" }),
             m_wallHits, castDistance);
@@ -114,6 +110,10 @@ public class LeafShade_Charge : EnemyAbility
         }
 
         transform.position += m_direction * castDistance;
-        if (Parent != null) Parent.transform.position = transform.position;
+        Debug.Log("m_direction * castDistance: " + m_direction * castDistance);
+        if (Parent != null)
+        {
+            Parent.transform.position = transform.position;
+        }
     }
 }

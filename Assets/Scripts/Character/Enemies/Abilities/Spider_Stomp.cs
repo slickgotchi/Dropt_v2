@@ -84,7 +84,7 @@ public class Spider_Stomp : EnemyAbility
         Invoke("SpawnStompCircle", m_interpolationDelay);
     }
 
-    public override void OnUpdate()
+    public override void OnUpdate(float dt)
     {
         if (!m_isExecuting) return;
 
