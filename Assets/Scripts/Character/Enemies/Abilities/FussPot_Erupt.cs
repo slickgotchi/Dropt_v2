@@ -10,7 +10,7 @@ public class FussPot_Erupt : EnemyAbility
     public GameObject FussPot_EruptProjectilePrefab;
     public float LobProjectileDuraton = 1f;
 
-    public override void OnExecutionStart()
+    public override void OnActivate()
     {
         var spawnPosition = Parent.transform.position + new Vector3(0, 1.5f, 0);
 

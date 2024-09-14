@@ -108,6 +108,7 @@ public class NetworkCharacter : NetworkBehaviour
                 if (gameObject.GetComponent<NetworkObject>().IsLocalPlayer)
                 {
                     BloodBorderCanvas.Instance.DoBlood();
+                    gameObject.GetComponent<PlayerCamera>().Shake(1.5f, 0.3f);
                 }
             }
 
