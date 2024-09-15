@@ -29,15 +29,15 @@ public class EnemyAbility : NetworkBehaviour
     {
     }
 
-    public void Init(GameObject parent, GameObject target, float executionDuration)
+    public void Init(GameObject parent, GameObject target, Vector3 attackDirection, float executionDuration)
     {
         if (parent == null) return;
         if (target == null) return;
 
         Parent = parent;
         Target = target;
+        AttackDirection = attackDirection.normalized;
         ExecutionDuration = executionDuration;
-        AttackDirection = (target.transform.position - parent.transform.position).normalized;
 
         OnInit();
     }

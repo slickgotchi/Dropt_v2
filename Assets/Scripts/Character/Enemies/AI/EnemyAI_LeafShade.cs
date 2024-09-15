@@ -23,6 +23,7 @@ namespace Dropt
 
         public override void OnTelegraphStart()
         {
+            CalculateAttackDirection();
         }
         
         public override void OnRoamUpdate(float dt)
