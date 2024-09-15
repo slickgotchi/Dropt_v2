@@ -66,6 +66,24 @@ namespace Dropt
             HandleAlertOthers();
         }
 
+        // flee
+        protected void SimpleFleeUpdate(float dt)
+        {
+            if (networkCharacter == null) return;
+            if (navMeshAgent == null) return;
+
+            navMeshAgent.isStopped = false;
+
+            // get direction from player to enemy 
+            var dir = (transform.position - NearestPlayer.transform.position).normalized;
+
+            navMeshAgent.SetDestination(transform.position + dir * 5f);
+            navMeshAgent.speed = networkCharacter.MoveSpeed.Value * FleeSpeedMultiplier;
+
+            HandleAntiClumping();
+            HandleAlertOthers();
+        }
+
         private void HandleAntiClumping()
         {
             if (networkCharacter == null) return;
@@ -154,7 +172,7 @@ namespace Dropt
 
             // initialise the ability
             ability.GetComponent<NetworkObject>().Spawn();
-            enemyAbility.Init(gameObject, NearestPlayer, AttackDuration);
+            enemyAbility.Init(gameObject, NearestPlayer, AttackDirection, AttackDuration);
             enemyAbility.Activate();
         }
 

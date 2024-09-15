@@ -84,7 +84,7 @@ namespace Dropt
 
             // initialise the ability
             ability.GetComponent<NetworkObject>().Spawn();
-            enemyAbility.Init(gameObject, NearestPlayer, AttackDuration);
+            enemyAbility.Init(gameObject, NearestPlayer, Vector3.zero, AttackDuration);
             enemyAbility.Activate();
         }
     }

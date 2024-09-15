@@ -33,9 +33,6 @@ public class LeafShade_Charge : EnemyAbility
         m_direction = AttackDirection.normalized;
         m_speed = ChargeDistance / ExecutionDuration;
         transform.position = Parent.transform.position;
-        Debug.Log("m_direction: " + m_direction);
-        Debug.Log("m_speed: " + m_speed);
-
     }
 
     public override void OnDeactivate()

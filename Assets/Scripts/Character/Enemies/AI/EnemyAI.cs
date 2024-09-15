@@ -11,6 +11,7 @@ namespace Dropt
         [Header("Speed Multipliers")]
         public float PursueSpeedMultiplier = 2f;
         public float RoamSpeedMultiplier = 2f;
+        public float FleeSpeedMultiplier = 5f;
 
         [Header("Ranges")]
         public float AggroRange = 6f;           // aggro enemy when player is within this range
@@ -18,6 +19,8 @@ namespace Dropt
         public float AttackRange = 1.5f;        // attack when player within this range
         public float BreakAggroRange = 10f;     // leave aggro mode when outside this range (make sure BreakAggro is calculated after Alerts)
         public float MaxRoamRange = 10f;        // the furthest enemy can roam from its anchor point
+        public float FleeRange = 0f;
+        public float BreakFleeRange = 12f;
 
         [Header("Durations")]
         public float SpawnDuration = 1f;
@@ -65,6 +68,7 @@ namespace Dropt
             Attack,
             Cooldown,
             Stun,
+            Flee,
         }
 
         [HideInInspector] public State state = State.Spawn;
@@ -122,6 +126,9 @@ namespace Dropt
                 case State.Stun:
                     HandleStun(dt);
                     break;
+                case State.Flee:
+                    HandleFlee(dt);
+                    break;
                 default: break;
             }
         }
@@ -158,6 +165,10 @@ namespace Dropt
         public virtual void OnStunUpdate(float dt) { }
         public virtual void OnStunFinish() { }
 
+        public virtual void OnFleeStart() { }
+        public virtual void OnFleeUpdate(float dt) { }
+        public virtual void OnFleeFinish() { }
+
         public virtual void OnUpdate(float dt) { }
 
         public virtual void OnDeath(Vector3 position) { }
@@ -183,6 +194,14 @@ namespace Dropt
 
         void HandleRoam(float dt)
         {
+            if (NearestPlayerDistance < FleeRange)
+            {
+                OnRoamFinish();
+                state = State.Flee;
+                OnFleeStart();
+                return;
+            }
+
             if (NearestPlayerDistance < AggroRange)
             {
                 OnRoamFinish();
@@ -196,6 +215,14 @@ namespace Dropt
 
         void HandleAggro(float dt)
         {
+            //if (NearestPlayerDistance < FleeRange)
+            //{
+            //    OnAggroFinish();
+            //    state = State.Flee;
+            //    OnFleeStart();
+            //    return;
+            //}
+
             if (NearestPlayerDistance > BreakAggroRange)
             {
                 OnAggroFinish();
@@ -275,6 +302,17 @@ namespace Dropt
             }
 
             OnStunUpdate(dt);
+        }
+
+        void HandleFlee(float dt)
+        {
+            if (NearestPlayerDistance > BreakFleeRange)
+            {
+                OnFleeFinish();
+                state = State.Roam;
+            }
+
+            OnFleeUpdate(dt);
         }
 
         State m_postStunState = State.Aggro;
