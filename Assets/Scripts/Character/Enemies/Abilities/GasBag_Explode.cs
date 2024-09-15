@@ -20,18 +20,15 @@ public class GasBag_Explode : EnemyAbility
     {
     }
 
-    public override void OnTelegraphStart()
+    public override void OnActivate()
     {
-    }
+        if (Parent == null) return;
 
-    public override void OnExecutionStart()
-    {
-        //// reset explosion fade timer & set fade out duration
-        //m_explosionTimer = 0f;
-        //GetComponentInChildren<FadeOut>().duration = ExplosionDuration;
+        // reset explosion fade timer & set fade out duration
+        m_explosionTimer = 0f;
 
-        //// set position of explosion and initial scale
-        //transform.position = Parent.transform.position + new Vector3(0, 0.6f, 0);
+        // set position
+        transform.position = Dropt.Utils.Battle.GetAttackCentrePosition(Parent);
 
         // resize explosion collider and check collisions
         Collider.GetComponent<CircleCollider2D>().radius = ExplosionRadius;

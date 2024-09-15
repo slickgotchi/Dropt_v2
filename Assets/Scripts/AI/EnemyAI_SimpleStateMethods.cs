@@ -156,7 +156,6 @@ namespace Dropt
             ability.GetComponent<NetworkObject>().Spawn();
             enemyAbility.Init(gameObject, NearestPlayer, AttackDuration);
             enemyAbility.Activate();
-            
         }
 
         // knockback

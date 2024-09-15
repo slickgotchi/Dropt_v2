@@ -20,7 +20,10 @@ public class FudWisp_Explode : EnemyAbility
     {
         base.OnActivate();
 
-        transform.localScale = new Vector3(ExplosionRadius * 2, ExplosionRadius * 2, 1);
+        if (Parent == null) return;
+
+        // set position
+        transform.position = Parent.transform.position;
 
         // resize explosion collider and check collisions
         Collider.GetComponent<CircleCollider2D>().radius = ExplosionRadius;
