@@ -8,12 +8,11 @@ using Unity.Netcode;
 
 namespace Dropt
 {
-    public class EnemyAI_FudWisp : EnemyAI
+    public class EnemyAI_Spider : EnemyAI
     {
-        [Header("FudWisp Specific")]
-        public float ExplosionRadius = 2f;
-
         private Animator m_animator;
+
+        private float m_interpDelay = 0.3f;
 
         private void Awake()
         {
@@ -22,6 +21,8 @@ namespace Dropt
 
         public override void OnSpawnStart()
         {
+            m_interpDelay = IsHost ? 0 : 3 * 1 / (float)NetworkManager.Singleton.NetworkTickSystem.TickRate;
+
         }
 
         public override void OnTelegraphStart()
@@ -32,10 +33,26 @@ namespace Dropt
             // set our facing direction
             GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, TelegraphDuration);
         }
-        
+
+        public override void OnRoamStart()
+        {
+            base.OnRoamStart();
+
+            // walk anim
+            Invoke("PlayWalkAnimation", m_interpDelay);
+        }
+
         public override void OnRoamUpdate(float dt)
         {
             SimpleRoamUpdate(dt);   
+        }
+
+        public override void OnAggroStart()
+        {
+            base.OnAggroStart();
+
+            // walk anim
+            Invoke("PlayWalkAnimation", m_interpDelay);
         }
 
         public override void OnAggroUpdate(float dt)
@@ -45,19 +62,31 @@ namespace Dropt
 
         public override void OnAttackStart()
         {
-            FudWisp_AttackStart();
+            SimpleAttackStart();
 
             // set facing
             GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, AttackDuration);
+
+            // jump anim
+            Invoke("PlayJumpAnimation", m_interpDelay);
+        }
+
+        public override void OnAttackFinish()
+        {
+            base.OnAttackFinish();
+
+            Invoke("SpawnStompCircle", m_interpDelay);
         }
 
         public override void OnCooldownStart()
         {
+            GetComponent<NavMeshAgent>().isStopped = true;
         }
 
         public override void OnCooldownUpdate(float dt)
         {
-            SimplePursueUpdate(dt);
+            //SimplePursueUpdate(dt);
+            
         }
 
         public override void OnKnockback(Vector3 direction, float distance, float duration)
@@ -65,27 +94,25 @@ namespace Dropt
             SimpleKnockback(direction, distance, duration);
         }
 
-        // attack
-        protected void FudWisp_AttackStart()
+
+
+        void PlayJumpAnimation()
         {
-            // check we have a primary attack.
-            if (PrimaryAttack == null) return;
-
-            // instantiate an attack
-            var ability = Instantiate(PrimaryAttack);
-            
-            // get enemy ability of attack
-            var enemyAbility = ability.GetComponent<EnemyAbility>();
-            if (enemyAbility == null) return;
-
-            // set explosion radius
-            var fudWisp_Explosion = ability.GetComponent<FudWisp_Explode>();
-            fudWisp_Explosion.ExplosionRadius = ExplosionRadius;
-
-            // initialise the ability
-            ability.GetComponent<NetworkObject>().Spawn();
-            enemyAbility.Init(gameObject, NearestPlayer, Vector3.zero, AttackDuration, PositionToAttack);
-            enemyAbility.Activate();
+            GetComponent<Animator>().Play("Spider_Jump");
         }
+
+        void PlayWalkAnimation()
+        {
+            GetComponent<Animator>().Play("Spider_Walk");
+        }
+
+        void SpawnStompCircle()
+        {
+            //SpawnBasicCircleClientRpc(
+            //    transform.position,
+            //    Dropt.Utils.Color.HexToColor("#622461", 0.5f),
+            //    1f);
+        }
+
     }
 }

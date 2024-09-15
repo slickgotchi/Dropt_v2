@@ -51,6 +51,7 @@ namespace Dropt
 
 
         [HideInInspector] public Vector3 AttackDirection;
+        [HideInInspector] public Vector3 PositionToAttack;
 
         // variables set by the EnemyAIManager
         [HideInInspector] public GameObject NearestPlayer;

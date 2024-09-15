@@ -4,11 +4,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using Unity.Mathematics;
+using Unity.Netcode;
 
 namespace Dropt
 {
     public class EnemyAI_FussPot : EnemyAI
     {
+        [Header("FussPot Specific")]
+        public float ProjectileSpreadInDegrees = 30;
+
         private Animator m_animator;
 
         private void Awake()
@@ -23,7 +27,7 @@ namespace Dropt
         public override void OnTelegraphStart()
         {
             // calc our attack direction
-            CalculateAttackDirection();
+            CalculateAttackDirectionAndPosition();
 
             // set our facing direction
             GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, TelegraphDuration);
@@ -39,22 +43,33 @@ namespace Dropt
 
         public override void OnAttackStart()
         {
-            SimpleAttackStart();
+            SimpleFussPotAttack();
 
             // set facing
             GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, AttackDuration);
         }
 
-        public override void OnCooldownStart()
+        // attack
+        protected void SimpleFussPotAttack()
         {
-        }
+            // check we have a primary attack.
+            if (PrimaryAttack == null) return;
 
-        public override void OnCooldownUpdate(float dt)
-        {
-        }
+            // instantiate an attack
+            var ability = Instantiate(PrimaryAttack);
 
-        public override void OnKnockback(Vector3 direction, float distance, float duration)
-        {
+            // get enemy ability of attack
+            var enemyAbility = ability.GetComponent<EnemyAbility>();
+            if (enemyAbility == null) return;
+
+            // get fusspot erupt ability
+            var fussPotErupt = ability.GetComponent<FussPot_Erupt>();
+            fussPotErupt.ProjectileSpreadInDegrees = ProjectileSpreadInDegrees;
+
+            // initialise the ability
+            ability.GetComponent<NetworkObject>().Spawn();
+            enemyAbility.Init(gameObject, NearestPlayer, AttackDirection, AttackDuration, PositionToAttack);
+            enemyAbility.Activate();
         }
     }
 }

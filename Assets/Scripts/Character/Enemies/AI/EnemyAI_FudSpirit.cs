@@ -64,7 +64,7 @@ namespace Dropt
                 TeleportToNewAttackPosition();
 
                 // calc our attack direction
-                CalculateAttackDirection();
+                CalculateAttackDirectionAndPosition();
 
                 // set our facing direction
                 GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, TelegraphDuration);
