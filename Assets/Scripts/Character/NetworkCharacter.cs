@@ -125,6 +125,11 @@ public class NetworkCharacter : NetworkBehaviour
                 }
                 else
                 {
+                    var enemyAI = gameObject.GetComponent<Dropt.EnemyAI>();
+                    if (enemyAI != null)
+                    {
+                        enemyAI.OnDeath(transform.position);
+                    }
                     gameObject.GetComponent<NetworkObject>().Despawn();
                 }
             }

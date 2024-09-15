@@ -26,14 +26,12 @@ namespace Dropt
             m_animator = GetComponent<Animator>();
         }
 
-        public override void OnNetworkDespawn()
+        public override void OnDeath(Vector3 position)
         {
-            base.OnNetworkDespawn();
-
             // do gas bag explode attack when despawning
-            GasBag_AttackStart();
+            GasBagExplodeAttack(position);
         }
-        
+
         public override void OnRoamUpdate(float dt)
         {
             SimpleRoamUpdate(dt);   
@@ -63,7 +61,7 @@ namespace Dropt
         }
 
         // attack
-        protected void GasBag_AttackStart()
+        protected void GasBagExplodeAttack(Vector3 position)
         {
             // check we have a primary attack.
             if (PrimaryAttack == null) return;
@@ -78,7 +76,7 @@ namespace Dropt
             // set explosion radius
             var gasBagExplosion = ability.GetComponent<GasBag_Explode>();
             gasBagExplosion.ExplosionRadius = OnDestroyPoisonCloudRadius;
-            //gasBagExplosion.transform.position = transform.position;
+            gasBagExplosion.transform.position = transform.position;
 
             // initialise the ability
             ability.GetComponent<NetworkObject>().Spawn();

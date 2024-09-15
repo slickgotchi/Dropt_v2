@@ -29,14 +29,6 @@ public class EnemyAbility : NetworkBehaviour
     {
     }
 
-    //public void Activate()
-    //{
-    //    m_isActive = true;
-    //    m_timer = TelegraphDuration;
-    //    EnemyAbilityState = State.Telegraph;
-    //    if (IsServer) OnTelegraphStart();
-    //}
-
     public void Init(GameObject parent, GameObject target, float executionDuration)
     {
         if (parent == null) return;

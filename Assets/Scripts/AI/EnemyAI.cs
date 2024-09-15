@@ -160,6 +160,7 @@ namespace Dropt
 
         public virtual void OnUpdate(float dt) { }
 
+        public virtual void OnDeath(Vector3 position) { }
 
         void HandleNull(float dt)
         {
