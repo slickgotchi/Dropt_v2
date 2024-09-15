@@ -28,7 +28,7 @@ namespace Dropt
             Dropt.Utils.Anim.PlayAnimationWithDuration(m_animator, "Snail_TelegraphAttack", TelegraphDuration);
 
             // calc our attack direction
-            CalculateAttackDirection();
+            CalculateAttackDirectionAndPosition();
 
             // set our facing direction
             GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, TelegraphDuration);

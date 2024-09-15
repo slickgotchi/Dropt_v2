@@ -50,6 +50,8 @@ public class LeafShade_Charge : EnemyAbility
 
     public void HandleCharge(float dt)
     {
+        if (Parent == null) return;
+
         // 1. sync transoforms
         Physics2D.SyncTransforms();
 
@@ -96,7 +98,10 @@ public class LeafShade_Charge : EnemyAbility
             // handle players
             if (colliderTransform.parent != null && colliderTransform.parent.HasComponent<NetworkCharacter>())
             {
-                colliderTransform.parent.GetComponent<NetworkCharacter>().TakeDamage(10, false);
+                var networkCharacter = Parent.GetComponent<NetworkCharacter>();
+                var damage = networkCharacter.GetAttackPower();
+                var isCritical = networkCharacter.IsCriticalAttack();
+                colliderTransform.parent.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical);
             }
 
             // handle destructibles

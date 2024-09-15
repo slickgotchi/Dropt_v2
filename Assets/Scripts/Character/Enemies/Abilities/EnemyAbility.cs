@@ -12,6 +12,7 @@ public class EnemyAbility : NetworkBehaviour
     [HideInInspector] public GameObject Parent;
     [HideInInspector] public GameObject Target;
     [HideInInspector] public Vector3 AttackDirection;
+    [HideInInspector] public Vector3 PositionToAttack;
 
     public bool isStartRotationAlignedWithParentDirection = false;
     public float axialOffsetWhenAlignedWithParentDirection = 0;
@@ -29,7 +30,8 @@ public class EnemyAbility : NetworkBehaviour
     {
     }
 
-    public void Init(GameObject parent, GameObject target, Vector3 attackDirection, float executionDuration)
+    public void Init(GameObject parent, GameObject target,
+        Vector3 attackDirection, float executionDuration, Vector3 positionToAttack)
     {
         if (parent == null) return;
         if (target == null) return;
@@ -38,6 +40,7 @@ public class EnemyAbility : NetworkBehaviour
         Target = target;
         AttackDirection = attackDirection.normalized;
         ExecutionDuration = executionDuration;
+        PositionToAttack = positionToAttack;
 
         OnInit();
     }
@@ -61,43 +64,6 @@ public class EnemyAbility : NetworkBehaviour
         {
             OnUpdate(Time.deltaTime);
         }
-
-
-        //m_timer -= Time.deltaTime;
-
-        //switch (EnemyAbilityState)
-        //{
-        //    case State.Telegraph:
-        //        if (m_timer <= 0)
-        //        {
-        //            m_timer = ExecutionDuration;
-        //            EnemyAbilityState = State.Execution;
-        //            if (IsServer) OnExecutionStart();
-        //        }
-        //        break;
-        //    case State.Execution:
-        //        if (m_timer <= 0)
-        //        {
-        //            m_timer = CooldownDuration;
-        //            EnemyAbilityState = State.Cooldown;
-        //            if (IsServer) OnCooldownStart();
-        //        }
-        //        break;
-        //    case State.Cooldown:
-        //        if (m_timer <= 0)
-        //        {
-        //            m_timer = 0;
-        //            EnemyAbilityState = State.None;
-        //            if (IsServer) OnFinish();
-        //            if (IsServer) GetComponent<NetworkObject>().Despawn();
-        //            m_isActive = false;
-        //        }
-        //        break;
-        //    case State.None: break;
-        //    default: break;
-        //}
-
-        //if (m_isActive && IsServer) OnUpdate();
     }
 
     public virtual void OnTelegraphStart() { }
