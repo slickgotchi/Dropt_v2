@@ -60,10 +60,10 @@ namespace Dropt
             SimplePursueUpdate(dt);
         }
 
-        public override void OnKnockback(Vector3 direction, float distance, float duration)
-        {
-            SimpleKnockback(direction, distance, duration);
-        }
+        //public override void OnKnockback(Vector3 direction, float distance, float duration)
+        //{
+        //    SimpleKnockback(direction, distance, duration);
+        //}
 
         // attack
         protected void FudWisp_AttackStart()

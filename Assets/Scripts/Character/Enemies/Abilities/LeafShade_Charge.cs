@@ -58,7 +58,6 @@ public class LeafShade_Charge : EnemyAbility
         // 2. determine how far we can move (check for wall/water collisions)
         Vector2 castDirection = m_direction;
         float castDistance = m_speed * dt;
-        Debug.Log("castDistance: " + castDistance);
         int hitCount = m_moveCollider.Cast(castDirection,
             PlayerAbility.GetContactFilter(new string[] { "EnvironmentWall", "EnvironmentWater" }),
             m_wallHits, castDistance);
@@ -112,7 +111,6 @@ public class LeafShade_Charge : EnemyAbility
         }
 
         transform.position += m_direction * castDistance;
-        Debug.Log("m_direction * castDistance: " + m_direction * castDistance);
         if (Parent != null)
         {
             Parent.transform.position = transform.position;

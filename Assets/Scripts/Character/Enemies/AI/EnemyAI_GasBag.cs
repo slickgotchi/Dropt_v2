@@ -26,10 +26,14 @@ namespace Dropt
             m_animator = GetComponent<Animator>();
         }
 
-        public override void OnDeath(Vector3 position)
+        // override OnDeath so we do not get the default DeSpawn
+        protected override void OnDeath(Vector3 position)
         {
-            // do gas bag explode attack when despawning
-            GasBagExplodeAttack(position);
+            // change to telegraph state
+            ChangeState(State.Telegraph);
+
+            // stop nav mesh
+            GetComponent<NavMeshAgent>().isStopped = true;
         }
 
         public override void OnRoamUpdate(float dt)
@@ -55,20 +59,16 @@ namespace Dropt
             }
         }
 
-        public override void OnKnockback(Vector3 direction, float distance, float duration)
+        public override void OnAttackStart()
         {
-            SimpleKnockback(direction, distance, duration);
-        }
+            base.OnAttackStart();
 
-        // attack
-        protected void GasBagExplodeAttack(Vector3 position)
-        {
             // check we have a primary attack.
             if (PrimaryAttack == null) return;
 
             // instantiate an attack
             var ability = Instantiate(PrimaryAttack);
-            
+
             // get enemy ability of attack
             var enemyAbility = ability.GetComponent<EnemyAbility>();
             if (enemyAbility == null) return;
@@ -82,6 +82,15 @@ namespace Dropt
             ability.GetComponent<NetworkObject>().Spawn();
             enemyAbility.Init(gameObject, NearestPlayer, Vector3.zero, AttackDuration, PositionToAttack);
             enemyAbility.Activate();
+        }
+
+        // attack
+        protected void GasBag_Attack(Vector3 position)
+        {
+            // switch to telegraph state
+            ChangeState(State.Telegraph);
+
+
         }
 
         private void HandleOnTouchCollisions()
