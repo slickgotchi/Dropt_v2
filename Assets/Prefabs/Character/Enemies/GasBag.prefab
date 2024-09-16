@@ -145,7 +145,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 882358288
+  GlobalObjectIdHash: 4139050077
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -197,8 +197,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6494b87727298314987516d4f17c6c93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseHpMax: 100
-  baseHpCurrent: 100
+  baseHpMax: 200
+  baseHpCurrent: 200
   baseHpBuffer: 0
   baseAttackPower: 10
   baseCriticalChance: 0.1
@@ -213,7 +213,7 @@ MonoBehaviour:
   baseDamageReduction: 0
   baseApLeech: 0
   baseApRegen: 1
-  baseKnockbackMutliplier: 1
+  baseKnockbackMutliplier: 3.5
   baseStunMultiplier: 1
   popupTextOffset: {x: 0, y: 1.5, z: 0}
   HpMax:
@@ -381,7 +381,7 @@ NavMeshAgent:
   m_AgentTypeID: 0
   m_Radius: 0.5
   m_Speed: 3.5
-  m_Acceleration: 8
+  m_Acceleration: 5
   avoidancePriority: 50
   m_AngularSpeed: 120
   m_StoppingDistance: 0
@@ -417,17 +417,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 723366aa40a0c428297f713f917c4660, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PursueSpeedMultiplier: 3
+  PursueSpeedMultiplier: 4
   RoamSpeedMultiplier: 2
-  AggroRange: 6
+  AggroRange: 7.5
   AlertRange: 5
   AttackRange: 0.5
-  BreakAggroRange: 10
+  BreakAggroRange: 11
   MaxRoamRange: 10
   SpawnDuration: 1
-  TelegraphDuration: 0.2
-  AttackDuration: 0.5
-  CooldownDuration: 1
+  TelegraphDuration: 0
+  AttackDuration: 0
+  CooldownDuration: 0
   PrimaryAttack: {fileID: 3159421716010617349, guid: 3ed119fde8550b84387647ba983d8fe5, type: 3}
   SecondaryAttack: {fileID: 0}
   avoidanceRadius: 1
@@ -438,8 +438,8 @@ MonoBehaviour:
   NearestPlayerDistance: 0
   StunDuration: 0
   state: 1
-  OnDestroyPoisonCloudRadius: 2
-  OnTouchPoisonInterval: 0.5
+  OnDestroyPoisonCloudRadius: 4
+  OnTouchPoisonInterval: 0.25
   OnTouchPoisonDamage: 1
   OnTouchPoisonCollider: {fileID: 3070182064152453227}
 --- !u!1 &4630810234820101847

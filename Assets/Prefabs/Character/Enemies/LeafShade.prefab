@@ -143,7 +143,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3251470331
+  GlobalObjectIdHash: 1888255537
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -198,7 +198,7 @@ MonoBehaviour:
   baseHpMax: 500
   baseHpCurrent: 500
   baseHpBuffer: 0
-  baseAttackPower: 35
+  baseAttackPower: 50
   baseCriticalChance: 0.1
   baseApMax: 0
   baseApCurrent: 0
@@ -388,7 +388,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab366a2645ae142ef89669b9c48ed767, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Multiplier: 1
+  Multiplier: 1.5
 --- !u!114 &5159953263448497904
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -401,17 +401,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7456cc536c3d04686b18fa2083e819f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PursueSpeedMultiplier: 3
+  PursueSpeedMultiplier: 4
   RoamSpeedMultiplier: 1.5
-  AggroRange: 6
+  AggroRange: 8
   AlertRange: 5
-  AttackRange: 3
+  AttackRange: 7
   BreakAggroRange: 12
   MaxRoamRange: 12
   SpawnDuration: 1
-  TelegraphDuration: 1
-  AttackDuration: 0.5
-  CooldownDuration: 1
+  TelegraphDuration: 0.6
+  AttackDuration: 0.8
+  CooldownDuration: 1.5
   PrimaryAttack: {fileID: 6780689125281501319, guid: 80dc677fccc766d49a6e18ff21db2170, type: 3}
   SecondaryAttack: {fileID: 0}
   avoidanceRadius: 1
