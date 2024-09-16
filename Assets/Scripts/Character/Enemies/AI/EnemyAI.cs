@@ -99,6 +99,10 @@ namespace Dropt
             m_spawnTimer = SpawnDuration;
             state = State.Spawn;
             OnSpawnStart();
+
+            // set debug visibility
+            var enemyAICanvas = GetComponentInChildren<EnemyAI_DebugCanvas>();
+            enemyAICanvas.Container.SetActive(EnemyAIManager.Instance.IsDebugVisible);
         }
 
         private void Update()

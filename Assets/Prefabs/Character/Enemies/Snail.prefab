@@ -101,7 +101,6 @@ GameObject:
   - component: {fileID: 7690168732021353646}
   - component: {fileID: 990222868014410655}
   - component: {fileID: -8885356297908006619}
-  - component: {fileID: 6834886257311113157}
   - component: {fileID: 7512630288662385814}
   - component: {fileID: -2723263135936807629}
   - component: {fileID: 2975631533240675610}
@@ -370,20 +369,6 @@ MonoBehaviour:
   SpawnDuration: 0
   IsArmed: 0
   DynamicHpMultiplier: 1
---- !u!114 &6834886257311113157
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1249991746567512264}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a3a378c64a8d7d4ab8bcc33e72c4017, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  PrimaryAttack: {fileID: 3159421716010617349, guid: 92ca5efdc97856144bc1de4c9b4fed87, type: 3}
-  SecondaryAttack: {fileID: 0}
 --- !u!114 &7512630288662385814
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -422,11 +407,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PursueSpeedMultiplier: 1.7
   RoamSpeedMultiplier: 0.3
+  FleeSpeedMultiplier: 5
   AggroRange: 9
   AlertRange: 10
   AttackRange: 1.5
   BreakAggroRange: 16
   MaxRoamRange: 8
+  FleeRange: 0
+  BreakFleeRange: 12
   SpawnDuration: 1
   TelegraphDuration: 1
   AttackDuration: 0.3
@@ -437,6 +425,7 @@ MonoBehaviour:
   debugCanvas: {fileID: 4504020213834047242}
   navMeshAgent: {fileID: 0}
   AttackDirection: {x: 0, y: 0, z: 0}
+  PositionToAttack: {x: 0, y: 0, z: 0}
   NearestPlayer: {fileID: 0}
   NearestPlayerDistance: 0
   StunDuration: 0
