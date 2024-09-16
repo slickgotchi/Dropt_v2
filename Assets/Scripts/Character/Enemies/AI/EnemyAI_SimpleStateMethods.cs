@@ -177,18 +177,9 @@ namespace Dropt
             ability.GetComponent<NetworkObject>().Spawn();
             enemyAbility.Init(gameObject, NearestPlayer, AttackDirection, AttackDuration, PositionToAttack);
             enemyAbility.Activate();
-        }
 
-        // knockback
-        protected void SimpleKnockback(Vector3 direction, float distance, float duration)
-        {
-            if (navMeshAgent == null || !navMeshAgent.enabled || !navMeshAgent.gameObject.activeInHierarchy) return;
-
-            // NEEDS TO BE RAY OR COLLIDER CASTED!!!
-            m_stunTimer = duration;
-            transform.position += direction.normalized * distance;
-
-            navMeshAgent.isStopped = true;
+            // ensure state is attack
+            state = State.Attack;
         }
     }
 }

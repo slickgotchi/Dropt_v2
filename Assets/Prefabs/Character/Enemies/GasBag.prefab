@@ -145,7 +145,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 882358288
+  GlobalObjectIdHash: 4139050077
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -419,21 +419,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PursueSpeedMultiplier: 3
   RoamSpeedMultiplier: 2
+  FleeSpeedMultiplier: 5
   AggroRange: 6
   AlertRange: 5
-  AttackRange: 0.5
+  AttackRange: 0
   BreakAggroRange: 10
   MaxRoamRange: 10
+  FleeRange: 0
+  BreakFleeRange: 12
   SpawnDuration: 1
-  TelegraphDuration: 0.2
+  TelegraphDuration: 1
   AttackDuration: 0.5
   CooldownDuration: 1
+  KnockbackDuration: 0.3
   PrimaryAttack: {fileID: 3159421716010617349, guid: 3ed119fde8550b84387647ba983d8fe5, type: 3}
   SecondaryAttack: {fileID: 0}
   avoidanceRadius: 1
   debugCanvas: {fileID: 3450764942162724960}
   navMeshAgent: {fileID: 0}
   AttackDirection: {x: 0, y: 0, z: 0}
+  PositionToAttack: {x: 0, y: 0, z: 0}
   NearestPlayer: {fileID: 0}
   NearestPlayerDistance: 0
   StunDuration: 0

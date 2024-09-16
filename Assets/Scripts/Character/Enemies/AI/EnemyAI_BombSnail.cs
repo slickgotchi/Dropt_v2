@@ -59,12 +59,12 @@ namespace Dropt
             SimplePursueUpdate(dt);
         }
 
-        public override void OnKnockback(Vector3 direction, float distance, float duration)
-        {
-            SimpleKnockback(direction, distance, duration);
+        //public override void OnKnockback(Vector3 direction, float distance, float duration)
+        //{
+        //    SimpleKnockback(direction, distance, duration);
 
-            // stop animator
-            Dropt.Utils.Anim.Play(m_animator, "Snail_Idle");
-        }
+        //    // stop animator
+        //    Dropt.Utils.Anim.Play(m_animator, "Snail_Idle");
+        //}
     }
 }
