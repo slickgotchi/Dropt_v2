@@ -101,7 +101,6 @@ GameObject:
   - component: {fileID: 2642312668980575302}
   - component: {fileID: 9088211342616817470}
   - component: {fileID: -4382550609485557648}
-  - component: {fileID: -8181816123156669113}
   - component: {fileID: -6869925011341850481}
   - component: {fileID: 6434513312881309744}
   - component: {fileID: 9213157710925413766}
@@ -308,7 +307,6 @@ MonoBehaviour:
   IsSpawning: 1
   SpawnDuration: 0
   IsArmed: 0
-  DynamicHpMultiplier: 1
 --- !u!61 &9088211342616817470
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -371,20 +369,6 @@ MonoBehaviour:
   m_flashCount: 1
   m_spriteRenderers:
   - {fileID: 361146906994616670}
---- !u!114 &-8181816123156669113
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1249991746567512264}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a3a378c64a8d7d4ab8bcc33e72c4017, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  PrimaryAttack: {fileID: 3159421716010617349, guid: 00326eeec0511704cbb24b1aefead78a, type: 3}
-  SecondaryAttack: {fileID: 0}
 --- !u!114 &-6869925011341850481
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -488,12 +472,12 @@ MonoBehaviour:
   FleeSpeedMultiplier: 5
   AggroRange: 6
   AlertRange: 5
-  AttackRange: 1.5
+  AttackRange: 2.3
   BreakAggroRange: 10
   MaxRoamRange: 10
   FleeRange: 0
   BreakFleeRange: 12
-  SpawnDuration: 1
+  SpawnDuration: 0.5
   TelegraphDuration: 1
   AttackDuration: 0.5
   CooldownDuration: 1

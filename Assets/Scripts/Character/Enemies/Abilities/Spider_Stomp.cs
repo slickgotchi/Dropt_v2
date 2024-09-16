@@ -21,24 +21,6 @@ public class Spider_Stomp : EnemyAbility
         m_collider = GetComponent<Collider2D>();
     }
 
-    //public override void OnNetworkSpawn()
-    //{
-        //m_interpolationDelay = IsHost ? 0 : 3 * 1 / (float)NetworkManager.Singleton.NetworkTickSystem.TickRate;
-
-        //if (Parent == null) return;
-
-        //transform.position = Parent.transform.position;
-    //}
-
-    //public override void OnTelegraphStart()
-    //{
-    //    m_direction = AttackDirection;
-    //    m_speed = StompDistance / ExecutionDuration;
-
-    //    EnemyController.Facing facing = m_direction.x > 0 ? EnemyController.Facing.Right : EnemyController.Facing.Left;
-    //    if (Parent != null) Parent.GetComponent<EnemyController>().SetFacing(facing);
-    //}
-
     public override void OnActivate()
     {
         if (Parent == null) return;
@@ -51,26 +33,6 @@ public class Spider_Stomp : EnemyAbility
 
         //Invoke("PlayJumpAnimation", m_interpolationDelay);
     }
-
-    //void PlayJumpAnimation()
-    //{
-    //    if (Parent == null) return;
-    //    Parent.GetComponent<Animator>().Play("Spider_Jump");
-    //}
-
-    //void PlayWalkAnimation()
-    //{
-    //    if (Parent == null) return;
-    //    Parent.GetComponent<Animator>().Play("Spider_Walk");
-    //}
-
-    //void SpawnStompCircle()
-    //{
-    //    SpawnBasicCircleClientRpc(
-    //        transform.position,
-    //        Dropt.Utils.Color.HexToColor("#622461", 0.5f),
-    //        1f);
-    //}
 
     public override void OnDeactivate()
     {

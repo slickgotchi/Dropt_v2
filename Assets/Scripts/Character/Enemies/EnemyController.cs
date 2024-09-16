@@ -25,9 +25,6 @@ public class EnemyController : NetworkBehaviour
 
     [HideInInspector] public bool IsArmed = false;
 
-    [Header("Dynamic HP")]
-    public float DynamicHpMultiplier = 1f;
-
     private void Awake()
     {
         m_localVelocity = GetComponent<LocalVelocity>();

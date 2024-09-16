@@ -73,17 +73,17 @@ public class EnemyAIManager : MonoBehaviour
         }
     }
 
-    bool m_isVisibleDebugStates = false;
+    public bool IsDebugVisible = false;
     void HandleToggleDebugCanvases()
     {
         if (Input.GetKeyDown(KeyCode.Alpha4))
         {
-            m_isVisibleDebugStates = !m_isVisibleDebugStates;
+            IsDebugVisible = !IsDebugVisible;
 
             var debugCanvases = FindObjectsByType<EnemyAI_DebugCanvas>(FindObjectsSortMode.None);
             foreach (var dc in debugCanvases)
             {
-                dc.Container.SetActive(m_isVisibleDebugStates);
+                dc.Container.SetActive(IsDebugVisible);
             }
         }
     }
