@@ -419,21 +419,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PursueSpeedMultiplier: 4
   RoamSpeedMultiplier: 2
+  FleeSpeedMultiplier: 5
   AggroRange: 7.5
   AlertRange: 5
-  AttackRange: 0.5
+  AttackRange: 0
   BreakAggroRange: 11
   MaxRoamRange: 10
+  FleeRange: 0
+  BreakFleeRange: 12
   SpawnDuration: 1
-  TelegraphDuration: 0
+  TelegraphDuration: 1
   AttackDuration: 0
-  CooldownDuration: 0
+  CooldownDuration: 1
   PrimaryAttack: {fileID: 3159421716010617349, guid: 3ed119fde8550b84387647ba983d8fe5, type: 3}
   SecondaryAttack: {fileID: 0}
   avoidanceRadius: 1
   debugCanvas: {fileID: 3450764942162724960}
   navMeshAgent: {fileID: 0}
   AttackDirection: {x: 0, y: 0, z: 0}
+  PositionToAttack: {x: 0, y: 0, z: 0}
   NearestPlayer: {fileID: 0}
   NearestPlayerDistance: 0
   StunDuration: 0
