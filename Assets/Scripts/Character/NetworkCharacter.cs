@@ -98,12 +98,15 @@ public class NetworkCharacter : NetworkBehaviour
         }
         if (IsServer)
         {
-            bool isPlayer = gameObject.HasComponent<PlayerController>();
-            if (!isPlayer)
+            var playerController = GetComponent<PlayerController>();
+            var enemyController = GetComponent<EnemyController>();
+
+            // general impacts of damage
+            if (enemyController != null)
             {
                 GameAudioManager.Instance.EnemyHurt(gameObject.transform.position);
 
-            } else
+            } else if (playerController != null)
             {
                 if (gameObject.GetComponent<NetworkObject>().IsLocalPlayer)
                 {
@@ -119,18 +122,19 @@ public class NetworkCharacter : NetworkBehaviour
 
             if (HpCurrent.Value <= 0 && IsServer)
             {
-                if (isPlayer)
+                HpCurrent.Value = 0;
+                if (playerController != null)
                 {
                     GetComponent<PlayerController>().KillPlayer(REKTCanvas.TypeOfREKT.HP);
                 }
-                else
+                else if (enemyController != null)
                 {
                     var enemyAI = gameObject.GetComponent<Dropt.EnemyAI>();
                     if (enemyAI != null)
                     {
-                        enemyAI.OnDeath(transform.position);
+                        // the AI class will handle despawning (and some children may not imeediately despawn)
+                        enemyAI.Death(transform.position);
                     }
-                    gameObject.GetComponent<NetworkObject>().Despawn();
                 }
             }
 
