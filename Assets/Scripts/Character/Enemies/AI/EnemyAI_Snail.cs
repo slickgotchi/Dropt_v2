@@ -4,11 +4,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using Unity.Mathematics;
-using Unity.Netcode;
 
 namespace Dropt
 {
-    public class EnemyAI_LeafShade : EnemyAI
+    public class EnemyAI_Snail : EnemyAI
     {
         private Animator m_animator;
 
@@ -19,10 +18,20 @@ namespace Dropt
 
         public override void OnSpawnStart()
         {
+            // play anim
+            Dropt.Utils.Anim.PlayAnimationWithDuration(m_animator, "Snail_Unburrow", SpawnDuration);
         }
 
         public override void OnTelegraphStart()
         {
+            // play anim
+            Dropt.Utils.Anim.PlayAnimationWithDuration(m_animator, "Snail_TelegraphAttack", TelegraphDuration);
+
+            // calc our attack direction
+            CalculateAttackDirectionAndPosition();
+
+            // set our facing direction
+            GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, TelegraphDuration);
         }
         
         public override void OnRoamUpdate(float dt)
@@ -45,6 +54,8 @@ namespace Dropt
 
         public override void OnCooldownStart()
         {
+            // set facing
+            //GetComponent<EnemyController>().SetFacingFromDirection(NearestPlayer.transform.position - transform.position, CooldownDuration);
         }
 
         public override void OnCooldownUpdate(float dt)
@@ -52,9 +63,12 @@ namespace Dropt
             SimplePursueUpdate(dt);
         }
 
-        public override void OnKnockback(Vector3 direction, float distance, float duration)
-        {
-            SimpleKnockback(direction, distance, duration);
-        }
+        //public override void OnKnockback(Vector3 direction, float distance, float duration)
+        //{
+        //    SimpleKnockback(direction, distance, duration);
+
+        //    // stop animator
+        //    m_animator.Play("Snail_Idle");
+        //}
     }
 }

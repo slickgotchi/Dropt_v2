@@ -27,10 +27,10 @@ public class BombSnail_Explode : EnemyAbility
 
         // resize explosion collider and check collisions
         Collider.GetComponent<CircleCollider2D>().radius = ExplosionRadius;
-        var enemyCharacter = Parent.GetComponent<NetworkCharacter>();
-        var damage = enemyCharacter.GetAttackPower();
-        var isCritical = enemyCharacter.IsCriticalAttack();
-        EnemyAbility.PlayerCollisionCheckAndDamage(Collider, damage, isCritical, enemyCharacter.gameObject);
+        var networkCharacter = Parent.GetComponent<NetworkCharacter>();
+        var damage = networkCharacter.GetAttackPower();
+        var isCritical = networkCharacter.IsCriticalAttack();
+        EnemyAbility.PlayerCollisionCheckAndDamage(Collider, damage, isCritical, networkCharacter.gameObject);
 
         transform.parent = null;
         Parent.GetComponent<NetworkObject>().Despawn();

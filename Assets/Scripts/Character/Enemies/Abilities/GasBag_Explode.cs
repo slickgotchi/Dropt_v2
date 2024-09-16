@@ -33,6 +33,8 @@ public class GasBag_Explode : EnemyAbility
             transform.position,
             Dropt.Utils.Color.HexToColor("#7a09fa", 0.5f),
             ExplosionRadius);
+
+        Parent.GetComponent<NetworkObject>().Despawn();
     }
 
     private void HandleCollisions(Collider2D collider)

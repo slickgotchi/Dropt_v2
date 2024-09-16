@@ -64,7 +64,7 @@ namespace Dropt
                 TeleportToNewAttackPosition();
 
                 // calc our attack direction
-                CalculateAttackDirection();
+                CalculateAttackDirectionAndPosition();
 
                 // set our facing direction
                 GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, TelegraphDuration);
@@ -88,11 +88,11 @@ namespace Dropt
         }
 
 
-        public override void OnKnockback(Vector3 direction, float distance, float duration)
-        {
-            SimpleKnockback(direction, distance, duration);
+        //public override void OnKnockback(Vector3 direction, float distance, float duration)
+        //{
+        //    SimpleKnockback(direction, distance, duration);
 
-        }
+        //}
 
         // fud spirit teleport
         private void TeleportToNewAttackPosition()

@@ -33,9 +33,6 @@ public class LeafShade_Charge : EnemyAbility
         m_direction = AttackDirection.normalized;
         m_speed = ChargeDistance / ExecutionDuration;
         transform.position = Parent.transform.position;
-        Debug.Log("m_direction: " + m_direction);
-        Debug.Log("m_speed: " + m_speed);
-
     }
 
     public override void OnDeactivate()
@@ -53,13 +50,14 @@ public class LeafShade_Charge : EnemyAbility
 
     public void HandleCharge(float dt)
     {
+        if (Parent == null) return;
+
         // 1. sync transoforms
         Physics2D.SyncTransforms();
 
         // 2. determine how far we can move (check for wall/water collisions)
         Vector2 castDirection = m_direction;
         float castDistance = m_speed * dt;
-        Debug.Log("castDistance: " + castDistance);
         int hitCount = m_moveCollider.Cast(castDirection,
             PlayerAbility.GetContactFilter(new string[] { "EnvironmentWall", "EnvironmentWater" }),
             m_wallHits, castDistance);
@@ -99,7 +97,10 @@ public class LeafShade_Charge : EnemyAbility
             // handle players
             if (colliderTransform.parent != null && colliderTransform.parent.HasComponent<NetworkCharacter>())
             {
-                colliderTransform.parent.GetComponent<NetworkCharacter>().TakeDamage(10, false);
+                var networkCharacter = Parent.GetComponent<NetworkCharacter>();
+                var damage = networkCharacter.GetAttackPower();
+                var isCritical = networkCharacter.IsCriticalAttack();
+                colliderTransform.parent.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical);
             }
 
             // handle destructibles
@@ -110,7 +111,6 @@ public class LeafShade_Charge : EnemyAbility
         }
 
         transform.position += m_direction * castDistance;
-        Debug.Log("m_direction * castDistance: " + m_direction * castDistance);
         if (Parent != null)
         {
             Parent.transform.position = transform.position;

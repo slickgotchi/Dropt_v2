@@ -6,41 +6,38 @@ using UnityEngine;
 public class GeodeShade_Charge : EnemyAbility
 {
     [Header("GeodeShade_Charge Parameters")]
-    public float ChargeDistance = 4f;
+    public float ChargeDistance = 5f;
 
     private Vector3 m_direction;
     private float m_speed;
-    private Collider2D m_collider;
     private bool m_isExecuting = false;
 
     private List<Transform> m_hitTransforms = new List<Transform>();
 
+    private RaycastHit2D[] m_wallHits = new RaycastHit2D[1];
+    private RaycastHit2D[] m_objectHits = new RaycastHit2D[10];
+
+    [SerializeField] private Collider2D m_damageCollider;
+    [SerializeField] private Collider2D m_moveCollider;
+
     private void Awake()
     {
-        m_collider = GetComponent<Collider2D>();
     }
 
-    public override void OnNetworkSpawn()
+    public override void OnActivate()
     {
-    }
-
-    public override void OnTelegraphStart()
-    {
-        transform.position = Parent.transform.position;
-        m_direction = (Target.transform.position - Parent.transform.position).normalized;
-        m_speed = ChargeDistance / ExecutionDuration;
-
-        EnemyController.Facing facing = m_direction.x > 0 ? EnemyController.Facing.Right : EnemyController.Facing.Left;
-        Parent.GetComponent<EnemyController>().SetFacing(facing);
-    }
-
-    public override void OnExecutionStart()
-    {
+        base.OnActivate();
         m_isExecuting = true;
+
+        // set direction, speed and start position
+        m_direction = AttackDirection.normalized;
+        m_speed = ChargeDistance / ExecutionDuration;
+        transform.position = Parent.transform.position;
     }
 
-    public override void OnCooldownStart()
+    public override void OnDeactivate()
     {
+        base.OnDeactivate();
         m_isExecuting = false;
     }
 
@@ -48,30 +45,40 @@ public class GeodeShade_Charge : EnemyAbility
     {
         if (!m_isExecuting) return;
 
-        ContinuousCollisionCheck();
-
-        transform.position += m_direction * m_speed * Time.deltaTime;
-        Parent.transform.position = transform.position;
+        HandleCharge(dt);
     }
 
-    public void ContinuousCollisionCheck()
+    public void HandleCharge(float dt)
     {
+        if (Parent == null) return;
+
+        // 1. sync transoforms
         Physics2D.SyncTransforms();
 
-        // Use ColliderCast to perform continuous collision detection
+        // 2. determine how far we can move (check for wall/water collisions)
         Vector2 castDirection = m_direction;
-        float castDistance = m_speed * Time.deltaTime;
-        RaycastHit2D[] rayHits = new RaycastHit2D[1];
-        m_collider.Cast(castDirection,
-            PlayerAbility.GetContactFilter(new string[] { "PlayerHurt", "Destructible" }),
-            rayHits, castDistance);
+        float castDistance = m_speed * dt;
+        int hitCount = m_moveCollider.Cast(castDirection,
+            PlayerAbility.GetContactFilter(new string[] { "EnvironmentWall", "EnvironmentWater" }),
+            m_wallHits, castDistance);
 
-        // loop through ray hits
-        for (int i = 0; i < rayHits.Length; i++) 
+        if (hitCount > 0)
         {
-            var collider = rayHits[i].collider;
+            var rayHit = m_wallHits[0];
+            castDistance = rayHit.distance;
+        }
+
+        // 3. perform collisions using the new (if applicable) cast distance
+        m_damageCollider.Cast(castDirection,
+            PlayerAbility.GetContactFilter(new string[] { "PlayerHurt", "Destructible" }),
+            m_objectHits, castDistance);
+
+        // 4. iterate over any object  hits
+        for (int i = 0; i < m_objectHits.Length; i++)
+        {
+            var collider = m_objectHits[i].collider;
             if (collider == null) continue;
-            var colliderTransform = rayHits[i].collider.transform;
+            var colliderTransform = collider.transform;
             if (colliderTransform == null) continue;
 
             bool isAlreadyHit = false;
@@ -84,13 +91,17 @@ public class GeodeShade_Charge : EnemyAbility
                 }
             }
 
-            if (isAlreadyHit) continue; 
+            if (isAlreadyHit) continue;
             m_hitTransforms.Add(colliderTransform);
 
             // handle players
             if (colliderTransform.parent != null && colliderTransform.parent.HasComponent<NetworkCharacter>())
             {
-                colliderTransform.parent.GetComponent<NetworkCharacter>().TakeDamage(10, false);
+                var networkCharacter = Parent.GetComponent<NetworkCharacter>();
+                var damage = networkCharacter.GetAttackPower();
+                var isCritical = networkCharacter.IsCriticalAttack();
+
+                colliderTransform.parent.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical);
             }
 
             // handle destructibles
@@ -98,6 +109,12 @@ public class GeodeShade_Charge : EnemyAbility
             {
                 colliderTransform.GetComponent<Destructible>().TakeDamage(100);
             }
+        }
+
+        transform.position += m_direction * castDistance;
+        if (Parent != null)
+        {
+            Parent.transform.position = transform.position;
         }
     }
 }

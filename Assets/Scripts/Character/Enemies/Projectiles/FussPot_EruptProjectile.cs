@@ -26,9 +26,6 @@ public class FussPot_EruptProjectile : NetworkBehaviour
 
     private Collider2D m_collider;
 
-    private float m_damage = 10f;
-    private bool m_isCritical = false;
-
     private Vector3 m_finalPosition = Vector3.zero;
 
     private void Awake()
@@ -79,7 +76,12 @@ public class FussPot_EruptProjectile : NetworkBehaviour
         if (m_timer < 0)
         {
             m_collider.GetComponent<CircleCollider2D>().radius = HitRadius;
-            EnemyAbility.PlayerCollisionCheckAndDamage(m_collider, m_damage, m_isCritical);
+
+            var isCritical = PlayerAbility.IsCriticalAttack(CriticalChance);
+            var damage = isCritical ? DamagePerHit * CriticalDamage : DamagePerHit;
+            damage = PlayerAbility.GetRandomVariation(damage);
+
+            EnemyAbility.PlayerCollisionCheckAndDamage(m_collider, damage, isCritical);
 
             gameObject.SetActive(false);
             if (IsServer) gameObject.GetComponent<NetworkObject>().Despawn();

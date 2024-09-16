@@ -66,6 +66,24 @@ namespace Dropt
             HandleAlertOthers();
         }
 
+        // flee
+        protected void SimpleFleeUpdate(float dt)
+        {
+            if (networkCharacter == null) return;
+            if (navMeshAgent == null) return;
+
+            navMeshAgent.isStopped = false;
+
+            // get direction from player to enemy 
+            var dir = (transform.position - NearestPlayer.transform.position).normalized;
+
+            navMeshAgent.SetDestination(transform.position + dir * 5f);
+            navMeshAgent.speed = networkCharacter.MoveSpeed.Value * FleeSpeedMultiplier;
+
+            HandleAntiClumping();
+            HandleAlertOthers();
+        }
+
         private void HandleAntiClumping()
         {
             if (networkCharacter == null) return;
@@ -123,7 +141,7 @@ namespace Dropt
         }
 
         // telegraph
-        public Vector3 CalculateAttackDirection()
+        public Vector3 CalculateAttackDirectionAndPosition()
         {
             // get target attack centre
             var targetCentre = NearestPlayer.GetComponentInChildren<AttackCentre>();
@@ -135,6 +153,9 @@ namespace Dropt
 
             // set attack direction
             AttackDirection = (targetCentrePos - enemyCentrePos).normalized;
+
+            // set attack position
+            PositionToAttack = targetCentrePos;
 
             return AttackDirection;
         }
@@ -154,20 +175,11 @@ namespace Dropt
 
             // initialise the ability
             ability.GetComponent<NetworkObject>().Spawn();
-            enemyAbility.Init(gameObject, NearestPlayer, AttackDuration);
+            enemyAbility.Init(gameObject, NearestPlayer, AttackDirection, AttackDuration, PositionToAttack);
             enemyAbility.Activate();
-        }
 
-        // knockback
-        protected void SimpleKnockback(Vector3 direction, float distance, float duration)
-        {
-            if (navMeshAgent == null || !navMeshAgent.enabled || !navMeshAgent.gameObject.activeInHierarchy) return;
-
-            // NEEDS TO BE RAY OR COLLIDER CASTED!!!
-            m_stunTimer = duration;
-            transform.position += direction.normalized * distance;
-
-            navMeshAgent.isStopped = true;
+            // ensure state is attack
+            state = State.Attack;
         }
     }
 }
