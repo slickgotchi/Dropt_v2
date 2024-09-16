@@ -62,6 +62,8 @@ namespace Dropt
 
         public override void OnAttackStart()
         {
+            GetComponent<NavMeshAgent>().isStopped = true;
+
             SimpleAttackStart();
 
             // set facing
@@ -80,20 +82,14 @@ namespace Dropt
 
         public override void OnCooldownStart()
         {
-            GetComponent<NavMeshAgent>().isStopped = true;
+            GetComponent<NavMeshAgent>().isStopped = false;
         }
 
         public override void OnCooldownUpdate(float dt)
         {
-            //SimplePursueUpdate(dt);
-            
+            SimplePursueUpdate(dt);
+
         }
-
-        //public override void OnKnockback(Vector3 direction, float distance, float duration)
-        //{
-        //    SimpleKnockback(direction, distance, duration);
-        //}
-
 
 
         void PlayJumpAnimation()

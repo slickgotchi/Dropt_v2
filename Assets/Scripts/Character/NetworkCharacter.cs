@@ -134,6 +134,9 @@ public class NetworkCharacter : NetworkBehaviour
                     {
                         // the AI class will handle despawning (and some children may not imeediately despawn)
                         enemyAI.Death(transform.position);
+                    } else
+                    {
+                        gameObject.GetComponent<NetworkObject>().Despawn();
                     }
                 }
             }
