@@ -134,7 +134,12 @@ public class BallisticExplosionProjectile : NetworkBehaviour
                 var isCritical = PlayerAbility.IsCriticalAttack(CriticalChance);
                 damage = (int)(isCritical ? damage * CriticalDamage : damage);
                 hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical, LocalPlayer);
-                hit.GetComponent<Dropt.EnemyAI>().Knockback(KnockbackDirection, KnockbackDistance, KnockbackStunDuration);
+
+                var enemyAI = hit.GetComponent<Dropt.EnemyAI>();
+                if (enemyAI != null)
+                {
+                    enemyAI.Knockback(KnockbackDirection, KnockbackDistance, KnockbackStunDuration);
+                }
             }
             else if (hit.HasComponent<Destructible>())
             {
@@ -186,7 +191,11 @@ public class BallisticExplosionProjectile : NetworkBehaviour
                 damage = (int)(isCritical ? damage * CriticalDamage : damage);
                 hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical);
                 var knockbackDirection = (Dropt.Utils.Battle.GetAttackCentrePosition(hit.gameObject) - position).normalized;
-                hit.GetComponent<Dropt.EnemyAI>().Knockback(knockbackDirection, ExplosionKnockbackDistance, ExplosionKnockbackStunDuration);
+                var enemyAI = hit.GetComponent<Dropt.EnemyAI>();
+                if (enemyAI != null)
+                {
+                    enemyAI.Knockback(knockbackDirection, KnockbackDistance, KnockbackStunDuration);
+                }
             }
 
             if (hit.HasComponent<Destructible>())

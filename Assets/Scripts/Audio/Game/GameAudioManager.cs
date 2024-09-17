@@ -26,6 +26,7 @@ namespace Audio.Game
             GameObject go = new GameObject("GameAudioManager", typeof(GameAudioManager));
             GameObject.DontDestroyOnLoad(go);
             m_instance = go.GetComponent<GameAudioManager>();
+            m_instance.GetComponent<AudioListener>().enabled = false;
         }
 
         public static void TryToDispose()
@@ -95,6 +96,11 @@ namespace Audio.Game
         }
 
         public void EnemyHurt(Vector3 position)
+        {
+            PlaySoundForAll(SoundType.Enemy_Hurt_1, position);
+        }
+
+        public void PlayerHurt(Vector3 position)
         {
             PlaySoundForAll(SoundType.Enemy_Hurt_1, position);
         }

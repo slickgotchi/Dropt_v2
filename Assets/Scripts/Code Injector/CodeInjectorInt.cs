@@ -31,7 +31,11 @@ public class CodeInjectorInt : CodeInjectorVariable<int>
 
     public override float GetMultiplier()
     {
-        return Inputs.Find(item => item.Value.Equals(UpdatedValue)).Multiplier;
+        // Find the item where item.Value equals UpdatedValue
+        var item = Inputs.Find(item => item.Value.Equals(UpdatedValue));
+
+        // Check if item is null and return 1 if so, otherwise return the Multiplier
+        return item != null ? item.Multiplier : 1;
     }
 
     public override string ToString()

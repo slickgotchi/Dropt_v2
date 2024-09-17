@@ -9,7 +9,7 @@ public class RootedEffect : MonoBehaviour
     private float m_rootedTimer = 0;
     private BuffObject m_buffObject;
 
-    void Init(float duration, BuffObject buffObject)
+    void StartEffect(float duration, BuffObject buffObject)
     {
         m_networkCharacter = GetComponent<NetworkCharacter>();
         if (m_buffObject != null)
@@ -21,16 +21,38 @@ public class RootedEffect : MonoBehaviour
         m_buffObject = buffObject;
 
         m_networkCharacter.AddBuffObject(m_buffObject);
+
+        // if player, disable input
+        var playerPrediction = GetComponent<PlayerPrediction>();
+        if (playerPrediction != null)
+        {
+            playerPrediction.IsInputEnabled = false;
+        }
+    }
+
+    void FinishEffect()
+    {
+        m_networkCharacter.RemoveBuffObject(m_buffObject);
+        m_buffObject = null;
+
+        // if player, enable input
+        var playerPrediction = GetComponent<PlayerPrediction>();
+        if (playerPrediction != null)
+        {
+            playerPrediction.IsInputEnabled = true;
+        }
     }
 
     public static void ApplyRootedEffect(GameObject target, float duration, BuffObject rootedBuff)
     {
+        // add the rooted effect monobehaviour to the target
         RootedEffect rootedEffect = target.GetComponent<RootedEffect>();
         if (rootedEffect == null)
         {
             rootedEffect = target.gameObject.AddComponent<RootedEffect>();
         }
-        rootedEffect.Init(duration, rootedBuff);
+
+        rootedEffect.StartEffect(duration, rootedBuff);
     }
 
     private void Update()
@@ -39,8 +61,7 @@ public class RootedEffect : MonoBehaviour
 
         if (m_rootedTimer <= 0 && m_buffObject != null)
         {
-            m_networkCharacter.RemoveBuffObject(m_buffObject);
-            m_buffObject = null;
+            FinishEffect();
         }
     }
 }

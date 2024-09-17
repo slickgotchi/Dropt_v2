@@ -30,7 +30,7 @@ public class PlayerController : NetworkBehaviour
 
     private HoldBarCanvas m_holdBarCanvas;
 
-
+    public bool IsLevelSpawnPositionSet = false;
 
     // variables for trackign current gotchi
     private int m_localGotchiId = -1;
@@ -70,7 +70,6 @@ public class PlayerController : NetworkBehaviour
         else
         {
             ScreenBlockers.SetActive(false);
-
         }
     }
 
@@ -153,7 +152,7 @@ public class PlayerController : NetworkBehaviour
                 m_positionText.text = $"({pos.x.ToString("F2")}, {pos.y.ToString("F2")})";
             }
 
-            HandleLoadingCanvas();
+            HandleLevelTransition();
 
             // setup player hud
             if (!m_isPlayerHUDInitialized && GetComponent<NetworkCharacter>() != null)
@@ -166,12 +165,25 @@ public class PlayerController : NetworkBehaviour
             {
                 m_cameraFollower.transform.position = m_playerPrediction.GetLocalPlayerInterpPosition();
             }
+
+            HandleNextLevelCheat();
         }
 
-        HandleNextLevelCheat();
+        // handle level spawning
+        if (IsServer && !IsLevelSpawnPositionSet)
+        {
+            var pos = LevelManager.Instance.TryGetPlayerSpawnPoint();
+            if (pos != null)
+            {
+                var spawnPoint = (Vector3)pos;
+                GetComponent<PlayerPrediction>().SetPlayerPosition(spawnPoint);
+                GetComponent<PlayerGotchi>().DropSpawn(spawnPoint);
+                IsLevelSpawnPositionSet = true;
+            }
+        }
+
         HandleDegenapeHpAp();
         HandleInactivePlayer();
-
         HandleGotchiIdChanges();
 
         // keep the hold bar in position (webgl it is weirdly in wrong position);
@@ -195,7 +207,7 @@ public class PlayerController : NetworkBehaviour
     bool isFirstLoad = true;
 
     // handle loading canvas
-    void HandleLoadingCanvas()
+    void HandleLevelTransition()
     {
         if (!IsLocalPlayer) return;
 
@@ -206,6 +218,9 @@ public class PlayerController : NetworkBehaviour
             state == LevelManager.TransitionState.GoToNext)
         {
             shouldBeBlackedOut = true;
+
+            // disable player input
+            GetComponent<PlayerPrediction>().IsInputEnabled = false;
         }
 
         if (state == LevelManager.TransitionState.ClientHeadsDown ||

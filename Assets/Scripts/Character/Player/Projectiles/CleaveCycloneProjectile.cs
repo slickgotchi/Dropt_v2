@@ -186,7 +186,11 @@ public class CleaveCycloneProjectile : NetworkBehaviour
                     damage = (int)(isCritical ? damage * CriticalDamage : damage);
                     hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical, LocalPlayer);
                     var knockbackDirection = (Dropt.Utils.Battle.GetAttackCentrePosition(hit.gameObject) - transform.position).normalized;
-                    hit.GetComponent<Dropt.EnemyAI>().Knockback(knockbackDirection, KnockbackDistance, KnockbackStunDuration);
+                    var enemyAI = hit.GetComponent<Dropt.EnemyAI>();
+                    if (enemyAI != null)
+                    {
+                        enemyAI.Knockback(knockbackDirection, KnockbackDistance, KnockbackStunDuration);
+                    }
                 }
 
                 if (hit.HasComponent<Destructible>())

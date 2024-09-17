@@ -47,8 +47,11 @@ public class PlayerGotchi : NetworkBehaviour
     private bool m_isMoving;
 
     public bool IsDropSpawning { get; private set; }
-    private float k_dropSpawnDuration = 0.5f;
+    private float k_dropSpawnDuration = 1.2f;
     private float m_dropSpawnTimer = 0.1f;
+    private float k_hitGroundDuration = 0.5f;
+    private float m_hitGroundTimer = 0.1f;
+    private bool m_isHitGround = false;
 
     // facing spin variables
     public enum SpinDirection { AntiClockwise, Clockwise }
@@ -91,6 +94,7 @@ public class PlayerGotchi : NetworkBehaviour
         m_bodyRotationTimer -= Time.deltaTime;
 
         m_dropSpawnTimer -= Time.deltaTime;
+        m_hitGroundTimer -= Time.deltaTime;
 
         HandleGotchiAnim();
         HandleFacingFromSpinning();
@@ -102,12 +106,24 @@ public class PlayerGotchi : NetworkBehaviour
         {
             IsDropSpawning = false;
             GetComponent<Collider2D>().enabled = true;
-            GetComponent<PlayerCamera>().Shake(1.75f, 0.3f);
+            Debug.Log("Drop finished");
         }
+
+        if (!m_isHitGround && m_hitGroundTimer <= 0)
+        {
+            m_isHitGround = true;
+            GetComponent<PlayerCamera>().Shake(1.75f, 0.3f);
+            Debug.Log("Hit ground");
+        }
+
+        // set input
+        m_playerPrediction.IsInputEnabled = !IsDropSpawning;
     }
 
     private void LateUpdate()
     {
+        if (IsDropSpawning) return;
+
         if (m_bodyRotationTimer <= 0)
         {
             // use normal sprite lean to calc rotation
@@ -122,6 +138,12 @@ public class PlayerGotchi : NetworkBehaviour
 
     public void DropSpawn(Vector3 newSpawnPoint)
     {
+        if (IsLocalPlayer || IsHost)
+        {
+
+        }
+
+
         if (!IsServer) return;
 
         PlayDropAnimationClientRpc(newSpawnPoint);
@@ -136,6 +158,10 @@ public class PlayerGotchi : NetworkBehaviour
 
         IsDropSpawning = true;
         m_dropSpawnTimer = k_dropSpawnDuration;
+        m_hitGroundTimer = k_hitGroundDuration;
+        m_isHitGround = false;
+
+        SetFacingFromDirection(new Vector3(0, -1f, 0), k_dropSpawnDuration, true);
 
         animator.Play("PlayerGotchi_DropSpawn");
 
@@ -225,10 +251,6 @@ public class PlayerGotchi : NetworkBehaviour
 
     public void AnimEvent_EndDropSpawn()
     {
-        
-
-        // renable collider
-        
     }
 
     void HandleDustParticles()

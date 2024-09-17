@@ -61,7 +61,7 @@ public class CodeInjectorCanvas : MonoBehaviour
         {
             if (player.GetComponent<NetworkObject>().IsLocalPlayer)
             {
-                player.IsInputDisabled = false;
+                player.IsInputEnabled = true;
             }
         }
     }

@@ -82,38 +82,108 @@ public class NetworkCharacter : NetworkBehaviour
     {
         var rand = UnityEngine.Random.Range(0f, 0.999f);
         return rand < CriticalChance.Value;
-    }
+    } 
 
     public virtual void TakeDamage(float damage, bool isCritical, GameObject damageDealer = null)
     {
         // reduce damage
         damage *= (1 - DamageReduction.Value);
 
+        HandleEnemyTakeDamage(damage, isCritical, damageDealer != null ? damageDealer.GetComponent<NetworkObject>().NetworkObjectId : 0);
+        HandlePlayerTakeDamage(damage, isCritical, damageDealer != null ? damageDealer.GetComponent<NetworkObject>().NetworkObjectId : 0);
+    }
+
+    // ENEMY
+    public void HandleEnemyTakeDamage(float damage, bool isCritical, ulong damageDealerNOID = 0)
+    {
+        var enemyController = GetComponent<EnemyController>();
+        if (enemyController == null) return;
+
+        // CLIENT or HOST
         if (IsClient)
         {
-            if (gameObject.HasComponent<SpriteFlash>())
-            {
-                GetComponent<SpriteFlash>().DamageFlash();
-            }
+            // do sprite flash
+            var spriteFlash = GetComponentInChildren<SpriteFlash>();
+            if (spriteFlash != null) spriteFlash.DamageFlash();
+
+            // play damage audio
+            GameAudioManager.Instance.EnemyHurt(transform.position);
         }
+
+        // SERVER or HOST
         if (IsServer)
         {
-            var playerController = GetComponent<PlayerController>();
-            var enemyController = GetComponent<EnemyController>();
+            if (!IsHost) HandleEnemyTakeDamageClientRpc(damage, isCritical, damageDealerNOID);
 
-            // general impacts of damage
-            if (enemyController != null)
-            {
-                GameAudioManager.Instance.EnemyHurt(gameObject.transform.position);
+            HpCurrent.Value -= (int)damage;
+            if (HpCurrent.Value < 0) { HpCurrent.Value = 0; }
+            var position = transform.position + popupTextOffset;
+            DamagePopupTextClientRpc(damage, position, isCritical);
 
-            } else if (playerController != null)
+            if (HpCurrent.Value <= 0 && enemyController != null)
             {
-                if (gameObject.GetComponent<NetworkObject>().IsLocalPlayer)
+                var enemyAI = gameObject.GetComponent<Dropt.EnemyAI>();
+                if (enemyAI != null)
                 {
-                    BloodBorderCanvas.Instance.DoBlood();
-                    gameObject.GetComponent<PlayerCamera>().Shake(1.5f, 0.3f);
+                    // the AI class will handle despawning (and some children may not imeediately despawn)
+                    enemyAI.Death(transform.position);
+                }
+                else
+                {
+                    gameObject.GetComponent<NetworkObject>().Despawn();
                 }
             }
+
+            // do ap leech
+            if (damageDealerNOID > 0)
+            {
+                var damageDealer = NetworkManager.SpawnManager.SpawnedObjects[damageDealerNOID];
+                if (damageDealer != null)
+                {
+                    var nc_damageDealer = damageDealer.GetComponent<NetworkCharacter>();
+                    if (nc_damageDealer != null)
+                    {
+                        nc_damageDealer.ApCurrent.Value += (int)(damage * nc_damageDealer.ApLeech.Value);
+                    }
+                }
+            }
+        }
+    }
+
+    [ClientRpc]
+    private void HandleEnemyTakeDamageClientRpc(float damage, bool isCritical, ulong damageDealerNOID = 0)
+    {
+        HandleEnemyTakeDamage(damage, isCritical, damageDealerNOID);
+    }
+
+    // PLAYER
+    public void HandlePlayerTakeDamage(float damage, bool isCritical, ulong damageDealerNOID = 0)
+    {
+        var playerController = GetComponent<PlayerController>();
+        if (playerController == null) return;
+
+        // CLIENT or HOST
+        if (IsClient)
+        {
+            // do sprite flash
+            var spriteFlash = GetComponentInChildren<SpriteFlash>();
+            if (spriteFlash != null) spriteFlash.DamageFlash();
+
+            // play damage audio (should replace this with a gotchi sound)
+            GameAudioManager.Instance.PlayerHurt(transform.position);
+
+            // do local only effects
+            if (gameObject.GetComponent<NetworkObject>().IsLocalPlayer)
+            {
+                BloodBorderCanvas.Instance.DoBlood();
+                gameObject.GetComponent<PlayerCamera>().Shake(1.5f, 0.3f);
+            }
+        }
+
+        // SERVER or HOST
+        if (IsServer)
+        {
+            if (!IsHost) HandlePlayerTakeDamageClientRpc(damage, isCritical, damageDealerNOID);
 
             HpCurrent.Value -= (int)damage;
             if (HpCurrent.Value < 0) { HpCurrent.Value = 0; }
@@ -127,30 +197,28 @@ public class NetworkCharacter : NetworkBehaviour
                 {
                     GetComponent<PlayerController>().KillPlayer(REKTCanvas.TypeOfREKT.HP);
                 }
-                else if (enemyController != null)
-                {
-                    var enemyAI = gameObject.GetComponent<Dropt.EnemyAI>();
-                    if (enemyAI != null)
-                    {
-                        // the AI class will handle despawning (and some children may not imeediately despawn)
-                        enemyAI.Death(transform.position);
-                    } else
-                    {
-                        gameObject.GetComponent<NetworkObject>().Despawn();
-                    }
-                }
             }
 
             // do ap leech
-            if (damageDealer != null)
+            if (damageDealerNOID > 0)
             {
-                var nc_damageDealer = damageDealer.GetComponent<NetworkCharacter>();
-                if (nc_damageDealer != null)
+                var damageDealer = NetworkManager.SpawnManager.SpawnedObjects[damageDealerNOID];
+                if (damageDealer != null)
                 {
-                    nc_damageDealer.ApCurrent.Value += (int)(damage * nc_damageDealer.ApLeech.Value);
+                    var nc_damageDealer = damageDealer.GetComponent<NetworkCharacter>();
+                    if (nc_damageDealer != null)
+                    {
+                        nc_damageDealer.ApCurrent.Value += (int)(damage * nc_damageDealer.ApLeech.Value);
+                    }
                 }
             }
         }
+    }
+
+    [ClientRpc]
+    private void HandlePlayerTakeDamageClientRpc(float damage, bool isCritical, ulong damageDealerNOID = 0)
+    {
+        HandlePlayerTakeDamage(damage, isCritical, damageDealerNOID);
     }
 
     [Rpc(SendTo.ClientsAndHost)]
