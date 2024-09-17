@@ -74,7 +74,7 @@ public class NetworkCharacter : NetworkBehaviour
     public float GetAttackPower(float randomVariation = 0.1f)
     {
         return UnityEngine.Random.Range(
-            AttackPower.Value * (1 - randomVariation), 
+            AttackPower.Value * (1 - randomVariation),
             AttackPower.Value * (1 + randomVariation));
     }
 
@@ -82,7 +82,7 @@ public class NetworkCharacter : NetworkBehaviour
     {
         var rand = UnityEngine.Random.Range(0f, 0.999f);
         return rand < CriticalChance.Value;
-    } 
+    }
 
     public virtual void TakeDamage(float damage, bool isCritical, GameObject damageDealer = null)
     {
@@ -183,8 +183,12 @@ public class NetworkCharacter : NetworkBehaviour
         // SERVER or HOST
         if (IsServer)
         {
-            if (!IsHost) HandlePlayerTakeDamageClientRpc(damage, isCritical, damageDealerNOID);
+            if (!IsHost)
+            {
+                HandlePlayerTakeDamageClientRpc(damage, isCritical, damageDealerNOID);
+            }
 
+            damage = ApplyShieldToDamage(damage);
             HpCurrent.Value -= (int)damage;
             if (HpCurrent.Value < 0) { HpCurrent.Value = 0; }
             var position = transform.position + popupTextOffset;
@@ -215,6 +219,20 @@ public class NetworkCharacter : NetworkBehaviour
         }
     }
 
+    private float ApplyShieldToDamage(float damage)
+    {
+        PlayerAbilities playerAbilities = GetComponent<PlayerAbilities>();
+        if (playerAbilities.shieldBlock != null)
+        {
+            ShieldBlock shieldBlock = playerAbilities.shieldBlock.GetComponent<ShieldBlock>();
+            if (shieldBlock.IsActive())
+            {
+                damage = shieldBlock.AbsorbDamage(damage);
+            }
+        }
+        return damage;
+    }
+
     [ClientRpc]
     private void HandlePlayerTakeDamageClientRpc(float damage, bool isCritical, ulong damageDealerNOID = 0)
     {
@@ -222,22 +240,22 @@ public class NetworkCharacter : NetworkBehaviour
     }
 
     [Rpc(SendTo.ClientsAndHost)]
-    void DamagePopupTextClientRpc(float damage, Vector3 position, bool isCritical)
+    private void DamagePopupTextClientRpc(float damage, Vector3 position, bool isCritical)
     {
         ColorUtility.TryParseHtmlString("#ffeb57", out Color critColor);
 
         PopupTextManager.Instance.PopupText(
-            damage.ToString("F0"), 
-            position, 
-            isCritical ? 24 : 16, 
-            isCritical ? critColor : Color.white, 
+            damage.ToString("F0"),
+            position,
+            isCritical ? 24 : 16,
+            isCritical ? critColor : Color.white,
             0.2f);
     }
 
     protected virtual void InitializeStats()
     {
         HpMax.Value += baseHpMax;           // needs to be += as we also add to hp from enemy controller with dynamicHp
-        HpCurrent.Value += baseHpCurrent;    
+        HpCurrent.Value += baseHpCurrent;
         HpBuffer.Value = baseHpBuffer;
         AttackPower.Value = baseAttackPower;
         CriticalChance.Value = baseCriticalChance;
