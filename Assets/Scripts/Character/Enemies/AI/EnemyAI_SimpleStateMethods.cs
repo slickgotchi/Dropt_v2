@@ -130,18 +130,18 @@ namespace Dropt
             for (int i = 0; i < allEnemies.Count; i++)
             {
                 var otherEnemy = allEnemies[i];
-                if (otherEnemy.state != State.Roam) continue;
+                if (otherEnemy.state.Value != State.Roam) continue;
 
                 var dist = math.distance(transform.position, otherEnemy.transform.position);
                 if (dist < AlertRange)
                 {
-                    otherEnemy.state = State.Aggro;
+                    otherEnemy.state.Value = State.Aggro;
                 }
             }
         }
 
         // telegraph
-        public Vector3 CalculateAttackDirectionAndPosition()
+        private Vector3 CalculateAttackDirectionAndPosition()
         {
             // get target attack centre
             var targetCentre = NearestPlayer.GetComponentInChildren<AttackCentre>();
@@ -166,6 +166,9 @@ namespace Dropt
             // check we have a primary attack.
             if (PrimaryAttack == null) return;
 
+            // stop navmeshagent
+            GetComponent<NavMeshAgent>().isStopped = true;
+
             // instantiate an attack
             var ability = Instantiate(PrimaryAttack);
             
@@ -179,7 +182,7 @@ namespace Dropt
             enemyAbility.Activate();
 
             // ensure state is attack
-            state = State.Attack;
+            state.Value = State.Attack;
         }
     }
 }

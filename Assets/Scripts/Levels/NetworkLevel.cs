@@ -15,7 +15,6 @@ namespace Level
         {
             UnityEngine.Random.InitState(System.DateTime.Now.Millisecond);
 
-
             if (IsServer)
             {
 
@@ -63,7 +62,6 @@ namespace Level
             DestroySpawnerObjects<SunkenFloorSpawner>();
             DestroySpawnerObjects<SunkenFloorButtonGroupSpawner>();
             DestroySpawnerObjects<NetworkObjectPrefabSpawner>();
-//<<<<<<< HEAD
             DestroySpawnerObjects<Spawner_NetworkObject_v2>();
             DestroySpawnerObjects<Spawner_SpawnOnDestroyGroup>();
             DestroySpawnerObjects<SunkenFloor3x3Spawner>();
@@ -72,10 +70,7 @@ namespace Level
 
             // destroy client side spawn points if not the host
             if (!IsHost) DestroySpawnerObjects<PlayerSpawnPoints>();
-//=======
-            //CleanupFactory.DestroySpawnerObjects<NetworkObjectPrefabSpawner>(gameObject);
-            //CleanupFactory.DestroySpawnerObjects<TrapsGroupSpawner>(gameObject);
-//>>>>>>> 6f6d2b82 ([ADD] chests logic)
+
         }
 
         public void DestroySpawnerObjects<T>() where T : Component

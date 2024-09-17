@@ -38,6 +38,8 @@ public class SunkenFloor : NetworkBehaviour
     [SerializeField] private GameObject SunkenCollider;
     [SerializeField] private GameObject RaisedCollider;
 
+    private SunkenFloorState m_localSunkenFloorState = SunkenFloorState.Lowered;
+
     private Animator m_animator;
 
     private void Awake()
@@ -49,15 +51,25 @@ public class SunkenFloor : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        if (!IsServer) return;
+        if (IsServer)
+        {
+            SetTypeAndState(initType, initState);
+        }
 
-        SetTypeAndState(initType, initState);
     }
 
     private void Update()
     {
         if (IsClient)
         {
+            // check if door is open
+            if (m_localSunkenFloorState == SunkenFloorState.Lowered &&
+                State.Value == SunkenFloorState.Raised)
+            {
+                m_animator.Play("SunkenFloor3x3_Raise");
+                m_localSunkenFloorState = State.Value;
+            }
+
             UpdateSprite();
             UpdateColliders();
         }
@@ -71,9 +83,9 @@ public class SunkenFloor : NetworkBehaviour
 
     public void Raise()
     {
-        m_animator.Play("SunkenFloor3x3_Raise");
+        if (!IsServer) return;
+
         State.Value = SunkenFloorState.Raised;
-        UpdateColliders();
     }
 
     public void SetTypeAndState(SunkenFloorType sunkenFloorType, SunkenFloorState floorState)

@@ -78,7 +78,7 @@ namespace Interactables
 
             if (ShouldStopPlayerMove)
             {
-                PlayerPrediction.IsInputDisabled = true;
+                PlayerPrediction.IsInputEnabled = false;
             }
 
             if (ShouldHideHUD)
@@ -97,7 +97,7 @@ namespace Interactables
 
             if (ShouldStopPlayerMove)
             {
-                PlayerPrediction.IsInputDisabled = false;
+                PlayerPrediction.IsInputEnabled = true;
             }
 
             if (ShouldHideHUD)

@@ -123,7 +123,12 @@ public class GenericProjectile : NetworkBehaviour
                 var isCritical = PlayerAbility.IsCriticalAttack(CriticalChance);
                 damage = (int)(isCritical ? damage * CriticalDamage : damage);
                 hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical, LocalPlayer);
-                hit.GetComponent<Dropt.EnemyAI>().Knockback(KnockbackDirection, KnockbackDistance, KnockbackStunDuration);
+
+                var enemyAI = hit.GetComponent<Dropt.EnemyAI>();
+                if (enemyAI != null)
+                {
+                    enemyAI.Knockback(KnockbackDirection, KnockbackDistance, KnockbackStunDuration);
+                }
             }
             else if (hit.HasComponent<Destructible>())
             {

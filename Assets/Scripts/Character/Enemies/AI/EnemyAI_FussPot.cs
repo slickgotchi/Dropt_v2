@@ -26,18 +26,12 @@ namespace Dropt
 
         public override void OnTelegraphStart()
         {
-
-
             // set our facing direction
             GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, TelegraphDuration);
         }
 
         public override void OnTelegraphFinish()
         {
-            base.OnTelegraphFinish();
-
-            // calc our attack direction
-            CalculateAttackDirectionAndPosition();
         }
 
         public override void OnRoamUpdate(float dt)

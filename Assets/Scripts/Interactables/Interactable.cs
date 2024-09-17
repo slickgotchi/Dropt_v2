@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
+using Unity.Mathematics;
 
 public class Interactable : NetworkBehaviour
 {
@@ -35,6 +36,9 @@ public class Interactable : NetworkBehaviour
     private float k_holdCooldownDuration = 2f;
     private float m_holdCooldownTimer = 0f;
 
+    // float to validate distance to interactable
+    private float k_validateInteractionDistance = 3f;
+
     public virtual void OnTriggerStartInteraction() { }
     public virtual void OnTriggerUpdateInteraction() { }
     public virtual void OnTriggerFinishInteraction() { }
@@ -57,7 +61,6 @@ public class Interactable : NetworkBehaviour
             if (m_holdSlider != null) m_holdSlider.value = 0;
 
             m_popupAnimator = m_popupCanvas.GetComponentInChildren<Animator>();
-            //if (m_popupAnimator != null) m_popupAnimator.Play("Hidden");
         }
 
         m_holdTimer = -0.1f;
@@ -79,6 +82,7 @@ public class Interactable : NetworkBehaviour
 
     private void OnTriggerEnter2D(Collider2D collider)
     {
+        if (!IsClient) return;
         if (!collider.HasComponent<CameraFollowerAndPlayerInteractor>()) return;
 
         status = Status.Active;
@@ -171,6 +175,17 @@ public class Interactable : NetworkBehaviour
         }
     }
 
+    public bool IsValidInteraction(ulong networkObjectId)
+    {
+        // try get player controller
+        var playerController = NetworkManager.SpawnManager.SpawnedObjects[networkObjectId].GetComponent<PlayerController>();
+        if (playerController == null) return false;
+
+        // is player controller within "check" radius of interactor
+        var distance = math.distance(playerController.transform.position, transform.position);
+        return distance < k_validateInteractionDistance; 
+    }
+
     protected void SetPlayerInputEnabled(bool isEnabled)
     {
         var player = NetworkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId];
@@ -181,6 +196,6 @@ public class Interactable : NetworkBehaviour
         }
 
         var playerPrediction = player.GetComponent<PlayerPrediction>();
-        playerPrediction.IsInputDisabled = !isEnabled;
+        playerPrediction.IsInputEnabled = isEnabled;
     }
 }

@@ -23,10 +23,12 @@ public class FussPot_EruptProjectile : NetworkBehaviour
     private float m_timer = 0;
     private bool m_isSpawned = false;
     private float m_speed = 1;
+    private bool m_isCollided = false;
 
     private Collider2D m_collider;
 
     private Vector3 m_finalPosition = Vector3.zero;
+
 
     private void Awake()
     {
@@ -73,18 +75,20 @@ public class FussPot_EruptProjectile : NetworkBehaviour
 
         m_timer -= Time.deltaTime;
 
-        if (m_timer < 0)
+        if (IsServer && m_timer < 0 && !m_isCollided)
         {
+            m_isCollided = true;
+
             m_collider.GetComponent<CircleCollider2D>().radius = HitRadius;
 
-            var isCritical = PlayerAbility.IsCriticalAttack(CriticalChance);
+            var isCritical = Dropt.Utils.Battle.IsCriticalAttack(CriticalChance);
             var damage = isCritical ? DamagePerHit * CriticalDamage : DamagePerHit;
-            damage = PlayerAbility.GetRandomVariation(damage);
+            damage = Dropt.Utils.Battle.GetRandomVariation(damage);
 
             EnemyAbility.PlayerCollisionCheckAndDamage(m_collider, damage, isCritical);
 
             gameObject.SetActive(false);
-            if (IsServer) gameObject.GetComponent<NetworkObject>().Despawn();
+            gameObject.GetComponent<NetworkObject>().Despawn();
         }
 
         transform.position += Direction * m_speed * Time.deltaTime;

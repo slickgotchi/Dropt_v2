@@ -9,12 +9,14 @@ public class Hole : Interactable
 
     public override void OnHoldFinishInteraction()
     {
-        TryGoToNextLevelServerRpc();
+        TryGoToNextLevelServerRpc(playerNetworkObjectId);
     }
 
     [Rpc(SendTo.Server)]
-    void TryGoToNextLevelServerRpc()
+    void TryGoToNextLevelServerRpc(ulong testPlayerNetworkObjectId)
     {
+        if (!IsValidInteraction(testPlayerNetworkObjectId)) return;
+
         // see if this hole has a custom levels list
         if (Levels.Count > 0)
         {
