@@ -71,8 +71,9 @@ public class SunkenFloor : NetworkBehaviour
             }
 
             UpdateSprite();
-            UpdateColliders();
         }
+
+        UpdateColliders();
     }
 
     void UpdateColliders()

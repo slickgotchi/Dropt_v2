@@ -97,7 +97,8 @@ public class SunkenFloorButton : NetworkBehaviour
 
         if (matchingButtons.Count > 0 && matchingPlatform != null && isAllButtonsDown)
         {
-            matchingPlatform.Raise();
+            matchingPlatform.State.Value = SunkenFloorState.Raised;
+            //matchingPlatform.Raise();
 
             // lock down all the buttons
             foreach (var btn in matchingButtons)
