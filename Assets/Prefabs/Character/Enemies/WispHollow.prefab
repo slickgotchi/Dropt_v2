@@ -102,6 +102,7 @@ GameObject:
   - component: {fileID: -7862889561115730857}
   - component: {fileID: 669422320973965246}
   - component: {fileID: 8760220502954342316}
+  - component: {fileID: 5528228113362373076}
   m_Layer: 15
   m_Name: WispHollow
   m_TagString: Untagged
@@ -347,6 +348,23 @@ MonoBehaviour:
   MaxWisps: 3
   WispSpawnInterval: 5
   SpawnOffset: {x: 0, y: 1, z: 0}
+--- !u!114 &5528228113362373076
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc87cfd934687634ca27afcc4e9b8d4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SpriteToFlip: {fileID: 0}
+  FacingDirection: 0
+  IsSpawning: 1
+  SpawnDuration: 0
+  IsArmed: 0
 --- !u!1 &3781701132398288943
 GameObject:
   m_ObjectHideFlags: 0

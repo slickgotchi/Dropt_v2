@@ -40,7 +40,7 @@ public class EnemyController : NetworkBehaviour
         } else
         {
             m_navMeshAgent = GetComponent<NavMeshAgent>();
-            if (m_navMeshAgent == null) gameObject.AddComponent<NavMeshAgent>();
+            if (m_navMeshAgent == null) return;
 
             m_navMeshAgent.updateRotation = false;
             m_navMeshAgent.updateUpAxis = false;

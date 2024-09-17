@@ -102,8 +102,8 @@ public class PlayerPrediction : NetworkBehaviour
 
     private PlayerController m_playerController;
 
-    private InputAction movementAction;  // Reference to the "Movement" action
-
+    private PlayerInput m_playerInput;
+    private InputAction m_movementAction;  // Reference to the "Movement" action
 
     private void Awake()
     {
@@ -112,6 +112,9 @@ public class PlayerPrediction : NetworkBehaviour
         m_playerAbilities = GetComponent<PlayerAbilities>();
         m_playerController = GetComponent<PlayerController>();
         m_playerGotchi = GetComponent<PlayerGotchi>();
+
+        m_playerInput = GetComponent<PlayerInput>();
+        m_movementAction = m_playerInput.actions["Movement"];
     }
 
     public override void OnNetworkSpawn()
@@ -185,13 +188,15 @@ public class PlayerPrediction : NetworkBehaviour
         m_actionDirectionTimer = k_actionDirectionTime;
     }
 
+    // NOTE: shifted this in to update loop so if input is disabled and player is
+    // holding a key down it will still register when input is re-enabled
     public void OnMovement(InputValue value)
     {
-        if (!IsLocalPlayer) return;
-        if (!IsInputEnabled) return;
-        if (PlayerInputBlocker.Instance.IsMoveInputBlockerActive()) return;
+        //if (!IsLocalPlayer) return;
+        //if (!IsInputEnabled) return;
+        //if (PlayerInputBlocker.Instance.IsMoveInputBlockerActive()) return;
 
-        m_moveDirection = value.Get<Vector2>();
+        //m_moveDirection = value.Get<Vector2>();
     }
 
     private void OnDash_CursorAim(InputValue value)
@@ -401,6 +406,13 @@ public class PlayerPrediction : NetworkBehaviour
         {
             UpdateCursorWorldPosition();
             transform.position = GetLocalPlayerInterpPosition();
+
+            // poll movement here to allow for movement key presses during input disabled
+            if (IsInputEnabled &&
+                !PlayerInputBlocker.Instance.IsMoveInputBlockerActive())
+            {
+                m_moveDirection = m_movementAction.ReadValue<Vector2>();
+            }
         }
         else if (IsClient)
         {
@@ -908,7 +920,7 @@ public class PlayerPrediction : NetworkBehaviour
         }
 
         // reset state of setting player position
-        if (m_isSetPlayerPositionCounter > 10)
+        if (m_isSetPlayerPositionCounter > 5)
         {
             m_isSetPlayerPosition = false;
         }

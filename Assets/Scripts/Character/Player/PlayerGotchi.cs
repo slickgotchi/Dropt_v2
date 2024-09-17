@@ -47,7 +47,7 @@ public class PlayerGotchi : NetworkBehaviour
     private bool m_isMoving;
 
     public bool IsDropSpawning { get; private set; }
-    private float k_dropSpawnDuration = 1.2f;
+    private float k_dropSpawnDuration = 0.9f;
     private float m_dropSpawnTimer = 0.1f;
     private float k_hitGroundDuration = 0.5f;
     private float m_hitGroundTimer = 0.1f;
@@ -106,14 +106,12 @@ public class PlayerGotchi : NetworkBehaviour
         {
             IsDropSpawning = false;
             GetComponent<Collider2D>().enabled = true;
-            Debug.Log("Drop finished");
         }
 
         if (!m_isHitGround && m_hitGroundTimer <= 0)
         {
             m_isHitGround = true;
             GetComponent<PlayerCamera>().Shake(1.75f, 0.3f);
-            Debug.Log("Hit ground");
         }
 
         // set input
