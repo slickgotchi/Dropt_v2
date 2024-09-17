@@ -202,19 +202,19 @@ public class PlayerPrediction : NetworkBehaviour
     private void OnDash_CursorAim(InputValue value)
     {
         if (!IsLocalPlayer) return;
-
-        if (!IsInputEnabled || PlayerInputBlocker.Instance.IsMoveInputBlockerActive()) return;
+        if (!IsInputEnabled) return;
+        if (PlayerInputBlocker.Instance.IsMoveInputBlockerActive()) return;
 
         SetActionDirectionAndLastMoveFromCursorAim();
-
         m_abilityTriggered = PlayerAbilityEnum.Dash;
     }
 
     private void OnDash_MoveAim(InputValue value)
     {
         if (!IsLocalPlayer) return;
+        if (!IsInputEnabled) return;
+        if (PlayerInputBlocker.Instance.IsMoveInputBlockerActive()) return;
 
-        if (!IsInputEnabled || PlayerInputBlocker.Instance.IsMoveInputBlockerActive()) return;
         m_actionDirection = m_lastMoveDirection;
         m_actionDirectionTimer = k_actionDirectionTime;
         m_abilityTriggered = PlayerAbilityEnum.Dash;

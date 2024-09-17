@@ -22,12 +22,12 @@ public class RootedEffect : MonoBehaviour
 
         m_networkCharacter.AddBuffObject(m_buffObject);
 
-        // if player, disable input
-        var playerPrediction = GetComponent<PlayerPrediction>();
-        if (playerPrediction != null)
-        {
-            playerPrediction.IsInputEnabled = false;
-        }
+        //// if player, disable input
+        //var playerPrediction = GetComponent<PlayerPrediction>();
+        //if (playerPrediction != null)
+        //{
+        //    playerPrediction.IsInputEnabled = false;
+        //}
     }
 
     void FinishEffect()
@@ -35,12 +35,12 @@ public class RootedEffect : MonoBehaviour
         m_networkCharacter.RemoveBuffObject(m_buffObject);
         m_buffObject = null;
 
-        // if player, enable input
-        var playerPrediction = GetComponent<PlayerPrediction>();
-        if (playerPrediction != null)
-        {
-            playerPrediction.IsInputEnabled = true;
-        }
+        //// if player, enable input
+        //var playerPrediction = GetComponent<PlayerPrediction>();
+        //if (playerPrediction != null)
+        //{
+        //    playerPrediction.IsInputEnabled = true;
+        //}
     }
 
     public static void ApplyRootedEffect(GameObject target, float duration, BuffObject rootedBuff)

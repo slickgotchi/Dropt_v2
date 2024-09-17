@@ -69,8 +69,9 @@ public class ApeDoor : NetworkBehaviour
             }
 
             UpdateSprite();
-            UpdateColliders();
         }
+
+        UpdateColliders();
     }
 
     void UpdateColliders()

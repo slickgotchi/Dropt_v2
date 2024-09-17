@@ -18,9 +18,9 @@ namespace Dropt
         protected void SimpleRoamUpdate(float dt)
         {
             if (networkCharacter == null) return;
-            if (navMeshAgent == null) return;
+            if (m_navMeshAgent == null) return;
 
-            navMeshAgent.isStopped = false;
+            m_navMeshAgent.isStopped = false;
 
             m_roamChangeTimer -= dt;
             if (m_roamChangeTimer < 0f)
@@ -42,8 +42,8 @@ namespace Dropt
                 float distance = networkCharacter.MoveSpeed.Value * RoamSpeedMultiplier * m_roamChangeTimer;
 
                 // set nav mesh agent
-                navMeshAgent.SetDestination(transform.position + finalDirection * distance);
-                navMeshAgent.speed = networkCharacter.MoveSpeed.Value * RoamSpeedMultiplier;
+                m_navMeshAgent.SetDestination(transform.position + finalDirection * distance);
+                m_navMeshAgent.speed = networkCharacter.MoveSpeed.Value * RoamSpeedMultiplier;
             }
         }
 
@@ -51,16 +51,16 @@ namespace Dropt
         protected void SimplePursueUpdate(float dt)
         {
             if (networkCharacter == null) return;
-            if (navMeshAgent == null) return;
+            if (m_navMeshAgent == null) return;
 
-            navMeshAgent.isStopped = false;
+            m_navMeshAgent.isStopped = false;
 
             // get direction from player to enemy and set a small offset
             var dir = (transform.position - NearestPlayer.transform.position).normalized;
             var offset = dir * AttackRange * 0.9f;
 
-            navMeshAgent.SetDestination(NearestPlayer.transform.position + offset);
-            navMeshAgent.speed = networkCharacter.MoveSpeed.Value * PursueSpeedMultiplier;
+            m_navMeshAgent.SetDestination(NearestPlayer.transform.position + offset);
+            m_navMeshAgent.speed = networkCharacter.MoveSpeed.Value * PursueSpeedMultiplier;
 
             HandleAntiClumping();
             HandleAlertOthers();
@@ -70,15 +70,15 @@ namespace Dropt
         protected void SimpleFleeUpdate(float dt)
         {
             if (networkCharacter == null) return;
-            if (navMeshAgent == null) return;
+            if (m_navMeshAgent == null) return;
 
-            navMeshAgent.isStopped = false;
+            m_navMeshAgent.isStopped = false;
 
             // get direction from player to enemy 
             var dir = (transform.position - NearestPlayer.transform.position).normalized;
 
-            navMeshAgent.SetDestination(transform.position + dir * 5f);
-            navMeshAgent.speed = networkCharacter.MoveSpeed.Value * FleeSpeedMultiplier;
+            m_navMeshAgent.SetDestination(transform.position + dir * 5f);
+            m_navMeshAgent.speed = networkCharacter.MoveSpeed.Value * FleeSpeedMultiplier;
 
             HandleAntiClumping();
             HandleAlertOthers();
@@ -87,7 +87,7 @@ namespace Dropt
         private void HandleAntiClumping()
         {
             if (networkCharacter == null) return;
-            if (navMeshAgent == null) return;
+            if (m_navMeshAgent == null) return;
 
             var allEnemies = EnemyAIManager.Instance.allEnemies;
             //var minDistance = 1.5f;
@@ -118,10 +118,10 @@ namespace Dropt
             }
 
             // Adjust the agent's next destination slightly based on avoidance force
-            Vector3 finalDestination = navMeshAgent.destination + avoidanceForce;
+            Vector3 finalDestination = m_navMeshAgent.destination + avoidanceForce;
 
             // Set the adjusted destination
-            navMeshAgent.SetDestination(finalDestination);
+            m_navMeshAgent.SetDestination(finalDestination);
         }
 
         private void HandleAlertOthers()
