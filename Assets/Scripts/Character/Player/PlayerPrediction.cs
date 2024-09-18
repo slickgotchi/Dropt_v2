@@ -105,6 +105,8 @@ public class PlayerPrediction : NetworkBehaviour
     private PlayerInput m_playerInput;
     private InputAction m_movementAction;  // Reference to the "Movement" action
 
+    public bool IsInteracting = false;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -183,9 +185,24 @@ public class PlayerPrediction : NetworkBehaviour
 
     private void SetActionDirectionAndLastMoveFromCursorAim()
     {
+        if (!IsLocalPlayer) return;
         m_actionDirection = math.normalizesafe(m_cursorWorldPosition - (transform.position + new Vector3(0, 0.5f, 0)));
         m_lastMoveDirection = m_actionDirection;
         m_actionDirectionTimer = k_actionDirectionTime;
+    }
+
+    private void SetActionDirectionFromLastMove()
+    {
+        if (!IsLocalPlayer) return;
+        m_actionDirection = m_lastMoveDirection;
+        m_actionDirectionTimer = k_actionDirectionTime;
+    }
+
+    private void OnMousePosition(InputValue value)
+    {
+        if (!IsLocalPlayer) return;
+
+        m_cursorScreenPosition = value.Get<Vector2>();
     }
 
     // NOTE: shifted this in to update loop so if input is disabled and player is
@@ -220,22 +237,24 @@ public class PlayerPrediction : NetworkBehaviour
         m_abilityTriggered = PlayerAbilityEnum.Dash;
     }
 
-    private void OnMousePosition(InputValue value)
+    private void OnLeftAttack_CursorAim(InputValue value)
     {
-        if (!IsLocalPlayer) return;
-
-        m_cursorScreenPosition = value.Get<Vector2>();
+        LeftAttack(value);
+        SetActionDirectionAndLastMoveFromCursorAim();
     }
 
-    private void OnLeftAttack_CursorAim(InputValue value)
+    private void OnLeftAttack_MoveAim(InputValue value)
+    {
+        LeftAttack(value);
+        SetActionDirectionFromLastMove();
+    }
+
+    void LeftAttack(InputValue value)
     {
         if (!IsLocalPlayer) return;
 
         if (!IsInputEnabled || PlayerInputBlocker.Instance.IsCursorWithinClickInputBlocker()) return;
         if (PlayerEquipmentDebugCanvas.IsActive()) return;
-
-
-        SetActionDirectionAndLastMoveFromCursorAim();
 
         m_abilityHand = Hand.Left;
         var lhWearable = GetComponent<PlayerEquipment>().LeftHand.Value;
@@ -310,6 +329,19 @@ public class PlayerPrediction : NetworkBehaviour
         m_abilityTriggered = m_playerAbilities.GetAttackAbilityEnum(rhWearable);
     }
 
+    private void OnRightAttack_MoveAim(InputValue value)
+    {
+        if (!IsLocalPlayer) return;
+
+        if (!IsInputEnabled || PlayerInputBlocker.Instance.IsCursorWithinClickInputBlocker()) return;
+
+        SetActionDirectionFromLastMove();
+
+        m_abilityHand = Hand.Right;
+        var rhWearable = GetComponent<PlayerEquipment>().RightHand.Value;
+        m_abilityTriggered = m_playerAbilities.GetAttackAbilityEnum(rhWearable);
+    }
+
     private void OnRightHoldStart_CursorAim(InputValue value)
     {
         if (!IsLocalPlayer) return;
@@ -364,6 +396,11 @@ public class PlayerPrediction : NetworkBehaviour
         m_abilityHand = Hand.Right;
         var rhWearable = GetComponent<PlayerEquipment>().RightHand.Value;
         m_abilityTriggered = m_playerAbilities.GetSpecialAbilityEnum(rhWearable);
+    }
+
+    private void OnInteract(InputValue value)
+    {
+        IsInteracting = value.isPressed;
     }
 
     public HoldState GetHoldState() { return m_holdState; }
@@ -499,6 +536,7 @@ public class PlayerPrediction : NetworkBehaviour
         if (!m_isHoldStarted && holdAbility != null)
         {
             holdAbility.Init(gameObject, m_abilityHand);
+            holdAbility.HoldStart();
             bool isEnoughAp = GetComponent<NetworkCharacter>().ApCurrent.Value >= holdAbility.ApCost;
             bool isCooldownFinished = currentTick > m_abilityCooldownExpiryTick;
 
@@ -561,6 +599,12 @@ public class PlayerPrediction : NetworkBehaviour
         if (ability != null && m_abilityTriggered != PlayerAbilityEnum.Null)
         {
             var holdDuration = (m_holdFinishTick - m_holdStartTick) / k_serverTickRate;
+
+            // finish if hold ability
+            if (ability.abilityType == PlayerAbility.AbilityType.Hold)
+            {
+                ability.HoldFinish();
+            }
 
             // we only activate once from the server side when in host mode
             if (!IsHost)
@@ -836,6 +880,7 @@ public class PlayerPrediction : NetworkBehaviour
             if (!m_isHoldStarted && inputPayload.isHoldStartFlag && holdAbility != null && !IsHost)
             {
                 holdAbility.Init(gameObject, inputPayload.abilityHand);
+                if (!IsHost) holdAbility.HoldStart();
                 bool isEnoughAp = GetComponent<NetworkCharacter>().ApCurrent.Value >= holdAbility.ApCost;
                 bool isCooldownFinished = inputPayload.tick > m_abilityCooldownExpiryTick;
 
@@ -899,6 +944,12 @@ public class PlayerPrediction : NetworkBehaviour
                     {
                         m_rhSpecialCooldownExpiryTick = expiryTick;
                     }
+                }
+
+                // release hold
+                if (ability.abilityType == PlayerAbility.AbilityType.Hold)
+                {
+                    if (!IsHost) ability.HoldFinish();
                 }
 
                 // set slow down ticks

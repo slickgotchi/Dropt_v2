@@ -36,6 +36,9 @@ public class Interactable : NetworkBehaviour
     private float k_holdCooldownDuration = 2f;
     private float m_holdCooldownTimer = 0f;
 
+    // local player
+    private PlayerPrediction m_localPlayerPrediction;
+
     // float to validate distance to interactable
     private float k_validateInteractionDistance = 3f;
 
@@ -49,6 +52,9 @@ public class Interactable : NetworkBehaviour
 
     public virtual void OnPressOpenInteraction() { }
     public virtual void OnPressCloseInteraction() { }
+
+    private float k_pressInterval = 0.5f;
+    private float m_pressTimer = 0.5f;
 
     public override void OnNetworkSpawn()
     {
@@ -102,14 +108,21 @@ public class Interactable : NetworkBehaviour
 
     private void Update()
     {
+        TryGetLocalPlayerPrediction();
+        
+        m_pressTimer -= Time.deltaTime;
+
         if (status == Status.Inactive) return;
 
         OnTriggerUpdateInteraction();
 
         if (interactableType == InteractableType.Press)
         {
-            if (Input.GetKeyDown(KeyCode.F))
+            //if (Input.GetKeyDown(KeyCode.F))
+            if (m_localPlayerPrediction.IsInteracting && m_pressTimer < 0)
             {
+                m_pressTimer = k_pressInterval;
+
                 if (!m_isOpen)
                 {
                     OnPressOpenInteraction();
@@ -137,7 +150,8 @@ public class Interactable : NetworkBehaviour
             }
 
             // update if f is pressed
-            if (Input.GetKey(KeyCode.F)) m_holdTimer += Time.deltaTime;
+            //if (Input.GetKey(KeyCode.F)) m_holdTimer += Time.deltaTime;
+            if (m_localPlayerPrediction.IsInteracting) m_holdTimer += Time.deltaTime;
             else m_holdTimer = 0f;
             var alpha = m_holdTimer / k_holdDuration;
             OnHoldUpdateInteraction(alpha);
@@ -157,6 +171,21 @@ public class Interactable : NetworkBehaviour
             }
         }
 
+    }
+
+    void TryGetLocalPlayerPrediction()
+    {
+        if (!IsClient) return;
+        if (m_localPlayerPrediction != null) return;
+
+        var playerPredictions = FindObjectsByType<PlayerPrediction>(FindObjectsSortMode.None);
+        foreach (var playerPrediction in playerPredictions)
+        {
+            if (playerPrediction.GetComponent<NetworkObject>().IsLocalPlayer)
+            {
+                m_localPlayerPrediction = playerPrediction;
+            }
+        }
     }
 
     private void OnTriggerExit2D(Collider2D collider)
