@@ -104,6 +104,7 @@ GameObject:
   - component: {fileID: -8480274200588607699}
   - component: {fileID: 2685378981796329213}
   - component: {fileID: 3361634331199962754}
+  - component: {fileID: 8460769609042047065}
   m_Layer: 15
   m_Name: SpiderPod
   m_TagString: Untagged
@@ -386,6 +387,23 @@ MonoBehaviour:
   NumberSpiders: 3
   SpawnDuration: 0.5
   SpawnDistance: 2
+--- !u!114 &8460769609042047065
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc87cfd934687634ca27afcc4e9b8d4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SpriteToFlip: {fileID: 0}
+  FacingDirection: 0
+  IsSpawning: 1
+  SpawnDuration: 0
+  IsArmed: 0
 --- !u!1 &5243661651594125605
 GameObject:
   m_ObjectHideFlags: 0

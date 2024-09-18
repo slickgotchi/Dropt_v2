@@ -137,6 +137,25 @@ public class PlayerAbility : NetworkBehaviour
         Init(playerObject, abilityHand);
     }
 
+    private bool m_isHoldReady = true;
+
+    public void HoldStart()
+    {
+        if (!m_isHoldReady) return;
+
+        OnHoldStart();
+        m_isHoldReady = false;
+    }
+
+    public void HoldFinish()
+    {
+        OnHoldFinish();
+        m_isHoldReady = true;
+    }
+
+    public virtual void OnHoldStart() { }
+    public virtual void OnHoldFinish() { }
+
     public bool Activate(GameObject playerObject, StatePayload state, InputPayload input, float holdDuration)
     {
         Player = playerObject;

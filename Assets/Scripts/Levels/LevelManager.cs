@@ -406,8 +406,6 @@ public class LevelManager : NetworkBehaviour
         var spawnPoint = m_playerSpawnPoints[randIndex];
         m_playerSpawnPoints.RemoveAt(randIndex);
 
-        Debug.Log("returning spawnpoint: " + spawnPoint);
-
         return spawnPoint;
     }
 

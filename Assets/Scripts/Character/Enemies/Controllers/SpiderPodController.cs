@@ -20,6 +20,8 @@ public class SpiderPodController : NetworkBehaviour
     void Start()
     {
         m_speed = SpawnDistance / SpawnDuration;
+
+        GetComponent<Animator>().Play("SpiderPod_Idle");
     }
 
     // Update is called once per frame
@@ -52,9 +54,9 @@ public class SpiderPodController : NetworkBehaviour
 
     void Burst()
     {
-        m_isBurst = true;
-
         GetComponent<Animator>().Play("SpiderPod_Burst");
+
+        m_isBurst = true;
 
         float startAngle = UnityEngine.Random.Range(0, 360.0f);
         float deltaAngle = 360 / NumberSpiders;
