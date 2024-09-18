@@ -59,7 +59,7 @@ namespace Dropt
         // variables accessible to child classes
         protected Vector3 RoamAnchorPoint;
         protected NetworkCharacter networkCharacter;
-        [HideInInspector] public NavMeshAgent navMeshAgent;
+        [HideInInspector] public NavMeshAgent m_navMeshAgent;
 
 
         [HideInInspector] public Vector3 AttackDirection;
@@ -97,7 +97,7 @@ namespace Dropt
         public override void OnNetworkSpawn()
         {
             networkCharacter = GetComponent<NetworkCharacter>();
-            navMeshAgent = GetComponent<NavMeshAgent>();
+            m_navMeshAgent = GetComponent<NavMeshAgent>();
 
             RoamAnchorPoint = transform.position;
             m_spawnTimer = SpawnDuration;
@@ -405,7 +405,7 @@ namespace Dropt
             m_knockbackFinishPosition = transform.position + direction.normalized * distance;
 
             // stop navmesh agent
-            GetComponent<NavMeshAgent>().isStopped = true;
+            if (m_navMeshAgent != null) m_navMeshAgent.isStopped = true;
 
             // save pre knockback state
             m_preKnockbackState = state.Value;
@@ -474,13 +474,15 @@ namespace Dropt
 
             if (IsClient && debugCanvas != null)
             {
-                debugCanvas.stateTMP.text = state.ToString();
+                debugCanvas.stateTMP.text = state.Value.ToString();
                 debugCanvas.slider.value = debugSlider.Value;
             }
         }
 
         protected void FinishState(State state)
         {
+            if (!IsServer) return;
+
             switch (state)
             {
                 case State.Spawn: OnSpawnFinish(); break;
@@ -498,6 +500,8 @@ namespace Dropt
 
         protected void StartState(State newState, float duration = -1f)
         {
+            if (!IsServer) return;
+
             // set the new state
             state.Value = newState;
 
@@ -538,6 +542,8 @@ namespace Dropt
 
         public void ChangeState(State newState, float newDuration =  -1f)
         {
+            if (!IsServer) return;
+
             FinishState(state.Value);
             StartState(newState, newDuration);
         }
