@@ -1,51 +1,98 @@
 using UnityEngine;
-using Unity.Netcode;
 
 public class ShieldBlock : PlayerAbility
 {
-    private NetworkVariable<float> m_hp;
-
     [SerializeField] private ShieldBlockData m_shieldBlockData;
-
     private ShieldBlockStateMachine m_shieldBlockStateMachine;
+    private ShieldBarCanvas m_shieldBarCanvas;
 
-    private bool m_isActive;
-
-    public void Initialize(Wearable.RarityEnum rarityEnum)
+    public override void OnNetworkSpawn()
     {
-        m_hp = new NetworkVariable<float>(m_shieldBlockData.GetShieldBlockHp(rarityEnum));
-        m_shieldBlockStateMachine = new ShieldBlockStateMachine(this);
-        m_shieldBlockStateMachine.ChangeState(m_shieldBlockStateMachine.RechargeState);
+        m_shieldBarCanvas = FindAnyObjectByType<ShieldBarCanvas>();
+        //base.OnNetworkSpawn();
+        //if (IsServer)
+        //{
+        //    Debug.Log("RARIRY :- " + ActivationWearable.Rarity);
+        //    m_shieldBlockData.Initialize(ActivationWearable.Rarity);
+        //    m_shieldBlockStateMachine = new ShieldBlockStateMachine(this);
+        //    m_shieldBlockStateMachine.ChangeState(m_shieldBlockStateMachine.RechargeState);
+        //}
+
+        //m_shieldBlockData.SubscribeOnHpValueChange(OnHpValueChange);
     }
 
     public override void OnStart()
     {
-        base.OnStart();
+        if (IsServer)
+        {
+            m_shieldBlockData.Initialize(ActivationWearable.Rarity);
+            m_shieldBlockStateMachine = new ShieldBlockStateMachine(this);
+            m_shieldBlockStateMachine.ChangeState(m_shieldBlockStateMachine.InUseState);
+        }
+        m_shieldBlockData.SubscribeOnHpValueChange(OnHpValueChange);
+        SetRotationToActionDirection();
+        SetLocalPosition(PlayerAbilityCentreOffset + ActivationInput.actionDirection);
     }
 
-    public override void OnUpdate()
+    public void ShieldBarCanvasSetVisible(bool visible)
     {
-        base.OnUpdate();
+        m_shieldBarCanvas?.SetVisible(visible);
+        PlayerHUDCanvas.Singleton.VisibleShieldBar(ActivationInput.abilityHand, visible);
+    }
+
+    public override void OnFinish()
+    {
+        Debug.Log("FINISH SHIELD");
+        m_shieldBlockStateMachine.ChangeState(m_shieldBlockStateMachine.RechargeState);
+    }
+
+    private void Update()
+    {
+        if (!IsServer)
+        {
+            return;
+        }
+
+        if (IsActivated)
+        {
+            m_shieldBlockStateMachine?.Update();
+        }
+    }
+
+    public void RechargeHp()
+    {
+        m_shieldBlockData.RechargeHp(Time.deltaTime);
+    }
+
+    private void OnHpValueChange(float previousValue, float newValue)
+    {
+        float progress = m_shieldBlockData.GetHpRatio();
+        m_shieldBarCanvas.SetProgress(m_shieldBlockData.GetHpRatio());
+        PlayerHUDCanvas.Singleton.SetShieldBarProgress(ActivationInput.abilityHand, progress);
+
+        if (newValue <= 0)
+        {
+            m_shieldBlockStateMachine.ChangeState(m_shieldBlockStateMachine.CoolDownState);
+        }
+    }
+
+    public void DepleteShield()
+    {
+        m_shieldBlockData.DepleteShield(Time.deltaTime);
+    }
+
+    public float GetCoolDownTime()
+    {
+        return m_shieldBlockData.GetCoolDownTime();
     }
 
     public bool IsActive()
     {
-        return m_isActive;
+        return m_shieldBlockData.IsActive();
     }
 
     public float AbsorbDamage(float damage)
     {
-        if (m_hp.Value >= damage)
-        {
-            m_hp.Value -= damage;
-            return 0;
-        }
-        else
-        {
-            //TODO :: break shield
-            damage -= m_hp.Value;
-            m_hp.Value = 0;
-            return damage;
-        }
+        return m_shieldBlockData.AbsorbDamage(damage);
     }
 }

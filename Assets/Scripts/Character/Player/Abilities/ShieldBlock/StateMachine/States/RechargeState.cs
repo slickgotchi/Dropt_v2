@@ -1,3 +1,5 @@
+using UnityEngine;
+
 public class RechargeState : ShieldBlockState
 {
     public RechargeState(ShieldBlock shieldBlock, ShieldBlockStateMachine shieldBlockStateMachine) : base(shieldBlock, shieldBlockStateMachine)
@@ -6,7 +8,7 @@ public class RechargeState : ShieldBlockState
 
     public override void Enter()
     {
-
+        m_shieldBlock.ShieldBarCanvasSetVisible(true);
     }
 
     public override void Exit()
@@ -16,6 +18,6 @@ public class RechargeState : ShieldBlockState
 
     public override void Update()
     {
-
+        m_shieldBlock.RechargeHp();
     }
 }
