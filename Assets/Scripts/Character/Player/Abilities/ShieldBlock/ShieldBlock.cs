@@ -5,45 +5,77 @@ public class ShieldBlock : PlayerAbility
     [SerializeField] private ShieldBlockData m_shieldBlockData;
     private ShieldBlockStateMachine m_shieldBlockStateMachine;
     private ShieldBarCanvas m_shieldBarCanvas;
+    private bool m_isInitialize;
+
+    private ShieldDataContainer m_shieldDataContainer;
 
     public override void OnNetworkSpawn()
     {
         m_shieldBarCanvas = FindAnyObjectByType<ShieldBarCanvas>();
-        //base.OnNetworkSpawn();
-        //if (IsServer)
-        //{
-        //    Debug.Log("RARIRY :- " + ActivationWearable.Rarity);
-        //    m_shieldBlockData.Initialize(ActivationWearable.Rarity);
-        //    m_shieldBlockStateMachine = new ShieldBlockStateMachine(this);
-        //    m_shieldBlockStateMachine.ChangeState(m_shieldBlockStateMachine.RechargeState);
-        //}
-
-        //m_shieldBlockData.SubscribeOnHpValueChange(OnHpValueChange);
+        m_shieldDataContainer = FindAnyObjectByType<ShieldDataContainer>();
     }
 
-    public override void OnStart()
+    public override void OnHoldStart()
     {
-        if (IsServer)
+        Initialize();
+    }
+
+    private void Initialize()
+    {
+        if (m_shieldDataContainer.HasShieldData(ActivationWearableNameEnum, AbilityHand))
         {
-            m_shieldBlockData.Initialize(ActivationWearable.Rarity);
-            m_shieldBlockStateMachine = new ShieldBlockStateMachine(this);
-            m_shieldBlockStateMachine.ChangeState(m_shieldBlockStateMachine.InUseState);
+            ShieldData shieldData = m_shieldDataContainer.GetShieldData(ActivationWearableNameEnum, AbilityHand);
+            m_shieldBlockData = shieldData.ShieldBlockData;
+            m_shieldBlockStateMachine = shieldData.ShieldBlockStateMachine;
+            ShieldBarCanvasSetVisible(IsActive());
         }
-        m_shieldBlockData.SubscribeOnHpValueChange(OnHpValueChange);
-        SetRotationToActionDirection();
-        SetLocalPosition(PlayerAbilityCentreOffset + ActivationInput.actionDirection);
+        else
+        {
+            if (IsServer)
+            {
+                m_shieldBlockData.Initialize(ActivationWearable.Rarity);
+                m_shieldBlockStateMachine = new ShieldBlockStateMachine(this);
+                m_shieldBlockStateMachine.ChangeState(m_shieldBlockStateMachine.InUseState);
+                ShieldData shieldData = new ShieldData(m_shieldBlockData, m_shieldBlockStateMachine);
+                m_shieldDataContainer.SetShieldData(ActivationWearableNameEnum, AbilityHand, shieldData);
+            }
+        }
+
+        SetProgress();
+        //if (m_isInitialize)
+        //{
+        //    if (IsServer && m_shieldBlockData.IsActive())
+        //    {
+        //        m_shieldBlockStateMachine.ChangeState(m_shieldBlockStateMachine.InUseState);
+        //    }
+
+        //    return;
+        //}
+
+        //m_isInitialize = true;
+        //if (IsServer)
+        //{
+        //    m_shieldBlockData.Initialize(ActivationWearable.Rarity);
+        //    m_shieldBlockStateMachine = new ShieldBlockStateMachine(this);
+        //    m_shieldBlockStateMachine.ChangeState(m_shieldBlockStateMachine.InUseState);
+        //}
+        //m_shieldBlockData.SubscribeOnHpValueChange(OnHpValueChange);
+        //m_shieldBarCanvas.SetProgress(1);
+        //PlayerHUDCanvas.Singleton.SetShieldBarProgress(ActivationInput.abilityHand, 1);
+    }
+
+    public override void OnHoldFinish()
+    {
+        if (IsServer && m_shieldBlockData.IsActive())
+        {
+            m_shieldBlockStateMachine.ChangeState(m_shieldBlockStateMachine.RechargeState);
+        }
     }
 
     public void ShieldBarCanvasSetVisible(bool visible)
     {
         m_shieldBarCanvas?.SetVisible(visible);
         PlayerHUDCanvas.Singleton.VisibleShieldBar(ActivationInput.abilityHand, visible);
-    }
-
-    public override void OnFinish()
-    {
-        Debug.Log("FINISH SHIELD");
-        m_shieldBlockStateMachine.ChangeState(m_shieldBlockStateMachine.RechargeState);
     }
 
     private void Update()
@@ -66,14 +98,19 @@ public class ShieldBlock : PlayerAbility
 
     private void OnHpValueChange(float previousValue, float newValue)
     {
-        float progress = m_shieldBlockData.GetHpRatio();
-        m_shieldBarCanvas.SetProgress(m_shieldBlockData.GetHpRatio());
-        PlayerHUDCanvas.Singleton.SetShieldBarProgress(ActivationInput.abilityHand, progress);
+        SetProgress();
 
         if (newValue <= 0)
         {
             m_shieldBlockStateMachine.ChangeState(m_shieldBlockStateMachine.CoolDownState);
         }
+    }
+
+    private void SetProgress()
+    {
+        float progress = m_shieldBlockData.GetHpRatio();
+        m_shieldBarCanvas.SetProgress(m_shieldBlockData.GetHpRatio());
+        PlayerHUDCanvas.Singleton.SetShieldBarProgress(ActivationInput.abilityHand, progress);
     }
 
     public void DepleteShield()
