@@ -1,18 +1,18 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ShieldBarCanvas : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    [SerializeField] private Slider m_shieldSlider;
+    [SerializeField] private GameObject m_shieldBar;
+
+    public void SetProgress(float progress)
     {
-        
+        m_shieldSlider.value = progress;
     }
 
-    // Update is called once per frame
-    void Update()
+    public void SetVisible(bool visible)
     {
-        
+        m_shieldBar.SetActive(visible);
     }
 }
