@@ -38,21 +38,23 @@ public class PlayerStatusEffects : NetworkBehaviour
     // WARNING: THIS IS NOT CURRENTLY SERVER AUTHORITATIVE
     void HandleRooted()
     {
-        //Rooted.SetActive(m_characterStatus.IsRooted());
-        //GetComponent<PlayerPrediction>().IsInputEnabled = !m_characterStatus.IsRooted();
+        Rooted.SetActive(m_characterStatus.IsRooted());
+        GetComponent<PlayerPrediction>().IsInputEnabled = !m_characterStatus.IsRooted();
+        GetComponent<PlayerPrediction>().MovementMultiplier =
+            m_characterStatus.IsRooted() ? 0 : 1;
 
-        if (m_characterStatus.IsRooted() && !m_isRootedStart)
-        {
-            m_isRootedStart = true;
-            GetComponent<PlayerPrediction>().IsInputEnabled = false;
-            Rooted.SetActive(true);
-        }
-        if (!m_characterStatus.IsRooted() && m_isRootedStart)
-        {
-            m_isRootedStart = false;
-            GetComponent<PlayerPrediction>().IsInputEnabled = true;
-            Rooted.SetActive(false);
-        }
+        //if (m_characterStatus.IsRooted() && !m_isRootedStart)
+        //{
+        //    m_isRootedStart = true;
+        //    GetComponent<PlayerPrediction>().IsInputEnabled = false;
+        //    Rooted.SetActive(true);
+        //}
+        //if (!m_characterStatus.IsRooted() && m_isRootedStart)
+        //{
+        //    m_isRootedStart = false;
+        //    GetComponent<PlayerPrediction>().IsInputEnabled = true;
+        //    Rooted.SetActive(false);
+        //}
     }
 
     private void DisableAllEffects()
