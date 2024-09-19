@@ -225,7 +225,7 @@ public class NetworkCharacter : NetworkBehaviour
         if (playerAbilities.shieldBlock != null)
         {
             ShieldBlock shieldBlock = playerAbilities.shieldBlock.GetComponent<ShieldBlock>();
-            if (shieldBlock.IsActive())
+            if (shieldBlock.IsBlocking())
             {
                 damage = shieldBlock.AbsorbDamage(damage);
             }

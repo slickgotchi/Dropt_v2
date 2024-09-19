@@ -23,6 +23,7 @@ public class ShieldBlockData
     private float m_totalHp;
     private float m_rechargeAmountPerSecond;
     private float m_depletionAmountPerSecond;
+    private bool m_isBlocking;
 
     public void Initialize(Wearable.RarityEnum rarity)
     {
@@ -87,6 +88,21 @@ public class ShieldBlockData
     public float GetHpRatio()
     {
         return m_hp.Value / m_totalHp;
+    }
+
+    public void StartBlocking()
+    {
+        m_isBlocking = true;
+    }
+
+    public void StopBlocking()
+    {
+        m_isBlocking = false;
+    }
+
+    public bool IsBlocking()
+    {
+        return m_isBlocking;
     }
 
     public float AbsorbDamage(float damage)

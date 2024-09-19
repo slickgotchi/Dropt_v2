@@ -8,7 +8,7 @@ public class RechargeState : ShieldBlockState
 
     public override void Enter()
     {
-        m_shieldBlock.ShieldBarCanvasSetVisible(true);
+        m_shieldBlock.ShieldBarCanvasSetVisibleClientRpc(true);
     }
 
     public override void Exit()
