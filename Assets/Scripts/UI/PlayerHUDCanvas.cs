@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Unity.Mathematics;
 
 public class PlayerHUDCanvas : MonoBehaviour
 {
@@ -139,6 +140,9 @@ public class PlayerHUDCanvas : MonoBehaviour
 
         m_lhCooldownText.text = lhRem < 0.1f ? "" : lhRem.ToString("F0");
         m_rhCooldownText.text = rhRem < 0.1f ? "" : rhRem.ToString("F0");
+
+        //m_lhCooldownText.text = math.ceil(lhRem).ToString("F0");
+        //m_rhCooldownText.text = math.ceil(rhRem).ToString("F0");
     }
 
     void UpdateGltr()

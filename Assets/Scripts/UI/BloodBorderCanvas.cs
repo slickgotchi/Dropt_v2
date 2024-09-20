@@ -6,14 +6,17 @@ public class BloodBorderCanvas : MonoBehaviour
     // Singleton instance for global access
     public static BloodBorderCanvas Instance { get; private set; }
 
+    public float startScale = 1.3f;
+    public float finishScale = 1.3f;
+
     [Tooltip("The Image component representing the blood border.")]
     public Image BloodBorderImage;
 
     [Tooltip("The duration for the blood effect in seconds.")]
     public float BloodDuration = 1.0f;
 
-    private Vector3 initialScale = new Vector3(1.3f, 1.3f, 1);  // Default scale
-    private Vector3 targetScale = new Vector3(1.25f, 1.25f, 1);   // Target scale when effect is triggered
+    private Vector3 initialScale;
+    private Vector3 targetScale;
 
     private void Awake()
     {
@@ -28,6 +31,9 @@ public class BloodBorderCanvas : MonoBehaviour
         }
 
         SetImageAlpha(0f);
+
+        initialScale = new Vector3(startScale, startScale, 1);  // Default scale
+        targetScale = new Vector3(finishScale, finishScale, 1);   // Target scale when effect is triggered
     }
 
     private void Update()

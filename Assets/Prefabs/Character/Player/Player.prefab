@@ -698,7 +698,7 @@ MonoBehaviour:
   m_ActionEvents: []
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
-  m_DefaultActionMap: InGame
+  m_DefaultActionMap: 2d625acc-f075-4881-a46e-0a9d8435740a
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
 --- !u!114 &-2378564677302240399
@@ -758,6 +758,7 @@ MonoBehaviour:
   m_positionText: {fileID: 7164068991811045600}
   ScreenBlockers: {fileID: 5111852839597543851}
   IsDead: 0
+  IsLevelSpawnPositionSet: 0
 --- !u!114 &3992886838419682707
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -822,8 +823,9 @@ MonoBehaviour:
     m_InternalValue: {x: 0, y: 0, z: 0}
   m_clientCircle: {fileID: 0}
   m_serverCircle: {fileID: 8085241754483361217}
-  IsInputDisabled: 0
+  IsInputEnabled: 0
   MovementMultiplier: 1
+  IsInteracting: 0
 --- !u!70 &5988500204368849640
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
