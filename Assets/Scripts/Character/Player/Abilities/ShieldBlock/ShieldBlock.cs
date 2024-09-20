@@ -9,6 +9,8 @@ public class ShieldBlock : PlayerAbility
     private ShieldBarCanvas m_shieldBarCanvas;
     private ShieldDataContainer m_shieldDataContainer;
 
+    private readonly NetworkVariable<float> m_hp = new NetworkVariable<float>(0);
+
     private void OnTransformParentChanged()
     {
         Transform parent = transform.parent;
@@ -22,6 +24,7 @@ public class ShieldBlock : PlayerAbility
         {
             ShieldData shieldData = m_shieldDataContainer.GetShieldData(ActivationWearableNameEnum, AbilityHand);
             m_shieldBlockData = shieldData.ShieldBlockData;
+            m_hp.Value = m_shieldBlockData.RefHp;
             m_shieldBlockStateMachine = shieldData.ShieldBlockStateMachine;
             if (IsActive())
             {
@@ -33,10 +36,11 @@ public class ShieldBlock : PlayerAbility
         else
         {
             m_shieldBlockData.Initialize(ActivationWearable.Rarity);
+            m_hp.Value = m_shieldBlockData.TotalHp;
             SubscribeOnHpValueChangeClientRpc();
             m_shieldBlockStateMachine = new ShieldBlockStateMachine(this);
             m_shieldBlockStateMachine.ChangeState(m_shieldBlockStateMachine.InUseState);
-            ShieldData shieldData = new ShieldData(m_shieldBlockData, m_shieldBlockStateMachine);
+            ShieldData shieldData = new(m_shieldBlockData, m_shieldBlockStateMachine);
             m_shieldDataContainer.SetShieldData(ActivationWearableNameEnum, AbilityHand, shieldData);
         }
         SetRotationToActionDirection();
@@ -46,7 +50,7 @@ public class ShieldBlock : PlayerAbility
 
     public override void OnHoldFinish()
     {
-        if (m_shieldBlockData.IsActive())
+        if (IsActive())
         {
             m_shieldBlockStateMachine.ChangeState(m_shieldBlockStateMachine.RechargeState);
         }
@@ -55,7 +59,7 @@ public class ShieldBlock : PlayerAbility
     [ClientRpc]
     public void SubscribeOnHpValueChangeClientRpc()
     {
-        m_shieldBlockData.SubscribeOnHpValueChange(OnHpValueChange);
+        m_hp.OnValueChanged += OnHpValueChange;
     }
 
     [ClientRpc]
@@ -93,12 +97,20 @@ public class ShieldBlock : PlayerAbility
 
     public void RechargeHp()
     {
-        m_shieldBlockData.RechargeHp(Time.deltaTime);
+        if (m_hp.Value >= m_shieldBlockData.TotalHp) return;
+
+        float newHp = m_hp.Value + (m_shieldBlockData.RechargeAmountPerSecond * Time.deltaTime);
+        if (newHp >= m_shieldBlockData.TotalHp)
+        {
+            newHp = m_shieldBlockData.TotalHp;
+        }
+        m_hp.Value = newHp;
     }
 
     private void OnHpValueChange(float previousValue, float newValue)
     {
         SetProgress();
+        m_shieldBlockData.SetRefHp(m_hp.Value);
         if (newValue <= 0)
         {
             m_shieldBlockStateMachine.ChangeState(m_shieldBlockStateMachine.CoolDownState);
@@ -107,9 +119,14 @@ public class ShieldBlock : PlayerAbility
 
     private void SetProgress()
     {
-        float progress = m_shieldBlockData.GetHpRatio();
-        m_shieldBarCanvas.SetProgress(m_shieldBlockData.GetHpRatio());
+        float progress = GetHpRatio();
+        m_shieldBarCanvas.SetProgress(progress);
         PlayerHUDCanvas.Singleton.SetShieldBarProgress(AbilityHand, progress);
+    }
+
+    private float GetHpRatio()
+    {
+        return m_hp.Value / m_shieldBlockData.TotalHp;
     }
 
     public void StartBlocking()
@@ -129,7 +146,17 @@ public class ShieldBlock : PlayerAbility
 
     public void DepleteShield()
     {
-        m_shieldBlockData.DepleteShield(Time.deltaTime);
+        if (m_hp.Value <= 0)
+        {
+            return;
+        }
+
+        float newHp = m_hp.Value - (m_shieldBlockData.DepletionAmountPerSecond * Time.deltaTime);
+        if (newHp <= 0)
+        {
+            newHp = 0;
+        }
+        m_hp.Value = newHp;
     }
 
     public float GetCoolDownTime()
@@ -139,11 +166,22 @@ public class ShieldBlock : PlayerAbility
 
     public bool IsActive()
     {
-        return m_shieldBlockData.IsActive();
+        return m_hp.Value > 0;
     }
 
     public float AbsorbDamage(float damage)
     {
-        return m_shieldBlockData.AbsorbDamage(damage);
+        if (m_hp.Value >= damage)
+        {
+            m_hp.Value -= damage;
+            return 0;
+        }
+        else
+        {
+            //TODO :: break shield
+            damage -= m_hp.Value;
+            m_hp.Value = 0;
+            return damage;
+        }
     }
 }
