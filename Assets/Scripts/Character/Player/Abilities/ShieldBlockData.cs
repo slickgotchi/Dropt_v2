@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Unity.Netcode;
 using UnityEngine;
-using static Unity.Netcode.NetworkVariable<float>;
 
 [Serializable]
 public class ShieldBlockData
@@ -19,18 +17,17 @@ public class ShieldBlockData
     [SerializeField] private float m_rechargeRate;
     [SerializeField] private float m_breakCoolDown;
 
-    private readonly NetworkVariable<float> m_hp = new NetworkVariable<float>(0);
-    private float m_totalHp;
-    private float m_rechargeAmountPerSecond;
-    private float m_depletionAmountPerSecond;
+    public float TotalHp { get; private set; }
+    public float RefHp { get; private set; }
+    public float RechargeAmountPerSecond { get; private set; }
+    public float DepletionAmountPerSecond { get; private set; }
     private bool m_isBlocking;
 
     public void Initialize(Wearable.RarityEnum rarity)
     {
-        m_hp.Value = m_blocksByRarity.Find(x => x.Rarity == rarity).Hp;
-        m_totalHp = m_hp.Value;
-        m_rechargeAmountPerSecond = m_totalHp * m_rechargeRate;
-        m_depletionAmountPerSecond = m_totalHp * m_depletionRate;
+        TotalHp = m_blocksByRarity.Find(x => x.Rarity == rarity).Hp;
+        RechargeAmountPerSecond = TotalHp * m_rechargeRate;
+        DepletionAmountPerSecond = TotalHp * m_depletionRate;
     }
 
     public float GetCoolDownTime()
@@ -38,56 +35,9 @@ public class ShieldBlockData
         return m_breakCoolDown;
     }
 
-    public void SubscribeOnHpValueChange(OnValueChangedDelegate onHpValueChange)
-    {
-        m_hp.OnValueChanged += onHpValueChange;
-    }
-
-    public void UnsubscribeOnHpValueChange(OnValueChangedDelegate onHpValueChange)
-    {
-        m_hp.OnValueChanged -= onHpValueChange;
-    }
-
     public float GetShieldBlockHp(Wearable.RarityEnum rarity)
     {
         return m_blocksByRarity.Find(x => x.Rarity == rarity).Hp;
-    }
-
-    public void RechargeHp(float deltaTime)
-    {
-        if (m_hp.Value >= m_totalHp) return;
-
-        float newHp = m_hp.Value + m_rechargeAmountPerSecond * deltaTime;
-        if (newHp >= m_totalHp)
-        {
-            newHp = m_totalHp;
-        }
-        m_hp.Value = newHp;
-    }
-
-    public void DepleteShield(float deltaTime)
-    {
-        if (m_hp.Value <= 0)
-        {
-            return;
-        }
-
-        float newHp = m_hp.Value - m_depletionAmountPerSecond * deltaTime;
-        if (newHp <= 0)
-        {
-            newHp = 0;
-        }
-        m_hp.Value = newHp;
-    }
-
-    public bool IsActive()
-    {
-        return m_hp.Value > 0;
-    }
-
-    public float GetHpRatio()
-    {
-        return m_hp.Value / m_totalHp;
     }
 
     public void StartBlocking()
@@ -105,19 +55,8 @@ public class ShieldBlockData
         return m_isBlocking;
     }
 
-    public float AbsorbDamage(float damage)
+    public void SetRefHp(float hp)
     {
-        if (m_hp.Value >= damage)
-        {
-            m_hp.Value -= damage;
-            return 0;
-        }
-        else
-        {
-            //TODO :: break shield
-            damage -= m_hp.Value;
-            m_hp.Value = 0;
-            return damage;
-        }
+        RefHp = hp;
     }
 }
