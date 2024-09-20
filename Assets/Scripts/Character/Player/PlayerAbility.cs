@@ -103,6 +103,7 @@ public class PlayerAbility : NetworkBehaviour
 
     public void Init(GameObject playerObject, Hand abilityHand)
     {
+        Player = playerObject;
         AbilityHand = abilityHand;
         var playerEquipment = playerObject.GetComponent<PlayerEquipment>();
         var wearableNameEnum = (abilityHand == Hand.Left ? playerEquipment.LeftHand : playerEquipment.RightHand).Value;
