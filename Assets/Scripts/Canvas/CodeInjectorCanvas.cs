@@ -2,11 +2,10 @@ using UnityEngine;
 using System.Collections.Generic;
 using Unity.Netcode;
 
-public class CodeInjectorCanvas : MonoBehaviour
+public class CodeInjectorCanvas : DroptCanvas
 {
     public static CodeInjectorCanvas Instance { get; private set; }
 
-    [SerializeField] private GameObject m_container;
     [SerializeField] private List<CodeInjectorVariableItem> m_variableItemList;
     [SerializeField] private OutputMultiplierItem m_outputMultiplierItem;
 
@@ -20,12 +19,28 @@ public class CodeInjectorCanvas : MonoBehaviour
         {
             Destroy(gameObject);
         }
-        m_container.SetActive(false);
+
+        HideCanvas();
     }
 
-    public void SetVisible(bool isVisible)
+    private void Update()
     {
-        m_container.SetActive(isVisible);
+        base.Update();
+
+        if (IsInputActionSelectPressed())
+        {
+            ClickOnConfirm();
+        }
+    }
+
+    public override void OnShowCanvas()
+    {
+        PlayerInputMapSwitcher.Instance.SwitchToInUI();
+    }
+
+    public override void OnHideCanvas()
+    {
+        PlayerInputMapSwitcher.Instance.SwitchToInGame();
     }
 
     public void UpdateVariables()
@@ -44,25 +59,12 @@ public class CodeInjectorCanvas : MonoBehaviour
     public void ClickOnConfirm()
     {
         CodeInjector.Instance.UpdateVariablesData();
-        SetVisible(false);
-        StartPlayerMovement();
+        HideCanvas();
     }
 
     public void ClickOnReset()
     {
         CodeInjector.Instance.ResetUpdatedVariablesValueToDefalut();
         UpdateVariables();
-    }
-
-    public void StartPlayerMovement()
-    {
-        var players = FindObjectsByType<PlayerPrediction>(FindObjectsSortMode.None);
-        foreach (var player in players)
-        {
-            if (player.GetComponent<NetworkObject>().IsLocalPlayer)
-            {
-                player.IsInputEnabled = true;
-            }
-        }
     }
 }

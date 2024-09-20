@@ -99,8 +99,11 @@ public class PlayerAbility : NetworkBehaviour
         Animator = GetComponent<Animator>();
     }
 
+    protected Hand AbilityHand;
+
     public void Init(GameObject playerObject, Hand abilityHand)
     {
+        AbilityHand = abilityHand;
         var playerEquipment = playerObject.GetComponent<PlayerEquipment>();
         var wearableNameEnum = (abilityHand == Hand.Left ? playerEquipment.LeftHand : playerEquipment.RightHand).Value;
         ActivationWearable = WearableManager.Instance.GetWearable(wearableNameEnum);
