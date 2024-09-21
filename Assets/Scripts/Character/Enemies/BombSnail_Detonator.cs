@@ -27,7 +27,7 @@ public class BombSnail_Detonator : NetworkBehaviour
         if (IsServer)
         {
             // check for triggered (aggro) state
-            if (GetComponent<Dropt.EnemyAI>().state == Dropt.EnemyAI.State.Aggro)
+            if (GetComponent<Dropt.EnemyAI>().state.Value == Dropt.EnemyAI.State.Aggro)
             {
                 m_isTriggered.Value = true;
             }
@@ -40,20 +40,15 @@ public class BombSnail_Detonator : NetworkBehaviour
                 if (m_detonationTimer.Value <= 0)
                 {
                     // do bombsnails attack (which is to self destruct)
-                    Debug.Log("Set state to attack");
-                    GetComponent<Dropt.EnemyAI>().state = Dropt.EnemyAI.State.Telegraph;
+                    GetComponent<Dropt.EnemyAI>().ChangeState(Dropt.EnemyAI.State.Telegraph);
                 }
             }
         }
 
         if (IsClient)
         {
-            if (m_isTriggered.Value)
-            {
-                detonationText.enabled = true;
-
-                detonationText.text = math.ceil(m_detonationTimer.Value).ToString("F0");
-            }
+            detonationText.enabled = m_isTriggered.Value;
+            detonationText.text = math.ceil(m_detonationTimer.Value).ToString("F0");
         }
     }
 }

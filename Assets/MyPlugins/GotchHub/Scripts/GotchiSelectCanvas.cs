@@ -7,7 +7,7 @@ using Thirdweb;
 
 namespace GotchiHub
 {
-    public class GotchiSelectCanvas : MonoBehaviour
+    public class GotchiSelectCanvas : DroptCanvas
     {
         public static GotchiSelectCanvas Instance { get; private set; }
 
@@ -21,7 +21,6 @@ namespace GotchiHub
         public GotchiStatsCard GotchiStatsCard;
 
         [Header("Menus")]
-        public GameObject Container;
         public GameObject GotchiSelect_Menu;
         public GameObject GotchiSelect_Loading;
         public GameObject GotchiSelect_NoGotchis;
@@ -58,12 +57,9 @@ namespace GotchiHub
         private void Awake()
         {
             Instance = this;
-            //SelectGotchiButton.onClick.AddListener(HandleOnClick_GotchiSelect_ShowButton);
             VisitAavegotchiButton.onClick.AddListener(HandleOnClick_VisitAavegotchiButton);
 
-
-            Container.SetActive(false);
-
+            HideCanvas();
         }
 
         private void Start()
@@ -122,27 +118,27 @@ namespace GotchiHub
             UpdateGotchiList();
         }
 
-        public void SetVisible(bool isVisible)
-        {
-            if (isVisible)
-            {
-                Container.SetActive(true);
-            } else
-            {
-                Container.SetActive(false);
-            }
-        }
-
         private float k_updateInterval = 0.3f;
         private float m_updateTimer = 0f;
 
         private async void Update()
         {
-            if (!Container.activeSelf) return;
+            base.Update();
+
+            if (!IsActive()) return;
+
+            if (IsInputActionSelectPressed())
+            {
+                ThirdwebCanvas.Instance.HideCanvas();
+                PlayerInputMapSwitcher.Instance.SwitchToInGame();
+                HideCanvas();
+                return;
+            }
 
             m_updateTimer -= Time.deltaTime;
             if (m_updateTimer > 0) return;
             m_updateTimer = k_updateInterval;
+
 
             try
             {

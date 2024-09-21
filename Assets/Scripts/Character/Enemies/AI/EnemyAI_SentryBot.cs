@@ -52,10 +52,5 @@ namespace Dropt
         public override void OnCooldownUpdate(float dt)
         {
         }
-
-        //public override void OnKnockback(Vector3 direction, float distance, float duration)
-        //{
-        //    SimpleKnockback(direction, distance, duration);
-        //}
     }
 }

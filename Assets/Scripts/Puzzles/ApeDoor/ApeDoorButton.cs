@@ -97,7 +97,8 @@ public class ApeDoorButton : NetworkBehaviour
 
         if (matchingButtons.Count > 0 && matchingDoor != null && isAllButtonsDown)
         {
-            matchingDoor.Open();
+            matchingDoor.State.Value = DoorState.Open;
+            //matchingDoor.Open();
 
             // lock down all the buttons
             foreach (var btn in matchingButtons)

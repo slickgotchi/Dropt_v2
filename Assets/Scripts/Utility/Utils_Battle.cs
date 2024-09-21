@@ -67,5 +67,29 @@ namespace Dropt.Utils
             // Return true if any colliders are found
             return colliders.Length > 0;
         }
+
+        /// <summary>
+        /// Use this to get some random variation +/- either side of a given base value. Default is 10% either side.
+        /// </summary>
+        /// <param name="baseValue"></param>
+        /// <param name="randomVariation"></param>
+        /// <returns></returns>
+        public static int GetRandomVariation(float baseValue, float randomVariation = 0.1f)
+        {
+            return (int)UnityEngine.Random.Range(
+                baseValue * (1 - randomVariation),
+                baseValue * (1 + randomVariation));
+        }
+
+        /// <summary>
+        /// Randomly creates a critical attack boolean based on a given critical chance
+        /// </summary>
+        /// <param name="criticalChance"></param>
+        /// <returns></returns>
+        public static bool IsCriticalAttack(float criticalChance)
+        {
+            var rand = UnityEngine.Random.Range(0f, 0.999f);
+            return rand < criticalChance;
+        }
     }
 }

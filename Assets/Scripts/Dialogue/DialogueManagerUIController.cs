@@ -50,7 +50,7 @@ public class DialogueManagerUIController : MonoBehaviour
         {
             if (player.GetComponent<NetworkObject>().IsLocalPlayer)
             {
-                player.IsInputDisabled = true;
+                player.IsInputEnabled = false;
             }
         }
     }
@@ -62,7 +62,7 @@ public class DialogueManagerUIController : MonoBehaviour
         {
             if (player.GetComponent<NetworkObject>().IsLocalPlayer)
             {
-                player.IsInputDisabled = false;
+                player.IsInputEnabled = true;
             }
         }
     }

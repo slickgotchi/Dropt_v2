@@ -140,7 +140,11 @@ public class SplashProjectile : NetworkBehaviour
                 var damage = (int)(isCritical ? DamagePerHit * CriticalDamage : DamagePerHit);
                 hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical);
                 var knockbackDirection = (Dropt.Utils.Battle.GetAttackCentrePosition(hit.gameObject) - transform.position).normalized;
-                hit.GetComponent<Dropt.EnemyAI>().Knockback(knockbackDirection, KnockbackDistance, KnockbackStunDuration);
+                var enemyAI = hit.GetComponent<Dropt.EnemyAI>();
+                if (enemyAI != null)
+                {
+                    enemyAI.Knockback(knockbackDirection, KnockbackDistance, KnockbackStunDuration);
+                }
             }
 
             if (hit.HasComponent<Destructible>())

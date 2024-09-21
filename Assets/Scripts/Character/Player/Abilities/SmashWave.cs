@@ -45,7 +45,14 @@ public class SmashWave : PlayerAbility
 
     public override void OnFinish()
     {
+    }
 
+    public override void OnHoldStart()
+    {
+    }
+
+    public override void OnHoldFinish()
+    {
     }
 
     private void CustomCollisionCheck()

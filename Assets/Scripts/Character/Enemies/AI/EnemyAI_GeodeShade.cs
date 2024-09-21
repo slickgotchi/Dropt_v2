@@ -23,7 +23,6 @@ namespace Dropt
 
         public override void OnTelegraphStart()
         {
-            CalculateAttackDirectionAndPosition();
         }
         
         public override void OnRoamUpdate(float dt)
@@ -52,10 +51,5 @@ namespace Dropt
         {
             SimplePursueUpdate(dt);
         }
-
-        //public override void OnKnockback(Vector3 direction, float distance, float duration)
-        //{
-        //    SimpleKnockback(direction, distance, duration);
-        //}
     }
 }

@@ -79,7 +79,7 @@ public sealed class PickupItem : NetworkBehaviour
             Debug.Log("no valid PlayerPickupItemMagent");
         }
 
-        IsItemPicked.Value = true;
+        if (IsServer) IsItemPicked.Value = true;
         Vector3 position = playerPickupItemMagnet.transform.position;
         var tween = transform.DOMove(position, 10)
                            .SetSpeedBased()

@@ -1312,6 +1312,7 @@ GameObject:
   - component: {fileID: 383608107}
   - component: {fileID: 383608113}
   - component: {fileID: 383608114}
+  - component: {fileID: 383608115}
   m_Layer: 5
   m_Name: DebugCanvas_5000
   m_TagString: Untagged
@@ -1326,7 +1327,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 383608106}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
   m_Name: 
@@ -1430,6 +1431,18 @@ MonoBehaviour:
   fpsText: {fileID: 1246438910}
   pingText: {fileID: 2141141990}
   playerCountText: {fileID: 74152220}
+--- !u!225 &383608115
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 383608106}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!1 &412566332
 GameObject:
   m_ObjectHideFlags: 0
@@ -1637,7 +1650,7 @@ AudioListener:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 519420028}
-  m_Enabled: 0
+  m_Enabled: 1
 --- !u!114 &519420030
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2549,6 +2562,7 @@ GameObject:
   - component: {fileID: 731152785}
   - component: {fileID: 731152786}
   - component: {fileID: 731152787}
+  - component: {fileID: 731152788}
   m_Layer: 5
   m_Name: LoadingCanvas_3500
   m_TagString: Untagged
@@ -2563,7 +2577,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 731152780}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
   m_Name: 
@@ -2684,7 +2698,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99d33e710cad75343b0e036b700fc532, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Animator: {fileID: 0}
+  Animator: {fileID: 731152786}
+--- !u!225 &731152788
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 731152780}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!1 &743297640
 GameObject:
   m_ObjectHideFlags: 0
@@ -9277,6 +9303,7 @@ GameObject:
   - component: {fileID: 1678473614}
   - component: {fileID: 1678473613}
   - component: {fileID: 1678473617}
+  - component: {fileID: 1678473618}
   m_Layer: 5
   m_Name: BuildVersionCanvas_5000
   m_TagString: Untagged
@@ -9379,6 +9406,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c97c076b7c0e1f4699f3088592c8cd0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!225 &1678473618
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1678473612}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!1 &1708603495
 GameObject:
   m_ObjectHideFlags: 0
@@ -10428,6 +10467,7 @@ GameObject:
   - component: {fileID: 2047433329}
   - component: {fileID: 2047433328}
   - component: {fileID: 2047433333}
+  - component: {fileID: 2047433334}
   m_Layer: 5
   m_Name: ProgressBarCanvas_3000
   m_TagString: Untagged
@@ -10458,7 +10498,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2047433327}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
   m_Name: 
@@ -10546,6 +10586,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c97c076b7c0e1f4699f3088592c8cd0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!225 &2047433334
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2047433327}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!1 &2069674997
 GameObject:
   m_ObjectHideFlags: 0
