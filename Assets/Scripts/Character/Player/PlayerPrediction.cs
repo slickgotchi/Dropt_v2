@@ -166,11 +166,13 @@ public class PlayerPrediction : NetworkBehaviour
             if (m_lhSpecialCooldownExpiryTick < timer.CurrentTick)
             {
                 return 0;
-            } else
+            }
+            else
             {
                 return math.floor((m_lhSpecialCooldownExpiryTick - timer.CurrentTick) / k_serverTickRate);
             }
-        } else
+        }
+        else
         {
             if (m_rhSpecialCooldownExpiryTick < timer.CurrentTick)
             {
@@ -271,8 +273,8 @@ public class PlayerPrediction : NetworkBehaviour
         m_holdAbilityPending = m_playerAbilities.GetHoldAbilityEnum(lhWearable);
         var holdAbility = m_playerAbilities.GetAbility(m_holdAbilityPending);
 
-        if (holdAbility == null) return; 
-        
+        if (holdAbility == null) return;
+
         m_holdState = HoldState.LeftActive;
         m_holdChargeTime = holdAbility.HoldChargeTime;
         m_holdInputStartTick = timer.CurrentTick;
@@ -353,7 +355,7 @@ public class PlayerPrediction : NetworkBehaviour
         var holdAbility = m_playerAbilities.GetAbility(m_holdAbilityPending);
 
         if (holdAbility == null) return;
-        
+
         m_holdChargeTime = holdAbility.HoldChargeTime;
         m_holdState = HoldState.RightActive;
         m_holdInputStartTick = timer.CurrentTick;
@@ -407,7 +409,10 @@ public class PlayerPrediction : NetworkBehaviour
 
     public float GetHoldPercentage()
     {
-        if (m_holdState == HoldState.Inactive) return 0;
+        if (m_holdState == HoldState.Inactive || m_holdAbilityPending == PlayerAbilityEnum.ShieldBlock)
+        {
+            return 0;
+        }
 
         var holdDuration = (timer.CurrentTick - m_holdInputStartTick) / k_serverTickRate;
         var holdPercent = math.min(holdDuration / m_holdChargeTime, 1f);
@@ -507,7 +512,7 @@ public class PlayerPrediction : NetworkBehaviour
         if (m_abilityTriggered != PlayerAbilityEnum.Null && ability == null)
         {
             Debug.LogWarning(m_abilityTriggered + " is not yet implemented or a prefab is missing");
-        } 
+        }
 
         if (ability != null)
         {
@@ -519,7 +524,8 @@ public class PlayerPrediction : NetworkBehaviour
                 if (m_abilityHand == Hand.Left)
                 {
                     isCooldownFinished = currentTick > m_lhSpecialCooldownExpiryTick;
-                } else
+                }
+                else
                 {
                     isCooldownFinished = currentTick > m_rhSpecialCooldownExpiryTick;
                 }
@@ -528,7 +534,7 @@ public class PlayerPrediction : NetworkBehaviour
             if (!isEnoughAp || !isCooldownFinished)
             {
                 m_abilityTriggered = PlayerAbilityEnum.Null;
-            } 
+            }
         }
 
         // check if we can start our hold ability
@@ -612,7 +618,7 @@ public class PlayerPrediction : NetworkBehaviour
                 ability.Activate(gameObject, statePayload, inputPayload, holdDuration);
 
                 // set cooldown tick
-                m_abilityCooldownExpiryTick = currentTick + 
+                m_abilityCooldownExpiryTick = currentTick +
                     (int)math.ceil((ability.ExecutionDuration + ability.CooldownDuration) * k_serverTickRate);
 
                 // set special cooldown
@@ -623,7 +629,8 @@ public class PlayerPrediction : NetworkBehaviour
                     if (m_abilityHand == Hand.Left)
                     {
                         m_lhSpecialCooldownExpiryTick = expiryTick;
-                    } else
+                    }
+                    else
                     {
                         m_rhSpecialCooldownExpiryTick = expiryTick;
                     }
@@ -652,7 +659,7 @@ public class PlayerPrediction : NetworkBehaviour
         // do server reconciliation
         HandleServerReconciliation();
 
-        
+
 
         // sync facing direction with remote clients
         //SetFacingParametersServerRpc(m_actionDirection, m_actionDirectionTimer, m_lastMoveDirection);
@@ -743,10 +750,11 @@ public class PlayerPrediction : NetworkBehaviour
             // rather than try generate them again
             var bufferIndex = input.tick % k_bufferSize;
             rb.velocity = clientStateBuffer.Get(bufferIndex).velocity;
-        } else
+        }
+        else
         {
             // generate velocity from char speed, move dir any potential abilities that slow down speed
-            rb.velocity = input.moveDirection * m_networkCharacter.MoveSpeed.Value * 
+            rb.velocity = input.moveDirection * m_networkCharacter.MoveSpeed.Value *
                 GetInputSlowFactor(input);
 
             // check for automove
@@ -809,7 +817,8 @@ public class PlayerPrediction : NetworkBehaviour
         if (input.tick >= m_slowFactorStartTick && input.tick <= m_slowFactorExpiryTick)
         {
             return m_slowFactor;
-        } else if (input.tick <= m_abilityCooldownExpiryTick)
+        }
+        else if (input.tick <= m_abilityCooldownExpiryTick)
         {
             return m_cooldownSlowFactor;
         }
@@ -888,7 +897,8 @@ public class PlayerPrediction : NetworkBehaviour
                 {
                     m_isHoldStarted = true;
                     inputPayload.isHoldStartFlag = true;
-                } else
+                }
+                else
                 {
                     inputPayload.isHoldStartFlag = false;
                 }
@@ -928,7 +938,7 @@ public class PlayerPrediction : NetworkBehaviour
             {
                 var holdDuration = (m_holdFinishTick - m_holdStartTick) / k_serverTickRate;
                 ability.Activate(gameObject, statePayload, inputPayload, holdDuration);
-                m_abilityCooldownExpiryTick = inputPayload.tick + 
+                m_abilityCooldownExpiryTick = inputPayload.tick +
                     (int)math.ceil((ability.ExecutionDuration + ability.CooldownDuration) * k_serverTickRate);
 
                 // set special cooldown
@@ -955,7 +965,7 @@ public class PlayerPrediction : NetworkBehaviour
                 // set slow down ticks
                 m_slowFactor = ability.ExecutionSlowFactor;
                 m_slowFactorStartTick = inputPayload.tick;
-                m_slowFactorExpiryTick = inputPayload.tick + 
+                m_slowFactorExpiryTick = inputPayload.tick +
                     (int)math.ceil(ability.ExecutionDuration * k_serverTickRate);
                 m_cooldownSlowFactor = ability.CooldownSlowFactor;
             }
@@ -1058,7 +1068,7 @@ public class PlayerPrediction : NetworkBehaviour
         if (a == -1 || b == -1)
         {
             Debug.Log("Remote player outside interp range. Target tick: " + targetTick +
-                ", LastServerOldest Tick: " + m_lastServerStateArray[0].tick + ", LastServerNewest Tick: " + m_lastServerStateArray[m_lastServerStateArray.Count-1].tick);
+                ", LastServerOldest Tick: " + m_lastServerStateArray[0].tick + ", LastServerNewest Tick: " + m_lastServerStateArray[m_lastServerStateArray.Count - 1].tick);
             return transform.position;
         }
 
@@ -1103,8 +1113,8 @@ public class PlayerPrediction : NetworkBehaviour
     {
         // because we do interpolation between tick-2 and tick-1, for simplicity (and some determinism)
         // lets take the mid point between those two positions
-        var startBufferIndex = (tick-2) % k_bufferSize;
-        var finishBufferIndex = (tick-1) % k_bufferSize;
+        var startBufferIndex = (tick - 2) % k_bufferSize;
+        var finishBufferIndex = (tick - 1) % k_bufferSize;
 
         if (IsLocalPlayer)
         {
@@ -1132,9 +1142,9 @@ public class PlayerPrediction : NetworkBehaviour
                 if (finish.abilityTriggered == PlayerAbilityEnum.PierceLance) offset.y = 5f;
 
                 gameObject.GetComponentInChildren<DashTrailSpawner>().DrawShadow(
-                    start.position, 
-                    finish.position + offset, 
-                    (int)math.ceil(ability.TeleportDistance)+1);
+                    start.position,
+                    finish.position + offset,
+                    (int)math.ceil(ability.TeleportDistance) + 1);
                 m_isDashAnimPlayed = true;
             }
         }

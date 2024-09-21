@@ -1,9 +1,23 @@
+using System;
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
 public class ShieldBlock : PlayerAbility
 {
-    [SerializeField] private ShieldBlockData m_shieldBlockData;
+    private ShieldBlockData m_shieldBlockData;
+
+    [Serializable]
+    public class BlockByRarity
+    {
+        public Wearable.RarityEnum Rarity;
+        public float Hp;
+    }
+
+    [SerializeField] private List<BlockByRarity> m_blocksByRarity;
+    [SerializeField] private float m_depletionRate;
+    [SerializeField] private float m_rechargeRate;
+    [SerializeField] private float m_breakCoolDown;
 
     private ShieldBlockStateMachine m_shieldBlockStateMachine;
     private ShieldBarCanvas m_shieldBarCanvas;
@@ -18,38 +32,41 @@ public class ShieldBlock : PlayerAbility
         m_shieldDataContainer = parent.GetComponentInChildren<ShieldDataContainer>();
     }
 
-    public override void OnHoldStart()
+    public void Initialize(Wearable.NameEnum nameEnum, Hand hand, Wearable.RarityEnum rarityEnum)
     {
-        if (m_shieldDataContainer.HasShieldData(ActivationWearableNameEnum, AbilityHand))
+        if (m_shieldDataContainer.HasShieldData(nameEnum, hand))
         {
-            ShieldData shieldData = m_shieldDataContainer.GetShieldData(ActivationWearableNameEnum, AbilityHand);
+            ShieldData shieldData = m_shieldDataContainer.GetShieldData(nameEnum, hand);
             m_shieldBlockData = shieldData.ShieldBlockData;
             m_hp.Value = m_shieldBlockData.RefHp;
             m_shieldBlockStateMachine = shieldData.ShieldBlockStateMachine;
-            if (IsActive())
-            {
-                m_shieldBlockStateMachine.ChangeState(m_shieldBlockStateMachine.InUseState);
-            }
-            PlayAnimation(IsActive() ? "ShieldBlock" : "ShieldDefault");
-            ShieldBarCanvasSetVisibleClientRpc(IsActive());
         }
         else
         {
-            m_shieldBlockData.Initialize(ActivationWearable.Rarity);
-            m_hp.Value = m_shieldBlockData.TotalHp;
+            m_hp.Value = m_blocksByRarity.Find(x => x.Rarity == rarityEnum).Hp;
+            m_shieldBlockData = new ShieldBlockData(m_hp.Value, m_rechargeRate, m_depletionRate);
             SubscribeOnHpValueChangeClientRpc();
             m_shieldBlockStateMachine = new ShieldBlockStateMachine(this);
-            m_shieldBlockStateMachine.ChangeState(m_shieldBlockStateMachine.InUseState);
             ShieldData shieldData = new(m_shieldBlockData, m_shieldBlockStateMachine);
-            m_shieldDataContainer.SetShieldData(ActivationWearableNameEnum, AbilityHand, shieldData);
+            m_shieldDataContainer.SetShieldData(nameEnum, hand, shieldData);
         }
+    }
+
+    public override void OnHoldStart()
+    {
+        ShieldBarCanvasSetVisibleClientRpc(true);
         SetRotationToActionDirection();
         SetLocalPosition(PlayerAbilityCentreOffset + ActivationInput.actionDirection);
         SetInitialShieldProgressClientRpc();
+        if (IsActive())
+        {
+            m_shieldBlockStateMachine.ChangeState(m_shieldBlockStateMachine.InUseState);
+        }
     }
 
     public override void OnHoldFinish()
     {
+        ShieldBarCanvasSetVisibleClientRpc(false);
         if (IsActive())
         {
             m_shieldBlockStateMachine.ChangeState(m_shieldBlockStateMachine.RechargeState);
@@ -74,15 +91,9 @@ public class ShieldBlock : PlayerAbility
         ShieldBarCanvasSetVisible(visible);
     }
 
-    public void PlayAnimation(string animation)
-    {
-        base.PlayAnimation(animation);
-    }
-
     public void ShieldBarCanvasSetVisible(bool visible)
     {
         m_shieldBarCanvas?.SetVisible(visible);
-        PlayerHUDCanvas.Singleton.VisibleShieldBar(AbilityHand, visible);
     }
 
     private void Update()
@@ -97,7 +108,10 @@ public class ShieldBlock : PlayerAbility
 
     public void RechargeHp()
     {
-        if (m_hp.Value >= m_shieldBlockData.TotalHp) return;
+        if (m_hp.Value >= m_shieldBlockData.TotalHp)
+        {
+            return;
+        }
 
         float newHp = m_hp.Value + (m_shieldBlockData.RechargeAmountPerSecond * Time.deltaTime);
         if (newHp >= m_shieldBlockData.TotalHp)
@@ -110,7 +124,6 @@ public class ShieldBlock : PlayerAbility
     private void OnHpValueChange(float previousValue, float newValue)
     {
         SetProgress();
-        m_shieldBlockData.SetRefHp(m_hp.Value);
         if (newValue <= 0)
         {
             m_shieldBlockStateMachine.ChangeState(m_shieldBlockStateMachine.CoolDownState);
@@ -124,7 +137,7 @@ public class ShieldBlock : PlayerAbility
         PlayerHUDCanvas.Singleton.SetShieldBarProgress(AbilityHand, progress);
     }
 
-    private float GetHpRatio()
+    public float GetHpRatio()
     {
         return m_hp.Value / m_shieldBlockData.TotalHp;
     }
@@ -161,7 +174,7 @@ public class ShieldBlock : PlayerAbility
 
     public float GetCoolDownTime()
     {
-        return m_shieldBlockData.GetCoolDownTime();
+        return m_breakCoolDown;
     }
 
     public bool IsActive()
@@ -178,10 +191,19 @@ public class ShieldBlock : PlayerAbility
         }
         else
         {
-            //TODO :: break shield
             damage -= m_hp.Value;
             m_hp.Value = 0;
             return damage;
         }
+    }
+
+    public void Deactivate(Hand hand)
+    {
+        if (AbilityHand != hand)
+        {
+            return;
+        }
+        m_shieldBlockData?.SetRefHp(m_hp.Value);
+        m_shieldBlockStateMachine = null;
     }
 }

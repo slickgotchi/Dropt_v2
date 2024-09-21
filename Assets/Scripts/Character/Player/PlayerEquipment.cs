@@ -98,7 +98,8 @@ public class PlayerEquipment : NetworkBehaviour
                 SetEquipmentServerRpc(Slot.LeftHand, leftHandStarterWeapon);
                 SetEquipmentServerRpc(Slot.RightHand, rightHandStarterWeapon);
             }
-        } else
+        }
+        else
         {
             var gotchiData = GotchiDataManager.Instance.GetGotchiDataById(id);
             var rightHandWearableId = gotchiData.equippedWearables[4];
@@ -144,6 +145,7 @@ public class PlayerEquipment : NetworkBehaviour
 
         var wearable = WearableManager.Instance.GetWearable(equipmentNameEnum);
         GetComponent<PlayerCharacter>().SetWearableBuffServerRpc(slot, wearable.Id);
+        CheckWeaponIsShieldBlock(slot, wearable);
 
         // if slot was pet, we should spawn a pet
         if (slot == Slot.Pet)
@@ -164,6 +166,41 @@ public class PlayerEquipment : NetworkBehaviour
 
                 PetsManager.Instance.SpawnPet(myPet, transform.position, GetComponent<NetworkObject>().NetworkObjectId);
             }
+        }
+    }
+
+    private void CheckWeaponIsShieldBlock(Slot slot, Wearable wearable)
+    {
+        PlayerAbilityEnum ability = GetComponent<PlayerAbilities>().GetHoldAbilityEnum(wearable.NameType);
+        ShieldBlock shieldBlock = GetComponentInChildren<ShieldBlock>();
+        switch (ability)
+        {
+            case PlayerAbilityEnum.ShieldBlock:
+                if (slot == Slot.LeftHand)
+                {
+                    shieldBlock.Initialize(wearable.NameType, Hand.Left, wearable.Rarity);
+                    PlayerHUDCanvas.Singleton.SetShieldBarProgress(Hand.Left, shieldBlock.GetHpRatio());
+                    PlayerHUDCanvas.Singleton.VisibleShieldBar(Hand.Left, true);
+                }
+                else if (slot == Slot.RightHand)
+                {
+                    shieldBlock.Initialize(wearable.NameType, Hand.Right, wearable.Rarity);
+                    PlayerHUDCanvas.Singleton.SetShieldBarProgress(Hand.Right, shieldBlock.GetHpRatio());
+                    PlayerHUDCanvas.Singleton.VisibleShieldBar(Hand.Right, true);
+                }
+                break;
+            default:
+                if (slot == Slot.LeftHand)
+                {
+                    shieldBlock.Deactivate(Hand.Left);
+                    PlayerHUDCanvas.Singleton.VisibleShieldBar(Hand.Left, false);
+                }
+                else if (slot == Slot.RightHand)
+                {
+                    shieldBlock.Deactivate(Hand.Right);
+                    PlayerHUDCanvas.Singleton.VisibleShieldBar(Hand.Right, false);
+                }
+                break;
         }
     }
 

@@ -13,7 +13,7 @@ public class CoolDownState : ShieldBlockState
     {
         m_coolDownTime = m_shieldBlock.GetCoolDownTime();
         m_timer = 0;
-        m_shieldBlock.ShieldBarCanvasSetVisibleClientRpc(false);
+        //m_shieldBlock.ShieldBarCanvasSetVisibleClientRpc(false);
     }
 
     public override void Exit()

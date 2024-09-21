@@ -193,22 +193,25 @@ MonoBehaviour:
   SpecialCooldown: 0
   PlayerAbilityCentreOffset: {x: 0, y: 0.5, z: 0}
   m_shieldBlockData:
-    m_blocksByRarity:
-    - Rarity: 1
-      Hp: 50
-    - Rarity: 2
-      Hp: 70
-    - Rarity: 3
-      Hp: 100
-    - Rarity: 4
-      Hp: 150
-    - Rarity: 5
-      Hp: 225
-    - Rarity: 6
-      Hp: 350
     m_depletionRate: 0.25
     m_rechargeRate: 0.1
     m_breakCoolDown: 10
+  m_blocksByRarity:
+  - Rarity: 1
+    Hp: 50
+  - Rarity: 2
+    Hp: 70
+  - Rarity: 3
+    Hp: 100
+  - Rarity: 4
+    Hp: 150
+  - Rarity: 5
+    Hp: 225
+  - Rarity: 6
+    Hp: 350
+  m_depletionRate: 0.25
+  m_rechargeRate: 0.1
+  m_breakCoolDown: 10
 --- !u!1 &4708556748347195212
 GameObject:
   m_ObjectHideFlags: 0

@@ -183,12 +183,17 @@ public class NetworkCharacter : NetworkBehaviour
         // SERVER or HOST
         if (IsServer)
         {
+            damage = ApplyShieldToDamage(damage);
+            if (damage <= 0)
+            {
+                return;
+            }
+
             if (!IsHost)
             {
                 HandlePlayerTakeDamageClientRpc(damage, isCritical, damageDealerNOID);
             }
 
-            damage = ApplyShieldToDamage(damage);
             HpCurrent.Value -= (int)damage;
             if (HpCurrent.Value < 0) { HpCurrent.Value = 0; }
             var position = transform.position + popupTextOffset;
