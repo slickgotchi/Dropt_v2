@@ -8,14 +8,14 @@ public class InUseState : ShieldBlockState
 
     public override void Enter()
     {
-        m_shieldBlock.ShieldBarCanvasSetVisibleClientRpc(true);
-        m_shieldBlock.PlayAnimation("ShieldBlock");
+        //m_shieldBlock.ShieldBarCanvasSetVisibleClientRpc(true);
+        //m_shieldBlock.PlayAnimation("ShieldBlock");
         m_shieldBlock.StartBlocking();
     }
 
     public override void Exit()
     {
-        m_shieldBlock.PlayAnimation("ShieldDefault");
+        //m_shieldBlock.PlayAnimation("ShieldDefault");
         m_shieldBlock.StopBlocking();
     }
 
