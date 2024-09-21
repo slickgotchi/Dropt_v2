@@ -29,6 +29,8 @@ public class LevelManager : NetworkBehaviour
 
     private List<NetworkObject> m_networkObjectSpawns = new List<NetworkObject>();
 
+    private float m_depthCounter = 0;
+
     public void AddToSpawnList(NetworkObject networkObject)
     {
         m_networkObjectSpawns.Add(networkObject);
@@ -79,6 +81,9 @@ public class LevelManager : NetworkBehaviour
 
         // proceed to our new next level
         GoToNextLevel();
+
+        // set depth counter to 0
+        m_depthCounter = 0;
     }
 
     public bool IsDegenapeVillage()
@@ -177,12 +182,14 @@ public class LevelManager : NetworkBehaviour
             HandleState();
 
             CurrentLevelIndex.Value = m_currentLevelIndex;
-        }
 
-        if (IsClient)
-        {
             NumberAndNameLevel();
         }
+
+        //if (IsClient)
+        //{
+        //    NumberAndNameLevel();
+        //}
 
     }
 
@@ -191,15 +198,24 @@ public class LevelManager : NetworkBehaviour
 
     void NumberAndNameLevel()
     {
+        if (!IsServer) return;
+
         m_numberAndLevelTimer -= Time.deltaTime;
         if (m_numberAndLevelTimer > 0) return;
         m_numberAndLevelTimer = k_numberAndLevelInterval;
 
-        if (m_levels == null) return;
+        if (m_levels == null || m_levels.Count <= 0) return;
         if (m_currentLevelIndex < 0 || CurrentLevelIndex.Value < 0) return;
 
-        string number = CurrentLevelIndex.Value.ToString();
+        string number = m_depthCounter.ToString();
         string name = m_levels[CurrentLevelIndex.Value].name;
+
+        NumberAndNameLevelClientRpc(number, name);
+    }
+
+    [ClientRpc]
+    void NumberAndNameLevelClientRpc(string number, string name)
+    {
         PlayerHUDCanvas.Singleton.SetLevelNumberAndName(number, Dropt.Utils.String.ConvertToReadableString(name));
     }
 
@@ -290,6 +306,9 @@ public class LevelManager : NetworkBehaviour
         {
             lcb.IncrementLevelCount();
         }
+
+        // increase depth counter
+        m_depthCounter++;
     }
 
     bool isHandleLevelLoadedNextFrame = false;
@@ -316,9 +335,20 @@ public class LevelManager : NetworkBehaviour
             }
             m_networkObjectSpawns.Clear();
 
+            // clear out old spawn points
+            if (IsHost)
+            {
+                var playerSpawns = new List<PlayerSpawnPoints>(m_currentLevel.GetComponentsInChildren<PlayerSpawnPoints>());
+                foreach (var playerSpawn in playerSpawns)
+                {
+                    Object.Destroy(playerSpawn.gameObject);
+                }
+            }
+
+            m_playerSpawnPoints.Clear();
+
             // drop spawn players
             var no_playerSpawnPoints = m_currentLevel.GetComponentsInChildren<PlayerSpawnPoints>();
-            m_playerSpawnPoints.Clear();
             int makeupCount = 3;
             if (no_playerSpawnPoints != null)
             {
@@ -329,7 +359,6 @@ public class LevelManager : NetworkBehaviour
                     {
                         m_playerSpawnPoints.Add(playerSpawnPoints.transform.GetChild(j).transform.position);
                         makeupCount--;
-                        //Debug.Log("add legit spawn point: " + playerSpawnPoints.transform.GetChild(j).transform.position);
                     }
                 }
             }
@@ -345,32 +374,13 @@ public class LevelManager : NetworkBehaviour
                 {
                     m_playerSpawnPoints.Add(Vector3.zero);
                 }
-
             }
 
-            // set each player spawn position
+            // get all players to recheck their spawn position
             var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
             foreach (var player in players)
             {
-                var randIndex = UnityEngine.Random.Range(0, m_playerSpawnPoints.Count);
-                var spawnPoint = m_playerSpawnPoints[randIndex];
-                m_playerSpawnPoints.RemoveAt(randIndex);
-
-                player.GetComponent<PlayerPrediction>().SetPlayerPosition(spawnPoint);
-                player.GetComponent<PlayerGotchi>().DropSpawn(spawnPoint);
-            }
-
-            // destroy all spawn points
-            m_playerSpawnPoints.Clear();
-
-            // if is host we should delete spawn points
-            if (IsHost)
-            {
-                var playerSpawns = new List<PlayerSpawnPoints>(m_currentLevel.GetComponentsInChildren<PlayerSpawnPoints>());
-                foreach (var playerSpawn in playerSpawns)
-                {
-                    Object.Destroy(playerSpawn.gameObject);
-                }
+                player.IsLevelSpawnPositionSet = false;
             }
         }
 
@@ -381,6 +391,22 @@ public class LevelManager : NetworkBehaviour
             isHandleLevelLoadedNextFrame = true;
             isLevelLoaded = false;
         }
+    }
+
+    public bool IsPlayerSpawnPointsReady()
+    {
+        return m_playerSpawnPoints.Count > 0;
+    }
+
+    public Vector3? TryGetPlayerSpawnPoint()
+    {
+        if (m_playerSpawnPoints.Count <= 0) return null;
+
+        var randIndex = UnityEngine.Random.Range(0, m_playerSpawnPoints.Count);
+        var spawnPoint = m_playerSpawnPoints[randIndex];
+        m_playerSpawnPoints.RemoveAt(randIndex);
+
+        return spawnPoint;
     }
 
 

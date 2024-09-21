@@ -99,8 +99,12 @@ public class PlayerAbility : NetworkBehaviour
         Animator = GetComponent<Animator>();
     }
 
+    protected Hand AbilityHand;
+
     public void Init(GameObject playerObject, Hand abilityHand)
     {
+        Player = playerObject;
+        AbilityHand = abilityHand;
         var playerEquipment = playerObject.GetComponent<PlayerEquipment>();
         var wearableNameEnum = (abilityHand == Hand.Left ? playerEquipment.LeftHand : playerEquipment.RightHand).Value;
         ActivationWearable = WearableManager.Instance.GetWearable(wearableNameEnum);
@@ -136,6 +140,25 @@ public class PlayerAbility : NetworkBehaviour
         var playerObject = NetworkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId].gameObject;
         Init(playerObject, abilityHand);
     }
+
+    private bool m_isHoldReady = true;
+
+    public void HoldStart()
+    {
+        if (!m_isHoldReady) return;
+
+        OnHoldStart();
+        m_isHoldReady = false;
+    }
+
+    public void HoldFinish()
+    {
+        OnHoldFinish();
+        m_isHoldReady = true;
+    }
+
+    public virtual void OnHoldStart() { }
+    public virtual void OnHoldFinish() { }
 
     public bool Activate(GameObject playerObject, StatePayload state, InputPayload input, float holdDuration)
     {

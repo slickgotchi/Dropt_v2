@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using Unity.Mathematics;
+using Unity.Netcode;
 
 namespace Dropt
 {
@@ -47,7 +48,6 @@ namespace Dropt
 
         public override void OnTelegraphStart()
         {
-
         }
 
         public override void OnTelegraphUpdate(float dt)
@@ -62,9 +62,6 @@ namespace Dropt
 
                 // teleport to player location
                 TeleportToNewAttackPosition();
-
-                // calc our attack direction
-                CalculateAttackDirectionAndPosition();
 
                 // set our facing direction
                 GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, TelegraphDuration);
@@ -86,13 +83,6 @@ namespace Dropt
             // set facing
             GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, AttackDuration);
         }
-
-
-        //public override void OnKnockback(Vector3 direction, float distance, float duration)
-        //{
-        //    SimpleKnockback(direction, distance, duration);
-
-        //}
 
         // fud spirit teleport
         private void TeleportToNewAttackPosition()
@@ -132,18 +122,39 @@ namespace Dropt
 
         void SetSpritesAndCollidersEnabled(bool isEnabled)
         {
-            // hide the spirit and disable all its colliders
-            var sprites = GetComponentsInChildren<SpriteRenderer>();
-            foreach (var sprite in sprites)
+            // client or host
+            if (IsClient || IsHost)
             {
-                sprite.enabled = isEnabled;
-            }
+                // hide the spirit and disable all its colliders
+                var sprites = GetComponentsInChildren<SpriteRenderer>();
+                foreach (var sprite in sprites)
+                {
+                    sprite.enabled = isEnabled;
+                }
 
-            var colliders = GetComponentsInChildren<Collider2D>();
-            foreach (var collider in colliders)
-            {
-                collider.enabled = isEnabled;
+                var colliders = GetComponentsInChildren<Collider2D>();
+                foreach (var collider in colliders)
+                {
+                    collider.enabled = isEnabled;
+                }
+
+                var canvases = GetComponentsInChildren<Canvas>();
+                foreach (var canvas in canvases)
+                {
+                    canvas.enabled = isEnabled;
+                }
             }
+            // server
+            else
+            {
+                SetSpritesAndCollidersEnabledClientRpc(isEnabled);
+            }
+        }
+
+        [ClientRpc]
+        void SetSpritesAndCollidersEnabledClientRpc(bool isEnabled)
+        {
+            SetSpritesAndCollidersEnabled(isEnabled);
         }
     }
 }

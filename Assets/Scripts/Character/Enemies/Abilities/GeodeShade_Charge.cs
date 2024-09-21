@@ -94,20 +94,22 @@ public class GeodeShade_Charge : EnemyAbility
             if (isAlreadyHit) continue;
             m_hitTransforms.Add(colliderTransform);
 
+            var playerController = colliderTransform.GetComponentInParent<PlayerController>();
+            var destructible = colliderTransform.GetComponentInParent<Destructible>();
+
             // handle players
-            if (colliderTransform.parent != null && colliderTransform.parent.HasComponent<NetworkCharacter>())
+            if (playerController != null)
             {
-                var networkCharacter = Parent.GetComponent<NetworkCharacter>();
+                var networkCharacter = playerController.GetComponent<NetworkCharacter>();
                 var damage = networkCharacter.GetAttackPower();
                 var isCritical = networkCharacter.IsCriticalAttack();
-
-                colliderTransform.parent.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical);
+                networkCharacter.TakeDamage(damage, isCritical);
             }
 
             // handle destructibles
-            if (colliderTransform.HasComponent<Destructible>())
+            if (destructible != null)
             {
-                colliderTransform.GetComponent<Destructible>().TakeDamage(100);
+                destructible.TakeDamage(1000);
             }
         }
 

@@ -4,19 +4,11 @@ using UnityEngine.UI;
 using Unity.Netcode;
 using TMPro;
 
-public class PlayerEquipmentDebugCanvas : MonoBehaviour
+public class PlayerEquipmentDebugCanvas : DroptCanvas
 {
     public static PlayerEquipmentDebugCanvas Instance { get; private set; }
 
-    private void Awake()
-    {
-        Instance = this;
-        Container.SetActive(false);
-    }
-
     private PlayerEquipment playerEquipment;
-
-    public GameObject Container;
 
     public TMP_Dropdown bodyDropdown;
     public TMP_Dropdown faceDropdown;
@@ -28,9 +20,9 @@ public class PlayerEquipmentDebugCanvas : MonoBehaviour
     public TMP_Dropdown leftHandWearableDropdown;
     public TMP_Dropdown petDropdown;
 
-    public static bool IsActive()
+    private void Awake()
     {
-        return Instance.Container.activeSelf;
+        Instance = this;
     }
 
     private void Update()
@@ -54,7 +46,13 @@ public class PlayerEquipmentDebugCanvas : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            Container.SetActive(!Container.activeSelf);
+            if (IsActive())
+            {
+                HideCanvas();
+            } else
+            {
+                ShowCanvas();
+            }
         }
     }
 

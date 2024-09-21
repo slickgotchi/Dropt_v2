@@ -13,6 +13,8 @@ public class GasBag_Explode : EnemyAbility
 
     [SerializeField] private Collider2D Collider;
 
+    bool m_isExploded = false;
+
     private void Awake()
     {
     }
@@ -20,6 +22,7 @@ public class GasBag_Explode : EnemyAbility
     public override void OnActivate()
     {
         if (Parent == null) return;
+        if (m_isExploded) return;
 
         // set position
         transform.position = Dropt.Utils.Battle.GetAttackCentrePosition(Parent);
@@ -35,6 +38,8 @@ public class GasBag_Explode : EnemyAbility
             ExplosionRadius);
 
         Parent.GetComponent<NetworkObject>().Despawn();
+
+        m_isExploded = true;
     }
 
     private void HandleCollisions(Collider2D collider)

@@ -30,6 +30,9 @@ namespace Dropt
         public float CooldownDuration = 1f;
         //public float KnockbackDuration = 0.3f;
 
+        [Header("Targeting")]
+        public float TelegraphSelectTargetTimeRatio = 1f;
+
         [Header("Abilities")]
         public GameObject PrimaryAttack;
         public GameObject SecondaryAttack;
@@ -56,7 +59,7 @@ namespace Dropt
         // variables accessible to child classes
         protected Vector3 RoamAnchorPoint;
         protected NetworkCharacter networkCharacter;
-        [HideInInspector] public NavMeshAgent navMeshAgent;
+        [HideInInspector] public NavMeshAgent m_navMeshAgent;
 
 
         [HideInInspector] public Vector3 AttackDirection;
@@ -84,7 +87,8 @@ namespace Dropt
             Flee,
         }
 
-        [HideInInspector] public State state = State.Spawn;
+        [HideInInspector] public NetworkVariable<State> state = new NetworkVariable<State>(State.Spawn);
+        [HideInInspector] public NetworkVariable<float> debugSlider = new NetworkVariable<float>(0);
 
         private void Awake()
         {
@@ -93,11 +97,11 @@ namespace Dropt
         public override void OnNetworkSpawn()
         {
             networkCharacter = GetComponent<NetworkCharacter>();
-            navMeshAgent = GetComponent<NavMeshAgent>();
+            m_navMeshAgent = GetComponent<NavMeshAgent>();
 
             RoamAnchorPoint = transform.position;
             m_spawnTimer = SpawnDuration;
-            state = State.Spawn;
+            state.Value = State.Spawn;
             OnSpawnStart();
 
             // set debug visibility
@@ -115,7 +119,7 @@ namespace Dropt
             if (!IsServer) return;
             if (NearestPlayer == null) return;
 
-            switch (state)
+            switch (state.Value)
             {
                 case State.Null:
                     HandleNull(dt);
@@ -217,7 +221,7 @@ namespace Dropt
             if (m_spawnTimer < 0)
             {
                 OnSpawnFinish();
-                state = State.Roam;
+                state.Value = State.Roam;
                 OnRoamStart();
                 return;
             }
@@ -230,7 +234,7 @@ namespace Dropt
             if (NearestPlayerDistance < FleeRange)
             {
                 OnRoamFinish();
-                state = State.Flee;
+                state.Value = State.Flee;
                 OnFleeStart();
                 return;
             }
@@ -238,7 +242,7 @@ namespace Dropt
             if (NearestPlayerDistance < AggroRange)
             {
                 OnRoamFinish();
-                state = State.Aggro;
+                state.Value = State.Aggro;
                 OnAggroStart();
                 return;
             }
@@ -251,7 +255,7 @@ namespace Dropt
             if (NearestPlayerDistance > BreakAggroRange)
             {
                 OnAggroFinish();
-                state = State.Roam;
+                state.Value = State.Roam;
                 OnRoamStart();
                 return;
             }
@@ -259,7 +263,7 @@ namespace Dropt
             if (NearestPlayerDistance < AttackRange)
             {
                 OnAggroFinish();
-                state = State.Telegraph;
+                state.Value = State.Telegraph;
                 OnTelegraphStart();
                 m_telegraphTimer = TelegraphDuration;
                 return;
@@ -268,15 +272,35 @@ namespace Dropt
             OnAggroUpdate(dt);
         }
 
+        private bool m_isTelegraphAttackTimeSelected = false;
+
         void HandleTelegraph(float dt)
         {
             m_telegraphTimer -= dt;
+
+            // see if time to calculate attack direction and position
+            var elapsedTime = TelegraphDuration - m_telegraphTimer;
+            var alpha = elapsedTime / TelegraphDuration;
+            if (alpha > TelegraphSelectTargetTimeRatio && !m_isTelegraphAttackTimeSelected)
+            {
+                m_isTelegraphAttackTimeSelected = true;
+                CalculateAttackDirectionAndPosition();
+            }
+
             if (m_telegraphTimer < 0)
             {
+                // calc attack and direction if not yet done
+                if (!m_isTelegraphAttackTimeSelected) CalculateAttackDirectionAndPosition();
+
+                // finish telegraph
                 OnTelegraphFinish();
-                state = State.Attack;
+                state.Value = State.Attack;
                 OnAttackStart();
                 m_attackTimer = AttackDuration;
+
+                // reset telegraph attack time calc
+                m_isTelegraphAttackTimeSelected = false;
+
                 return;
             }
 
@@ -289,7 +313,7 @@ namespace Dropt
             if (m_attackTimer < 0)
             {
                 OnAttackFinish();
-                state = State.Cooldown;
+                state.Value = State.Cooldown;
                 OnCooldownStart();
                 m_cooldownTimer = CooldownDuration;
                 return;
@@ -304,7 +328,7 @@ namespace Dropt
             if (m_cooldownTimer < 0)
             {
                 OnCooldownFinish();
-                state = State.Aggro;
+                state.Value = State.Aggro;
                 OnAggroStart();
                 return;
             }
@@ -321,7 +345,7 @@ namespace Dropt
             if (m_knockbackTimer >= m_knockbackDuration)
             {
                 OnKnockbackFinish();
-                state = State.Stun;
+                state.Value = State.Stun;
                 OnStunStart();
                 m_stunTimer = StunDuration;
                 return;
@@ -334,8 +358,8 @@ namespace Dropt
             if (m_stunTimer < 0)
             {
                 OnStunFinish();
-                state = m_postStunState;
-                if (state == State.Aggro)
+                state.Value = m_postStunState;
+                if (state.Value == State.Aggro)
                 {
                     OnAggroStart();
                 }
@@ -350,7 +374,7 @@ namespace Dropt
             if (NearestPlayerDistance > BreakFleeRange)
             {
                 OnFleeFinish();
-                state = State.Roam;
+                state.Value = State.Roam;
             }
 
             OnFleeUpdate(dt);
@@ -361,8 +385,8 @@ namespace Dropt
         public void Knockback(Vector3 direction, float distance, float stunTime)
         {
             if (m_isDead) return;
-            if (state == State.Attack) return;
-            if (state == State.Spawn) return;
+            if (state.Value == State.Attack) return;
+            if (state.Value == State.Spawn) return;
 
             // account for multipliers
             distance *= GetComponent<NetworkCharacter>().KnockbackMultiplier.Value;
@@ -381,10 +405,10 @@ namespace Dropt
             m_knockbackFinishPosition = transform.position + direction.normalized * distance;
 
             // stop navmesh agent
-            GetComponent<NavMeshAgent>().isStopped = true;
+            if (m_navMeshAgent != null) m_navMeshAgent.isStopped = true;
 
             // save pre knockback state
-            m_preKnockbackState = state;
+            m_preKnockbackState = state.Value;
 
             // start knockback state
             StartState(State.Knockback, k_knockbackDuration);
@@ -423,33 +447,42 @@ namespace Dropt
         {
             if (debugCanvas == null) return;
 
-            debugCanvas.stateTMP.text = state.ToString();
-
-            switch (state)
+            if (IsServer)
             {
-                case State.Spawn:
-                    debugCanvas.slider.value = m_spawnTimer / SpawnDuration;
-                    break;
-                case State.Telegraph:
-                    debugCanvas.slider.value = m_telegraphTimer / TelegraphDuration;
-                    break;
-                case State.Attack:
-                    debugCanvas.slider.value = m_attackTimer / AttackDuration;
-                    break;
-                case State.Cooldown:
-                    debugCanvas.slider.value = m_cooldownTimer / CooldownDuration;
-                    break;
-                case State.Stun:
-                    debugCanvas.slider.value = m_stunTimer / StunDuration;
-                    break;
-                default:
-                    debugCanvas.slider.value = 0;
-                    break;
+                switch (state.Value)
+                {
+                    case State.Spawn:
+                        debugSlider.Value = m_spawnTimer / SpawnDuration;
+                        break;
+                    case State.Telegraph:
+                        debugSlider.Value = m_telegraphTimer / TelegraphDuration;
+                        break;
+                    case State.Attack:
+                        debugSlider.Value = m_attackTimer / AttackDuration;
+                        break;
+                    case State.Cooldown:
+                        debugSlider.Value = m_cooldownTimer / CooldownDuration;
+                        break;
+                    case State.Stun:
+                        debugSlider.Value = m_stunTimer / StunDuration;
+                        break;
+                    default:
+                        debugSlider.Value = 0;
+                        break;
+                }
+            }
+
+            if (IsClient && debugCanvas != null)
+            {
+                debugCanvas.stateTMP.text = state.Value.ToString();
+                debugCanvas.slider.value = debugSlider.Value;
             }
         }
 
         protected void FinishState(State state)
         {
+            if (!IsServer) return;
+
             switch (state)
             {
                 case State.Spawn: OnSpawnFinish(); break;
@@ -467,8 +500,10 @@ namespace Dropt
 
         protected void StartState(State newState, float duration = -1f)
         {
+            if (!IsServer) return;
+
             // set the new state
-            state = newState;
+            state.Value = newState;
 
             // perform the new state On function
             switch (newState)
@@ -505,9 +540,11 @@ namespace Dropt
             }
         }
 
-        protected void ChangeState(State newState, float newDuration =  -1f)
+        public void ChangeState(State newState, float newDuration =  -1f)
         {
-            FinishState(state);
+            if (!IsServer) return;
+
+            FinishState(state.Value);
             StartState(newState, newDuration);
         }
     }
