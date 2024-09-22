@@ -267,7 +267,6 @@ MonoBehaviour:
   IsSpawning: 1
   SpawnDuration: 0
   IsArmed: 0
-  DynamicHpMultiplier: 1
 --- !u!61 &-362301497441324767
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -403,25 +402,33 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PursueSpeedMultiplier: 2
   RoamSpeedMultiplier: 0.1
-  AggroRange: 10
+  FleeSpeedMultiplier: 5
+  AggroRange: 12
   AlertRange: 5
   AttackRange: 9
   BreakAggroRange: 30
   MaxRoamRange: 10
+  FleeRange: 0
+  BreakFleeRange: 12
   SpawnDuration: 1
-  TelegraphDuration: 1
+  TelegraphDuration: 1.5
   AttackDuration: 0.5
-  CooldownDuration: 1
+  CooldownDuration: 1.5
+  TelegraphSelectTargetTimeRatio: 0.9
   PrimaryAttack: {fileID: 5596135892032325526, guid: 5dfd5ef403603c34598e3e82a2631762, type: 3}
   SecondaryAttack: {fileID: 0}
   avoidanceRadius: 1
   debugCanvas: {fileID: 5158262231454419993}
-  navMeshAgent: {fileID: 0}
+  m_navMeshAgent: {fileID: 0}
   AttackDirection: {x: 0, y: 0, z: 0}
+  PositionToAttack: {x: 0, y: 0, z: 0}
   NearestPlayer: {fileID: 0}
   NearestPlayerDistance: 0
   StunDuration: 0
-  state: 1
+  state:
+    m_InternalValue: 1
+  debugSlider:
+    m_InternalValue: 0
   InvisibleDuration: 1
   MaxPursueRange: 16
 --- !u!1 &2682488299147284056
