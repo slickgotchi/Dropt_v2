@@ -30,6 +30,8 @@ public class PlayerController : NetworkBehaviour
 
     private HoldBarCanvas m_holdBarCanvas;
 
+    public bool IsLevelSpawnPositionSet = false;
+
     // variables for trackign current gotchi
     private int m_localGotchiId = -1;
     private NetworkVariable<int> m_networkGotchiId = new NetworkVariable<int>(-1);
@@ -48,6 +50,7 @@ public class PlayerController : NetworkBehaviour
         if (IsLocalPlayer)
         {
             m_cameraFollower = GameObject.FindGameObjectWithTag("CameraFollower");
+            m_cameraFollower.GetComponent<CameraFollowerAndPlayerInteractor>().Player = gameObject;
 
             GotchiDataManager.Instance.onSelectedGotchi += HandleOnSelectedGotchi;
 
@@ -56,7 +59,8 @@ public class PlayerController : NetworkBehaviour
             if (PlayerPrefs.HasKey("GotchiId"))
             {
                 gotchiId = PlayerPrefs.GetInt("GotchiId");
-            } else if (Bootstrap.Instance.TestBlockChainGotchiId > 0)
+            }
+            else if (Bootstrap.Instance.TestBlockChainGotchiId > 0)
             {
                 gotchiId = Bootstrap.Instance.TestBlockChainGotchiId;
             }
@@ -66,7 +70,6 @@ public class PlayerController : NetworkBehaviour
         else
         {
             ScreenBlockers.SetActive(false);
-
         }
     }
 
@@ -125,7 +128,7 @@ public class PlayerController : NetworkBehaviour
     [Rpc(SendTo.ClientsAndHost)]
     void TriggerGameOverClientRpc(ulong playerNetworkObjectId, REKTCanvas.TypeOfREKT typeOfREKT)
     {
-         //ensure we only trigger this for the relevant player
+        //ensure we only trigger this for the relevant player
         var player = NetworkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId];
         var localId = GetComponent<NetworkObject>().NetworkObjectId;
         if (player.NetworkObjectId != localId) return;
@@ -149,7 +152,7 @@ public class PlayerController : NetworkBehaviour
                 m_positionText.text = $"({pos.x.ToString("F2")}, {pos.y.ToString("F2")})";
             }
 
-            HandleLevelManagerState();
+            HandleLevelTransition();
 
             // setup player hud
             if (!m_isPlayerHUDInitialized && GetComponent<NetworkCharacter>() != null)
@@ -163,16 +166,24 @@ public class PlayerController : NetworkBehaviour
                 m_cameraFollower.transform.position = m_playerPrediction.GetLocalPlayerInterpPosition();
             }
 
-            //if (UnityEngine.Input.GetKeyDown(KeyCode.F))
-            //{
-            //    SetupGotchi(1011);
-            //}
+            HandleNextLevelCheat();
         }
 
-        HandleNextLevelCheat();
+        // handle level spawning
+        if (IsServer && !IsLevelSpawnPositionSet)
+        {
+            var pos = LevelManager.Instance.TryGetPlayerSpawnPoint();
+            if (pos != null)
+            {
+                var spawnPoint = (Vector3)pos;
+                GetComponent<PlayerPrediction>().SetPlayerPosition(spawnPoint);
+                GetComponent<PlayerGotchi>().DropSpawn(spawnPoint);
+                IsLevelSpawnPositionSet = true;
+            }
+        }
+
         HandleDegenapeHpAp();
         HandleInactivePlayer();
-
         HandleGotchiIdChanges();
 
         // keep the hold bar in position (webgl it is weirdly in wrong position);
@@ -189,42 +200,60 @@ public class PlayerController : NetworkBehaviour
         SetupGotchi(m_localGotchiId);
     }
 
-    private LevelManager.TransitionState m_localTransition = LevelManager.TransitionState.Null;
 
-    void HandleLevelManagerState()
+    // parameters for handle loading canvas
+    bool shouldBeBlackedOut = true;
+    bool isBlackedOut = true;
+    bool isFirstLoad = true;
+
+    // handle loading canvas
+    void HandleLevelTransition()
     {
         if (!IsLocalPlayer) return;
 
         LevelManager.TransitionState state = LevelManager.Instance.State.Value;
 
         if (state == LevelManager.TransitionState.Start ||
-            state == LevelManager.TransitionState.ClientHeadsUp || 
+            state == LevelManager.TransitionState.ClientHeadsUp ||
             state == LevelManager.TransitionState.GoToNext)
         {
-            if (m_localTransition != LevelManager.TransitionState.ClientHeadsUp)
-            {
-                m_localTransition = LevelManager.TransitionState.ClientHeadsUp;
-                LoadingCanvas.Instance.Animator.Play("LoadingCanvas_WipeIn");
-            }
+            shouldBeBlackedOut = true;
+
+            // disable player input
+            GetComponent<PlayerPrediction>().IsInputEnabled = false;
         }
 
         if (state == LevelManager.TransitionState.ClientHeadsDown ||
             state == LevelManager.TransitionState.End ||
             state == LevelManager.TransitionState.Null)
         {
-            if (m_localTransition == LevelManager.TransitionState.ClientHeadsUp)
-            {
-                m_localTransition = LevelManager.TransitionState.Null;
-                LoadingCanvas.Instance.Animator.Play("LoadingCanvas_WipeOut");
-                REKTCanvas.Instance.Container.SetActive(false);
-            }
+            shouldBeBlackedOut = false;
+        }
+
+        if (shouldBeBlackedOut && isFirstLoad)
+        {
+            LoadingCanvas.Instance.Animator.Play("LoadingCanvas_Default");
+        }
+
+        if (shouldBeBlackedOut && !isBlackedOut && !isFirstLoad)
+        {
+            LoadingCanvas.Instance.Animator.Play("LoadingCanvas_WipeIn");
+            isBlackedOut = true;
+        }
+
+        if (!shouldBeBlackedOut && isBlackedOut)
+        {
+            LoadingCanvas.Instance.Animator.Play("LoadingCanvas_WipeOut");
+            REKTCanvas.Instance.Container.SetActive(false);
+            isBlackedOut = false;
+            isFirstLoad = false;
         }
     }
 
     // cheat to go to next level
     void HandleNextLevelCheat()
     {
-        if (UnityEngine.Input.GetKeyDown(KeyCode.N))
+        if (Input.GetKeyDown(KeyCode.N))
         {
             GoNextLevelServerRpc();
         }
@@ -240,7 +269,7 @@ public class PlayerController : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        if (LevelManager.Instance.CurrentLevelIndex.Value == LevelManager.Instance.DegenapeVillageLevel)
+        if (LevelManager.Instance.IsDegenapeVillage())
         {
             m_networkCharacter.HpCurrent.Value = m_networkCharacter.HpMax.Value;
             m_networkCharacter.ApCurrent.Value = m_networkCharacter.ApMax.Value;

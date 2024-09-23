@@ -42,8 +42,8 @@ PlayerSettings:
   m_SplashScreenLogos: []
   m_VirtualRealitySplashScreen: {fileID: 0}
   m_HolographicTrackingLossScreen: {fileID: 0}
-  defaultScreenWidth: 960
-  defaultScreenHeight: 600
+  defaultScreenWidth: 800
+  defaultScreenHeight: 480
   defaultScreenWidthWeb: 960
   defaultScreenHeightWeb: 600
   m_StereoRenderingPath: 0
@@ -139,7 +139,7 @@ PlayerSettings:
   loadStoreDebugModeEnabled: 0
   visionOSBundleVersion: 1.0
   tvOSBundleVersion: 1.0
-  bundleVersion: 0.0.3
+  bundleVersion: 0.0.4
   preloadedAssets: []
   metroInputSource: 0
   wsaTransparentSwapchain: 0
@@ -555,7 +555,7 @@ PlayerSettings:
   webGLTemplate: PROJECT:Thirdweb
   webGLAnalyzeBuildSize: 0
   webGLUseEmbeddedResources: 0
-  webGLCompressionFormat: 1
+  webGLCompressionFormat: 0
   webGLWasmArithmeticExceptions: 0
   webGLLinkerTarget: 1
   webGLThreadsSupport: 0
@@ -579,7 +579,7 @@ PlayerSettings:
     PS5: DOTWEEN
     QNX: DOTWEEN
     Server: UNITASK_DOTWEEN_SUPPORT
-    Standalone: RH_SerializedDictionary;DOTWEEN;UNITASK_DOTWEEN_SUPPORT;USE_PHYSICS2D;TMP_PRESENT;USE_NEW_INPUT;USE_CELTX
+    Standalone: RH_SerializedDictionary;DOTWEEN;UNITASK_DOTWEEN_SUPPORT;USE_PHYSICS2D;TMP_PRESENT;USE_NEW_INPUT
     WebGL: RH_SerializedDictionary;DOTWEEN;UNITASK_DOTWEEN_SUPPORT;CLIENT;USE_PHYSICS2D;TMP_PRESENT;USE_NEW_INPUT
     Windows Store Apps: DOTWEEN;USE_NEW_INPUT
     XboxOne: DOTWEEN
@@ -589,11 +589,11 @@ PlayerSettings:
   platformArchitecture: {}
   scriptingBackend:
     Android: 1
-    Standalone: 0
+    Standalone: 1
   il2cppCompilerConfiguration:
     WebGL: 1
   il2cppCodeGeneration:
-    Standalone: 0
+    Standalone: 1
     WebGL: 1
   managedStrippingLevel:
     Android: 1
@@ -605,7 +605,7 @@ PlayerSettings:
     PS4: 1
     PS5: 1
     QNX: 1
-    WebGL: 1
+    WebGL: 4
     Windows Store Apps: 1
     XboxOne: 1
     iPhone: 1

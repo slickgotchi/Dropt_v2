@@ -14,66 +14,32 @@ public class Spider_Stomp : EnemyAbility
     private bool m_isExecuting = false;
 
     // need to account for positions being delayed due to interpolation
-    private float m_interpolationDelay = 0.3f;
+    //private float m_interpolationDelay = 0.3f;
 
     private void Awake()
     {
         m_collider = GetComponent<Collider2D>();
     }
 
-    public override void OnNetworkSpawn()
-    {
-        m_interpolationDelay = IsHost ? 0 : 3 * 1 / (float)NetworkManager.Singleton.NetworkTickSystem.TickRate;
-
-        if (Parent == null) return;
-
-        //transform.position = Parent.transform.position;
-    }
-
-    public override void OnTelegraphStart()
-    {
-        m_direction = AttackDirection;
-        m_speed = StompDistance / ExecutionDuration;
-
-        EnemyController.Facing facing = m_direction.x > 0 ? EnemyController.Facing.Right : EnemyController.Facing.Left;
-        if (Parent != null) Parent.GetComponent<EnemyController>().SetFacingDirection(facing);
-    }
-
-    public override void OnExecutionStart()
+    public override void OnActivate()
     {
         if (Parent == null) return;
 
         m_isExecuting = true;
 
-        Invoke("PlayJumpAnimation", m_interpolationDelay);
+        m_direction = AttackDirection;
+        m_speed = StompDistance / ExecutionDuration;
+        transform.position = Parent.transform.position;
+
+        //Invoke("PlayJumpAnimation", m_interpolationDelay);
     }
 
-    void PlayJumpAnimation()
-    {
-        if (Parent == null) return;
-        Parent.GetComponent<Animator>().Play("Spider_Jump");
-    }
-
-    void PlayWalkAnimation()
-    {
-        if (Parent == null) return;
-        Parent.GetComponent<Animator>().Play("Spider_Walk");
-    }
-
-    void SpawnStompCircle()
-    {
-        SpawnBasicCircleClientRpc(
-            transform.position,
-            Dropt.Utils.Color.HexToColor("#622461", 0.5f),
-            1f);
-    }
-
-    public override void OnCooldownStart()
+    public override void OnDeactivate()
     {
         if (Parent == null) return;
 
         m_isExecuting = false;
-        Invoke("PlayWalkAnimation", m_interpolationDelay);
+        //Invoke("PlayWalkAnimation", m_interpolationDelay);
 
         // do single collision check
         var damage = Parent.GetComponent<NetworkCharacter>().GetAttackPower();
@@ -81,10 +47,10 @@ public class Spider_Stomp : EnemyAbility
         EnemyAbility.PlayerCollisionCheckAndDamage(m_collider, damage, isCritical);
 
         // activate the stomp circle
-        Invoke("SpawnStompCircle", m_interpolationDelay);
+        //Invoke("SpawnStompCircle", m_interpolationDelay);
     }
 
-    public override void OnUpdate()
+    public override void OnUpdate(float dt)
     {
         if (!m_isExecuting) return;
 

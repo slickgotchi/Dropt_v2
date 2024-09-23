@@ -23,96 +23,39 @@ public class PlayerStatusEffects : NetworkBehaviour
 
     bool m_isRootedStart = false;
 
-
-    private float m_effectTimer = 0f;
-
     private void Awake()
     {
         m_characterStatus = GetComponent<CharacterStatus>();
         Rooted.SetActive(false);
     }
 
-    //public void SetVisualEffect(Effect effect, float duration)
-    //{
-    //    if (IsClient || IsHost)
-    //    {
-    //        m_effectTimer = duration;
-
-    //        switch (effect)
-    //        {
-    //            case Effect.Rooted:
-    //                DisableAllEffects();
-    //                Rooted.SetActive(true);
-    //                break;
-    //            default: break;
-    //        }
-    //    }
-    //    else
-    //    {
-    //        SetVisualEffectClientRpc(effect, duration);
-    //    }
-    //}
-
-
-    //[Rpc(SendTo.ClientsAndHost)]
-    //private void SetVisualEffectClientRpc(Effect effect, float duration)
-    //{
-    //    SetVisualEffect(effect, duration);
-    //}
-
 
     private void Update()
     {
-        //m_effectTimer -= Time.deltaTime;
-
-        //if (m_effectTimer <= 0)
-        //{
-        //    DisableAllEffects();
-        //}
-
         HandleRooted();
-        
     }
 
     // WARNING: THIS IS NOT CURRENTLY SERVER AUTHORITATIVE
     void HandleRooted()
     {
-        if (m_characterStatus.IsRooted() && !m_isRootedStart)
-        {
-            m_isRootedStart = true;
-            GetComponent<PlayerPrediction>().MovementMultiplier = 0;
-            Rooted.SetActive(true);
-        }
-        if (!m_characterStatus.IsRooted() && m_isRootedStart)
-        {
-            m_isRootedStart = false;
-            GetComponent<PlayerPrediction>().MovementMultiplier = 1;
-            Rooted.SetActive(false);
-        }
+        Rooted.SetActive(m_characterStatus.IsRooted());
+        GetComponent<PlayerPrediction>().IsInputEnabled = !m_characterStatus.IsRooted();
+        GetComponent<PlayerPrediction>().MovementMultiplier =
+            m_characterStatus.IsRooted() ? 0 : 1;
+
+        //if (m_characterStatus.IsRooted() && !m_isRootedStart)
+        //{
+        //    m_isRootedStart = true;
+        //    GetComponent<PlayerPrediction>().IsInputEnabled = false;
+        //    Rooted.SetActive(true);
+        //}
+        //if (!m_characterStatus.IsRooted() && m_isRootedStart)
+        //{
+        //    m_isRootedStart = false;
+        //    GetComponent<PlayerPrediction>().IsInputEnabled = true;
+        //    Rooted.SetActive(false);
+        //}
     }
-
-    //void SetPlayerMovementEnabled(bool isEnabled)
-    //{
-    //    GetComponent<PlayerPrediction>().MovementMultiplier =
-    //        isEnabled ? 1 : 0;
-
-    //    Rooted.SetActive(!isEnabled);
-    //}
-
-    //[Rpc(SendTo.ClientsAndHost)]
-    //void SetMovementEnabledClientRpc(bool isEnabled)
-    //{
-    //    GetComponent<PlayerPrediction>().MovementMultiplier =
-    //        isEnabled ? 1 : 0;
-
-    //    Rooted.SetActive(!isEnabled);
-    //}
-
-    //[Rpc(SendTo.ClientsAndHost)]
-    //void SetPlayerInputEnabledClientRpc(bool isEnabled)
-    //{
-    //    GetComponent<PlayerPrediction>().IsInputDisabled = !isEnabled;
-    //}
 
     private void DisableAllEffects()
     {

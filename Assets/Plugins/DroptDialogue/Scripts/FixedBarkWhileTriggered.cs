@@ -5,6 +5,14 @@ using PixelCrushers.DialogueSystem.Wrappers;
 
 public class FixedBarkWhileTriggered : MonoBehaviour
 {
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            GetComponentInChildren<StandardBarkUI>().Hide();
+        }
+    }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         // Check if the colliding object has the "CameraFollower" tag

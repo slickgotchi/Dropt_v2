@@ -39,13 +39,13 @@ public class JoostInteractable : Interactable
         //Debug.Log(m_spriteRenderer.sprite);
     }
 
-    public override void OnStartInteraction()
+    public override void OnTriggerStartInteraction()
     {
         JoostInteractionCanvas.Instance.Container.SetActive(true);
         JoostInteractionCanvas.Instance.Init(m_name, m_description, m_cost.ToString());
     }
 
-    public override void OnUpdateInteraction()
+    public override void OnTriggerUpdateInteraction()
     {
         if (Input.GetKeyDown(KeyCode.F))
         {
@@ -54,7 +54,7 @@ public class JoostInteractable : Interactable
         }
     }
 
-    public override void OnFinishInteraction()
+    public override void OnTriggerFinishInteraction()
     {
         JoostInteractionCanvas.Instance.Container.SetActive(false);
     }

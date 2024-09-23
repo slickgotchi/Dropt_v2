@@ -40,7 +40,7 @@ public class UnarmedPunch : PlayerAbility
 
         m_unarmedPunchTimer += Time.deltaTime;
 
-        if (m_unarmedPunchTimer > ExecutionDuration/2 && !m_isCollisionChecked)
+        if (m_unarmedPunchTimer > ExecutionDuration*0.8f && !m_isCollisionChecked)
         {
             // collision check (no RPC's are involved in this call)
             OneFrameCollisionDamageCheck(m_collider, Wearable.WeaponTypeEnum.Unarmed);

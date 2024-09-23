@@ -42,9 +42,9 @@ namespace Interactables
         protected virtual bool ShouldHideHUD { get; } = true;
         protected virtual bool ShouldStopPlayerMove { get; } = true;
 
-        public override void OnStartInteraction()
+        public override void OnTriggerStartInteraction()
         {
-            base.OnStartInteraction();
+            base.OnTriggerStartInteraction();
 
             if (IsConversationActive)
             {
@@ -56,9 +56,9 @@ namespace Interactables
             m_mover.Stop();
         }
 
-        public override void OnUpdateInteraction()
+        public override void OnTriggerUpdateInteraction()
         {
-            base.OnUpdateInteraction();
+            base.OnTriggerUpdateInteraction();
 
             if (Input.GetKeyDown(KeyCode.F))
             {
@@ -67,7 +67,7 @@ namespace Interactables
                     return;
                 }
 
-                OnFinishInteraction();
+                OnTriggerFinishInteraction();
                 StartConversation();
             }
         }
@@ -78,7 +78,7 @@ namespace Interactables
 
             if (ShouldStopPlayerMove)
             {
-                PlayerPrediction.IsInputDisabled = true;
+                PlayerPrediction.IsInputEnabled = false;
             }
 
             if (ShouldHideHUD)
@@ -97,7 +97,7 @@ namespace Interactables
 
             if (ShouldStopPlayerMove)
             {
-                PlayerPrediction.IsInputDisabled = false;
+                PlayerPrediction.IsInputEnabled = true;
             }
 
             if (ShouldHideHUD)
@@ -107,9 +107,9 @@ namespace Interactables
             }
         }
 
-        public override void OnFinishInteraction()
+        public override void OnTriggerFinishInteraction()
         {
-            base.OnFinishInteraction();
+            base.OnTriggerFinishInteraction();
 
             SetActiveTextBox(false);
 
