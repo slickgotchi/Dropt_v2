@@ -198,7 +198,7 @@ MonoBehaviour:
   baseHpMax: 250
   baseHpCurrent: 250
   baseHpBuffer: 0
-  baseAttackPower: 25
+  baseAttackPower: 20
   baseCriticalChance: 0.1
   baseApMax: 0
   baseApCurrent: 0
@@ -211,7 +211,7 @@ MonoBehaviour:
   baseDamageReduction: 0
   baseApLeech: 0
   baseApRegen: 1
-  baseKnockbackMutliplier: 1
+  baseKnockbackMutliplier: 0
   baseStunMultiplier: 1
   popupTextOffset: {x: 0, y: 1.5, z: 0}
   HpMax:
@@ -267,7 +267,6 @@ MonoBehaviour:
   IsSpawning: 1
   SpawnDuration: 0
   IsArmed: 0
-  DynamicHpMultiplier: 1
 --- !u!61 &-5458690501079495969
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -403,11 +402,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PursueSpeedMultiplier: 0
   RoamSpeedMultiplier: 0
-  FleeSpeedMultiplier: 5
-  AggroRange: 6
+  FleeSpeedMultiplier: 0
+  AggroRange: 9
   AlertRange: 5
-  AttackRange: 6
-  BreakAggroRange: 10
+  AttackRange: 9
+  BreakAggroRange: 14
   MaxRoamRange: 10
   FleeRange: 0
   BreakFleeRange: 12
@@ -415,17 +414,21 @@ MonoBehaviour:
   TelegraphDuration: 1
   AttackDuration: 0.5
   CooldownDuration: 1
+  TelegraphSelectTargetTimeRatio: 0.8
   PrimaryAttack: {fileID: 3764284876641414443, guid: c069a19ce84cbd840a1ff61a69f76b82, type: 3}
   SecondaryAttack: {fileID: 0}
   avoidanceRadius: 1
   debugCanvas: {fileID: 5548827575612237848}
-  navMeshAgent: {fileID: 0}
+  m_navMeshAgent: {fileID: 0}
   AttackDirection: {x: 0, y: 0, z: 0}
   PositionToAttack: {x: 0, y: 0, z: 0}
   NearestPlayer: {fileID: 0}
   NearestPlayerDistance: 0
   StunDuration: 0
-  state: 1
+  state:
+    m_InternalValue: 1
+  debugSlider:
+    m_InternalValue: 0
   ProjectileSpreadInDegrees: 30
 --- !u!1 &2870288378392988745
 GameObject:

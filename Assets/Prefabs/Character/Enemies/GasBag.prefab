@@ -196,8 +196,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6494b87727298314987516d4f17c6c93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseHpMax: 200
-  baseHpCurrent: 200
+  baseHpMax: 120
+  baseHpCurrent: 120
   baseHpBuffer: 0
   baseAttackPower: 10
   baseCriticalChance: 0.1
@@ -268,7 +268,6 @@ MonoBehaviour:
   IsSpawning: 1
   SpawnDuration: 0
   IsArmed: 0
-  DynamicHpMultiplier: 1
 --- !u!61 &6455992820889130937
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -389,7 +388,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab366a2645ae142ef89669b9c48ed767, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Multiplier: 1
+  Multiplier: 0.5
 --- !u!114 &1919057874353127386
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -416,17 +415,21 @@ MonoBehaviour:
   TelegraphDuration: 1
   AttackDuration: 0
   CooldownDuration: 1
+  TelegraphSelectTargetTimeRatio: 1
   PrimaryAttack: {fileID: 3159421716010617349, guid: 3ed119fde8550b84387647ba983d8fe5, type: 3}
   SecondaryAttack: {fileID: 0}
   avoidanceRadius: 1
   debugCanvas: {fileID: 3450764942162724960}
-  navMeshAgent: {fileID: 0}
+  m_navMeshAgent: {fileID: 0}
   AttackDirection: {x: 0, y: 0, z: 0}
   PositionToAttack: {x: 0, y: 0, z: 0}
   NearestPlayer: {fileID: 0}
   NearestPlayerDistance: 0
   StunDuration: 0
-  state: 1
+  state:
+    m_InternalValue: 1
+  debugSlider:
+    m_InternalValue: 0
   OnDestroyPoisonCloudRadius: 4
   OnTouchPoisonInterval: 0.25
   OnTouchPoisonDamage: 1
