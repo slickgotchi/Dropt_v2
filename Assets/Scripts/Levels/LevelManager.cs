@@ -106,7 +106,6 @@ public class LevelManager : NetworkBehaviour
             if (!levelSpawn.isSpawned)
             {
                 levelSpawn.GetComponent<NetworkObject>().Spawn();
-                Debug.Log("spawn something for destroy");
             }
         }
 

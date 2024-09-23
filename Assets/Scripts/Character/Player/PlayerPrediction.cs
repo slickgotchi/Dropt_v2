@@ -97,6 +97,8 @@ public class PlayerPrediction : NetworkBehaviour
     private bool m_isDashAnimPlayed = false;
 
     public bool IsInputEnabled = false;
+    public bool IsMovementEnabled = true;
+    public bool IsActionsEnabled = true;
 
     public float MovementMultiplier = 1f;
 
@@ -106,7 +108,7 @@ public class PlayerPrediction : NetworkBehaviour
     private InputAction m_movementAction;  // Reference to the "Movement" action
 
     public bool IsInteracting = false;
-    public bool IsFreezeMovement = false;
+    public bool IsFreezeMovementWhileTargeting = false;
 
     private void Awake()
     {
@@ -450,7 +452,7 @@ public class PlayerPrediction : NetworkBehaviour
 
     private void OnFreezeMovement(InputValue value)
     {
-        IsFreezeMovement = value.isPressed;
+        IsFreezeMovementWhileTargeting = value.isPressed;
     }
 
     public HoldState GetHoldState() { return m_holdState; }
@@ -494,14 +496,18 @@ public class PlayerPrediction : NetworkBehaviour
             UpdateCursorWorldPosition();
             transform.position = GetLocalPlayerInterpPosition();
 
-            // poll movement here to allow for movement key presses during input disabled
-            if (IsInputEnabled)
+            // handle movement
+            if (IsMovementEnabled && IsInputEnabled)
             {
                 m_moveDirection = m_movementAction.ReadValue<Vector2>();
             }
+            else
+            {
+                m_moveDirection = Vector3.zero;
+            }
 
-            // freeze movement
-            if (IsFreezeMovement)
+            // handle freezing while targeting
+            if (IsFreezeMovementWhileTargeting)
             {
                 m_actionDirection = m_moveDirection;
                 m_moveDirection = Vector3.zero;
@@ -599,6 +605,7 @@ public class PlayerPrediction : NetworkBehaviour
             abilityHand = m_abilityHand,
             isHoldStartFlag = m_isHoldStartFlag,
             isHoldFinishFlag = m_isHoldFinishFlag,
+            isMovementEnabled = IsMovementEnabled,
         };
 
         if (m_abilityTriggered == PlayerAbilityEnum.Dash)
@@ -706,10 +713,6 @@ public class PlayerPrediction : NetworkBehaviour
         if (IsLocalPlayer) return;
 
         m_playerGotchi.SetFacingFromDirection(actionDirection, actionDirectionTimer, true);
-
-        //m_actionDirection = actionDirection;
-        //m_actionDirectionTimer = actionDirectionTimer;
-        //m_lastMoveDirection = lastMoveDirection;
     }
 
     // 3. set transform to whatever the latest server state is then rewind
@@ -831,6 +834,8 @@ public class PlayerPrediction : NetworkBehaviour
 
     public void HandleTeleportInput(InputPayload input)
     {
+        if (!input.isMovementEnabled) return;
+
         var ability = m_playerAbilities.GetAbility(input.abilityTriggered);
         if (ability != null && ability.TeleportDistance > 0.1f)
         {
