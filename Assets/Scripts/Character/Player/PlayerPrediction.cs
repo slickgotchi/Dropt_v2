@@ -96,11 +96,17 @@ public class PlayerPrediction : NetworkBehaviour
 
     private bool m_isDashAnimPlayed = false;
 
-    public bool IsInputDisabled = false;
+    public bool IsInputEnabled = false;
 
     public float MovementMultiplier = 1f;
 
     private PlayerController m_playerController;
+
+    private PlayerInput m_playerInput;
+    private InputAction m_movementAction;  // Reference to the "Movement" action
+
+    public bool IsInteracting = false;
+    public bool IsFreezeMovement = false;
 
     private void Awake()
     {
@@ -109,6 +115,9 @@ public class PlayerPrediction : NetworkBehaviour
         m_playerAbilities = GetComponent<PlayerAbilities>();
         m_playerController = GetComponent<PlayerController>();
         m_playerGotchi = GetComponent<PlayerGotchi>();
+
+        m_playerInput = GetComponent<PlayerInput>();
+        m_movementAction = m_playerInput.actions["Movement"];
     }
 
     public override void OnNetworkSpawn()
@@ -129,7 +138,6 @@ public class PlayerPrediction : NetworkBehaviour
 
         m_lastServerStateArray = new List<StatePayload>();
 
-        Debug.Log("Joined new instance, resetting tick data");
         ResetRemoteClientTickDelta();
 
         // transform.position is the intitial position given to us by the ConnectionApprovalHandler
@@ -140,6 +148,9 @@ public class PlayerPrediction : NetworkBehaviour
             serverStateBuffer.Add(startState, i);
             clientStateBuffer.Add(startState, i);
         }
+
+        // start input disabled
+        if (IsClient) IsInputEnabled = false;
     }
 
     void ResetRemoteClientTickDelta()
@@ -175,41 +186,17 @@ public class PlayerPrediction : NetworkBehaviour
 
     private void SetActionDirectionAndLastMoveFromCursorAim()
     {
+        if (!IsLocalPlayer) return;
         m_actionDirection = math.normalizesafe(m_cursorWorldPosition - (transform.position + new Vector3(0, 0.5f, 0)));
         m_lastMoveDirection = m_actionDirection;
         m_actionDirectionTimer = k_actionDirectionTime;
     }
 
-    private void OnMovement(InputValue value)
+    private void SetActionDirectionFromLastMove()
     {
         if (!IsLocalPlayer) return;
-
-        if (IsInputDisabled || PlayerInputBlocker.Instance.IsMoveInputBlockerActive()) return;
-
-        m_moveDirection = value.Get<Vector2>();
-
-
-    }
-
-    private void OnDash_CursorAim(InputValue value)
-    {
-        if (!IsLocalPlayer) return;
-
-        if (IsInputDisabled || PlayerInputBlocker.Instance.IsMoveInputBlockerActive()) return;
-
-        SetActionDirectionAndLastMoveFromCursorAim();
-
-        m_abilityTriggered = PlayerAbilityEnum.Dash;
-    }
-
-    private void OnDash_MoveAim(InputValue value)
-    {
-        if (!IsLocalPlayer) return;
-
-        if (IsInputDisabled || PlayerInputBlocker.Instance.IsMoveInputBlockerActive()) return;
-        m_actionDirection = m_lastMoveDirection;
+        m_actionDirection = m_lastMoveDirection.normalized;
         m_actionDirectionTimer = k_actionDirectionTime;
-        m_abilityTriggered = PlayerAbilityEnum.Dash;
     }
 
     private void OnMousePosition(InputValue value)
@@ -219,15 +206,53 @@ public class PlayerPrediction : NetworkBehaviour
         m_cursorScreenPosition = value.Get<Vector2>();
     }
 
-    private void OnLeftAttack_CursorAim(InputValue value)
+    // NOTE: shifted this in to update loop so if input is disabled and player is
+    // holding a key down it will still register when input is re-enabled
+    public void OnMovement(InputValue value)
+    {
+        //if (!IsLocalPlayer) return;
+        //if (!IsInputEnabled) return;
+        //if (PlayerInputBlocker.Instance.IsMoveInputBlockerActive()) return;
+
+        //m_moveDirection = value.Get<Vector2>();
+    }
+
+    private void OnDash_CursorAim(InputValue value)
     {
         if (!IsLocalPlayer) return;
+        if (!IsInputEnabled) return;
 
-        if (IsInputDisabled || PlayerInputBlocker.Instance.IsCursorWithinClickInputBlocker()) return;
-        if (PlayerEquipmentDebugCanvas.IsActive()) return;
-
+        m_abilityTriggered = PlayerAbilityEnum.Dash;
 
         SetActionDirectionAndLastMoveFromCursorAim();
+    }
+
+    private void OnDash_MoveAim(InputValue value)
+    {
+        if (!IsLocalPlayer) return;
+        if (!IsInputEnabled) return;
+
+        m_actionDirection = m_lastMoveDirection;
+        m_actionDirectionTimer = k_actionDirectionTime;
+        m_abilityTriggered = PlayerAbilityEnum.Dash;
+    }
+
+    private void OnLeftAttack_CursorAim(InputValue value)
+    {
+        LeftAttack(value);
+        SetActionDirectionAndLastMoveFromCursorAim();
+    }
+
+    private void OnLeftAttack_MoveAim(InputValue value)
+    {
+        LeftAttack(value);
+        SetActionDirectionFromLastMove();
+    }
+
+    void LeftAttack(InputValue value)
+    {
+        if (!IsLocalPlayer) return;
+        if (!IsInputEnabled) return;
 
         m_abilityHand = Hand.Left;
         var lhWearable = GetComponent<PlayerEquipment>().LeftHand.Value;
@@ -236,16 +261,25 @@ public class PlayerPrediction : NetworkBehaviour
 
     private void OnLeftHoldStart_CursorAim(InputValue value)
     {
-        if (!IsLocalPlayer) return;
+        LeftHoldStart(value);
+    }
 
-        if (IsInputDisabled || PlayerInputBlocker.Instance.IsCursorWithinClickInputBlocker()) return;
+    private void OnLeftHoldStart_MoveAim(InputValue value)
+    {
+        LeftHoldStart(value);
+    }
+
+    void LeftHoldStart(InputValue value)
+    {
+        if (!IsLocalPlayer) return;
+        if (!IsInputEnabled) return;
 
         var lhWearable = GetComponent<PlayerEquipment>().LeftHand.Value;
         m_holdAbilityPending = m_playerAbilities.GetHoldAbilityEnum(lhWearable);
         var holdAbility = m_playerAbilities.GetAbility(m_holdAbilityPending);
 
-        if (holdAbility == null) return; 
-        
+        if (holdAbility == null) return;
+
         m_holdState = HoldState.LeftActive;
         m_holdChargeTime = holdAbility.HoldChargeTime;
         m_holdInputStartTick = timer.CurrentTick;
@@ -253,17 +287,24 @@ public class PlayerPrediction : NetworkBehaviour
 
     private void OnLeftHoldFinish_CursorAim(InputValue value)
     {
-        if (!IsLocalPlayer) return;
+        LeftHoldFinish(value);
+        SetActionDirectionAndLastMoveFromCursorAim();
+    }
 
-        if (IsInputDisabled || PlayerInputBlocker.Instance.IsCursorWithinClickInputBlocker()) return;
+    private void OnLeftHoldFinish_MoveAim(InputValue value)
+    {
+        LeftHoldFinish(value);
+        SetActionDirectionFromLastMove();
+    }
+
+    void LeftHoldFinish(InputValue value)
+    {
+        if (!IsLocalPlayer) return;
+        if (!IsInputEnabled) return;
 
         // if hold time > 0, trigger our hold ability
         if (m_holdState == HoldState.LeftActive)
         {
-            if (!IsLocalPlayer) return;
-
-            SetActionDirectionAndLastMoveFromCursorAim();
-
             m_abilityHand = Hand.Left;
             var lhWearable = GetComponent<PlayerEquipment>().LeftHand.Value;
             m_abilityTriggered = m_playerAbilities.GetHoldAbilityEnum(lhWearable);
@@ -278,11 +319,20 @@ public class PlayerPrediction : NetworkBehaviour
 
     private void OnLeftSpecial_CursorAim(InputValue value)
     {
-        if (!IsLocalPlayer) return;
-
-        if (IsInputDisabled || PlayerInputBlocker.Instance.IsCursorWithinClickInputBlocker()) return;
-
+        LeftSpecial(value);
         SetActionDirectionAndLastMoveFromCursorAim();
+    }
+
+    private void OnLeftSpecial_MoveAim(InputValue value)
+    {
+        LeftSpecial(value);
+        SetActionDirectionFromLastMove();
+    }
+
+    void LeftSpecial(InputValue value)
+    {
+        if (!IsLocalPlayer) return;
+        if (!IsInputEnabled) return;
 
         m_abilityHand = Hand.Left;
         var lhWearable = GetComponent<PlayerEquipment>().LeftHand.Value;
@@ -291,11 +341,20 @@ public class PlayerPrediction : NetworkBehaviour
 
     private void OnRightAttack_CursorAim(InputValue value)
     {
-        if (!IsLocalPlayer) return;
-
-        if (IsInputDisabled || PlayerInputBlocker.Instance.IsCursorWithinClickInputBlocker()) return;
-
+        RightAttack(value);
         SetActionDirectionAndLastMoveFromCursorAim();
+    }
+
+    private void OnRightAttack_MoveAim(InputValue value)
+    {
+        RightAttack(value);
+        SetActionDirectionFromLastMove();
+    }
+
+    void RightAttack(InputValue value)
+    {
+        if (!IsLocalPlayer) return;
+        if (!IsInputEnabled) return;
 
         m_abilityHand = Hand.Right;
         var rhWearable = GetComponent<PlayerEquipment>().RightHand.Value;
@@ -304,16 +363,25 @@ public class PlayerPrediction : NetworkBehaviour
 
     private void OnRightHoldStart_CursorAim(InputValue value)
     {
-        if (!IsLocalPlayer) return;
+        RightHoldStart(value);
+    }
 
-        if (IsInputDisabled || PlayerInputBlocker.Instance.IsCursorWithinClickInputBlocker()) return;
+    private void OnRightHoldStart_MoveAim(InputValue value)
+    {
+        RightHoldStart(value);
+    }
+
+    void RightHoldStart(InputValue value)
+    {
+        if (!IsLocalPlayer) return;
+        if (!IsInputEnabled) return;
 
         var rhWearable = GetComponent<PlayerEquipment>().RightHand.Value;
         m_holdAbilityPending = m_playerAbilities.GetHoldAbilityEnum(rhWearable);
         var holdAbility = m_playerAbilities.GetAbility(m_holdAbilityPending);
 
         if (holdAbility == null) return;
-        
+
         m_holdChargeTime = holdAbility.HoldChargeTime;
         m_holdState = HoldState.RightActive;
         m_holdInputStartTick = timer.CurrentTick;
@@ -321,16 +389,25 @@ public class PlayerPrediction : NetworkBehaviour
 
     private void OnRightHoldFinish_CursorAim(InputValue value)
     {
-        if (!IsLocalPlayer) return;
+        RightHoldFinish(value);
+        SetActionDirectionAndLastMoveFromCursorAim();
+    }
 
-        if (IsInputDisabled || PlayerInputBlocker.Instance.IsCursorWithinClickInputBlocker()) return;
+    private void OnRightHoldFinish_MoveAim(InputValue value)
+    {
+        RightHoldFinish(value);
+        SetActionDirectionFromLastMove();
+    }
+
+    void RightHoldFinish(InputValue value)
+    {
+        if (!IsLocalPlayer) return;
+        if (!IsInputEnabled) return;
 
         // if hold time > 0, trigger our hold ability
         if (m_holdState == HoldState.RightActive)
         {
             if (!IsLocalPlayer) return;
-
-            SetActionDirectionAndLastMoveFromCursorAim();
 
             m_abilityHand = Hand.Right;
             var rhWearable = GetComponent<PlayerEquipment>().RightHand.Value;
@@ -346,16 +423,34 @@ public class PlayerPrediction : NetworkBehaviour
 
     private void OnRightSpecial_CursorAim(InputValue value)
     {
-        if (!IsLocalPlayer) return;
-
-        if (IsInputDisabled || PlayerInputBlocker.Instance.IsCursorWithinClickInputBlocker()) return;
-
-
+        RightSpecial(value);
         SetActionDirectionAndLastMoveFromCursorAim();
+    }
+
+    private void OnRightSpecial_MoveAim(InputValue value)
+    {
+        RightSpecial(value);
+        SetActionDirectionFromLastMove();
+    }
+
+    void RightSpecial(InputValue value)
+    {
+        if (!IsLocalPlayer) return;
+        if (!IsInputEnabled) return;
 
         m_abilityHand = Hand.Right;
         var rhWearable = GetComponent<PlayerEquipment>().RightHand.Value;
         m_abilityTriggered = m_playerAbilities.GetSpecialAbilityEnum(rhWearable);
+    }
+
+    private void OnInteract(InputValue value)
+    {
+        IsInteracting = value.isPressed;
+    }
+
+    private void OnFreezeMovement(InputValue value)
+    {
+        IsFreezeMovement = value.isPressed;
     }
 
     public HoldState GetHoldState() { return m_holdState; }
@@ -398,6 +493,19 @@ public class PlayerPrediction : NetworkBehaviour
         {
             UpdateCursorWorldPosition();
             transform.position = GetLocalPlayerInterpPosition();
+
+            // poll movement here to allow for movement key presses during input disabled
+            if (IsInputEnabled)
+            {
+                m_moveDirection = m_movementAction.ReadValue<Vector2>();
+            }
+
+            // freeze movement
+            if (IsFreezeMovement)
+            {
+                m_actionDirection = m_moveDirection;
+                m_moveDirection = Vector3.zero;
+            }
         }
         else if (IsClient)
         {
@@ -415,22 +523,7 @@ public class PlayerPrediction : NetworkBehaviour
         {
             rb.position = lastServerState.position;
         }
-
-        //HandlePeriodicRemoteClientTickDeltaReset();
     }
-
-    //private float k_remoteTickDeltaResetInterval = 60f;
-    //private float m_remoteTickDeltaResetTimer = 0f;
-
-    //void HandlePeriodicRemoteClientTickDeltaReset()
-    //{
-    //    m_remoteTickDeltaResetTimer -= Time.deltaTime;
-    //    if (m_remoteTickDeltaResetTimer <= 0)
-    //    {
-    //        m_remoteTickDeltaResetTimer = k_remoteTickDeltaResetInterval;
-    //        ResetRemoteClientTickDelta();
-    //    }
-    //}
 
     // 1. See if time to do a tick
     private void FixedUpdate()
@@ -484,6 +577,7 @@ public class PlayerPrediction : NetworkBehaviour
         if (!m_isHoldStarted && holdAbility != null)
         {
             holdAbility.Init(gameObject, m_abilityHand);
+            holdAbility.HoldStart();
             bool isEnoughAp = GetComponent<NetworkCharacter>().ApCurrent.Value >= holdAbility.ApCost;
             bool isCooldownFinished = currentTick > m_abilityCooldownExpiryTick;
 
@@ -547,6 +641,12 @@ public class PlayerPrediction : NetworkBehaviour
         {
             var holdDuration = (m_holdFinishTick - m_holdStartTick) / k_serverTickRate;
 
+            // finish if hold ability
+            if (ability.abilityType == PlayerAbility.AbilityType.Hold)
+            {
+                ability.HoldFinish();
+            }
+
             // we only activate once from the server side when in host mode
             if (!IsHost)
             {
@@ -592,12 +692,6 @@ public class PlayerPrediction : NetworkBehaviour
 
         // do server reconciliation
         HandleServerReconciliation();
-
-        
-
-        // sync facing direction with remote clients
-        //SetFacingParametersServerRpc(m_actionDirection, m_actionDirectionTimer, m_lastMoveDirection);
-
     }
 
     [Rpc(SendTo.Server)]
@@ -821,6 +915,7 @@ public class PlayerPrediction : NetworkBehaviour
             if (!m_isHoldStarted && inputPayload.isHoldStartFlag && holdAbility != null && !IsHost)
             {
                 holdAbility.Init(gameObject, inputPayload.abilityHand);
+                if (!IsHost) holdAbility.HoldStart();
                 bool isEnoughAp = GetComponent<NetworkCharacter>().ApCurrent.Value >= holdAbility.ApCost;
                 bool isCooldownFinished = inputPayload.tick > m_abilityCooldownExpiryTick;
 
@@ -886,6 +981,12 @@ public class PlayerPrediction : NetworkBehaviour
                     }
                 }
 
+                // release hold
+                if (ability.abilityType == PlayerAbility.AbilityType.Hold)
+                {
+                    if (!IsHost) ability.HoldFinish();
+                }
+
                 // set slow down ticks
                 m_slowFactor = ability.ExecutionSlowFactor;
                 m_slowFactorStartTick = inputPayload.tick;
@@ -905,7 +1006,7 @@ public class PlayerPrediction : NetworkBehaviour
         }
 
         // reset state of setting player position
-        if (m_isSetPlayerPositionCounter > 10)
+        if (m_isSetPlayerPositionCounter > 5)
         {
             m_isSetPlayerPosition = false;
         }
@@ -1082,25 +1183,6 @@ public class PlayerPrediction : NetworkBehaviour
     {
         return lastServerState.position;
     }
-
-    //public Vector3 GetFacingDirection()
-    //{
-    //    if (m_actionDirectionTimer > 0)
-    //    {
-    //        return math.normalize(m_actionDirection);
-    //    }
-    //    else
-    //    {
-    //        return m_lastMoveDirection;
-    //    }
-    //}
-
-    //public bool IsMoving { get
-    //    {
-    //        return math.abs(m_velocity.x) > 0.1f || math.abs(m_velocity.y) > 0.1f;
-    //    }
-    //    private set { }
-    //}
 
     public float GetServerTickRate()
     {

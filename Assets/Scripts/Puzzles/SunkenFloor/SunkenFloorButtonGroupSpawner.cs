@@ -11,6 +11,6 @@ public class SunkenFloorButtonGroupSpawner : MonoBehaviour
     public List<SunkenFloorSpawner> SunkenFloorSpawners = new List<SunkenFloorSpawner>();
 
     [Header("Prefabs")]
-    public GameObject SunkenFloorButtonGroupPrefab;
+    //public GameObject SunkenFloorButtonGroupPrefab;
     public GameObject SunkenFloorButtonPrefab;
 }

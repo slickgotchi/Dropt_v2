@@ -28,7 +28,8 @@ public class CleaveSlash : PlayerAbility
 
         // IMPORTANT use PlayAnimation which calls RPC's in the background that play the 
         // animation on remote clients
-        PlayAnimation("CleaveSlash");
+        //PlayAnimation("CleaveSlash");
+        PlayAnimationWithDuration("CleaveSlash", ExecutionDuration);
 
 
     }

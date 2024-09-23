@@ -11,16 +11,20 @@ public class FudSpirit_ThrowFud : EnemyAbility
     public float Duration = 2f;
 
 
-    public override void OnExecutionStart()
+    public override void OnActivate()
     {
         if (Parent == null) return;
+
+        // get direction and parent centre position
+        var attackDir = Parent.GetComponent<Dropt.EnemyAI>().AttackDirection;
+        var attackCentrePos = Dropt.Utils.Battle.GetAttackCentrePosition(Parent);
 
         // init and spawn projectile
         var projectile = Instantiate(FudProjectile);
         projectile.GetComponent<GenericEnemyProjectile>().Init(
-            Parent.transform.position + new Vector3(0, 0.3f, 0),
-            PlayerAbility.GetRotationFromDirection(AttackDirection),
-            AttackDirection,
+            attackCentrePos,
+            PlayerAbility.GetRotationFromDirection(attackDir),
+            attackDir,
             Distance,
             Duration,
             Parent.GetComponent<NetworkCharacter>().AttackPower.Value,
@@ -33,6 +37,6 @@ public class FudSpirit_ThrowFud : EnemyAbility
 
         // orient the parent fud spirit sprite
         EnemyController.Facing facing = AttackDirection.x > 0 ? EnemyController.Facing.Right : EnemyController.Facing.Left;
-        Parent.GetComponent<EnemyController>().SetFacingDirection(facing, 1f);
+        Parent.GetComponent<EnemyController>().SetFacing(facing, 1f);
     }
 }
