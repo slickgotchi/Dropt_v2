@@ -56,10 +56,13 @@ public class FudWisp_Explode : EnemyAbility
         foreach (var hit in playerHitColliders)
         {
             var player = hit.transform.parent;
-            if (player.HasComponent<NetworkCharacter>())
+            var networkCharacter = player.GetComponent<NetworkCharacter>();
+            var characterStatus = player.GetComponent<CharacterStatus>();
+
+            if (networkCharacter != null && characterStatus != null && !characterStatus.IsRooted())
             {
                 // apply rooted
-                player.GetComponent<CharacterStatus>().SetRooted(true, RootDuration);
+                characterStatus.SetRooted(true, RootDuration);
             }
         }
 

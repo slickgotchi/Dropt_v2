@@ -13,6 +13,7 @@ namespace Dropt
         public Hand abilityHand;
         public bool isHoldStartFlag;
         public bool isHoldFinishFlag;
+        public bool isMovementEnabled;
 
         public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
         {
@@ -24,6 +25,7 @@ namespace Dropt
             serializer.SerializeValue(ref abilityHand);
             serializer.SerializeValue(ref isHoldStartFlag);
             serializer.SerializeValue(ref isHoldFinishFlag);
+            serializer.SerializeValue(ref isMovementEnabled);
         }
     }
 

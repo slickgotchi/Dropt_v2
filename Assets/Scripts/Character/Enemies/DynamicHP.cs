@@ -8,14 +8,7 @@ public class DynamicHP : NetworkBehaviour
 {
     public float Multiplier = 1f;
 
-    public override void OnNetworkSpawn()
-    {
-        base.OnNetworkSpawn();
-
-        ApplyDynamicHp();
-    }
-
-    void ApplyDynamicHp()
+    public void ApplyDynamicHp()
     {
         if (!IsServer) return;
 
