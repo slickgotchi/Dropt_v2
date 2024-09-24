@@ -149,12 +149,14 @@ public class PlayerAbility : NetworkBehaviour
 
         OnHoldStart();
         m_isHoldReady = false;
+
     }
 
     public void HoldFinish()
     {
         OnHoldFinish();
         m_isHoldReady = true;
+
     }
 
     public virtual void OnHoldStart() { }

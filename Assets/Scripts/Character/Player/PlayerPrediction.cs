@@ -75,7 +75,8 @@ public class PlayerPrediction : NetworkBehaviour
     private Vector3 m_cursorWorldPosition;
 
     // cooldown expiry ticks
-    private int m_abilityCooldownExpiryTick = 0;
+    private int m_abilityCooldownExpiryTick_CLIENT = 0;
+    private int m_abilityCooldownExpiryTick_SERVER = 0;
     private int m_lhSpecialCooldownExpiryTick = 0;
     private int m_rhSpecialCooldownExpiryTick = 0;
 
@@ -139,6 +140,9 @@ public class PlayerPrediction : NetworkBehaviour
 
 
         m_lastServerStateArray = new List<StatePayload>();
+
+        m_abilityCooldownExpiryTick_CLIENT = 0;
+        m_abilityCooldownExpiryTick_SERVER = 0;
 
         ResetRemoteClientTickDelta();
 
@@ -545,9 +549,9 @@ public class PlayerPrediction : NetworkBehaviour
         var triggeredAbility = m_playerAbilities.GetAbility(m_triggeredAbilityEnum);
         if (triggeredAbility != null)
         {
-            // check ap and cooldown
+            // check ap and cooldown (we ignore cooldown for hold abilities)
             bool isEnoughAp = GetComponent<NetworkCharacter>().ApCurrent.Value >= triggeredAbility.ApCost;
-            bool isCooldownFinished = currentTick > m_abilityCooldownExpiryTick;
+            bool isCooldownFinished = triggeredAbility.abilityType == PlayerAbility.AbilityType.Hold ? true : currentTick > m_abilityCooldownExpiryTick_CLIENT;
             if (triggeredAbility.abilityType == PlayerAbility.AbilityType.Special)
             {
                 if (m_abilityHand == Hand.Left) isCooldownFinished = currentTick > m_lhSpecialCooldownExpiryTick;
@@ -570,14 +574,17 @@ public class PlayerPrediction : NetworkBehaviour
         var holdStartTriggeredAbility = m_playerAbilities.GetAbility(m_holdStartTriggeredAbilityEnum);
         if (holdStartTriggeredAbility != null)
         {
-            // check ap and cooldown finished
+            // check AP only, we can't check against cooldown because we are commencing this attack within the starter attacks cooldown window
             bool isEnoughAp = GetComponent<NetworkCharacter>().ApCurrent.Value >= holdStartTriggeredAbility.ApCost;
-            bool isCooldownFinished = currentTick > m_abilityCooldownExpiryTick;
-            if (isEnoughAp && isCooldownFinished)
+            if (isEnoughAp)
             {
                 holdStartTriggeredAbility.Init(gameObject, m_abilityHand);
                 holdStartTriggeredAbility.HoldStart();
                 m_isHoldStartFlag = true;
+            } else
+            {
+                m_holdStartTriggeredAbilityEnum = PlayerAbilityEnum.Null;
+                holdStartTriggeredAbility = null;
             }
         }
 
@@ -602,7 +609,7 @@ public class PlayerPrediction : NetworkBehaviour
         clientInputBuffer.Add(inputPayload, bufferIndex);
 
         // handle auto move
-        if (!IsHost && triggeredAbility != null && m_triggeredAbilityEnum != PlayerAbilityEnum.Null
+        if (triggeredAbility != null && m_triggeredAbilityEnum != PlayerAbilityEnum.Null
             && triggeredAbility.AutoMoveDuration > 0)
         {
             var speed = triggeredAbility.AutoMoveDistance / triggeredAbility.AutoMoveDuration;
@@ -611,7 +618,7 @@ public class PlayerPrediction : NetworkBehaviour
         }
 
         // locally process the movement and save our new state for this current tick
-        StatePayload statePayload = ProcessInput(inputPayload, false); // not a script simulation, use default fixed update
+        StatePayload statePayload = ProcessInput(inputPayload, false, false); // not a script simulation, use default fixed update
         clientStateBuffer.Add(statePayload, bufferIndex);
 
         // activate ability if it was not null
@@ -620,11 +627,14 @@ public class PlayerPrediction : NetworkBehaviour
             // calc any hold duration
             var holdDuration = (m_holdFinishTick - m_holdStartTick) / k_serverTickRate;
 
+            // call HoldFinish() if this is a hold ability
+            if (triggeredAbility.abilityType == PlayerAbility.AbilityType.Hold) triggeredAbility.HoldFinish();
+
             // activate ability
             triggeredAbility.Activate(gameObject, statePayload, inputPayload, holdDuration);
 
             // set cooldown tick
-            m_abilityCooldownExpiryTick = currentTick + (int)math.ceil((triggeredAbility.ExecutionDuration + triggeredAbility.CooldownDuration) * k_serverTickRate);
+            m_abilityCooldownExpiryTick_CLIENT = currentTick + (int)math.ceil((triggeredAbility.ExecutionDuration + triggeredAbility.CooldownDuration) * k_serverTickRate);
 
             // set cooldown tick if special
             if (triggeredAbility.abilityType == PlayerAbility.AbilityType.Special)
@@ -676,7 +686,7 @@ public class PlayerPrediction : NetworkBehaviour
             if (triggeredAbility != null)
             {
                 bool isApEnough = GetComponent<NetworkCharacter>().ApCurrent.Value >= triggeredAbility.ApCost;
-                bool isCooldownFinished = inputPayload.tick > m_abilityCooldownExpiryTick;
+                bool isCooldownFinished = triggeredAbility.abilityType == PlayerAbility.AbilityType.Hold ? true : inputPayload.tick > m_abilityCooldownExpiryTick_SERVER;
 
                 // account for special cooldowns
                 if (triggeredAbility.abilityType == PlayerAbility.AbilityType.Special)
@@ -687,7 +697,7 @@ public class PlayerPrediction : NetworkBehaviour
 
                 if (isApEnough && isCooldownFinished)
                 {
-                    triggeredAbility.Init(gameObject, inputPayload.abilityHand);
+                    if (!IsHost) triggeredAbility.Init(gameObject, inputPayload.abilityHand);
 
                 } else
                 {
@@ -695,16 +705,16 @@ public class PlayerPrediction : NetworkBehaviour
                 }
             }
 
-            // 3. check if we can start our hold ability
+            // 3. check if hold ability started
             var holdStartTriggeredAbility = m_playerAbilities.GetAbility(inputPayload.holdStartTriggeredAbilityEnum);
             if (holdStartTriggeredAbility != null)
             {
+                // check AP only, we can't check against cooldown because we are commencing this attack within the starter attacks cooldown window
                 bool isEnoughAp = GetComponent<NetworkCharacter>().ApCurrent.Value >= holdStartTriggeredAbility.ApCost;
-                bool isCooldownFinished = inputPayload.tick > m_abilityCooldownExpiryTick;
-
-                if (isEnoughAp && isCooldownFinished)
+                if (isEnoughAp)
                 {
-                    holdStartTriggeredAbility.Init(gameObject, inputPayload.abilityHand);
+                    if (!IsHost) holdStartTriggeredAbility.Init(gameObject, inputPayload.abilityHand);
+                    if (!IsHost) holdStartTriggeredAbility.HoldStart();
                     inputPayload.isHoldStartFlag = true;
                 }
                 else
@@ -725,7 +735,7 @@ public class PlayerPrediction : NetworkBehaviour
             }
 
             // 5. process input
-            statePayload = ProcessInput(inputPayload, false);
+            statePayload = ProcessInput(inputPayload, false, true);
 
             // 6. set position if it has been triggered (level teleportation to player spawns)
             if (m_isSetPlayerPosition)
@@ -745,11 +755,14 @@ public class PlayerPrediction : NetworkBehaviour
                 // calc any hold duration
                 var holdDuration = (m_holdFinishTick - m_holdStartTick) / k_serverTickRate;
 
+                // call HoldFinish() if this is a hold ability
+                if (!IsHost && triggeredAbility.abilityType == PlayerAbility.AbilityType.Hold) triggeredAbility.HoldFinish();
+
                 // activate
-                triggeredAbility.Activate(gameObject, statePayload, inputPayload, holdDuration);
+                if (!IsHost) triggeredAbility.Activate(gameObject, statePayload, inputPayload, holdDuration);
 
                 // calc cooldown
-                m_abilityCooldownExpiryTick = inputPayload.tick + (int)math.ceil((triggeredAbility.ExecutionDuration + triggeredAbility.CooldownDuration) * k_serverTickRate);
+                m_abilityCooldownExpiryTick_SERVER = inputPayload.tick + (int)math.ceil((triggeredAbility.ExecutionDuration + triggeredAbility.CooldownDuration) * k_serverTickRate);
 
                 // set special cooldown
                 if (triggeredAbility.abilityType == PlayerAbility.AbilityType.Special)
@@ -820,7 +833,7 @@ public class PlayerPrediction : NetworkBehaviour
         while (tickToReplay <= timer.CurrentTick && counter < MAX_REPLAYS)
         {
             bufferIndex = tickToReplay % k_bufferSize;
-            StatePayload statePayload = ProcessInput(clientInputBuffer.Get(bufferIndex), true);
+            StatePayload statePayload = ProcessInput(clientInputBuffer.Get(bufferIndex), true, false);
 
             clientStateBuffer.Add(statePayload, bufferIndex);
             tickToReplay++;
@@ -828,7 +841,7 @@ public class PlayerPrediction : NetworkBehaviour
         }
     }
 
-    StatePayload ProcessInput(InputPayload input, bool isReconciliation = false)
+    StatePayload ProcessInput(InputPayload input, bool isReconciliation, bool isServerCalling)
     {
         // set starting position and velocity
         if (IsLocalPlayer)
@@ -867,7 +880,7 @@ public class PlayerPrediction : NetworkBehaviour
         {
             // generate velocity from char speed, move dir any potential abilities that slow down speed
             rb.velocity = input.moveDirection * m_networkCharacter.MoveSpeed.Value * 
-                GetInputSlowFactor(input);
+                GetInputSlowFactor(input, isServerCalling);
 
             // check for automove
             if (input.tick < m_autoMoveExpiryTick)
@@ -926,12 +939,15 @@ public class PlayerPrediction : NetworkBehaviour
         }
     }
 
-    public float GetInputSlowFactor(InputPayload input)
+    public float GetInputSlowFactor(InputPayload input, bool isServerCalling)
     {
+        var abilityCooldownExpiryTick = isServerCalling ? m_abilityCooldownExpiryTick_SERVER : m_abilityCooldownExpiryTick_CLIENT;
+
         if (input.tick >= m_slowFactorStartTick && input.tick <= m_slowFactorExpiryTick)
         {
             return m_slowFactor;
-        } else if (input.tick <= m_abilityCooldownExpiryTick)
+        }
+        else if (input.tick <= abilityCooldownExpiryTick)
         {
             return m_cooldownSlowFactor;
         }
