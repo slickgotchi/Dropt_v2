@@ -183,15 +183,15 @@ public class PlayerAbility : NetworkBehaviour
         }
 
         // hide the player relevant hand
-        if (input.abilityTriggered != PlayerAbilityEnum.Dash &&
-            input.abilityTriggered != PlayerAbilityEnum.Consume)
+        if (input.triggeredAbilityEnum != PlayerAbilityEnum.Dash &&
+            input.triggeredAbilityEnum != PlayerAbilityEnum.Consume)
         {
             Player.GetComponent<PlayerGotchi>().HideHand(input.abilityHand, ExecutionDuration);
         }
 
         if (Player != null) OnStart();
 
-        GameAudioManager.Instance.PlayerAbility(Player.GetComponent<NetworkCharacter>().NetworkObjectId, input.abilityTriggered, transform.position);
+        GameAudioManager.Instance.PlayerAbility(Player.GetComponent<NetworkCharacter>().NetworkObjectId, input.triggeredAbilityEnum, transform.position);
         return true;
     }
 
