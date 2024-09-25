@@ -442,7 +442,7 @@ public class CodeInjector : NetworkBehaviour
                              * m_limitedStock.GetMultiplier()
                              * m_underPressure.GetMultiplier();
         CodeInjectorCanvas.Instance.UpdateOutputMultiplier();
-        Debug.Log("UpdateOutputMultiplier - " + m_outputMultiplier);
+        //Debug.Log("UpdateOutputMultiplier - " + m_outputMultiplier);
     }
 
     public float GetOutputMultiplier()

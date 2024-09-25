@@ -39,22 +39,7 @@ public class PlayerStatusEffects : NetworkBehaviour
     void HandleRooted()
     {
         Rooted.SetActive(m_characterStatus.IsRooted());
-        GetComponent<PlayerPrediction>().IsInputEnabled = !m_characterStatus.IsRooted();
-        GetComponent<PlayerPrediction>().MovementMultiplier =
-            m_characterStatus.IsRooted() ? 0 : 1;
-
-        //if (m_characterStatus.IsRooted() && !m_isRootedStart)
-        //{
-        //    m_isRootedStart = true;
-        //    GetComponent<PlayerPrediction>().IsInputEnabled = false;
-        //    Rooted.SetActive(true);
-        //}
-        //if (!m_characterStatus.IsRooted() && m_isRootedStart)
-        //{
-        //    m_isRootedStart = false;
-        //    GetComponent<PlayerPrediction>().IsInputEnabled = true;
-        //    Rooted.SetActive(false);
-        //}
+        GetComponent<PlayerPrediction>().IsMovementEnabled = !m_characterStatus.IsRooted();
     }
 
     private void DisableAllEffects()

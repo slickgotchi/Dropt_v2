@@ -2,14 +2,14 @@ public class CodeInjectorLaptop : Interactable
 {
     public override void OnPressOpenInteraction()
     {
-        CodeInjectorCanvas.Instance.SetVisible(true);
-        SetPlayerInputEnabled(false);
+        CodeInjectorCanvas.Instance.ShowCanvas();
+        PlayerInputMapSwitcher.Instance.SwitchToInUI();
     }
 
-    public override void OnPressCloseInteraction()
-    {
-        CodeInjectorCanvas.Instance.SetVisible(false);
-        CodeInjector.Instance.ResetUpdatedVariablesValue();
-        SetPlayerInputEnabled(true);
-    }
+    //public override void OnPressCloseInteraction()
+    //{
+    //    CodeInjectorCanvas.Instance.HideCanvas();
+    //    CodeInjector.Instance.ResetUpdatedVariablesValue();
+    //    PlayerInputMapSwitcher.Instance.SwitchToInGame();
+    //}
 }

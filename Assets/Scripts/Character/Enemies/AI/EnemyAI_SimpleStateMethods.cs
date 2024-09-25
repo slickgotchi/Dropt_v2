@@ -84,7 +84,7 @@ namespace Dropt
             HandleAlertOthers();
         }
 
-        private void HandleAntiClumping()
+        protected void HandleAntiClumping()
         {
             if (networkCharacter == null) return;
             if (m_navMeshAgent == null) return;
@@ -124,7 +124,7 @@ namespace Dropt
             m_navMeshAgent.SetDestination(finalDestination);
         }
 
-        private void HandleAlertOthers()
+        protected void HandleAlertOthers()
         {
             var allEnemies = EnemyAIManager.Instance.allEnemies;
             for (int i = 0; i < allEnemies.Count; i++)

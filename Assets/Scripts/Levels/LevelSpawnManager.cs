@@ -71,7 +71,6 @@ public class LevelSpawnManager : MonoBehaviour
                     // check if there are no spawns with the id of destroyall
                     if (!activeLevelSpawnIds.Contains(levelSpawn.destroyAllWithSpawnerId))
                     {
-                        Debug.Log("Button spawn time!");
                         isSpawnTime = true;
                     }
                     break;

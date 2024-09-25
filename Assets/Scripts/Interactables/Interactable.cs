@@ -4,6 +4,7 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 using Unity.Mathematics;
+using UnityEngine.InputSystem;
 
 public class Interactable : NetworkBehaviour
 {
@@ -26,6 +27,7 @@ public class Interactable : NetworkBehaviour
     private GameObject m_popupCanvas;
     private Slider m_holdSlider;
     private Animator m_popupAnimator;
+    private bool m_isPopupVisible = false;
     
     [HideInInspector] public Status status;
     [HideInInspector] public ulong playerNetworkObjectId;
@@ -38,6 +40,8 @@ public class Interactable : NetworkBehaviour
 
     // local player
     private PlayerPrediction m_localPlayerPrediction;
+    private PlayerInput m_localPlayerInput;
+    private InputAction m_interactAction;
 
     // float to validate distance to interactable
     private float k_validateInteractionDistance = 3f;
@@ -51,7 +55,7 @@ public class Interactable : NetworkBehaviour
     public virtual void OnHoldFinishInteraction() { }
 
     public virtual void OnPressOpenInteraction() { }
-    public virtual void OnPressCloseInteraction() { }
+    //public virtual void OnPressCloseInteraction() { }
 
     private float k_pressInterval = 0.5f;
     private float m_pressTimer = 0.5f;
@@ -118,25 +122,16 @@ public class Interactable : NetworkBehaviour
 
         if (interactableType == InteractableType.Press)
         {
-            //if (Input.GetKeyDown(KeyCode.F))
-            if (m_localPlayerPrediction.IsInteracting && m_pressTimer < 0)
+            if (m_interactAction.IsPressed() && m_pressTimer < 0
+                && !PlayerInputMapSwitcher.Instance.IsSwitchTooRecent())
             {
                 m_pressTimer = k_pressInterval;
 
-                if (!m_isOpen)
-                {
-                    OnPressOpenInteraction();
-                    if (m_popupAnimator != null) m_popupAnimator.Play("Hide");
-                    m_isOpen = true;
-                }
-                else
-                {
-                    OnPressCloseInteraction();
-                    if (m_popupAnimator != null) m_popupAnimator.Play("Show");
-                    m_isOpen = false;
-                }
+                OnPressOpenInteraction();
+                if (m_popupAnimator != null) m_popupAnimator.Play("Hide");
             }
         }
+
         else if (interactableType == InteractableType.Hold)
         {
             // check for hold cooldown timer
@@ -173,7 +168,7 @@ public class Interactable : NetworkBehaviour
 
     }
 
-    void TryGetLocalPlayerPrediction()
+    protected void TryGetLocalPlayerPrediction()
     {
         if (!IsClient) return;
         if (m_localPlayerPrediction != null) return;
@@ -184,6 +179,8 @@ public class Interactable : NetworkBehaviour
             if (playerPrediction.GetComponent<NetworkObject>().IsLocalPlayer)
             {
                 m_localPlayerPrediction = playerPrediction;
+                m_localPlayerInput = playerPrediction.GetComponent<PlayerInput>();
+                m_interactAction = m_localPlayerInput.actions["Interact"];
             }
         }
     }
@@ -213,18 +210,5 @@ public class Interactable : NetworkBehaviour
         // is player controller within "check" radius of interactor
         var distance = math.distance(playerController.transform.position, transform.position);
         return distance < k_validateInteractionDistance; 
-    }
-
-    protected void SetPlayerInputEnabled(bool isEnabled)
-    {
-        var player = NetworkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId];
-        if (player == null)
-        {
-            Debug.LogWarning("No valid player object for SetPlayerInputEnabled()");
-            return;
-        }
-
-        var playerPrediction = player.GetComponent<PlayerPrediction>();
-        playerPrediction.IsInputEnabled = isEnabled;
     }
 }

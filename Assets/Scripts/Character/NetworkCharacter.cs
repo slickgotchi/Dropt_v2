@@ -259,8 +259,9 @@ public class NetworkCharacter : NetworkBehaviour
 
     protected virtual void InitializeStats()
     {
-        HpMax.Value += baseHpMax;           // needs to be += as we also add to hp from enemy controller with dynamicHp
-        HpCurrent.Value += baseHpCurrent;
+        // set values to base values
+        HpMax.Value = baseHpMax;           // needs to be += as we also add to hp from enemy controller with dynamicHp
+        HpCurrent.Value = baseHpCurrent;    
         HpBuffer.Value = baseHpBuffer;
         AttackPower.Value = baseAttackPower;
         CriticalChance.Value = baseCriticalChance;
@@ -277,6 +278,13 @@ public class NetworkCharacter : NetworkBehaviour
         ApRegen.Value = baseApRegen;
         KnockbackMultiplier.Value = baseKnockbackMutliplier;
         StunMultiplier.Value = baseStunMultiplier;
+
+        // check for and apply dynamic HP
+        var dynamicHp = GetComponent<DynamicHP>();
+        if (dynamicHp != null)
+        {
+            dynamicHp.ApplyDynamicHp();
+        }
     }
 
     public bool HasBuffObject(BuffObject buffObject)

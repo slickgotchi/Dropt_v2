@@ -20,12 +20,52 @@ public class StatBarCanvas : MonoBehaviour
     private float m_fadeDuration = 2f;
     private float m_fadeStartPoint = 2f * 0.3f;
 
+    private bool m_isDamaged = false;
+
     private void Awake()
     {
-        UpdateStatBars();
+        //UpdateStatBarsFadeOut();
     }
 
-    void UpdateStatBars()
+
+
+    private void Update()
+    {
+        //UpdateStatBarsFadeOut();
+        UpdateStatBarsShowIfBelow100();
+        //UpdateAlpha();
+    }
+
+    private void UpdateStatBarsShowIfBelow100()
+    {
+        // update sliders
+        hpSlider.maxValue = character.HpMax.Value;
+        hpSlider.value = character.HpCurrent.Value;
+        apSlider.maxValue = character.ApMax.Value;
+        apSlider.value = character.ApCurrent.Value;
+
+        // hide ap bar if char has no AP stat
+        if (character.ApMax.Value <= 0)
+        {
+            apSlider.gameObject.SetActive(false);
+        }
+
+        // show damage
+        if (m_isDamaged)
+        {
+            SetAlpha(1);
+        } else
+        {
+            SetAlpha(0);
+            if (character.HpCurrent.Value - character.HpMax.Value < 0)
+            {
+                m_isDamaged = true;
+            }
+        }
+
+    }
+
+    void UpdateStatBarsFadeOut()
     {
         // check hp differences
         if (math.abs(hpSlider.value - character.HpCurrent.Value) > 1)
@@ -42,11 +82,7 @@ public class StatBarCanvas : MonoBehaviour
         {
             apSlider.gameObject.SetActive(false);
         }
-    }
 
-    private void Update()
-    {
-        UpdateStatBars();
         UpdateAlpha();
     }
 

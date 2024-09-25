@@ -49,12 +49,10 @@ public class SmashWave : PlayerAbility
 
     public override void OnHoldStart()
     {
-        Debug.Log("HoldStart");
     }
 
     public override void OnHoldFinish()
     {
-        Debug.Log("HoldFinish");
     }
 
     private void CustomCollisionCheck()

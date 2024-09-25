@@ -242,6 +242,15 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""FreezeMovement"",
+                    ""type"": ""Value"",
+                    ""id"": ""c49d5306-0c72-4a73-b3f7-781b46cbd47d"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -684,6 +693,147 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
                     ""action"": ""RightHoldFinish_MoveAim"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""437d2b3a-1d8e-4956-b4e9-f54af87c5a2a"",
+                    ""path"": ""<Gamepad>/rightTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""FreezeMovement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""75c672cc-3619-4506-8f46-a1498cdeda91"",
+                    ""path"": ""<Gamepad>/leftTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""FreezeMovement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""07929ebc-9a38-4b7a-bf60-c0b50be3e019"",
+                    ""path"": ""<Keyboard>/shift"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""FreezeMovement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
+        },
+        {
+            ""name"": ""InUI"",
+            ""id"": ""aeadba0a-900f-4cab-a49d-0c284a3768fb"",
+            ""actions"": [
+                {
+                    ""name"": ""Up"",
+                    ""type"": ""Button"",
+                    ""id"": ""e8b1b68e-4180-4d7c-801c-c70388f84abb"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Down"",
+                    ""type"": ""Button"",
+                    ""id"": ""fa6c5625-6b4f-48a2-8067-91879ff6d591"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Left"",
+                    ""type"": ""Button"",
+                    ""id"": ""0f87f14f-9ec1-45d4-9af6-4c0707efc05b"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Right"",
+                    ""type"": ""Button"",
+                    ""id"": ""388cbaa2-a9e7-49af-ae01-c1529dc2eca4"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Select"",
+                    ""type"": ""Button"",
+                    ""id"": ""51a82934-9bbc-4aa6-93a0-7a551f2567dc"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""9e2f7212-8283-43f0-989f-7923dafd0203"",
+                    ""path"": ""<Keyboard>/w"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Up"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""0ec20bc6-69ec-42ca-8e77-72210eb6092e"",
+                    ""path"": ""<Keyboard>/s"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Down"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""522e9353-f583-4fe0-9f57-e1eb60f20f3c"",
+                    ""path"": ""<Keyboard>/a"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Left"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""09d63f20-e7ee-41e6-bfd4-7a07e2ccbd07"",
+                    ""path"": ""<Keyboard>/d"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Right"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d9f8691d-d2f4-44da-8ba4-1689f1ac618b"",
+                    ""path"": ""<Keyboard>/f"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Select"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -716,6 +866,14 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
         m_InGame_RightHoldFinish_MoveAim = m_InGame.FindAction("RightHoldFinish_MoveAim", throwIfNotFound: true);
         m_InGame________ = m_InGame.FindAction("_______", throwIfNotFound: true);
         m_InGame_Interact = m_InGame.FindAction("Interact", throwIfNotFound: true);
+        m_InGame_FreezeMovement = m_InGame.FindAction("FreezeMovement", throwIfNotFound: true);
+        // InUI
+        m_InUI = asset.FindActionMap("InUI", throwIfNotFound: true);
+        m_InUI_Up = m_InUI.FindAction("Up", throwIfNotFound: true);
+        m_InUI_Down = m_InUI.FindAction("Down", throwIfNotFound: true);
+        m_InUI_Left = m_InUI.FindAction("Left", throwIfNotFound: true);
+        m_InUI_Right = m_InUI.FindAction("Right", throwIfNotFound: true);
+        m_InUI_Select = m_InUI.FindAction("Select", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -801,6 +959,7 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
     private readonly InputAction m_InGame_RightHoldFinish_MoveAim;
     private readonly InputAction m_InGame________;
     private readonly InputAction m_InGame_Interact;
+    private readonly InputAction m_InGame_FreezeMovement;
     public struct InGameActions
     {
         private @PlayerInputs m_Wrapper;
@@ -829,6 +988,7 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
         public InputAction @RightHoldFinish_MoveAim => m_Wrapper.m_InGame_RightHoldFinish_MoveAim;
         public InputAction @_______ => m_Wrapper.m_InGame________;
         public InputAction @Interact => m_Wrapper.m_InGame_Interact;
+        public InputAction @FreezeMovement => m_Wrapper.m_InGame_FreezeMovement;
         public InputActionMap Get() { return m_Wrapper.m_InGame; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -910,6 +1070,9 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
             @Interact.started += instance.OnInteract;
             @Interact.performed += instance.OnInteract;
             @Interact.canceled += instance.OnInteract;
+            @FreezeMovement.started += instance.OnFreezeMovement;
+            @FreezeMovement.performed += instance.OnFreezeMovement;
+            @FreezeMovement.canceled += instance.OnFreezeMovement;
         }
 
         private void UnregisterCallbacks(IInGameActions instance)
@@ -986,6 +1149,9 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
             @Interact.started -= instance.OnInteract;
             @Interact.performed -= instance.OnInteract;
             @Interact.canceled -= instance.OnInteract;
+            @FreezeMovement.started -= instance.OnFreezeMovement;
+            @FreezeMovement.performed -= instance.OnFreezeMovement;
+            @FreezeMovement.canceled -= instance.OnFreezeMovement;
         }
 
         public void RemoveCallbacks(IInGameActions instance)
@@ -1003,6 +1169,84 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
         }
     }
     public InGameActions @InGame => new InGameActions(this);
+
+    // InUI
+    private readonly InputActionMap m_InUI;
+    private List<IInUIActions> m_InUIActionsCallbackInterfaces = new List<IInUIActions>();
+    private readonly InputAction m_InUI_Up;
+    private readonly InputAction m_InUI_Down;
+    private readonly InputAction m_InUI_Left;
+    private readonly InputAction m_InUI_Right;
+    private readonly InputAction m_InUI_Select;
+    public struct InUIActions
+    {
+        private @PlayerInputs m_Wrapper;
+        public InUIActions(@PlayerInputs wrapper) { m_Wrapper = wrapper; }
+        public InputAction @Up => m_Wrapper.m_InUI_Up;
+        public InputAction @Down => m_Wrapper.m_InUI_Down;
+        public InputAction @Left => m_Wrapper.m_InUI_Left;
+        public InputAction @Right => m_Wrapper.m_InUI_Right;
+        public InputAction @Select => m_Wrapper.m_InUI_Select;
+        public InputActionMap Get() { return m_Wrapper.m_InUI; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(InUIActions set) { return set.Get(); }
+        public void AddCallbacks(IInUIActions instance)
+        {
+            if (instance == null || m_Wrapper.m_InUIActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_InUIActionsCallbackInterfaces.Add(instance);
+            @Up.started += instance.OnUp;
+            @Up.performed += instance.OnUp;
+            @Up.canceled += instance.OnUp;
+            @Down.started += instance.OnDown;
+            @Down.performed += instance.OnDown;
+            @Down.canceled += instance.OnDown;
+            @Left.started += instance.OnLeft;
+            @Left.performed += instance.OnLeft;
+            @Left.canceled += instance.OnLeft;
+            @Right.started += instance.OnRight;
+            @Right.performed += instance.OnRight;
+            @Right.canceled += instance.OnRight;
+            @Select.started += instance.OnSelect;
+            @Select.performed += instance.OnSelect;
+            @Select.canceled += instance.OnSelect;
+        }
+
+        private void UnregisterCallbacks(IInUIActions instance)
+        {
+            @Up.started -= instance.OnUp;
+            @Up.performed -= instance.OnUp;
+            @Up.canceled -= instance.OnUp;
+            @Down.started -= instance.OnDown;
+            @Down.performed -= instance.OnDown;
+            @Down.canceled -= instance.OnDown;
+            @Left.started -= instance.OnLeft;
+            @Left.performed -= instance.OnLeft;
+            @Left.canceled -= instance.OnLeft;
+            @Right.started -= instance.OnRight;
+            @Right.performed -= instance.OnRight;
+            @Right.canceled -= instance.OnRight;
+            @Select.started -= instance.OnSelect;
+            @Select.performed -= instance.OnSelect;
+            @Select.canceled -= instance.OnSelect;
+        }
+
+        public void RemoveCallbacks(IInUIActions instance)
+        {
+            if (m_Wrapper.m_InUIActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        public void SetCallbacks(IInUIActions instance)
+        {
+            foreach (var item in m_Wrapper.m_InUIActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_InUIActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    public InUIActions @InUI => new InUIActions(this);
     public interface IInGameActions
     {
         void OnMovement(InputAction.CallbackContext context);
@@ -1029,5 +1273,14 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
         void OnRightHoldFinish_MoveAim(InputAction.CallbackContext context);
         void On_______(InputAction.CallbackContext context);
         void OnInteract(InputAction.CallbackContext context);
+        void OnFreezeMovement(InputAction.CallbackContext context);
+    }
+    public interface IInUIActions
+    {
+        void OnUp(InputAction.CallbackContext context);
+        void OnDown(InputAction.CallbackContext context);
+        void OnLeft(InputAction.CallbackContext context);
+        void OnRight(InputAction.CallbackContext context);
+        void OnSelect(InputAction.CallbackContext context);
     }
 }
