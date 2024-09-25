@@ -110,6 +110,7 @@ public class PlayerPrediction : NetworkBehaviour
 
     public bool IsInteracting = false;
     public bool IsFreezeMovementWhileTargeting = false;
+    private bool m_IsShieldAbilityActive;
 
     private void Awake()
     {
@@ -173,11 +174,13 @@ public class PlayerPrediction : NetworkBehaviour
             if (m_lhSpecialCooldownExpiryTick < timer.CurrentTick)
             {
                 return 0;
-            } else
+            }
+            else
             {
                 return math.floor((m_lhSpecialCooldownExpiryTick - timer.CurrentTick) / k_serverTickRate);
             }
-        } else
+        }
+        else
         {
             if (m_rhSpecialCooldownExpiryTick < timer.CurrentTick)
             {
@@ -283,6 +286,7 @@ public class PlayerPrediction : NetworkBehaviour
         var lhWearable = GetComponent<PlayerEquipment>().LeftHand.Value;
         m_holdStartTriggeredAbilityEnum = m_playerAbilities.GetHoldAbilityEnum(lhWearable);
         var holdAbility = m_playerAbilities.GetAbility(m_holdStartTriggeredAbilityEnum);
+        m_IsShieldAbilityActive = m_holdStartTriggeredAbilityEnum == PlayerAbilityEnum.ShieldBlock;
 
         if (holdAbility == null) return;
 
@@ -381,6 +385,7 @@ public class PlayerPrediction : NetworkBehaviour
         var rhWearable = GetComponent<PlayerEquipment>().RightHand.Value;
         m_holdStartTriggeredAbilityEnum = m_playerAbilities.GetHoldAbilityEnum(rhWearable);
         var holdAbility = m_playerAbilities.GetAbility(m_holdStartTriggeredAbilityEnum);
+        m_IsShieldAbilityActive = m_holdStartTriggeredAbilityEnum == PlayerAbilityEnum.ShieldBlock;
 
         if (holdAbility == null) return;
 
@@ -453,7 +458,7 @@ public class PlayerPrediction : NetworkBehaviour
 
     public float GetHoldPercentage()
     {
-        if (m_holdState == HoldState.Inactive) return 0;
+        if (m_holdState == HoldState.Inactive || m_IsShieldAbilityActive) return 0;
 
         var holdDuration = (timer.CurrentTick - m_holdInputStartTick) / k_serverTickRate;
         var holdPercent = math.min(holdDuration / m_holdChargeTime, 1f);
@@ -581,7 +586,8 @@ public class PlayerPrediction : NetworkBehaviour
                 holdStartTriggeredAbility.Init(gameObject, m_abilityHand);
                 holdStartTriggeredAbility.HoldStart();
                 m_isHoldStartFlag = true;
-            } else
+            }
+            else
             {
                 m_holdStartTriggeredAbilityEnum = PlayerAbilityEnum.Null;
                 holdStartTriggeredAbility = null;
@@ -698,8 +704,8 @@ public class PlayerPrediction : NetworkBehaviour
                 if (isApEnough && isCooldownFinished)
                 {
                     if (!IsHost) triggeredAbility.Init(gameObject, inputPayload.abilityHand);
-
-                } else
+                }
+                else
                 {
                     inputPayload.triggeredAbilityEnum = PlayerAbilityEnum.Null;
                 }
@@ -876,10 +882,11 @@ public class PlayerPrediction : NetworkBehaviour
             // rather than try generate them again
             var bufferIndex = input.tick % k_bufferSize;
             rb.velocity = clientStateBuffer.Get(bufferIndex).velocity;
-        } else
+        }
+        else
         {
             // generate velocity from char speed, move dir any potential abilities that slow down speed
-            rb.velocity = input.moveDirection * m_networkCharacter.MoveSpeed.Value * 
+            rb.velocity = input.moveDirection * m_networkCharacter.MoveSpeed.Value *
                 GetInputSlowFactor(input, isServerCalling);
 
             // check for automove
@@ -973,8 +980,6 @@ public class PlayerPrediction : NetworkBehaviour
         m_setPlayerPosition = position;
     }
 
-    
-
     private bool m_isRemoteClientTickDeltaSet = false;
     public void SetIsRemoteClientTickDeltaSet(bool isSet) { m_isRemoteClientTickDeltaSet = isSet; }
 
@@ -1056,7 +1061,7 @@ public class PlayerPrediction : NetworkBehaviour
         if (a == -1 || b == -1)
         {
             Debug.Log("Remote player outside interp range. Target tick: " + targetTick +
-                ", LastServerOldest Tick: " + m_lastServerStateArray[0].tick + ", LastServerNewest Tick: " + m_lastServerStateArray[m_lastServerStateArray.Count-1].tick);
+                ", LastServerOldest Tick: " + m_lastServerStateArray[0].tick + ", LastServerNewest Tick: " + m_lastServerStateArray[m_lastServerStateArray.Count - 1].tick);
             return transform.position;
         }
 
@@ -1101,8 +1106,8 @@ public class PlayerPrediction : NetworkBehaviour
     {
         // because we do interpolation between tick-2 and tick-1, for simplicity (and some determinism)
         // lets take the mid point between those two positions
-        var startBufferIndex = (tick-2) % k_bufferSize;
-        var finishBufferIndex = (tick-1) % k_bufferSize;
+        var startBufferIndex = (tick - 2) % k_bufferSize;
+        var finishBufferIndex = (tick - 1) % k_bufferSize;
 
         if (IsLocalPlayer)
         {
@@ -1130,9 +1135,9 @@ public class PlayerPrediction : NetworkBehaviour
                 if (finish.abilityTriggered == PlayerAbilityEnum.PierceLance) offset.y = 5f;
 
                 gameObject.GetComponentInChildren<DashTrailSpawner>().DrawShadow(
-                    start.position, 
-                    finish.position + offset, 
-                    (int)math.ceil(ability.TeleportDistance)+1);
+                    start.position,
+                    finish.position + offset,
+                    (int)math.ceil(ability.TeleportDistance) + 1);
                 m_isDashAnimPlayed = true;
             }
         }
