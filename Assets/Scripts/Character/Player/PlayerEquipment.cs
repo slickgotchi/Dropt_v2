@@ -216,7 +216,7 @@ public class PlayerEquipment : NetworkBehaviour
     {
         if (!IsLocalPlayer) return;
 
-        PlayerHUDCanvas.Singleton.VisibleShieldBar(Hand.Right, false);
+        PlayerHUDCanvas.Singleton.VisibleShieldBar(hand, false);
     }
 
     public enum Slot
