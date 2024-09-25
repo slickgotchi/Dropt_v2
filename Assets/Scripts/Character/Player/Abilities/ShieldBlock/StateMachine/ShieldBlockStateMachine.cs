@@ -5,12 +5,14 @@ public class ShieldBlockStateMachine
     public readonly RechargeState RechargeState;
     public readonly CoolDownState CoolDownState;
     public readonly InUseState InUseState;
+    //public readonly Hand Hand;
 
-    public ShieldBlockStateMachine(ShieldBlock shieldBlock)
+    public ShieldBlockStateMachine(ShieldBlock shieldBlock, Hand hand)
     {
-        RechargeState = new RechargeState(shieldBlock, this);
-        CoolDownState = new CoolDownState(shieldBlock, this);
-        InUseState = new InUseState(shieldBlock, this);
+        //hand = Hand;
+        RechargeState = new RechargeState(shieldBlock, this, hand);
+        CoolDownState = new CoolDownState(shieldBlock, this, hand);
+        InUseState = new InUseState(shieldBlock, this, hand);
     }
 
     public void ChangeState(ShieldBlockState shieldBlockState)

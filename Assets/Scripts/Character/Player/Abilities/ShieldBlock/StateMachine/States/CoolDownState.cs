@@ -5,7 +5,7 @@ public class CoolDownState : ShieldBlockState
     private float m_coolDownTime;
     private float m_timer;
 
-    public CoolDownState(ShieldBlock shieldBlock, ShieldBlockStateMachine shieldBlockStateMachine) : base(shieldBlock, shieldBlockStateMachine)
+    public CoolDownState(ShieldBlock shieldBlock, ShieldBlockStateMachine shieldBlockStateMachine, Hand hand) : base(shieldBlock, shieldBlockStateMachine, hand)
     {
     }
 

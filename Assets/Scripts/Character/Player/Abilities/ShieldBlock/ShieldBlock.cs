@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class ShieldBlock : PlayerAbility
 {
-    private ShieldBlockData m_shieldBlockData;
+    private readonly Dictionary<Hand, ShieldData> m_shieldDatas = new Dictionary<Hand, ShieldData>();
 
     [Serializable]
     public class BlockByRarity
@@ -19,70 +19,127 @@ public class ShieldBlock : PlayerAbility
     [SerializeField] private float m_rechargeRate;
     [SerializeField] private float m_breakCoolDown;
 
-    private ShieldBlockStateMachine m_shieldBlockStateMachine;
     private ShieldBarCanvas m_shieldBarCanvas;
-    private ShieldDataContainer m_shieldDataContainer;
 
-    private readonly NetworkVariable<float> m_hp = new NetworkVariable<float>(0);
+    private readonly NetworkVariable<float> m_leftHp = new NetworkVariable<float>(0);
+    private readonly NetworkVariable<float> m_rightHp = new NetworkVariable<float>(0);
+
+    [SerializeField] private bool m_isBlocking;
+    private Hand m_blockingHand;
+    private bool m_isOwnner;
 
     private void OnTransformParentChanged()
     {
         Transform parent = transform.parent;
         m_shieldBarCanvas = parent.GetComponentInChildren<ShieldBarCanvas>();
-        m_shieldDataContainer = parent.GetComponentInChildren<ShieldDataContainer>();
+        m_isOwnner = parent.GetComponent<NetworkObject>().IsOwner;
     }
 
-    public void Initialize(Wearable.NameEnum nameEnum, Hand hand, Wearable.RarityEnum rarityEnum)
+    public void Initialize(Hand hand, Wearable.RarityEnum rarityEnum)
     {
-        if (m_shieldDataContainer.HasShieldData(nameEnum, hand))
+        ShieldBlockData shieldBlockData;
+        ShieldBlockStateMachine shieldBlockStateMachine;
+        if (hand == Hand.Left)
         {
-            ShieldData shieldData = m_shieldDataContainer.GetShieldData(nameEnum, hand);
-            m_shieldBlockData = shieldData.ShieldBlockData;
-            m_hp.Value = m_shieldBlockData.RefHp;
-            m_shieldBlockStateMachine = shieldData.ShieldBlockStateMachine;
+            m_leftHp.Value = m_blocksByRarity.Find(x => x.Rarity == rarityEnum).Hp;
+            shieldBlockData = new ShieldBlockData(m_leftHp.Value, m_rechargeRate, m_depletionRate);
         }
         else
         {
-            m_hp.Value = m_blocksByRarity.Find(x => x.Rarity == rarityEnum).Hp;
-            m_shieldBlockData = new ShieldBlockData(m_hp.Value, m_rechargeRate, m_depletionRate);
-            SubscribeOnHpValueChangeClientRpc();
-            m_shieldBlockStateMachine = new ShieldBlockStateMachine(this);
-            ShieldData shieldData = new(m_shieldBlockData, m_shieldBlockStateMachine);
-            m_shieldDataContainer.SetShieldData(nameEnum, hand, shieldData);
+            m_rightHp.Value = m_blocksByRarity.Find(x => x.Rarity == rarityEnum).Hp;
+            shieldBlockData = new ShieldBlockData(m_rightHp.Value, m_rechargeRate, m_depletionRate);
         }
+
+        shieldBlockStateMachine = new ShieldBlockStateMachine(this, hand);
+        ShieldData shieldData = new(shieldBlockData, shieldBlockStateMachine);
+
+        if (m_shieldDatas.ContainsKey(hand))
+        {
+            m_shieldDatas[hand] = shieldData;
+        }
+        else
+        {
+            m_shieldDatas.Add(hand, shieldData);
+        }
+
+        SubscribeOnHpValueChange(hand);
     }
 
     public override void OnHoldStart()
     {
+        HoldStartServerRpc(AbilityHand);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void HoldStartServerRpc(Hand hand)
+    {
+        if (m_isBlocking) return;
+
         ShieldBarCanvasSetVisibleClientRpc(true);
-        SetRotationToActionDirection();
-        SetLocalPosition(PlayerAbilityCentreOffset + ActivationInput.actionDirection);
-        SetInitialShieldProgressClientRpc();
-        if (IsActive())
-        {
-            m_shieldBlockStateMachine.ChangeState(m_shieldBlockStateMachine.InUseState);
-        }
+
+        if (!IsActive(hand)) return;
+        ShieldBlockStateMachine shieldBlockStateMachine = m_shieldDatas[hand].ShieldBlockStateMachine;
+        shieldBlockStateMachine.ChangeState(shieldBlockStateMachine.InUseState);
+        float progress = GetHpRatio(hand);
+        SetPlayerHudShieldProgressClientRpc(hand, progress);
     }
 
     public override void OnHoldFinish()
     {
-        ShieldBarCanvasSetVisibleClientRpc(false);
-        if (IsActive())
+        HoldFinishServerRpc(AbilityHand);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void HoldFinishServerRpc(Hand hand)
+    {
+        if (m_isBlocking)
         {
-            m_shieldBlockStateMachine.ChangeState(m_shieldBlockStateMachine.RechargeState);
+            if (hand == m_blockingHand)
+            {
+                ShieldBarCanvasSetVisibleClientRpc(false);
+            }
+            ShieldBlockStateMachine shieldBlockStateMachine = m_shieldDatas[m_blockingHand].ShieldBlockStateMachine;
+            shieldBlockStateMachine.ChangeState(shieldBlockStateMachine.RechargeState);
+        }
+        else
+        {
+            ShieldBarCanvasSetVisibleClientRpc(false);
+        }
+    }
+
+    public void SubscribeOnHpValueChange(Hand hand)
+    {
+        if (hand == Hand.Left)
+        {
+            m_leftHp.OnValueChanged += OnLeftHpValueChange;
+        }
+        else
+        {
+            m_rightHp.OnValueChanged += OnRightHpValueChange;
+        }
+    }
+
+    public void UnsubscribeOnHpValueChange(Hand hand)
+    {
+        if (hand == Hand.Left)
+        {
+            m_leftHp.OnValueChanged -= OnLeftHpValueChange;
+        }
+        else
+        {
+            m_rightHp.OnValueChanged -= OnRightHpValueChange;
         }
     }
 
     [ClientRpc]
-    public void SubscribeOnHpValueChangeClientRpc()
+    public void SetPlayerHudShieldProgressClientRpc(Hand hand, float progress)
     {
-        m_hp.OnValueChanged += OnHpValueChange;
-    }
+        if (!m_isOwnner)
+        {
+            return;
+        }
 
-    [ClientRpc]
-    public void SetInitialShieldProgressClientRpc()
-    {
-        SetProgress();
+        PlayerHUDCanvas.Singleton.SetShieldBarProgress(hand, progress);
     }
 
     [ClientRpc]
@@ -103,73 +160,133 @@ public class ShieldBlock : PlayerAbility
             return;
         }
 
-        m_shieldBlockStateMachine?.Update();
-    }
-
-    public void RechargeHp()
-    {
-        if (m_hp.Value >= m_shieldBlockData.TotalHp)
+        foreach (KeyValuePair<Hand, ShieldData> data in m_shieldDatas)
         {
-            return;
+            data.Value.ShieldBlockStateMachine?.Update();
         }
 
-        float newHp = m_hp.Value + (m_shieldBlockData.RechargeAmountPerSecond * Time.deltaTime);
-        if (newHp >= m_shieldBlockData.TotalHp)
+        if (m_isBlocking)
         {
-            newHp = m_shieldBlockData.TotalHp;
+            float progress = GetHpRatio(m_blockingHand);
+            SetShieldBarCanvasProgressClientRpc(progress);
         }
-        m_hp.Value = newHp;
     }
 
-    private void OnHpValueChange(float previousValue, float newValue)
+    [ClientRpc]
+    private void SetShieldBarCanvasProgressClientRpc(float progress)
     {
-        SetProgress();
+        m_shieldBarCanvas.SetProgress(progress);
+    }
+
+    public void RechargeHp(Hand hand)
+    {
+        ShieldData shieldData = m_shieldDatas[hand];
+        if (hand == Hand.Left)
+        {
+            if (m_leftHp.Value >= shieldData.ShieldBlockData.TotalHp)
+            {
+                return;
+            }
+
+            float newHp = m_leftHp.Value + (shieldData.ShieldBlockData.RechargeAmountPerSecond * Time.deltaTime);
+            if (newHp >= shieldData.ShieldBlockData.TotalHp)
+            {
+                newHp = shieldData.ShieldBlockData.TotalHp;
+            }
+            m_leftHp.Value = newHp;
+        }
+        else
+        {
+            if (m_rightHp.Value >= shieldData.ShieldBlockData.TotalHp)
+            {
+                return;
+            }
+
+            float newHp = m_rightHp.Value + (shieldData.ShieldBlockData.RechargeAmountPerSecond * Time.deltaTime);
+            if (newHp >= shieldData.ShieldBlockData.TotalHp)
+            {
+                newHp = shieldData.ShieldBlockData.TotalHp;
+            }
+            m_rightHp.Value = newHp;
+        }
+    }
+
+    private void OnLeftHpValueChange(float previousValue, float newValue)
+    {
+        SetPlayerHudShieldProgressClientRpc(Hand.Left, GetHpRatio(Hand.Left));
         if (newValue <= 0)
         {
-            m_shieldBlockStateMachine.ChangeState(m_shieldBlockStateMachine.CoolDownState);
+            ShieldBlockStateMachine shieldBlockStateMachine = m_shieldDatas[Hand.Left].ShieldBlockStateMachine;
+            shieldBlockStateMachine.ChangeState(shieldBlockStateMachine.CoolDownState);
         }
     }
 
-    private void SetProgress()
+    private void OnRightHpValueChange(float previousValue, float newValue)
     {
-        float progress = GetHpRatio();
-        m_shieldBarCanvas.SetProgress(progress);
-        PlayerHUDCanvas.Singleton.SetShieldBarProgress(AbilityHand, progress);
+        SetPlayerHudShieldProgressClientRpc(Hand.Right, GetHpRatio(Hand.Right));
+        if (newValue <= 0)
+        {
+            ShieldBlockStateMachine shieldBlockStateMachine = m_shieldDatas[Hand.Right].ShieldBlockStateMachine;
+            shieldBlockStateMachine.ChangeState(shieldBlockStateMachine.CoolDownState);
+        }
     }
 
-    public float GetHpRatio()
+    public float GetHpRatio(Hand hand)
     {
-        return m_hp.Value / m_shieldBlockData.TotalHp;
+        ShieldBlockData shieldBlockData = m_shieldDatas[hand].ShieldBlockData;
+        return hand == Hand.Left ? m_leftHp.Value / shieldBlockData.TotalHp : m_rightHp.Value / shieldBlockData.TotalHp;
     }
 
-    public void StartBlocking()
+    public void StartBlocking(Hand hand)
     {
-        m_shieldBlockData.StartBlocking();
+        m_isBlocking = true;
+        m_blockingHand = hand;
     }
 
-    public void StopBlocking()
+    public void StopBlocking(Hand hand)
     {
-        m_shieldBlockData.StopBlocking();
+        if (hand == m_blockingHand)
+        {
+            m_isBlocking = false;
+        }
     }
 
     public bool IsBlocking()
     {
-        return m_shieldBlockData.IsBlocking();
+        return m_isBlocking;
     }
 
-    public void DepleteShield()
+    public void DepleteShield(Hand hand)
     {
-        if (m_hp.Value <= 0)
+        ShieldBlockData shieldBlockData = m_shieldDatas[hand].ShieldBlockData;
+        if (hand == Hand.Left)
         {
-            return;
-        }
+            if (m_leftHp.Value <= 0)
+            {
+                return;
+            }
 
-        float newHp = m_hp.Value - (m_shieldBlockData.DepletionAmountPerSecond * Time.deltaTime);
-        if (newHp <= 0)
-        {
-            newHp = 0;
+            float newHp = m_leftHp.Value - (shieldBlockData.DepletionAmountPerSecond * Time.deltaTime);
+            if (newHp <= 0)
+            {
+                newHp = 0;
+            }
+            m_leftHp.Value = newHp;
         }
-        m_hp.Value = newHp;
+        else
+        {
+            if (m_rightHp.Value <= 0)
+            {
+                return;
+            }
+
+            float newHp = m_rightHp.Value - (shieldBlockData.DepletionAmountPerSecond * Time.deltaTime);
+            if (newHp <= 0)
+            {
+                newHp = 0;
+            }
+            m_rightHp.Value = newHp;
+        }
     }
 
     public float GetCoolDownTime()
@@ -177,23 +294,40 @@ public class ShieldBlock : PlayerAbility
         return m_breakCoolDown;
     }
 
-    public bool IsActive()
+    public bool IsActive(Hand hand)
     {
-        return m_hp.Value > 0;
+        return (hand == Hand.Left && m_leftHp.Value > 0) || (hand == Hand.Right && m_rightHp.Value > 0);
     }
 
     public float AbsorbDamage(float damage)
     {
-        if (m_hp.Value >= damage)
+        if (m_blockingHand == Hand.Left)
         {
-            m_hp.Value -= damage;
-            return 0;
+            if (m_leftHp.Value >= damage)
+            {
+                m_leftHp.Value -= damage;
+                return 0;
+            }
+            else
+            {
+                damage -= m_leftHp.Value;
+                m_leftHp.Value = 0;
+                return damage;
+            }
         }
         else
         {
-            damage -= m_hp.Value;
-            m_hp.Value = 0;
-            return damage;
+            if (m_rightHp.Value >= damage)
+            {
+                m_rightHp.Value -= damage;
+                return 0;
+            }
+            else
+            {
+                damage -= m_rightHp.Value;
+                m_rightHp.Value = 0;
+                return damage;
+            }
         }
     }
 
@@ -203,7 +337,12 @@ public class ShieldBlock : PlayerAbility
         {
             return;
         }
-        m_shieldBlockData?.SetRefHp(m_hp.Value);
-        m_shieldBlockStateMachine = null;
+
+        if (m_shieldDatas.ContainsKey(hand))
+        {
+            m_shieldDatas.Remove(hand);
+        }
+
+        UnsubscribeOnHpValueChange(hand);
     }
 }
