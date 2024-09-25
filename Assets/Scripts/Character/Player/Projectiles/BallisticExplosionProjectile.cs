@@ -169,7 +169,8 @@ public class BallisticExplosionProjectile : NetworkBehaviour
         }
 
         // do explosion collision check
-        ExplosionCollider.transform.position = position;
+        //ExplosionCollider.transform.position = position;
+        ExplosionCollider.transform.parent = null;
         ExplosionCollider.transform.localScale = new Vector3(ExplosionRadius * 2, ExplosionRadius * 2, 1f);
         ExplosionCollisionCheck(position);
     }
@@ -178,7 +179,6 @@ public class BallisticExplosionProjectile : NetworkBehaviour
     {
         // sync colliders to current transform
         Physics2D.SyncTransforms();
-
         // do a collision check
         List<Collider2D> enemyHitColliders = new List<Collider2D>();
         ExplosionCollider.OverlapCollider(PlayerAbility.GetContactFilter(new string[] { "EnemyHurt", "Destructible" }), enemyHitColliders);
@@ -217,6 +217,8 @@ public class BallisticExplosionProjectile : NetworkBehaviour
 
         // clear out colliders
         enemyHitColliders.Clear();
+
+        Destroy(ExplosionCollider.gameObject);
     }
 
     void Deactivate(Vector3 hitPosition)

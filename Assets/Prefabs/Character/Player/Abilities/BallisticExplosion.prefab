@@ -133,7 +133,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 4181306871
+  GlobalObjectIdHash: 558678400
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -187,6 +187,8 @@ MonoBehaviour:
   AutoMoveDuration: 0
   HoldChargeTime: 3
   HoldSlowFactor: 1
+  KnockbackDistance: 0
+  KnockbackStunDuration: 0
   Player: {fileID: 0}
   SpecialCooldown: 0
   PlayerAbilityCentreOffset: {x: 0, y: 0.5, z: 0}
@@ -195,9 +197,17 @@ MonoBehaviour:
   Duration: 0.5
   ExplosionRadius: 4
   ExplosionDamageMultiplier: 0.8
-  BulletPrefab: {fileID: 2544078778212307353, guid: 59494f737301c4ab3952dbb9e977c19d, type: 3}
+  ExplosionKnockbackDistance: 0.5
+  ExplosionKnockbackStunDuration: 0.5
+  ApplePrefab: {fileID: 2544078778212307353, guid: 4f4ef428b129a4112b87bdff7abf0b60, type: 3}
   ArrowPrefab: {fileID: 2544078778212307353, guid: dd316c056467f40faae5d4bebd986611, type: 3}
   BasketballPrefab: {fileID: 2544078778212307353, guid: bc8d79c37cf2340aa8edb81656114aab, type: 3}
+  BulletPrefab: {fileID: 2544078778212307353, guid: 59494f737301c4ab3952dbb9e977c19d, type: 3}
+  CorkPrefab: {fileID: 2544078778212307353, guid: 728aa5f137ae845348fe74b363e1e804, type: 3}
+  DrankPrefab: {fileID: 2544078778212307353, guid: 1accfb4f7bfbe4dd49fc81928125efb1, type: 3}
+  MilkPrefab: {fileID: 2544078778212307353, guid: ffb06ca3cee234effbd94a6dffa24664, type: 3}
+  NailTrioPrefab: {fileID: 2544078778212307353, guid: 85465d2dc1f2340e0a233b9aecc46dfb, type: 3}
+  SeedPrefab: {fileID: 2544078778212307353, guid: 53cefb62a81824d6fa07080cb9787a61, type: 3}
 --- !u!1 &4708556748347195212
 GameObject:
   m_ObjectHideFlags: 0
