@@ -101,11 +101,13 @@ MonoBehaviour:
   CooldownDuration: 1
   Parent: {fileID: 0}
   Target: {fileID: 0}
+  AttackDirection: {x: 0, y: 0, z: 0}
+  PositionToAttack: {x: 0, y: 0, z: 0}
   isStartRotationAlignedWithParentDirection: 0
   axialOffsetWhenAlignedWithParentDirection: 0
   EnemyAbilityState: 0
   ExplosionDuration: 0.2
-  ExplosionRadius: 5
+  ExplosionRadius: 3.5
   Collider: {fileID: 3947984466411104089}
 --- !u!114 &7908112709495034396
 MonoBehaviour:
@@ -178,7 +180,6 @@ CircleCollider2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6958885204027949568}
   m_Enabled: 1
-  serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -202,7 +203,7 @@ CircleCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
+  m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
+  serializedVersion: 2
   m_Radius: 0.5

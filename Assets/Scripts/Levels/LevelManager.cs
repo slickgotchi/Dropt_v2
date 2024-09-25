@@ -99,6 +99,16 @@ public class LevelManager : NetworkBehaviour
         // disable proximity manager
         ProximityManager.Instance.enabled = false;
 
+        // spawn everything that hasn't already
+        var levelSpawns = FindObjectsByType<Level.LevelSpawn>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        foreach (var levelSpawn in levelSpawns)
+        {
+            if (!levelSpawn.isSpawned)
+            {
+                levelSpawn.GetComponent<NetworkObject>().Spawn();
+            }
+        }
+
         // find everything to destroy
         var destroyObjects = new List<DestroyAtLevelChange>(FindObjectsByType<DestroyAtLevelChange>(FindObjectsInactive.Include, FindObjectsSortMode.None));
 

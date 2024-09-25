@@ -111,6 +111,7 @@ public class PlayerPrediction : NetworkBehaviour
     public bool IsInteracting = false;
     public bool IsFreezeMovementWhileTargeting = false;
     private bool m_IsShieldAbilityActive;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -286,6 +287,7 @@ public class PlayerPrediction : NetworkBehaviour
         m_holdStartTriggeredAbilityEnum = m_playerAbilities.GetHoldAbilityEnum(lhWearable);
         var holdAbility = m_playerAbilities.GetAbility(m_holdStartTriggeredAbilityEnum);
         m_IsShieldAbilityActive = m_holdStartTriggeredAbilityEnum == PlayerAbilityEnum.ShieldBlock;
+
         if (holdAbility == null) return;
 
         m_holdState = HoldState.LeftActive;
@@ -316,6 +318,7 @@ public class PlayerPrediction : NetworkBehaviour
         m_triggeredAbilityEnum = m_playerAbilities.GetHoldAbilityEnum(lhWearable);
 
         m_isHoldFinishFlag = true;
+
         m_holdStartTriggeredAbilityEnum = PlayerAbilityEnum.Null;
         m_holdState = HoldState.Inactive;
     }
@@ -701,7 +704,6 @@ public class PlayerPrediction : NetworkBehaviour
                 if (isApEnough && isCooldownFinished)
                 {
                     if (!IsHost) triggeredAbility.Init(gameObject, inputPayload.abilityHand);
-
                 }
                 else
                 {
@@ -977,8 +979,6 @@ public class PlayerPrediction : NetworkBehaviour
         m_isSetPlayerPositionCounter = 0;
         m_setPlayerPosition = position;
     }
-
-
 
     private bool m_isRemoteClientTickDeltaSet = false;
     public void SetIsRemoteClientTickDeltaSet(bool isSet) { m_isRemoteClientTickDeltaSet = isSet; }

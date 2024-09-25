@@ -12,6 +12,7 @@ namespace Dropt
     {
         [Header("FudWisp Specific")]
         public float ExplosionRadius = 2f;
+        public float WaitForNonRootedPlayerRange = 4f;
 
         private Animator m_animator;
 
@@ -37,7 +38,8 @@ namespace Dropt
 
         public override void OnAggroUpdate(float dt)
         {
-            SimplePursueUpdate(dt);
+            //SimplePursueUpdate(dt);
+            FudWisp_PursueUpdate(dt);
         }
 
         public override void OnAttackStart()
@@ -54,7 +56,8 @@ namespace Dropt
 
         public override void OnCooldownUpdate(float dt)
         {
-            SimplePursueUpdate(dt);
+            //SimplePursueUpdate(dt);
+            FudWisp_PursueUpdate(dt);
         }
 
         //public override void OnKnockback(Vector3 direction, float distance, float duration)
@@ -83,6 +86,29 @@ namespace Dropt
             ability.GetComponent<NetworkObject>().Spawn();
             enemyAbility.Init(gameObject, NearestPlayer, Vector3.zero, AttackDuration, PositionToAttack);
             enemyAbility.Activate();
+        }
+
+        protected void FudWisp_PursueUpdate(float dt)
+        {
+            if (networkCharacter == null) return;
+            if (m_navMeshAgent == null) return;
+
+            m_navMeshAgent.isStopped = false;
+
+            // get direction from player to enemy and set a small offset
+            var dir = (transform.position - NearestPlayer.transform.position).normalized;
+
+            // check if player is rooted
+            var characterStatus = NearestPlayer.GetComponent<CharacterStatus>();
+            var offset = characterStatus.IsRooted() ? WaitForNonRootedPlayerRange : 0.9f;
+
+            var offsetVector = dir * AttackRange * offset;
+
+            m_navMeshAgent.SetDestination(NearestPlayer.transform.position + offsetVector);
+            m_navMeshAgent.speed = networkCharacter.MoveSpeed.Value * PursueSpeedMultiplier;
+
+            HandleAntiClumping();
+            HandleAlertOthers();
         }
     }
 }
