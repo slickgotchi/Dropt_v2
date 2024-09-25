@@ -74,7 +74,7 @@ public class NetworkCharacter : NetworkBehaviour
     public float GetAttackPower(float randomVariation = 0.1f)
     {
         return UnityEngine.Random.Range(
-            AttackPower.Value * (1 - randomVariation), 
+            AttackPower.Value * (1 - randomVariation),
             AttackPower.Value * (1 + randomVariation));
     }
 
@@ -82,7 +82,7 @@ public class NetworkCharacter : NetworkBehaviour
     {
         var rand = UnityEngine.Random.Range(0f, 0.999f);
         return rand < CriticalChance.Value;
-    } 
+    }
 
     public virtual void TakeDamage(float damage, bool isCritical, GameObject damageDealer = null)
     {
@@ -159,6 +159,12 @@ public class NetworkCharacter : NetworkBehaviour
     // PLAYER
     public void HandlePlayerTakeDamage(float damage, bool isCritical, ulong damageDealerNOID = 0)
     {
+        damage = ApplyShieldToDamage(damage);
+        if (damage <= 0)
+        {
+            return;
+        }
+
         var playerController = GetComponent<PlayerController>();
         if (playerController == null) return;
 
@@ -183,7 +189,10 @@ public class NetworkCharacter : NetworkBehaviour
         // SERVER or HOST
         if (IsServer)
         {
-            if (!IsHost) HandlePlayerTakeDamageClientRpc(damage, isCritical, damageDealerNOID);
+            if (!IsHost)
+            {
+                HandlePlayerTakeDamageClientRpc(damage, isCritical, damageDealerNOID);
+            }
 
             HpCurrent.Value -= (int)damage;
             if (HpCurrent.Value < 0) { HpCurrent.Value = 0; }
@@ -215,6 +224,20 @@ public class NetworkCharacter : NetworkBehaviour
         }
     }
 
+    private float ApplyShieldToDamage(float damage)
+    {
+        PlayerAbilities playerAbilities = GetComponent<PlayerAbilities>();
+        if (playerAbilities.shieldBlock != null)
+        {
+            ShieldBlock shieldBlock = playerAbilities.shieldBlock.GetComponent<ShieldBlock>();
+            if (shieldBlock.IsBlocking())
+            {
+                damage = shieldBlock.AbsorbDamage(damage);
+            }
+        }
+        return damage;
+    }
+
     [ClientRpc]
     private void HandlePlayerTakeDamageClientRpc(float damage, bool isCritical, ulong damageDealerNOID = 0)
     {
@@ -222,15 +245,15 @@ public class NetworkCharacter : NetworkBehaviour
     }
 
     [Rpc(SendTo.ClientsAndHost)]
-    void DamagePopupTextClientRpc(float damage, Vector3 position, bool isCritical)
+    private void DamagePopupTextClientRpc(float damage, Vector3 position, bool isCritical)
     {
         ColorUtility.TryParseHtmlString("#ffeb57", out Color critColor);
 
         PopupTextManager.Instance.PopupText(
-            damage.ToString("F0"), 
-            position, 
-            isCritical ? 24 : 16, 
-            isCritical ? critColor : Color.white, 
+            damage.ToString("F0"),
+            position,
+            isCritical ? 24 : 16,
+            isCritical ? critColor : Color.white,
             0.2f);
     }
 

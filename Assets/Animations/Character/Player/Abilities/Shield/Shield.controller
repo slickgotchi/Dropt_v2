@@ -11,26 +11,29 @@ AnimatorStateMachine:
   m_ChildStates:
   - serializedVersion: 1
     m_State: {fileID: 7935486784801030360}
-    m_Position: {x: 200, y: 0, z: 0}
+    m_Position: {x: 260, y: 0, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 2528393892327210073}
-    m_Position: {x: 290, y: 90, z: 0}
+    m_Position: {x: 260, y: 130, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -4335587481651886296}
     m_Position: {x: 260, y: 240, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 2680591530550322477}
-    m_Position: {x: 380, y: 340, z: 0}
+    m_Position: {x: 260, y: 340, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 8447406099239155653}
     m_Position: {x: 90, y: 410, z: 0}
+  - serializedVersion: 1
+    m_State: {fileID: -328681366476371309}
+    m_Position: {x: 530, y: 240, z: 0}
   m_ChildStateMachines: []
   m_AnyStateTransitions: []
   m_EntryTransitions: []
   m_StateMachineTransitions: {}
   m_StateMachineBehaviours: []
   m_AnyStatePosition: {x: 50, y: 20, z: 0}
-  m_EntryPosition: {x: 50, y: 120, z: 0}
+  m_EntryPosition: {x: 0, y: 240, z: 0}
   m_ExitPosition: {x: 800, y: 120, z: 0}
   m_ParentStateMachinePosition: {x: 800, y: 20, z: 0}
   m_DefaultState: {fileID: -4335587481651886296}
@@ -57,6 +60,32 @@ AnimatorState:
   m_Motion: {fileID: 7400000, guid: 4ffc0484ee5b8e4448c3627d6ecb50d0, type: 2}
   m_Tag: 
   m_SpeedParameter: 
+  m_MirrorParameter: 
+  m_CycleOffsetParameter: 
+  m_TimeParameter: 
+--- !u!1102 &-328681366476371309
+AnimatorState:
+  serializedVersion: 6
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: ShieldBlock
+  m_Speed: 1
+  m_CycleOffset: 0
+  m_Transitions: []
+  m_StateMachineBehaviours: []
+  m_Position: {x: 50, y: 50, z: 0}
+  m_IKOnFeet: 0
+  m_WriteDefaultValues: 1
+  m_Mirror: 0
+  m_SpeedParameterActive: 1
+  m_MirrorParameterActive: 0
+  m_CycleOffsetParameterActive: 0
+  m_TimeParameterActive: 0
+  m_Motion: {fileID: 7400000, guid: dbdae25d7936f4216837e33a7d92bfad, type: 2}
+  m_Tag: 
+  m_SpeedParameter: AnimationSpeed
   m_MirrorParameter: 
   m_CycleOffsetParameter: 
   m_TimeParameter: 
