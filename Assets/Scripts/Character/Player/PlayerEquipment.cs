@@ -178,30 +178,45 @@ public class PlayerEquipment : NetworkBehaviour
             case PlayerAbilityEnum.ShieldBlock:
                 if (slot == Slot.LeftHand)
                 {
-                    shieldBlock.Initialize(wearable.NameType, Hand.Left, wearable.Rarity);
-                    PlayerHUDCanvas.Singleton.SetShieldBarProgress(Hand.Left, shieldBlock.GetHpRatio());
-                    PlayerHUDCanvas.Singleton.VisibleShieldBar(Hand.Left, true);
+                    shieldBlock.Initialize(Hand.Left, wearable.Rarity);
+                    ShowPlayerHudClientRpc(Hand.Left, shieldBlock.GetHpRatio(Hand.Left));
                 }
                 else if (slot == Slot.RightHand)
                 {
-                    shieldBlock.Initialize(wearable.NameType, Hand.Right, wearable.Rarity);
-                    PlayerHUDCanvas.Singleton.SetShieldBarProgress(Hand.Right, shieldBlock.GetHpRatio());
-                    PlayerHUDCanvas.Singleton.VisibleShieldBar(Hand.Right, true);
+                    shieldBlock.Initialize(Hand.Right, wearable.Rarity);
+                    ShowPlayerHudClientRpc(Hand.Right, shieldBlock.GetHpRatio(Hand.Right));
                 }
                 break;
             default:
                 if (slot == Slot.LeftHand)
                 {
                     shieldBlock.Deactivate(Hand.Left);
-                    PlayerHUDCanvas.Singleton.VisibleShieldBar(Hand.Left, false);
+                    HidePlayerHudClientRpc(Hand.Left);
                 }
                 else if (slot == Slot.RightHand)
                 {
                     shieldBlock.Deactivate(Hand.Right);
-                    PlayerHUDCanvas.Singleton.VisibleShieldBar(Hand.Right, false);
+                    HidePlayerHudClientRpc(Hand.Right);
                 }
                 break;
         }
+    }
+
+    [ClientRpc]
+    private void ShowPlayerHudClientRpc(Hand hand, float progress)
+    {
+        if (!IsLocalPlayer) return;
+
+        PlayerHUDCanvas.Singleton.SetShieldBarProgress(hand, progress);
+        PlayerHUDCanvas.Singleton.VisibleShieldBar(hand, true);
+    }
+
+    [ClientRpc]
+    private void HidePlayerHudClientRpc(Hand hand)
+    {
+        if (!IsLocalPlayer) return;
+
+        PlayerHUDCanvas.Singleton.VisibleShieldBar(Hand.Right, false);
     }
 
     public enum Slot

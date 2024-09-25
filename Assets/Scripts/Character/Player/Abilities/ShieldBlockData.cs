@@ -4,7 +4,7 @@
 public class ShieldBlockData
 {
     public float TotalHp { get; private set; }
-    public float RefHp { get; private set; }
+    //public float RefHp { get; private set; }
     public float RechargeAmountPerSecond { get; private set; }
     public float DepletionAmountPerSecond { get; private set; }
     private bool m_isBlocking;
@@ -31,8 +31,8 @@ public class ShieldBlockData
         return m_isBlocking;
     }
 
-    public void SetRefHp(float hp)
-    {
-        RefHp = hp;
-    }
+    //public void SetRefHp(float hp)
+    //{
+    //    RefHp = hp;
+    //}
 }
