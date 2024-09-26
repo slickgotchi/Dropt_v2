@@ -83,7 +83,7 @@ public class SplashVolley : PlayerAbility
         }
     }
 
-    private void Update()
+    public override void OnUpdate()
     {
         // Ensure remote clients associate projectiles with local projectile variables
         for (int i = 0; i < m_splashProjectiles.Count; i++)
@@ -116,7 +116,7 @@ public class SplashVolley : PlayerAbility
         PlayAnimation("SplashLob");
 
         // Activate projectiles
-        var holdChargePercentage = math.min(HoldDuration / HoldChargeTime, 1);
+        var holdChargePercentage = math.min(m_holdTimer / HoldChargeTime, 1);
         ActivateMultipleProjectiles(ActivationWearableNameEnum, 
             ActivationInput.actionDirection, Distance, Duration, Scale, ExplosionRadius,
             holdChargePercentage);
@@ -186,7 +186,7 @@ public class SplashVolley : PlayerAbility
                 explosionRadius, IsServer ? PlayerAbility.NetworkRole.Server : PlayerAbility.NetworkRole.LocalClient,
                 Wearable.WeaponTypeEnum.Splash, activationWearable,
                 Player,
-                playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier,
+                playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier * DamageMultiplier,
                 playerCharacter.CriticalChance.Value,
                 playerCharacter.CriticalDamage.Value,
                 KnockbackDistance,
@@ -234,11 +234,6 @@ public class SplashVolley : PlayerAbility
 
             no_projectile.Fire();
         }
-    }
-
-    public override void OnUpdate()
-    {
-        // Custom update logic if needed
     }
 
     public override void OnFinish()

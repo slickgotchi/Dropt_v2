@@ -35,7 +35,7 @@ public class SplashBomb : PlayerAbility
         }
     }
 
-    private void Update()
+    public override void OnUpdate()
     {
         if (IsClient)
         {
@@ -84,7 +84,7 @@ public class SplashBomb : PlayerAbility
                 Wearable.WeaponTypeEnum.Splash, wearableNameEnum,
 
                 Player,
-                playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier,
+                playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier * DamageMultiplier,
                 playerCharacter.CriticalChance.Value,
                 playerCharacter.CriticalDamage.Value,
                 KnockbackDistance,
@@ -131,11 +131,6 @@ public class SplashBomb : PlayerAbility
             // init
             no_projectile.Fire();
         }
-    }
-
-    public override void OnUpdate()
-    {
-
     }
 
     public override void OnFinish()

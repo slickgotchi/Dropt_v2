@@ -12,15 +12,10 @@ public class SpiderPodController : NetworkBehaviour
     public float SpawnDistance = 2f;
 
     private bool m_isBurst = false;
-    private List<GameObject> m_spiders = new List<GameObject>();
-    private List<Vector3> m_spiderDirections = new List<Vector3>();
-    private float m_speed = 1f;
 
     // Start is called before the first frame update
     void Start()
     {
-        m_speed = SpawnDistance / SpawnDuration;
-
         GetComponent<Animator>().Play("SpiderPod_Idle");
     }
 
@@ -29,6 +24,7 @@ public class SpiderPodController : NetworkBehaviour
     {
         if (!IsServer) return;
 
+        // check if time to burst pod
         if (!m_isBurst)
         {
             var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
@@ -42,21 +38,17 @@ public class SpiderPodController : NetworkBehaviour
                 }
              }
 
-            if (isBurstTime) Burst();
-        }
-
-        for (int i = 0; i < m_spiders.Count; i++)
-        {
-            if (m_spiders[i] == null) continue;
-            m_spiders[i].transform.position += m_speed * m_spiderDirections[i] * Time.deltaTime;
+            if (isBurstTime)
+            {
+                Burst();
+                m_isBurst = true;
+            }
         }
     }
 
     void Burst()
     {
         GetComponent<Animator>().Play("SpiderPod_Burst");
-
-        m_isBurst = true;
 
         float startAngle = UnityEngine.Random.Range(0, 360.0f);
         float deltaAngle = 360 / NumberSpiders;
@@ -65,10 +57,10 @@ public class SpiderPodController : NetworkBehaviour
             var dir = PlayerAbility.GetDirectionFromAngle(startAngle + deltaAngle * i);
             var spider = Instantiate(SpiderPrefab);
             spider.transform.position = transform.position + new Vector3(0f, 1f, 0f);
-            spider.GetComponent<EnemyController>().SpawnDuration = SpawnDuration;
+            spider.GetComponent<Dropt.EnemyAI_Spider>().SpawnDuration = SpawnDuration;
+            spider.GetComponent<Dropt.EnemyAI_Spider>().SpawnDirection = dir.normalized;
+            spider.GetComponent<Dropt.EnemyAI_Spider>().SpawnDistance = SpawnDistance;
             spider.GetComponent<NetworkObject>().Spawn();
-            m_spiderDirections.Add(dir);
-            m_spiders.Add(spider);
         }
     }
 }

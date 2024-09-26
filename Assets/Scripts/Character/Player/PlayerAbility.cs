@@ -74,7 +74,7 @@ public class PlayerAbility : NetworkBehaviour
     protected Wearable.NameEnum ActivationWearableNameEnum;
     protected Wearable ActivationWearable;
 
-    protected float HoldDuration = 0;
+    protected float m_holdTimer = 0;
 
     protected Animator Animator;
 
@@ -108,7 +108,6 @@ public class PlayerAbility : NetworkBehaviour
         var playerEquipment = playerObject.GetComponent<PlayerEquipment>();
         var wearableNameEnum = (abilityHand == Hand.Left ? playerEquipment.LeftHand : playerEquipment.RightHand).Value;
         ActivationWearable = WearableManager.Instance.GetWearable(wearableNameEnum);
-        //ApCost = abilityType == AbilityType.Special ? ActivationWearable.SpecialAp : ApCost;
         SpecialCooldown = ActivationWearable.SpecialCooldown;
         ActivationWearableNameEnum = wearableNameEnum;
 
@@ -142,17 +141,23 @@ public class PlayerAbility : NetworkBehaviour
     }
 
     private bool m_isHoldReady = true;
+    private bool m_isHolding = false;
 
     public void HoldStart()
     {
         if (!m_isHoldReady) return;
 
+        m_isHolding = true;
+        m_holdTimer = 0;
         OnHoldStart();
         m_isHoldReady = false;
+
     }
 
     public void HoldFinish()
     {
+        m_isHolding = false;
+        m_holdTimer = math.min(m_holdTimer, HoldChargeTime);
         OnHoldFinish();
         m_isHoldReady = true;
     }
@@ -166,7 +171,7 @@ public class PlayerAbility : NetworkBehaviour
         PlayerActivationState = state;
         ActivationInput = input;
 
-        HoldDuration = holdDuration;
+        m_holdTimer = math.min(m_holdTimer, HoldChargeTime);
 
         IsActivated = true;
         m_timer = ExecutionDuration;
@@ -183,15 +188,15 @@ public class PlayerAbility : NetworkBehaviour
         }
 
         // hide the player relevant hand
-        if (input.abilityTriggered != PlayerAbilityEnum.Dash &&
-            input.abilityTriggered != PlayerAbilityEnum.Consume)
+        if (input.triggeredAbilityEnum != PlayerAbilityEnum.Dash &&
+            input.triggeredAbilityEnum != PlayerAbilityEnum.Consume)
         {
             Player.GetComponent<PlayerGotchi>().HideHand(input.abilityHand, ExecutionDuration);
         }
 
         if (Player != null) OnStart();
 
-        GameAudioManager.Instance.PlayerAbility(Player.GetComponent<NetworkCharacter>().NetworkObjectId, input.abilityTriggered, transform.position);
+        GameAudioManager.Instance.PlayerAbility(Player.GetComponent<NetworkCharacter>().NetworkObjectId, input.triggeredAbilityEnum, transform.position);
         return true;
     }
 
@@ -204,12 +209,20 @@ public class PlayerAbility : NetworkBehaviour
             Quaternion additionalRotation = Quaternion.Euler(0, 0, m_attackAngleOffset);
             m_handAndWearableTransform.localRotation = currentRotation * additionalRotation;
         }
+
+        OnLateUpdate();
     }
 
-    private void Update()
+    // DO NOT override this in children without calling teh base function, use OnUpdate instead
+    protected void Update()
     {
         m_timer -= Time.deltaTime;
         m_autoMoveTimer -= Time.deltaTime;
+
+        if (m_isHolding)
+        {
+            m_holdTimer += Time.deltaTime;
+        }
 
         if (Player == null) return;
 
@@ -240,6 +253,8 @@ public class PlayerAbility : NetworkBehaviour
     public virtual void OnStart() { }
 
     public virtual void OnUpdate() { }
+
+    public virtual void OnLateUpdate() { }
 
     public virtual void OnFinish() { }
 

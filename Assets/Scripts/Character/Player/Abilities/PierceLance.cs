@@ -45,6 +45,6 @@ public class PierceLance : PlayerAbility
 
     public override void OnFinish()
     {
-        OneFrameCollisionDamageCheck(m_collider, Wearable.WeaponTypeEnum.Pierce);
+        OneFrameCollisionDamageCheck(m_collider, Wearable.WeaponTypeEnum.Pierce, DamageMultiplier);
     }
 }
