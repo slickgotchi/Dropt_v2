@@ -26,7 +26,7 @@ public class MagicBeam : PlayerAbility
         SetLocalPosition(PlayerAbilityCentreOffset + ActivationInput.actionDirection * Projection);
 
         // determine hold damage multiplier
-        var alpha = math.min(HoldDuration / 3f, 1f);
+        var alpha = math.min(m_holdTimer / HoldChargeTime, 1f);
         var damageMultiplier = math.lerp(HoldStartDamageMultiplier, HoldFinishDamageMultiplier, alpha);
 
         // collision check (no RPC's are involved in this call)

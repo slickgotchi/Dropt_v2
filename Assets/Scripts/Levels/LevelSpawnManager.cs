@@ -4,14 +4,6 @@ using UnityEngine;
 using Unity.Netcode;
 using Level;
 
-//public enum SpawnCondition
-//{
-//    ElapsedTime,
-//    Continuous,
-//    PlayerDestroyAllWithSpawnerId,
-//    PlayerTouchTriggerWithSpawnerId,
-//}
-
 /// <summary>
 /// This class iterates over all LevelSpawn objects to manage when they are active/spawned
 /// </summary>

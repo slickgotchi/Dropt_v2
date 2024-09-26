@@ -34,7 +34,7 @@ public class SmashWave : PlayerAbility
 
         m_hitColliders.Clear();
 
-        var alpha = math.min(HoldDuration / HoldChargeTime, 1f);
+        var alpha = math.min(m_holdTimer / HoldChargeTime, 1f);
         m_damageMultiplier = math.lerp(m_holdStartDamageMultiplier, m_holdFinishDamageMultiplier, alpha);
     }
 

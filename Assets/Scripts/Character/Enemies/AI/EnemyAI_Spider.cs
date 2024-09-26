@@ -12,6 +12,9 @@ namespace Dropt
     {
         private Animator m_animator;
 
+        [HideInInspector] public Vector3 SpawnDirection;
+        [HideInInspector] public float SpawnDistance;
+
         private float m_interpDelay = 0.3f;
 
         private void Awake()
@@ -23,6 +26,20 @@ namespace Dropt
         {
             m_interpDelay = IsHost ? 0 : 3 * 1 / (float)NetworkManager.Singleton.NetworkTickSystem.TickRate;
 
+            m_animator.Play("Spider_Jump");
+        }
+
+        private float m_spawnTimer = 0f;
+
+        public override void OnSpawnUpdate(float dt)
+        {
+            base.OnSpawnUpdate(dt);
+
+            m_spawnTimer += dt;
+            if (m_spawnTimer > (0.4f / 0.6f) * SpawnDuration) return;   // this is the jumping part of the anim and ensures we don't move when spider lands
+
+            var speed = (SpawnDistance / SpawnDuration) / (0.4f / 0.6f);
+            transform.position += SpawnDirection * speed * dt;
         }
 
         public override void OnTelegraphStart()
