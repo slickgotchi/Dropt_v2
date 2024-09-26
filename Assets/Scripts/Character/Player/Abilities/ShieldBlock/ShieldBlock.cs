@@ -153,7 +153,7 @@ public class ShieldBlock : PlayerAbility
         m_shieldBarCanvas?.SetVisible(visible);
     }
 
-    private void Update()
+    public override void OnUpdate()
     {
         if (!IsServer)
         {

@@ -169,8 +169,8 @@ public class BallisticExplosionProjectile : NetworkBehaviour
         }
 
         // do explosion collision check
-        //ExplosionCollider.transform.position = position;
         ExplosionCollider.transform.parent = null;
+        ExplosionCollider.transform.position = position;
         ExplosionCollider.transform.localScale = new Vector3(ExplosionRadius * 2, ExplosionRadius * 2, 1f);
         ExplosionCollisionCheck(position);
     }
@@ -218,7 +218,7 @@ public class BallisticExplosionProjectile : NetworkBehaviour
         // clear out colliders
         enemyHitColliders.Clear();
 
-        Destroy(ExplosionCollider.gameObject);
+        //Destroy(ExplosionCollider.gameObject);
     }
 
     void Deactivate(Vector3 hitPosition)

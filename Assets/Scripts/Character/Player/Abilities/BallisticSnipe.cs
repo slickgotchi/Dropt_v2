@@ -79,7 +79,7 @@ public class BallisticSnipe : PlayerAbility
         if (m_seedProjectile != null) m_seedProjectile.GetComponent<NetworkObject>().Despawn();
     }
 
-    private void Update()
+    public override void OnUpdate()
     {
         if (IsClient)
         {
@@ -101,7 +101,7 @@ public class BallisticSnipe : PlayerAbility
         // set rotatin/local position
         SetRotationToActionDirection();
         SetLocalPosition(PlayerAbilityCentreOffset);
-        var holdScale = math.min(1 + (HoldDuration / HoldChargeTime), 4f);
+        var holdScale = math.min(1 + (m_holdTimer / HoldChargeTime), 2f);
 
         // play animation
         //PlayAnimation("BallisticShot");
@@ -109,6 +109,7 @@ public class BallisticSnipe : PlayerAbility
 
         // activate projectile
         ActivateProjectile(ActivationWearableNameEnum, ActivationInput.actionDirection, Distance, Duration, holdScale);
+
     }
 
     ref GameObject GetProjectileInstance(Wearable.NameEnum activationWearable)
@@ -148,7 +149,7 @@ public class BallisticSnipe : PlayerAbility
             no_projectile.Init(startPosition, direction, distance, duration, scale,
                 IsServer ? PlayerAbility.NetworkRole.Server : PlayerAbility.NetworkRole.LocalClient,
                 Wearable.WeaponTypeEnum.Ballistic, Player,
-                playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier,
+                playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier * DamageMultiplier,
                 playerCharacter.CriticalChance.Value,
                 playerCharacter.CriticalDamage.Value,
                 ActivationInput.actionDirection,
@@ -194,11 +195,6 @@ public class BallisticSnipe : PlayerAbility
             // init
             no_projectile.Fire();
         }
-    }
-
-    public override void OnUpdate()
-    {
-
     }
 
     public override void OnFinish()

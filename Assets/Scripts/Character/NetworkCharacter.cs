@@ -159,14 +159,14 @@ public class NetworkCharacter : NetworkBehaviour
     // PLAYER
     public void HandlePlayerTakeDamage(float damage, bool isCritical, ulong damageDealerNOID = 0)
     {
+        var playerController = GetComponent<PlayerController>();
+        if (playerController == null) return;
+
         damage = ApplyShieldToDamage(damage);
         if (damage <= 0)
         {
             return;
         }
-
-        var playerController = GetComponent<PlayerController>();
-        if (playerController == null) return;
 
         // CLIENT or HOST
         if (IsClient)

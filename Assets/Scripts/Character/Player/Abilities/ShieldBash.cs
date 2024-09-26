@@ -24,7 +24,7 @@ public class ShieldBash : PlayerAbility
         SetLocalPosition(PlayerAbilityCentreOffset + ActivationInput.actionDirection * Projection);
 
         // collision check (no RPC's are involved in this call)
-        OneFrameCollisionDamageCheck(m_collider, Wearable.WeaponTypeEnum.Shield);
+        OneFrameCollisionDamageCheck(m_collider, Wearable.WeaponTypeEnum.Shield, DamageMultiplier);
 
         // IMPORTANT use PlayAnimation which calls RPC's in the background that play the 
         // animation on remote clients
