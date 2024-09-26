@@ -148,9 +148,7 @@ public class PlayerAbility : NetworkBehaviour
         if (!m_isHoldReady) return;
 
         m_isHolding = true;
-
         m_holdTimer = 0;
-        Debug.Log("OnHoldStart(): " + m_holdTimer);
         OnHoldStart();
         m_isHoldReady = false;
 
@@ -160,7 +158,6 @@ public class PlayerAbility : NetworkBehaviour
     {
         m_isHolding = false;
         m_holdTimer = math.min(m_holdTimer, HoldChargeTime);
-        Debug.Log("OnHoldFinish(): " + m_holdTimer);
         OnHoldFinish();
         m_isHoldReady = true;
     }
@@ -225,7 +222,6 @@ public class PlayerAbility : NetworkBehaviour
         if (m_isHolding)
         {
             m_holdTimer += Time.deltaTime;
-            //Debug.Log(HoldDuration);
         }
 
         if (Player == null) return;

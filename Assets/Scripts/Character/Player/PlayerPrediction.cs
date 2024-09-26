@@ -667,7 +667,7 @@ public class PlayerPrediction : NetworkBehaviour
 
         // reset any triggers or booleans
         m_triggeredAbilityEnum = PlayerAbilityEnum.Null;
-        m_holdStartTriggeredAbilityEnum = PlayerAbilityEnum.Null;
+        //m_holdStartTriggeredAbilityEnum = PlayerAbilityEnum.Null;
         m_isHoldStartFlag = false;
         m_isHoldFinishFlag = false;
 
@@ -955,19 +955,21 @@ public class PlayerPrediction : NetworkBehaviour
     {
         var abilityCooldownExpiryTick = isServerCalling ? m_abilityCooldownExpiryTick_SERVER : m_abilityCooldownExpiryTick_CLIENT;
 
-        if (input.tick >= m_slowFactorStartTick && input.tick <= m_slowFactorExpiryTick)
+        // adjusting "input.tick >" to "input.tick >=" can make a big difference in terms of glitchiness in host mode
+        if (input.tick > m_slowFactorStartTick && input.tick <= m_slowFactorExpiryTick)
         {
             return m_slowFactor;
-        }
-        else if (input.tick <= abilityCooldownExpiryTick)
-        {
-            return m_cooldownSlowFactor;
         }
         else if (input.tick >= m_holdStartTick && input.holdStartTriggeredAbilityEnum != PlayerAbilityEnum.Null)
         {
             var holdAbility = m_playerAbilities.GetAbility(input.holdStartTriggeredAbilityEnum);
             return holdAbility.HoldSlowFactor;
         }
+        else if (input.tick <= abilityCooldownExpiryTick)
+        {
+            return m_cooldownSlowFactor;
+        }
+
         else
         {
             return 1;
