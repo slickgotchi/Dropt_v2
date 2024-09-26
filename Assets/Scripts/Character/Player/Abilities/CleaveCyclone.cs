@@ -10,7 +10,7 @@ public class CleaveCyclone : PlayerAbility
     public float Distance = 10f;
     public float Duration = 3f;
     public float Scale = 2f;
-    public float DamageMultiplierPerHit = 0.5f;
+    //public float DamageMultiplierPerHit = 0.5f;
     public int NumberHits = 6;
 
     [Header("Projectile Prefab")]
@@ -72,7 +72,7 @@ public class CleaveCyclone : PlayerAbility
                 scale,
                 IsServer ? PlayerAbility.NetworkRole.Server : PlayerAbility.NetworkRole.LocalClient,
                 Player,
-                playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier,
+                playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier * DamageMultiplier,
                 playerCharacter.CriticalChance.Value,
                 playerCharacter.CriticalDamage.Value,
                 KnockbackDistance,

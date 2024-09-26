@@ -586,6 +586,7 @@ public class PlayerPrediction : NetworkBehaviour
                 holdStartTriggeredAbility.Init(gameObject, m_abilityHand);
                 holdStartTriggeredAbility.HoldStart();
                 m_isHoldStartFlag = true;
+               
             }
             else
             {
@@ -778,11 +779,15 @@ public class PlayerPrediction : NetworkBehaviour
                     else m_rhSpecialCooldownExpiryTick = expiryTick;
                 }
 
-                // set slow down ticks
-                m_slowFactor = triggeredAbility.ExecutionSlowFactor;
-                m_slowFactorStartTick = inputPayload.tick;
-                m_slowFactorExpiryTick = inputPayload.tick + (int)math.ceil(triggeredAbility.ExecutionDuration * k_serverTickRate);
-                m_cooldownSlowFactor = triggeredAbility.CooldownSlowFactor;
+                if (!IsHost)
+                {
+                    // set slow down ticks
+                    m_slowFactor = triggeredAbility.ExecutionSlowFactor;
+                    m_slowFactorStartTick = inputPayload.tick;
+                    m_slowFactorExpiryTick = inputPayload.tick + (int)math.ceil(triggeredAbility.ExecutionDuration * k_serverTickRate);
+                    m_cooldownSlowFactor = triggeredAbility.CooldownSlowFactor;
+                }
+
             }
 
             // 9. tell client the last state we have as a server

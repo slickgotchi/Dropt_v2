@@ -43,7 +43,7 @@ public class UnarmedPunch : PlayerAbility
         if (m_unarmedPunchTimer > ExecutionDuration*0.8f && !m_isCollisionChecked)
         {
             // collision check (no RPC's are involved in this call)
-            OneFrameCollisionDamageCheck(m_collider, Wearable.WeaponTypeEnum.Unarmed);
+            OneFrameCollisionDamageCheck(m_collider, Wearable.WeaponTypeEnum.Unarmed, DamageMultiplier);
 
             m_isCollisionChecked = true;
         }
