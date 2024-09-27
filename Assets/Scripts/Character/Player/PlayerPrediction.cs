@@ -22,6 +22,8 @@ public class PlayerPrediction : NetworkBehaviour
     // inputs to populate
     private Vector3 m_moveDirection;
     private Vector3 m_actionDirection = new Vector3(0, -1, 0);
+    private float m_actionDistance = 0;
+    private AttackCentre m_playerAttackCentre;
     private PlayerAbilityEnum m_triggeredAbilityEnum = PlayerAbilityEnum.Null;
     private Hand m_abilityHand = Hand.Left;
     private PlayerAbilityEnum m_holdStartTriggeredAbilityEnum = PlayerAbilityEnum.Null;
@@ -122,6 +124,7 @@ public class PlayerPrediction : NetworkBehaviour
 
         m_playerInput = GetComponent<PlayerInput>();
         m_movementAction = m_playerInput.actions["Movement"];
+        m_playerAttackCentre = GetComponentInChildren<AttackCentre>();
     }
 
     public override void OnNetworkSpawn()
@@ -196,7 +199,10 @@ public class PlayerPrediction : NetworkBehaviour
     private void SetActionDirectionAndLastMoveFromCursorAim()
     {
         if (!IsLocalPlayer) return;
-        m_actionDirection = math.normalizesafe(m_cursorWorldPosition - (transform.position + new Vector3(0, 0.5f, 0)));
+        if (m_playerAttackCentre == null) return;
+        
+        m_actionDirection = math.normalizesafe(m_cursorWorldPosition - m_playerAttackCentre.transform.position);
+        m_actionDistance = math.distance(m_cursorWorldPosition, m_playerAttackCentre.transform.position);
         m_lastMoveDirection = m_actionDirection;
         m_actionDirectionTimer = k_actionDirectionTime;
     }
@@ -205,6 +211,7 @@ public class PlayerPrediction : NetworkBehaviour
     {
         if (!IsLocalPlayer) return;
         m_actionDirection = m_lastMoveDirection.normalized;
+        m_actionDistance = 1000;
         m_actionDirectionTimer = k_actionDirectionTime;
     }
 
