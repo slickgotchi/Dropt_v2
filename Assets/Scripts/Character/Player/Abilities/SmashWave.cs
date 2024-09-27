@@ -83,6 +83,14 @@ public class SmashWave : PlayerAbility
                     var isCritical = IsCriticalAttack(playerCharacter.CriticalChance.Value);
                     damage = (int)(isCritical ? damage * playerCharacter.CriticalDamage.Value : damage);
                     hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical, Player);
+
+                    // do knockback if enemy
+                    var enemyAI = hit.GetComponent<Dropt.EnemyAI>();
+                    if (enemyAI != null)
+                    {
+                        var knockbackDir = Dropt.Utils.Battle.GetVectorFromAtoBAttackCentres(playerCharacter.gameObject, hit.gameObject).normalized;
+                        enemyAI.Knockback(knockbackDir, KnockbackDistance, KnockbackStunDuration);
+                    }
                 }
 
                 if (hit.HasComponent<Destructible>())

@@ -3,7 +3,8 @@ using UnityEngine;
 
 public class WeaponSwap : Interactable
 {
-    public NetworkVariable<Wearable.NameEnum> SyncNameEnum;
+    public Wearable.NameEnum WeaponEnum;
+    [HideInInspector] public NetworkVariable<Wearable.NameEnum> SyncNameEnum;
     public SpriteRenderer SpriteRenderer;
 
     GameObject m_player;
@@ -62,7 +63,9 @@ public class WeaponSwap : Interactable
     {
         base.OnNetworkSpawn();
 
-        Init(SyncNameEnum.Value);
+        Init(WeaponEnum);
+
+        SyncNameEnum.Value = WeaponEnum;
 
         SyncNameEnum.OnValueChanged += OnNetworkNameChanged;
     }
