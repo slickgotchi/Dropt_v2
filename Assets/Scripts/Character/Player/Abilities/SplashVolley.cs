@@ -7,7 +7,7 @@ public class SplashVolley : PlayerAbility
 {
     [Header("SplashVolley Parameters")]
     public float Projection = 1.5f;
-    public float Distance = 8f;
+    public float MaxDistance = 8f;
     public float Duration = 1f;
     public float ExplosionRadius = 1f;
     public float LobHeight = 2f;
@@ -17,6 +17,8 @@ public class SplashVolley : PlayerAbility
 
     [Header("Projectile Prefab")]
     public GameObject SplashProjectilePrefab;
+
+    private float m_distance = 8f;
 
     // variables for keeping track of the spawned projectiles
     private List<GameObject> m_splashProjectiles = new List<GameObject>(new GameObject[5]);
@@ -115,10 +117,13 @@ public class SplashVolley : PlayerAbility
         // Play animation
         PlayAnimation("SplashLob");
 
+        // adjust distance
+        m_distance = math.min(ActivationInput.actionDistance, MaxDistance);
+
         // Activate projectiles
         var holdChargePercentage = math.min(m_holdTimer / HoldChargeTime, 1);
         ActivateMultipleProjectiles(ActivationWearableNameEnum, 
-            ActivationInput.actionDirection, Distance, Duration, Scale, ExplosionRadius,
+            ActivationInput.actionDirection, m_distance, Duration, Scale, ExplosionRadius,
             holdChargePercentage);
     }
 

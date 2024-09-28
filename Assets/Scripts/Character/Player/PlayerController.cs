@@ -32,6 +32,8 @@ public class PlayerController : NetworkBehaviour
 
     public bool IsLevelSpawnPositionSet = false;
 
+    private AttackCentre m_playerAttackCentre;
+
     // variables for trackign current gotchi
     private int m_localGotchiId = -1;
     private NetworkVariable<int> m_networkGotchiId = new NetworkVariable<int>(-1);
@@ -41,7 +43,7 @@ public class PlayerController : NetworkBehaviour
         m_networkCharacter = GetComponent<NetworkCharacter>();
         m_holdBarCanvas = GetComponentInChildren<HoldBarCanvas>();
         m_playerPrediction = GetComponent<PlayerPrediction>();
-
+        m_playerAttackCentre = GetComponentInChildren<AttackCentre>();
     }
 
     public override void OnNetworkSpawn()
@@ -163,7 +165,8 @@ public class PlayerController : NetworkBehaviour
             // set camera to follow player
             if (m_cameraFollower != null)
             {
-                m_cameraFollower.transform.position = m_playerPrediction.GetLocalPlayerInterpPosition();
+                // make camera follow player and allow for offset to centre of gotchi
+                m_cameraFollower.transform.position = m_playerPrediction.GetLocalPlayerInterpPosition() + new Vector3(0, 0.5f, 0f);
             }
 
             HandleNextLevelCheat();

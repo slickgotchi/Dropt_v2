@@ -22,6 +22,7 @@ namespace Dropt
         public float MaxRoamRange = 10f;        // the furthest enemy can roam from its anchor point
         public float FleeRange = 0f;
         public float BreakFleeRange = 12f;
+        public float PursueStopShortRange = 0.5f;
 
         [Header("Durations")]
         public float SpawnDuration = 1f;

@@ -7,13 +7,14 @@ public class SmashWave : PlayerAbility
 {
     [Header("SmashWave Parameters")]
     [SerializeField] float Projection = 1f;
-    [SerializeField] float m_holdStartDamageMultiplier = 0.5f;
-    [SerializeField] float m_holdFinishDamageMultiplier = 2.5f;
+    [SerializeField] float m_holdStartKnockbackMultiplier = 0.1f;
+    [SerializeField] float m_holdFinishKnockbackMultiplier = 1f;
 
     private Collider2D m_collider;
     private List<Collider2D> m_hitColliders = new List<Collider2D>();
 
     float m_damageMultiplier = 1f;
+    float m_knockbackMultiplier = 0.1f;
 
     public override void OnNetworkSpawn()
     {
@@ -34,8 +35,9 @@ public class SmashWave : PlayerAbility
 
         m_hitColliders.Clear();
 
-        var alpha = math.min(m_holdTimer / HoldChargeTime, 1f);
-        m_damageMultiplier = math.lerp(m_holdStartDamageMultiplier, m_holdFinishDamageMultiplier, alpha);
+        m_knockbackMultiplier = math.min(m_holdTimer / HoldChargeTime, 1f);
+        //m_damageMultiplier = math.lerp(m_holdStartKnockbackMultiplier, m_holdFinishKnockbackMultiplier, alpha);
+        
     }
 
     public override void OnUpdate()
@@ -89,7 +91,7 @@ public class SmashWave : PlayerAbility
                     if (enemyAI != null)
                     {
                         var knockbackDir = Dropt.Utils.Battle.GetVectorFromAtoBAttackCentres(playerCharacter.gameObject, hit.gameObject).normalized;
-                        enemyAI.Knockback(knockbackDir, KnockbackDistance, KnockbackStunDuration);
+                        enemyAI.Knockback(knockbackDir, KnockbackDistance * m_knockbackMultiplier, KnockbackStunDuration);
                     }
                 }
 

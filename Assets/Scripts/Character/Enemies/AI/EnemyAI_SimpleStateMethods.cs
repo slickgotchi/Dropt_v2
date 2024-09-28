@@ -57,7 +57,7 @@ namespace Dropt
 
             // get direction from player to enemy and set a small offset
             var dir = (transform.position - NearestPlayer.transform.position).normalized;
-            var offset = dir * AttackRange * 0.9f;
+            var offset = dir * PursueStopShortRange;
 
             m_navMeshAgent.SetDestination(NearestPlayer.transform.position + offset);
             m_navMeshAgent.speed = networkCharacter.MoveSpeed.Value * PursueSpeedMultiplier;
