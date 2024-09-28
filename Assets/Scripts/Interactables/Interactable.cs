@@ -180,7 +180,7 @@ public class Interactable : NetworkBehaviour
             {
                 m_localPlayerPrediction = playerPrediction;
                 m_localPlayerInput = playerPrediction.GetComponent<PlayerInput>();
-                m_interactAction = m_localPlayerInput.actions["Interact"];
+                m_interactAction = m_localPlayerInput.actions["Generic_Interact"];
             }
         }
     }

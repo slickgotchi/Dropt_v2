@@ -33,11 +33,13 @@ namespace Dropt
         
         public override void OnRoamUpdate(float dt)
         {
+            if (m_animator != null) m_animator.Play("Snail_Roam");
             SimpleRoamUpdate(dt);   
         }
 
         public override void OnAggroUpdate(float dt)
         {
+            if (m_animator != null) m_animator.Play("Snail_Roam");
             SimplePursueUpdate(dt);
         }
 
@@ -53,10 +55,12 @@ namespace Dropt
         {
             // set facing
             //GetComponent<EnemyController>().SetFacingFromDirection(NearestPlayer.transform.position - transform.position, CooldownDuration);
+            if (m_animator != null) m_animator.Play("Snail_Roam");
         }
 
         public override void OnCooldownUpdate(float dt)
         {
+            if (m_animator != null) m_animator.Play("Snail_Roam");
             SimplePursueUpdate(dt);
         }
 

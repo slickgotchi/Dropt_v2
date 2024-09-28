@@ -5,13 +5,13 @@ using Dropt;
 using System.Collections.Generic;
 using Unity.Mathematics;
 
-public class PlayerPrediction : NetworkBehaviour
+public partial class PlayerPrediction : NetworkBehaviour
 {
     private NetworkCharacter m_networkCharacter;
 
     // persistent variables useful for external classes/object
-    private Vector3 m_lastMoveDirection = new Vector3(0, -1, 0);
-    private Vector3 m_velocity = new Vector3(0, -1, 0);
+    //private Vector3 m_lastMoveDirection = new Vector3(0, -1, 0);
+    //private Vector3 m_velocity = new Vector3(0, -1, 0);
 
     // slow variables
     private float m_slowFactor = 1f;
@@ -21,12 +21,15 @@ public class PlayerPrediction : NetworkBehaviour
 
     // inputs to populate
     private Vector3 m_moveDirection;
+    private Vector3 m_lastNonZeroMoveDirection = new Vector3(0, -1, 0);
     private Vector3 m_actionDirection = new Vector3(0, -1, 0);
     private float m_actionDistance = 0;
     private AttackCentre m_playerAttackCentre;
     private PlayerAbilityEnum m_triggeredAbilityEnum = PlayerAbilityEnum.Null;
     private Hand m_abilityHand = Hand.Left;
     private PlayerAbilityEnum m_holdStartTriggeredAbilityEnum = PlayerAbilityEnum.Null;
+
+    private PlayerTargetingReticle m_playerTargetingReticle;
 
     // for auto move during abilities
     //private bool m_autoMove = false;
@@ -123,8 +126,9 @@ public class PlayerPrediction : NetworkBehaviour
         m_playerGotchi = GetComponent<PlayerGotchi>();
 
         m_playerInput = GetComponent<PlayerInput>();
-        m_movementAction = m_playerInput.actions["Movement"];
+        m_movementAction = m_playerInput.actions["Generic_PlayerMove"];
         m_playerAttackCentre = GetComponentInChildren<AttackCentre>();
+        m_playerTargetingReticle = GetComponent<PlayerTargetingReticle>();
     }
 
     public override void OnNetworkSpawn()
@@ -196,270 +200,7 @@ public class PlayerPrediction : NetworkBehaviour
         }
     }
 
-    private void SetActionDirectionAndLastMoveFromCursorAim()
-    {
-        if (!IsLocalPlayer) return;
-        if (m_playerAttackCentre == null) return;
-        
-        m_actionDirection = math.normalizesafe(m_cursorWorldPosition - m_playerAttackCentre.transform.position);
-        m_actionDistance = math.distance(m_cursorWorldPosition, m_playerAttackCentre.transform.position);
-        m_lastMoveDirection = m_actionDirection;
-        m_actionDirectionTimer = k_actionDirectionTime;
-    }
-
-    private void SetActionDirectionFromLastMove()
-    {
-        if (!IsLocalPlayer) return;
-        m_actionDirection = m_lastMoveDirection.normalized;
-        m_actionDistance = 1000;
-        m_actionDirectionTimer = k_actionDirectionTime;
-    }
-
-    private void OnMousePosition(InputValue value)
-    {
-        if (!IsLocalPlayer) return;
-
-        m_cursorScreenPosition = value.Get<Vector2>();
-    }
-
-    // NOTE: shifted this in to update loop so if input is disabled and player is
-    // holding a key down it will still register when input is re-enabled
-    public void OnMovement(InputValue value)
-    {
-        //if (!IsLocalPlayer) return;
-        //if (!IsInputEnabled) return;
-        //if (PlayerInputBlocker.Instance.IsMoveInputBlockerActive()) return;
-
-        //m_moveDirection = value.Get<Vector2>();
-    }
-
-    private void OnDash_CursorAim(InputValue value)
-    {
-        if (!IsLocalPlayer) return;
-        if (!IsInputEnabled) return;
-
-        m_triggeredAbilityEnum = PlayerAbilityEnum.Dash;
-
-        SetActionDirectionAndLastMoveFromCursorAim();
-    }
-
-    private void OnDash_MoveAim(InputValue value)
-    {
-        if (!IsLocalPlayer) return;
-        if (!IsInputEnabled) return;
-
-        m_actionDirection = m_lastMoveDirection;
-        m_actionDirectionTimer = k_actionDirectionTime;
-        m_triggeredAbilityEnum = PlayerAbilityEnum.Dash;
-    }
-
-    private void OnLeftAttack_CursorAim(InputValue value)
-    {
-        LeftAttack(value);
-        SetActionDirectionAndLastMoveFromCursorAim();
-    }
-
-    private void OnLeftAttack_MoveAim(InputValue value)
-    {
-        LeftAttack(value);
-        SetActionDirectionFromLastMove();
-    }
-
-    void LeftAttack(InputValue value)
-    {
-        if (!IsLocalPlayer) return;
-        if (!IsInputEnabled) return;
-
-        m_abilityHand = Hand.Left;
-        var lhWearable = GetComponent<PlayerEquipment>().LeftHand.Value;
-        m_triggeredAbilityEnum = m_playerAbilities.GetAttackAbilityEnum(lhWearable);
-    }
-
-    private void OnLeftHoldStart_CursorAim(InputValue value)
-    {
-        LeftHoldStart(value);
-    }
-
-    private void OnLeftHoldStart_MoveAim(InputValue value)
-    {
-        LeftHoldStart(value);
-    }
-
-    void LeftHoldStart(InputValue value)
-    {
-        if (!IsLocalPlayer) return;
-        if (!IsInputEnabled) return;
-
-        var lhWearable = GetComponent<PlayerEquipment>().LeftHand.Value;
-        m_holdStartTriggeredAbilityEnum = m_playerAbilities.GetHoldAbilityEnum(lhWearable);
-        var holdAbility = m_playerAbilities.GetAbility(m_holdStartTriggeredAbilityEnum);
-        m_IsShieldAbilityActive = m_holdStartTriggeredAbilityEnum == PlayerAbilityEnum.ShieldBlock;
-
-        if (holdAbility == null) return;
-
-        m_holdState = HoldState.LeftActive;
-        m_holdChargeTime = holdAbility.HoldChargeTime;
-        m_holdInputStartTick = timer.CurrentTick;
-    }
-
-    private void OnLeftHoldFinish_CursorAim(InputValue value)
-    {
-        LeftHoldFinish(value);
-        SetActionDirectionAndLastMoveFromCursorAim();
-    }
-
-    private void OnLeftHoldFinish_MoveAim(InputValue value)
-    {
-        LeftHoldFinish(value);
-        SetActionDirectionFromLastMove();
-    }
-
-    void LeftHoldFinish(InputValue value)
-    {
-        if (!IsLocalPlayer) return;
-        if (!IsInputEnabled) return;
-        if (m_holdState != HoldState.LeftActive) return;
-
-        m_abilityHand = Hand.Left;
-        var lhWearable = GetComponent<PlayerEquipment>().LeftHand.Value;
-        m_triggeredAbilityEnum = m_playerAbilities.GetHoldAbilityEnum(lhWearable);
-
-        m_isHoldFinishFlag = true;
-
-        m_holdStartTriggeredAbilityEnum = PlayerAbilityEnum.Null;
-        m_holdState = HoldState.Inactive;
-    }
-
-    private void OnLeftSpecial_CursorAim(InputValue value)
-    {
-        LeftSpecial(value);
-        SetActionDirectionAndLastMoveFromCursorAim();
-    }
-
-    private void OnLeftSpecial_MoveAim(InputValue value)
-    {
-        LeftSpecial(value);
-        SetActionDirectionFromLastMove();
-    }
-
-    void LeftSpecial(InputValue value)
-    {
-        if (!IsLocalPlayer) return;
-        if (!IsInputEnabled) return;
-
-        m_abilityHand = Hand.Left;
-        var lhWearable = GetComponent<PlayerEquipment>().LeftHand.Value;
-        m_triggeredAbilityEnum = m_playerAbilities.GetSpecialAbilityEnum(lhWearable);
-    }
-
-    private void OnRightAttack_CursorAim(InputValue value)
-    {
-        RightAttack(value);
-        SetActionDirectionAndLastMoveFromCursorAim();
-    }
-
-    private void OnRightAttack_MoveAim(InputValue value)
-    {
-        RightAttack(value);
-        SetActionDirectionFromLastMove();
-    }
-
-    void RightAttack(InputValue value)
-    {
-        if (!IsLocalPlayer) return;
-        if (!IsInputEnabled) return;
-
-        m_abilityHand = Hand.Right;
-        var rhWearable = GetComponent<PlayerEquipment>().RightHand.Value;
-        m_triggeredAbilityEnum = m_playerAbilities.GetAttackAbilityEnum(rhWearable);
-    }
-
-    private void OnRightHoldStart_CursorAim(InputValue value)
-    {
-        RightHoldStart(value);
-    }
-
-    private void OnRightHoldStart_MoveAim(InputValue value)
-    {
-        RightHoldStart(value);
-    }
-
-    void RightHoldStart(InputValue value)
-    {
-        if (!IsLocalPlayer) return;
-        if (!IsInputEnabled) return;
-
-        var rhWearable = GetComponent<PlayerEquipment>().RightHand.Value;
-        m_holdStartTriggeredAbilityEnum = m_playerAbilities.GetHoldAbilityEnum(rhWearable);
-        var holdAbility = m_playerAbilities.GetAbility(m_holdStartTriggeredAbilityEnum);
-        m_IsShieldAbilityActive = m_holdStartTriggeredAbilityEnum == PlayerAbilityEnum.ShieldBlock;
-
-        if (holdAbility == null) return;
-
-        m_holdChargeTime = holdAbility.HoldChargeTime;
-        m_holdState = HoldState.RightActive;
-        m_holdInputStartTick = timer.CurrentTick;
-    }
-
-    private void OnRightHoldFinish_CursorAim(InputValue value)
-    {
-        RightHoldFinish(value);
-        SetActionDirectionAndLastMoveFromCursorAim();
-    }
-
-    private void OnRightHoldFinish_MoveAim(InputValue value)
-    {
-        RightHoldFinish(value);
-        SetActionDirectionFromLastMove();
-    }
-
-    void RightHoldFinish(InputValue value)
-    {
-        if (!IsLocalPlayer) return;
-        if (!IsInputEnabled) return;
-        if (m_holdState != HoldState.RightActive) return;
-
-        m_abilityHand = Hand.Right;
-        var rhWearable = GetComponent<PlayerEquipment>().RightHand.Value;
-        m_triggeredAbilityEnum = m_playerAbilities.GetHoldAbilityEnum(rhWearable);
-
-        m_isHoldFinishFlag = true;
-
-        m_holdStartTriggeredAbilityEnum = PlayerAbilityEnum.Null;
-        m_holdState = HoldState.Inactive;
-    }
-
-    private void OnRightSpecial_CursorAim(InputValue value)
-    {
-        RightSpecial(value);
-        SetActionDirectionAndLastMoveFromCursorAim();
-    }
-
-    private void OnRightSpecial_MoveAim(InputValue value)
-    {
-        RightSpecial(value);
-        SetActionDirectionFromLastMove();
-    }
-
-    void RightSpecial(InputValue value)
-    {
-        if (!IsLocalPlayer) return;
-        if (!IsInputEnabled) return;
-
-        m_abilityHand = Hand.Right;
-        var rhWearable = GetComponent<PlayerEquipment>().RightHand.Value;
-        m_triggeredAbilityEnum = m_playerAbilities.GetSpecialAbilityEnum(rhWearable);
-    }
-
-    private void OnInteract(InputValue value)
-    {
-        IsInteracting = value.isPressed;
-    }
-
-    private void OnFreezeMovement(InputValue value)
-    {
-        IsFreezeMovementWhileTargeting = value.isPressed;
-    }
+    
 
     public HoldState GetHoldState() { return m_holdState; }
 
@@ -473,15 +214,15 @@ public class PlayerPrediction : NetworkBehaviour
         return holdPercent;
     }
 
-    private void UpdateCursorWorldPosition()
-    {
-        // Convert screen position to world position
-        Vector3 screenToWorldPosition = Camera.main.ScreenToWorldPoint(
-            new Vector3(m_cursorScreenPosition.x, m_cursorScreenPosition.y, Camera.main.transform.position.z));
+    //private void UpdateCursorWorldPosition()
+    //{
+    //    // Convert screen position to world position
+    //    Vector3 screenToWorldPosition = Camera.main.ScreenToWorldPoint(
+    //        new Vector3(m_cursorScreenPosition.x, m_cursorScreenPosition.y, Camera.main.transform.position.z));
 
-        // Since it's a 2D game, we set the Z coordinate to 0
-        m_cursorWorldPosition = new Vector3(screenToWorldPosition.x, screenToWorldPosition.y, 0);
-    }
+    //    // Since it's a 2D game, we set the Z coordinate to 0
+    //    m_cursorWorldPosition = new Vector3(screenToWorldPosition.x, screenToWorldPosition.y, 0);
+    //}
 
     private void Update()
     {
@@ -499,25 +240,11 @@ public class PlayerPrediction : NetworkBehaviour
         // set updated render position
         if (IsLocalPlayer)
         {
-            UpdateCursorWorldPosition();
+            // update input from our PlayerPrediction_Input.cs file
+            UpdateInput();
+
+            // update position
             transform.position = GetLocalPlayerInterpPosition();
-
-            // handle movement
-            if (IsMovementEnabled && IsInputEnabled)
-            {
-                m_moveDirection = m_movementAction.ReadValue<Vector2>();
-            }
-            else
-            {
-                m_moveDirection = Vector3.zero;
-            }
-
-            // handle freezing while targeting
-            if (IsFreezeMovementWhileTargeting)
-            {
-                m_actionDirection = m_moveDirection;
-                m_moveDirection = Vector3.zero;
-            }
         }
         else if (IsClient)
         {
@@ -608,6 +335,7 @@ public class PlayerPrediction : NetworkBehaviour
             tick = currentTick,
             moveDirection = GetComponent<PlayerGotchi>().IsDropSpawning ? Vector3.zero : m_moveDirection * MovementMultiplier,
             actionDirection = m_actionDirection,
+            actionDistance = m_actionDistance,
             triggeredAbilityEnum = m_triggeredAbilityEnum,
             holdStartTriggeredAbilityEnum = m_holdStartTriggeredAbilityEnum,
             abilityHand = m_abilityHand,                            // ability hand is set in the client input On functions
@@ -669,7 +397,7 @@ public class PlayerPrediction : NetworkBehaviour
         if (m_triggeredAbilityEnum != PlayerAbilityEnum.Null)
         {
             m_playerGotchi.SetFacingFromDirection(m_actionDirection, k_actionDirectionTime, true);
-            SetFacingParametersServerRpc(m_actionDirection, k_actionDirectionTime, m_lastMoveDirection);
+            SetFacingParametersServerRpc(m_actionDirection, k_actionDirectionTime, m_lastNonZeroMoveDirection);
         }
 
         // reset any triggers or booleans
@@ -934,8 +662,8 @@ public class PlayerPrediction : NetworkBehaviour
         Physics2D.simulationMode = SimulationMode2D.FixedUpdate;
 
         // update private variables
-        if (input.moveDirection.x != 0 || input.moveDirection.y != 0) m_lastMoveDirection = input.moveDirection;
-        m_velocity = input.moveDirection * m_networkCharacter.MoveSpeed.Value;
+        //if (input.moveDirection.x != 0 || input.moveDirection.y != 0) m_lastMoveDirection = input.moveDirection;
+        //m_velocity = input.moveDirection * m_networkCharacter.MoveSpeed.Value;
 
         return new StatePayload
         {
