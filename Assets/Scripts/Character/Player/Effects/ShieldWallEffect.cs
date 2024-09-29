@@ -48,7 +48,7 @@ public class ShieldWallEffect : NetworkBehaviour
         {
             m_ogDamageReduction = transform.parent.GetComponent<NetworkCharacter>().DamageReduction.Value;
             transform.parent.GetComponent<NetworkCharacter>().DamageReduction.Value =
-                0.3f * Wearable.GetRarityMultiplier(m_wearable.Rarity);
+                1f * Wearable.GetRarityMultiplier(m_wearable.Rarity);
             m_isDamageReductionSet = true;
         }
 
