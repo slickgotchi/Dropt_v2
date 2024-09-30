@@ -38,7 +38,7 @@ public class SpiderPod_SpawnSpiders : EnemyAbility
         m_speed = SpawnDistance / SpawnDuration;
     }
 
-    public override void OnUpdate()
+    public override void OnUpdate(float dt)
     {
         for (int i = 0; i < m_spiders.Count; i++)
         {

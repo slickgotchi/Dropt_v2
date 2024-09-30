@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Unity.Mathematics;
 
 public class PlayerHUDCanvas : MonoBehaviour
 {
@@ -62,10 +63,13 @@ public class PlayerHUDCanvas : MonoBehaviour
     private NetworkCharacter m_localPlayerCharacter;
     private PlayerDungeonData m_localPlayerDungeonData;
 
+    [SerializeField] private Slider m_leftHandShieldBar;
+    [SerializeField] private Slider m_rightHandShieldBar;
+
     public void SetLocalPlayerCharacter(NetworkCharacter localPlayerCharacter)
     {
         m_localPlayerCharacter = localPlayerCharacter;
-        m_localPlayerDungeonData = localPlayerCharacter.GetComponent<PlayerDungeonData>(); 
+        m_localPlayerDungeonData = localPlayerCharacter.GetComponent<PlayerDungeonData>();
     }
 
     public void SetLevelNumberAndName(string number, string name)
@@ -105,7 +109,8 @@ public class PlayerHUDCanvas : MonoBehaviour
         if (Screen.fullScreen)
         {
             m_dungeonCollectibles.GetComponent<RectTransform>().anchoredPosition = new Vector3(-10, 10, 0);
-        } else
+        }
+        else
         {
             m_dungeonCollectibles.GetComponent<RectTransform>().anchoredPosition = new Vector3(-10, 50, 0);
         }
@@ -139,6 +144,9 @@ public class PlayerHUDCanvas : MonoBehaviour
 
         m_lhCooldownText.text = lhRem < 0.1f ? "" : lhRem.ToString("F0");
         m_rhCooldownText.text = rhRem < 0.1f ? "" : rhRem.ToString("F0");
+
+        //m_lhCooldownText.text = math.ceil(lhRem).ToString("F0");
+        //m_rhCooldownText.text = math.ceil(rhRem).ToString("F0");
     }
 
     void UpdateGltr()
@@ -181,6 +189,30 @@ public class PlayerHUDCanvas : MonoBehaviour
         {
             RHWearableImage.sprite = WeaponSpriteManager.Instance.GetSprite(rhEnum, PlayerGotchi.Facing.Front);
             rhOld = rhEnum;
+        }
+    }
+
+    public void VisibleShieldBar(Hand hand, bool isVisible)
+    {
+        if (hand == Hand.Left)
+        {
+            m_leftHandShieldBar.gameObject.SetActive(isVisible);
+        }
+        else
+        {
+            m_rightHandShieldBar.gameObject.SetActive(isVisible);
+        }
+    }
+
+    public void SetShieldBarProgress(Hand hand, float progress)
+    {
+        if (hand == Hand.Left)
+        {
+            m_leftHandShieldBar.value = progress;
+        }
+        else
+        {
+            m_rightHandShieldBar.value = progress;
         }
     }
 }

@@ -32,6 +32,11 @@ public class NetworkCharacterDebugCanvas : MonoBehaviour
         Container.SetActive(false);
     }
 
+    private void Start()
+    {
+        Container.SetActive(false);
+    }
+
     void Update()
     {
         UpdateText();

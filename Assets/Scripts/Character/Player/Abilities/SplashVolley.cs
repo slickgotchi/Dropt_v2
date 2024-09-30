@@ -7,7 +7,7 @@ public class SplashVolley : PlayerAbility
 {
     [Header("SplashVolley Parameters")]
     public float Projection = 1.5f;
-    public float Distance = 8f;
+    public float MaxDistance = 8f;
     public float Duration = 1f;
     public float ExplosionRadius = 1f;
     public float LobHeight = 2f;
@@ -17,6 +17,8 @@ public class SplashVolley : PlayerAbility
 
     [Header("Projectile Prefab")]
     public GameObject SplashProjectilePrefab;
+
+    private float m_distance = 8f;
 
     // variables for keeping track of the spawned projectiles
     private List<GameObject> m_splashProjectiles = new List<GameObject>(new GameObject[5]);
@@ -83,7 +85,7 @@ public class SplashVolley : PlayerAbility
         }
     }
 
-    private void Update()
+    public override void OnUpdate()
     {
         // Ensure remote clients associate projectiles with local projectile variables
         for (int i = 0; i < m_splashProjectiles.Count; i++)
@@ -115,10 +117,13 @@ public class SplashVolley : PlayerAbility
         // Play animation
         PlayAnimation("SplashLob");
 
+        // adjust distance
+        m_distance = math.min(ActivationInput.actionDistance, MaxDistance);
+
         // Activate projectiles
-        var holdChargePercentage = math.min(HoldDuration / HoldChargeTime, 1);
+        var holdChargePercentage = math.min(m_holdTimer / HoldChargeTime, 1);
         ActivateMultipleProjectiles(ActivationWearableNameEnum, 
-            ActivationInput.actionDirection, Distance, Duration, Scale, ExplosionRadius,
+            ActivationInput.actionDirection, m_distance, Duration, Scale, ExplosionRadius,
             holdChargePercentage);
     }
 
@@ -186,23 +191,12 @@ public class SplashVolley : PlayerAbility
                 explosionRadius, IsServer ? PlayerAbility.NetworkRole.Server : PlayerAbility.NetworkRole.LocalClient,
                 Wearable.WeaponTypeEnum.Splash, activationWearable,
                 Player,
-                playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier,
+                playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier * DamageMultiplier,
                 playerCharacter.CriticalChance.Value,
-                playerCharacter.CriticalDamage.Value);
+                playerCharacter.CriticalDamage.Value,
+                KnockbackDistance,
+                KnockbackStunDuration);
 
-            //no_projectile.Direction = direction;
-            //no_projectile.Distance = distance;
-            //no_projectile.Duration = duration;
-            //no_projectile.ExplosionRadius = 1;
-            //no_projectile.LocalPlayer = Player;
-            //no_projectile.WeaponType = Wearable.WeaponTypeEnum.Magic;
-            //no_projectile.ExplosionRadius = ExplosionRadius;
-            //no_projectile.WearableNameEnum = activationWearable;
-
-            //no_projectile.DamagePerHit = ;
-            //no_projectile.CriticalChance =
-            //no_projectile.CriticalDamage = 
-            //no_projectile.Role = IsServer ? PlayerAbility.NetworkRole.Server : PlayerAbility.NetworkRole.LocalClient;
 
             no_projectile.Fire();
         }
@@ -239,31 +233,12 @@ public class SplashVolley : PlayerAbility
             no_projectile.Init(
                 startPosition, direction, distance, duration, scale, explosionRadius,
                 NetworkRole.RemoteClient, Wearable.WeaponTypeEnum.Splash, activationWearable,
-                Player, 0, 0, 0
-                );
+                Player, 0, 0, 0,
+                0, 0);
 
-
-            //no_projectile.Direction = direction;
-            //no_projectile.Distance = distance;
-            //no_projectile.Duration = duration;
-            //no_projectile.ExplosionRadius = 1;
-            //no_projectile.WeaponType = Wearable.WeaponTypeEnum.Magic;
-            //no_projectile.ExplosionRadius = ExplosionRadius;
-            //no_projectile.WearableNameEnum = activationWearable;
-
-            //var playerCharacter = Player.GetComponent<NetworkCharacter>();
-            //no_projectile.DamagePerHit = playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier;
-            //no_projectile.CriticalChance = playerCharacter.CriticalChance.Value;
-            //no_projectile.CriticalDamage = playerCharacter.CriticalDamage.Value;
-            //no_projectile.Role = PlayerAbility.NetworkRole.RemoteClient;
 
             no_projectile.Fire();
         }
-    }
-
-    public override void OnUpdate()
-    {
-        // Custom update logic if needed
     }
 
     public override void OnFinish()

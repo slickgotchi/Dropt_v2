@@ -15,17 +15,16 @@ public class FudWisp_Explode : EnemyAbility
 
     private float m_explosionTimer = 0;
 
-    private void Awake()
-    {
-        transform.localScale = new Vector3(ExplosionRadius * 2, ExplosionRadius * 2, 1);
-    }
 
-    public override void OnTelegraphStart()
+    public override void OnActivate()
     {
-    }
+        base.OnActivate();
 
-    public override void OnExecutionStart()
-    {
+        if (Parent == null) return;
+
+        // set position
+        transform.position = Parent.transform.position;
+
         // resize explosion collider and check collisions
         Collider.GetComponent<CircleCollider2D>().radius = ExplosionRadius;
         HandleCollisions(Collider);
@@ -57,10 +56,13 @@ public class FudWisp_Explode : EnemyAbility
         foreach (var hit in playerHitColliders)
         {
             var player = hit.transform.parent;
-            if (player.HasComponent<NetworkCharacter>())
+            var networkCharacter = player.GetComponent<NetworkCharacter>();
+            var characterStatus = player.GetComponent<CharacterStatus>();
+
+            if (networkCharacter != null && characterStatus != null && !characterStatus.IsRooted())
             {
                 // apply rooted
-                player.GetComponent<CharacterStatus>().SetRooted(true, RootDuration);
+                characterStatus.SetRooted(true, RootDuration);
             }
         }
 
@@ -68,7 +70,7 @@ public class FudWisp_Explode : EnemyAbility
         playerHitColliders.Clear();
     }
 
-    public override void OnUpdate()
+    public override void OnUpdate(float dt)
     {
         m_explosionTimer += Time.deltaTime;
         if (m_explosionTimer > ExplosionDuration)

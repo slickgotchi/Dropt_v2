@@ -20,6 +20,7 @@ public class PoisonStack : MonoBehaviour
 
     public static void ApplyPoisonStack(GameObject target, float damagePerSecond, float duration, int maxStackSize)
     {
+        Debug.Log("Apply PoisonStack");
         PoisonStack poisonStack = target.GetComponent<PoisonStack>();
         if (poisonStack == null)
         {
@@ -47,7 +48,7 @@ public class PoisonStack : MonoBehaviour
         if (elapsedTime >= 1f)
         {
             ApplyDamage();
-            elapsedTime -= 1f;
+            elapsedTime = 0;
         }
 
         UpdateStacks();

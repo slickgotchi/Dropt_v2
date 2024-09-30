@@ -24,11 +24,12 @@ public class CleaveSlash : PlayerAbility
         SetLocalPosition(PlayerAbilityCentreOffset + ActivationInput.actionDirection * Projection);
 
         // collision check (no RPC's are involved in this call)
-        OneFrameCollisionDamageCheck(m_collider, Wearable.WeaponTypeEnum.Cleave);
+        OneFrameCollisionDamageCheck(m_collider, Wearable.WeaponTypeEnum.Cleave, DamageMultiplier);
 
         // IMPORTANT use PlayAnimation which calls RPC's in the background that play the 
         // animation on remote clients
-        PlayAnimation("CleaveSlash");
+        //PlayAnimation("CleaveSlash");
+        PlayAnimationWithDuration("CleaveSlash", ExecutionDuration);
 
 
     }

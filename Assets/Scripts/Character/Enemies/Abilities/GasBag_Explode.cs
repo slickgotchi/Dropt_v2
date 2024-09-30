@@ -7,48 +7,39 @@ using UnityEngine;
 public class GasBag_Explode : EnemyAbility
 {
     [Header("GasBag_Explode Parameters")]
-    public float ExplosionDuration = 1f;
     public float ExplosionRadius = 3f;
     public float PoisonDuration = 5f;
     public float PoisonDamagePerSecond = 4f;
 
     [SerializeField] private Collider2D Collider;
 
-    private float m_explosionTimer = 0;
+    bool m_isExploded = false;
 
     private void Awake()
     {
     }
 
-    public override void OnTelegraphStart()
+    public override void OnActivate()
     {
-    }
+        if (Parent == null) return;
+        if (m_isExploded) return;
 
-    public override void OnExecutionStart()
-    {
-        //// reset explosion fade timer & set fade out duration
-        //m_explosionTimer = 0f;
-        //GetComponentInChildren<FadeOut>().duration = ExplosionDuration;
-
-        //// set position of explosion and initial scale
-        //transform.position = Parent.transform.position + new Vector3(0, 0.6f, 0);
+        // set position
+        transform.position = Dropt.Utils.Battle.GetAttackCentrePosition(Parent);
 
         // resize explosion collider and check collisions
         Collider.GetComponent<CircleCollider2D>().radius = ExplosionRadius;
         HandleCollisions(Collider);
-
-        // destroy the parent object
-        if (Parent != null)
-        {
-            transform.parent = null;
-            Parent.GetComponent<NetworkObject>().Despawn();
-        }
 
         // do visual explosion
         SpawnBasicCircleClientRpc(
             transform.position,
             Dropt.Utils.Color.HexToColor("#7a09fa", 0.5f),
             ExplosionRadius);
+
+        Parent.GetComponent<NetworkObject>().Despawn();
+
+        m_isExploded = true;
     }
 
     private void HandleCollisions(Collider2D collider)
@@ -71,15 +62,5 @@ public class GasBag_Explode : EnemyAbility
 
         // clear out colliders
         playerHitColliders.Clear();
-    }
-
-    public override void OnUpdate()
-    {
-        m_explosionTimer += Time.deltaTime;
-        if (m_explosionTimer > ExplosionDuration)
-        {
-            if (IsServer) GetComponent<NetworkObject>().Despawn();
-            return;
-        }
     }
 }
