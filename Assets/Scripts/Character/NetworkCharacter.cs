@@ -22,6 +22,8 @@ public class NetworkCharacter : NetworkBehaviour
     public float baseDamageReduction = 0f;
     public float baseApLeech = 0f;
     public float baseApRegen = 1f;
+    public float baseKnockbackMutliplier = 1f;
+    public float baseStunMultiplier = 1f;
 
     [Header("Damage/Health Popup Offset")]
     public Vector3 popupTextOffset = new Vector3(0, 1.5f, 0f);
@@ -29,22 +31,24 @@ public class NetworkCharacter : NetworkBehaviour
     private List<BuffObject> activeBuffObjects = new List<BuffObject>();
 
     // NetworkVariables
-    [HideInInspector] public NetworkVariable<float> HpMax = new NetworkVariable<float>();
-    [HideInInspector] public NetworkVariable<float> HpCurrent = new NetworkVariable<float>();
-    [HideInInspector] public NetworkVariable<float> HpBuffer = new NetworkVariable<float>();
-    [HideInInspector] public NetworkVariable<float> AttackPower = new NetworkVariable<float>();
-    [HideInInspector] public NetworkVariable<float> CriticalChance = new NetworkVariable<float>();
-    [HideInInspector] public NetworkVariable<float> ApMax = new NetworkVariable<float>();
-    [HideInInspector] public NetworkVariable<float> ApCurrent = new NetworkVariable<float>();
-    [HideInInspector] public NetworkVariable<float> ApBuffer = new NetworkVariable<float>();
-    [HideInInspector] public NetworkVariable<float> DoubleStrikeChance = new NetworkVariable<float>();
-    [HideInInspector] public NetworkVariable<float> CriticalDamage = new NetworkVariable<float>();
-    [HideInInspector] public NetworkVariable<float> MoveSpeed = new NetworkVariable<float>();
-    [HideInInspector] public NetworkVariable<float> Accuracy = new NetworkVariable<float>();
-    [HideInInspector] public NetworkVariable<float> Evasion = new NetworkVariable<float>();
-    [HideInInspector] public NetworkVariable<float> DamageReduction = new NetworkVariable<float>();
-    [HideInInspector] public NetworkVariable<float> ApLeech = new NetworkVariable<float>();
-    [HideInInspector] public NetworkVariable<float> ApRegen = new NetworkVariable<float>();
+    [HideInInspector] public NetworkVariable<float> HpMax = new NetworkVariable<float>(0);
+    [HideInInspector] public NetworkVariable<float> HpCurrent = new NetworkVariable<float>(0);
+    [HideInInspector] public NetworkVariable<float> HpBuffer = new NetworkVariable<float>(0);
+    [HideInInspector] public NetworkVariable<float> AttackPower = new NetworkVariable<float>(0);
+    [HideInInspector] public NetworkVariable<float> CriticalChance = new NetworkVariable<float>(0);
+    [HideInInspector] public NetworkVariable<float> ApMax = new NetworkVariable<float>(0);
+    [HideInInspector] public NetworkVariable<float> ApCurrent = new NetworkVariable<float>(0);
+    [HideInInspector] public NetworkVariable<float> ApBuffer = new NetworkVariable<float>(0);
+    [HideInInspector] public NetworkVariable<float> DoubleStrikeChance = new NetworkVariable<float>(0);
+    [HideInInspector] public NetworkVariable<float> CriticalDamage = new NetworkVariable<float>(0);
+    [HideInInspector] public NetworkVariable<float> MoveSpeed = new NetworkVariable<float>(0);
+    [HideInInspector] public NetworkVariable<float> Accuracy = new NetworkVariable<float>(0);
+    [HideInInspector] public NetworkVariable<float> Evasion = new NetworkVariable<float>(0);
+    [HideInInspector] public NetworkVariable<float> DamageReduction = new NetworkVariable<float>(0);
+    [HideInInspector] public NetworkVariable<float> ApLeech = new NetworkVariable<float>(0);
+    [HideInInspector] public NetworkVariable<float> ApRegen = new NetworkVariable<float>(0);
+    [HideInInspector] public NetworkVariable<float> KnockbackMultiplier = new NetworkVariable<float>(0);
+    [HideInInspector] public NetworkVariable<float> StunMultiplier = new NetworkVariable<float>(0);
 
     public override void OnNetworkSpawn()
     {
@@ -70,7 +74,7 @@ public class NetworkCharacter : NetworkBehaviour
     public float GetAttackPower(float randomVariation = 0.1f)
     {
         return UnityEngine.Random.Range(
-            AttackPower.Value * (1 - randomVariation), 
+            AttackPower.Value * (1 - randomVariation),
             AttackPower.Value * (1 + randomVariation));
     }
 
@@ -85,19 +89,109 @@ public class NetworkCharacter : NetworkBehaviour
         // reduce damage
         damage *= (1 - DamageReduction.Value);
 
+        HandleEnemyTakeDamage(damage, isCritical, damageDealer != null ? damageDealer.GetComponent<NetworkObject>().NetworkObjectId : 0);
+        HandlePlayerTakeDamage(damage, isCritical, damageDealer != null ? damageDealer.GetComponent<NetworkObject>().NetworkObjectId : 0);
+    }
+
+    // ENEMY
+    public void HandleEnemyTakeDamage(float damage, bool isCritical, ulong damageDealerNOID = 0)
+    {
+        var enemyController = GetComponent<EnemyController>();
+        if (enemyController == null) return;
+
+        // CLIENT or HOST
         if (IsClient)
         {
-            if (gameObject.HasComponent<SpriteFlash>())
-            {
-                GetComponent<SpriteFlash>().DamageFlash();
-            }
+            // do sprite flash
+            var spriteFlash = GetComponentInChildren<SpriteFlash>();
+            if (spriteFlash != null) spriteFlash.DamageFlash();
+
+            // play damage audio
+            GameAudioManager.Instance.EnemyHurt(transform.position);
         }
+
+        // SERVER or HOST
         if (IsServer)
         {
-            bool isPlayer = gameObject.HasComponent<PlayerController>();
-            if (!isPlayer)
+            if (!IsHost) HandleEnemyTakeDamageClientRpc(damage, isCritical, damageDealerNOID);
+
+            HpCurrent.Value -= (int)damage;
+            if (HpCurrent.Value < 0) { HpCurrent.Value = 0; }
+            var position = transform.position + popupTextOffset;
+            DamagePopupTextClientRpc(damage, position, isCritical);
+
+            if (HpCurrent.Value <= 0 && enemyController != null)
             {
-                GameAudioManager.Instance.EnemyHurt(gameObject.transform.position);
+                var enemyAI = gameObject.GetComponent<Dropt.EnemyAI>();
+                if (enemyAI != null)
+                {
+                    // the AI class will handle despawning (and some children may not imeediately despawn)
+                    enemyAI.Death(transform.position);
+                }
+                else
+                {
+                    gameObject.GetComponent<NetworkObject>().Despawn();
+                }
+            }
+
+            // do ap leech
+            if (damageDealerNOID > 0)
+            {
+                var damageDealer = NetworkManager.SpawnManager.SpawnedObjects[damageDealerNOID];
+                if (damageDealer != null)
+                {
+                    var nc_damageDealer = damageDealer.GetComponent<NetworkCharacter>();
+                    if (nc_damageDealer != null)
+                    {
+                        nc_damageDealer.ApCurrent.Value += (int)(damage * nc_damageDealer.ApLeech.Value);
+                    }
+                }
+            }
+        }
+    }
+
+    [ClientRpc]
+    private void HandleEnemyTakeDamageClientRpc(float damage, bool isCritical, ulong damageDealerNOID = 0)
+    {
+        HandleEnemyTakeDamage(damage, isCritical, damageDealerNOID);
+    }
+
+    // PLAYER
+    public void HandlePlayerTakeDamage(float damage, bool isCritical, ulong damageDealerNOID = 0)
+    {
+        var playerController = GetComponent<PlayerController>();
+        if (playerController == null) return;
+
+        damage = ApplyShieldToDamage(damage);
+        if (damage <= 0)
+        {
+            return;
+        }
+
+        // CLIENT or HOST
+        if (IsClient)
+        {
+            // do sprite flash
+            var spriteFlash = GetComponentInChildren<SpriteFlash>();
+            if (spriteFlash != null) spriteFlash.DamageFlash();
+
+            // play damage audio (should replace this with a gotchi sound)
+            GameAudioManager.Instance.PlayerHurt(transform.position);
+
+            // do local only effects
+            if (gameObject.GetComponent<NetworkObject>().IsLocalPlayer)
+            {
+                BloodBorderCanvas.Instance.DoBlood();
+                gameObject.GetComponent<PlayerCamera>().Shake(1.5f, 0.3f);
+            }
+        }
+
+        // SERVER or HOST
+        if (IsServer)
+        {
+            if (!IsHost)
+            {
+                HandlePlayerTakeDamageClientRpc(damage, isCritical, damageDealerNOID);
             }
 
             HpCurrent.Value -= (int)damage;
@@ -107,45 +201,67 @@ public class NetworkCharacter : NetworkBehaviour
 
             if (HpCurrent.Value <= 0 && IsServer)
             {
-                if (isPlayer)
+                HpCurrent.Value = 0;
+                if (playerController != null)
                 {
                     GetComponent<PlayerController>().KillPlayer(REKTCanvas.TypeOfREKT.HP);
-                }
-                else
-                {
-                    gameObject.GetComponent<NetworkObject>().Despawn();
                 }
             }
 
             // do ap leech
-            if (damageDealer != null)
+            if (damageDealerNOID > 0)
             {
-                var nc_damageDealer = damageDealer.GetComponent<NetworkCharacter>();
-                if (nc_damageDealer != null)
+                var damageDealer = NetworkManager.SpawnManager.SpawnedObjects[damageDealerNOID];
+                if (damageDealer != null)
                 {
-                    nc_damageDealer.ApCurrent.Value += (int)(damage * nc_damageDealer.ApLeech.Value);
+                    var nc_damageDealer = damageDealer.GetComponent<NetworkCharacter>();
+                    if (nc_damageDealer != null)
+                    {
+                        nc_damageDealer.ApCurrent.Value += (int)(damage * nc_damageDealer.ApLeech.Value);
+                    }
                 }
             }
         }
     }
 
+    private float ApplyShieldToDamage(float damage)
+    {
+        PlayerAbilities playerAbilities = GetComponent<PlayerAbilities>();
+        if (playerAbilities.shieldBlock != null)
+        {
+            ShieldBlock shieldBlock = playerAbilities.shieldBlock.GetComponent<ShieldBlock>();
+            if (shieldBlock.IsBlocking())
+            {
+                damage = shieldBlock.AbsorbDamage(damage);
+            }
+        }
+        return damage;
+    }
+
+    [ClientRpc]
+    private void HandlePlayerTakeDamageClientRpc(float damage, bool isCritical, ulong damageDealerNOID = 0)
+    {
+        HandlePlayerTakeDamage(damage, isCritical, damageDealerNOID);
+    }
+
     [Rpc(SendTo.ClientsAndHost)]
-    void DamagePopupTextClientRpc(float damage, Vector3 position, bool isCritical)
+    private void DamagePopupTextClientRpc(float damage, Vector3 position, bool isCritical)
     {
         ColorUtility.TryParseHtmlString("#ffeb57", out Color critColor);
 
         PopupTextManager.Instance.PopupText(
-            damage.ToString("F0"), 
-            position, 
-            isCritical ? 30 : 24, 
-            isCritical ? critColor : Color.white, 
+            damage.ToString("F0"),
+            position,
+            isCritical ? 24 : 16,
+            isCritical ? critColor : Color.white,
             0.2f);
     }
 
     protected virtual void InitializeStats()
     {
-        HpMax.Value = baseHpMax;
-        HpCurrent.Value = baseHpCurrent;
+        // set values to base values
+        HpMax.Value = baseHpMax;           // needs to be += as we also add to hp from enemy controller with dynamicHp
+        HpCurrent.Value = baseHpCurrent;    
         HpBuffer.Value = baseHpBuffer;
         AttackPower.Value = baseAttackPower;
         CriticalChance.Value = baseCriticalChance;
@@ -160,6 +276,15 @@ public class NetworkCharacter : NetworkBehaviour
         DamageReduction.Value = baseDamageReduction;
         ApLeech.Value = baseApLeech;
         ApRegen.Value = baseApRegen;
+        KnockbackMultiplier.Value = baseKnockbackMutliplier;
+        StunMultiplier.Value = baseStunMultiplier;
+
+        // check for and apply dynamic HP
+        var dynamicHp = GetComponent<DynamicHP>();
+        if (dynamicHp != null)
+        {
+            dynamicHp.ApplyDynamicHp();
+        }
     }
 
     public bool HasBuffObject(BuffObject buffObject)

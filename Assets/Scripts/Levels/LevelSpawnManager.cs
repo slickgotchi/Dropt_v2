@@ -4,14 +4,6 @@ using UnityEngine;
 using Unity.Netcode;
 using Level;
 
-//public enum SpawnCondition
-//{
-//    ElapsedTime,
-//    Continuous,
-//    PlayerDestroyAllWithSpawnerId,
-//    PlayerTouchTriggerWithSpawnerId,
-//}
-
 /// <summary>
 /// This class iterates over all LevelSpawn objects to manage when they are active/spawned
 /// </summary>
@@ -71,7 +63,6 @@ public class LevelSpawnManager : MonoBehaviour
                     // check if there are no spawns with the id of destroyall
                     if (!activeLevelSpawnIds.Contains(levelSpawn.destroyAllWithSpawnerId))
                     {
-                        Debug.Log("Button spawn time!");
                         isSpawnTime = true;
                     }
                     break;

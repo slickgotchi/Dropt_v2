@@ -208,8 +208,6 @@ TilemapRenderer:
   m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -1904,7 +1902,7 @@ Tilemap:
       - {fileID: 1418796155, guid: 3e916ee409873481e969a7e7ac260874, type: 3}
       - {fileID: 715627869, guid: 3e916ee409873481e969a7e7ac260874, type: 3}
       - {fileID: -1698698603, guid: 3e916ee409873481e969a7e7ac260874, type: 3}
-      m_AnimationSpeed: 3.0000002
+      m_AnimationSpeed: 3
       m_AnimationTimeOffset: 0
       m_Flags: 0
   - first: {x: -49, y: -81, z: 0}
@@ -1915,7 +1913,7 @@ Tilemap:
       - {fileID: 1418796155, guid: 3e916ee409873481e969a7e7ac260874, type: 3}
       - {fileID: 715627869, guid: 3e916ee409873481e969a7e7ac260874, type: 3}
       - {fileID: -1698698603, guid: 3e916ee409873481e969a7e7ac260874, type: 3}
-      m_AnimationSpeed: 3.0000002
+      m_AnimationSpeed: 3
       m_AnimationTimeOffset: 0
       m_Flags: 0
   - first: {x: -48, y: -81, z: 0}
@@ -1992,7 +1990,7 @@ Tilemap:
       - {fileID: 1418796155, guid: 3e916ee409873481e969a7e7ac260874, type: 3}
       - {fileID: 715627869, guid: 3e916ee409873481e969a7e7ac260874, type: 3}
       - {fileID: -1698698603, guid: 3e916ee409873481e969a7e7ac260874, type: 3}
-      m_AnimationSpeed: 3
+      m_AnimationSpeed: 3.0000002
       m_AnimationTimeOffset: 0
       m_Flags: 0
   - first: {x: -41, y: -81, z: 0}
@@ -2168,7 +2166,7 @@ Tilemap:
       - {fileID: 1062083957, guid: 3e916ee409873481e969a7e7ac260874, type: 3}
       - {fileID: -613327000, guid: 3e916ee409873481e969a7e7ac260874, type: 3}
       - {fileID: -115321397, guid: 3e916ee409873481e969a7e7ac260874, type: 3}
-      m_AnimationSpeed: 3.0000002
+      m_AnimationSpeed: 3
       m_AnimationTimeOffset: 0
       m_Flags: 0
   - first: {x: -51, y: -75, z: 0}
@@ -2344,8 +2342,6 @@ TilemapRenderer:
   m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -5718,19 +5714,19 @@ PrefabInstance:
       value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 6043624057636478378, guid: cc7a6cf3eeece7d4a83756f2b7114228, type: 3}
-      propertyPath: 'm_AnimatedTiles.Array.data[0].second.m_AnimatedSprites.Array.data[0]'
+      propertyPath: m_AnimatedTiles.Array.data[0].second.m_AnimatedSprites.Array.data[0]
       value: 
       objectReference: {fileID: 1070058429, guid: 0ce68ee6900e84bd1af3b4fa3a66ed1c, type: 3}
     - target: {fileID: 6043624057636478378, guid: cc7a6cf3eeece7d4a83756f2b7114228, type: 3}
-      propertyPath: 'm_AnimatedTiles.Array.data[0].second.m_AnimatedSprites.Array.data[1]'
+      propertyPath: m_AnimatedTiles.Array.data[0].second.m_AnimatedSprites.Array.data[1]
       value: 
       objectReference: {fileID: 707088037, guid: 0ce68ee6900e84bd1af3b4fa3a66ed1c, type: 3}
     - target: {fileID: 6043624057636478378, guid: cc7a6cf3eeece7d4a83756f2b7114228, type: 3}
-      propertyPath: 'm_AnimatedTiles.Array.data[0].second.m_AnimatedSprites.Array.data[2]'
+      propertyPath: m_AnimatedTiles.Array.data[0].second.m_AnimatedSprites.Array.data[2]
       value: 
       objectReference: {fileID: -633976980, guid: 0ce68ee6900e84bd1af3b4fa3a66ed1c, type: 3}
     - target: {fileID: 6043624057636478378, guid: cc7a6cf3eeece7d4a83756f2b7114228, type: 3}
-      propertyPath: 'm_AnimatedTiles.Array.data[0].second.m_AnimatedSprites.Array.data[3]'
+      propertyPath: m_AnimatedTiles.Array.data[0].second.m_AnimatedSprites.Array.data[3]
       value: 
       objectReference: {fileID: 798812799, guid: 0ce68ee6900e84bd1af3b4fa3a66ed1c, type: 3}
     m_RemovedComponents: []
@@ -10984,7 +10980,7 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5866373348201792969, guid: 149b001e784ff18468fdb8aace063fd2, type: 3}
-      propertyPath: 'SunkenFloorSpawners.Array.data[0]'
+      propertyPath: SunkenFloorSpawners.Array.data[0]
       value: 
       objectReference: {fileID: 4382402975432618648}
     - target: {fileID: 6028350777029815043, guid: 149b001e784ff18468fdb8aace063fd2, type: 3}

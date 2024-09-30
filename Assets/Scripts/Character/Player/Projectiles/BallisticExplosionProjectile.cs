@@ -13,6 +13,12 @@ public class BallisticExplosionProjectile : NetworkBehaviour
     [HideInInspector] public float ProjectileDamageMultiplier = 1f;
     [HideInInspector] public float ExplosionDamageMultiplier = 0.5f;
 
+    [HideInInspector] public Vector3 KnockbackDirection;
+    [HideInInspector] public float KnockbackDistance;
+    [HideInInspector] public float KnockbackStunDuration;
+    [HideInInspector] public float ExplosionKnockbackDistance;
+    [HideInInspector] public float ExplosionKnockbackStunDuration;
+
     [HideInInspector] public float DamagePerHit = 1f;
     [HideInInspector] public float CriticalChance = 0.1f;
     [HideInInspector] public float CriticalDamage = 1.5f;
@@ -44,7 +50,14 @@ public class BallisticExplosionProjectile : NetworkBehaviour
         float criticalChance,
         float criticalDamage,
         float projectileDamageMultiplier,
-        float explosionDamageMultiplier
+        float explosionDamageMultiplier,
+
+        // knockback
+        Vector3 knockbackDirection,
+        float knockbackDistance,
+        float knockbackStunDuration,
+        float explosionKnockbackDistance,
+        float explosionKnockbackStunDuration
         )
     {
         // server, local & remote
@@ -64,6 +77,12 @@ public class BallisticExplosionProjectile : NetworkBehaviour
         CriticalDamage = criticalDamage;
         ProjectileDamageMultiplier = projectileDamageMultiplier;
         ExplosionDamageMultiplier = explosionDamageMultiplier;
+
+        KnockbackDirection = knockbackDirection;
+        KnockbackDistance = knockbackDistance;
+        KnockbackStunDuration = knockbackStunDuration;
+        ExplosionKnockbackDistance = explosionKnockbackDistance;
+        ExplosionKnockbackStunDuration = explosionKnockbackStunDuration;
     }
 
     public void Fire()
@@ -115,6 +134,12 @@ public class BallisticExplosionProjectile : NetworkBehaviour
                 var isCritical = PlayerAbility.IsCriticalAttack(CriticalChance);
                 damage = (int)(isCritical ? damage * CriticalDamage : damage);
                 hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical, LocalPlayer);
+
+                var enemyAI = hit.GetComponent<Dropt.EnemyAI>();
+                if (enemyAI != null)
+                {
+                    enemyAI.Knockback(KnockbackDirection, KnockbackDistance, KnockbackStunDuration);
+                }
             }
             else if (hit.HasComponent<Destructible>())
             {
@@ -144,16 +169,16 @@ public class BallisticExplosionProjectile : NetworkBehaviour
         }
 
         // do explosion collision check
+        ExplosionCollider.transform.parent = null;
         ExplosionCollider.transform.position = position;
         ExplosionCollider.transform.localScale = new Vector3(ExplosionRadius * 2, ExplosionRadius * 2, 1f);
-        ExplosionCollisionCheck();
+        ExplosionCollisionCheck(position);
     }
 
-    private void ExplosionCollisionCheck()
+    private void ExplosionCollisionCheck(Vector3 position)
     {
         // sync colliders to current transform
         Physics2D.SyncTransforms();
-
         // do a collision check
         List<Collider2D> enemyHitColliders = new List<Collider2D>();
         ExplosionCollider.OverlapCollider(PlayerAbility.GetContactFilter(new string[] { "EnemyHurt", "Destructible" }), enemyHitColliders);
@@ -165,6 +190,12 @@ public class BallisticExplosionProjectile : NetworkBehaviour
                 var isCritical = PlayerAbility.IsCriticalAttack(CriticalChance);
                 damage = (int)(isCritical ? damage * CriticalDamage : damage);
                 hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical);
+                var knockbackDirection = (Dropt.Utils.Battle.GetAttackCentrePosition(hit.gameObject) - position).normalized;
+                var enemyAI = hit.GetComponent<Dropt.EnemyAI>();
+                if (enemyAI != null)
+                {
+                    enemyAI.Knockback(knockbackDirection, KnockbackDistance, KnockbackStunDuration);
+                }
             }
 
             if (hit.HasComponent<Destructible>())
@@ -186,6 +217,8 @@ public class BallisticExplosionProjectile : NetworkBehaviour
 
         // clear out colliders
         enemyHitColliders.Clear();
+
+        //Destroy(ExplosionCollider.gameObject);
     }
 
     void Deactivate(Vector3 hitPosition)

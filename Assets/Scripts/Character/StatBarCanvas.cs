@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Unity.Mathematics;
 
 public class StatBarCanvas : MonoBehaviour
 {
@@ -10,13 +11,68 @@ public class StatBarCanvas : MonoBehaviour
 
     public NetworkCharacter character;
 
+    public Image hpBg;
+    public Image hpFill;
+    public Image apBg;
+    public Image apFill;
+
+    private float m_fadeTimer = 0;
+    private float m_fadeDuration = 2f;
+    private float m_fadeStartPoint = 2f * 0.3f;
+
+    private bool m_isDamaged = false;
+
     private void Awake()
     {
-        UpdateStatBars();
+        //UpdateStatBarsFadeOut();
     }
 
-    void UpdateStatBars()
+
+
+    private void Update()
     {
+        //UpdateStatBarsFadeOut();
+        UpdateStatBarsShowIfBelow100();
+        //UpdateAlpha();
+    }
+
+    private void UpdateStatBarsShowIfBelow100()
+    {
+        // update sliders
+        hpSlider.maxValue = character.HpMax.Value;
+        hpSlider.value = character.HpCurrent.Value;
+        apSlider.maxValue = character.ApMax.Value;
+        apSlider.value = character.ApCurrent.Value;
+
+        // hide ap bar if char has no AP stat
+        if (character.ApMax.Value <= 0)
+        {
+            apSlider.gameObject.SetActive(false);
+        }
+
+        // show damage
+        if (m_isDamaged)
+        {
+            SetAlpha(1);
+        } else
+        {
+            SetAlpha(0);
+            if (character.HpCurrent.Value - character.HpMax.Value < 0)
+            {
+                m_isDamaged = true;
+            }
+        }
+
+    }
+
+    void UpdateStatBarsFadeOut()
+    {
+        // check hp differences
+        if (math.abs(hpSlider.value - character.HpCurrent.Value) > 1)
+        {
+            ShowFade(2f);
+        }
+
         hpSlider.maxValue = character.HpMax.Value;
         hpSlider.value = character.HpCurrent.Value;
         apSlider.maxValue = character.ApMax.Value;
@@ -26,10 +82,45 @@ public class StatBarCanvas : MonoBehaviour
         {
             apSlider.gameObject.SetActive(false);
         }
+
+        UpdateAlpha();
     }
 
-    private void Update()
+    void UpdateAlpha()
     {
-        UpdateStatBars();
+        m_fadeTimer -= Time.deltaTime;
+        if (m_fadeTimer > m_fadeStartPoint)
+        {
+            SetAlpha(1);
+        }
+        else
+        {
+            SetAlpha(m_fadeTimer / m_fadeStartPoint);
+        }
+    }
+
+    void ShowFade(float duration)
+    {
+        m_fadeDuration = duration;
+        m_fadeTimer = duration;
+        m_fadeStartPoint = duration * 0.3f;
+    }
+
+    void SetAlpha(float alpha)
+    {
+        alpha = math.min(alpha, 1f);
+        alpha = math.max(0, alpha);
+
+        SetImageAlpha(hpBg, 0.7f * alpha);
+        SetImageAlpha(hpFill, alpha);
+        SetImageAlpha(apBg, 0.7f * alpha);
+        SetImageAlpha(apFill, alpha);
+    }
+
+    void SetImageAlpha(Image image, float alpha)
+    {
+        var color = image.color;
+        color.a = alpha;
+        image.color = color;
     }
 }

@@ -11,6 +11,9 @@ public class ApeDoor : NetworkBehaviour
     public int NumberButtons = 2;
     public int spawnerId = -1;
 
+    public ApeDoorType initType;
+    public DoorState initState;
+
     [Header("Emblems")]
     public SpriteRenderer LeftEmblem;
     public SpriteRenderer RightEmblem;
@@ -35,6 +38,8 @@ public class ApeDoor : NetworkBehaviour
     [SerializeField] private Collider2D ClosedCollider;
     [SerializeField] private Collider2D OpenCollider;
 
+    private DoorState m_localDoorState = DoorState.Closed;
+
     private Animator m_animator;
 
     private void Awake()
@@ -46,18 +51,27 @@ public class ApeDoor : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        if (!IsServer) return;
-
-        SetTypeAndState(Type.Value, State.Value);
+        if (IsServer)
+        {
+            SetTypeAndState(initType, initState);
+        }
     }
 
     private void Update()
     {
         if (IsClient)
         {
+            // check if door is open
+            if (m_localDoorState == DoorState.Closed && State.Value == DoorState.Open)
+            {
+                m_animator.Play("ApeDoor_Open");
+                m_localDoorState = State.Value;
+            }
+
             UpdateSprite();
-            UpdateColliders();
         }
+
+        UpdateColliders();
     }
 
     void UpdateColliders()
@@ -68,10 +82,9 @@ public class ApeDoor : NetworkBehaviour
 
     public void Open()
     {
-        Debug.Log("Door is opened, animator: " + m_animator);
-        m_animator.Play("ApeDoor_Open");
+        if (!IsServer) return;
+
         State.Value = DoorState.Open;
-        UpdateColliders();
     }
 
     public void SetTypeAndState(ApeDoorType apeDoorType, DoorState doorState)
@@ -80,11 +93,14 @@ public class ApeDoor : NetworkBehaviour
 
         Type.Value = apeDoorType;
         State.Value = doorState;
+
         UpdateColliders();
     }
 
     void UpdateSprite()
     {
+        if (!IsClient) return;
+
         switch (Type.Value)
         {
             case ApeDoorType.Crescent:

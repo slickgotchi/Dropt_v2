@@ -6,7 +6,7 @@ using UnityEngine.UI;
 using Unity.Netcode;
 using System.ComponentModel;
 
-public class CoOpModeCanvas : MonoBehaviour
+public class CoOpModeCanvas : DroptCanvas
 {
     public GameObject AvailableGameListContent;
     public GameObject PrefabAvailableGameListItem;
@@ -18,7 +18,6 @@ public class CoOpModeCanvas : MonoBehaviour
 
     private TextMeshProUGUI m_copyButtonText;
 
-    public GameObject Container;
     public GameObject MenuCard;
 
     private float k_updateInterval = 2f;
@@ -32,6 +31,8 @@ public class CoOpModeCanvas : MonoBehaviour
 
         m_copyButtonText = CopyMyGameIdButton.GetComponentInChildren<TextMeshProUGUI>();
         MenuCard.SetActive(false);
+
+        HideCanvas();
     }
 
     private void Update()
@@ -54,7 +55,14 @@ public class CoOpModeCanvas : MonoBehaviour
             MenuCard.SetActive(!MenuCard.activeSelf);
         }
 
-        Container.SetActive(LevelManager.Instance.DegenapeVillageLevel == LevelManager.Instance.CurrentLevelIndex.Value);
+        if (LevelManager.Instance.IsDegenapeVillage())
+        {
+            ShowCanvas();
+        }
+        else
+        {
+            HideCanvas();
+        }
     }
 
     void HandleClick_CopyMyGameIdButton()
