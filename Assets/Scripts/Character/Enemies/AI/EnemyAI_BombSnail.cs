@@ -1,9 +1,4 @@
-using Dropt;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AI;
-using Unity.Mathematics;
 using Unity.Netcode;
 
 namespace Dropt
@@ -22,15 +17,23 @@ namespace Dropt
 
         public override void OnSpawnStart()
         {
+            if (IsServer)
+            {
+                m_animator.Play("BombSnail_Spawn");
+            }
         }
 
         public override void OnTelegraphStart()
         {
         }
-        
+
         public override void OnRoamUpdate(float dt)
         {
-            SimpleRoamUpdate(dt);   
+            if (IsServer)
+            {
+                m_animator.Play("BombSnail_Roam");
+            }
+            SimpleRoamUpdate(dt);
         }
 
         public override void OnAggroUpdate(float dt)
@@ -41,7 +44,6 @@ namespace Dropt
         public override void OnAttackStart()
         {
             SimpleAttackStart();
-
             // set facing
             GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, AttackDuration);
         }
