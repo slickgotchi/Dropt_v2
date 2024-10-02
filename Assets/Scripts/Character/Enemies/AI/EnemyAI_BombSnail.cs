@@ -25,6 +25,10 @@ namespace Dropt
 
         public override void OnTelegraphStart()
         {
+            //if (IsServer)
+            //{
+            //    m_animator.Play("BombSnail_Explosion");
+            //}
         }
 
         public override void OnRoamUpdate(float dt)
@@ -43,6 +47,7 @@ namespace Dropt
 
         public override void OnAttackStart()
         {
+            Debug.Log("ATTACK START");
             SimpleAttackStart();
             // set facing
             GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, AttackDuration);
