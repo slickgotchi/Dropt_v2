@@ -2,14 +2,15 @@ using UnityEngine;
 using TMPro;
 using Unity.Netcode;
 using Unity.Mathematics;
+using System.Threading.Tasks;
 
 public class BombSnail_Detonator : NetworkBehaviour
 {
-    public float detonationTime = 3f;
+    public int detonationTime = 3;
     public TextMeshProUGUI detonationText;
 
     private NetworkVariable<bool> m_isTriggered = new NetworkVariable<bool>(false);
-    private NetworkVariable<float> m_detonationTimer = new NetworkVariable<float>(0);
+    private NetworkVariable<int> m_detonationTimer = new NetworkVariable<int>(0);
 
     private Dropt.EnemyAI m_enemyAI;
 
@@ -21,7 +22,7 @@ public class BombSnail_Detonator : NetworkBehaviour
         m_enemyAI = GetComponent<Dropt.EnemyAI>();
     }
 
-    private void Update()
+    private async void Update()
     {
         if (IsServer)
         {
@@ -29,26 +30,32 @@ public class BombSnail_Detonator : NetworkBehaviour
             if (m_enemyAI.state.Value == Dropt.EnemyAI.State.Aggro && !m_isTriggered.Value)
             {
                 m_isTriggered.Value = true;
-                GetComponent<Animator>().Play("BombSnail_LongFuse");
-            }
-
-            // if triggered, reduce detonation timer
-            if (m_isTriggered.Value)
-            {
-                m_detonationTimer.Value -= Time.deltaTime;
-
-                if (m_detonationTimer.Value <= 0)
-                {
-                    // do bombsnails attack (which is to self destruct)
-                    m_enemyAI.ChangeState(Dropt.EnemyAI.State.Telegraph);
-                }
+                await StartCountDown();
+                m_enemyAI.ChangeState(Dropt.EnemyAI.State.Telegraph);
             }
         }
 
-        if (IsClient)
+        //if (IsClient)
+        //{
+        //    detonationText.enabled = m_isTriggered.Value;
+        //    detonationText.text = math.ceil(m_detonationTimer.Value).ToString("F0");
+        //}
+    }
+
+    private async Task StartCountDown()
+    {
+        Animator animator = GetComponent<Animator>();
+
+        animator.Play("BombSnail_LongFuse");
+
+        while (m_detonationTimer.Value != 0 && m_enemyAI.state.Value == Dropt.EnemyAI.State.Aggro)
         {
-            detonationText.enabled = m_isTriggered.Value;
-            detonationText.text = math.ceil(m_detonationTimer.Value).ToString("F0");
+            await Task.Delay(1000);
+            m_detonationTimer.Value -= 1;
+            if (m_detonationTimer.Value == 1)
+            {
+                animator.Play("BombSnail_ShortFuse");
+            }
         }
     }
 }

@@ -129,7 +129,6 @@ Transform:
   - {fileID: 1522920513513268886}
   - {fileID: 1678293388393529469}
   - {fileID: 3240658910510158891}
-  - {fileID: 8231701364850470019}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &-3599212634581151793
@@ -263,8 +262,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc87cfd934687634ca27afcc4e9b8d4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SpriteToFlip: {fileID: 361146906994616670}
-  FacingDirection: 0
+  m_spritesToFlip:
+  - {fileID: 361146906994616670}
   IsSpawning: 1
   SpawnDuration: 0
   IsArmed: 0
@@ -411,6 +410,7 @@ MonoBehaviour:
   MaxRoamRange: 10
   FleeRange: 0
   BreakFleeRange: 12
+  PursueStopShortRange: 0.5
   SpawnDuration: 1
   TelegraphDuration: 0
   AttackDuration: 0.5
@@ -431,6 +431,7 @@ MonoBehaviour:
   debugSlider:
     m_InternalValue: 0
   ExplosionRadius: 2
+  WaitForNonRootedPlayerRange: 4
 --- !u!1 &3619491196239520171
 GameObject:
   m_ObjectHideFlags: 0

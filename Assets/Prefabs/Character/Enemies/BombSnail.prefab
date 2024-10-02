@@ -304,8 +304,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc87cfd934687634ca27afcc4e9b8d4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SpriteToFlip: {fileID: 361146906994616670}
-  FacingDirection: 0
+  m_spritesToFlip:
+  - {fileID: 361146906994616670}
+  - {fileID: 8382270573715496843}
   IsSpawning: 1
   SpawnDuration: 0
   IsArmed: 0
@@ -749,7 +750,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1003059169693592326
 RectTransform:
   m_ObjectHideFlags: 0
