@@ -91,9 +91,6 @@ namespace Dropt
         [HideInInspector] public NetworkVariable<State> state = new NetworkVariable<State>(State.Spawn);
         [HideInInspector] public NetworkVariable<float> debugSlider = new NetworkVariable<float>(0);
 
-        private void Awake()
-        {
-        }
 
         public override void OnNetworkSpawn()
         {
@@ -124,7 +121,7 @@ namespace Dropt
             {
                 case State.Null:
                     HandleNull(dt);
-                    break;                
+                    break;
                 case State.Spawn:
                     HandleSpawning(dt);
                     break;
@@ -541,7 +538,7 @@ namespace Dropt
             }
         }
 
-        public void ChangeState(State newState, float newDuration =  -1f)
+        public void ChangeState(State newState, float newDuration = -1f)
         {
             if (!IsServer) return;
 
