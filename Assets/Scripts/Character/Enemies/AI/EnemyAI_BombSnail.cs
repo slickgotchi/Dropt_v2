@@ -47,7 +47,7 @@ namespace Dropt
 
         public override void OnAttackStart()
         {
-            Debug.Log("ATTACK START");
+            //Debug.Log("ATTACK START");
             SimpleAttackStart();
             // set facing
             GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, AttackDuration);
