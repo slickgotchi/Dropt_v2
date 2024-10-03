@@ -36,9 +36,9 @@ public class BombSnail_Explode : EnemyAbility
         Parent.GetComponent<NetworkObject>().Despawn();
 
         // show a visual effect
-        SpawnBasicCircleClientRpc(
-            transform.position,
-            Dropt.Utils.Color.HexToColor("#f5555d", 0.5f),
-            ExplosionRadius);
+        //SpawnBasicCircleClientRpc(
+        //    transform.position,
+        //    Dropt.Utils.Color.HexToColor("#f5555d", 0.5f),
+        //    ExplosionRadius);
     }
 }

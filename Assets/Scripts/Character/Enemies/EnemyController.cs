@@ -8,9 +8,9 @@ using Unity.Mathematics;
 public class EnemyController : NetworkBehaviour
 {
     [Header("Rendering Parameters")]
-    public SpriteRenderer SpriteToFlip;
+    [SerializeField] private List<SpriteRenderer> m_spritesToFlip;
     public enum Facing { Left, Right }
-    [HideInInspector] public Facing FacingDirection;
+    private Facing m_facingDirection;
 
     private NavMeshAgent m_navMeshAgent;
 
@@ -37,7 +37,8 @@ public class EnemyController : NetworkBehaviour
         if (IsClient && !IsHost)
         {
             Destroy(GetComponent<NavMeshAgent>());
-        } else
+        }
+        else
         {
             m_navMeshAgent = GetComponent<NavMeshAgent>();
             if (m_navMeshAgent == null) return;
@@ -84,14 +85,15 @@ public class EnemyController : NetworkBehaviour
     public void SetFacing(Facing facingDirection, float facingTimer = 0.5f)
     {
         m_facingTimer = facingTimer;
-        FacingDirection = facingDirection;
-        SpriteToFlip.flipX = FacingDirection == Facing.Left ? true : false;
+        m_facingDirection = facingDirection;
+        //SpriteToFlip.flipX = FacingDirection == Facing.Left ? true : false;
+        FlipEnemySprites();
     }
 
     public void HandleFacing()
     {
-        if (SpriteToFlip == null) return;
-        
+        //if (SpriteToFlip == null) return;
+        if (m_spritesToFlip.Count == 0) return;
 
         if (IsServer)
         {
@@ -105,8 +107,17 @@ public class EnemyController : NetworkBehaviour
             m_facingTimer -= Time.deltaTime;
             if (m_facingTimer > 0f) return;
 
-            FacingDirection = m_agentVelocity.Value.x < 0 ? Facing.Left : Facing.Right;
-            SpriteToFlip.flipX = FacingDirection == Facing.Left ? true : false;
+            m_facingDirection = m_agentVelocity.Value.x < 0 ? Facing.Left : Facing.Right;
+            //SpriteToFlip.flipX = FacingDirection == Facing.Left ? true : false;
+            FlipEnemySprites();
+        }
+    }
+
+    private void FlipEnemySprites()
+    {
+        foreach (SpriteRenderer spriteRenderer in m_spritesToFlip)
+        {
+            spriteRenderer.flipX = m_facingDirection == Facing.Left;
         }
     }
 }
