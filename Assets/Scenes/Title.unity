@@ -1458,6 +1458,7 @@ GameObject:
   - component: {fileID: 1145985543}
   - component: {fileID: 1145985542}
   - component: {fileID: 1145985546}
+  - component: {fileID: 1145985547}
   m_Layer: 5
   m_Name: TitleCanvas_5000
   m_TagString: Untagged
@@ -1564,6 +1565,18 @@ MonoBehaviour:
   playButton: {fileID: 1566106695}
   optionsButton: {fileID: 2038498505}
   regionDropdown: {fileID: 1084563320}
+--- !u!114 &1145985547
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1145985541}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f19ec7e7041c4e818c7a1820846a568, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1192565363
 GameObject:
   m_ObjectHideFlags: 0
@@ -7978,7 +7991,7 @@ AudioListener:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2106054966}
-  m_Enabled: 0
+  m_Enabled: 1
 --- !u!20 &2106054968
 Camera:
   m_ObjectHideFlags: 0
@@ -8007,9 +8020,9 @@ Camera:
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
-    y: 0.81100005
-    width: 0.3873644
-    height: 0.379375
+    y: 0.4487021
+    width: 0.6942085
+    height: 0.69453025
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
