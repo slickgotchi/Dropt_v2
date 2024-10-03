@@ -9,10 +9,13 @@ public class GameServerHeartbeat : MonoBehaviour
     public static GameServerHeartbeat Instance { get; private set; }
 
     private int activePlayers = 0;
-    private string nodeServerUrl = "https://alphaserver.playdropt.io/serverheartbeat"; // Change to your Node.js server URL
+    //private string nodeServerUrl = "https://alphaserver.playdropt.io/serverheartbeat"; // Change to your Node.js server URL
+    private string serverManagerUri = "http://103.253.146.245:3000";
     private float m_timer = 3.0f; // 3 seconds interval
     private float k_heartbeatInterval = 3f;
     public bool IsPublic = false;
+
+    private DateTime startTime;
 
     private void Awake()
     {
@@ -25,6 +28,8 @@ public class GameServerHeartbeat : MonoBehaviour
         {
             Destroy(gameObject); 
         }
+
+        startTime = DateTime.UtcNow;
     }
 
     private void Update()
@@ -42,24 +47,30 @@ public class GameServerHeartbeat : MonoBehaviour
 
     private async UniTaskVoid SendServerHeartbeat()
     {
+        // player count
         activePlayers = FindObjectsByType<PlayerController>(FindObjectsSortMode.None).Length;
 
+        // running time
+        TimeSpan runningTime = DateTime.UtcNow - startTime;
+        int hours = runningTime.Hours;
+        int minutes = runningTime.Minutes;
+        int seconds = runningTime.Seconds;
+        string formattedRunningTime = $"{hours}h {minutes}m {seconds}s";
+
+        // setup post data
         var postData = new ServerHeartbeatPostData
         {
-            port = Bootstrap.Instance.Port,
-            ipAddress = Bootstrap.Instance.IpAddress, // Assuming local IP, adjust as needed
             gameId = Bootstrap.Instance.GameId,
-            numberPlayers = activePlayers,
-            isPublic = IsPublic,
-            isLocked = !LevelManager.Instance.IsDegenapeVillage(),
+            playerCount = activePlayers,
+            runningTime = formattedRunningTime,
         };
 
         string json = JsonUtility.ToJson(postData);
 
-        await PostRequest(nodeServerUrl, json);
+        await PostRequest(serverManagerUri + "/instanceheartbeat", json);
     }
 
-    private async UniTask PostRequest(string url, string json)
+    private async UniTask<string> PostRequest(string url, string json)
     {
         using (UnityWebRequest request = new UnityWebRequest(url, "POST"))
         {
@@ -75,24 +86,20 @@ public class GameServerHeartbeat : MonoBehaviour
                 switch (request.result)
                 {
                     case UnityWebRequest.Result.Success:
-                        Debug.Log("Heartbeat sent successfully with isPublic: " + IsPublic);
-                        Debug.Log(json);
-                        break;
+                        Debug.Log("PostRequest() success");
+                        return request.downloadHandler.text; // Return the response content
                     case UnityWebRequest.Result.ConnectionError:
                     case UnityWebRequest.Result.DataProcessingError:
-                        Debug.LogError($"Error sending heartbeat: {request.error}");
-                        break;
                     case UnityWebRequest.Result.ProtocolError:
-                        Debug.LogError($"HTTP Error: {request.error}");
-                        break;
                     default:
-                        Debug.LogError($"Unexpected Error: {request.error}");
-                        break;
+                        Debug.LogError($"PostRequest() error: {request.error}");
+                        return null; // Return null or an error message as appropriate
                 }
             }
             catch (Exception e)
             {
                 Debug.LogError($"Exception: {e.Message}");
+                return null; // Return null in case of exception
             }
         }
     }
@@ -100,11 +107,8 @@ public class GameServerHeartbeat : MonoBehaviour
     [Serializable]
     struct ServerHeartbeatPostData
     {
-        public ushort port;
-        public string ipAddress;
         public string gameId;
-        public int numberPlayers;
-        public bool isPublic;
-        public bool isLocked;
+        public int playerCount;
+        public string runningTime;
     }
 }
