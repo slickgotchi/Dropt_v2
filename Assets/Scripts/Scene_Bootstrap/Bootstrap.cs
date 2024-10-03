@@ -93,9 +93,9 @@ public class Bootstrap : MonoBehaviour
 
             if (arg == "-noservermanager") UseServerManager = false;
 
+            if (arg == "-ipaddress") IpAddress = param;
+
         }
-        //Debug.Log("Bootstrap.Awake(): CL arguments processed. Connection type: " + ConnectionType
-        //    + ", Network: " + NetworkRole + ", Port: " + Port);
     }
 
     private void Start()
