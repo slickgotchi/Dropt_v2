@@ -10,6 +10,8 @@ public class ServerManagerAgent : MonoBehaviour
 
     public string serverManagerUri = "http://103.253.146.245:3000";
 
+    private bool isTestGameJS = false;
+
     private void Awake()
     {
         if (Instance == null)
@@ -24,7 +26,7 @@ public class ServerManagerAgent : MonoBehaviour
     }
 
     // /joinempty
-    public async UniTask JoinEmpty()
+    public async UniTask<JoinEmpty_ResponseData> JoinEmpty()
     {
         try
         {
@@ -34,38 +36,42 @@ public class ServerManagerAgent : MonoBehaviour
             var responseString = await PostRequest(serverManagerUri + "/joinempty", json);
 
             // Check if the response is not null
-            if (string.IsNullOrEmpty(responseString)) return;
+            if (string.IsNullOrEmpty(responseString)) return null;
 
             // Parse the response string into the JoinEmpty_ResponseData struct
             JoinEmpty_ResponseData responseData = JsonUtility.FromJson<JoinEmpty_ResponseData>(responseString);
 
             // Now you can access the fields in responseData
             Debug.Log("/joinempty success");
-            Debug.Log($"Game ID: {responseData.gameId}");
-            Debug.Log($"IP Address: {responseData.ipAddress}");
-            Debug.Log($"Node Port: {responseData.nodePort}");
+            Debug.Log(responseData);
 
-            // setup join instance post data and post request
-            var gameUri = "http://" + responseData.ipAddress + ":" + responseData.nodePort;
-            var joinInstancePostData = new JoinInstance_PostData { gameId = responseData.gameId };
-            json = JsonUtility.ToJson(joinInstancePostData);
-            responseString = await PostRequest(gameUri + "/joininstance", json);
+            if (isTestGameJS)
+            {
+                // setup join instance post data and post request
+                var gameUri = "http://" + responseData.ipAddress + ":" + responseData.nodePort;
+                var joinInstancePostData = new JoinInstance_PostData { gameId = responseData.gameId };
+                json = JsonUtility.ToJson(joinInstancePostData);
+                responseString = await PostRequest(gameUri + "/joininstance", json);
 
-            // Check if the response is not null
-            if (string.IsNullOrEmpty(responseString)) return;
+                // Check if the response is not null
+                if (string.IsNullOrEmpty(responseString)) return null;
 
-            // success
-            Debug.Log("/joininstance success");
-            Debug.Log(responseString);
+                // success
+                Debug.Log("/joininstance success");
+                Debug.Log(responseString);
+            }
+
+            return responseData;
         }
         catch (Exception e)
         {
             Debug.Log(e);
+            return null;
         }
     }
 
     // /joinexisting
-    public async UniTask JoinExisting(string gameId)
+    public async UniTask<JoinExisting_ResponseData> JoinExisting(string gameId)
     {
         try
         {
@@ -75,38 +81,42 @@ public class ServerManagerAgent : MonoBehaviour
             var responseString = await PostRequest(serverManagerUri + "/joinexisting", json);
 
             // Check if the response is not null
-            if (string.IsNullOrEmpty(responseString)) return;
+            if (string.IsNullOrEmpty(responseString)) return null;
 
             // Parse the response string into the JoinEmpty_ResponseData struct
             JoinExisting_ResponseData responseData = JsonUtility.FromJson<JoinExisting_ResponseData>(responseString);
 
             // Now you can access the fields in responseData
             Debug.Log("/joinexisting success");
-            Debug.Log($"Game ID: {responseData.gameId}");
-            Debug.Log($"IP Address: {responseData.ipAddress}");
-            Debug.Log($"Node Port: {responseData.nodePort}");
+            Debug.Log(responseData);
 
-            // now send join instance message to game
-            var gameUri = "http://" + responseData.ipAddress + ":" + responseData.nodePort;
-            var joinInstancePostData = new JoinInstance_PostData { gameId = responseData.gameId };
-            json = JsonUtility.ToJson(joinInstancePostData);
-            responseString = await PostRequest(gameUri + "/joininstance", json);
+            if (isTestGameJS)
+            {
+                // now send join instance message to game
+                var gameUri = "http://" + responseData.ipAddress + ":" + responseData.nodePort;
+                var joinInstancePostData = new JoinInstance_PostData { gameId = responseData.gameId };
+                json = JsonUtility.ToJson(joinInstancePostData);
+                responseString = await PostRequest(gameUri + "/joininstance", json);
 
-            // Check if the response is not null
-            if (string.IsNullOrEmpty(responseString)) return;
+                // Check if the response is not null
+                if (string.IsNullOrEmpty(responseString)) return null;
 
-            // success
-            Debug.Log("/joininstance success");
-            Debug.Log(responseString);
+                // success
+                Debug.Log("/joininstance success");
+                Debug.Log(responseString);
+            }
+
+            return responseData;
         }
         catch (Exception e)
         {
             Debug.Log(e);
+            return null;
         }
     }
 
     // /leaveexisting
-    public async UniTask LeaveExisting(string gameId)
+    public async UniTask<LeaveExisting_ResponseData> LeaveExisting(string gameId)
     {
         try
         {
@@ -116,33 +126,37 @@ public class ServerManagerAgent : MonoBehaviour
             var responseString = await PostRequest(serverManagerUri + "/leaveexisting", json);
 
             // Check if the response is not null
-            if (string.IsNullOrEmpty(responseString)) return;
+            if (string.IsNullOrEmpty(responseString)) return null;
 
             // Parse the response string into the JoinEmpty_ResponseData struct
             LeaveExisting_ResponseData responseData = JsonUtility.FromJson<LeaveExisting_ResponseData>(responseString);
 
             // Now you can access the fields in responseData
             Debug.Log("/leaveexisting success");
-            Debug.Log($"Game ID: {responseData.gameId}");
-            Debug.Log($"IP Address: {responseData.ipAddress}");
-            Debug.Log($"Node Port: {responseData.nodePort}");
+            Debug.Log(responseData);
 
-            // now send join instance message to game
-            var gameUri = "http://" + responseData.ipAddress + ":" + responseData.nodePort;
-            var leaveInstancePostData = new LeaveInstance_PostData { gameId = responseData.gameId };
-            json = JsonUtility.ToJson(leaveInstancePostData);
-            responseString = await PostRequest(gameUri + "/leaveinstance", json);
+            if (isTestGameJS)
+            {
+                // now send join instance message to game
+                var gameUri = "http://" + responseData.ipAddress + ":" + responseData.nodePort;
+                var leaveInstancePostData = new LeaveInstance_PostData { gameId = responseData.gameId };
+                json = JsonUtility.ToJson(leaveInstancePostData);
+                responseString = await PostRequest(gameUri + "/leaveinstance", json);
 
-            // Check if the response is not null
-            if (string.IsNullOrEmpty(responseString)) return;
+                // Check if the response is not null
+                if (string.IsNullOrEmpty(responseString)) return null;
 
-            // success
-            Debug.Log("/leaveinstance success");
-            Debug.Log(responseString);
+                // success
+                Debug.Log("/leaveinstance success");
+                Debug.Log(responseString);
+            }
+
+            return responseData;
         }
         catch (Exception e)
         {
             Debug.Log(e);
+            return null;
         }
     }
 
@@ -162,7 +176,6 @@ public class ServerManagerAgent : MonoBehaviour
                 switch (request.result)
                 {
                     case UnityWebRequest.Result.Success:
-                        Debug.Log("PostRequest() success");
                         return request.downloadHandler.text; // Return the response content
                     case UnityWebRequest.Result.ConnectionError:
                     case UnityWebRequest.Result.DataProcessingError:
@@ -174,7 +187,7 @@ public class ServerManagerAgent : MonoBehaviour
             }
             catch (Exception e)
             {
-                Debug.LogError($"Exception: {e.Message}");
+                Debug.LogWarning($"Exception: {e.Message}");
                 return null; // Return null in case of exception
             }
         }
@@ -191,7 +204,6 @@ public class ServerManagerAgent : MonoBehaviour
                 switch (request.result)
                 {
                     case UnityWebRequest.Result.Success:
-                        Debug.Log("GetRequest() success");
                         return request.downloadHandler.text; // Return the response content
                     case UnityWebRequest.Result.ConnectionError:
                     case UnityWebRequest.Result.DataProcessingError:
@@ -203,58 +215,20 @@ public class ServerManagerAgent : MonoBehaviour
             }
             catch (Exception e)
             {
-                Debug.LogError($"Exception: {e.Message}");
+                Debug.LogWarning($"Exception: {e.Message}");
                 return null; // Return null in case of exception
             }
         }
     }
 
     [System.Serializable]
-    struct JoinEmpty_PostData
+    public class JoinEmpty_PostData
     {
 
     }
 
     [System.Serializable]
-    struct JoinEmpty_ResponseData
-    {
-        public string gameId;
-        public string ipAddress;
-        public string nodePort;
-    }
-
-    [System.Serializable]
-    struct JoinInstance_PostData
-    {
-        public string gameId;
-    }
-
-    [System.Serializable]
-    struct JoinInstance_ResponseData
-    {
-        public string message;
-    }
-
-    [System.Serializable]
-    struct LeaveInstance_PostData
-    {
-        public string gameId;
-    }
-
-    [System.Serializable]
-    struct LeaveInstance_ResponseData
-    {
-        public string message;
-    }
-
-    [System.Serializable]
-    struct JoinExisting_PostData
-    {
-        public string gameId;
-    }
-
-    [System.Serializable]
-    struct JoinExisting_ResponseData
+    public class JoinEmpty_ResponseData
     {
         public string gameId;
         public string ipAddress;
@@ -262,13 +236,51 @@ public class ServerManagerAgent : MonoBehaviour
     }
 
     [System.Serializable]
-    struct LeaveExisting_PostData
+    public class JoinInstance_PostData
     {
         public string gameId;
     }
 
     [System.Serializable]
-    struct LeaveExisting_ResponseData
+    public class JoinInstance_ResponseData
+    {
+        public string message;
+    }
+
+    [System.Serializable]
+    public class LeaveInstance_PostData
+    {
+        public string gameId;
+    }
+
+    [System.Serializable]
+    public class LeaveInstance_ResponseData
+    {
+        public string message;
+    }
+
+    [System.Serializable]
+    public class JoinExisting_PostData
+    {
+        public string gameId;
+    }
+
+    [System.Serializable]
+    public class JoinExisting_ResponseData
+    {
+        public string gameId;
+        public string ipAddress;
+        public string nodePort;
+    }
+
+    [System.Serializable]
+    public class LeaveExisting_PostData
+    {
+        public string gameId;
+    }
+
+    [System.Serializable]
+    public class LeaveExisting_ResponseData
     {
         public string gameId;
         public string ipAddress;
