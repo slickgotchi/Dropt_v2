@@ -196,10 +196,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6494b87727298314987516d4f17c6c93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseHpMax: 100
-  baseHpCurrent: 100
+  baseHpMax: 600
+  baseHpCurrent: 600
   baseHpBuffer: 0
-  baseAttackPower: 35
+  baseAttackPower: 65
   baseCriticalChance: 0.1
   baseApMax: 0
   baseApCurrent: 0
@@ -388,7 +388,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab366a2645ae142ef89669b9c48ed767, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Multiplier: 1
+  Multiplier: 1.5
 --- !u!114 &-8999293035840991543
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -401,14 +401,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c667f99b09704640a4a5053c6f70d1e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PursueSpeedMultiplier: 3
-  RoamSpeedMultiplier: 1.5
+  PursueSpeedMultiplier: 5
+  RoamSpeedMultiplier: 2
   FleeSpeedMultiplier: 5
-  AggroRange: 6
+  AggroRange: 8
   AlertRange: 5
-  AttackRange: 4
-  BreakAggroRange: 10
-  MaxRoamRange: 10
+  AttackRange: 8
+  BreakAggroRange: 14
+  MaxRoamRange: 14
   FleeRange: 0
   BreakFleeRange: 12
   PursueStopShortRange: 0.5
