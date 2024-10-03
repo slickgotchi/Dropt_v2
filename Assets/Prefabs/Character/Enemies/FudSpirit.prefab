@@ -263,8 +263,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc87cfd934687634ca27afcc4e9b8d4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SpriteToFlip: {fileID: 361146906994616670}
-  FacingDirection: 0
+  m_spritesToFlip:
+  - {fileID: 361146906994616670}
   IsSpawning: 1
   SpawnDuration: 0
   IsArmed: 0
@@ -411,6 +411,7 @@ MonoBehaviour:
   MaxRoamRange: 10
   FleeRange: 0
   BreakFleeRange: 12
+  PursueStopShortRange: 0.5
   SpawnDuration: 1
   TelegraphDuration: 1.5
   AttackDuration: 0.5
