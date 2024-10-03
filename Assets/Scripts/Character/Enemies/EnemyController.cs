@@ -27,6 +27,7 @@ public class EnemyController : NetworkBehaviour
 
     [HideInInspector] public bool IsArmed = false;
 
+    [SerializeField] private bool islogEnable;
     private void Awake()
     {
         m_localVelocity = GetComponent<LocalVelocity>();
@@ -74,6 +75,8 @@ public class EnemyController : NetworkBehaviour
         {
             SetFacingFromDirectionClientRpc(direction, facingTimer);
         }
+        if (islogEnable)
+            Debug.Log($"STATE - {GetComponent<Dropt.EnemyAI>().state.Value} FACING :- {m_facingDirection}");
     }
 
     [ClientRpc]
