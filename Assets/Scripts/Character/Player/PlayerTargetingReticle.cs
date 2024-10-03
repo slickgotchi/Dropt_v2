@@ -43,6 +43,8 @@ public class PlayerTargetingReticle : MonoBehaviour
         m_playerInput = GetComponent<PlayerInput>();
         m_movementAction = m_playerInput.actions["Generic_PlayerMove"];
         m_playerPrediction = GetComponent<PlayerPrediction>();
+
+        if (Bootstrap.IsServer()) GetComponent<PlayerTargetingReticle>().enabled = false;
     }
 
     private void OnSignalMode_KeyboardMouse(InputValue value)

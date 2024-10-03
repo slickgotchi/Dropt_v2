@@ -86,7 +86,6 @@ public class GameServerHeartbeat : MonoBehaviour
                 switch (request.result)
                 {
                     case UnityWebRequest.Result.Success:
-                        Debug.Log("PostRequest() success");
                         return request.downloadHandler.text; // Return the response content
                     case UnityWebRequest.Result.ConnectionError:
                     case UnityWebRequest.Result.DataProcessingError:

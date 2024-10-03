@@ -27,6 +27,8 @@ namespace Audio.Game
             GameObject.DontDestroyOnLoad(go);
             m_instance = go.GetComponent<GameAudioManager>();
             m_instance.GetComponent<AudioListener>().enabled = false;
+
+
         }
 
         public static void TryToDispose()
@@ -67,7 +69,14 @@ namespace Audio.Game
         
         private void Awake()
         {
+            if (Bootstrap.IsServer())
+            {
+                Destroy(gameObject);
+                return;
+            }
+
             m_audioManager = new AudioManager(transform);
+
         }
 
         private void Start()

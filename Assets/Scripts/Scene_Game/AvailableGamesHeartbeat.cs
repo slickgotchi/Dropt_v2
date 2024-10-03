@@ -18,40 +18,40 @@ public class AvailableGamesHeartbeat : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
+        //if (Instance != null && Instance != this)
+        //{
+        //    Destroy(gameObject);
+        //    return;
+        //}
 
-        Instance = this;
+        //Instance = this;
 
-        if (Bootstrap.IsServer() || !Bootstrap.IsUseServerManager()) Destroy(gameObject);
+        //if (Bootstrap.IsServer() || !Bootstrap.IsUseServerManager()) Destroy(gameObject);
     }
 
     private void Update()
     {
-        //if (!Game.Instance.IsConnected) return;
-        if (!Bootstrap.IsClient()) return;
-        if (Bootstrap.IsLocalConnection()) return;
-        if (!Bootstrap.IsUseServerManager()) return;
+        ////if (!Game.Instance.IsConnected) return;
+        //if (!Bootstrap.IsClient()) return;
+        //if (Bootstrap.IsLocalConnection()) return;
+        //if (!Bootstrap.IsUseServerManager()) return;
 
-        m_heartbeatTimer -= Time.deltaTime;
+        //m_heartbeatTimer -= Time.deltaTime;
 
-        if (m_heartbeatTimer <= 0)
-        {
-            m_heartbeatTimer = k_heartbeatInterval;
-            GetGames();
-        }
+        //if (m_heartbeatTimer <= 0)
+        //{
+        //    m_heartbeatTimer = k_heartbeatInterval;
+        //    GetGames();
+        //}
 
-        if (Input.GetKeyDown(KeyCode.T))
-        {
-            for (int i = 0; i < AvailableGames.Count; i++)
-            {
-                var ag = AvailableGames[i];
-                Debug.Log("Available gameId: " + ag.gameId + ", isServerReady: " + ag.isServerReady + ", isPublic: " + ag.isPublic);
-            }
-        }
+        //if (Input.GetKeyDown(KeyCode.T))
+        //{
+        //    for (int i = 0; i < AvailableGames.Count; i++)
+        //    {
+        //        var ag = AvailableGames[i];
+        //        Debug.Log("Available gameId: " + ag.gameId + ", isServerReady: " + ag.isServerReady + ", isPublic: " + ag.isPublic);
+        //    }
+        //}
     }
 
     public bool IsServerReady(string gameId)

@@ -1384,6 +1384,7 @@ GameObject:
   - component: {fileID: 349225741}
   - component: {fileID: 349225740}
   - component: {fileID: 349225744}
+  - component: {fileID: 349225745}
   m_Layer: 5
   m_Name: NetworkRoleCanvas_5000
   m_TagString: Untagged
@@ -1491,6 +1492,18 @@ MonoBehaviour:
   clientButton: {fileID: 1755628657}
   connectionDropdown: {fileID: 1708603497}
   isSkipTitle: 0
+--- !u!114 &349225745
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 349225739}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f19ec7e7041c4e818c7a1820846a568, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &375023045
 GameObject:
   m_ObjectHideFlags: 0
@@ -1581,6 +1594,7 @@ GameObject:
   - component: {fileID: 383608113}
   - component: {fileID: 383608114}
   - component: {fileID: 383608115}
+  - component: {fileID: 383608116}
   m_Layer: 5
   m_Name: DebugCanvas_5000
   m_TagString: Untagged
@@ -1711,6 +1725,18 @@ CanvasGroup:
   m_Interactable: 0
   m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
+--- !u!114 &383608116
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 383608106}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f19ec7e7041c4e818c7a1820846a568, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &412566332
 GameObject:
   m_ObjectHideFlags: 0
@@ -2952,6 +2978,7 @@ GameObject:
   - component: {fileID: 731152786}
   - component: {fileID: 731152787}
   - component: {fileID: 731152788}
+  - component: {fileID: 731152789}
   m_Layer: 5
   m_Name: LoadingCanvas_3500
   m_TagString: Untagged
@@ -3100,6 +3127,18 @@ CanvasGroup:
   m_Interactable: 0
   m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
+--- !u!114 &731152789
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 731152780}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f19ec7e7041c4e818c7a1820846a568, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &743297640
 GameObject:
   m_ObjectHideFlags: 0
@@ -3312,7 +3351,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -2.0000305}
+  m_AnchoredPosition: {x: 0, y: -2}
   m_SizeDelta: {x: 0, y: -4}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &856941842
@@ -3617,6 +3656,7 @@ GameObject:
   - component: {fileID: 883695628}
   - component: {fileID: 883695632}
   - component: {fileID: 883695633}
+  - component: {fileID: 883695634}
   m_Layer: 5
   m_Name: ErrorDialogCanvas_5000
   m_TagString: Untagged
@@ -3734,6 +3774,18 @@ MonoBehaviour:
   Container: {fileID: 549956576}
   Text: {fileID: 1387862881}
   ExitButton: {fileID: 2001809199}
+--- !u!114 &883695634
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 883695627}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f19ec7e7041c4e818c7a1820846a568, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &900319161
 GameObject:
   m_ObjectHideFlags: 0
@@ -10310,6 +10362,7 @@ GameObject:
   - component: {fileID: 1678473613}
   - component: {fileID: 1678473617}
   - component: {fileID: 1678473618}
+  - component: {fileID: 1678473619}
   m_Layer: 5
   m_Name: BuildVersionCanvas_5000
   m_TagString: Untagged
@@ -10424,6 +10477,18 @@ CanvasGroup:
   m_Interactable: 0
   m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
+--- !u!114 &1678473619
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1678473612}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f19ec7e7041c4e818c7a1820846a568, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1708603495
 GameObject:
   m_ObjectHideFlags: 0
@@ -10574,6 +10639,7 @@ GameObject:
   - component: {fileID: 1731153058}
   - component: {fileID: 1731153057}
   - component: {fileID: 1731153062}
+  - component: {fileID: 1731153063}
   m_Layer: 5
   m_Name: ServerManagerAgentCanvas
   m_TagString: Untagged
@@ -10680,6 +10746,18 @@ MonoBehaviour:
   JoinExistingButton: {fileID: 1011670099}
   LeaveExistingButton: {fileID: 491831923}
   GameIdInput: {fileID: 1326615603}
+--- !u!114 &1731153063
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1731153056}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f19ec7e7041c4e818c7a1820846a568, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1731498206
 GameObject:
   m_ObjectHideFlags: 0
@@ -11442,13 +11520,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   region: 0
-  NetworkRole: 0
-  ConnectionType: 0
-  AutoBoot: 0
-  AutoPlay: 1
-  UseServerManager: 0
+  NetworkRole: 2
+  ConnectionType: 1
+  AutoBoot: 1
+  AutoPlay: 0
+  UseServerManager: 1
   IpAddress: 178.128.22.77
-  Port: 9000
+  Port: 9100
   GameId: 
   TestBlockChainGotchiId: 0
   StartupButtons: {fileID: 349225739}
@@ -11952,6 +12030,7 @@ GameObject:
   - component: {fileID: 2047433328}
   - component: {fileID: 2047433333}
   - component: {fileID: 2047433334}
+  - component: {fileID: 2047433335}
   m_Layer: 5
   m_Name: ProgressBarCanvas_3000
   m_TagString: Untagged
@@ -12082,6 +12161,18 @@ CanvasGroup:
   m_Interactable: 0
   m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
+--- !u!114 &2047433335
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2047433327}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f19ec7e7041c4e818c7a1820846a568, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2069674997
 GameObject:
   m_ObjectHideFlags: 0
@@ -14436,6 +14527,7 @@ GameObject:
   - component: {fileID: 7094511594989911294}
   - component: {fileID: 6351688163942686749}
   - component: {fileID: 877553992}
+  - component: {fileID: 8658033632992951036}
   m_Layer: 5
   m_Name: OptionsMenuCanvas_3000
   m_TagString: Untagged
@@ -16610,6 +16702,18 @@ MonoBehaviour:
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
   m_PresetInfoIsWorld: 0
+--- !u!114 &8658033632992951036
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3757702164733932910}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f19ec7e7041c4e818c7a1820846a568, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &8681951651516387194
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17009,6 +17113,7 @@ SceneRoots:
   - {fileID: 731152784}
   - {fileID: 690641204540232531}
   - {fileID: 2047433332}
+  - {fileID: 1731153060}
   - {fileID: 1122907061}
   - {fileID: 1171476965}
   - {fileID: 1931494699}
@@ -17023,4 +17128,3 @@ SceneRoots:
   - {fileID: 1454305628}
   - {fileID: 1876577245}
   - {fileID: 911642796}
-  - {fileID: 1731153060}

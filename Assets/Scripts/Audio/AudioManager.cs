@@ -47,6 +47,7 @@ namespace Audio
             m_goAudious = new List<GameObject>();
             m_tokenSource = new CancellationTokenSource();
             Initialize(parent);
+
         }
 
         private void Initialize(Transform parent)

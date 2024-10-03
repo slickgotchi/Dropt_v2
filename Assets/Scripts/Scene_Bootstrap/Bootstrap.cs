@@ -119,13 +119,19 @@ public class Bootstrap : MonoBehaviour
             }
         }
 
-        GameAudioManager.TryToInitialize();
-        GameAudioManager.Instance.PlayMusic(MusicType.UndergroundForest);
+        if (!IsServer())
+        {
+            GameAudioManager.TryToInitialize();
+            GameAudioManager.Instance.PlayMusic(MusicType.UndergroundForest);
+        }
     }
 
     private void OnDestroy()
     {
-        GameAudioManager.TryToDispose();
+        if (!IsServer())
+        {
+            GameAudioManager.TryToDispose();
+        }
     }
 
     public static bool IsServer()
