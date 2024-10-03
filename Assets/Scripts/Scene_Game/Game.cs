@@ -110,6 +110,7 @@ KPpdzvvtTnOPlC7SQZSYmdunr3Bf9b77AiC/ZidstK36dRILKz7OA54=
 
     private async void ConnectClientGame()
     {
+        Debug.Log("ConnectClientGame()");
         var response = await ServerManagerAgent.Instance.JoinEmpty();
 
         if (response == null)
@@ -121,6 +122,11 @@ KPpdzvvtTnOPlC7SQZSYmdunr3Bf9b77AiC/ZidstK36dRILKz7OA54=
         // set IP address and port
         Bootstrap.Instance.IpAddress = response.ipAddress;
         Bootstrap.Instance.Port = ushort.Parse(response.nodePort);
+
+        Debug.Log(Bootstrap.Instance.IpAddress);
+        Debug.Log(Bootstrap.Instance.Port);
+        Debug.Log(m_serverCommonName);
+        Debug.Log(m_clientCA);
 
         // set if using encryption
         m_transport.UseEncryption = Bootstrap.IsRemoteConnection();
@@ -134,12 +140,19 @@ KPpdzvvtTnOPlC7SQZSYmdunr3Bf9b77AiC/ZidstK36dRILKz7OA54=
 
         // start client
         NetworkManager.Singleton.StartClient();
+        Debug.Log("StartClient()");
     }
 
     private void ConnectServerGame()
     {
+        Debug.Log("ConnectServerGame()");
         // set if using encryption
         m_transport.UseEncryption = Bootstrap.IsRemoteConnection();
+
+        Debug.Log(Bootstrap.Instance.IpAddress);
+        Debug.Log(Bootstrap.Instance.Port);
+        Debug.Log(m_serverCertificate);
+        Debug.Log(m_serverPrivateKey);
 
         // set connection data
         m_transport.SetConnectionData(Bootstrap.Instance.IpAddress, Bootstrap.Instance.Port, "0.0.0.0");
@@ -150,6 +163,7 @@ KPpdzvvtTnOPlC7SQZSYmdunr3Bf9b77AiC/ZidstK36dRILKz7OA54=
 
         // start server
         NetworkManager.Singleton.StartServer();
+        Debug.Log("StartServer()");
     }
 
     private void Update()
