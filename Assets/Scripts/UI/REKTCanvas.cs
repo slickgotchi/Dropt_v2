@@ -45,14 +45,7 @@ public class REKTCanvas : NetworkBehaviour
             REKTReasonText.text = "You have been inactive for longer than " + PlayerController.InactiveTimerDuration.ToString("F0") + "s so... got the boot!";
         }
 
-        // set button based on if tutorial is completed
-        if (Game.Instance.IsTutorialCompleted())
-        {
-            DegenapeButton.GetComponentInChildren<TextMeshProUGUI>().text = "Return to Degenape Village";
-        } else
-        {
-            DegenapeButton.GetComponentInChildren<TextMeshProUGUI>().text = "Return to Tutorial Level";
-        }
+        DegenapeButton.GetComponentInChildren<TextMeshProUGUI>().text = "Return to Degenape Village";
     }
 
     void HandleClickDegenapeButton()

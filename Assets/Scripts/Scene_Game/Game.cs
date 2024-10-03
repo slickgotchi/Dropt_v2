@@ -13,72 +13,26 @@ public class Game : MonoBehaviour
 {
     public static Game Instance { get; private set; }
 
-    public enum Status
-    {
-        NotConnected,
-        RequestedGame,
-        Connecting,
-        ConnectionErrorServerDown,
-        ConnectionErrorNoSlots,
-        Playing,
-        GameOver,
-    }
-    public Game.Status status;
-    public bool IsConnected = false;
-
-    private string createGameUri = "https://alphaserver.playdropt.io/creategame";
-    private string joinGameUri = "https://alphaserver.playdropt.io/joingame";
-
-    private float k_pollInterval = 2f;
-
-    // params for connecting
-    public bool m_isTryConnect = false;
-    private float m_tryConnectTimer = 0f;
-
-    // params for serverManager (nodejs app) connections
-    private bool m_isTryCreateGame = false;
-    private float m_tryCreateGameTimer = 0f;
+    private string serverManagerUri = "http://103.253.146.245:3000";
 
     UnityTransport m_transport;
 
     // certificate variables for wss and encryption
-    // IMPORTANT: The only certs that seem to work correctly when deployed in browser are those for the actual website (web.playdropt.io)
+    // IMPORTANT: The only certs that seem to work correctly when deployed in browser
+    // are those for the actual website (web.playdropt.io)
     // and the ones that are used to secure the website itself (letsencrypt)
     private string m_serverCommonName;
     private string m_clientCA;
     private string m_serverCertificate;
     private string m_serverPrivateKey;
 
-    public bool m_isTutorialCompleted = false;
-    private const string TutorialCompletedKey = "TutorialCompleted";
-
-    // TempCarryOverData is data used when joining another instance
-    //public int LocalGotchiId = 0;
-
     private void Awake()
     {
         Instance = this;
-
-        NetworkManager.Singleton.OnTransportFailure += HandleTransportFailure;
-        NetworkManager.Singleton.OnConnectionEvent += HandleConnectionEvent;
-    }
-
-    void HandleTransportFailure()
-    {
-        Debug.Log("There was a connection failure");
-    }
-
-    void HandleConnectionEvent(NetworkManager nm, ConnectionEventData ev)
-    {
-        Debug.Log("Connection event: " + ev);
     }
 
     private void Start()
     {
-        // 1. start tryConnect and tryCreateGame as false
-        m_isTryCreateGame = false;
-        m_isTryConnect = false;
-
         // 2. ensure we have access to UnityTransport
         m_transport = NetworkManager.Singleton?.NetworkConfig?.NetworkTransport as UnityTransport;
         if (m_transport == null) { Debug.Log("Could not get UnityTransport"); return; }
@@ -88,13 +42,11 @@ public class Game : MonoBehaviour
         {
             Application.targetFrameRate = 15;
             QualitySettings.vSyncCount = 0;
-            m_isTryConnect = true;
 
             if (Bootstrap.IsRemoteConnection() && Bootstrap.IsUseServerManager())
             {
                 m_serverCertificate = System.Environment.GetEnvironmentVariable("DROPT_SERVER_CERTIFICATE");
                 m_serverPrivateKey = System.Environment.GetEnvironmentVariable("DROPT_SERVER_PRIVATE_KEY");
-                m_isTutorialCompleted = System.Environment.GetEnvironmentVariable("IS_TUTORIAL_COMPLETED") == "true";
             }
         }
 
@@ -103,69 +55,23 @@ public class Game : MonoBehaviour
         {
             if (Bootstrap.Instance.UseServerManager)
             {
-                ProgressBarCanvas.Instance.ResetProgress();
-                ProgressBarCanvas.Instance.Show("Engaging remote server manager...");
 
-                // try create game (via server manager)
-                m_isTryCreateGame = true;
             }
             else
             {
-                m_isTryConnect = true;
+
             }
         }
 
         // 5. Host instances
         else if (Bootstrap.IsHost())
         {
-            m_isTryConnect = true;
         }
     }
 
-    bool m_isCreatedGameOnce = false;
-
     private void Update()
     {
-        // CreateGame polling
-        m_tryCreateGameTimer -= Time.deltaTime;
-        if (m_isTryCreateGame && m_tryCreateGameTimer <= 0 && !m_isCreatedGameOnce)
-        {
-            m_isCreatedGameOnce = true;
-            m_isTryCreateGame = false;
-            CreateGameViaServerManager().Forget(); // Use UniTask with Forget to avoid unhandled exceptions
-        }
 
-        // Connect polling
-        m_tryConnectTimer -= Time.deltaTime;
-        if (m_isTryConnect &&
-            m_tryConnectTimer <= 0 &&
-            !NetworkManager.Singleton.ShutdownInProgress)
-        {
-            if (Bootstrap.IsServer() || Bootstrap.IsHost())
-            {
-                if (TryStartServerClientOrHost())
-                {
-                    IsConnected = true;
-                    m_isTryConnect = false;
-                    ProgressBarCanvas.Instance.Hide();
-                }
-            }
-
-            else if (Bootstrap.IsClient())
-            {
-                if (Bootstrap.IsUseServerManager() && AvailableGamesHeartbeat.Instance.IsServerReady(Bootstrap.Instance.GameId) ||
-                    !Bootstrap.IsUseServerManager())
-                {
-                    if (TryStartServerClientOrHost())
-                    {
-                        IsConnected = true;
-                        m_isTryConnect = false;
-                        ProgressBarCanvas.Instance.Show("Client started, loading level...");
-                        ProgressBarCanvas.Instance.Hide();
-                    }
-                }
-            }
-        }
     }
 
     public void TriggerGameOver(REKTCanvas.TypeOfREKT typeOfREKT)
@@ -178,9 +84,6 @@ public class Game : MonoBehaviour
     {
         if (Bootstrap.IsRemoteConnection() && Bootstrap.IsUseServerManager())
         {
-            m_isTryConnect = false;
-            m_isCreatedGameOnce = false;
-            m_isTryCreateGame = true;
         }
         else if (Bootstrap.IsHost())
         {
@@ -239,230 +142,99 @@ public class Game : MonoBehaviour
         return success;
     }
 
-    public UniTask CreateGameViaServerManager()
+    private async UniTask JoinEmpty()
     {
-        return CreateGameViaServerManagerAsync();
-    }
-
-    private async UniTask CreateGameViaServerManagerAsync()
-    {
-        ProgressBarCanvas.Instance.Show("Requesting game server instance... ");
-
-        // create a new game
         try
         {
-            // 1. assemble post data into json
-            var postData = new CreateGamePostData { isTutorialCompleted = IsTutorialCompleted() };
-            string json = JsonUtility.ToJson(postData);
+            var joinEmptyPostData = new JoinEmpty_PostData { };
+            string json = JsonUtility.ToJson(joinEmptyPostData);
 
-            // 2. Create a new UnityWebRequest
-            using (UnityWebRequest webRequest = new UnityWebRequest(createGameUri, "POST"))
-            {
-                // 3. populate the requests body
-                byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
-                webRequest.uploadHandler = new UploadHandlerRaw(bodyRaw);
-                webRequest.downloadHandler = new DownloadHandlerBuffer();
-                webRequest.SetRequestHeader("Content-Type", "application/json");
+            var responseString = await PostRequest(serverManagerUri + "/joinempty", json);
 
-                // 4. send web request
-                await webRequest.SendWebRequest().ToUniTask();
+            // Check if the response is not null
+            if (string.IsNullOrEmpty(responseString)) return;
 
-                switch (webRequest.result)
-                {
-                    case UnityWebRequest.Result.ConnectionError:
-                        ErrorDialogCanvas.Instance.Show("UnityWebRequest.Result.ConnectionError: " + webRequest.error);
-                        m_isTryCreateGame = true;
-                        m_tryCreateGameTimer = k_pollInterval;
-                        break;
-                    case UnityWebRequest.Result.DataProcessingError:
-                        ErrorDialogCanvas.Instance.Show("UnityWebRequest.Result.DataProcessingError: " + webRequest.error);
-                        m_isTryCreateGame = true;
-                        m_tryCreateGameTimer = k_pollInterval;
-                        break;
-                    case UnityWebRequest.Result.ProtocolError:
-                        ErrorDialogCanvas.Instance.Show("UnityWebRequest.Result.ProtocolError: " + webRequest.error);
-                        m_isTryCreateGame = true;
-                        m_tryCreateGameTimer = k_pollInterval;
-                        break;
-                    case UnityWebRequest.Result.Success:
-                        CreateOrJoinGameResponseData data = JsonUtility.FromJson<CreateOrJoinGameResponseData>(webRequest.downloadHandler.text);
-                        //Debug.Log("Response Data to CreateGame below...");
-                        Debug.Log(webRequest.downloadHandler.text);
+            // Parse the response string into the JoinEmpty_ResponseData struct
+            JoinEmpty_ResponseData responseData = JsonUtility.FromJson<JoinEmpty_ResponseData>(responseString);
 
-                        // using data configure bootstrap
-                        Bootstrap.Instance.IpAddress = data.ipAddress;
-                        Bootstrap.Instance.Port = data.port;
-                        Bootstrap.Instance.GameId = data.gameId;
+            // Now you can access the fields in responseData
+            Debug.Log($"Game ID: {responseData.gameId}");
+            Debug.Log($"IP Address: {responseData.ipAddress}");
+            Debug.Log($"Node Port: {responseData.nodePort}");
 
-                        // set client side cert data if using server manager
-                        m_serverCommonName = data.serverCommonName;
-                        m_clientCA = data.clientCA;
+            // now send join instance message to game
+            var gameUri = "http://" + responseData.ipAddress + ":" + responseData.nodePort;
+            var joinInstancePostData = new JoinInstance_PostData { gameId = responseData.gameId };
+            json = JsonUtility.ToJson(joinInstancePostData);
 
-                        // update progress bar
-                        ProgressBarCanvas.Instance.Show("Allocated gameId & port, connecting...");
+            responseString = await PostRequest(gameUri + "/joininstance", json);
 
-                        // save gameid for joins and try connect
-                        m_isTryConnect = true;
-
-                        webRequest.Dispose();
-
-                        break;
-                }
-            }
+            Debug.Log(responseString);
         }
         catch (Exception e)
         {
-            Debug.Log("Exception occurred: " + e.Message);
-            ErrorDialogCanvas.Instance.Show(e.Message);
-
-            // try to create the game again
-            m_isTryCreateGame = true;
-            m_tryCreateGameTimer = k_pollInterval;
+            Debug.Log(e);
         }
     }
 
-    // other gameobjects call this to try join a game
-    public void TryJoinGame(string gameId)
+    // POST function for 
+    private async UniTask<string> PostRequest(string url, string json)
     {
-        ProgressBarCanvas.Instance.ResetProgress();
-        ProgressBarCanvas.Instance.Show("Try joining gameId: " + gameId);
-        Debug.Log("Attempting to join: " + gameId);
-        JoinGameViaServerManager(gameId).Forget(); // Use UniTask with Forget to avoid unhandled exceptions
-    }
-
-    public UniTask JoinGameViaServerManager(string gameId)
-    {
-        return JoinGameViaServerManagerAsync(gameId);
-    }
-
-    private async UniTask JoinGameViaServerManagerAsync(string gameId)
-    {
-        try
+        using (UnityWebRequest request = new UnityWebRequest(url, "POST"))
         {
-            // 1. assemble post data into json
-            var postData = new JoinGamePostData { gameId = gameId };
-            string json = JsonUtility.ToJson(postData);
+            byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("Content-Type", "application/json");
 
-            // 2. Create a new UnityWebRequest
-            using (UnityWebRequest webRequest = new UnityWebRequest(joinGameUri, "POST"))
+            try
             {
-                // 3. populate the requests body
-                byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
-                webRequest.uploadHandler = new UploadHandlerRaw(bodyRaw);
-                webRequest.downloadHandler = new DownloadHandlerBuffer();
-                webRequest.SetRequestHeader("Content-Type", "application/json");
+                await request.SendWebRequest();
 
-                // 4. perform the request
-                await webRequest.SendWebRequest().ToUniTask();
-
-                // 5. process results
-                switch (webRequest.result)
+                switch (request.result)
                 {
-                    case UnityWebRequest.Result.ConnectionError:
-                        ErrorDialogCanvas.Instance.Show("UnityWebRequest.Result.ConnectionError: " + webRequest.error);
-                        break;
-                    case UnityWebRequest.Result.ProtocolError:
-                        ErrorDialogCanvas.Instance.Show("UnityWebRequest.Result.ProtocolError: " + webRequest.error);
-                        break;
-                    case UnityWebRequest.Result.DataProcessingError:
-                        ErrorDialogCanvas.Instance.Show("UnityWebRequest.Result.DataProcessingError: " + webRequest.error);
-                        break;
                     case UnityWebRequest.Result.Success:
-                        CreateOrJoinGameResponseData data = JsonUtility.FromJson<CreateOrJoinGameResponseData>(webRequest.downloadHandler.text);
-                        // Debug.Log("Response Data to JoinGame below...");
-                         Debug.Log(webRequest.downloadHandler.text);
-
-                        // Using data configure bootstrap
-                        Bootstrap.Instance.IpAddress = data.ipAddress;
-                        Bootstrap.Instance.Port = data.port;
-                        Bootstrap.Instance.GameId = data.gameId;
-
-                        // set client side cert data if using server manager
-                        m_serverCommonName = data.serverCommonName;
-                        m_clientCA = data.clientCA;
-
-                        // shut down our existing server
-                        // Debug.Log("Received joinGame data, gameId: " + data.gameId + ", port: " + data.port);
-                        ProgressBarCanvas.Instance.Show("Received data for new game, switching...");
-                        NetworkManager.Singleton.Shutdown();
-
-                        // We can now connect direct
-                        m_isTryConnect = true;
-
-                        webRequest.Dispose();
-
-                        break;
+                        Debug.Log("PostRequest() success");
+                        return request.downloadHandler.text; // Return the response content
+                    case UnityWebRequest.Result.ConnectionError:
+                    case UnityWebRequest.Result.DataProcessingError:
+                    case UnityWebRequest.Result.ProtocolError:
+                    default:
+                        Debug.LogError($"PostRequest() error: {request.error}");
+                        return null; // Return null or an error message as appropriate
                 }
             }
+            catch (Exception e)
+            {
+                Debug.LogError($"Exception: {e.Message}");
+                return null; // Return null in case of exception
+            }
         }
-        catch (Exception ex)
-        {
-            Debug.Log(ex.Message);
-
-            // just display error message (player can choose to hit join again once they've checked their params)
-            ErrorDialogCanvas.Instance.Show(ex.Message);
-        }
-    }
-
-    public void CompleteTutorial()
-    {
-        if (!Bootstrap.IsClient()) return;
-
-        // Mark the tutorial as completed
-        SetTutorialCompleted(true);
-        Debug.Log("Tutorial marked as completed.");
-    }
-
-    public bool IsTutorialCompleted()
-    {
-        if (Bootstrap.IsServer())
-        {
-            return m_isTutorialCompleted;
-        } else
-        {
-            // Retrieve the boolean value from PlayerPrefs
-            return PlayerPrefs.GetInt(TutorialCompletedKey, 0) == 1;
-        }
-
-    }
-
-    private void SetTutorialCompleted(bool completed)
-    {
-        if (!Bootstrap.IsClient()) return;
-
-        // Convert the boolean to an integer (1 for true, 0 for false) and store it in PlayerPrefs
-        PlayerPrefs.SetInt(TutorialCompletedKey, completed ? 1 : 0);
-        PlayerPrefs.Save(); // Ensure the data is saved
-    }
-
-    public void ResetTutorialCompletion()
-    {
-        if (!Bootstrap.IsClient()) return;
-
-        // Optionally, allow resetting the tutorial completion status
-        PlayerPrefs.DeleteKey(TutorialCompletedKey);
-        Debug.Log("Tutorial completion status reset.");
     }
 
     [System.Serializable]
-    public struct CreateOrJoinGameResponseData
+    struct JoinEmpty_PostData
     {
+
+    }
+
+    [System.Serializable]
+    struct JoinEmpty_ResponseData
+    {
+        public string gameId;
         public string ipAddress;
-        public ushort port;
-        public string serverCommonName;
-        public string clientCA;
-        public string gameId;
+        public string nodePort;
     }
 
     [System.Serializable]
-    struct JoinGamePostData
+    struct JoinInstance_PostData
     {
         public string gameId;
     }
 
     [System.Serializable]
-    struct CreateGamePostData
+    struct JoinInstance_ResponseData
     {
-        public bool isTutorialCompleted;
+        public string message;
     }
 }
