@@ -25,8 +25,14 @@ namespace Dropt
             {
                 Utils.Anim.PlayAnimationWithDuration(m_animator, "Snail_Telegraph", TelegraphDuration);
             }
-            GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, TelegraphDuration);
+            //GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, TelegraphDuration);
         }
+
+        //public override void OnTelegraphUpdate(float dt)
+        //{
+        //base.OnTelegraphUpdate(dt);
+        //GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, TelegraphDuration);
+        //}
 
         public override void OnRoamStart()
         {
