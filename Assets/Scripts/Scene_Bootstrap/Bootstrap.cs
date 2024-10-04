@@ -121,8 +121,8 @@ public class Bootstrap : MonoBehaviour
 
         if (!IsServer())
         {
-            GameAudioManager.TryToInitialize();
-            GameAudioManager.Instance.PlayMusic(MusicType.UndergroundForest);
+            //GameAudioManager.TryToInitialize();
+            //GameAudioManager.Instance.PlayMusic(MusicType.UndergroundForest);
         }
     }
 
@@ -130,7 +130,7 @@ public class Bootstrap : MonoBehaviour
     {
         if (!IsServer())
         {
-            GameAudioManager.TryToDispose();
+            //GameAudioManager.TryToDispose();
         }
     }
 

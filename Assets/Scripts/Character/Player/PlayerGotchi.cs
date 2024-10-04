@@ -162,7 +162,7 @@ public class PlayerGotchi : NetworkBehaviour
 
         animator.Play("PlayerGotchi_DropSpawn");
 
-        GameAudioManager.Instance.FallNewLevel(spawnPoint);
+        //GameAudioManager.Instance.FallNewLevel(spawnPoint);
     }
 
     public void ResetIdleAnimation()
