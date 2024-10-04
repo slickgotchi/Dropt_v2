@@ -34,6 +34,7 @@ public class GameServerHeartbeat : MonoBehaviour
 
     private void Update()
     {
+        return;
         if (!Bootstrap.IsUseServerManager()) return;
 
         m_timer -= Time.deltaTime;

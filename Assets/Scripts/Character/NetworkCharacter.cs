@@ -107,7 +107,7 @@ public class NetworkCharacter : NetworkBehaviour
             if (spriteFlash != null) spriteFlash.DamageFlash();
 
             // play damage audio
-            GameAudioManager.Instance.EnemyHurt(transform.position);
+            //GameAudioManager.Instance.EnemyHurt(transform.position);
         }
 
         // SERVER or HOST
@@ -176,7 +176,7 @@ public class NetworkCharacter : NetworkBehaviour
             if (spriteFlash != null) spriteFlash.DamageFlash();
 
             // play damage audio (should replace this with a gotchi sound)
-            GameAudioManager.Instance.PlayerHurt(transform.position);
+            //GameAudioManager.Instance.PlayerHurt(transform.position);
 
             // do local only effects
             if (gameObject.GetComponent<NetworkObject>().IsLocalPlayer)

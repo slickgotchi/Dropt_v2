@@ -23,10 +23,10 @@ namespace Audio.Game
             if (null != m_instance)
                 return;
 
-            GameObject go = new GameObject("GameAudioManager", typeof(GameAudioManager));
-            GameObject.DontDestroyOnLoad(go);
-            m_instance = go.GetComponent<GameAudioManager>();
-            m_instance.GetComponent<AudioListener>().enabled = false;
+            //GameObject go = new GameObject("GameAudioManager", typeof(GameAudioManager));
+            //GameObject.DontDestroyOnLoad(go);
+            //m_instance = go.GetComponent<GameAudioManager>();
+            //m_instance.GetComponent<AudioListener>().enabled = false;
 
 
         }

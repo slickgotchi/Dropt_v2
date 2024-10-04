@@ -56,10 +56,10 @@ public class LevelManager : NetworkBehaviour
 
     private void OnDestroy()
     {
-        if (null != GameAudioManager.Instance)
-        {
-            GameAudioManager.Instance.PLAY_SOUND -= OnPlaySound;
-        }
+        //if (null != GameAudioManager.Instance)
+        //{
+        //    GameAudioManager.Instance.PLAY_SOUND -= OnPlaySound;
+        //}
     }
 
     // Start is called before the first frame update
@@ -69,7 +69,7 @@ public class LevelManager : NetworkBehaviour
 
         GoToDegenapeVillageLevel();
 
-        GameAudioManager.Instance.PLAY_SOUND += OnPlaySound;
+        //GameAudioManager.Instance.PLAY_SOUND += OnPlaySound;
     }
 
     public void GoToDegenapeVillageLevel()
@@ -431,6 +431,6 @@ public class LevelManager : NetworkBehaviour
     [Rpc(SendTo.NotMe)]
     void PlaySoundClientRpc(string type, Vector3 position, ulong id)
     {
-        GameAudioManager.Instance.PlaySoundForMe(type, position);
+        //GameAudioManager.Instance.PlaySoundForMe(type, position);
     }
 }

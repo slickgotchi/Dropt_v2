@@ -29,7 +29,7 @@ public class Destructible : NetworkBehaviour
     {
         var damage = CalculateDamageToDestructible(type, weaponType);
 
-        GameAudioManager.Instance.PlayHit(type, gameObject.transform.position);
+        //GameAudioManager.Instance.PlayHit(type, gameObject.transform.position);
 
         if (CurrentHp.Value <= damage)
         {
