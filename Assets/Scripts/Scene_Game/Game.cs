@@ -129,7 +129,7 @@ public class Game : MonoBehaviour
     private async void ConnectClientGame()
     {
         Debug.Log("ConnectClientGame()");
-        var response = await ServerManagerAgent.Instance.JoinEmpty();
+        var response = await ServerManagerAgent.Instance.GetEmpty();
 
         if (response == null)
         {
@@ -151,6 +151,7 @@ public class Game : MonoBehaviour
 
         // set connection data
         m_transport.SetConnectionData(Bootstrap.Instance.IpAddress, Bootstrap.Instance.Port);
+        //m_transport.SetConnectionData("206.189.147.100", 30001);
         if (m_transport.UseEncryption)
         {
             m_transport.SetClientSecrets(m_serverCommonName, m_clientCA);

@@ -7,28 +7,28 @@ using TMPro;
 
 public class ServerManagerAgentCanvas : MonoBehaviour
 {
-    public Button JoinEmptyButton;
-    public Button JoinExistingButton;
+    public Button GetEmptyButton;
+    public Button GetExistingButton;
     public Button LeaveExistingButton;
     public TMPro.TMP_InputField GameIdInput;
 
     private void Awake()
     {
-        JoinEmptyButton.onClick.AddListener(async () => await handleClick_JoinEmptyButton());
-        JoinExistingButton.onClick.AddListener(async () => await handleClick_JoinExistingButton());
+        GetEmptyButton.onClick.AddListener(async () => await handleClick_GetEmptyButton());
+        GetExistingButton.onClick.AddListener(async () => await handleClick_GetExistingButton());
         LeaveExistingButton.onClick.AddListener(async () => await handleClick_LeaveExistingButton());
     }
 
-    async UniTask handleClick_JoinEmptyButton()
+    async UniTask handleClick_GetEmptyButton()
     {
-        await ServerManagerAgent.Instance.JoinEmpty();
+        await ServerManagerAgent.Instance.GetEmpty();
     }
 
-    async UniTask handleClick_JoinExistingButton()
+    async UniTask handleClick_GetExistingButton()
     {
         string gameId = GameIdInput.text;
 
-        await ServerManagerAgent.Instance.JoinExisting(gameId);
+        await ServerManagerAgent.Instance.GetExisting(gameId);
     }
 
     async UniTask handleClick_LeaveExistingButton()
