@@ -1,9 +1,4 @@
-using Dropt;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AI;
-using Unity.Mathematics;
 using Unity.Netcode;
 
 namespace Dropt
@@ -14,13 +9,6 @@ namespace Dropt
         public float ExplosionRadius = 2f;
         public float WaitForNonRootedPlayerRange = 4f;
 
-        private Animator m_animator;
-
-        private void Awake()
-        {
-            m_animator = GetComponent<Animator>();
-        }
-
         public override void OnSpawnStart()
         {
         }
@@ -30,22 +18,20 @@ namespace Dropt
             // set our facing direction
             GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, TelegraphDuration);
         }
-        
+
         public override void OnRoamUpdate(float dt)
         {
-            SimpleRoamUpdate(dt);   
+            SimpleRoamUpdate(dt);
         }
 
         public override void OnAggroUpdate(float dt)
         {
-            //SimplePursueUpdate(dt);
             FudWisp_PursueUpdate(dt);
         }
 
         public override void OnAttackStart()
         {
             FudWisp_AttackStart();
-
             // set facing
             GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, AttackDuration);
         }
@@ -56,30 +42,36 @@ namespace Dropt
 
         public override void OnCooldownUpdate(float dt)
         {
-            //SimplePursueUpdate(dt);
             FudWisp_PursueUpdate(dt);
         }
 
-        //public override void OnKnockback(Vector3 direction, float distance, float duration)
-        //{
-        //    SimpleKnockback(direction, distance, duration);
-        //}
+        protected override void OnDeath(Vector3 position)
+        {
+            FudWisp_AttackStart();
+            base.OnDeath(position);
+        }
 
         // attack
         protected void FudWisp_AttackStart()
         {
             // check we have a primary attack.
-            if (PrimaryAttack == null) return;
+            if (PrimaryAttack == null)
+            {
+                return;
+            }
 
             // instantiate an attack
-            var ability = Instantiate(PrimaryAttack);
-            
+            GameObject ability = Instantiate(PrimaryAttack);
+
             // get enemy ability of attack
-            var enemyAbility = ability.GetComponent<EnemyAbility>();
-            if (enemyAbility == null) return;
+            EnemyAbility enemyAbility = ability.GetComponent<EnemyAbility>();
+            if (enemyAbility == null)
+            {
+                return;
+            }
 
             // set explosion radius
-            var fudWisp_Explosion = ability.GetComponent<FudWisp_Explode>();
+            FudWisp_Explode fudWisp_Explosion = ability.GetComponent<FudWisp_Explode>();
             fudWisp_Explosion.ExplosionRadius = ExplosionRadius;
 
             // initialise the ability
@@ -90,20 +82,21 @@ namespace Dropt
 
         protected void FudWisp_PursueUpdate(float dt)
         {
-            if (networkCharacter == null) return;
-            if (m_navMeshAgent == null) return;
+            if (networkCharacter == null || m_navMeshAgent == null)
+            {
+                return;
+            }
 
             m_navMeshAgent.isStopped = false;
 
             // get direction from player to enemy and set a small offset
-            var dir = (transform.position - NearestPlayer.transform.position).normalized;
+            Vector3 dir = (transform.position - NearestPlayer.transform.position).normalized;
 
             // check if player is rooted
-            var characterStatus = NearestPlayer.GetComponent<CharacterStatus>();
-            var offset = characterStatus.IsRooted() ? WaitForNonRootedPlayerRange : 0.9f;
+            CharacterStatus characterStatus = NearestPlayer.GetComponent<CharacterStatus>();
+            float offset = characterStatus.IsRooted() ? WaitForNonRootedPlayerRange : 0.9f;
 
-            var offsetVector = dir * AttackRange * offset;
-
+            Vector3 offsetVector = AttackRange * offset * dir;
             m_navMeshAgent.SetDestination(NearestPlayer.transform.position + offsetVector);
             m_navMeshAgent.speed = networkCharacter.MoveSpeed.Value * PursueSpeedMultiplier;
 
