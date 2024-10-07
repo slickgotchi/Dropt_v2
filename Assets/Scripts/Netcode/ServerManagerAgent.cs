@@ -26,12 +26,12 @@ public class ServerManagerAgent : MonoBehaviour
     }
 
     // /joinempty
-    public async UniTask<GetEmpty_ResponseData> GetEmpty()
+    public async UniTask<GetEmpty_ResponseData> GetEmpty(string region)
     {
         try
         {
             // setup post data and post request
-            var getEmptyPostData = new GetEmpty_PostData { region = "asia" };
+            var getEmptyPostData = new GetEmpty_PostData { region = region };
             string json = JsonUtility.ToJson(getEmptyPostData);
             var responseString = await PostRequest(serverManagerUri + "/getempty", json);
 
