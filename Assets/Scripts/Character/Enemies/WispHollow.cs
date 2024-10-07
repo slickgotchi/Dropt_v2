@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
@@ -18,14 +17,16 @@ public class WispHollow : MonoBehaviour
         m_spawnTimer = WispSpawnInterval;
     }
 
-
     private void Update()
     {
-        if (Bootstrap.IsClient()) return;
+        if (Bootstrap.IsClient())
+        {
+            return;
+        }
 
         m_spawnTimer -= Time.deltaTime;
 
-        for (int i = m_liveWisps.Count-1; i >= 0; i--)
+        for (int i = m_liveWisps.Count - 1; i >= 0; i--)
         {
             if (m_liveWisps[i].gameObject == null)
             {
@@ -43,10 +44,9 @@ public class WispHollow : MonoBehaviour
 
     private GameObject SpawnWisp()
     {
-        var wisp = Instantiate(FudWispPrefab);
+        GameObject wisp = Instantiate(FudWispPrefab);
         wisp.transform.position = transform.position + SpawnOffset;
         wisp.GetComponent<NetworkObject>().Spawn();
-
         return wisp;
     }
 }
