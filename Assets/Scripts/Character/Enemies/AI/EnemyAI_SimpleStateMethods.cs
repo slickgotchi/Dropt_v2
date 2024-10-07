@@ -141,7 +141,7 @@ namespace Dropt
         }
 
         // telegraph
-        private Vector3 CalculateAttackDirectionAndPosition()
+        private void CalculateAttackDirectionAndPosition()
         {
             // get target attack centre
             var targetCentre = NearestPlayer.GetComponentInChildren<AttackCentre>();
@@ -157,7 +157,7 @@ namespace Dropt
             // set attack position
             PositionToAttack = targetCentrePos;
 
-            return AttackDirection;
+            //return AttackDirection;
         }
 
         // attack
@@ -171,7 +171,7 @@ namespace Dropt
 
             // instantiate an attack
             var ability = Instantiate(PrimaryAttack);
-            
+
             // get enemy ability of attack
             var enemyAbility = ability.GetComponent<EnemyAbility>();
             if (enemyAbility == null) return;
