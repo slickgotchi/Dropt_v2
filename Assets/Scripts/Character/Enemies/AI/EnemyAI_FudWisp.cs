@@ -1,5 +1,6 @@
 using UnityEngine;
 using Unity.Netcode;
+using System;
 
 namespace Dropt
 {
@@ -8,9 +9,15 @@ namespace Dropt
         [Header("FudWisp Specific")]
         public float ExplosionRadius = 2f;
         public float WaitForNonRootedPlayerRange = 4f;
+        private Action<GameObject> m_onFudWispDespawn;
 
         public override void OnSpawnStart()
         {
+        }
+
+        public void AssignDespawnAction(Action<GameObject> onFudWispDespawn)
+        {
+            m_onFudWispDespawn = onFudWispDespawn;
         }
 
         public override void OnTelegraphStart()
@@ -48,7 +55,7 @@ namespace Dropt
         protected override void OnDeath(Vector3 position)
         {
             FudWisp_AttackStart();
-            base.OnDeath(position);
+            //base.OnDeath(position);
         }
 
         // attack
@@ -74,7 +81,7 @@ namespace Dropt
             FudWisp_Explode fudWisp_Explosion = ability.GetComponent<FudWisp_Explode>();
             fudWisp_Explosion.ExplosionRadius = ExplosionRadius;
 
-            // initialise the ability
+            // initialise the ability           
             ability.GetComponent<NetworkObject>().Spawn();
             enemyAbility.Init(gameObject, NearestPlayer, Vector3.zero, AttackDuration, PositionToAttack);
             enemyAbility.Activate();
@@ -102,6 +109,12 @@ namespace Dropt
 
             HandleAntiClumping();
             HandleAlertOthers();
+        }
+
+        public override void OnNetworkDespawn()
+        {
+            m_onFudWispDespawn?.Invoke(gameObject);
+            base.OnNetworkDespawn();
         }
     }
 }
