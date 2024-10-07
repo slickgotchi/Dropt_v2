@@ -1,7 +1,6 @@
 using UnityEngine;
 using Unity.Mathematics;
 using Unity.Netcode;
-using System.Threading.Tasks;
 
 namespace Dropt
 {
@@ -42,21 +41,28 @@ namespace Dropt
             }
         }
 
-        public override async void OnTelegraphStart()
+        public override void OnTelegraphStart()
         {
             base.OnTelegraphStart();
 
             if (!IsServer) return;
 
             m_invisibleTimer = InvisibleDuration + m_fadeoutDuration;
-            Debug.Log("");
             m_isInvisibleUsed = false;
             Utils.Anim.PlayAnimationWithDuration(m_animator, "FudSpirit_Fadeout", m_fadeoutDuration);
-            await Task.Delay((int)(m_fadeoutDuration * 1000));
-            if (gameObject == null)
-            {
-                return;
-            }
+            //await Task.Delay((int)(m_fadeoutDuration * 1000));
+            //if (gameObject == null)
+            //{
+            //    return;
+            //}
+
+            //SetSpritesAndCollidersEnabled(false);
+            //TeleportToNewAttackPosition();
+            Invoke(nameof(DisableSpritesAndCollidersAndTeleportToNewPosition), m_fadeoutDuration);
+        }
+
+        private void DisableSpritesAndCollidersAndTeleportToNewPosition()
+        {
             SetSpritesAndCollidersEnabled(false);
             TeleportToNewAttackPosition();
         }
@@ -173,6 +179,12 @@ namespace Dropt
         private void SetSpritesAndCollidersEnabledClientRpc(bool isEnabled)
         {
             SetSpritesAndCollidersEnabled(isEnabled);
+        }
+
+        public override void OnDestroy()
+        {
+            base.OnDestroy();
+            CancelInvoke();
         }
     }
 }
