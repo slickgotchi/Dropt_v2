@@ -196,6 +196,7 @@ namespace Dropt
         // override this function in child class if you want to do something other than despawn
         protected virtual void OnDeath(Vector3 position)
         {
+            Debug.Log("IS SPAWNNED :- " + GetComponent<NetworkObject>().IsSpawned);
             GetComponent<NetworkObject>().Despawn();
         }
 
