@@ -1,9 +1,4 @@
-using Dropt;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AI;
-using Unity.Mathematics;
 
 namespace Dropt
 {
@@ -18,35 +13,62 @@ namespace Dropt
 
         public override void OnSpawnStart()
         {
-            // play anim
-            Dropt.Utils.Anim.PlayAnimationWithDuration(m_animator, "Snail_Unburrow", SpawnDuration);
+            if (IsServer)
+            {
+                Utils.Anim.PlayAnimationWithDuration(m_animator, "Snail_Spawn", SpawnDuration);
+            }
         }
 
         public override void OnTelegraphStart()
         {
-            // play anim
-            Dropt.Utils.Anim.PlayAnimationWithDuration(m_animator, "Snail_TelegraphAttack", TelegraphDuration);
-
-            // set our facing direction
-            GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, TelegraphDuration);
+            if (IsServer)
+            {
+                Utils.Anim.PlayAnimationWithDuration(m_animator, "Snail_Telegraph", TelegraphDuration);
+            }
+            //GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, TelegraphDuration);
         }
-        
+
+        //public override void OnTelegraphUpdate(float dt)
+        //{
+        //base.OnTelegraphUpdate(dt);
+        //GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, TelegraphDuration);
+        //}
+
+        public override void OnRoamStart()
+        {
+            base.OnRoamStart();
+            if (IsServer)
+            {
+                Utils.Anim.PlayAnimationWithDuration(m_animator, "Snail_Roam", TelegraphDuration);
+            }
+        }
+
         public override void OnRoamUpdate(float dt)
         {
-            if (m_animator != null) m_animator.Play("Snail_Roam");
-            SimpleRoamUpdate(dt);   
+            SimpleRoamUpdate(dt);
+        }
+
+        public override void OnAggroStart()
+        {
+            base.OnAggroStart();
+            if (IsServer)
+            {
+                Utils.Anim.PlayAnimationWithDuration(m_animator, "Snail_Roam", TelegraphDuration);
+            }
         }
 
         public override void OnAggroUpdate(float dt)
         {
-            if (m_animator != null) m_animator.Play("Snail_Roam");
             SimplePursueUpdate(dt);
         }
 
         public override void OnAttackStart()
         {
+            if (IsServer)
+            {
+                Utils.Anim.PlayAnimationWithDuration(m_animator, "Snail_Attack", AttackDuration);
+            }
             SimpleAttackStart();
-
             // set facing
             GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, AttackDuration);
         }
@@ -55,12 +77,18 @@ namespace Dropt
         {
             // set facing
             //GetComponent<EnemyController>().SetFacingFromDirection(NearestPlayer.transform.position - transform.position, CooldownDuration);
-            if (m_animator != null) m_animator.Play("Snail_Roam");
+            if (IsServer)
+            {
+                Utils.Anim.PlayAnimationWithDuration(m_animator, "Snail_Roam", TelegraphDuration);
+            }
         }
 
         public override void OnCooldownUpdate(float dt)
         {
-            if (m_animator != null) m_animator.Play("Snail_Roam");
+            if (IsServer)
+            {
+                Utils.Anim.PlayAnimationWithDuration(m_animator, "Snail_Roam", TelegraphDuration);
+            }
             SimplePursueUpdate(dt);
         }
 
