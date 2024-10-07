@@ -129,7 +129,7 @@ public class Game : MonoBehaviour
     private async void ConnectClientGame()
     {
         Debug.Log("ConnectClientGame()");
-        var response = await ServerManagerAgent.Instance.GetEmpty();
+        var response = await ServerManagerAgent.Instance.GetEmpty("asia");
 
         if (response == null)
         {

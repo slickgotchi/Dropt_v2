@@ -10,7 +10,8 @@ public class ServerManagerAgentCanvas : MonoBehaviour
     public Button GetEmptyButton;
     public Button GetExistingButton;
     public Button LeaveExistingButton;
-    public TMPro.TMP_InputField GameIdInput;
+    public TMP_InputField GameIdInput;
+    public TMP_Dropdown RegionDropdown;
 
     private void Awake()
     {
@@ -21,7 +22,9 @@ public class ServerManagerAgentCanvas : MonoBehaviour
 
     async UniTask handleClick_GetEmptyButton()
     {
-        await ServerManagerAgent.Instance.GetEmpty();
+        var region = RegionDropdown.options[RegionDropdown.value].text;
+        Debug.Log("GetEmpty: " + region);
+        await ServerManagerAgent.Instance.GetEmpty(region);
     }
 
     async UniTask handleClick_GetExistingButton()
