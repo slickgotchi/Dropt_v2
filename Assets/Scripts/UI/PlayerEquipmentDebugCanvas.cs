@@ -20,10 +20,13 @@ public class PlayerEquipmentDebugCanvas : DroptCanvas
     public TMP_Dropdown leftHandWearableDropdown;
     public TMP_Dropdown petDropdown;
 
+
     private void Awake()
     {
         Instance = this;
     }
+
+    bool m_isInitialized = false;
 
     private void Update()
     {
@@ -36,10 +39,14 @@ public class PlayerEquipmentDebugCanvas : DroptCanvas
             {
                 if (players[i].GetComponent<NetworkObject>().IsLocalPlayer)
                 {
-                    playerEquipment = players[i];
-                    InitializeDropdowns();
-                    SetDropdownValues();
-                    SetUpDropdownListeners();
+                    if (!m_isInitialized)
+                    {
+                        playerEquipment = players[i];
+                        InitializeDropdowns();
+                        SetDropdownValues();
+                        SetUpDropdownListeners();
+                        m_isInitialized = true;
+                    }
                 }
             }
         }

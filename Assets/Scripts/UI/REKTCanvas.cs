@@ -56,8 +56,11 @@ public class REKTCanvas : NetworkBehaviour
     {
         ProgressBarCanvas.Instance.ResetProgress();
 
-
         Container.SetActive(false);
-        
+
+        if (Bootstrap.IsHost())
+        {
+            Game.Instance.ConnectHostGame();
+        }
     }
 }

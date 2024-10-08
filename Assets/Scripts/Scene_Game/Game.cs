@@ -61,8 +61,7 @@ public class Game : MonoBehaviour
             ConnectHostGame();
         }
 
-        //SetInputSystemEnabled(!Bootstrap.IsServer());
-
+        SetInputSystemEnabled(!Bootstrap.IsServer());
     }
 
     private void ConnectServerGame()
@@ -95,7 +94,7 @@ public class Game : MonoBehaviour
     private bool m_isTryConnectClientOrHostGame = false;
     private float m_isTryConnectClientOrHostGameTimer = 0f;
 
-    private void Update()
+    public void Update()
     {
         m_isTryConnectClientOrHostGameTimer -= Time.deltaTime;
         if (m_isTryConnectClientOrHostGame && m_isTryConnectClientOrHostGameTimer < 0)
@@ -113,7 +112,7 @@ public class Game : MonoBehaviour
         }
     }
 
-    private async UniTaskVoid ConnectClientGame()
+    public async UniTaskVoid ConnectClientGame()
     {
         if (m_isTryConnectClientOrHostGame) return;
         if (NetworkManager.Singleton.ShutdownInProgress)
@@ -179,7 +178,7 @@ public class Game : MonoBehaviour
         Debug.Log("StartClient()");
     }
 
-    private void ConnectHostGame()
+    public void ConnectHostGame()
     {
         if (m_isTryConnectClientOrHostGame) return;
         if (NetworkManager.Singleton.ShutdownInProgress)
@@ -231,6 +230,21 @@ public class Game : MonoBehaviour
         catch (Exception e)
         {
             Debug.LogError($"Error loading certificates: {e.Message}");
+        }
+    }
+
+    private void SetInputSystemEnabled(bool isEnabled)
+    {
+        var inputModules = FindObjectsOfType<InputSystemUIInputModule>();
+        foreach (var inputModule in inputModules)
+        {
+            inputModule.enabled = isEnabled;
+        }
+
+        var playerInputs = FindObjectsOfType<PlayerInput>();
+        foreach (var playerInput in playerInputs)
+        {
+            playerInput.enabled = isEnabled;
         }
     }
 }

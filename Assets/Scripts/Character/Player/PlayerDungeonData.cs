@@ -44,7 +44,7 @@ public class PlayerDungeonData : NetworkBehaviour
 
         if (LevelManager.Instance.IsDegenapeVillage())
         {
-            Essence.Value = 1000;
+            Essence.Value = 5;
         }
     }
 
