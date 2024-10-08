@@ -75,50 +75,9 @@ public class PlayerController : NetworkBehaviour
         {
             ScreenBlockers.SetActive(false);
         }
-
-        ReEnableInputSystem();
-
-        //SetInputSystemEnabled(IsLocalPlayer);
-    }
-
-    private void ReEnableInputSystem()
-    {
-        var inputModules = FindObjectsOfType<InputSystemUIInputModule>();
-        foreach (var inputModule in inputModules)
-        {
-            if (!inputModule.enabled)
-            {
-                Debug.Log("Re-enabling InputSystemUIInputModule");
-                inputModule.enabled = true;
-            }
-        }
-
-        var playerInputs = FindObjectsOfType<PlayerInput>();
-        foreach (var playerInput in playerInputs)
-        {
-            if (!playerInput.enabled)
-            {
-                Debug.Log("Re-enabling PlayerInput");
-                playerInput.enabled = true;
-            }
-        }
     }
 
 
-    private void SetInputSystemEnabled(bool isEnabled)
-    {
-        var inputModules = FindObjectsOfType<InputSystemUIInputModule>();
-        foreach (var inputModule in inputModules)
-        {
-            inputModule.enabled = isEnabled;
-        }
-
-        var playerInputs = FindObjectsOfType<PlayerInput>();
-        foreach (var playerInput in playerInputs)
-        {
-            playerInput.enabled = isEnabled;
-        }
-    }
 
     public override void OnNetworkDespawn()
     {
