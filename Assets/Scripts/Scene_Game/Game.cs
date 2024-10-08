@@ -60,11 +60,7 @@ public class Game : MonoBehaviour
         // 5. Host instances
         else if (Bootstrap.IsHost())
         {
-            // Additional logic for Host, if needed
-            Bootstrap.Instance.IpAddress = "127.0.0.1";
-            Bootstrap.Instance.GamePort = 9000;
-            ConnectServerGame();
-            ConnectClientGame();
+            ConnectHostGame();
         }
     }
 
@@ -95,28 +91,35 @@ public class Game : MonoBehaviour
         Debug.Log("StartServer()");
     }
 
+    private bool m_isTryConnectClientOrHostGame = false;
+    private float m_isTryConnectClientOrHostGameTimer = 0f;
+
     private void Update()
     {
-        m_isTryConnectClientGameTimer -= Time.deltaTime;
-        if (m_isTryConnectClientGame && m_isTryConnectClientGameTimer < 0)
+        m_isTryConnectClientOrHostGameTimer -= Time.deltaTime;
+        if (m_isTryConnectClientOrHostGame && m_isTryConnectClientOrHostGameTimer < 0)
         {
-            m_isTryConnectClientGame = false;
-            ConnectClientGame();
-            Debug.Log("CONNECT CLIENT GAME");
+            m_isTryConnectClientOrHostGame = false;
+            if (Bootstrap.IsClient())
+            {
+                ConnectClientGame();
+                Debug.Log("CONNECT CLIENT GAME");
+            } else if (Bootstrap.IsHost())
+            {
+                ConnectHostGame();
+                Debug.Log("CONNECT HOST GAME");
+            }
         }
     }
 
-    private bool m_isTryConnectClientGame = false;
-    private float m_isTryConnectClientGameTimer = 0f;
-
     private async UniTaskVoid ConnectClientGame()
     {
-        if (m_isTryConnectClientGame) return;
+        if (m_isTryConnectClientOrHostGame) return;
         if (NetworkManager.Singleton.ShutdownInProgress)
         {
             // try again in  1 second
-            m_isTryConnectClientGame = true;
-            m_isTryConnectClientGameTimer = 1f;
+            m_isTryConnectClientOrHostGame = true;
+            m_isTryConnectClientOrHostGameTimer = 1f;
             return;
         }
 
@@ -173,6 +176,26 @@ public class Game : MonoBehaviour
         m_transport.SetConnectionData(Bootstrap.Instance.IpAddress, Bootstrap.Instance.GamePort);
         NetworkManager.Singleton.StartClient();
         Debug.Log("StartClient()");
+    }
+
+    private void ConnectHostGame()
+    {
+        if (m_isTryConnectClientOrHostGame) return;
+        if (NetworkManager.Singleton.ShutdownInProgress)
+        {
+            // try again in  1 second
+            m_isTryConnectClientOrHostGame = true;
+            m_isTryConnectClientOrHostGameTimer = 1f;
+            return;
+        }
+
+        m_transport.UseEncryption = (Bootstrap.Instance.UseServerManager || Bootstrap.IsRemoteConnection()) && !Bootstrap.IsHost();
+
+        // Additional logic for Host, if needed
+        Bootstrap.Instance.IpAddress = "127.0.0.1";
+        Bootstrap.Instance.GamePort = 9000;
+        m_transport.SetConnectionData(Bootstrap.Instance.IpAddress, Bootstrap.Instance.GamePort, "0.0.0.0");
+        NetworkManager.Singleton.StartHost();
     }
 
     public void TriggerGameOver(REKTCanvas.TypeOfREKT typeOfREKT)
