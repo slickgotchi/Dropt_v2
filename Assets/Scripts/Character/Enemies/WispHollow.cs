@@ -1,9 +1,9 @@
-using System.Collections;
 using System.Collections.Generic;
+using Dropt;
 using Unity.Netcode;
 using UnityEngine;
 
-public class WispHollow : MonoBehaviour
+public class WispHollow : NetworkBehaviour
 {
     public GameObject FudWispPrefab;
     public int MaxWisps = 3;
@@ -12,30 +12,33 @@ public class WispHollow : MonoBehaviour
 
     private float m_spawnTimer = 0f;
     private List<GameObject> m_liveWisps = new List<GameObject>();
+    private Animator m_animator;
 
-    private void Awake()
+    public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+        if (!IsServer)
+        {
+            return;
+        }
+
+        m_animator = GetComponent<Animator>();
+        m_animator.Play("WispHollow_Spawn");
         m_spawnTimer = WispSpawnInterval;
     }
 
-
     private void Update()
     {
-        if (Bootstrap.IsClient()) return;
+        if (!IsServer)
+        {
+            return;
+        }
 
         m_spawnTimer -= Time.deltaTime;
 
-        for (int i = m_liveWisps.Count-1; i >= 0; i--)
-        {
-            if (m_liveWisps[i].gameObject == null)
-            {
-                m_liveWisps.RemoveAt(i);
-            }
-        }
-
         if (m_spawnTimer <= 0 && m_liveWisps.Count < MaxWisps)
         {
-            var wisp = SpawnWisp();
+            GameObject wisp = SpawnWisp();
             m_liveWisps.Add(wisp);
             m_spawnTimer += WispSpawnInterval;
         }
@@ -43,10 +46,17 @@ public class WispHollow : MonoBehaviour
 
     private GameObject SpawnWisp()
     {
-        var wisp = Instantiate(FudWispPrefab);
+        m_animator.Play("WispHollow_SpawnWisp");
+        GameObject wisp = Instantiate(FudWispPrefab);
+        EnemyAI_FudWisp enemyAI_FudWisp = wisp.GetComponent<EnemyAI_FudWisp>();
+        enemyAI_FudWisp.AssignDespawnAction(OnFudWispDespawn);
         wisp.transform.position = transform.position + SpawnOffset;
         wisp.GetComponent<NetworkObject>().Spawn();
-
         return wisp;
+    }
+
+    private void OnFudWispDespawn(GameObject fudWisp)
+    {
+        m_liveWisps.Remove(fudWisp);
     }
 }
