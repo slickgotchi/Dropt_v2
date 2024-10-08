@@ -61,6 +61,8 @@ public class Game : MonoBehaviour
         else if (Bootstrap.IsHost())
         {
             // Additional logic for Host, if needed
+            Bootstrap.Instance.IpAddress = "127.0.0.1";
+            Bootstrap.Instance.GamePort = 9000;
             ConnectServerGame();
             ConnectClientGame();
         }
@@ -70,11 +72,10 @@ public class Game : MonoBehaviour
     {
         Debug.Log("ConnectServerGame()");
 
-        if (Bootstrap.Instance.UseServerManager)
-        {
-            // set if using encryption
-            m_transport.UseEncryption = Bootstrap.IsRemoteConnection();
+        m_transport.UseEncryption = (Bootstrap.Instance.UseServerManager || Bootstrap.IsRemoteConnection()) && !Bootstrap.IsHost();
 
+        if (m_transport.UseEncryption)
+        {
             // set connection data
             if (m_transport.UseEncryption)
             {
@@ -101,6 +102,7 @@ public class Game : MonoBehaviour
         {
             m_isTryConnectClientGame = false;
             ConnectClientGame();
+            Debug.Log("CONNECT CLIENT GAME");
         }
     }
 
@@ -120,7 +122,9 @@ public class Game : MonoBehaviour
 
         Debug.Log("ConnectClientGame()");
 
-        if (Bootstrap.Instance.UseServerManager)
+        m_transport.UseEncryption = (Bootstrap.Instance.UseServerManager || Bootstrap.IsRemoteConnection()) && !Bootstrap.IsHost();
+
+        if (m_transport.UseEncryption)
         {
             // try find an empty game instance to join
             var response = await ServerManagerAgent.Instance.GetEmpty(Bootstrap.GetRegionString());
@@ -147,16 +151,9 @@ public class Game : MonoBehaviour
             m_serverCommonName = response.serverCommonName;
             m_clientCA = response.clientCA;
 
-            // set if using encryption
-            m_transport.UseEncryption = Bootstrap.IsRemoteConnection();
-
-            // set secrets
-            if (m_transport.UseEncryption)
-            {
-                Debug.Log(m_serverCommonName);
-                Debug.Log(m_clientCA);
-                m_transport.SetClientSecrets(m_serverCommonName, m_clientCA);
-            }
+            Debug.Log(m_serverCommonName);
+            Debug.Log(m_clientCA);
+            m_transport.SetClientSecrets(m_serverCommonName, m_clientCA);
 
             // start client
             var success = NetworkManager.Singleton.StartClient();
