@@ -23,7 +23,6 @@ public class ServerManagerAgentCanvas : MonoBehaviour
     async UniTask handleClick_GetEmptyButton()
     {
         var region = RegionDropdown.options[RegionDropdown.value].text;
-        Debug.Log("GetEmpty: " + region);
         await ServerManagerAgent.Instance.GetEmpty(region);
     }
 

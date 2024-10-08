@@ -22,6 +22,7 @@ public class TitleCanvas : MonoBehaviour
         if (regionIndex >= 0)
         {
             regionDropdown.value = regionIndex;
+            SetRegion(regionIndex);
         }
 
         // play button listener
@@ -50,6 +51,11 @@ public class TitleCanvas : MonoBehaviour
     }
 
     private void Handle_DropdownChange(int index)
+    {
+        SetRegion(index);
+    }
+
+    void SetRegion(int index)
     {
         var selectedRegion = regionDropdown.options[index].text.ToUpper();
         switch (selectedRegion)

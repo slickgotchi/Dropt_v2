@@ -12,7 +12,7 @@ public class REKTCanvas : NetworkBehaviour
     public GameObject Container;
     public Button DegenapeButton;
 
-    public enum TypeOfREKT { HP, Essence, InActive }
+    public enum TypeOfREKT { HP, Essence, InActive, Escaped }
     public TypeOfREKT Type = TypeOfREKT.HP;
 
     public TextMeshProUGUI REKTReasonText;
@@ -40,6 +40,10 @@ public class REKTCanvas : NetworkBehaviour
         {
             REKTReasonText.text = "You ran out of Essence... maybe catch a lil essence once in a while?";
         }
+        else if (type == TypeOfREKT.Escaped)
+        {
+            REKTReasonText.text = "You successfully escaped with your collected treasures. Maybe a little deeper next time?";
+        }
         else
         {
             REKTReasonText.text = "You have been inactive for longer than " + PlayerController.InactiveTimerDuration.ToString("F0") + "s so... got the boot!";
@@ -52,7 +56,6 @@ public class REKTCanvas : NetworkBehaviour
     {
         ProgressBarCanvas.Instance.ResetProgress();
 
-        Game.Instance.TryCreateGame();
 
         Container.SetActive(false);
         

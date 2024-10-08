@@ -61,7 +61,8 @@ public class Bootstrap : MonoBehaviour
     public bool UseServerManager = false;
 
     public string IpAddress = "178.128.22.77";
-    public ushort Port = 9000;
+    public ushort GamePort = 9000;
+    public ushort WorkerPort = 3000;
     public string GameId = "default";
 
     public int TestBlockChainGotchiId = 0;
@@ -87,7 +88,9 @@ public class Bootstrap : MonoBehaviour
 
             if (arg == "-remote") ConnectionType = ConnectionType.Remote;
 
-            if (arg == "-port") Port = ushort.Parse(param);
+            if (arg == "-gameport") GamePort = ushort.Parse(param);
+
+            if (arg == "-workerport") WorkerPort = ushort.Parse(param);
 
             if (arg == "-gameid") GameId = param;
 
@@ -124,6 +127,18 @@ public class Bootstrap : MonoBehaviour
             //GameAudioManager.TryToInitialize();
             //GameAudioManager.Instance.PlayMusic(MusicType.UndergroundForest);
         }
+    }
+
+    public static string RegionToString(Region region)
+    {
+        if (region == Region.America) return "america";
+        else if (region == Region.Europe) return "europe";
+        else return "asia";
+    }
+
+    public static string GetRegionString()
+    {
+        return RegionToString(Instance.region);
     }
 
     private void OnDestroy()

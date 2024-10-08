@@ -10,8 +10,6 @@ public class ServerManagerAgent : MonoBehaviour
 
     public string serverManagerUri = "http://103.253.146.245:3000";
 
-    private bool isTestGameJS = true;
-
     private void Awake()
     {
         if (Instance == null)
@@ -41,26 +39,7 @@ public class ServerManagerAgent : MonoBehaviour
             // Parse the response string into the JoinEmpty_ResponseData struct
             GetEmpty_ResponseData responseData = JsonUtility.FromJson<GetEmpty_ResponseData>(responseString);
 
-            // Now you can access the fields in responseData
-            Debug.Log("/getempty success");
-            Debug.Log(responseData);
-
-            if (isTestGameJS)
-            {
-                // setup join instance post data and post request
-                var gameUri = "http://" + responseData.ipAddress + ":" + responseData.gamePort;
-                var joinGamePostData = new JoinGame_PostData { gameId = responseData.gameId };
-                json = JsonUtility.ToJson(joinGamePostData);
-                responseString = await PostRequest(gameUri + "/joingame", json);
-
-                // Check if the response is not null
-                if (string.IsNullOrEmpty(responseString)) return null;
-
-                // success
-                Debug.Log("/joingame success");
-                Debug.Log(responseString);
-            }
-
+            // return response
             return responseData;
         }
         catch (Exception e)
@@ -90,22 +69,6 @@ public class ServerManagerAgent : MonoBehaviour
             Debug.Log("/getexisting success");
             Debug.Log(responseData);
 
-            if (isTestGameJS)
-            {
-                // now send join instance message to game
-                var gameUri = "http://" + responseData.ipAddress + ":" + responseData.gamePort;
-                var joinGamePostData = new JoinGame_PostData { gameId = responseData.gameId };
-                json = JsonUtility.ToJson(joinGamePostData);
-                responseString = await PostRequest(gameUri + "/joingame", json);
-
-                // Check if the response is not null
-                if (string.IsNullOrEmpty(responseString)) return null;
-
-                // success
-                Debug.Log("/joingame success");
-                Debug.Log(responseString);
-            }
-
             return responseData;
         }
         catch (Exception e)
@@ -119,6 +82,7 @@ public class ServerManagerAgent : MonoBehaviour
     public async UniTask<LeaveExisting_ResponseData> LeaveExisting(string gameId)
     {
         return null;
+        /*
         try
         {
             // create post data and post leave exsting request
@@ -136,22 +100,6 @@ public class ServerManagerAgent : MonoBehaviour
             Debug.Log("/leaveexisting success");
             Debug.Log(responseData);
 
-            if (isTestGameJS)
-            {
-                // now send join instance message to game
-                var gameUri = "http://" + responseData.ipAddress + ":" + responseData.gamePort;
-                var leaveInstancePostData = new LeaveGame_PostData { gameId = responseData.gameId };
-                json = JsonUtility.ToJson(leaveInstancePostData);
-                responseString = await PostRequest(gameUri + "/leaveinstance", json);
-
-                // Check if the response is not null
-                if (string.IsNullOrEmpty(responseString)) return null;
-
-                // success
-                Debug.Log("/leaveinstance success");
-                Debug.Log(responseString);
-            }
-
             return responseData;
         }
         catch (Exception e)
@@ -159,6 +107,7 @@ public class ServerManagerAgent : MonoBehaviour
             Debug.Log(e);
             return null;
         }
+        */
     }
 
     public async UniTask<string> PostRequest(string url, string json)
@@ -174,17 +123,24 @@ public class ServerManagerAgent : MonoBehaviour
             {
                 await request.SendWebRequest();
 
-                switch (request.result)
-                {
-                    case UnityWebRequest.Result.Success:
-                        return request.downloadHandler.text; // Return the response content
-                    case UnityWebRequest.Result.ConnectionError:
-                    case UnityWebRequest.Result.DataProcessingError:
-                    case UnityWebRequest.Result.ProtocolError:
-                    default:
-                        Debug.LogError($"PostRequest() error: {request.error}");
-                        return null; // Return null or an error message as appropriate
-                }
+                return request.downloadHandler.text;
+
+                //if (request.responseCode == 200)
+                //{
+                //    return request.downloadHandler.text;
+                //}
+
+                //switch (request.result)
+                //{
+                //    case UnityWebRequest.Result.Success:
+                //        return request.downloadHandler.text; // Return the response content
+                //    case UnityWebRequest.Result.ConnectionError:
+                //    case UnityWebRequest.Result.DataProcessingError:
+                //    case UnityWebRequest.Result.ProtocolError:
+                //    default:
+                //        Debug.LogError($"PostRequest() error: {request.error}");
+                //        return null; // Return null or an error message as appropriate
+                //}
             }
             catch (Exception e)
             {
@@ -234,6 +190,10 @@ public class ServerManagerAgent : MonoBehaviour
         public string gameId;
         public string ipAddress;
         public string gamePort;
+        public string serverCommonName;
+        public string clientCA;
+        public int responseCode;
+        public string message;
     }
 
     [System.Serializable]
@@ -272,6 +232,10 @@ public class ServerManagerAgent : MonoBehaviour
         public string gameId;
         public string ipAddress;
         public string gamePort;
+        public string serverCommonName;
+        public string clientCA;
+        public int responseCode;
+        public string message;
     }
 
     [System.Serializable]
