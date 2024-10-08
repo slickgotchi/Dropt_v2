@@ -32,13 +32,11 @@ public class GasBag_Explode : EnemyAbility
         HandleCollisions(Collider);
 
         // do visual explosion
-        SpawnBasicCircleClientRpc(
-            transform.position,
-            Dropt.Utils.Color.HexToColor("#7a09fa", 0.5f),
-            ExplosionRadius);
-
-        Parent.GetComponent<NetworkObject>().Despawn();
-
+        //SpawnBasicCircleClientRpc(
+        //    transform.position,
+        //    Dropt.Utils.Color.HexToColor("#7a09fa", 0.5f),
+        //    ExplosionRadius);        
+        //
         m_isExploded = true;
     }
 
@@ -56,11 +54,18 @@ public class GasBag_Explode : EnemyAbility
             if (player.HasComponent<NetworkCharacter>())
             {
                 // apply a stack of poison
+                Debug.Log("APPLY POISION TO PLAYER");
                 PoisonStack.ApplyPoisonStack(player.gameObject, 3, 10, 5);
             }
         }
 
         // clear out colliders
         playerHitColliders.Clear();
+    }
+
+    public override void OnDeactivate()
+    {
+        base.OnDeactivate();
+        Parent.GetComponent<NetworkObject>().Despawn();
     }
 }
