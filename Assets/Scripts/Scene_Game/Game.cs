@@ -61,6 +61,8 @@ public class Game : MonoBehaviour
         else if (Bootstrap.IsHost())
         {
             // Additional logic for Host, if needed
+            ConnectServerGame();
+            ConnectClientGame();
         }
     }
 
@@ -92,8 +94,30 @@ public class Game : MonoBehaviour
         Debug.Log("StartServer()");
     }
 
+    private void Update()
+    {
+        m_isTryConnectClientGameTimer -= Time.deltaTime;
+        if (m_isTryConnectClientGame && m_isTryConnectClientGameTimer < 0)
+        {
+            m_isTryConnectClientGame = false;
+            ConnectClientGame();
+        }
+    }
+
+    private bool m_isTryConnectClientGame = false;
+    private float m_isTryConnectClientGameTimer = 0f;
+
     private async UniTaskVoid ConnectClientGame()
     {
+        if (m_isTryConnectClientGame) return;
+        if (NetworkManager.Singleton.ShutdownInProgress)
+        {
+            // try again in  1 second
+            m_isTryConnectClientGame = true;
+            m_isTryConnectClientGameTimer = 1f;
+            return;
+        }
+
         Debug.Log("ConnectClientGame()");
 
         if (Bootstrap.Instance.UseServerManager)
