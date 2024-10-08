@@ -366,6 +366,8 @@ public partial class PlayerPrediction : NetworkBehaviour
         // activate ability if it was not null
         if (triggeredAbility != null && m_triggeredAbilityEnum != PlayerAbilityEnum.Null)
         {
+            Debug.Log("Activate abiltiy");
+
             // calc any hold duration
             var holdDuration = (m_holdFinishTick - m_holdStartTick) / k_serverTickRate;
 
