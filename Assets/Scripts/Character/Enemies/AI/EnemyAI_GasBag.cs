@@ -69,7 +69,7 @@ namespace Dropt
             base.OnUpdate(dt);
 
             m_onTouchPoisonDamageTimer -= dt;
-            if (m_onTouchPoisonDamageTimer < 0)
+            if (m_onTouchPoisonDamageTimer < 0 && (state.Value == State.Aggro || state.Value == State.Attack))
             {
                 m_onTouchPoisonDamageTimer = OnTouchPoisonInterval;
                 HandleOnTouchCollisions();
