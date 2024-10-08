@@ -28,14 +28,10 @@ public class PlayerEquipment : NetworkBehaviour
 
     private PlayerGotchi m_playerGotchi;
 
-    private void Awake()
-    {
-        m_playerGotchi = GetComponent<PlayerGotchi>();
-    }
 
     public override void OnNetworkSpawn()
     {
-        // starter weapons get set in Init()
+        m_playerGotchi = GetComponent<PlayerGotchi>();
     }
 
     public override void OnNetworkDespawn()
@@ -87,10 +83,11 @@ public class PlayerEquipment : NetworkBehaviour
                 for (int i = 0; i < petControllers.Length; i++)
                 {
                     var petController = petControllers[i];
-                    if (petController.OwnerClientId == GetComponent<NetworkObject>().NetworkObjectId)
+                    if (petController.GetPlayerNetworkObjectId() == GetComponent<NetworkObject>().NetworkObjectId)
                     {
                         // we have a match, we need to despawn the old pet
                         petController.GetComponent<NetworkObject>().Despawn();
+                        Debug.Log("Despawn old pet: " + m_localPet);
                     }
                 }
 
@@ -106,24 +103,6 @@ public class PlayerEquipment : NetworkBehaviour
                 m_localPet = Pet.Value;
             }
         }
-
-        //if (!IsServer) return;
-        //if (m_localPet == Pet.Value) return;
-
-        //// despawn old pet
-
-
-        //// see if player owns a pet already
-        //var petControllers = FindObjectsByType<PetController>(FindObjectsSortMode.None);
-        //for (int i = 0; i < petControllers.Length; i++)
-        //{
-        //    var petController = petControllers[i];
-        //    if (petController.OwnerClientId == GetComponent<NetworkObject>().NetworkObjectId)
-        //    {
-        //        // we have a match, we need to despawn the old pet
-        //        petController.GetComponent<NetworkObject>().Despawn();
-        //    }
-        //}
     }
 
     public void SetPlayerWeaponsByGotchiId(int id)
@@ -184,6 +163,7 @@ public class PlayerEquipment : NetworkBehaviour
 
     public void SetPlayerWeapon(Hand hand, Wearable.NameEnum nameEnum)
     {
+        Debug.Log(m_playerGotchi);
         m_playerGotchi.SetWeaponSprites(hand, nameEnum);
 
         if (IsLocalPlayer)

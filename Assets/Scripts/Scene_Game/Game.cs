@@ -201,6 +201,7 @@ public class Game : MonoBehaviour
     public void TriggerGameOver(REKTCanvas.TypeOfREKT typeOfREKT)
     {
         REKTCanvas.Instance.Show(typeOfREKT);
+        LevelManager.Instance.DestroyCurrentLevel();
         NetworkManager.Singleton.Shutdown();
     }
 
