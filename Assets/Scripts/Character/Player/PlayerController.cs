@@ -7,6 +7,8 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using GotchiHub;
 using Cysharp.Threading.Tasks;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.UI;
 
 public class PlayerController : NetworkBehaviour
 {
@@ -72,6 +74,49 @@ public class PlayerController : NetworkBehaviour
         else
         {
             ScreenBlockers.SetActive(false);
+        }
+
+        ReEnableInputSystem();
+
+        //SetInputSystemEnabled(IsLocalPlayer);
+    }
+
+    private void ReEnableInputSystem()
+    {
+        var inputModules = FindObjectsOfType<InputSystemUIInputModule>();
+        foreach (var inputModule in inputModules)
+        {
+            if (!inputModule.enabled)
+            {
+                Debug.Log("Re-enabling InputSystemUIInputModule");
+                inputModule.enabled = true;
+            }
+        }
+
+        var playerInputs = FindObjectsOfType<PlayerInput>();
+        foreach (var playerInput in playerInputs)
+        {
+            if (!playerInput.enabled)
+            {
+                Debug.Log("Re-enabling PlayerInput");
+                playerInput.enabled = true;
+            }
+        }
+    }
+
+
+    private void SetInputSystemEnabled(bool isEnabled)
+    {
+        var inputModules = FindObjectsOfType<InputSystemUIInputModule>();
+        foreach (var inputModule in inputModules)
+        {
+            inputModule.enabled = isEnabled;
+        }
+
+        var playerInputs = FindObjectsOfType<PlayerInput>();
+        foreach (var playerInput in playerInputs)
+        {
+            playerInput.enabled = isEnabled;
         }
     }
 

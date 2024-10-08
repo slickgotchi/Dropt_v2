@@ -48,8 +48,6 @@ public class Game : MonoBehaviour
             Application.targetFrameRate = 15;
             QualitySettings.vSyncCount = 0;
 
-            DisableInputSystem();
-
             ConnectServerGame();
         }
         // 4. Client instances
@@ -62,6 +60,9 @@ public class Game : MonoBehaviour
         {
             ConnectHostGame();
         }
+
+        //SetInputSystemEnabled(!Bootstrap.IsServer());
+
     }
 
     private void ConnectServerGame()
@@ -204,20 +205,7 @@ public class Game : MonoBehaviour
         NetworkManager.Singleton.Shutdown();
     }
 
-    private void DisableInputSystem()
-    {
-        var inputModules = FindObjectsOfType<InputSystemUIInputModule>();
-        foreach (var inputModule in inputModules)
-        {
-            inputModule.enabled = false;
-        }
 
-        var playerInputs = FindObjectsOfType<PlayerInput>();
-        foreach (var playerInput in playerInputs)
-        {
-            playerInput.enabled = false;
-        }
-    }
 
     private void LoadCertificateFiles()
     {
