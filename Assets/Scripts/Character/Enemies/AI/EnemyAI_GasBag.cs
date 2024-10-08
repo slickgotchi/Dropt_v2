@@ -20,6 +20,8 @@ namespace Dropt
         [SerializeField] private GameObject m_greenCloud;
         [SerializeField] private GameObject m_purpleCloud;
 
+        private bool m_isExploded = false;
+
         private void Awake()
         {
             m_animator = GetComponent<Animator>();
@@ -56,16 +58,19 @@ namespace Dropt
 
         public override void OnRoamUpdate(float dt)
         {
+            if (m_isExploded) return;
             SimpleRoamUpdate(dt);
         }
 
         public override void OnAggroUpdate(float dt)
         {
+            if (m_isExploded) return;
             SimplePursueUpdate(dt);
         }
 
         public override void OnUpdate(float dt)
         {
+            if (m_isExploded) return;
             base.OnUpdate(dt);
 
             m_onTouchPoisonDamageTimer -= dt;
@@ -81,6 +86,8 @@ namespace Dropt
             base.OnAttackStart();
             Utils.Anim.Play(m_animator, "GasBag_Death");
             OnTouchPoisonCollider.enabled = false;
+            m_isExploded = true;
+            m_navMeshAgent.isStopped = true;
         }
 
         public void ShowPoisionCloud()

@@ -15,9 +15,9 @@ public class GasBag_Explode : EnemyAbility
 
     bool m_isExploded = false;
 
-    private void Awake()
-    {
-    }
+    private float m_stackTimer = 0f;
+
+    private float m_durationTimer = 0f;
 
     public override void OnActivate()
     {
@@ -29,15 +29,26 @@ public class GasBag_Explode : EnemyAbility
 
         // resize explosion collider and check collisions
         Collider.GetComponent<CircleCollider2D>().radius = ExplosionRadius;
-        HandleCollisions(Collider);
 
-        // do visual explosion
-        //SpawnBasicCircleClientRpc(
-        //    transform.position,
-        //    Dropt.Utils.Color.HexToColor("#7a09fa", 0.5f),
-        //    ExplosionRadius);        
-        //
         m_isExploded = true;
+
+        m_stackTimer = 0.5f;
+        m_durationTimer = PoisonDuration;
+    }
+
+    public override void OnUpdate(float dt)
+    {
+        if (!m_isExploded) return;
+        base.OnUpdate(dt);
+
+        m_stackTimer -= dt;
+
+        if (m_stackTimer < 0f)
+        {
+            HandleCollisions(Collider);
+            m_stackTimer = 0.5f;
+        }
+
     }
 
     private void HandleCollisions(Collider2D collider)
@@ -54,8 +65,7 @@ public class GasBag_Explode : EnemyAbility
             if (player.HasComponent<NetworkCharacter>())
             {
                 // apply a stack of poison
-                Debug.Log("APPLY POISION TO PLAYER");
-                PoisonStack.ApplyPoisonStack(player.gameObject, 3, 10, 5);
+                PoisonStack.ApplyPoisonStack(player.gameObject, PoisonDamagePerSecond, PoisonDuration, 5);
             }
         }
 
@@ -66,6 +76,8 @@ public class GasBag_Explode : EnemyAbility
     public override void OnDeactivate()
     {
         base.OnDeactivate();
+        Debug.Log("Kill gasbag");
         Parent.GetComponent<NetworkObject>().Despawn();
+        GetComponent<NetworkObject>().Despawn();
     }
 }
