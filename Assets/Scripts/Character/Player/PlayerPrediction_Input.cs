@@ -92,7 +92,6 @@ public partial class PlayerPrediction : NetworkBehaviour
 
     private void OnMouse_LeftAttack(InputValue value)
     {
-        Debug.Log("Left attack");
         LeftAttack(value);
         SetupActionDirectionDistanceAndMove(PlayerTargetingReticle.Mode.KeyboardMouse);
     }

@@ -94,7 +94,7 @@ public class LevelManager : NetworkBehaviour
         return (m_levels[0] == ApeVillageLevel);
     }
 
-    private void DestroyCurrentLevel()
+    public void DestroyCurrentLevel()
     {
         // disable proximity manager
         ProximityManager.Instance.enabled = false;
