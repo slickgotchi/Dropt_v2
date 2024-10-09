@@ -54,14 +54,6 @@ public class LevelManager : NetworkBehaviour
         }
     }
 
-    private void OnDestroy()
-    {
-        //if (null != GameAudioManager.Instance)
-        //{
-        //    GameAudioManager.Instance.PLAY_SOUND -= OnPlaySound;
-        //}
-    }
-
     // Start is called before the first frame update
     public override void OnNetworkSpawn()
     {

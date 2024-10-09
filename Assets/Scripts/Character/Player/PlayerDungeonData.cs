@@ -80,6 +80,7 @@ public class PlayerDungeonData : NetworkBehaviour
         catch (System.Exception e)
         {
             // don't do anything, if we got here it just means we don't have a wallet account
+            var a = e;
         }
     }
 

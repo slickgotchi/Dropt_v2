@@ -15,6 +15,9 @@ namespace Dropt
         [HideInInspector] public Vector3 SpawnDirection;
         [HideInInspector] public float SpawnDistance;
 
+        private float m_localSpawnTimer = 0f;
+
+
         private float m_interpDelay = 0.3f;
 
         private void Awake()
@@ -29,14 +32,13 @@ namespace Dropt
             m_animator.Play("Spider_Jump");
         }
 
-        private float m_spawnTimer = 0f;
 
         public override void OnSpawnUpdate(float dt)
         {
             base.OnSpawnUpdate(dt);
 
-            m_spawnTimer += dt;
-            if (m_spawnTimer > (0.4f / 0.6f) * SpawnDuration) return;   // this is the jumping part of the anim and ensures we don't move when spider lands
+            m_localSpawnTimer += dt;
+            if (m_localSpawnTimer > (0.4f / 0.6f) * SpawnDuration) return;   // this is the jumping part of the anim and ensures we don't move when spider lands
 
             var speed = (SpawnDistance / SpawnDuration) / (0.4f / 0.6f);
             transform.position += SpawnDirection * speed * dt;

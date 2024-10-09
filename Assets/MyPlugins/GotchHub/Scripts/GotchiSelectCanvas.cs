@@ -121,7 +121,7 @@ namespace GotchiHub
         private float k_updateInterval = 0.3f;
         private float m_updateTimer = 0f;
 
-        private async void Update()
+        protected async override void Update()
         {
             base.Update();
 
