@@ -55,10 +55,8 @@ public class EnemyAbility : NetworkBehaviour
     private void Update()
     {
         m_timer -= Time.deltaTime;
-        Debug.Log(m_timer);
         if (m_timer < 0 && m_isActive)
         {
-            Debug.Log("Deactivate");
             OnDeactivate();
             m_isActive = false;
         } else
