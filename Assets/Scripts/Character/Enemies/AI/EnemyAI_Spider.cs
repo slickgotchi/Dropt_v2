@@ -60,7 +60,7 @@ namespace Dropt
 
         public override void OnRoamUpdate(float dt)
         {
-            SimpleRoamUpdate(dt);   
+            SimpleRoamUpdate(dt);
         }
 
         public override void OnAggroStart()

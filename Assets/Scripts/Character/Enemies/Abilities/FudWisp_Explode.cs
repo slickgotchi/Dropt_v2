@@ -37,10 +37,10 @@ public class FudWisp_Explode : EnemyAbility
         }
 
         // spawn visual effect
-        SpawnBasicCircleClientRpc(
-            transform.position,
-            Dropt.Utils.Color.HexToColor("#99e65f", 0.5f),
-            ExplosionRadius);
+        //SpawnBasicCircleClientRpc(
+        //    transform.position,
+        //    Dropt.Utils.Color.HexToColor("#99e65f", 0.5f),
+        //    ExplosionRadius);
     }
 
     private void HandleCollisions(Collider2D collider)
