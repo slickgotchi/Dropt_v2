@@ -15,5 +15,7 @@ public class Spawner_SpawnCondition : MonoBehaviour
 
     // PlayerTouchTriggerWithSpawnerId
     [SerializeField]
+    [Tooltip("The ID of the SpawnTrigger that is linked to this spawner")]
     public int touchTriggerWithSpawnerId = -1;
+    public float spawnTimeAfterTrigger = 0f;
 }
