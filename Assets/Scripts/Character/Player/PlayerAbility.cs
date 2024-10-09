@@ -214,7 +214,7 @@ public class PlayerAbility : NetworkBehaviour
     }
 
     // DO NOT override this in children without calling teh base function, use OnUpdate instead
-    protected void Update()
+    protected virtual void Update()
     {
         m_timer -= Time.deltaTime;
         m_autoMoveTimer -= Time.deltaTime;

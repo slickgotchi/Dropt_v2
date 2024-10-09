@@ -103,27 +103,26 @@ public class Game : MonoBehaviour
             if (Bootstrap.IsClient())
             {
                 ConnectClientGame();
-                Debug.Log("CONNECT CLIENT GAME");
             } else if (Bootstrap.IsHost())
             {
                 ConnectHostGame();
-                Debug.Log("CONNECT HOST GAME");
             }
         }
     }
 
     public async UniTaskVoid ConnectClientGame()
     {
+        Debug.Log("ConnectClientGame()");
+
         if (m_isTryConnectClientOrHostGame) return;
         if (NetworkManager.Singleton.ShutdownInProgress)
         {
+            Debug.Log("shutdown in progress");
             // try again in  1 second
             m_isTryConnectClientOrHostGame = true;
             m_isTryConnectClientOrHostGameTimer = 1f;
             return;
         }
-
-        Debug.Log("ConnectClientGame()");
 
         m_transport.UseEncryption = (Bootstrap.Instance.UseServerManager || Bootstrap.IsRemoteConnection()) && !Bootstrap.IsHost();
 
@@ -157,15 +156,6 @@ public class Game : MonoBehaviour
             Debug.Log(m_serverCommonName);
             Debug.Log(m_clientCA);
             m_transport.SetClientSecrets(m_serverCommonName, m_clientCA);
-
-            // start client
-            var success = NetworkManager.Singleton.StartClient();
-            if (!success)
-            {
-                ErrorDialogCanvas.Instance.Show("NetworkManager.Singleton.Start() client failed.");
-                SceneManager.LoadScene("Title");
-                return;
-            }
         }
 
         // output ip and port
@@ -174,12 +164,23 @@ public class Game : MonoBehaviour
 
         // set connection data and start
         m_transport.SetConnectionData(Bootstrap.Instance.IpAddress, Bootstrap.Instance.GamePort);
-        NetworkManager.Singleton.StartClient();
         Debug.Log("StartClient()");
+
+        // start client
+        var success = NetworkManager.Singleton.StartClient();
+        if (!success)
+        {
+            ErrorDialogCanvas.Instance.Show("NetworkManager.Singleton.Start() client failed.");
+            SceneManager.LoadScene("Title");
+            return;
+        }
     }
 
     public void ConnectHostGame()
     {
+        Debug.Log("ConnectHostGame()");
+
+
         if (m_isTryConnectClientOrHostGame) return;
         if (NetworkManager.Singleton.ShutdownInProgress)
         {

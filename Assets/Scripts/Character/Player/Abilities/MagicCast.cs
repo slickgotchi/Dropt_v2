@@ -32,8 +32,10 @@ public class MagicCast : PlayerAbility
         }
     }
 
-    public override void OnUpdate()
+    protected override void Update()
     {
+        base.Update();
+
         if (IsClient)
         {
             GenericProjectile.TryAddProjectileOnClient(ref m_orbProjectile, ref m_orbProjectileId, NetworkManager);

@@ -143,7 +143,7 @@ public class LevelManager : NetworkBehaviour
             }
 
             // destroy object
-            if (destroyObject != null && destroyObject.HasComponent<NetworkObject>())
+            if (destroyObject != null && destroyObject.HasComponent<NetworkObject>() && IsServer)
             {
                 if (destroyObject.GetComponent<NetworkObject>().IsSpawned)
                 {

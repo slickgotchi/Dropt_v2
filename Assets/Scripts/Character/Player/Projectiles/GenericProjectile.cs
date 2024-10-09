@@ -177,7 +177,7 @@ public class GenericProjectile : NetworkBehaviour
         projectile.SetActive(false);
     }
 
-    public static void TryAddProjectileOnClient(ref GameObject projectile, 
+    public static bool TryAddProjectileOnClient(ref GameObject projectile, 
         ref NetworkVariable<ulong> projectileId, NetworkManager networkManager)
     {
         if (projectile == null && projectileId.Value > 0)
@@ -185,5 +185,7 @@ public class GenericProjectile : NetworkBehaviour
             projectile = networkManager.SpawnManager.SpawnedObjects[projectileId.Value].gameObject;
             projectile.SetActive(false);
         }
+
+        return projectile != null;
     }
 }

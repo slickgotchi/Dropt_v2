@@ -37,13 +37,11 @@ public class PlayerInputMapSwitcher : MonoBehaviour
     public void SwitchToInGame()
     {
         ScheduleActionMapSwitch("InGame");
-        Debug.Log("Switched to InGame");
     }
 
     public void SwitchToInUI()
     {
         ScheduleActionMapSwitch("InUI");
-        Debug.Log("Switched to InUI");
     }
 
     private void ScheduleActionMapSwitch(string actionMap)
