@@ -78,38 +78,6 @@ public class ServerManagerAgent : MonoBehaviour
         }
     }
 
-    // /leaveexisting
-    public async UniTask<LeaveExisting_ResponseData> LeaveExisting(string gameId)
-    {
-        return null;
-        /*
-        try
-        {
-            // create post data and post leave exsting request
-            var leaveExistingPostData = new LeaveExisting_PostData { gameId = gameId };
-            string json = JsonUtility.ToJson(leaveExistingPostData);
-            var responseString = await PostRequest(serverManagerUri + "/leaveexisting", json);
-
-            // Check if the response is not null
-            if (string.IsNullOrEmpty(responseString)) return null;
-
-            // Parse the response string into the JoinEmpty_ResponseData struct
-            LeaveExisting_ResponseData responseData = JsonUtility.FromJson<LeaveExisting_ResponseData>(responseString);
-
-            // Now you can access the fields in responseData
-            Debug.Log("/leaveexisting success");
-            Debug.Log(responseData);
-
-            return responseData;
-        }
-        catch (Exception e)
-        {
-            Debug.Log(e);
-            return null;
-        }
-        */
-    }
-
     public async UniTask<string> PostRequest(string url, string json)
     {
         using (UnityWebRequest request = new UnityWebRequest(url, "POST"))

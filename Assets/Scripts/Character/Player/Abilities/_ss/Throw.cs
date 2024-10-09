@@ -33,8 +33,10 @@ public class Throw : PlayerAbility
         }
     }
 
-    private void Update()
+    protected override void Update()
     {
+        base.Update();
+
         // ensure remote clients associate projectiles with local projectile variables
         GenericProjectile.TryAddProjectileOnClient(ref m_throwProjectile, ref m_throwProjectileId, NetworkManager);
     }

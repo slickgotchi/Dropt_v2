@@ -17,7 +17,7 @@ public class DroptCanvas : MonoBehaviour
         HideCanvas();
     }
 
-    protected void Update()
+    protected virtual void Update()
     {
         TryGetLocalPlayerInput();
     }

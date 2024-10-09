@@ -9,7 +9,6 @@ public class ServerManagerAgentCanvas : MonoBehaviour
 {
     public Button GetEmptyButton;
     public Button GetExistingButton;
-    public Button LeaveExistingButton;
     public TMP_InputField GameIdInput;
     public TMP_Dropdown RegionDropdown;
 
@@ -17,7 +16,6 @@ public class ServerManagerAgentCanvas : MonoBehaviour
     {
         GetEmptyButton.onClick.AddListener(async () => await handleClick_GetEmptyButton());
         GetExistingButton.onClick.AddListener(async () => await handleClick_GetExistingButton());
-        LeaveExistingButton.onClick.AddListener(async () => await handleClick_LeaveExistingButton());
     }
 
     async UniTask handleClick_GetEmptyButton()
@@ -31,12 +29,5 @@ public class ServerManagerAgentCanvas : MonoBehaviour
         string gameId = GameIdInput.text;
 
         await ServerManagerAgent.Instance.GetExisting(gameId);
-    }
-
-    async UniTask handleClick_LeaveExistingButton()
-    {
-        string gameId = GameIdInput.text;
-
-        await ServerManagerAgent.Instance.LeaveExisting(gameId);
     }
 }
