@@ -38,8 +38,6 @@ public class GameServerHeartbeat : MonoBehaviour
         }
 
         startTime = DateTime.UtcNow;
-
-
     }
 
     private void Update()

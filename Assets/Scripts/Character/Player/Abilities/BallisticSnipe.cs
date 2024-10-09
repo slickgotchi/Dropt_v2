@@ -79,8 +79,10 @@ public class BallisticSnipe : PlayerAbility
         if (m_seedProjectile != null) m_seedProjectile.GetComponent<NetworkObject>().Despawn();
     }
 
-    public override void OnUpdate()
+    protected override void Update()
     {
+        base.Update();
+
         if (IsClient)
         {
             // ensure remote clients associate projectiles with local projectile variables

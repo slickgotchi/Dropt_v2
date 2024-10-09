@@ -38,11 +38,14 @@ public class SplashLob : PlayerAbility
         }
     }
 
-    public override void OnUpdate()
+    protected override void Update()
     {
+        base.Update();
+
         if (IsClient)
         {
             GenericProjectile.TryAddProjectileOnClient(ref m_splashProjectile, ref m_splashProjectileId, NetworkManager);
+            
         }
     }
 
