@@ -49,6 +49,7 @@ public class CleaveCycloneProjectile : NetworkBehaviour
         float duration,
         float scale,
         PlayerAbility.NetworkRole role,
+        int numberHits,
 
         // server & local only
         GameObject player,
@@ -56,6 +57,7 @@ public class CleaveCycloneProjectile : NetworkBehaviour
         float criticalChance,
         float criticalDamage,
 
+        // knockback
         float knockbackDistance,
         float knockbackStunDuration
         )
@@ -68,6 +70,7 @@ public class CleaveCycloneProjectile : NetworkBehaviour
         Duration = duration;
         Scale = scale;
         Role = role;
+        NumberHits = numberHits;
 
         // server & local only
         LocalPlayer = player;
@@ -78,6 +81,9 @@ public class CleaveCycloneProjectile : NetworkBehaviour
         // knockback
         KnockbackDistance = knockbackDistance;
         KnockbackStunDuration = knockbackStunDuration;
+
+        // reset hit clear interval
+        m_hitClearInterval = Duration / NumberHits;
     }
 
     public void Fire()
@@ -109,7 +115,7 @@ public class CleaveCycloneProjectile : NetworkBehaviour
         m_hitClearInterval = Duration / NumberHits;
 
         // start decrementing NumberHits
-        NumberHits--;
+        //NumberHits--;
     }
 
     private void Update()
@@ -151,11 +157,10 @@ public class CleaveCycloneProjectile : NetworkBehaviour
         }
 
         m_hitClearTimer += Time.deltaTime;
-        if (m_hitClearTimer > m_hitClearInterval && NumberHits > 0)
+        if (m_hitClearTimer > m_hitClearInterval)
         {
-            m_hitClearTimer = 0;
+            m_hitClearTimer -= m_hitClearInterval;
             m_hitColliders.Clear();
-            NumberHits--;
         }
     }
 
