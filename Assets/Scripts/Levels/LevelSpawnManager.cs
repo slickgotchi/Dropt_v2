@@ -67,7 +67,12 @@ public class LevelSpawnManager : MonoBehaviour
                     }
                     break;
                 case LevelSpawn.SpawnCondition.PlayerTouchTriggerWithSpawnerId:
-                    if (touchedByPlayerLevelSpawnIds.Contains(levelSpawn.touchTriggerWithSpawnerId)) isSpawnTime = true;
+                    if (touchedByPlayerLevelSpawnIds.Contains(levelSpawn.touchTriggerWithSpawnerId))
+                    {
+                        // switch to elapsed time spawn
+                        levelSpawn.spawnCondition = LevelSpawn.SpawnCondition.ElapsedTime;
+                        levelSpawn.elapsedTime = levelSpawn.spawnTimeAfterTrigger;
+                    }
                     break;
                 default: break;
             }

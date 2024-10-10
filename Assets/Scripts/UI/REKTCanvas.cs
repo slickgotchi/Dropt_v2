@@ -54,8 +54,6 @@ public class REKTCanvas : NetworkBehaviour
 
     void HandleClickDegenapeButton()
     {
-        ProgressBarCanvas.Instance.ResetProgress();
-
         Container.SetActive(false);
 
         if (Bootstrap.IsHost())
