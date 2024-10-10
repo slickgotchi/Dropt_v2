@@ -16660,6 +16660,7 @@ GameObject:
   - component: {fileID: 1538766814}
   - component: {fileID: 1538766817}
   - component: {fileID: 1538766818}
+  - component: {fileID: 1538766819}
   m_Layer: 21
   m_Name: CameraFollowerAndPlayerInteractor
   m_TagString: CameraFollower
@@ -16898,6 +16899,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Player: {fileID: 0}
+--- !u!81 &1538766819
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1538766811}
+  m_Enabled: 1
 --- !u!1 &1550672855
 GameObject:
   m_ObjectHideFlags: 0
@@ -23707,7 +23716,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2101386273}
   - component: {fileID: 2101386272}
-  - component: {fileID: 2101386271}
   - component: {fileID: 2101386274}
   - component: {fileID: 2101386276}
   m_Layer: 0
@@ -23717,14 +23725,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!81 &2101386271
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2101386270}
-  m_Enabled: 1
 --- !u!20 &2101386272
 Camera:
   m_ObjectHideFlags: 0
