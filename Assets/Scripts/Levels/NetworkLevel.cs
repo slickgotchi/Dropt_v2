@@ -8,6 +8,8 @@ namespace Level
 {
     public partial class NetworkLevel : NetworkBehaviour
     {
+        public AudioClip levelMusic;
+
         //private List<Vector3> m_availablePlayerSpawnPoints = new List<Vector3>();
         private List<SpawnerActivator> m_spawnerActivators = new List<SpawnerActivator>();
 
@@ -36,6 +38,8 @@ namespace Level
             if (IsClient)
             {
                 CleanupSpawnerObjects();
+
+                AudioManager.Instance.CrossfadeMusic(levelMusic == null ? AudioLibrary.Instance.UndergroundForest : levelMusic);
             }
         }
 

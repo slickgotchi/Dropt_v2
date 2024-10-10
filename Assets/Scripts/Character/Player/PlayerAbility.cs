@@ -2,7 +2,6 @@ using Dropt;
 using Nethereum.RPC.Shh.KeyPair;
 using System.Collections;
 using System.Collections.Generic;
-using Audio.Game;
 using Unity.Mathematics;
 using Unity.Netcode;
 using UnityEditor.Rendering;
@@ -66,6 +65,9 @@ public class PlayerAbility : NetworkBehaviour
 
     [HideInInspector] public GameObject Player;
     [HideInInspector] public float SpecialCooldown;
+
+    [Header("Ability Activation Audio")]
+    public AudioClip audioOnActivate;
 
     public Vector3 PlayerAbilityCentreOffset = new Vector3(0, 0.5f, 0);
     protected bool IsActivated = false;
@@ -192,6 +194,11 @@ public class PlayerAbility : NetworkBehaviour
             input.triggeredAbilityEnum != PlayerAbilityEnum.Consume)
         {
             Player.GetComponent<PlayerGotchi>().HideHand(input.abilityHand, ExecutionDuration);
+        }
+
+        if (IsClient && audioOnActivate != null)
+        {
+            AudioManager.Instance.PlaySpatialSFX(audioOnActivate, Vector3.zero, true);
         }
 
         if (Player != null) OnStart();

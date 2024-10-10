@@ -211,6 +211,7 @@ public class Game : MonoBehaviour
     private void LoadCertificateFiles()
     {
         if (!Bootstrap.IsServer()) return;
+        if (!Bootstrap.IsRemoteConnection()) return;
 
         try
         {

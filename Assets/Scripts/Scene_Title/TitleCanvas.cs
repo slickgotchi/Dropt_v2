@@ -4,7 +4,6 @@ using Assets.Plugins;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using Audio.Game;
 
 public class TitleCanvas : MonoBehaviour
 {

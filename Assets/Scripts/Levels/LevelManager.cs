@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Audio.Game;
 using UnityEngine;
 using Unity.Netcode;
 
@@ -10,9 +9,6 @@ public class LevelManager : NetworkBehaviour
     // level tracking variables
     public GameObject ApeVillageLevel;
     private List<GameObject> m_levels = new List<GameObject>();
-    //public int TutorialStartLevel = 0;
-    //public int DegenapeVillageLevel = 2;
-    //public int DungeonStartLevel = 3;
 
     private GameObject m_currentLevel;
     [HideInInspector] public int m_currentLevelIndex = -1;
@@ -76,6 +72,8 @@ public class LevelManager : NetworkBehaviour
 
         // set depth counter to 0
         m_depthCounter = 0;
+
+
     }
 
     public bool IsDegenapeVillage()
