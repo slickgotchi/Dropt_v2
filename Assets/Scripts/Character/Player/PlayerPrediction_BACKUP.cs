@@ -5,7 +5,7 @@ using Dropt;
 using System.Collections.Generic;
 using Unity.Mathematics;
 
-public partial class PlayerPrediction : NetworkBehaviour
+public partial class PlayerPrediction_BACKUP : NetworkBehaviour
 {
     private NetworkCharacter m_networkCharacter;
 
@@ -224,8 +224,6 @@ public partial class PlayerPrediction : NetworkBehaviour
     //    m_cursorWorldPosition = new Vector3(screenToWorldPosition.x, screenToWorldPosition.y, 0);
     //}
 
-    private bool isTest = false;
-
     private void Update()
     {
         // don't run if the player is dead
@@ -239,16 +237,11 @@ public partial class PlayerPrediction : NetworkBehaviour
         // update playerGotchi on the current move direction
         m_playerGotchi.SetMoveDirection(m_moveDirection);
 
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            isTest = true;
-        }
-
         // set updated render position
         if (IsLocalPlayer)
         {
             // update input from our PlayerPrediction_Input.cs file
-            UpdateInput();
+            //UpdateInput();
 
             // update position
             transform.position = GetLocalPlayerInterpPosition();
@@ -432,7 +425,7 @@ public partial class PlayerPrediction : NetworkBehaviour
 
             // 2. check if ability triggered
             var triggeredAbility = m_playerAbilities.GetAbility(inputPayload.triggeredAbilityEnum);
-            if (triggeredAbility != null && !IsHost)
+            if (triggeredAbility != null)
             {
                 bool isApEnough = GetComponent<NetworkCharacter>().ApCurrent.Value >= triggeredAbility.ApCost;
                 bool isCooldownFinished = triggeredAbility.abilityType == PlayerAbility.AbilityType.Hold ? true : inputPayload.tick > m_abilityCooldownExpiryTick_SERVER;
@@ -456,7 +449,7 @@ public partial class PlayerPrediction : NetworkBehaviour
 
             // 3. check if hold ability started
             var holdStartTriggeredAbility = m_playerAbilities.GetAbility(inputPayload.holdStartTriggeredAbilityEnum);
-            if (holdStartTriggeredAbility != null && !IsHost)
+            if (holdStartTriggeredAbility != null)
             {
                 // check AP only, we can't check against cooldown because we are commencing this attack within the starter attacks cooldown window
                 bool isEnoughAp = GetComponent<NetworkCharacter>().ApCurrent.Value >= holdStartTriggeredAbility.ApCost;
@@ -476,7 +469,7 @@ public partial class PlayerPrediction : NetworkBehaviour
 
 
             // 4. handle auto-move
-            if (triggeredAbility != null && inputPayload.triggeredAbilityEnum != PlayerAbilityEnum.Null && triggeredAbility.AutoMoveDuration > 0 && !IsHost)
+            if (triggeredAbility != null && inputPayload.triggeredAbilityEnum != PlayerAbilityEnum.Null && triggeredAbility.AutoMoveDuration > 0)
             {
                 var speed = triggeredAbility.AutoMoveDistance / triggeredAbility.AutoMoveDuration;
                 m_autoMoveVelocity = inputPayload.actionDirection * speed;
@@ -499,7 +492,7 @@ public partial class PlayerPrediction : NetworkBehaviour
             serverStateBuffer.Add(statePayload, bufferIndex);
 
             // 8. perform ability if applicable
-            if (triggeredAbility != null && inputPayload.triggeredAbilityEnum != PlayerAbilityEnum.Null && !IsHost)
+            if (triggeredAbility != null && inputPayload.triggeredAbilityEnum != PlayerAbilityEnum.Null)
             {
                 // calc any hold duration
                 var holdDuration = (m_holdFinishTick - m_holdStartTick) / k_serverTickRate;
@@ -688,8 +681,10 @@ public partial class PlayerPrediction : NetworkBehaviour
         var ability = m_playerAbilities.GetAbility(input.triggeredAbilityEnum);
         if (ability != null && ability.TeleportDistance > 0.1f)
         {
+            Debug.Log("Teleport start: " + transform.position);
             transform.position = DashCalcs.Dash(GetComponent<CapsuleCollider2D>(), transform.position,
                 input.actionDirection, ability.TeleportDistance);
+            Debug.Log("Teleport finish: " + transform.position);
         }
     }
 
@@ -847,7 +842,11 @@ public partial class PlayerPrediction : NetworkBehaviour
 
         // go straight to finish if there was a teleport
         var ability = m_playerAbilities.GetAbility(finish.abilityTriggered);
-        if (ability != null && ability.TeleportDistance > 0.1f) return finish.position;
+        if (ability != null && ability.TeleportDistance > 0.1f)
+        {
+            Debug.Log("Do teleport: " + finish.position);
+            return finish.position;
+        }
         return Vector3.Lerp(start.position, finish.position, fraction);
     }
 

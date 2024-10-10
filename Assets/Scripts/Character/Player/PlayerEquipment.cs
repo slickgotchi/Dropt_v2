@@ -163,7 +163,6 @@ public class PlayerEquipment : NetworkBehaviour
 
     public void SetPlayerWeapon(Hand hand, Wearable.NameEnum nameEnum)
     {
-        Debug.Log(m_playerGotchi);
         m_playerGotchi.SetWeaponSprites(hand, nameEnum);
 
         if (IsLocalPlayer)
