@@ -16,7 +16,6 @@ public class GameServerHeartbeat : MonoBehaviour
     public static GameServerHeartbeat Instance { get; private set; }
 
     private int m_playerCount = 0;
-    private string serverManagerUri = "http://103.253.146.245:3000";
     private float m_timer = 3.0f; // 3 seconds interval
     private float k_heartbeatInterval = 5f;
     public bool IsPublic = false;
