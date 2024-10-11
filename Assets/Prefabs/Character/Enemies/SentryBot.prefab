@@ -138,10 +138,10 @@ GameObject:
   m_Component:
   - component: {fileID: 551280027139294499}
   - component: {fileID: -3599212634581151793}
+  - component: {fileID: -1411043297097001130}
   - component: {fileID: -2943007521765018699}
   - component: {fileID: 4856163328072215160}
   - component: {fileID: 2330254351843851712}
-  - component: {fileID: -1411043297097001130}
   - component: {fileID: 6868700883412853060}
   - component: {fileID: 6791705307647355733}
   - component: {fileID: -1020003051409179827}
@@ -190,7 +190,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3385146398
+  GlobalObjectIdHash: 1780407932
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -199,6 +199,23 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
+--- !u!114 &-1411043297097001130
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc87cfd934687634ca27afcc4e9b8d4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_spritesToFlip:
+  - {fileID: 361146906994616670}
+  IsSpawning: 1
+  SpawnDuration: 0
+  IsArmed: 0
 --- !u!114 &-2943007521765018699
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -312,23 +329,7 @@ MonoBehaviour:
     m_InternalValue: 0
   StunMultiplier:
     m_InternalValue: 0
---- !u!114 &-1411043297097001130
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1249991746567512264}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bc87cfd934687634ca27afcc4e9b8d4f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_spritesToFlip:
-  - {fileID: 361146906994616670}
-  IsSpawning: 1
-  SpawnDuration: 0
-  IsArmed: 0
+  OnHurtAudio: {fileID: 0}
 --- !u!61 &6868700883412853060
 BoxCollider2D:
   m_ObjectHideFlags: 0

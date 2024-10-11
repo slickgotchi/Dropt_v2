@@ -27,6 +27,11 @@ public class LevelManager : NetworkBehaviour
 
     private float m_depthCounter = 0;
 
+    public Level.NetworkLevel GetCurrentNetworkLevel()
+    {
+        return m_currentLevel.GetComponent<Level.NetworkLevel>();
+    }
+
     public void AddToSpawnList(NetworkObject networkObject)
     {
         m_networkObjectSpawns.Add(networkObject);

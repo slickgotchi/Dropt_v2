@@ -40,7 +40,13 @@ public class PlayerDungeonData : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        Essence.Value -= Time.deltaTime;
+        var networkLevel = LevelManager.Instance.GetCurrentNetworkLevel();
+        if (networkLevel == null) return;
+
+        if (networkLevel.isEssenceDepleting)
+        {
+            Essence.Value -= Time.deltaTime;
+        }
 
         if (LevelManager.Instance.IsDegenapeVillage())
         {
