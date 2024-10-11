@@ -29,6 +29,7 @@ public class LevelManager : NetworkBehaviour
 
     public Level.NetworkLevel GetCurrentNetworkLevel()
     {
+        if (m_currentLevel == null) return null;
         return m_currentLevel.GetComponent<Level.NetworkLevel>();
     }
 
