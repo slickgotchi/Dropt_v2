@@ -130,6 +130,7 @@ public class Game : MonoBehaviour
         {
             // try find an empty game instance to join
             var response = await ServerManagerAgent.Instance.GetEmpty(Bootstrap.GetRegionString());
+            Debug.Log("response: " + response);
 
             // if no valid response, give error and go back to title
             if (response == null)

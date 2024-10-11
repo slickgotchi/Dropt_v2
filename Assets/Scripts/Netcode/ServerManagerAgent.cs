@@ -8,7 +8,7 @@ public class ServerManagerAgent : MonoBehaviour
 {
     public static ServerManagerAgent Instance { get; private set; }
 
-    public string serverManagerUri = "https://manager.playdropt.io";
+    public string serverManagerUri = "https://dmanager.playdropt.io";
 
     private void Awake()
     {
@@ -31,6 +31,7 @@ public class ServerManagerAgent : MonoBehaviour
             // setup post data and post request
             var getEmptyPostData = new GetEmpty_PostData { region = region };
             string json = JsonUtility.ToJson(getEmptyPostData);
+            Debug.Log(serverManagerUri + "/getempty");
             var responseString = await PostRequest(serverManagerUri + "/getempty", json);
 
             // Check if the response is not null
