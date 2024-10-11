@@ -351,7 +351,8 @@ public class NetworkCharacter : NetworkBehaviour
             return;
         }
 
-        //Debug.Log("RecalculateStats()");
+        var hpRatio = HpCurrent.Value / HpMax.Value;
+
 
         Dictionary<CharacterStat, float> baseStats = new Dictionary<CharacterStat, float>
         {
@@ -418,7 +419,7 @@ public class NetworkCharacter : NetworkBehaviour
 
         // Update network variables with final calculated stats
         HpMax.Value = baseStats[CharacterStat.HpMax];
-        HpCurrent.Value = HpMax.Value;
+        HpCurrent.Value = HpMax.Value * hpRatio;
         HpBuffer.Value = baseStats[CharacterStat.HpBuffer];
         AttackPower.Value = baseStats[CharacterStat.AttackPower];
         CriticalChance.Value = baseStats[CharacterStat.CriticalChance];
