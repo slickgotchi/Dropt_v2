@@ -198,6 +198,8 @@ public class PlayerAbilities : NetworkBehaviour
         DestroyAbility(ref ShieldWall);
 
         DestroyAbility(ref UnarmedPunch);
+
+        base.OnNetworkDespawn();
     }
 
     void DestroyAbility(ref GameObject ability)

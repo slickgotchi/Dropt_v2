@@ -51,6 +51,8 @@ public class BallisticSnipe : PlayerAbility
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         if (!IsServer) return;
 
         GenericProjectile.InitSpawnProjectileOnServer(ref m_appleProjectile, ref m_appleProjectileId, ApplePrefab);
@@ -66,6 +68,7 @@ public class BallisticSnipe : PlayerAbility
 
     public override void OnNetworkDespawn()
     {
+
         if (!IsServer) return;
 
         if (m_appleProjectile != null) m_appleProjectile.GetComponent<NetworkObject>().Despawn();
@@ -77,6 +80,9 @@ public class BallisticSnipe : PlayerAbility
         if (m_milkProjectile != null) m_milkProjectile.GetComponent<NetworkObject>().Despawn();
         if (m_nailTrioProjectile != null) m_nailTrioProjectile.GetComponent<NetworkObject>().Despawn();
         if (m_seedProjectile != null) m_seedProjectile.GetComponent<NetworkObject>().Despawn();
+
+        base.OnNetworkDespawn();
+
     }
 
     protected override void Update()

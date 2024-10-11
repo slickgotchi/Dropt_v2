@@ -41,8 +41,8 @@ public sealed class PickupItem : NetworkBehaviour
 
     public override void OnNetworkDespawn()
     {
-        base.OnNetworkDespawn();
         gameObject.SetActive(false);
+        base.OnNetworkDespawn();
     }
 
     private void OnDisable()

@@ -113,6 +113,7 @@ namespace Dropt
 
         public override void OnNetworkDespawn()
         {
+
             m_onFudWispDespawn?.Invoke(gameObject);
             base.OnNetworkDespawn();
         }

@@ -38,6 +38,8 @@ public class ApeDoorButton : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         if (!IsServer) return;
 
         Type.Value = initType;

@@ -28,6 +28,7 @@ public class EnemyAbility : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
     }
 
     public void Init(GameObject parent, GameObject target,

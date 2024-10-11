@@ -32,6 +32,8 @@ namespace Core.Pool
 
         public override void OnNetworkSpawn()
         {
+            base.OnNetworkSpawn();
+
             // Registers all objects in PooledPrefabsList to the cache.
             foreach (var configObject in PooledPrefabsList)
             {
@@ -51,6 +53,8 @@ namespace Core.Pool
 
             m_PooledObjects.Clear();
             m_Prefabs.Clear();
+
+            base.OnNetworkDespawn();
         }
 
         public void OnValidate()

@@ -27,7 +27,7 @@ public class TitleCanvas : MonoBehaviour
         // play button listener
         playButton.onClick.AddListener(() =>
         {
-            //LoadingCanvas.Instance.Animator.Play("LoadingCanvas_Blackout");
+            LoadingCanvas.Instance.Animator.Play("LoadingCanvas_Blackout");
             SceneManager.LoadScene("Game");
         });
 

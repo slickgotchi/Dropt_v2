@@ -54,6 +54,8 @@ public class SplashVolley : PlayerAbility
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         if (IsServer)
         {
             for (int i = 0; i < 5; i++)
@@ -72,6 +74,8 @@ public class SplashVolley : PlayerAbility
                 if (IsServer) projectile.GetComponent<NetworkObject>().Despawn();
             }
         }
+
+        base.OnNetworkDespawn();
     }
 
     void TryAddProjectile(int index)

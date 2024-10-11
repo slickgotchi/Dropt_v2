@@ -119,12 +119,6 @@ public class Bootstrap : MonoBehaviour
                 }
             }
         }
-
-        if (!IsServer())
-        {
-            //GameAudioManager.TryToInitialize();
-            //GameAudioManager.Instance.PlayMusic(MusicType.UndergroundForest);
-        }
     }
 
     public static string RegionToString(Region region)

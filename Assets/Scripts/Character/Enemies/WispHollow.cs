@@ -8,11 +8,13 @@ public class WispHollow : NetworkBehaviour
     public GameObject FudWispPrefab;
     public int MaxWisps = 3;
     public float WispSpawnInterval = 3f;
-    public Vector3 SpawnOffset = new Vector3(0, 1.5f, 0);
+    public Transform SpawnPoint;
 
     private float m_spawnTimer = 0f;
     private List<GameObject> m_liveWisps = new List<GameObject>();
     private Animator m_animator;
+
+    private List<GameObject> m_instancedWisps = new List<GameObject>();
 
     public override void OnNetworkSpawn()
     {
@@ -50,8 +52,13 @@ public class WispHollow : NetworkBehaviour
         GameObject wisp = Instantiate(FudWispPrefab);
         EnemyAI_FudWisp enemyAI_FudWisp = wisp.GetComponent<EnemyAI_FudWisp>();
         enemyAI_FudWisp.AssignDespawnAction(OnFudWispDespawn);
-        wisp.transform.position = transform.position + SpawnOffset;
-        wisp.GetComponent<NetworkObject>().Spawn();
+        wisp.transform.position = SpawnPoint != null ? SpawnPoint.transform.position : transform.position;
+        wisp.SetActive(false);
+
+        // DO NOT SPAWN DIRECTLY AFTER INSTANTIATING, FOR SOME REASON UNITY NEEDS A FRAME TO GO BY FOR NAVMESH TO WORK CORRECTLY BEFORE SPAWNING
+        // USE THE DEFERRED SPAWNER
+        DeferredSpawner.SpawnNextFrame(wisp.GetComponent<NetworkObject>());
+
         return wisp;
     }
 

@@ -25,6 +25,8 @@ public class SplashLob : PlayerAbility
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         if (!IsServer) return;
 
         GenericProjectile.InitSpawnProjectileOnServer(ref m_splashProjectile, ref m_splashProjectileId, SplashProjectilePrefab);
@@ -36,6 +38,8 @@ public class SplashLob : PlayerAbility
         {
             if (IsServer) m_splashProjectile.GetComponent<NetworkObject>().Despawn();
         }
+
+        base.OnNetworkDespawn();
     }
 
     protected override void Update()

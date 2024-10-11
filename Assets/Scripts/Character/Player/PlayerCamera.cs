@@ -15,6 +15,8 @@ public class PlayerCamera : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         var virtualCameraGameObject = GameObject.FindGameObjectWithTag("VirtualCamera");
         if (virtualCameraGameObject == null)
         {
