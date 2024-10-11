@@ -18,6 +18,8 @@ public class SmashWave : PlayerAbility
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         m_collider = GetComponentInChildren<Collider2D>();
     }
 

@@ -19,6 +19,7 @@ namespace Level
         public float spawnInterval = 5f;
         public int destroyAllWithSpawnerId = -1;
         public int touchTriggerWithSpawnerId = -1;
+        public float spawnTimeAfterTrigger = 0;
 
         // variables set by logic
         public bool isSpawned = false;

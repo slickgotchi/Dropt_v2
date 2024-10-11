@@ -24,21 +24,21 @@ public class PlayerEquipment : NetworkBehaviour
 
     public Wearable.NameEnum leftHandStarterWeapon = Wearable.NameEnum.Unarmed;
     public Wearable.NameEnum rightHandStarterWeapon = Wearable.NameEnum.Unarmed;
+    public Wearable.NameEnum starterPet = Wearable.NameEnum.None;
 
     private PlayerGotchi m_playerGotchi;
 
-    private void Awake()
-    {
-        m_playerGotchi = GetComponent<PlayerGotchi>();
-    }
 
     public override void OnNetworkSpawn()
     {
-        // starter weapons get set in Init()
+        base.OnNetworkSpawn();
+
+        m_playerGotchi = GetComponent<PlayerGotchi>();
     }
 
     public override void OnNetworkDespawn()
     {
+        base.OnNetworkDespawn();
     }
 
     public void Init(int gotchiId)
@@ -46,9 +46,19 @@ public class PlayerEquipment : NetworkBehaviour
         if (!IsClient) return;
 
         SetPlayerWeaponsByGotchiId(gotchiId);
+        SetPlayerPetByGotchiId(gotchiId);
     }
 
     private void Update()
+    {
+        // weapon sprite updates
+        UpdateWeaponSprites();
+
+        // pet updates
+        UpdatePets();
+    }
+
+    private void UpdateWeaponSprites()
     {
         // right hand sprite changes
         if (RightHand.Value != m_localRightHand)
@@ -63,25 +73,37 @@ public class PlayerEquipment : NetworkBehaviour
             m_localLeftHand = LeftHand.Value;
             m_playerGotchi.SetWeaponSprites(Hand.Left, m_localLeftHand);
         }
-
-        // pet updates
-        UpdatePets();
     }
 
     private void UpdatePets()
     {
-        if (!IsServer) return;
-        if (m_localPet == Pet.Value) return;
-
-        // see if player owns a pet already
-        var petControllers = FindObjectsByType<PetController>(FindObjectsSortMode.None);
-        for (int i = 0; i < petControllers.Length; i++)
+        if (IsServer)
         {
-            var petController = petControllers[i];
-            if (petController.OwnerClientId == GetComponent<NetworkObject>().NetworkObjectId)
+            if (m_localPet != Pet.Value)
             {
-                // we have a match, we need to despawn the old pet
-                petController.GetComponent<NetworkObject>().Despawn();
+                // see if player owns a pet already
+                var petControllers = FindObjectsByType<PetController>(FindObjectsSortMode.None);
+                for (int i = 0; i < petControllers.Length; i++)
+                {
+                    var petController = petControllers[i];
+                    if (petController.GetPlayerNetworkObjectId() == GetComponent<NetworkObject>().NetworkObjectId)
+                    {
+                        // we have a match, we need to despawn the old pet
+                        petController.GetComponent<NetworkObject>().Despawn();
+                        Debug.Log("Despawn old pet: " + m_localPet);
+                    }
+                }
+
+
+                // create a new pet
+                PetType myPet;
+                if (System.Enum.TryParse(Pet.Value.ToString(), out myPet))
+                {
+                    PetsManager.Instance.SpawnPet(myPet, transform.position, GetComponent<NetworkObject>().NetworkObjectId);
+                }
+
+                // set new local pet
+                m_localPet = Pet.Value;
             }
         }
     }
@@ -115,7 +137,31 @@ public class PlayerEquipment : NetworkBehaviour
                 SetEquipmentServerRpc(Slot.RightHand, rhWearable != null ? rhWearable.NameType : Wearable.NameEnum.Unarmed);
             }
         }
+    }
 
+    public void SetPlayerPetByGotchiId(int id)
+    {
+        if (!IsClient) return;
+
+        if (id <= 0)
+        {
+            if (IsLocalPlayer)
+            {
+                SetEquipmentServerRpc(Slot.Pet, starterPet);
+            }
+        }
+        else
+        {
+            var gotchiData = GotchiDataManager.Instance.GetGotchiDataById(id);
+            var petId = gotchiData.equippedWearables[6];
+            var petWearable = WearableManager.Instance.GetWearable(petId);
+
+            if (IsLocalPlayer)
+            {
+                SetEquipmentServerRpc(Slot.Pet, petWearable != null ? petWearable.NameType : Wearable.NameEnum.None);
+            }
+
+        }
     }
 
     public void SetPlayerWeapon(Hand hand, Wearable.NameEnum nameEnum)
@@ -144,28 +190,10 @@ public class PlayerEquipment : NetworkBehaviour
         }
 
         var wearable = WearableManager.Instance.GetWearable(equipmentNameEnum);
-        GetComponent<PlayerCharacter>().SetWearableBuffServerRpc(slot, wearable.Id);
-        CheckWeaponIsShieldBlock(slot, wearable);
-
-        // if slot was pet, we should spawn a pet
-        if (slot == Slot.Pet)
+        if (wearable != null)
         {
-            PetType myPet;
-            if (System.Enum.TryParse(equipmentNameEnum.ToString(), out myPet))
-            {
-                // destroy any old pets
-                var playerObjectId = GetComponent<NetworkObject>().NetworkObjectId;
-                var allPets = FindObjectsByType<PetController>(FindObjectsSortMode.None);
-                foreach (var pet in allPets)
-                {
-                    if (pet.GetPlayerNetworkObjectId() == playerObjectId)
-                    {
-                        pet.GetComponent<NetworkObject>().Despawn();
-                    }
-                }
-
-                PetsManager.Instance.SpawnPet(myPet, transform.position, GetComponent<NetworkObject>().NetworkObjectId);
-            }
+            GetComponent<PlayerCharacter>().SetWearableBuffServerRpc(slot, wearable.Id);
+            CheckWeaponIsShieldBlock(slot, wearable);
         }
     }
 

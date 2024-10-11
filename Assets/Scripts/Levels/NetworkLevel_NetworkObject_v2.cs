@@ -55,6 +55,7 @@ namespace Level
                 levelSpawn.elapsedTime = spawnCondition.elapsedTime;
                 levelSpawn.destroyAllWithSpawnerId = spawnCondition.destroyAllWithSpawnerId;
                 levelSpawn.touchTriggerWithSpawnerId = spawnCondition.touchTriggerWithSpawnerId;
+                levelSpawn.spawnTimeAfterTrigger = spawnCondition.spawnTimeAfterTrigger;
             }
 
             // start object off inactive

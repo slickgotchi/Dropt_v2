@@ -51,6 +51,8 @@ public class ApeDoor : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         if (IsServer)
         {
             SetTypeAndState(initType, initState);

@@ -9,8 +9,15 @@ using Level;
 /// </summary>
 public class LevelSpawnManager : MonoBehaviour
 {
+    public static LevelSpawnManager Instance { get; private set; }
+
     private float k_updateInterval = 0.1f;
     private float m_updateTimer = 0f;
+
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     private void Update()
     {
@@ -67,19 +74,32 @@ public class LevelSpawnManager : MonoBehaviour
                     }
                     break;
                 case LevelSpawn.SpawnCondition.PlayerTouchTriggerWithSpawnerId:
-                    if (touchedByPlayerLevelSpawnIds.Contains(levelSpawn.touchTriggerWithSpawnerId)) isSpawnTime = true;
+                    if (touchedByPlayerLevelSpawnIds.Contains(levelSpawn.touchTriggerWithSpawnerId))
+                    {
+                        // switch to elapsed time spawn
+                        levelSpawn.spawnCondition = LevelSpawn.SpawnCondition.ElapsedTime;
+                        levelSpawn.elapsedTime = levelSpawn.spawnTimeAfterTrigger;
+                    }
                     break;
                 default: break;
             }
 
             if (isSpawnTime)
             {
-                levelSpawn.gameObject.SetActive(true);
-                levelSpawn.GetComponent<NetworkObject>().Spawn();
+                DeferredSpawner.SpawnNextFrame(levelSpawn.GetComponent<NetworkObject>());
+                //levelSpawn.gameObject.SetActive(true);
+                //levelSpawn.GetComponent<NetworkObject>().Spawn();
                 levelSpawn.isSpawned = true;
             }
         }
     }
 
-
+    public void TagAllCurrentLevelSpawnsForDead()
+    {
+        var levelSpawns = FindObjectsByType<Level.LevelSpawn>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        for (int i = levelSpawns.Length-1; i >= 0; i--)
+        {
+            Destroy(levelSpawns[i].gameObject);
+        }
+    }
 }

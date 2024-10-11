@@ -1,7 +1,5 @@
 using Cysharp.Threading.Tasks;
 using System;
-using Audio;
-using Audio.Game;
 using Unity.Netcode;
 using Unity.Networking.Transport;
 using UnityEngine;
@@ -61,7 +59,8 @@ public class Bootstrap : MonoBehaviour
     public bool UseServerManager = false;
 
     public string IpAddress = "178.128.22.77";
-    public ushort Port = 9000;
+    public ushort GamePort = 9000;
+    public ushort WorkerPort = 3000;
     public string GameId = "default";
 
     public int TestBlockChainGotchiId = 0;
@@ -87,15 +86,17 @@ public class Bootstrap : MonoBehaviour
 
             if (arg == "-remote") ConnectionType = ConnectionType.Remote;
 
-            if (arg == "-port") Port = ushort.Parse(param);
+            if (arg == "-gameport") GamePort = ushort.Parse(param);
+
+            if (arg == "-workerport") WorkerPort = ushort.Parse(param);
 
             if (arg == "-gameid") GameId = param;
 
             if (arg == "-noservermanager") UseServerManager = false;
 
+            if (arg == "-ipaddress") IpAddress = param;
+
         }
-        //Debug.Log("Bootstrap.Awake(): CL arguments processed. Connection type: " + ConnectionType
-        //    + ", Network: " + NetworkRole + ", Port: " + Port);
     }
 
     private void Start()
@@ -118,14 +119,26 @@ public class Bootstrap : MonoBehaviour
                 }
             }
         }
+    }
 
-        GameAudioManager.TryToInitialize();
-        GameAudioManager.Instance.PlayMusic(MusicType.UndergroundForest);
+    public static string RegionToString(Region region)
+    {
+        if (region == Region.America) return "america";
+        else if (region == Region.Europe) return "europe";
+        else return "asia";
+    }
+
+    public static string GetRegionString()
+    {
+        return RegionToString(Instance.region);
     }
 
     private void OnDestroy()
     {
-        GameAudioManager.TryToDispose();
+        if (!IsServer())
+        {
+            //GameAudioManager.TryToDispose();
+        }
     }
 
     public static bool IsServer()

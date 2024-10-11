@@ -45,7 +45,7 @@ public class PoisonStack : MonoBehaviour
     {
         elapsedTime += Time.deltaTime;
 
-        if (elapsedTime >= 1f)
+        if (elapsedTime >= 0.5f)
         {
             ApplyDamage();
             elapsedTime = 0;
@@ -59,7 +59,7 @@ public class PoisonStack : MonoBehaviour
         float totalDamage = 0f;
         for (int i = 0; i < damagePerSecondList.Count; i++)
         {
-            totalDamage += damagePerSecondList[i];
+            totalDamage += damagePerSecondList[i] * 0.5f;
         }
         networkCharacter.TakeDamage(totalDamage, false);
     }
