@@ -14,6 +14,8 @@ public class SmashSlam : PlayerAbility
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         m_collider = GetComponentInChildren<Collider2D>();
     }
 

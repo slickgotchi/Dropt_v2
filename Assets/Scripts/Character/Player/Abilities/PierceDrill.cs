@@ -16,6 +16,8 @@ public class PierceDrill : PlayerAbility
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         Animator = GetComponent<Animator>();
         m_collider = GetComponent<Collider2D>();
     }

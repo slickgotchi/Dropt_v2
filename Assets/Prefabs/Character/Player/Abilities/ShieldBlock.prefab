@@ -185,12 +185,13 @@ MonoBehaviour:
   TeleportDistance: 0
   AutoMoveDistance: 0
   AutoMoveDuration: 0
-  HoldChargeTime: 3
+  HoldChargeTime: 2
   HoldSlowFactor: 0.5
   KnockbackDistance: 0
   KnockbackStunDuration: 0
   Player: {fileID: 0}
   SpecialCooldown: 0
+  audioOnActivate: {fileID: 8300000, guid: fa6b48767eb203e4ca945d5d7997711b, type: 3}
   PlayerAbilityCentreOffset: {x: 0, y: 0.5, z: 0}
   m_blocksByRarity:
   - Rarity: 1
@@ -208,6 +209,7 @@ MonoBehaviour:
   m_depletionRate: 0.25
   m_rechargeRate: 0.1
   m_breakCoolDown: 10
+  m_isBlocking: 0
 --- !u!1 &4708556748347195212
 GameObject:
   m_ObjectHideFlags: 0

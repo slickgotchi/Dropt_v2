@@ -35,7 +35,7 @@ public class CoOpModeCanvas : DroptCanvas
         HideCanvas();
     }
 
-    private void Update()
+    protected override void Update()
     {
         m_updateTimer -= Time.deltaTime;
 
@@ -52,7 +52,7 @@ public class CoOpModeCanvas : DroptCanvas
 
         if (Input.GetKeyDown(KeyCode.M))
         {
-            MenuCard.SetActive(!MenuCard.activeSelf);
+            //MenuCard.SetActive(!MenuCard.activeSelf);
         }
 
         if (LevelManager.Instance.IsDegenapeVillage())
@@ -73,7 +73,7 @@ public class CoOpModeCanvas : DroptCanvas
     void HandleClick_JoinPrivateButton()
     {
         //Debug.Log("CoOpModeCanvas.cs - Join private gameId: " + JoinPrivateInput.text);
-        Game.Instance.TryJoinGame(JoinPrivateInput.text);
+        //Game.Instance.TryJoinGame(JoinPrivateInput.text);
     }
 
     void HandleChange_IsPublicToggle(bool isOn)

@@ -1,41 +1,46 @@
-using System.Collections;
 using System.Collections.Generic;
+using Dropt;
 using Unity.Netcode;
 using UnityEngine;
 
-public class WispHollow : MonoBehaviour
+public class WispHollow : NetworkBehaviour
 {
     public GameObject FudWispPrefab;
     public int MaxWisps = 3;
     public float WispSpawnInterval = 3f;
-    public Vector3 SpawnOffset = new Vector3(0, 1.5f, 0);
+    public Transform SpawnPoint;
 
     private float m_spawnTimer = 0f;
     private List<GameObject> m_liveWisps = new List<GameObject>();
+    private Animator m_animator;
 
-    private void Awake()
+    private List<GameObject> m_instancedWisps = new List<GameObject>();
+
+    public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+        if (!IsServer)
+        {
+            return;
+        }
+
+        m_animator = GetComponent<Animator>();
+        m_animator.Play("WispHollow_Spawn");
         m_spawnTimer = WispSpawnInterval;
     }
 
-
     private void Update()
     {
-        if (Bootstrap.IsClient()) return;
+        if (!IsServer)
+        {
+            return;
+        }
 
         m_spawnTimer -= Time.deltaTime;
 
-        for (int i = m_liveWisps.Count-1; i >= 0; i--)
-        {
-            if (m_liveWisps[i].gameObject == null)
-            {
-                m_liveWisps.RemoveAt(i);
-            }
-        }
-
         if (m_spawnTimer <= 0 && m_liveWisps.Count < MaxWisps)
         {
-            var wisp = SpawnWisp();
+            GameObject wisp = SpawnWisp();
             m_liveWisps.Add(wisp);
             m_spawnTimer += WispSpawnInterval;
         }
@@ -43,10 +48,22 @@ public class WispHollow : MonoBehaviour
 
     private GameObject SpawnWisp()
     {
-        var wisp = Instantiate(FudWispPrefab);
-        wisp.transform.position = transform.position + SpawnOffset;
-        wisp.GetComponent<NetworkObject>().Spawn();
+        m_animator.Play("WispHollow_SpawnWisp");
+        GameObject wisp = Instantiate(FudWispPrefab);
+        EnemyAI_FudWisp enemyAI_FudWisp = wisp.GetComponent<EnemyAI_FudWisp>();
+        enemyAI_FudWisp.AssignDespawnAction(OnFudWispDespawn);
+        wisp.transform.position = SpawnPoint != null ? SpawnPoint.transform.position : transform.position;
+        wisp.SetActive(false);
+
+        // DO NOT SPAWN DIRECTLY AFTER INSTANTIATING, FOR SOME REASON UNITY NEEDS A FRAME TO GO BY FOR NAVMESH TO WORK CORRECTLY BEFORE SPAWNING
+        // USE THE DEFERRED SPAWNER
+        DeferredSpawner.SpawnNextFrame(wisp.GetComponent<NetworkObject>());
 
         return wisp;
+    }
+
+    private void OnFudWispDespawn(GameObject fudWisp)
+    {
+        m_liveWisps.Remove(fudWisp);
     }
 }

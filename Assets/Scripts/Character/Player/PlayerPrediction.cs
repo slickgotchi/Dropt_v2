@@ -133,6 +133,8 @@ public partial class PlayerPrediction : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         // deparent our circles for representing server/client prediction locations
         if (m_clientCircle != null) m_clientCircle.transform.SetParent(null);
         if (m_serverCircle != null) m_serverCircle.transform.SetParent(null);
@@ -224,6 +226,8 @@ public partial class PlayerPrediction : NetworkBehaviour
     //    m_cursorWorldPosition = new Vector3(screenToWorldPosition.x, screenToWorldPosition.y, 0);
     //}
 
+    private bool isTest = false;
+
     private void Update()
     {
         // don't run if the player is dead
@@ -236,6 +240,11 @@ public partial class PlayerPrediction : NetworkBehaviour
 
         // update playerGotchi on the current move direction
         m_playerGotchi.SetMoveDirection(m_moveDirection);
+
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            isTest = true;
+        }
 
         // set updated render position
         if (IsLocalPlayer)
@@ -425,7 +434,7 @@ public partial class PlayerPrediction : NetworkBehaviour
 
             // 2. check if ability triggered
             var triggeredAbility = m_playerAbilities.GetAbility(inputPayload.triggeredAbilityEnum);
-            if (triggeredAbility != null)
+            if (triggeredAbility != null && !IsHost)
             {
                 bool isApEnough = GetComponent<NetworkCharacter>().ApCurrent.Value >= triggeredAbility.ApCost;
                 bool isCooldownFinished = triggeredAbility.abilityType == PlayerAbility.AbilityType.Hold ? true : inputPayload.tick > m_abilityCooldownExpiryTick_SERVER;
@@ -449,7 +458,7 @@ public partial class PlayerPrediction : NetworkBehaviour
 
             // 3. check if hold ability started
             var holdStartTriggeredAbility = m_playerAbilities.GetAbility(inputPayload.holdStartTriggeredAbilityEnum);
-            if (holdStartTriggeredAbility != null)
+            if (holdStartTriggeredAbility != null && !IsHost)
             {
                 // check AP only, we can't check against cooldown because we are commencing this attack within the starter attacks cooldown window
                 bool isEnoughAp = GetComponent<NetworkCharacter>().ApCurrent.Value >= holdStartTriggeredAbility.ApCost;
@@ -469,7 +478,7 @@ public partial class PlayerPrediction : NetworkBehaviour
 
 
             // 4. handle auto-move
-            if (triggeredAbility != null && inputPayload.triggeredAbilityEnum != PlayerAbilityEnum.Null && triggeredAbility.AutoMoveDuration > 0)
+            if (triggeredAbility != null && inputPayload.triggeredAbilityEnum != PlayerAbilityEnum.Null && triggeredAbility.AutoMoveDuration > 0 && !IsHost)
             {
                 var speed = triggeredAbility.AutoMoveDistance / triggeredAbility.AutoMoveDuration;
                 m_autoMoveVelocity = inputPayload.actionDirection * speed;
@@ -492,7 +501,7 @@ public partial class PlayerPrediction : NetworkBehaviour
             serverStateBuffer.Add(statePayload, bufferIndex);
 
             // 8. perform ability if applicable
-            if (triggeredAbility != null && inputPayload.triggeredAbilityEnum != PlayerAbilityEnum.Null)
+            if (triggeredAbility != null && inputPayload.triggeredAbilityEnum != PlayerAbilityEnum.Null && !IsHost)
             {
                 // calc any hold duration
                 var holdDuration = (m_holdFinishTick - m_holdStartTick) / k_serverTickRate;

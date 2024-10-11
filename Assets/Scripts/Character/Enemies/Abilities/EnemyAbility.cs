@@ -28,6 +28,7 @@ public class EnemyAbility : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
     }
 
     public void Init(GameObject parent, GameObject target,
@@ -55,7 +56,6 @@ public class EnemyAbility : NetworkBehaviour
     private void Update()
     {
         m_timer -= Time.deltaTime;
-
         if (m_timer < 0 && m_isActive)
         {
             OnDeactivate();

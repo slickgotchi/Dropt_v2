@@ -23,6 +23,10 @@ namespace Dropt
 
         public override void OnTelegraphStart()
         {
+            if (IsServer)
+            {
+                m_navMeshAgent.isStopped = true;
+            }
         }
         
         public override void OnRoamUpdate(float dt)

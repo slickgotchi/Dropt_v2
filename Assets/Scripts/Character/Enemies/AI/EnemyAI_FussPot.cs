@@ -1,9 +1,4 @@
-using Dropt;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AI;
-using Unity.Mathematics;
 using Unity.Netcode;
 
 namespace Dropt
@@ -14,20 +9,38 @@ namespace Dropt
         public float ProjectileSpreadInDegrees = 30;
 
         private Animator m_animator;
+        private EnemyController m_enemyController;
 
         private void Awake()
         {
             m_animator = GetComponent<Animator>();
+            m_enemyController = GetComponent<EnemyController>();
         }
 
         public override void OnSpawnStart()
         {
         }
 
+        public override void OnRoamStart()
+        {
+            base.OnRoamStart();
+            if (!IsServer)
+            {
+                return;
+            }
+
+            Utils.Anim.Play(m_animator, "Fusspot_Idle");
+        }
+
         public override void OnTelegraphStart()
         {
+            if (!IsServer)
+            {
+                return;
+            }
             // set our facing direction
-            GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, TelegraphDuration);
+            m_enemyController.SetFacingFromDirection(AttackDirection, TelegraphDuration);
+            Utils.Anim.PlayAnimationWithDuration(m_animator, "Fusspot_Anticipation", TelegraphDuration);
         }
 
         public override void OnTelegraphFinish()
@@ -45,9 +58,14 @@ namespace Dropt
         public override void OnAttackStart()
         {
             SimpleFussPotAttack();
+            Utils.Anim.PlayAnimationWithDuration(m_animator, "Fusspot_Fire", AttackDuration);
+            m_enemyController.SetFacingFromDirection(AttackDirection, AttackDuration);
+        }
 
-            // set facing
-            GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, AttackDuration);
+        public override void OnAttackFinish()
+        {
+            base.OnAttackFinish();
+            Utils.Anim.Play(m_animator, "Fusspot_Idle");
         }
 
         // attack
@@ -57,14 +75,14 @@ namespace Dropt
             if (PrimaryAttack == null) return;
 
             // instantiate an attack
-            var ability = Instantiate(PrimaryAttack);
+            GameObject ability = Instantiate(PrimaryAttack);
 
             // get enemy ability of attack
-            var enemyAbility = ability.GetComponent<EnemyAbility>();
+            EnemyAbility enemyAbility = ability.GetComponent<EnemyAbility>();
             if (enemyAbility == null) return;
 
             // get fusspot erupt ability
-            var fussPotErupt = ability.GetComponent<FussPot_Erupt>();
+            FussPot_Erupt fussPotErupt = ability.GetComponent<FussPot_Erupt>();
             fussPotErupt.ProjectileSpreadInDegrees = ProjectileSpreadInDegrees;
 
             // initialise the ability

@@ -16,6 +16,8 @@ public class PlayerPing : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         if (IsLocalPlayer && !IsHost)
         {
             PingServerRpc(m_timer);

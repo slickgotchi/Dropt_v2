@@ -8,11 +8,15 @@ namespace Level
 {
     public partial class NetworkLevel : NetworkBehaviour
     {
+        public AudioClip levelMusic;
+
         //private List<Vector3> m_availablePlayerSpawnPoints = new List<Vector3>();
         private List<SpawnerActivator> m_spawnerActivators = new List<SpawnerActivator>();
 
         public override void OnNetworkSpawn()
         {
+            base.OnNetworkSpawn();
+
             UnityEngine.Random.InitState(System.DateTime.Now.Millisecond);
 
             if (IsServer)
@@ -36,12 +40,16 @@ namespace Level
             if (IsClient)
             {
                 CleanupSpawnerObjects();
+
+                AudioManager.Instance.CrossfadeMusic(levelMusic == null ? AudioLibrary.Instance.UndergroundForest : levelMusic);
             }
         }
 
         public override void OnNetworkDespawn()
         {
             // Implement any necessary cleanup here
+
+            base.OnNetworkDespawn();
         }
 
         private void Update()

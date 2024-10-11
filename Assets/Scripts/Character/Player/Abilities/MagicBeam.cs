@@ -14,6 +14,8 @@ public class MagicBeam : PlayerAbility
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         m_collider = GetComponent<Collider2D>();
     }
 

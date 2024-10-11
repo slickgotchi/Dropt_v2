@@ -19,6 +19,8 @@ public class MagicCast : PlayerAbility
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         if (!IsServer) return;
 
         GenericProjectile.InitSpawnProjectileOnServer(ref m_orbProjectile, ref m_orbProjectileId, MagicOrbPrefab);
@@ -30,10 +32,14 @@ public class MagicCast : PlayerAbility
         {
             if (IsServer) m_orbProjectile.GetComponent<NetworkObject>().Despawn();
         }
+
+        base.OnNetworkDespawn();
     }
 
-    public override void OnUpdate()
+    protected override void Update()
     {
+        base.Update();
+
         if (IsClient)
         {
             GenericProjectile.TryAddProjectileOnClient(ref m_orbProjectile, ref m_orbProjectileId, NetworkManager);

@@ -62,6 +62,8 @@ public class Interactable : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         if (PopupCanvasPrefab != null && IsClient)
         {
             m_popupCanvas = Instantiate(PopupCanvasPrefab);

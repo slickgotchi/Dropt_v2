@@ -38,10 +38,7 @@ public class BloodBorderCanvas : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.B))
-        {
-            DoBlood();
-        }
+
     }
 
     // Call this to trigger the blood effect

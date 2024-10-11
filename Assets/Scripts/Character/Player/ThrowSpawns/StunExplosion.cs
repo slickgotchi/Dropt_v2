@@ -25,6 +25,8 @@ public class StunExplosion : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         if (m_particleSystem != null)
         {
             // Get the main module and modify the simulation speed

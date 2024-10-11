@@ -2,7 +2,6 @@ using Dropt;
 using Nethereum.RPC.Shh.KeyPair;
 using System.Collections;
 using System.Collections.Generic;
-using Audio.Game;
 using Unity.Mathematics;
 using Unity.Netcode;
 using UnityEditor.Rendering;
@@ -66,6 +65,9 @@ public class PlayerAbility : NetworkBehaviour
 
     [HideInInspector] public GameObject Player;
     [HideInInspector] public float SpecialCooldown;
+
+    [Header("Ability Activation Audio")]
+    public AudioClip audioOnActivate;
 
     public Vector3 PlayerAbilityCentreOffset = new Vector3(0, 0.5f, 0);
     protected bool IsActivated = false;
@@ -194,9 +196,14 @@ public class PlayerAbility : NetworkBehaviour
             Player.GetComponent<PlayerGotchi>().HideHand(input.abilityHand, ExecutionDuration);
         }
 
+        if (IsClient && audioOnActivate != null)
+        {
+            AudioManager.Instance.PlaySpatialSFX(audioOnActivate, Vector3.zero, true);
+        }
+
         if (Player != null) OnStart();
 
-        GameAudioManager.Instance.PlayerAbility(Player.GetComponent<NetworkCharacter>().NetworkObjectId, input.triggeredAbilityEnum, transform.position);
+        //GameAudioManager.Instance.PlayerAbility(Player.GetComponent<NetworkCharacter>().NetworkObjectId, input.triggeredAbilityEnum, transform.position);
         return true;
     }
 
@@ -214,7 +221,7 @@ public class PlayerAbility : NetworkBehaviour
     }
 
     // DO NOT override this in children without calling teh base function, use OnUpdate instead
-    protected void Update()
+    protected virtual void Update()
     {
         m_timer -= Time.deltaTime;
         m_autoMoveTimer -= Time.deltaTime;

@@ -7,6 +7,8 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using GotchiHub;
 using Cysharp.Threading.Tasks;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.UI;
 
 public class PlayerController : NetworkBehaviour
 {
@@ -48,6 +50,8 @@ public class PlayerController : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         // local player
         if (IsLocalPlayer)
         {
@@ -75,12 +79,17 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
+
+
     public override void OnNetworkDespawn()
     {
+
         if (IsLocalPlayer)
         {
             GotchiDataManager.Instance.onSelectedGotchi -= HandleOnSelectedGotchi;
         }
+
+        base.OnNetworkDespawn();
     }
 
     [Rpc(SendTo.Server)]

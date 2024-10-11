@@ -103,7 +103,6 @@ GameObject:
   - component: {fileID: -4382550609485557648}
   - component: {fileID: -6869925011341850481}
   - component: {fileID: 6434513312881309744}
-  - component: {fileID: 9213157710925413766}
   - component: {fileID: 4595951465024790159}
   - component: {fileID: -3820588824164294264}
   - component: {fileID: 932985116294955918}
@@ -291,6 +290,7 @@ MonoBehaviour:
     m_InternalValue: 0
   StunMultiplier:
     m_InternalValue: 0
+  OnHurtAudio: {fileID: 0}
 --- !u!114 &2642312668980575302
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -396,19 +396,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TransitionStateInfoList: []
   m_Animator: {fileID: 166411181886647591}
---- !u!114 &9213157710925413766
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1249991746567512264}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0f78e21348e5e4fcabfd4c529155c03f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_isSpawnFinished: 0
 --- !u!114 &4595951465024790159
 MonoBehaviour:
   m_ObjectHideFlags: 0
