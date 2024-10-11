@@ -108,7 +108,14 @@ public class NetworkCharacter : NetworkBehaviour
         if (enemyController == null) return;
 
         // try get the damage dealing player
-        var damageDealerNO = NetworkManager.SpawnManager.SpawnedObjects[damageDealerNOID];
+        NetworkObject damageDealerNO = null;
+        try
+        {
+            damageDealerNO = NetworkManager.SpawnManager.SpawnedObjects[damageDealerNOID];
+        } catch
+        {
+
+        }
         bool isDamageDealerLocal = damageDealerNO == null ? false : damageDealerNO.GetComponent<NetworkObject>().IsLocalPlayer;
 
         // LOCAL PLAYER
