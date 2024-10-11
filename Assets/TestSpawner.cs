@@ -38,6 +38,16 @@ public class TestSpawner : MonoBehaviour
             }
         }
 
+        if (Input.GetKeyDown(KeyCode.Z))
+        {
+            var player = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+            var enemies = FindObjectsByType<EnemyController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            foreach (var enemy in enemies)
+            {
+                enemy.GetComponent<NetworkCharacter>().TakeDamage(100000000, false, player[0].gameObject);
+            }
+        }
+
         if (Input.GetKeyDown(KeyCode.B))
         {
             var navMeshes = FindObjectsByType<NavMeshPlus.Components.NavMeshSurface>(FindObjectsSortMode.None);
