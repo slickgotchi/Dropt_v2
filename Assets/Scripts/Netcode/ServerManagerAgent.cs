@@ -8,7 +8,7 @@ public class ServerManagerAgent : MonoBehaviour
 {
     public static ServerManagerAgent Instance { get; private set; }
 
-    public string serverManagerUri = "http://103.253.146.245:3000";
+    public string serverManagerUri = "https://manager.playdropt.io";
 
     private void Awake()
     {
