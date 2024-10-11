@@ -189,7 +189,7 @@ public class BallisticExplosionProjectile : NetworkBehaviour
                 var damage = PlayerAbility.GetRandomVariation(DamagePerHit * ExplosionDamageMultiplier);
                 var isCritical = PlayerAbility.IsCriticalAttack(CriticalChance);
                 damage = (int)(isCritical ? damage * CriticalDamage : damage);
-                hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical);
+                hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical, LocalPlayer);
                 var knockbackDirection = (Dropt.Utils.Battle.GetAttackCentrePosition(hit.gameObject) - position).normalized;
                 var enemyAI = hit.GetComponent<Dropt.EnemyAI>();
                 if (enemyAI != null)

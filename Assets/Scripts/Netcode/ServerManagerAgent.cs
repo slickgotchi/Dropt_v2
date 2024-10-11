@@ -23,6 +23,11 @@ public class ServerManagerAgent : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        serverManagerUri = "https://dmanager.playdropt.io";
+    }
+
     // /joinempty
     public async UniTask<GetEmpty_ResponseData> GetEmpty(string region)
     {
@@ -159,7 +164,7 @@ public class ServerManagerAgent : MonoBehaviour
         public string gameId;
         public string ipAddress;
         public string gamePort;
-        public string serverCommonName;
+        public string commonName;
         public string clientCA;
         public int responseCode;
         public string message;
@@ -201,7 +206,7 @@ public class ServerManagerAgent : MonoBehaviour
         public string gameId;
         public string ipAddress;
         public string gamePort;
-        public string serverCommonName;
+        public string commonName;
         public string clientCA;
         public int responseCode;
         public string message;

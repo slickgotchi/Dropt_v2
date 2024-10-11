@@ -19,7 +19,7 @@ public class Game : MonoBehaviour
     UnityTransport m_transport;
 
     // certificate variables for WSS and encryption
-    private string m_serverCommonName = "web.playdropt.io";
+    private string m_commonName = "web.playdropt.io";
     private string m_clientCA;
     private string m_serverCertificate;
     private string m_serverPrivateKey;
@@ -151,12 +151,12 @@ public class Game : MonoBehaviour
             // set IP address and port
             Bootstrap.Instance.IpAddress = response.ipAddress;
             Bootstrap.Instance.GamePort = ushort.Parse(response.gamePort);
-            m_serverCommonName = response.serverCommonName;
+            m_commonName = response.commonName;
             m_clientCA = response.clientCA;
 
-            Debug.Log(m_serverCommonName);
+            Debug.Log(m_commonName);
             Debug.Log(m_clientCA);
-            m_transport.SetClientSecrets(m_serverCommonName, m_clientCA);
+            m_transport.SetClientSecrets(m_commonName, m_clientCA);
         }
 
         // output ip and port
@@ -216,18 +216,21 @@ public class Game : MonoBehaviour
 
         try
         {
-            string chainPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "certs/chain.pem");
-            m_clientCA = File.ReadAllText(chainPath);
+            //string chainPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "certs/chain.pem");
+            //m_clientCA = File.ReadAllText(chainPath);
 
-            string certPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "certs/cert.pem");
-            m_serverCertificate = File.ReadAllText(certPath);
+            //string certPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "certs/cert.pem");
+            //m_serverCertificate = File.ReadAllText(certPath);
 
-            string privkeyPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "certs/privkey.pem");
-            m_serverPrivateKey = File.ReadAllText(privkeyPath);
+            //string privkeyPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "certs/privkey.pem");
+            //m_serverPrivateKey = File.ReadAllText(privkeyPath);
+
+            m_serverCertificate = Environment.GetEnvironmentVariable("SERVER_CERTIFICATE");
+            m_serverPrivateKey = Environment.GetEnvironmentVariable("SERVER_PRIVATE_KEY");
 
             Debug.Log("Certificates loaded successfully.");
-            Debug.Log("m_serverCommonName: " + m_serverCommonName);
-            Debug.Log("m_clientCA: " + m_clientCA);
+            //Debug.Log("m_serverCommonName: " + m_serverCommonName);
+            //Debug.Log("m_clientCA: " + m_clientCA);
             Debug.Log("m_serverCertificate: " + m_serverCertificate);
             Debug.Log("m_serverPrivateKey: " + m_serverPrivateKey);
         }

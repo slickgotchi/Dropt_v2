@@ -107,26 +107,29 @@ public class NetworkCharacter : NetworkBehaviour
         var enemyController = GetComponent<EnemyController>();
         if (enemyController == null) return;
 
-        // try get the damage dealing player
-        NetworkObject damageDealerNO = null;
-        try
+        // get the local player
+        ulong localPlayerNOID = 0;
+        var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+        foreach (var player in players)
         {
-            damageDealerNO = NetworkManager.SpawnManager.SpawnedObjects[damageDealerNOID];
-        } catch
-        {
-
+            if (player.GetComponent<NetworkObject>().IsLocalPlayer)
+            {
+                localPlayerNOID = player.GetComponent<NetworkObject>().NetworkObjectId;
+            }
         }
-        bool isDamageDealerLocal = damageDealerNO == null ? false : damageDealerNO.GetComponent<NetworkObject>().IsLocalPlayer;
 
         // LOCAL PLAYER
-        if (IsClient && isDamageDealerLocal)
+        if (IsClient)
         {
-            // do sprite flash
-            var spriteFlash = GetComponentInChildren<SpriteFlash>();
-            if (spriteFlash != null) spriteFlash.DamageFlash();
+            if (localPlayerNOID == damageDealerNOID)
+            {
+                // do sprite flash
+                var spriteFlash = GetComponentInChildren<SpriteFlash>();
+                if (spriteFlash != null) spriteFlash.DamageFlash();
 
-            // play damage audio
-            AudioManager.Instance.PlaySpatialSFX(OnHurtAudio, transform.position);
+                // play damage audio
+                AudioManager.Instance.PlaySpatialSFX(OnHurtAudio, transform.position);
+            }
         }
 
         // SERVER
@@ -168,23 +171,36 @@ public class NetworkCharacter : NetworkBehaviour
                 }
             }
         }
-
-        // REMOTE CLIENT
-        if (IsClient && !isDamageDealerLocal)
-        {
-            // do sprite flash
-            var spriteFlash = GetComponentInChildren<SpriteFlash>();
-            if (spriteFlash != null) spriteFlash.DamageFlash();
-
-            // play damage audio
-            AudioManager.Instance.PlaySpatialSFX(OnHurtAudio, transform.position);
-        }
     }
 
     [ClientRpc]
     private void HandleEnemyTakeDamageClientRpc(float damage, bool isCritical, ulong damageDealerNOID = 0)
     {
-        HandleEnemyTakeDamage(damage, isCritical, damageDealerNOID);
+        //HandleEnemyTakeDamage(damage, isCritical, damageDealerNOID);
+        // get the local player
+        ulong localPlayerNOID = 0;
+        var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+        foreach (var player in players)
+        {
+            if (player.GetComponent<NetworkObject>().IsLocalPlayer)
+            {
+                localPlayerNOID = player.GetComponent<NetworkObject>().NetworkObjectId;
+            }
+        }
+
+        // LOCAL PLAYER
+        if (IsClient)
+        {
+            if (localPlayerNOID != damageDealerNOID)
+            {
+                // do sprite flash
+                var spriteFlash = GetComponentInChildren<SpriteFlash>();
+                if (spriteFlash != null) spriteFlash.DamageFlash();
+
+                // play damage audio
+                AudioManager.Instance.PlaySpatialSFX(OnHurtAudio, transform.position);
+            }
+        }
     }
 
     // PLAYER
