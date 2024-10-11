@@ -31,11 +31,14 @@ public class PlayerEquipment : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         m_playerGotchi = GetComponent<PlayerGotchi>();
     }
 
     public override void OnNetworkDespawn()
     {
+        base.OnNetworkDespawn();
     }
 
     public void Init(int gotchiId)

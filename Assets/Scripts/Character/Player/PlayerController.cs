@@ -50,6 +50,8 @@ public class PlayerController : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         // local player
         if (IsLocalPlayer)
         {
@@ -81,10 +83,13 @@ public class PlayerController : NetworkBehaviour
 
     public override void OnNetworkDespawn()
     {
+
         if (IsLocalPlayer)
         {
             GotchiDataManager.Instance.onSelectedGotchi -= HandleOnSelectedGotchi;
         }
+
+        base.OnNetworkDespawn();
     }
 
     [Rpc(SendTo.Server)]

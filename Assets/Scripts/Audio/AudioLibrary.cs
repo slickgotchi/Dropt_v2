@@ -20,8 +20,15 @@ public class AudioLibrary : MonoBehaviour
         }
     }
 
+    [Header("Music")]
     public AudioClip TitleScreen;
     public AudioClip ApeVillage;
     public AudioClip UndergroundForest;
     public AudioClip RestFloor;
+
+    [Header("SFX")]
+    public AudioClip HitInorganic;
+    public AudioClip HitOrganic;
+    public AudioClip HitCrafted;
+    public AudioClip EnemyHurt;
 }

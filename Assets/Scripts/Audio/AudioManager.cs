@@ -83,6 +83,7 @@ public class AudioManager : MonoBehaviour
         if (Bootstrap.IsServer()) return;
 
         musicSource.clip = mainTrack;
+        musicSource.loop = true;
         musicSource.Play();
         musicSource.DOFade(_masterMusicVolume, crossfadeDuration); // Fade in the main music track
 
@@ -106,7 +107,6 @@ public class AudioManager : MonoBehaviour
 
     public void CrossfadeMusic(AudioClip newTrack)
     {
-        Debug.Log("CrossfadeMusic: " + newTrack.ToString());
         if (Bootstrap.IsServer()) return;
 
         // Check if the new track is the same as the currently playing track
@@ -122,6 +122,7 @@ public class AudioManager : MonoBehaviour
             // Once faded out, stop the current track and assign the new one
             musicSource.Stop();
             musicSource.clip = newTrack;
+            musicSource.loop = true;
             musicSource.Play();
 
             // Fade in the new track

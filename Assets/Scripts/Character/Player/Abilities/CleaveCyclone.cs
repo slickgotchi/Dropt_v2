@@ -22,6 +22,8 @@ public class CleaveCyclone : PlayerAbility
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         if (IsServer)
         {
             GenericProjectile.InitSpawnProjectileOnServer(ref m_projectile, ref m_projectileId, ProjectilePrefab);
@@ -30,10 +32,14 @@ public class CleaveCyclone : PlayerAbility
 
     public override void OnNetworkDespawn()
     {
+
         if (m_projectile != null)
         {
             if (IsServer) m_projectile.GetComponent<NetworkObject>().Despawn();
         }
+
+        base.OnNetworkDespawn();
+
     }
 
     protected override void Update()

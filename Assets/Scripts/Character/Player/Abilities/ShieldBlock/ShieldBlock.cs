@@ -31,6 +31,8 @@ public class ShieldBlock : PlayerAbility
     private void OnTransformParentChanged()
     {
         Transform parent = transform.parent;
+        if (parent == null) return;
+
         m_shieldBarCanvas = parent.GetComponentInChildren<ShieldBarCanvas>();
         m_isOwnner = parent.GetComponent<NetworkObject>().IsOwner;
     }
@@ -153,8 +155,31 @@ public class ShieldBlock : PlayerAbility
         m_shieldBarCanvas?.SetVisible(visible);
     }
 
+    /*
     public override void OnUpdate()
     {
+        if (!IsServer)
+        {
+            return;
+        }
+
+        foreach (KeyValuePair<Hand, ShieldData> data in m_shieldDatas)
+        {
+            data.Value.ShieldBlockStateMachine?.Update();
+        }
+
+        if (m_isBlocking)
+        {
+            float progress = GetHpRatio(m_blockingHand);
+            SetShieldBarCanvasProgressClientRpc(progress);
+        }
+    }
+    */
+
+    protected override void Update()
+    {
+        base.Update();
+
         if (!IsServer)
         {
             return;

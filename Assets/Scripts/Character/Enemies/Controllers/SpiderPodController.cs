@@ -60,7 +60,11 @@ public class SpiderPodController : NetworkBehaviour
             spider.GetComponent<Dropt.EnemyAI_Spider>().SpawnDuration = SpawnDuration;
             spider.GetComponent<Dropt.EnemyAI_Spider>().SpawnDirection = dir.normalized;
             spider.GetComponent<Dropt.EnemyAI_Spider>().SpawnDistance = SpawnDistance;
-            spider.GetComponent<NetworkObject>().Spawn();
+            spider.SetActive(false);
+
+            // DO NOT SPAWN DIRECTLY AFTER INSTANTIATING, UNITY NEEDS A FRAME TO ALLOW THE NAVMESH TO GET PICKED UP BY NEW SPIDERS
+            // USE THE DEFERRED SPAWNER INSTEAD
+            DeferredSpawner.SpawnNextFrame(spider.GetComponent<NetworkObject>());
         }
     }
 }

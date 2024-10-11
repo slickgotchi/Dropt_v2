@@ -871,6 +871,10 @@ MonoBehaviour:
   ApeVillage: {fileID: 8300000, guid: 36496e1f2a6514120915c79f2a6a8736, type: 3}
   UndergroundForest: {fileID: 8300000, guid: 00095c3cbdd1ba84a8c90fd021a04938, type: 3}
   RestFloor: {fileID: 8300000, guid: e994ffc0ae478d7498817a4e5cea3d6e, type: 3}
+  HitInorganic: {fileID: 8300000, guid: 1a7c744b385c56e4e808f79b01d3d0a9, type: 3}
+  HitOrganic: {fileID: 8300000, guid: d22985b494ed9fd49865d0235c7ed4d4, type: 3}
+  HitCrafted: {fileID: 8300000, guid: 13f942ee0deddb241bdb98c4841a7c44, type: 3}
+  EnemyHurt: {fileID: 8300000, guid: 00338429dfad27d438bd1444b96d7e3a, type: 3}
 --- !u!4 &133351122
 Transform:
   m_ObjectHideFlags: 0
@@ -1842,7 +1846,6 @@ GameObject:
   - component: {fileID: 349225741}
   - component: {fileID: 349225740}
   - component: {fileID: 349225744}
-  - component: {fileID: 349225745}
   m_Layer: 5
   m_Name: NetworkRoleCanvas_5000
   m_TagString: Untagged
@@ -1950,18 +1953,6 @@ MonoBehaviour:
   clientButton: {fileID: 1755628657}
   connectionDropdown: {fileID: 1708603497}
   isSkipTitle: 0
---- !u!114 &349225745
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 349225739}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2f19ec7e7041c4e818c7a1820846a568, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &370246303
 GameObject:
   m_ObjectHideFlags: 0
@@ -8031,10 +8022,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   region: 0
-  NetworkRole: 0
+  NetworkRole: 2
   ConnectionType: 0
-  AutoBoot: 1
-  AutoPlay: 0
+  AutoBoot: 0
+  AutoPlay: 1
   UseServerManager: 0
   IpAddress: 127.0.0.1
   GamePort: 9000
@@ -8277,7 +8268,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Tech Demo: v0.0.4'
+  m_text: 'Tech Demo: v0.0.5'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: ab305ece792064d47b813980fae95512, type: 2}
   m_sharedMaterial: {fileID: -8818544379179831580, guid: ab305ece792064d47b813980fae95512, type: 2}
@@ -9543,7 +9534,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 3000
+  m_SortingOrder: 6000
   m_TargetDisplay: 0
 --- !u!222 &1429710532295478947
 CanvasRenderer:
@@ -11093,7 +11084,7 @@ GameObject:
   - component: {fileID: 877553992}
   - component: {fileID: 8658033632992951036}
   m_Layer: 5
-  m_Name: OptionsMenuCanvas_3000
+  m_Name: OptionsMenuCanvas_6000
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -13655,11 +13646,11 @@ SceneRoots:
   - {fileID: 1046743871}
   - {fileID: 1735908361}
   - {fileID: 883695631}
+  - {fileID: 690641204540232531}
   - {fileID: 349225743}
   - {fileID: 1678473616}
   - {fileID: 383608110}
   - {fileID: 731152784}
-  - {fileID: 690641204540232531}
   - {fileID: 2047433332}
   - {fileID: 1731153060}
   - {fileID: 1122907061}

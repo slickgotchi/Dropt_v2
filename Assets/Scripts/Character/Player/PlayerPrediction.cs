@@ -133,6 +133,8 @@ public partial class PlayerPrediction : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         // deparent our circles for representing server/client prediction locations
         if (m_clientCircle != null) m_clientCircle.transform.SetParent(null);
         if (m_serverCircle != null) m_serverCircle.transform.SetParent(null);

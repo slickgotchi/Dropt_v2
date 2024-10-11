@@ -52,7 +52,7 @@ public class CoOpModeCanvas : DroptCanvas
 
         if (Input.GetKeyDown(KeyCode.M))
         {
-            MenuCard.SetActive(!MenuCard.activeSelf);
+            //MenuCard.SetActive(!MenuCard.activeSelf);
         }
 
         if (LevelManager.Instance.IsDegenapeVillage())

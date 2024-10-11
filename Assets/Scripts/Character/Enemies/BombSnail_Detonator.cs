@@ -16,6 +16,8 @@ public class BombSnail_Detonator : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         if (!IsServer) return;
         m_detonationTimer.Value = detonationTime;
         detonationText.enabled = false;

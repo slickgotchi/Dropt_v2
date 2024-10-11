@@ -15,6 +15,8 @@ namespace Level
 
         public override void OnNetworkSpawn()
         {
+            base.OnNetworkSpawn();
+
             UnityEngine.Random.InitState(System.DateTime.Now.Millisecond);
 
             if (IsServer)
@@ -46,6 +48,8 @@ namespace Level
         public override void OnNetworkDespawn()
         {
             // Implement any necessary cleanup here
+
+            base.OnNetworkDespawn();
         }
 
         private void Update()

@@ -20,9 +20,6 @@ public class GameServerHeartbeat : MonoBehaviour
     private float m_timer = 3.0f; // 3 seconds interval
     private float k_heartbeatInterval = 5f;
     public bool IsPublic = false;
-    private bool m_isFinished = false;
-
-    private DateTime startTime;
 
     private void Awake()
     {
@@ -36,8 +33,6 @@ public class GameServerHeartbeat : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-
-        startTime = DateTime.UtcNow;
     }
 
     private void Update()
@@ -55,8 +50,6 @@ public class GameServerHeartbeat : MonoBehaviour
 
     private async UniTaskVoid SendServerHeartbeat()
     {
-        if (m_isFinished) return;
-
         // player count
         m_playerCount = FindObjectsByType<PlayerController>(FindObjectsSortMode.None).Length;
 

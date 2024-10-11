@@ -25,13 +25,17 @@ namespace Dropt
             m_animator = GetComponent<Animator>();
         }
 
+        public override void OnNetworkSpawn()
+        {
+            base.OnNetworkSpawn();
+        }
+
         public override void OnSpawnStart()
         {
             m_interpDelay = IsHost ? 0 : 3 * 1 / (float)NetworkManager.Singleton.NetworkTickSystem.TickRate;
 
             m_animator.Play("Spider_Jump");
         }
-
 
         public override void OnSpawnUpdate(float dt)
         {
@@ -42,6 +46,11 @@ namespace Dropt
 
             var speed = (SpawnDistance / SpawnDuration) / (0.4f / 0.6f);
             transform.position += SpawnDirection * speed * dt;
+        }
+
+        public override void OnSpawnFinish()
+        {
+            base.OnSpawnFinish();
         }
 
         public override void OnTelegraphStart()
@@ -120,10 +129,6 @@ namespace Dropt
 
         void SpawnStompCircle()
         {
-            //SpawnBasicCircleClientRpc(
-            //    transform.position,
-            //    Dropt.Utils.Color.HexToColor("#622461", 0.5f),
-            //    1f);
         }
 
     }

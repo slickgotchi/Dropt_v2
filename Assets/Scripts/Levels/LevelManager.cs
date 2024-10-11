@@ -53,11 +53,11 @@ public class LevelManager : NetworkBehaviour
     // Start is called before the first frame update
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         if (!IsServer) return;
 
         GoToDegenapeVillageLevel();
-
-        //GameAudioManager.Instance.PLAY_SOUND += OnPlaySound;
     }
 
     public void GoToDegenapeVillageLevel()
@@ -90,14 +90,16 @@ public class LevelManager : NetworkBehaviour
         ProximityManager.Instance.enabled = false;
 
         // spawn everything that hasn't already
-        var levelSpawns = FindObjectsByType<Level.LevelSpawn>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-        foreach (var levelSpawn in levelSpawns)
-        {
-            if (!levelSpawn.isSpawned)
-            {
-                levelSpawn.GetComponent<NetworkObject>().Spawn();
-            }
-        }
+        //var levelSpawns = FindObjectsByType<Level.LevelSpawn>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        //foreach (var levelSpawn in levelSpawns)
+        //{
+        //    levelSpawn.gameObject.SetActive(true);
+        //    if (!levelSpawn.isSpawned)
+        //    {
+        //        levelSpawn.GetComponent<NetworkObject>().Spawn();
+        //    }
+        //}
+        LevelSpawnManager.Instance.TagAllCurrentLevelSpawnsForDead();
 
         // find everything to destroy
         var destroyObjects = new List<DestroyAtLevelChange>(FindObjectsByType<DestroyAtLevelChange>(FindObjectsInactive.Include, FindObjectsSortMode.None));
@@ -185,12 +187,6 @@ public class LevelManager : NetworkBehaviour
 
             NumberAndNameLevel();
         }
-
-        //if (IsClient)
-        //{
-        //    NumberAndNameLevel();
-        //}
-
     }
 
     private float k_numberAndLevelInterval = 0.5f;
@@ -324,7 +320,14 @@ public class LevelManager : NetworkBehaviour
             isLevelLoaded = true;
 
             // Update nav mesh
-            NavigationSurfaceSingleton.Instance.Surface.UpdateNavMesh(NavigationSurfaceSingleton.Instance.Surface.navMeshData);
+            //NavigationSurfaceSingleton.Instance.Surface.UpdateNavMesh(NavigationSurfaceSingleton.Instance.Surface.navMeshData);
+            //NavigationSurfaceSingleton.Instance.Surface.BuildNavMesh();
+
+            var navMeshes = FindObjectsByType<NavMeshPlus.Components.NavMeshSurface>(FindObjectsSortMode.None);
+            foreach (var surface in navMeshes)
+            {
+                surface.BuildNavMesh();
+            }
 
             // Spawn everything in the spawn list
             for (int i = 0; i < m_networkObjectSpawns.Count; i++)
@@ -421,6 +424,5 @@ public class LevelManager : NetworkBehaviour
     [Rpc(SendTo.NotMe)]
     void PlaySoundClientRpc(string type, Vector3 position, ulong id)
     {
-        //GameAudioManager.Instance.PlaySoundForMe(type, position);
     }
 }

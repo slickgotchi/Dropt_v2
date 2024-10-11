@@ -19,6 +19,7 @@ public class Aura : PlayerAbility
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
     }
 
     public override void OnStart()

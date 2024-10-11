@@ -7,6 +7,8 @@ public class Destructible : NetworkBehaviour
     public event Action DIE;
     public event Action PRE_DIE;
 
+    public AudioClip audioOnHit;
+
     public enum Type
     {
         Organic,
@@ -24,11 +26,25 @@ public class Destructible : NetworkBehaviour
         CurrentHp = new NetworkVariable<int>(Hp);
     }
 
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        // configure audio
+        if (type == Type.Crafted) audioOnHit = AudioLibrary.Instance.HitCrafted;
+        if (type == Type.Inorganic) audioOnHit = AudioLibrary.Instance.HitInorganic;
+        if (type == Type.Organic) audioOnHit = AudioLibrary.Instance.HitOrganic;
+    }
+
     public void TakeDamage(Wearable.WeaponTypeEnum weaponType)
     {
         var damage = CalculateDamageToDestructible(type, weaponType);
 
-        //GameAudioManager.Instance.PlayHit(type, gameObject.transform.position);
+        // play some hit audio
+        AudioManager.Instance.PlaySpatialSFX(
+            audioOnHit,
+            gameObject.transform.position
+            );
 
         if (CurrentHp.Value <= damage)
         {

@@ -49,12 +49,21 @@ public class NetworkCharacter : NetworkBehaviour
     [HideInInspector] public NetworkVariable<float> KnockbackMultiplier = new NetworkVariable<float>(0);
     [HideInInspector] public NetworkVariable<float> StunMultiplier = new NetworkVariable<float>(0);
 
+    public AudioClip OnHurtAudio;
+
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         if (IsServer)
         {
             // baseize default values on the server
             InitializeStats();
+        }
+
+        if (OnHurtAudio == null)
+        {
+            OnHurtAudio = AudioLibrary.Instance.EnemyHurt;
         }
     }
 
@@ -98,22 +107,27 @@ public class NetworkCharacter : NetworkBehaviour
         var enemyController = GetComponent<EnemyController>();
         if (enemyController == null) return;
 
-        // CLIENT or HOST
-        if (IsClient)
+        // try get the damage dealing player
+        var damageDealerNO = NetworkManager.SpawnManager.SpawnedObjects[damageDealerNOID];
+        bool isDamageDealerLocal = damageDealerNO == null ? false : damageDealerNO.GetComponent<NetworkObject>().IsLocalPlayer;
+
+        // LOCAL PLAYER
+        if (IsClient && isDamageDealerLocal)
         {
             // do sprite flash
             var spriteFlash = GetComponentInChildren<SpriteFlash>();
             if (spriteFlash != null) spriteFlash.DamageFlash();
 
             // play damage audio
-            //GameAudioManager.Instance.EnemyHurt(transform.position);
+            AudioManager.Instance.PlaySpatialSFX(OnHurtAudio, transform.position);
         }
 
-        // SERVER or HOST
+        // SERVER
         if (IsServer)
         {
             if (!IsHost) HandleEnemyTakeDamageClientRpc(damage, isCritical, damageDealerNOID);
 
+            // deplete hp
             HpCurrent.Value -= (int)damage;
             if (HpCurrent.Value < 0) { HpCurrent.Value = 0; }
             var position = transform.position + popupTextOffset;
@@ -147,6 +161,17 @@ public class NetworkCharacter : NetworkBehaviour
                 }
             }
         }
+
+        // REMOTE CLIENT
+        if (IsClient && !isDamageDealerLocal)
+        {
+            // do sprite flash
+            var spriteFlash = GetComponentInChildren<SpriteFlash>();
+            if (spriteFlash != null) spriteFlash.DamageFlash();
+
+            // play damage audio
+            AudioManager.Instance.PlaySpatialSFX(OnHurtAudio, transform.position);
+        }
     }
 
     [ClientRpc]
@@ -173,9 +198,6 @@ public class NetworkCharacter : NetworkBehaviour
             // do sprite flash
             var spriteFlash = GetComponentInChildren<SpriteFlash>();
             if (spriteFlash != null) spriteFlash.DamageFlash();
-
-            // play damage audio (should replace this with a gotchi sound)
-            //GameAudioManager.Instance.PlayerHurt(transform.position);
 
             // do local only effects
             if (gameObject.GetComponent<NetworkObject>().IsLocalPlayer)

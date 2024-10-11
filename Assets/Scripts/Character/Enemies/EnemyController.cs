@@ -34,6 +34,8 @@ public class EnemyController : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         if (IsClient && !IsHost)
         {
             Destroy(GetComponent<NavMeshAgent>());
@@ -47,13 +49,13 @@ public class EnemyController : NetworkBehaviour
             m_navMeshAgent.updateUpAxis = false;
             m_navMeshAgent.obstacleAvoidanceType = ObstacleAvoidanceType.NoObstacleAvoidance;
             m_navMeshAgent.enabled = true;
-
         }
 
     }
 
     public override void OnNetworkDespawn()
     {
+        base.OnNetworkDespawn();
     }
 
     // Update is called once per frame

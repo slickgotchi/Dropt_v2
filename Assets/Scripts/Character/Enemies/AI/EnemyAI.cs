@@ -94,8 +94,21 @@ namespace Dropt
 
         public override void OnNetworkSpawn()
         {
+            base.OnNetworkSpawn();
+
             networkCharacter = GetComponent<NetworkCharacter>();
             m_navMeshAgent = GetComponent<NavMeshAgent>();
+
+            // Find the closest point on the NavMesh
+            Vector3 navMeshPosition;
+            if (FindClosestNavMeshPosition(transform.position, out navMeshPosition))
+            {
+                transform.position = navMeshPosition;
+            }
+            else
+            {
+                Debug.LogWarning("No valid NavMesh found near spawn position.");
+            }
 
             RoamAnchorPoint = transform.position;
             m_spawnTimer = SpawnDuration;
@@ -545,5 +558,20 @@ namespace Dropt
             FinishState(state.Value);
             StartState(newState, newDuration);
         }
+
+        private bool FindClosestNavMeshPosition(Vector3 origin, out Vector3 navMeshPosition, float maxNavMeshDistance = 5f)
+        {
+            // Sample the NavMesh to find the closest point within the specified range
+            NavMeshHit hit;
+            if (NavMesh.SamplePosition(origin, out hit, maxNavMeshDistance, NavMesh.AllAreas))
+            {
+                navMeshPosition = hit.position;
+                return true; // Found a valid NavMesh surface
+            }
+
+            navMeshPosition = Vector3.zero;
+            return false; // No valid NavMesh surface found
+        }
+
     }
 }
