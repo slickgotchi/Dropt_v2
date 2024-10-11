@@ -11965,6 +11965,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68a437cd191db314f9e436ebc9a0cb26, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  levelMusic: {fileID: 0}
+  isEssenceDepleting: 1
 --- !u!114 &5186180774759570898
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -25542,7 +25544,7 @@ GameObject:
   - component: {fileID: 2093668246486105448}
   - component: {fileID: 3770155282411327103}
   m_Layer: 0
-  m_Name: SpawnEnemy
+  m_Name: SpawnTestChest
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -25577,7 +25579,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nillSpawnChance: 0
   spawnOptions:
-  - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 0fa50369c6fe97a45ab4ce801bc4ccbc, type: 3}
+  - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: a5c736ddf094e5547af877e25f832740, type: 3}
     Chance: 1
   spawnerId: 10
   spawnedNetworkObject: {fileID: 0}
@@ -25593,7 +25595,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7cb2e9a8c63d34ed981b289c8ba137aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spawnCondition: 2
+  spawnCondition: 0
   elapsedTime: 0
   destroyAllWithSpawnerId: -1
   touchTriggerWithSpawnerId: 69
@@ -48774,7 +48776,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8728812716572605501, guid: 4fedda7ea7c1d8a4fa28126bde0450bc, type: 3}
       propertyPath: m_AnimatedTiles.Array.data[10].second.m_AnimationSpeed
-      value: 3.0000002
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 8728812716572605501, guid: 4fedda7ea7c1d8a4fa28126bde0450bc, type: 3}
       propertyPath: m_AnimatedTiles.Array.data[11].second.m_AnimationSpeed
@@ -48786,7 +48788,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8728812716572605501, guid: 4fedda7ea7c1d8a4fa28126bde0450bc, type: 3}
       propertyPath: m_AnimatedTiles.Array.data[13].second.m_AnimationSpeed
-      value: 3
+      value: 3.0000002
       objectReference: {fileID: 0}
     - target: {fileID: 8728812716572605501, guid: 4fedda7ea7c1d8a4fa28126bde0450bc, type: 3}
       propertyPath: m_AnimatedTiles.Array.data[14].second.m_AnimationSpeed
