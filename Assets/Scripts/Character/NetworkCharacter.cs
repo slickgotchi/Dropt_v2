@@ -375,6 +375,7 @@ public class NetworkCharacter : NetworkBehaviour
         }
 
         var hpRatio = HpCurrent.Value / HpMax.Value;
+        var apRatio = ApCurrent.Value / ApMax.Value;
 
 
         Dictionary<CharacterStat, float> baseStats = new Dictionary<CharacterStat, float>
@@ -447,7 +448,7 @@ public class NetworkCharacter : NetworkBehaviour
         AttackPower.Value = baseStats[CharacterStat.AttackPower];
         CriticalChance.Value = baseStats[CharacterStat.CriticalChance];
         ApMax.Value = baseStats[CharacterStat.ApMax];
-        ApCurrent.Value = ApMax.Value;
+        ApCurrent.Value = ApMax.Value * apRatio;
         ApBuffer.Value = baseStats[CharacterStat.ApBuffer];
         DoubleStrikeChance.Value = baseStats[CharacterStat.DoubleStrikeChance];
         CriticalDamage.Value = baseStats[CharacterStat.CriticalDamage];
