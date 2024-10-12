@@ -241,11 +241,6 @@ public partial class PlayerPrediction : NetworkBehaviour
         // update playerGotchi on the current move direction
         m_playerGotchi.SetMoveDirection(m_moveDirection);
 
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            isTest = true;
-        }
-
         // set updated render position
         if (IsLocalPlayer)
         {
