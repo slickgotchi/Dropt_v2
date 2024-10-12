@@ -24,9 +24,20 @@ public class Game : MonoBehaviour
     private string m_serverCertificate;
     private string m_serverPrivateKey;
 
+    // reconnecting to new game from gaeover
+    private bool m_isTryConnectClientOrHostGame = false;
+    //private float m_isTryConnectClientOrHostGameTimer = 0f;
+
     private void Awake()
     {
         Instance = this;
+    }
+
+    public void TryConnectClientOrHostGame()
+    {
+        if (m_isTryConnectClientOrHostGame) return;
+
+        m_isTryConnectClientOrHostGame = true;
     }
 
     private void Start()
@@ -91,21 +102,23 @@ public class Game : MonoBehaviour
         Debug.Log("StartServer()");
     }
 
-    private bool m_isTryConnectClientOrHostGame = false;
-    private float m_isTryConnectClientOrHostGameTimer = 0f;
+
 
     public void Update()
     {
-        m_isTryConnectClientOrHostGameTimer -= Time.deltaTime;
-        if (m_isTryConnectClientOrHostGame && m_isTryConnectClientOrHostGameTimer < 0)
+        if (m_isTryConnectClientOrHostGame)
         {
-            m_isTryConnectClientOrHostGame = false;
-            if (Bootstrap.IsClient())
+            if (!NetworkManager.Singleton.ShutdownInProgress)
             {
-                ConnectClientGame();
-            } else if (Bootstrap.IsHost())
-            {
-                ConnectHostGame();
+                m_isTryConnectClientOrHostGame = false;
+                if (Bootstrap.IsClient())
+                {
+                    ConnectClientGame();
+                }
+                else if (Bootstrap.IsHost())
+                {
+                    ConnectHostGame();
+                }
             }
         }
     }
@@ -113,16 +126,6 @@ public class Game : MonoBehaviour
     public async UniTaskVoid ConnectClientGame()
     {
         Debug.Log("ConnectClientGame()");
-
-        if (m_isTryConnectClientOrHostGame) return;
-        if (NetworkManager.Singleton.ShutdownInProgress)
-        {
-            Debug.Log("shutdown in progress");
-            // try again in  1 second
-            m_isTryConnectClientOrHostGame = true;
-            m_isTryConnectClientOrHostGameTimer = 1f;
-            return;
-        }
 
         m_transport.UseEncryption = (Bootstrap.Instance.UseServerManager || Bootstrap.IsRemoteConnection()) && !Bootstrap.IsHost();
 
@@ -181,16 +184,6 @@ public class Game : MonoBehaviour
     {
         Debug.Log("ConnectHostGame()");
 
-
-        if (m_isTryConnectClientOrHostGame) return;
-        if (NetworkManager.Singleton.ShutdownInProgress)
-        {
-            // try again in  1 second
-            m_isTryConnectClientOrHostGame = true;
-            m_isTryConnectClientOrHostGameTimer = 1f;
-            return;
-        }
-
         m_transport.UseEncryption = (Bootstrap.Instance.UseServerManager || Bootstrap.IsRemoteConnection()) && !Bootstrap.IsHost();
 
         // Additional logic for Host, if needed
@@ -207,8 +200,6 @@ public class Game : MonoBehaviour
         NetworkManager.Singleton.Shutdown();
     }
 
-
-
     private void LoadCertificateFiles()
     {
         if (!Bootstrap.IsServer()) return;
@@ -216,21 +207,10 @@ public class Game : MonoBehaviour
 
         try
         {
-            //string chainPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "certs/chain.pem");
-            //m_clientCA = File.ReadAllText(chainPath);
-
-            //string certPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "certs/cert.pem");
-            //m_serverCertificate = File.ReadAllText(certPath);
-
-            //string privkeyPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "certs/privkey.pem");
-            //m_serverPrivateKey = File.ReadAllText(privkeyPath);
-
             m_serverCertificate = Environment.GetEnvironmentVariable("SERVER_CERTIFICATE");
             m_serverPrivateKey = Environment.GetEnvironmentVariable("SERVER_PRIVATE_KEY");
 
             Debug.Log("Certificates loaded successfully.");
-            //Debug.Log("m_serverCommonName: " + m_serverCommonName);
-            //Debug.Log("m_clientCA: " + m_clientCA);
             Debug.Log("m_serverCertificate: " + m_serverCertificate);
             Debug.Log("m_serverPrivateKey: " + m_serverPrivateKey);
         }
