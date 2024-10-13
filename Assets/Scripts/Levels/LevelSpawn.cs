@@ -18,6 +18,7 @@ namespace Level
         public float elapsedTime = 0f;
         public float spawnInterval = 5f;
         public int destroyAllWithSpawnerId = -1;
+        public float spawnTimeAfterDestroyAll = 0;
         public int touchTriggerWithSpawnerId = -1;
         public float spawnTimeAfterTrigger = 0;
 
