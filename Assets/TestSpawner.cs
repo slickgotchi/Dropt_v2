@@ -26,36 +26,36 @@ public class TestSpawner : MonoBehaviour
             m_object = null;
         }
 
-        if (Input.GetKeyDown(KeyCode.V))
-        {
-            if (m_object == null)
-            {
-                // now instantiate
-                m_object = Object.Instantiate(spawnPrefab);
-                m_object.transform.position = new Vector3(-12, 2, 0);
-                m_object.SetActive(false);
-                Debug.Log("instantiated new object");
-            }
-        }
+        //if (Input.GetKeyDown(KeyCode.V))
+        //{
+        //    if (m_object == null)
+        //    {
+        //        // now instantiate
+        //        m_object = Object.Instantiate(spawnPrefab);
+        //        m_object.transform.position = new Vector3(-12, 2, 0);
+        //        m_object.SetActive(false);
+        //        Debug.Log("instantiated new object");
+        //    }
+        //}
 
-        if (Input.GetKeyDown(KeyCode.Z))
-        {
-            var player = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
-            var enemies = FindObjectsByType<EnemyController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-            foreach (var enemy in enemies)
-            {
-                enemy.GetComponent<NetworkCharacter>().TakeDamage(100000000, false, player[0].gameObject);
-            }
-        }
+        //if (Input.GetKeyDown(KeyCode.Z))
+        //{
+        //    var player = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+        //    var enemies = FindObjectsByType<EnemyController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        //    foreach (var enemy in enemies)
+        //    {
+        //        enemy.GetComponent<NetworkCharacter>().TakeDamage(100000000, false, player[0].gameObject);
+        //    }
+        //}
 
-        if (Input.GetKeyDown(KeyCode.B))
-        {
-            var navMeshes = FindObjectsByType<NavMeshPlus.Components.NavMeshSurface>(FindObjectsSortMode.None);
-            foreach (var surface in navMeshes)
-            {
-                surface.BuildNavMesh();
-                Debug.Log("Rebuilt surface");
-            }
-        }
+        //if (Input.GetKeyDown(KeyCode.B))
+        //{
+        //    var navMeshes = FindObjectsByType<NavMeshPlus.Components.NavMeshSurface>(FindObjectsSortMode.None);
+        //    foreach (var surface in navMeshes)
+        //    {
+        //        surface.BuildNavMesh();
+        //        Debug.Log("Rebuilt surface");
+        //    }
+        //}
     }
 }

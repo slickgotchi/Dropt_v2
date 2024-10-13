@@ -92,19 +92,12 @@ public class LevelManager : NetworkBehaviour
 
     public void DestroyCurrentLevel()
     {
+        if (!IsServer) return;
+
         // disable proximity manager
         ProximityManager.Instance.enabled = false;
 
-        // spawn everything that hasn't already
-        //var levelSpawns = FindObjectsByType<Level.LevelSpawn>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-        //foreach (var levelSpawn in levelSpawns)
-        //{
-        //    levelSpawn.gameObject.SetActive(true);
-        //    if (!levelSpawn.isSpawned)
-        //    {
-        //        levelSpawn.GetComponent<NetworkObject>().Spawn();
-        //    }
-        //}
+        // tag all spawns to die
         LevelSpawnManager.Instance.TagAllCurrentLevelSpawnsForDead();
 
         // find everything to destroy

@@ -15,10 +15,10 @@ public class AspectRatioManager : MonoBehaviour
     private void Update()
     {
         // Optionally, you can check for window size changes and reapply the aspect ratio if needed
-        if (Input.GetKeyDown(KeyCode.T))
-        {
-            ApplyAspectRatio();
-        }
+        //if (Input.GetKeyDown(KeyCode.T))
+        //{
+        //    ApplyAspectRatio();
+        //}
     }
 
     void ApplyAspectRatio()

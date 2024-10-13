@@ -56,9 +56,6 @@ public class REKTCanvas : NetworkBehaviour
     {
         Container.SetActive(false);
 
-        if (Bootstrap.IsHost())
-        {
-            Game.Instance.ConnectHostGame();
-        }
+        Game.Instance.TryConnectClientOrHostGame();
     }
 }

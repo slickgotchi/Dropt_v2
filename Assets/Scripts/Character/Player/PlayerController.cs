@@ -265,10 +265,10 @@ public class PlayerController : NetworkBehaviour
     // cheat to go to next level
     void HandleNextLevelCheat()
     {
-        if (Input.GetKeyDown(KeyCode.N))
-        {
-            GoNextLevelServerRpc();
-        }
+        //if (Input.GetKeyDown(KeyCode.N))
+        //{
+        //    GoNextLevelServerRpc();
+        //}
     }
 
     [Rpc(SendTo.Server)]
