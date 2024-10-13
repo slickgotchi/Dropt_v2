@@ -7,6 +7,7 @@ public class Spawner_SpawnConditionEditor : Editor
     SerializedProperty spawnCondition;
     SerializedProperty elapsedTime;
     SerializedProperty destroyAllWithSpawnerId;
+    SerializedProperty spawnTimeAfterDestroyAll;
     SerializedProperty touchTriggerWithSpawnerId;
     SerializedProperty spawnTimeAfterTrigger;
 
@@ -16,6 +17,7 @@ public class Spawner_SpawnConditionEditor : Editor
         spawnCondition = serializedObject.FindProperty("spawnCondition");
         elapsedTime = serializedObject.FindProperty("elapsedTime");
         destroyAllWithSpawnerId = serializedObject.FindProperty("destroyAllWithSpawnerId");
+        spawnTimeAfterDestroyAll = serializedObject.FindProperty("spawnTimeAfterDestroyAll");
         touchTriggerWithSpawnerId = serializedObject.FindProperty("touchTriggerWithSpawnerId");
         spawnTimeAfterTrigger = serializedObject.FindProperty("spawnTimeAfterTrigger");
     }
@@ -36,7 +38,7 @@ public class Spawner_SpawnConditionEditor : Editor
                 break;
             case Level.LevelSpawn.SpawnCondition.PlayerDestroyAllWithSpawnerId:
                 EditorGUILayout.PropertyField(destroyAllWithSpawnerId);
-              
+                EditorGUILayout.PropertyField(spawnTimeAfterDestroyAll);
                 break;
             case Level.LevelSpawn.SpawnCondition.PlayerTouchTriggerWithSpawnerId:
                 EditorGUILayout.PropertyField(touchTriggerWithSpawnerId);
