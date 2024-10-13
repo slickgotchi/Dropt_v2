@@ -70,7 +70,8 @@ public class LevelSpawnManager : MonoBehaviour
                     // check if there are no spawns with the id of destroyall
                     if (!activeLevelSpawnIds.Contains(levelSpawn.destroyAllWithSpawnerId))
                     {
-                        isSpawnTime = true;
+                        levelSpawn.spawnCondition = LevelSpawn.SpawnCondition.ElapsedTime;
+                        levelSpawn.elapsedTime = levelSpawn.spawnTimeAfterDestroyAll;
                     }
                     break;
                 case LevelSpawn.SpawnCondition.PlayerTouchTriggerWithSpawnerId:

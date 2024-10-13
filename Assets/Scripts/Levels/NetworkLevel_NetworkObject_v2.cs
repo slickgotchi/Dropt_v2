@@ -54,6 +54,7 @@ namespace Level
                 levelSpawn.spawnCondition = spawnCondition.spawnCondition;
                 levelSpawn.elapsedTime = spawnCondition.elapsedTime;
                 levelSpawn.destroyAllWithSpawnerId = spawnCondition.destroyAllWithSpawnerId;
+                levelSpawn.spawnTimeAfterDestroyAll = spawnCondition.spawnTimeAfterDestroyAll;
                 levelSpawn.touchTriggerWithSpawnerId = spawnCondition.touchTriggerWithSpawnerId;
                 levelSpawn.spawnTimeAfterTrigger = spawnCondition.spawnTimeAfterTrigger;
             }

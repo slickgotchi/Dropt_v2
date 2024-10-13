@@ -12,6 +12,7 @@ public class Spawner_SpawnCondition : MonoBehaviour
     // DestroyedAllWithSpawnerId
     [SerializeField]
     public int destroyAllWithSpawnerId = -1;
+    public float spawnTimeAfterDestroyAll = 0f;
 
     // PlayerTouchTriggerWithSpawnerId
     [SerializeField]
