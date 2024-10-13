@@ -36,6 +36,7 @@ public class Spawner_SpawnConditionEditor : Editor
                 break;
             case Level.LevelSpawn.SpawnCondition.PlayerDestroyAllWithSpawnerId:
                 EditorGUILayout.PropertyField(destroyAllWithSpawnerId);
+              
                 break;
             case Level.LevelSpawn.SpawnCondition.PlayerTouchTriggerWithSpawnerId:
                 EditorGUILayout.PropertyField(touchTriggerWithSpawnerId);
