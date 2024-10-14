@@ -86,7 +86,7 @@ public partial class PlayerPrediction : NetworkBehaviour
         if (!IsInputEnabled) return;
 
         m_abilityHand = Hand.Left;
-        var lhWearable = GetComponent<PlayerEquipment>().LeftHand.Value;
+        var lhWearable = m_playerEquipment.LeftHand.Value;
         m_triggeredAbilityEnum = m_playerAbilities.GetAttackAbilityEnum(lhWearable);
     }
 
@@ -115,7 +115,7 @@ public partial class PlayerPrediction : NetworkBehaviour
         if (!IsInputEnabled) return;
 
         m_abilityHand = Hand.Left;
-        var lhWearable = GetComponent<PlayerEquipment>().LeftHand.Value;
+        var lhWearable = m_playerEquipment.LeftHand.Value;
         m_triggeredAbilityEnum = m_playerAbilities.GetSpecialAbilityEnum(lhWearable);
     }
 
@@ -143,7 +143,7 @@ public partial class PlayerPrediction : NetworkBehaviour
         if (!IsLocalPlayer) return;
         if (!IsInputEnabled) return;
 
-        var lhWearable = GetComponent<PlayerEquipment>().LeftHand.Value;
+        var lhWearable = m_playerEquipment.LeftHand.Value;
         m_holdStartTriggeredAbilityEnum = m_playerAbilities.GetHoldAbilityEnum(lhWearable);
         var holdAbility = m_playerAbilities.GetAbility(m_holdStartTriggeredAbilityEnum);
         m_IsShieldAbilityActive = m_holdStartTriggeredAbilityEnum == PlayerAbilityEnum.ShieldBlock;
@@ -178,7 +178,7 @@ public partial class PlayerPrediction : NetworkBehaviour
         if (m_holdState != HoldState.LeftActive) return;
 
         m_abilityHand = Hand.Left;
-        var lhWearable = GetComponent<PlayerEquipment>().LeftHand.Value;
+        var lhWearable = m_playerEquipment.LeftHand.Value;
         m_triggeredAbilityEnum = m_playerAbilities.GetHoldAbilityEnum(lhWearable);
 
         m_isHoldFinishFlag = true;
@@ -213,7 +213,7 @@ public partial class PlayerPrediction : NetworkBehaviour
         if (!IsInputEnabled) return;
 
         m_abilityHand = Hand.Right;
-        var rhWearable = GetComponent<PlayerEquipment>().RightHand.Value;
+        var rhWearable = m_playerEquipment.RightHand.Value;
         m_triggeredAbilityEnum = m_playerAbilities.GetAttackAbilityEnum(rhWearable);
     }
 
@@ -242,7 +242,7 @@ public partial class PlayerPrediction : NetworkBehaviour
         if (!IsInputEnabled) return;
 
         m_abilityHand = Hand.Right;
-        var rhWearable = GetComponent<PlayerEquipment>().RightHand.Value;
+        var rhWearable = m_playerEquipment.RightHand.Value;
         m_triggeredAbilityEnum = m_playerAbilities.GetSpecialAbilityEnum(rhWearable);
     }
 
@@ -270,7 +270,7 @@ public partial class PlayerPrediction : NetworkBehaviour
         if (!IsLocalPlayer) return;
         if (!IsInputEnabled) return;
 
-        var rhWearable = GetComponent<PlayerEquipment>().RightHand.Value;
+        var rhWearable = m_playerEquipment.RightHand.Value;
         m_holdStartTriggeredAbilityEnum = m_playerAbilities.GetHoldAbilityEnum(rhWearable);
         var holdAbility = m_playerAbilities.GetAbility(m_holdStartTriggeredAbilityEnum);
         m_IsShieldAbilityActive = m_holdStartTriggeredAbilityEnum == PlayerAbilityEnum.ShieldBlock;
@@ -305,7 +305,7 @@ public partial class PlayerPrediction : NetworkBehaviour
         if (m_holdState != HoldState.RightActive) return;
 
         m_abilityHand = Hand.Right;
-        var rhWearable = GetComponent<PlayerEquipment>().RightHand.Value;
+        var rhWearable = m_playerEquipment.RightHand.Value;
         m_triggeredAbilityEnum = m_playerAbilities.GetHoldAbilityEnum(rhWearable);
 
         m_isHoldFinishFlag = true;
