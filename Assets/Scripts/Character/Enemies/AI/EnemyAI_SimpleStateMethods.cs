@@ -170,10 +170,10 @@ namespace Dropt
             GetComponent<NavMeshAgent>().isStopped = true;
 
             // instantiate an attack
-            var ability = Instantiate(PrimaryAttack);
+            GameObject ability = Instantiate(PrimaryAttack, transform.position, Quaternion.identity);
 
             // get enemy ability of attack
-            var enemyAbility = ability.GetComponent<EnemyAbility>();
+            EnemyAbility enemyAbility = ability.GetComponent<EnemyAbility>();
             if (enemyAbility == null) return;
 
             // initialise the ability
