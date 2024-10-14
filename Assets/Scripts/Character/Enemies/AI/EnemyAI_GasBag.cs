@@ -154,6 +154,14 @@ namespace Dropt
             // do a collision check
             List<Collider2D> playerHitColliders = new List<Collider2D>();
             OnTouchPoisonCollider.OverlapCollider(PlayerAbility.GetContactFilter(new string[] { "PlayerHurt" }), playerHitColliders);
+            if (playerHitColliders.Count == 0)
+            {
+                if (IsServer)
+                {
+                    Utils.Anim.Play(m_animator, "GasBag_Roam");
+                }
+                return;
+            }
             foreach (Collider2D hit in playerHitColliders)
             {
                 Transform player = hit.transform.parent;
