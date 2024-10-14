@@ -152,7 +152,7 @@ public partial class PlayerPrediction : NetworkBehaviour
 
         m_holdState = HoldState.LeftActive;
         m_holdChargeTime = holdAbility.HoldChargeTime;
-        m_holdInputStartTick = timer.CurrentTick;
+        m_holdInputStartTick = NetworkTimer_v2.Instance.TickCurrent;
     }
 
     private void OnMouse_LeftHoldStart(InputValue value)
@@ -279,7 +279,7 @@ public partial class PlayerPrediction : NetworkBehaviour
 
         m_holdChargeTime = holdAbility.HoldChargeTime;
         m_holdState = HoldState.RightActive;
-        m_holdInputStartTick = timer.CurrentTick;
+        m_holdInputStartTick = NetworkTimer_v2.Instance.TickCurrent;
     }
 
     private void OnMouse_RightHoldStart(InputValue value)

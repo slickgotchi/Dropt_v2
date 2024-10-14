@@ -7,6 +7,7 @@ public class NetworkTimer_v2 : MonoBehaviour
     public static NetworkTimer_v2 Instance;
 
     public float TickInterval = 0.1f;
+    public float TickRate = 10f;
 
     [HideInInspector] public int TickCurrent;
     [HideInInspector] public float TickFraction;
@@ -31,12 +32,14 @@ public class NetworkTimer_v2 : MonoBehaviour
         TickCurrent = 0;
         TickFraction = 0;
         m_timer = 0;
+
+        TickRate = 1 / TickInterval;
     }
 
-    public void Update(float dt)
+    private void Update()
     {
         // update timers
-        m_timer += dt;
+        m_timer += Time.deltaTime;
 
         // check for tick time
         int loopBreakCount = 0;
