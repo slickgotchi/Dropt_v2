@@ -6,6 +6,7 @@ public class CGHSTDoor : Interactable
 {
     [SerializeField] private int m_costToOpenTheDoor;
     [SerializeField] private TextMeshProUGUI m_costText;
+    [SerializeField] private GameObject m_costIcon;
     [SerializeField] private BoxCollider2D m_leftOpenCollider;
     [SerializeField] private BoxCollider2D m_rightOpenCollider;
     [SerializeField] private BoxCollider2D m_closeCollider;
@@ -45,6 +46,8 @@ public class CGHSTDoor : Interactable
     [ClientRpc]
     private void OpenDoorClientRpc()
     {
+        m_costText.gameObject.SetActive(false);
+        m_costIcon.SetActive(false);
         GetComponent<BoxCollider2D>().enabled = false;
         m_closeCollider.enabled = false;
         m_leftOpenCollider.enabled = true;
