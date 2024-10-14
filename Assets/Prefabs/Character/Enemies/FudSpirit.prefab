@@ -223,7 +223,7 @@ MonoBehaviour:
   baseHpMax: 100
   baseHpCurrent: 100
   baseHpBuffer: 0
-  baseAttackPower: 10
+  baseAttackPower: 14
   baseCriticalChance: 0.1
   baseApMax: 0
   baseApCurrent: 0
@@ -412,7 +412,7 @@ MonoBehaviour:
   PursueSpeedMultiplier: 2
   RoamSpeedMultiplier: 0.1
   FleeSpeedMultiplier: 5
-  AggroRange: 12
+  AggroRange: 14
   AlertRange: 5
   AttackRange: 9
   BreakAggroRange: 30
@@ -421,10 +421,10 @@ MonoBehaviour:
   BreakFleeRange: 12
   PursueStopShortRange: 0.5
   SpawnDuration: 1
-  TelegraphDuration: 1.5
-  AttackDuration: 0.5
-  CooldownDuration: 1.5
-  TelegraphSelectTargetTimeRatio: 0.9
+  TelegraphDuration: 1.2
+  AttackDuration: 0.1
+  CooldownDuration: 1.2
+  TelegraphSelectTargetTimeRatio: 1
   PrimaryAttack: {fileID: 5596135892032325526, guid: 5dfd5ef403603c34598e3e82a2631762, type: 3}
   SecondaryAttack: {fileID: 0}
   avoidanceRadius: 1
@@ -439,8 +439,8 @@ MonoBehaviour:
     m_InternalValue: 1
   debugSlider:
     m_InternalValue: 0
-  InvisibleDuration: 1
-  MaxPursueRange: 16
+  InvisibleDuration: 0.6
+  MaxPursueRange: 14
   m_fadeinDuration: 1
   m_fadeoutDuration: 1
 --- !u!1 &2682488299147284056
