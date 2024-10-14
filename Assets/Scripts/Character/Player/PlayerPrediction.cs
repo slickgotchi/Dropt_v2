@@ -50,7 +50,7 @@ public partial class PlayerPrediction : NetworkBehaviour
     // Netcode general
     NetworkTimer timer;
     public NetworkTimer Timer => timer;
-    public const float k_serverTickRate = 15;
+    public const float k_serverTickRate = 10;
     const int k_bufferSize = 128;
 
     // Netcode client
