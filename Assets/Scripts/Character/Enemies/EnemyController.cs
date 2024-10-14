@@ -115,7 +115,6 @@ public class EnemyController : NetworkBehaviour
             if (m_facingTimer > 0f) return;
 
             m_facingDirection = m_agentVelocity.Value.x < 0 ? Facing.Left : Facing.Right;
-            //SpriteToFlip.flipX = FacingDirection == Facing.Left ? true : false;
             FlipEnemySprites();
         }
     }

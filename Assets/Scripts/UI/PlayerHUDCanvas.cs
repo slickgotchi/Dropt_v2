@@ -39,10 +39,10 @@ public class PlayerHUDCanvas : MonoBehaviour
     }
 
     [SerializeField] private GameObject m_container;
-    [SerializeField] private Slider m_healthSlider;
-    [SerializeField] private TextMeshProUGUI m_healthText;
-    [SerializeField] private Slider m_abilitySlider;
-    [SerializeField] private TextMeshProUGUI m_abilityText;
+    [SerializeField] private Image m_hpImage;
+    [SerializeField] private TextMeshProUGUI m_hpText;
+    [SerializeField] private Image m_apImage;
+    [SerializeField] private TextMeshProUGUI m_apText;
 
     [SerializeField] private TextMeshProUGUI m_lhCooldownText;
     [SerializeField] private TextMeshProUGUI m_rhCooldownText;
@@ -51,6 +51,7 @@ public class PlayerHUDCanvas : MonoBehaviour
     [SerializeField] private TextMeshProUGUI m_cGhstText;
 
     [SerializeField] private TextMeshProUGUI m_essenceText;
+    [SerializeField] private Image m_essenceImage;
 
     [SerializeField] private Image LHWearableImage;
     [SerializeField] private Image RHWearableImage;
@@ -122,19 +123,17 @@ public class PlayerHUDCanvas : MonoBehaviour
         var maxHp = m_localPlayerCharacter.HpMax.Value + m_localPlayerCharacter.HpBuffer.Value;
         var currHp = m_localPlayerCharacter.HpCurrent.Value;
 
-        m_healthSlider.maxValue = maxHp;
-        m_healthSlider.value = currHp;
+        m_hpImage.fillAmount = currHp / maxHp;
 
-        m_healthText.text = currHp.ToString("F0") + " / " + maxHp.ToString("F0");
+        m_hpText.text = currHp.ToString("F0") + " / " + maxHp.ToString("F0");
 
         // AP
         var maxAp = m_localPlayerCharacter.ApMax.Value + m_localPlayerCharacter.ApBuffer.Value;
         var currAp = m_localPlayerCharacter.ApCurrent.Value;
 
-        m_abilitySlider.maxValue = maxAp;
-        m_abilitySlider.value = currAp;
+        m_apImage.fillAmount = currAp / maxAp;
 
-        m_abilityText.text = currAp.ToString("F0") + " / " + maxAp.ToString("F0");
+        m_apText.text = currAp.ToString("F0") + " / " + maxAp.ToString("F0");
     }
 
     void UpdateCooldowns()
@@ -160,6 +159,7 @@ public class PlayerHUDCanvas : MonoBehaviour
     {
         var essence = m_localPlayerDungeonData.Essence;
         m_essenceText.text = essence.Value.ToString("F0");
+        m_essenceImage.fillAmount = essence.Value / 1000;
     }
 
     void UpdateCGHST()
