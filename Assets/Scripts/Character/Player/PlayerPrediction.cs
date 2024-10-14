@@ -269,13 +269,19 @@ public partial class PlayerPrediction : NetworkBehaviour
     }
 
     // 1. See if time to do a tick
-    private void FixedUpdate()
+    //private void FixedUpdate()
+    //{
+    //    while (timer.ShouldTick())
+    //    {
+    //        HandleClientTick();
+    //        HandleServerTick();
+    //    }
+    //}
+
+    public void Tick()
     {
-        while (timer.ShouldTick())
-        {
-            HandleClientTick();
-            HandleServerTick();
-        }
+        HandleClientTick();
+        HandleServerTick();
     }
 
     // 2. Create an input payload on this tick
