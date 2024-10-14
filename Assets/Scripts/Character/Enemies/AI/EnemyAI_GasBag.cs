@@ -96,13 +96,21 @@ namespace Dropt
             {
                 return;
             }
+
             ShowPoisionCloudClientRpc();
             GenerateEnemyAbility();
+        }
+
+        private void HideHpBar()
+        {
+            GameObject hpBar = transform.GetComponentInChildren<StatBarCanvas>().gameObject;
+            hpBar.SetActive(false);
         }
 
         [ClientRpc]
         private void ShowPoisionCloudClientRpc()
         {
+            HideHpBar();
             m_greenCloud.SetActive(true);
         }
 
