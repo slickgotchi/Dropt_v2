@@ -24,7 +24,8 @@ public class PlayerPickupItemMagnet : NetworkBehaviour
 
         if (m_currentPickupItem != null)
         {
-            m_currentPickupItem.Pick(gameObject.GetComponent<PlayerPickupItemMagnet>());
+            //m_currentPickupItem.Pick(gameObject.GetComponent<PlayerPickupItemMagnet>());
+            m_currentPickupItem.TryGoTo(gameObject);
         }
     }
 
