@@ -48,9 +48,9 @@ public partial class PlayerPrediction : NetworkBehaviour
     private PlayerGotchi m_playerGotchi;
 
     // Netcode general
-    NetworkTimer timer;
-    public NetworkTimer Timer => timer;
-    public const float k_serverTickRate = 10;
+    //NetworkTimer timer;
+    //public NetworkTimer Timer => timer;
+    //public const float k_serverTickRate = 10;
     const int k_bufferSize = 128;
 
     // Netcode client
@@ -140,7 +140,7 @@ public partial class PlayerPrediction : NetworkBehaviour
         if (m_serverCircle != null) m_serverCircle.transform.SetParent(null);
 
         // Netcode init
-        timer = new NetworkTimer(k_serverTickRate);
+        //timer = new NetworkTimer(k_serverTickRate);
 
         clientStateBuffer = new CircularBuffer<StatePayload>(k_bufferSize);
         clientInputBuffer = new CircularBuffer<InputPayload>(k_bufferSize);
@@ -178,26 +178,29 @@ public partial class PlayerPrediction : NetworkBehaviour
 
     public float GetSpecialCooldownRemaining(Hand hand)
     {
+        int currentTick = NetworkTimer_v2.Instance.TickCurrent;
+        float tickRate = NetworkTimer_v2.Instance.TickRate;
+
         if (hand == Hand.Left)
         {
-            if (m_lhSpecialCooldownExpiryTick < timer.CurrentTick)
+            if (m_lhSpecialCooldownExpiryTick < currentTick)
             {
                 return 0;
             }
             else
             {
-                return math.floor((m_lhSpecialCooldownExpiryTick - timer.CurrentTick) / k_serverTickRate);
+                return math.floor((m_lhSpecialCooldownExpiryTick - currentTick) / tickRate);
             }
         }
         else
         {
-            if (m_rhSpecialCooldownExpiryTick < timer.CurrentTick)
+            if (m_rhSpecialCooldownExpiryTick < currentTick)
             {
                 return 0;
             }
             else
             {
-                return math.floor((m_rhSpecialCooldownExpiryTick - timer.CurrentTick) / k_serverTickRate);
+                return math.floor((m_rhSpecialCooldownExpiryTick - currentTick) / tickRate);
             }
         }
     }
@@ -208,9 +211,12 @@ public partial class PlayerPrediction : NetworkBehaviour
 
     public float GetHoldPercentage()
     {
+        int currentTick = NetworkTimer_v2.Instance.TickCurrent;
+        float tickRate = NetworkTimer_v2.Instance.TickRate;
+
         if (m_holdState == HoldState.Inactive || m_IsShieldAbilityActive) return 0;
 
-        var holdDuration = (timer.CurrentTick - m_holdInputStartTick) / k_serverTickRate;
+        var holdDuration = (currentTick - m_holdInputStartTick) / tickRate;
         var holdPercent = math.min(holdDuration / m_holdChargeTime, 1f);
 
         return holdPercent;
@@ -235,7 +241,7 @@ public partial class PlayerPrediction : NetworkBehaviour
 
         // timer stuff
         float dt = Time.deltaTime;
-        timer.Update(dt);
+        //timer.Update(dt);
         m_actionDirectionTimer -= dt;
 
         // update playerGotchi on the current move direction
@@ -291,7 +297,8 @@ public partial class PlayerPrediction : NetworkBehaviour
         if (!IsLocalPlayer) return;
 
         // store current tick and buffer index
-        var currentTick = timer.CurrentTick;
+        var currentTick = NetworkTimer_v2.Instance.TickCurrent;
+        var tickRate = NetworkTimer_v2.Instance.TickRate;
         var bufferIndex = currentTick % k_bufferSize;   // this just ensures we go back to index 0 when tick goes past buffer size
 
         // if ability not ready, we don't count as input this tick
@@ -366,7 +373,7 @@ public partial class PlayerPrediction : NetworkBehaviour
         {
             var speed = triggeredAbility.AutoMoveDistance / triggeredAbility.AutoMoveDuration;
             m_autoMoveVelocity = m_actionDirection * speed;
-            m_autoMoveExpiryTick = currentTick + (int)(triggeredAbility.AutoMoveDuration * k_serverTickRate);
+            m_autoMoveExpiryTick = currentTick + (int)(triggeredAbility.AutoMoveDuration * tickRate);
         }
 
         // locally process the movement and save our new state for this current tick
@@ -377,7 +384,7 @@ public partial class PlayerPrediction : NetworkBehaviour
         if (triggeredAbility != null && m_triggeredAbilityEnum != PlayerAbilityEnum.Null)
         {
             // calc any hold duration
-            var holdDuration = (m_holdFinishTick - m_holdStartTick) / k_serverTickRate;
+            var holdDuration = (m_holdFinishTick - m_holdStartTick) / tickRate;
 
             // call HoldFinish() if this is a hold ability
             if (triggeredAbility.abilityType == PlayerAbility.AbilityType.Hold) triggeredAbility.HoldFinish();
@@ -386,12 +393,12 @@ public partial class PlayerPrediction : NetworkBehaviour
             triggeredAbility.Activate(gameObject, statePayload, inputPayload, holdDuration);
 
             // set cooldown tick
-            m_abilityCooldownExpiryTick_CLIENT = currentTick + (int)math.ceil((triggeredAbility.ExecutionDuration + triggeredAbility.CooldownDuration) * k_serverTickRate);
+            m_abilityCooldownExpiryTick_CLIENT = currentTick + (int)math.ceil((triggeredAbility.ExecutionDuration + triggeredAbility.CooldownDuration) * tickRate);
 
             // set cooldown tick if special
             if (triggeredAbility.abilityType == PlayerAbility.AbilityType.Special)
             {
-                int expiryTick = currentTick + (int)math.ceil((triggeredAbility.SpecialCooldown + triggeredAbility.ExecutionDuration) * k_serverTickRate);
+                int expiryTick = currentTick + (int)math.ceil((triggeredAbility.SpecialCooldown + triggeredAbility.ExecutionDuration) * tickRate);
                 if (m_abilityHand == Hand.Left) m_lhSpecialCooldownExpiryTick = expiryTick;
                 else m_rhSpecialCooldownExpiryTick = expiryTick;
             }
@@ -399,7 +406,7 @@ public partial class PlayerPrediction : NetworkBehaviour
             // set slow down ticks
             m_slowFactor = triggeredAbility.ExecutionSlowFactor;
             m_slowFactorStartTick = currentTick;
-            m_slowFactorExpiryTick = currentTick + (int)math.ceil(triggeredAbility.ExecutionDuration * k_serverTickRate);
+            m_slowFactorExpiryTick = currentTick + (int)math.ceil(triggeredAbility.ExecutionDuration * tickRate);
             m_cooldownSlowFactor = triggeredAbility.CooldownSlowFactor;
         }
 
@@ -427,6 +434,8 @@ public partial class PlayerPrediction : NetworkBehaviour
         var bufferIndex = -1;
         InputPayload inputPayload = default;
         StatePayload statePayload = default;
+
+        var tickRate = NetworkTimer_v2.Instance.TickRate;
 
         while (serverInputQueue.Count > 0)
         {
@@ -483,7 +492,7 @@ public partial class PlayerPrediction : NetworkBehaviour
             {
                 var speed = triggeredAbility.AutoMoveDistance / triggeredAbility.AutoMoveDuration;
                 m_autoMoveVelocity = inputPayload.actionDirection * speed;
-                m_autoMoveExpiryTick = inputPayload.tick + (int)(triggeredAbility.AutoMoveDuration * k_serverTickRate);
+                m_autoMoveExpiryTick = inputPayload.tick + (int)(triggeredAbility.AutoMoveDuration * tickRate);
             }
 
             // 5. process input
@@ -505,7 +514,7 @@ public partial class PlayerPrediction : NetworkBehaviour
             if (triggeredAbility != null && inputPayload.triggeredAbilityEnum != PlayerAbilityEnum.Null && !IsHost)
             {
                 // calc any hold duration
-                var holdDuration = (m_holdFinishTick - m_holdStartTick) / k_serverTickRate;
+                var holdDuration = (m_holdFinishTick - m_holdStartTick) / tickRate;
 
                 // call HoldFinish() if this is a hold ability
                 if (!IsHost && triggeredAbility.abilityType == PlayerAbility.AbilityType.Hold) triggeredAbility.HoldFinish();
@@ -514,12 +523,12 @@ public partial class PlayerPrediction : NetworkBehaviour
                 if (!IsHost) triggeredAbility.Activate(gameObject, statePayload, inputPayload, holdDuration);
 
                 // calc cooldown
-                m_abilityCooldownExpiryTick_SERVER = inputPayload.tick + (int)math.ceil((triggeredAbility.ExecutionDuration + triggeredAbility.CooldownDuration) * k_serverTickRate);
+                m_abilityCooldownExpiryTick_SERVER = inputPayload.tick + (int)math.ceil((triggeredAbility.ExecutionDuration + triggeredAbility.CooldownDuration) * tickRate);
 
                 // set special cooldown
                 if (triggeredAbility.abilityType == PlayerAbility.AbilityType.Special)
                 {
-                    int expiryTick = inputPayload.tick + (int)math.ceil((triggeredAbility.SpecialCooldown + triggeredAbility.ExecutionDuration) * k_serverTickRate);
+                    int expiryTick = inputPayload.tick + (int)math.ceil((triggeredAbility.SpecialCooldown + triggeredAbility.ExecutionDuration) * tickRate);
                     if (m_abilityHand == Hand.Left) m_lhSpecialCooldownExpiryTick = expiryTick;
                     else m_rhSpecialCooldownExpiryTick = expiryTick;
                 }
@@ -529,7 +538,7 @@ public partial class PlayerPrediction : NetworkBehaviour
                     // set slow down ticks
                     m_slowFactor = triggeredAbility.ExecutionSlowFactor;
                     m_slowFactorStartTick = inputPayload.tick;
-                    m_slowFactorExpiryTick = inputPayload.tick + (int)math.ceil(triggeredAbility.ExecutionDuration * k_serverTickRate);
+                    m_slowFactorExpiryTick = inputPayload.tick + (int)math.ceil(triggeredAbility.ExecutionDuration * tickRate);
                     m_cooldownSlowFactor = triggeredAbility.CooldownSlowFactor;
                 }
 
@@ -586,7 +595,9 @@ public partial class PlayerPrediction : NetworkBehaviour
         int MAX_REPLAYS = 10;
         int counter = 0;
 
-        while (tickToReplay <= timer.CurrentTick && counter < MAX_REPLAYS)
+        var currentTick = NetworkTimer_v2.Instance.TickCurrent;
+
+        while (tickToReplay <= currentTick && counter < MAX_REPLAYS)
         {
             bufferIndex = tickToReplay % k_bufferSize;
             StatePayload statePayload = ProcessInput(clientInputBuffer.Get(bufferIndex), true, false);
@@ -661,7 +672,7 @@ public partial class PlayerPrediction : NetworkBehaviour
 
         // simulate
         Physics2D.simulationMode = SimulationMode2D.Script;
-        var simulationTime = 1f / k_serverTickRate;
+        var simulationTime = 1f / NetworkTimer_v2.Instance.TickRate;
         while (simulationTime > 0f)
         {
             Physics2D.Simulate(Time.fixedDeltaTime);    // need to simulate at fixedDeltaTime
@@ -744,12 +755,15 @@ public partial class PlayerPrediction : NetworkBehaviour
         // save last server state
         lastServerState = statePayload;
 
+        var currentTick = NetworkTimer_v2.Instance.TickCurrent;
+        var tickRate = NetworkTimer_v2.Instance.TickRate;
+
         // append state to last server state array
         m_lastServerStateArray.Add(statePayload);
-        if (m_lastServerStateArray.Count > k_serverTickRate * 2) m_lastServerStateArray.RemoveAt(0);
+        if (m_lastServerStateArray.Count > tickRate * 2) m_lastServerStateArray.RemoveAt(0);
 
         // track tick deltas
-        var deltaTick = timer.CurrentTickAndFraction.Tick - statePayload.tick;
+        var deltaTick = currentTick - statePayload.tick;
         m_remoteClientTickDeltas.Add(deltaTick);
         if (m_remoteClientTickDeltas.Count > 10) m_remoteClientTickDeltas.RemoveAt(0);
 
@@ -790,10 +804,12 @@ public partial class PlayerPrediction : NetworkBehaviour
 
     public Vector3 GetRemotePlayerInterpPosition()
     {
+        var currentTick = NetworkTimer_v2.Instance.TickCurrent;
+
         //return lastServerState.position;
         if (m_lastServerStateArray.Count < 5) return transform.position;
 
-        var targetTick = timer.CurrentTickAndFraction.Tick - m_remoteClientTickDelta - 3;
+        var targetTick = currentTick - m_remoteClientTickDelta - 3;
 
         // find out where we are in last server state array
         int a = -1;
@@ -820,7 +836,7 @@ public partial class PlayerPrediction : NetworkBehaviour
         // store interp values
         var start = m_lastServerStateArray[a];
         var finish = m_lastServerStateArray[b];
-        var fraction = timer.CurrentTickAndFraction.Fraction;
+        var fraction = NetworkTimer_v2.Instance.TickFraction;
 
         // Draw dash shadow if we dashed
         IfDashInputDrawShadow(start, finish);
@@ -833,17 +849,19 @@ public partial class PlayerPrediction : NetworkBehaviour
 
     public Vector3 GetLocalPlayerInterpPosition()
     {
-        // go back at least two ticks for our interp state
-        if (timer.CurrentTick < 3) return transform.position;
+        var currentTick = NetworkTimer_v2.Instance.TickCurrent;
 
-        var currTick = timer.CurrentTickAndFraction.Tick;
+        // go back at least two ticks for our interp state
+        if (currentTick < 3) return transform.position;
+
+        var currTick = currentTick;
 
         var startBufferIndex = (currTick - 2) % k_bufferSize;
         var finishBufferIndex = (currTick - 1) % k_bufferSize;
 
         var start = clientStateBuffer.Get(startBufferIndex);
         var finish = clientStateBuffer.Get(finishBufferIndex);
-        var fraction = timer.CurrentTickAndFraction.Fraction;
+        var fraction = NetworkTimer_v2.Instance.TickFraction;
 
         // Draw dash shadow if we dashed
         IfDashInputDrawShadow(start, finish);
@@ -906,6 +924,6 @@ public partial class PlayerPrediction : NetworkBehaviour
 
     public float GetServerTickRate()
     {
-        return k_serverTickRate;
+        return NetworkTimer_v2.Instance.TickRate;
     }
 }
