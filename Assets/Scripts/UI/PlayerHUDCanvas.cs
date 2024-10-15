@@ -142,6 +142,10 @@ public class PlayerHUDCanvas : MonoBehaviour
         var lhRem = m_localPlayerCharacter.GetComponent<PlayerPrediction>().GetSpecialCooldownRemaining(Hand.Left);
         var rhRem = m_localPlayerCharacter.GetComponent<PlayerPrediction>().GetSpecialCooldownRemaining(Hand.Right);
 
+        // round up
+        lhRem = math.ceil(lhRem);
+        rhRem = math.ceil(rhRem);
+
         m_lhCooldownText.text = lhRem < 0.1f ? "" : lhRem.ToString("F0");
         m_rhCooldownText.text = rhRem < 0.1f ? "" : rhRem.ToString("F0");
 

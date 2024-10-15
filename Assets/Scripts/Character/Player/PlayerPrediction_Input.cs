@@ -9,6 +9,9 @@ using Unity.Mathematics;
 
 public partial class PlayerPrediction : NetworkBehaviour
 {
+    // for calculating mouse positions
+    private Vector2 m_cursorScreenPosition;
+
     // called every frame in the main PlayerPrediction.cs file Update()
     private void UpdateInput()
     {
@@ -20,7 +23,7 @@ public partial class PlayerPrediction : NetworkBehaviour
             new Vector3(m_cursorScreenPosition.x, m_cursorScreenPosition.y, Camera.main.transform.position.z));
 
         // Since it's a 2D game, we set the Z coordinate to 0
-        m_cursorWorldPosition = new Vector3(screenToWorldPosition.x, screenToWorldPosition.y, 0);
+        //m_cursorWorldPosition = new Vector3(screenToWorldPosition.x, screenToWorldPosition.y, 0);
 
         // handle movement
         if (IsMovementEnabled && IsInputEnabled)
