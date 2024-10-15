@@ -9,10 +9,6 @@ public partial class PlayerPrediction : NetworkBehaviour
 {
     private NetworkCharacter m_networkCharacter;
 
-    // persistent variables useful for external classes/object
-    //private Vector3 m_lastMoveDirection = new Vector3(0, -1, 0);
-    //private Vector3 m_velocity = new Vector3(0, -1, 0);
-
     // slow variables
     private float m_slowFactor = 1f;
     private int m_slowFactorExpiryTick = 0;
@@ -48,9 +44,6 @@ public partial class PlayerPrediction : NetworkBehaviour
     private PlayerGotchi m_playerGotchi;
 
     // Netcode general
-    //NetworkTimer timer;
-    //public NetworkTimer Timer => timer;
-    //public const float k_serverTickRate = 10;
     const int k_bufferSize = 128;
 
     // Netcode client
@@ -72,18 +65,6 @@ public partial class PlayerPrediction : NetworkBehaviour
     [Header("Debug")]
     [SerializeField] GameObject m_clientCircle;
     [SerializeField] GameObject m_serverCircle;
-
-    private Camera playerCamera;
-
-    // for calculating mouse positions
-    private Vector2 m_cursorScreenPosition;
-    private Vector3 m_cursorWorldPosition;
-
-    // cooldown expiry ticks
-    //private int m_abilityCooldownExpiryTick_CLIENT = 0;
-    //private int m_abilityCooldownExpiryTick_SERVER = 0;
-    //private int m_lhSpecialCooldownExpiryTick = 0;
-    //private int m_rhSpecialCooldownExpiryTick = 0;
 
     // hold variables
     //private bool m_isHoldStarted = false;
@@ -142,9 +123,6 @@ public partial class PlayerPrediction : NetworkBehaviour
         if (m_clientCircle != null) m_clientCircle.transform.SetParent(null);
         if (m_serverCircle != null) m_serverCircle.transform.SetParent(null);
 
-        // Netcode init
-        //timer = new NetworkTimer(k_serverTickRate);
-
         clientStateBuffer = new CircularBuffer<StatePayload>(k_bufferSize);
         clientInputBuffer = new CircularBuffer<InputPayload>(k_bufferSize);
 
@@ -153,9 +131,6 @@ public partial class PlayerPrediction : NetworkBehaviour
 
 
         m_lastServerStateArray = new List<StatePayload>();
-
-        //m_abilityCooldownExpiryTick_CLIENT = 0;
-        //m_abilityCooldownExpiryTick_SERVER = 0;
 
         ResetRemoteClientTickDelta();
 
@@ -188,14 +163,14 @@ public partial class PlayerPrediction : NetworkBehaviour
             var lhWearableEnum = m_playerEquipment.LeftHand.Value;
             var specialAbilityEnum = m_playerAbilities.GetSpecialAbilityEnum(lhWearableEnum);
             var specialAbility = m_playerAbilities.GetAbility(specialAbilityEnum);
-            return specialAbility.GetCooldownRemaining();
+            return specialAbility != null ? specialAbility.GetCooldownRemaining() : 0;
         }
         else
         {
             var rhWearableEnum = m_playerEquipment.RightHand.Value;
             var specialAbilityEnum = m_playerAbilities.GetSpecialAbilityEnum(rhWearableEnum);
             var specialAbility = m_playerAbilities.GetAbility(specialAbilityEnum);
-            return specialAbility.GetCooldownRemaining();
+            return specialAbility != null ? specialAbility.GetCooldownRemaining() : 0;
         }
     }
 
@@ -213,18 +188,6 @@ public partial class PlayerPrediction : NetworkBehaviour
 
         return holdPercent;
     }
-
-    //private void UpdateCursorWorldPosition()
-    //{
-    //    // Convert screen position to world position
-    //    Vector3 screenToWorldPosition = Camera.main.ScreenToWorldPoint(
-    //        new Vector3(m_cursorScreenPosition.x, m_cursorScreenPosition.y, Camera.main.transform.position.z));
-
-    //    // Since it's a 2D game, we set the Z coordinate to 0
-    //    m_cursorWorldPosition = new Vector3(screenToWorldPosition.x, screenToWorldPosition.y, 0);
-    //}
-
-    private bool isTest = false;
 
     private void Update()
     {
@@ -266,16 +229,7 @@ public partial class PlayerPrediction : NetworkBehaviour
         }
     }
 
-    // 1. See if time to do a tick
-    //private void FixedUpdate()
-    //{
-    //    while (timer.ShouldTick())
-    //    {
-    //        HandleClientTick();
-    //        HandleServerTick();
-    //    }
-    //}
-
+    // NEW: We now let the NetworkTimer_v2 call the Tick function for us
     public void Tick()
     {
         HandleClientTick();
@@ -298,13 +252,7 @@ public partial class PlayerPrediction : NetworkBehaviour
         if (triggeredAbility != null)
         {
             // check ap and cooldown (we ignore cooldown for hold abilities)
-            bool isEnoughAp = GetComponent<NetworkCharacter>().ApCurrent.Value >= triggeredAbility.ApCost;
-            //bool isCooldownFinished = triggeredAbility.abilityType == PlayerAbility.AbilityType.Hold ? true : currentTick > m_abilityCooldownExpiryTick_CLIENT;
-            //if (triggeredAbility.abilityType == PlayerAbility.AbilityType.Special)
-            //{
-            //    if (m_abilityHand == Hand.Left) isCooldownFinished = currentTick > m_lhSpecialCooldownExpiryTick;
-            //    else isCooldownFinished = currentTick > m_rhSpecialCooldownExpiryTick;
-            //}
+            bool isEnoughAp = m_networkCharacter.ApCurrent.Value >= triggeredAbility.ApCost;
             bool isCooldownFinished = triggeredAbility.IsCooldownFinished();
 
             // init the ability if enough ap and cooldown finished
@@ -324,7 +272,7 @@ public partial class PlayerPrediction : NetworkBehaviour
         if (holdStartTriggeredAbility != null)
         {
             // check AP only, we can't check against cooldown because we are commencing this attack within the starter attacks cooldown window
-            bool isEnoughAp = GetComponent<NetworkCharacter>().ApCurrent.Value >= holdStartTriggeredAbility.ApCost;
+            bool isEnoughAp = m_networkCharacter.ApCurrent.Value >= holdStartTriggeredAbility.ApCost;
             if (isEnoughAp)
             {
                 holdStartTriggeredAbility.Init(gameObject, m_abilityHand);
@@ -343,7 +291,7 @@ public partial class PlayerPrediction : NetworkBehaviour
         InputPayload inputPayload = new InputPayload
         {
             tick = currentTick,
-            moveDirection = GetComponent<PlayerGotchi>().IsDropSpawning ? Vector3.zero : m_moveDirection * MovementMultiplier,
+            moveDirection = m_playerGotchi.IsDropSpawning ? Vector3.zero : m_moveDirection * MovementMultiplier,
             actionDirection = m_actionDirection,
             actionDistance = m_actionDistance,
             triggeredAbilityEnum = m_triggeredAbilityEnum,
@@ -384,17 +332,6 @@ public partial class PlayerPrediction : NetworkBehaviour
 
             // activate ability
             triggeredAbility.Activate(gameObject, statePayload, inputPayload, holdDuration);
-
-            //// set cooldown tick
-            //m_abilityCooldownExpiryTick_CLIENT = currentTick + (int)math.ceil((triggeredAbility.ExecutionDuration + triggeredAbility.CooldownDuration) * tickRate);
-
-            //// set cooldown tick if special
-            //if (triggeredAbility.abilityType == PlayerAbility.AbilityType.Special)
-            //{
-            //    int expiryTick = currentTick + (int)math.ceil((triggeredAbility.SpecialCooldown + triggeredAbility.ExecutionDuration) * tickRate);
-            //    if (m_abilityHand == Hand.Left) m_lhSpecialCooldownExpiryTick = expiryTick;
-            //    else m_rhSpecialCooldownExpiryTick = expiryTick;
-            //}
 
             // set slow down ticks
             m_slowFactor = triggeredAbility.ExecutionSlowFactor;
@@ -439,16 +376,9 @@ public partial class PlayerPrediction : NetworkBehaviour
             var triggeredAbility = m_playerAbilities.GetAbility(inputPayload.triggeredAbilityEnum);
             if (triggeredAbility != null && !IsHost)
             {
-                bool isApEnough = GetComponent<NetworkCharacter>().ApCurrent.Value >= triggeredAbility.ApCost;
+                // check ap and cooldown sufficient
+                bool isApEnough = m_networkCharacter.ApCurrent.Value >= triggeredAbility.ApCost;
                 bool isCooldownFinished = triggeredAbility.IsCooldownFinished();
-                //bool isCooldownFinished = triggeredAbility.abilityType == PlayerAbility.AbilityType.Hold ? true : inputPayload.tick > m_abilityCooldownExpiryTick_SERVER;
-
-                //// account for special cooldowns
-                //if (triggeredAbility.abilityType == PlayerAbility.AbilityType.Special)
-                //{
-                //    if (m_abilityHand == Hand.Left) isCooldownFinished = inputPayload.tick > m_lhSpecialCooldownExpiryTick;
-                //    else isCooldownFinished = inputPayload.tick > m_rhSpecialCooldownExpiryTick;
-                //}
 
                 if (isApEnough && isCooldownFinished)
                 {
@@ -465,7 +395,7 @@ public partial class PlayerPrediction : NetworkBehaviour
             if (holdStartTriggeredAbility != null && !IsHost)
             {
                 // check AP only, we can't check against cooldown because we are commencing this attack within the starter attacks cooldown window
-                bool isEnoughAp = GetComponent<NetworkCharacter>().ApCurrent.Value >= holdStartTriggeredAbility.ApCost;
+                bool isEnoughAp = m_networkCharacter.ApCurrent.Value >= holdStartTriggeredAbility.ApCost;
                 if (isEnoughAp)
                 {
                     if (!IsHost) holdStartTriggeredAbility.Init(gameObject, inputPayload.abilityHand);
@@ -515,17 +445,6 @@ public partial class PlayerPrediction : NetworkBehaviour
 
                 // activate
                 if (!IsHost) triggeredAbility.Activate(gameObject, statePayload, inputPayload, holdDuration);
-
-                // calc cooldown
-                //m_abilityCooldownExpiryTick_SERVER = inputPayload.tick + (int)math.ceil((triggeredAbility.ExecutionDuration + triggeredAbility.CooldownDuration) * tickRate);
-
-                // set special cooldown
-                //if (triggeredAbility.abilityType == PlayerAbility.AbilityType.Special)
-                //{
-                //    int expiryTick = inputPayload.tick + (int)math.ceil((triggeredAbility.SpecialCooldown + triggeredAbility.ExecutionDuration) * tickRate);
-                //    if (m_abilityHand == Hand.Left) m_lhSpecialCooldownExpiryTick = expiryTick;
-                //    else m_rhSpecialCooldownExpiryTick = expiryTick;
-                //}
 
                 if (!IsHost)
                 {
@@ -676,10 +595,6 @@ public partial class PlayerPrediction : NetworkBehaviour
         rb.position = transform.position;   // CHECK THIS
         Physics2D.simulationMode = SimulationMode2D.FixedUpdate;
 
-        // update private variables
-        //if (input.moveDirection.x != 0 || input.moveDirection.y != 0) m_lastMoveDirection = input.moveDirection;
-        //m_velocity = input.moveDirection * m_networkCharacter.MoveSpeed.Value;
-
         return new StatePayload
         {
             tick = input.tick,
@@ -703,8 +618,6 @@ public partial class PlayerPrediction : NetworkBehaviour
 
     public float GetInputSlowFactor(InputPayload input, bool isServerCalling)
     {
-        //var abilityCooldownExpiryTick = isServerCalling ? m_abilityCooldownExpiryTick_SERVER : m_abilityCooldownExpiryTick_CLIENT;
-
         // adjusting "input.tick >" to "input.tick >=" can make a big difference in terms of glitchiness in host mode
         if (input.tick > m_slowFactorStartTick && input.tick <= m_slowFactorExpiryTick)
         {
@@ -715,10 +628,7 @@ public partial class PlayerPrediction : NetworkBehaviour
             var holdAbility = m_playerAbilities.GetAbility(input.holdStartTriggeredAbilityEnum);
             return holdAbility.HoldSlowFactor;
         }
-        //else if (input.tick <= abilityCooldownExpiryTick)
-        //{
-        //    return m_cooldownSlowFactor;
-        //}
+        // NOTE FOR NOW WE ARE COMPLETELY IGNORING COOLDOWN SLOW FACTOR
 
         else
         {
@@ -772,21 +682,6 @@ public partial class PlayerPrediction : NetworkBehaviour
             m_remoteClientTickDelta = newRemoteClientTickDelta;
             isFirstSet = false;
         }
-
-        //// get average delta tick
-        //if (!m_isRemoteClientTickDeltaSet)
-        //{
-        //    var deltaTick = timer.CurrentTickAndFraction.Tick - statePayload.tick;
-        //    m_remoteClientTickDeltas.Add(deltaTick);
-        //    if (m_remoteClientTickDeltas.Count >= 10)
-        //    {
-        //        float sum = 0;
-        //        foreach (var delta in m_remoteClientTickDeltas) sum += delta;
-        //        m_remoteClientTickDelta = (int)math.round(sum / m_remoteClientTickDeltas.Count);
-        //        m_isRemoteClientTickDeltaSet = true;
-        //        m_remoteClientTickDeltas.Clear();
-        //    }
-        //}
     }
 
     // this function executed on SERVER

@@ -179,7 +179,7 @@ public class PlayerAbility : NetworkBehaviour
         var remainingTicks = m_cooldownExpiryTick - NetworkTimer_v2.Instance.TickCurrent;
         if (remainingTicks <= 0) return 0;
 
-        return remainingTicks * NetworkTimer_v2.Instance.TickRate;
+        return remainingTicks * NetworkTimer_v2.Instance.TickInterval;
     }
 
     public bool Activate(GameObject playerObject, StatePayload state, InputPayload input, float holdDuration)
@@ -189,8 +189,6 @@ public class PlayerAbility : NetworkBehaviour
         ActivationInput = input;
 
         m_holdTimer = math.min(m_holdTimer, HoldChargeTime);
-
-        
 
         IsActivated = true;
         m_timer = ExecutionDuration;
@@ -203,7 +201,6 @@ public class PlayerAbility : NetworkBehaviour
         // calc cooldown
         var totalCooldownTicks = (int)((ExecutionDuration + CooldownDuration) * NetworkTimer_v2.Instance.TickRate);
         m_cooldownExpiryTick = NetworkTimer_v2.Instance.TickCurrent + totalCooldownTicks;
-        
 
         // deduct ap from the player
         if (IsServer)
