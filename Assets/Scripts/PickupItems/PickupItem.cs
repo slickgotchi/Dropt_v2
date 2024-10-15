@@ -4,14 +4,14 @@ using UnityEngine;
 public sealed class PickupItem : NetworkBehaviour
 {
     private readonly float m_distanceForMagnet = 0.3f;
-    public float speed = 5f;
+    private const float m_speed = 15f;
     private GameObject m_target;
 
     private void Update()
     {
         if (m_target == null) return;
 
-        float step = speed * Time.deltaTime;
+        float step = m_speed * Time.deltaTime;
         transform.position = Vector3.MoveTowards(transform.position, m_target.transform.position, step);
 
         if (!IsServer) return;
