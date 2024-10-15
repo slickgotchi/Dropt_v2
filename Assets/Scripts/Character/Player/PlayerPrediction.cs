@@ -253,7 +253,9 @@ public partial class PlayerPrediction : NetworkBehaviour
         {
             // check ap and cooldown (we ignore cooldown for hold abilities)
             bool isEnoughAp = m_networkCharacter.ApCurrent.Value >= triggeredAbility.ApCost;
-            bool isCooldownFinished = triggeredAbility.IsCooldownFinished();
+            //bool isCooldownFinished = triggeredAbility.IsCooldownFinished();
+            bool isCooldownFinished = IsAllAttackAbilitiesCooldownFinished() &&
+               triggeredAbility.IsCooldownFinished();
 
             // init the ability if enough ap and cooldown finished
             if (isEnoughAp && isCooldownFinished)
@@ -378,7 +380,9 @@ public partial class PlayerPrediction : NetworkBehaviour
             {
                 // check ap and cooldown sufficient
                 bool isApEnough = m_networkCharacter.ApCurrent.Value >= triggeredAbility.ApCost;
-                bool isCooldownFinished = triggeredAbility.IsCooldownFinished();
+                //bool isCooldownFinished = triggeredAbility.IsCooldownFinished();
+                bool isCooldownFinished = IsAllAttackAbilitiesCooldownFinished() &&
+                   triggeredAbility.IsCooldownFinished();
 
                 if (isApEnough && isCooldownFinished)
                 {
@@ -814,5 +818,34 @@ public partial class PlayerPrediction : NetworkBehaviour
     public float GetServerTickRate()
     {
         return NetworkTimer_v2.Instance.TickRate;
+    }
+
+
+    bool IsAllAttackAbilitiesCooldownFinished()
+    {
+        var lhWearableEnum = m_playerEquipment.LeftHand.Value;
+        var rhWearableEnum = m_playerEquipment.RightHand.Value;
+
+        var lhAttackEnum = m_playerAbilities.GetAttackAbilityEnum(lhWearableEnum);
+        var rhAttackEnum = m_playerAbilities.GetAttackAbilityEnum(rhWearableEnum);
+
+        var lhHoldEnum = m_playerAbilities.GetHoldAbilityEnum(lhWearableEnum);
+        var rhHoldEnum = m_playerAbilities.GetHoldAbilityEnum(rhWearableEnum);
+
+        var lhSpecialEnum = m_playerAbilities.GetSpecialAbilityEnum(lhWearableEnum);
+        var rhSpecialEnum = m_playerAbilities.GetSpecialAbilityEnum(rhWearableEnum);
+
+        var lhAttack = m_playerAbilities.GetAbility(lhAttackEnum);
+        var rhAttack = m_playerAbilities.GetAbility(rhAttackEnum);
+
+        var lhHold = m_playerAbilities.GetAbility(lhHoldEnum);
+        var rhHold = m_playerAbilities.GetAbility(rhHoldEnum);
+
+        var lhSpecial = m_playerAbilities.GetAbility(lhSpecialEnum);
+        var rhSpecial = m_playerAbilities.GetAbility(rhSpecialEnum);
+
+        return lhAttack.IsCooldownFinished() && rhAttack.IsCooldownFinished() &&
+            lhHold.IsCooldownFinished() && rhHold.IsCooldownFinished() &&
+            lhSpecial.IsCooldownFinished() && rhSpecial.IsCooldownFinished();
     }
 }
