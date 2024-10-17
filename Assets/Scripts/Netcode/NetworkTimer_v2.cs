@@ -1,13 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Netcode;
+using Dropt;
+using Unity.Mathematics;
 
 public class NetworkTimer_v2 : MonoBehaviour
 {
     public static NetworkTimer_v2 Instance;
 
-    public float TickInterval = 0.1f;
     public float TickRate = 10f;
+    [HideInInspector] public float TickInterval = 0.1f;
 
     [HideInInspector] public int TickCurrent;
     [HideInInspector] public float TickFraction;
@@ -29,6 +32,8 @@ public class NetworkTimer_v2 : MonoBehaviour
 
     private void Start()
     {
+        TickInterval = 1 / TickRate;
+
         TickCurrent = 0;
         TickFraction = 0;
         m_timer = 0;
@@ -64,6 +69,8 @@ public class NetworkTimer_v2 : MonoBehaviour
     {
         // insert all functions that need to be ticked throughout the codebase
         HandleTick_PlayerPrediction();
+        //HandleTick_PositionBuffer();
+        //HandleTick_DroptNetworkTransform();
     }
 
     private void HandleTick_PlayerPrediction()
@@ -74,4 +81,22 @@ public class NetworkTimer_v2 : MonoBehaviour
             playerPrediction.Tick();
         }
     }
+
+    //private void HandleTick_PositionBuffer()
+    //{
+    //    var positionBuffers = FindObjectsByType<PositionBuffer>(FindObjectsSortMode.None);
+    //    foreach (var positionBuffer in positionBuffers)
+    //    {
+    //        positionBuffer.Tick();
+    //    }
+    //}
+
+    //private void HandleTick_DroptNetworkTransform()
+    //{
+    //    var dnts = FindObjectsByType<DroptNetworkTransform>(FindObjectsSortMode.None);
+    //    foreach (var dnt in dnts)
+    //    {
+    //        dnt.Tick();
+    //    }
+    //}
 }

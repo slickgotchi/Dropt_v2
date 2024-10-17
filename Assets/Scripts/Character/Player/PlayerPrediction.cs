@@ -253,7 +253,6 @@ public partial class PlayerPrediction : NetworkBehaviour
         {
             // check ap and cooldown (we ignore cooldown for hold abilities)
             bool isEnoughAp = m_networkCharacter.ApCurrent.Value >= triggeredAbility.ApCost;
-            //bool isCooldownFinished = triggeredAbility.IsCooldownFinished();
             bool isCooldownFinished = IsAllAttackAbilitiesCooldownFinished() &&
                triggeredAbility.IsCooldownFinished();
 
@@ -380,7 +379,6 @@ public partial class PlayerPrediction : NetworkBehaviour
             {
                 // check ap and cooldown sufficient
                 bool isApEnough = m_networkCharacter.ApCurrent.Value >= triggeredAbility.ApCost;
-                //bool isCooldownFinished = triggeredAbility.IsCooldownFinished();
                 bool isCooldownFinished = IsAllAttackAbilitiesCooldownFinished() &&
                    triggeredAbility.IsCooldownFinished();
 

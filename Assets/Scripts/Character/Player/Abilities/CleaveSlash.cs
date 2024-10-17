@@ -25,6 +25,8 @@ public class CleaveSlash : PlayerAbility
         SetRotationToActionDirection();
         SetLocalPosition(PlayerAbilityCentreOffset + ActivationInput.actionDirection * Projection);
 
+        Debug.Log(transform.position);
+
         // collision check (no RPC's are involved in this call)
         OneFrameCollisionDamageCheck(m_collider, Wearable.WeaponTypeEnum.Cleave, DamageMultiplier);
 

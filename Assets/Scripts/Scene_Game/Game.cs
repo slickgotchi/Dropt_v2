@@ -26,7 +26,6 @@ public class Game : MonoBehaviour
 
     // reconnecting to new game from gaeover
     private bool m_isTryConnectClientOrHostGame = false;
-    //private float m_isTryConnectClientOrHostGameTimer = 0f;
 
     private void Awake()
     {
@@ -56,7 +55,11 @@ public class Game : MonoBehaviour
         // 3. Server instances
         if (Bootstrap.IsServer())
         {
-            Application.targetFrameRate = 15;
+            // we limit frame rate for server because when deployed it will go as
+            // high as it possible can and consume ALL of our remote servers resources.
+            // NOTE: setting this value low (e.g. 15fps) will increase the ping and RTT
+            // of our game. 60fps keeps it fairly low at 50-60ms ping on a local connection
+            Application.targetFrameRate = 60;
             QualitySettings.vSyncCount = 0;
 
             ConnectServerGame();

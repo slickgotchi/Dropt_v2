@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Data;
 using Unity.Netcode;
 using UnityEngine;
+using Unity.Mathematics;
 
 public class GenericProjectile : NetworkBehaviour
 {
@@ -105,6 +106,11 @@ public class GenericProjectile : NetworkBehaviour
 
     public void CollisionCheck()
     {
+        if (IsServer) PlayerAbility.RollbackEnemies(LocalPlayer);
+
+        // resync transforms
+        Physics2D.SyncTransforms();
+
         // Use ColliderCast to perform continuous collision detection
         Vector2 castDirection = Direction.normalized;
         float castDistance = m_speed * Time.deltaTime;
@@ -129,6 +135,8 @@ public class GenericProjectile : NetworkBehaviour
                 {
                     enemyAI.Knockback(KnockbackDirection, KnockbackDistance, KnockbackStunDuration);
                 }
+
+                Debug.Log("Hit enemy at position: " + enemyAI.transform.position);
             }
             else if (hit.HasComponent<Destructible>())
             {
@@ -142,6 +150,8 @@ public class GenericProjectile : NetworkBehaviour
                 LocalPlayer.GetComponent<PlayerCamera>().Shake();
             }
         }
+
+        if (IsServer) PlayerAbility.UnrollEnemies();
     }
 
     void Deactivate(Vector3 hitPosition)
