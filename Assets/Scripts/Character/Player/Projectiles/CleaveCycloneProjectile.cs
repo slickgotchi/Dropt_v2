@@ -166,6 +166,8 @@ public class CleaveCycloneProjectile : NetworkBehaviour
 
     public void CollisionCheck()
     {
+        if (IsServer) PlayerAbility.RollbackEnemies(LocalPlayer);
+
         // each frame do our collision checks
         Physics2D.SyncTransforms();
 
@@ -207,6 +209,8 @@ public class CleaveCycloneProjectile : NetworkBehaviour
         }
         // clear out colliders
         enemyHitColliders.Clear();
+
+        if (IsServer) PlayerAbility.UnrollEnemies();
     }
 }
 
