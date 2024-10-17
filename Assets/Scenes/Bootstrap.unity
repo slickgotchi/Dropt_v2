@@ -406,54 +406,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 36275068}
   m_CullTransparentMesh: 1
---- !u!1 &59634133
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 59634134}
-  - component: {fileID: 59634135}
-  m_Layer: 0
-  m_Name: NetworkTimer_v2
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &59634134
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 59634133}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &59634135
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 59634133}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7fc859ec67d734255b5cccb5ab0357ee, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  TickInterval: 0.1
-  TickRate: 10
-  TickCurrent: 0
-  TickFraction: 0
 --- !u!1 &70573224
 GameObject:
   m_ObjectHideFlags: 0
@@ -9089,6 +9041,21 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!4 &101318711918874193
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1113132975922385620}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &132393383099439041
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9529,6 +9496,23 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &1113132975922385620
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 101318711918874193}
+  - component: {fileID: 6964754612526629697}
+  m_Layer: 0
+  m_Name: NetworkTimer_v2
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
 --- !u!1 &1207544950018464367
 GameObject:
   m_ObjectHideFlags: 0
@@ -12479,6 +12463,22 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &6964754612526629697
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1113132975922385620}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7fc859ec67d734255b5cccb5ab0357ee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  TickRate: 15
+  TickInterval: 0.1
+  TickCurrent: 0
+  TickFraction: 0
 --- !u!1 &7026096884318422498
 GameObject:
   m_ObjectHideFlags: 0
@@ -13703,6 +13703,7 @@ SceneRoots:
   - {fileID: 1731153060}
   - {fileID: 1122907061}
   - {fileID: 1171476965}
+  - {fileID: 101318711918874193}
   - {fileID: 1931494699}
   - {fileID: 1480401729}
   - {fileID: 232582730}
@@ -13716,4 +13717,3 @@ SceneRoots:
   - {fileID: 743297641}
   - {fileID: 1454305628}
   - {fileID: 911642796}
-  - {fileID: 59634134}
