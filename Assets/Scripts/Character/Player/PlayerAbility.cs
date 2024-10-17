@@ -450,7 +450,7 @@ public class PlayerAbility : NetworkBehaviour
 
     protected void OneFrameCollisionDamageCheck(Collider2D abilityCollider, Wearable.WeaponTypeEnum weaponType, float damageMultiplier = 1f)
     {
-        if (IsServer) PlayerAbility.RollbackEnemies(Player);
+        if (IsServer && !IsHost) PlayerAbility.RollbackEnemies(Player);
 
         Physics2D.SyncTransforms();
         List<Collider2D> enemyHitColliders = new List<Collider2D>();
@@ -498,7 +498,7 @@ public class PlayerAbility : NetworkBehaviour
         enemyHitColliders.Clear();
 
 
-        if (IsServer) PlayerAbility.UnrollEnemies();
+        if (IsServer && !IsHost) PlayerAbility.UnrollEnemies();
     }
 
     public static void RollbackEnemies(GameObject Player)

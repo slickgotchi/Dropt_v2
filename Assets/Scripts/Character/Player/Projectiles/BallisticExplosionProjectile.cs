@@ -116,7 +116,7 @@ public class BallisticExplosionProjectile : NetworkBehaviour
 
     public void CollisionCheck()
     {
-        if (IsServer) PlayerAbility.RollbackEnemies(LocalPlayer);
+        if (IsServer && !IsHost) PlayerAbility.RollbackEnemies(LocalPlayer);
 
         // resync transforms
         Physics2D.SyncTransforms();
@@ -164,7 +164,7 @@ public class BallisticExplosionProjectile : NetworkBehaviour
             Explode(hitInfo.point);
         }
 
-        if (IsServer) PlayerAbility.UnrollEnemies();
+        if (IsServer && !IsHost) PlayerAbility.UnrollEnemies();
     }
 
     void Explode(Vector3 position)

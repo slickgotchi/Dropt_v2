@@ -61,7 +61,7 @@ public class SmashWave : PlayerAbility
 
     private void CustomCollisionCheck()
     {
-        if (IsServer) PlayerAbility.RollbackEnemies(LocalPlayer);
+        if (IsServer && !IsHost) PlayerAbility.RollbackEnemies(Player);
 
         // resync transforms
         Physics2D.SyncTransforms();
@@ -109,6 +109,6 @@ public class SmashWave : PlayerAbility
         // clear out colliders
         enemyHitColliders.Clear();
 
-        if (IsServer) PlayerAbility.UnrollEnemies();
+        if (IsServer && !IsHost) PlayerAbility.UnrollEnemies();
     }
 }
