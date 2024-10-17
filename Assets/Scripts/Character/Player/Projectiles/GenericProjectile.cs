@@ -106,7 +106,7 @@ public class GenericProjectile : NetworkBehaviour
 
     public void CollisionCheck()
     {
-        if (IsServer) PlayerAbility.RollbackEnemies(LocalPlayer);
+        if (IsServer && !IsHost) PlayerAbility.RollbackEnemies(LocalPlayer);
 
         // resync transforms
         Physics2D.SyncTransforms();
@@ -151,7 +151,7 @@ public class GenericProjectile : NetworkBehaviour
             }
         }
 
-        if (IsServer) PlayerAbility.UnrollEnemies();
+        if (IsServer && !IsHost) PlayerAbility.UnrollEnemies();
     }
 
     void Deactivate(Vector3 hitPosition)
