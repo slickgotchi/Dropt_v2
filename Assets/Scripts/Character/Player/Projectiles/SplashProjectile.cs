@@ -132,7 +132,9 @@ public class SplashProjectile : NetworkBehaviour
 
     public void CollisionCheck()
     {
-        // sync colliders to current transform
+        if (IsServer) PlayerAbility.RollbackEnemies(LocalPlayer);
+
+        // resync transforms
         Physics2D.SyncTransforms();
 
         // do a collision check
@@ -172,6 +174,8 @@ public class SplashProjectile : NetworkBehaviour
 
         // clear out colliders
         enemyHitColliders.Clear();
+
+        if (IsServer) PlayerAbility.UnrollEnemies();
     }
 
     void Deactivate(Vector3 hitPosition)
