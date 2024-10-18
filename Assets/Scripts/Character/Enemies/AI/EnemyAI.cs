@@ -61,6 +61,7 @@ namespace Dropt
         protected Vector3 RoamAnchorPoint;
         protected NetworkCharacter networkCharacter;
         [HideInInspector] public NavMeshAgent m_navMeshAgent;
+        protected Unity.Netcode.Components.NetworkTransform m_networkTransform;
 
 
         [HideInInspector] public Vector3 AttackDirection;
@@ -86,6 +87,7 @@ namespace Dropt
             Knockback,
             Stun,
             Flee,
+            PredictionToAuthorativeSmoothing
         }
 
         [HideInInspector] public NetworkVariable<State> state = new NetworkVariable<State>(State.Spawn);
@@ -98,6 +100,7 @@ namespace Dropt
 
             networkCharacter = GetComponent<NetworkCharacter>();
             m_navMeshAgent = GetComponent<NavMeshAgent>();
+            m_networkTransform = GetComponent<Unity.Netcode.Components.NetworkTransform>();
 
             // Find the closest point on the NavMesh
             Vector3 navMeshPosition;
@@ -126,6 +129,9 @@ namespace Dropt
 
             OnUpdate(dt);
             HandleDebugCanvas();
+
+            HandleClientPredictedKnockback(dt);
+            HandleClientPredictedStun(dt);
 
             if (!IsServer) return;
             if (NearestPlayer == null) return;
@@ -164,6 +170,13 @@ namespace Dropt
                     break;
                 default: break;
             }
+        }
+
+        private void LateUpdate()
+        {
+            float dt = Time.deltaTime;
+
+            HandlClientPredictionToAuthorativeSmoothing(dt);
         }
 
         public virtual void OnNullUpdate(float dt) { }
@@ -422,7 +435,73 @@ namespace Dropt
             m_preKnockbackState = state.Value;
 
             // start knockback state
-            StartState(State.Knockback, k_knockbackDuration);
+            if (IsServer)
+            {
+                StartState(State.Knockback, k_knockbackDuration);
+            }
+            else if (IsClient)
+            {
+                m_clientPredictedState = State.Knockback;
+                m_networkTransform.enabled = false;
+                m_knockbackDuration = k_knockbackDuration;
+            }
+        }
+
+        State m_clientPredictedState = State.Null;
+
+        void HandleClientPredictedKnockback(float dt)
+        {
+            if (!IsClient) return;
+            if (m_clientPredictedState != State.Knockback) return;
+
+            m_knockbackTimer += dt;
+            var alpha = math.min(m_knockbackTimer / m_knockbackDuration, 1);
+            transform.position = math.lerp(m_knockbackStartPosition, m_knockbackFinishPosition, alpha);
+
+            if (m_knockbackTimer >= m_knockbackDuration)
+            {
+                m_clientPredictedState = State.Stun;
+                m_stunTimer = StunDuration;
+                return;
+            }
+        }
+
+        void HandleClientPredictedStun(float dt)
+        {
+            if (!IsClient) return;
+            if (m_clientPredictedState != State.Stun) return;
+
+            m_stunTimer -= dt;
+            if (m_stunTimer < 0)
+            {
+                m_clientPredictedState = State.PredictionToAuthorativeSmoothing;
+                m_smoothingTimer = 0f;
+                m_predictedStunFinishPosition = transform.position;
+                m_networkTransform.enabled = true;
+                return;
+            }
+        }
+
+        float m_smoothingTimer = 0f;
+        float k_smoothingDuration = 1f;
+        Vector3 m_predictedStunFinishPosition;
+
+        void HandlClientPredictionToAuthorativeSmoothing(float dt)
+        {
+            if (!IsClient) return;
+            if (m_clientPredictedState != State.PredictionToAuthorativeSmoothing) return;
+
+            var networkTransformPosition = transform.position;
+
+            m_smoothingTimer += dt;
+            var alpha = math.min(m_smoothingTimer / k_smoothingDuration, 1);
+
+            transform.position = math.lerp(m_predictedStunFinishPosition, networkTransformPosition, alpha);
+
+            if (m_smoothingTimer >= k_smoothingDuration)
+            {
+                m_clientPredictedState = State.Null;
+            }
         }
 
         private float CalculateKnockbackDistance(Vector3 direction, float distance)

@@ -252,12 +252,18 @@ public partial class PlayerPrediction : NetworkBehaviour
         if (triggeredAbility != null)
         {
             // check ap and cooldown (we ignore cooldown for hold abilities)
-            bool isEnoughAp = m_networkCharacter.ApCurrent.Value >= triggeredAbility.ApCost;
-            bool isCooldownFinished = IsAllAttackAbilitiesCooldownFinished() &&
-               triggeredAbility.IsCooldownFinished();
+            bool isApEnough = m_networkCharacter.ApCurrent.Value >= triggeredAbility.ApCost;
+            bool isCooldownFinished = triggeredAbility.IsCooldownFinished();
+            bool isBlockedByOthers = false;
 
-            // init the ability if enough ap and cooldown finished
-            if (isEnoughAp && isCooldownFinished)
+            // check if blocked by others
+            if (m_triggeredAbilityEnum != PlayerAbilityEnum.Dash)
+            {
+                isBlockedByOthers = !IsAttackCooldownFinished(Hand.Left) || !IsAttackCooldownFinished(Hand.Right) ||
+                    !IsHoldCooldownFinished(Hand.Left) || !IsHoldCooldownFinished(Hand.Right);
+            }
+
+            if (isApEnough && isCooldownFinished && !isBlockedByOthers)
             {
                 triggeredAbility.Init(gameObject, m_abilityHand);
             }
@@ -379,10 +385,17 @@ public partial class PlayerPrediction : NetworkBehaviour
             {
                 // check ap and cooldown sufficient
                 bool isApEnough = m_networkCharacter.ApCurrent.Value >= triggeredAbility.ApCost;
-                bool isCooldownFinished = IsAllAttackAbilitiesCooldownFinished() &&
-                   triggeredAbility.IsCooldownFinished();
+                bool isCooldownFinished = triggeredAbility.IsCooldownFinished();
+                bool isBlockedByOthers = false;
 
-                if (isApEnough && isCooldownFinished)
+                // check if blocked by others
+                if (inputPayload.triggeredAbilityEnum != PlayerAbilityEnum.Dash)
+                {
+                    isBlockedByOthers = !IsAttackCooldownFinished(Hand.Left) || !IsAttackCooldownFinished(Hand.Right) ||
+                        !IsHoldCooldownFinished(Hand.Left) || !IsHoldCooldownFinished(Hand.Right);
+                }
+
+                if (isApEnough && isCooldownFinished && !isBlockedByOthers)
                 {
                     if (!IsHost) triggeredAbility.Init(gameObject, inputPayload.abilityHand);
                 }
@@ -818,7 +831,67 @@ public partial class PlayerPrediction : NetworkBehaviour
         return NetworkTimer_v2.Instance.TickRate;
     }
 
+    bool IsAttackCooldownFinished(Hand hand)
+    {
+        if (hand == Hand.Left)
+        {
+            var lhWearableEnum = m_playerEquipment.LeftHand.Value;
+            var lhAttackEnum = m_playerAbilities.GetAttackAbilityEnum(lhWearableEnum);
+            var lhAttack = m_playerAbilities.GetAbility(lhAttackEnum);
+            return lhAttack != null ? lhAttack.IsCooldownFinished() : true;
 
+        } else
+        {
+            var rhWearableEnum = m_playerEquipment.RightHand.Value;
+            var rhAttackEnum = m_playerAbilities.GetAttackAbilityEnum(rhWearableEnum);
+            var rhAttack = m_playerAbilities.GetAbility(rhAttackEnum);
+            return rhAttack != null ? rhAttack.IsCooldownFinished() : true;
+        }
+    }
+
+    bool IsHoldCooldownFinished(Hand hand)
+    {
+        if (hand == Hand.Left)
+        {
+            var lhWearableEnum = m_playerEquipment.LeftHand.Value;
+            var lhHoldEnum = m_playerAbilities.GetHoldAbilityEnum(lhWearableEnum);
+            var lhHold = m_playerAbilities.GetAbility(lhHoldEnum);
+            return lhHold != null ? lhHold.IsCooldownFinished() : true;
+        }
+        else
+        {
+            var rhWearableEnum = m_playerEquipment.RightHand.Value;
+            var rhHoldEnum = m_playerAbilities.GetHoldAbilityEnum(rhWearableEnum);
+            var rhHold = m_playerAbilities.GetAbility(rhHoldEnum);
+            return rhHold != null ? rhHold.IsCooldownFinished() : true;
+        }
+    }
+
+    bool IsSpecialCooldownFinished(Hand hand)
+    {
+        if (hand == Hand.Left)
+        {
+            var lhWearableEnum = m_playerEquipment.LeftHand.Value;
+            var lhSpecialEnum = m_playerAbilities.GetSpecialAbilityEnum(lhWearableEnum);
+            var lhSpecial = m_playerAbilities.GetAbility(lhSpecialEnum);
+            return lhSpecial != null ? lhSpecial.IsCooldownFinished() : true;
+        }
+        else
+        {
+            var rhWearableEnum = m_playerEquipment.RightHand.Value;
+            var rhSpecialEnum = m_playerAbilities.GetSpecialAbilityEnum(rhWearableEnum);
+            var rhSpecial = m_playerAbilities.GetAbility(rhSpecialEnum);
+            return rhSpecial != null ? rhSpecial.IsCooldownFinished() : true;
+        }
+    }
+
+    bool IsDashCooldownFinished()
+    {
+        var dash = m_playerAbilities.GetAbility(PlayerAbilityEnum.Dash);
+        return dash != null ? dash.IsCooldownFinished() : true;
+    }
+
+    /*
     bool IsAllAttackAbilitiesCooldownFinished()
     {
         var lhWearableEnum = m_playerEquipment.LeftHand.Value;
@@ -842,8 +915,13 @@ public partial class PlayerPrediction : NetworkBehaviour
         var lhSpecial = m_playerAbilities.GetAbility(lhSpecialEnum);
         var rhSpecial = m_playerAbilities.GetAbility(rhSpecialEnum);
 
+        if (lhAttack == null || rhAttack == null ||
+            lhHold == null || rhHold == null ||
+            lhSpecial == null || rhSpecial == null) return true;
+
         return lhAttack.IsCooldownFinished() && rhAttack.IsCooldownFinished() &&
             lhHold.IsCooldownFinished() && rhHold.IsCooldownFinished() &&
             lhSpecial.IsCooldownFinished() && rhSpecial.IsCooldownFinished();
     }
+    */
 }

@@ -63,6 +63,9 @@ public class Game : MonoBehaviour
             QualitySettings.vSyncCount = 0;
 
             ConnectServerGame();
+
+            // hide loading canvas
+            LoadingCanvas.Instance.gameObject.SetActive(false);
         }
         // 4. Client instances
         else if (Bootstrap.IsClient())
