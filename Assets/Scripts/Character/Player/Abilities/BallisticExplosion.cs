@@ -15,6 +15,9 @@ public class BallisticExplosion : PlayerAbility
     public float ExplosionKnockbackStunDuration = 0.5f;
 
     [Header("Projectile Prefab")]
+    public GameObject ProjectilePrefab;
+
+    [Header("Projectile Prefab")]
     public GameObject ApplePrefab;
     public GameObject ArrowPrefab;
     public GameObject BasketballPrefab;
@@ -26,32 +29,10 @@ public class BallisticExplosion : PlayerAbility
     public GameObject SeedPrefab;
 
     // variables for keeping track of the spawned projectile
-    private GameObject m_appleProjectile;
-    private NetworkVariable<ulong> m_appleProjectileId = new NetworkVariable<ulong>(0);
+    private GameObject m_projectile;
+    private NetworkVariable<ulong> m_projectileId = new NetworkVariable<ulong>(0);
 
-    private GameObject m_arrowProjectile;
-    private NetworkVariable<ulong> m_arrowProjectileId = new NetworkVariable<ulong>(0);
-
-    private GameObject m_basketballProjectile;
-    private NetworkVariable<ulong> m_basketballProjectileId = new NetworkVariable<ulong>(0);
-
-    private GameObject m_bulletProjectile;
-    private NetworkVariable<ulong> m_bulletProjectileId = new NetworkVariable<ulong>(0);
-
-    private GameObject m_corkProjectile;
-    private NetworkVariable<ulong> m_corkProjectileId = new NetworkVariable<ulong>(0);
-
-    private GameObject m_drankProjectile;
-    private NetworkVariable<ulong> m_drankProjectileId = new NetworkVariable<ulong>(0);
-
-    private GameObject m_milkProjectile;
-    private NetworkVariable<ulong> m_milkProjectileId = new NetworkVariable<ulong>(0);
-
-    private GameObject m_nailTrioProjectile;
-    private NetworkVariable<ulong> m_nailTrioProjectileId = new NetworkVariable<ulong>(0);
-
-    private GameObject m_seedProjectile;
-    private NetworkVariable<ulong> m_seedProjectileId = new NetworkVariable<ulong>(0);
+    private GameObject m_instantiatedVisualProjectile;
 
     public override void OnNetworkSpawn()
     {
@@ -59,15 +40,8 @@ public class BallisticExplosion : PlayerAbility
 
         if (!IsServer) return;
 
-        GenericProjectile.InitSpawnProjectileOnServer(ref m_appleProjectile, ref m_appleProjectileId, ApplePrefab);
-        GenericProjectile.InitSpawnProjectileOnServer(ref m_arrowProjectile, ref m_arrowProjectileId, ArrowPrefab);
-        GenericProjectile.InitSpawnProjectileOnServer(ref m_basketballProjectile, ref m_basketballProjectileId, BasketballPrefab);
-        GenericProjectile.InitSpawnProjectileOnServer(ref m_bulletProjectile, ref m_bulletProjectileId, BulletPrefab);
-        GenericProjectile.InitSpawnProjectileOnServer(ref m_corkProjectile, ref m_corkProjectileId, CorkPrefab);
-        GenericProjectile.InitSpawnProjectileOnServer(ref m_drankProjectile, ref m_drankProjectileId, DrankPrefab);
-        GenericProjectile.InitSpawnProjectileOnServer(ref m_milkProjectile, ref m_milkProjectileId, MilkPrefab);
-        GenericProjectile.InitSpawnProjectileOnServer(ref m_nailTrioProjectile, ref m_nailTrioProjectileId, ArrowPrefab);
-        GenericProjectile.InitSpawnProjectileOnServer(ref m_seedProjectile, ref m_seedProjectileId, SeedPrefab);
+        GenericProjectile.InitSpawnProjectileOnServer(ref m_projectile, ref m_projectileId, ProjectilePrefab);
+
     }
 
     public override void OnNetworkDespawn()
@@ -75,15 +49,7 @@ public class BallisticExplosion : PlayerAbility
 
         if (!IsServer) return;
 
-        if (m_appleProjectile != null) m_appleProjectile.GetComponent<NetworkObject>().Despawn();
-        if (m_arrowProjectile != null) m_arrowProjectile.GetComponent<NetworkObject>().Despawn();
-        if (m_basketballProjectile != null) m_basketballProjectile.GetComponent<NetworkObject>().Despawn();
-        if (m_bulletProjectile != null) m_bulletProjectile.GetComponent<NetworkObject>().Despawn();
-        if (m_corkProjectile != null) m_corkProjectile.GetComponent<NetworkObject>().Despawn();
-        if (m_drankProjectile != null) m_drankProjectile.GetComponent<NetworkObject>().Despawn();
-        if (m_milkProjectile != null) m_milkProjectile.GetComponent<NetworkObject>().Despawn();
-        if (m_nailTrioProjectile != null) m_nailTrioProjectile.GetComponent<NetworkObject>().Despawn();
-        if (m_seedProjectile != null) m_seedProjectile.GetComponent<NetworkObject>().Despawn();
+        if (m_projectile != null) m_projectile.GetComponent<NetworkObject>().Despawn();
 
         base.OnNetworkDespawn();
 
@@ -96,15 +62,7 @@ public class BallisticExplosion : PlayerAbility
         if (IsClient)
         {
             // ensure remote clients associate projectiles with local projectile variables
-            GenericProjectile.TryAddProjectileOnClient(ref m_appleProjectile, ref m_appleProjectileId, NetworkManager);
-            GenericProjectile.TryAddProjectileOnClient(ref m_arrowProjectile, ref m_arrowProjectileId, NetworkManager);
-            GenericProjectile.TryAddProjectileOnClient(ref m_basketballProjectile, ref m_basketballProjectileId, NetworkManager);
-            GenericProjectile.TryAddProjectileOnClient(ref m_bulletProjectile, ref m_bulletProjectileId, NetworkManager);
-            GenericProjectile.TryAddProjectileOnClient(ref m_corkProjectile, ref m_corkProjectileId, NetworkManager);
-            GenericProjectile.TryAddProjectileOnClient(ref m_drankProjectile, ref m_drankProjectileId, NetworkManager);
-            GenericProjectile.TryAddProjectileOnClient(ref m_milkProjectile, ref m_milkProjectileId, NetworkManager);
-            GenericProjectile.TryAddProjectileOnClient(ref m_nailTrioProjectile, ref m_nailTrioProjectileId, NetworkManager);
-            GenericProjectile.TryAddProjectileOnClient(ref m_seedProjectile, ref m_seedProjectileId, NetworkManager);
+            GenericProjectile.TryAddProjectileOnClient(ref m_projectile, ref m_projectileId, NetworkManager);
         }
     }
 
@@ -124,28 +82,27 @@ public class BallisticExplosion : PlayerAbility
         ActivateProjectile(ActivationWearableNameEnum, ActivationInput.actionDirection, Distance, Duration);
     }
 
-    ref GameObject GetProjectileInstance(Wearable.NameEnum activationWearable)
+    GameObject InstantiateProjectile(Wearable.NameEnum activationWearable)
     {
         switch (activationWearable)
         {
-            case Wearable.NameEnum.LinkBubbly: return ref m_corkProjectile;
-            case Wearable.NameEnum.AagentPistol: return ref m_bulletProjectile;
-            case Wearable.NameEnum.BabyBottle: return ref m_milkProjectile;
-            case Wearable.NameEnum.AppleJuice: return ref m_appleProjectile;
-            case Wearable.NameEnum.LilPumpDrank: return ref m_drankProjectile;
-            case Wearable.NameEnum.Basketball: return ref m_basketballProjectile;
-            case Wearable.NameEnum.BowandArrow: return ref m_arrowProjectile;
-            case Wearable.NameEnum.Longbow: return ref m_arrowProjectile;
-            case Wearable.NameEnum.NailGun: return ref m_nailTrioProjectile;
-            case Wearable.NameEnum.GMSeeds: return ref m_seedProjectile;
-            default: return ref m_bulletProjectile;
+            case Wearable.NameEnum.LinkBubbly: return GameObject.Instantiate(CorkPrefab);
+            case Wearable.NameEnum.AagentPistol: return GameObject.Instantiate(BulletPrefab);
+            case Wearable.NameEnum.BabyBottle: return GameObject.Instantiate(MilkPrefab);
+            case Wearable.NameEnum.AppleJuice: return GameObject.Instantiate(ApplePrefab);
+            case Wearable.NameEnum.LilPumpDrank: return GameObject.Instantiate(DrankPrefab);
+            case Wearable.NameEnum.Basketball: return GameObject.Instantiate(BasketballPrefab);
+            case Wearable.NameEnum.BowandArrow: return GameObject.Instantiate(ArrowPrefab);
+            case Wearable.NameEnum.Longbow: return GameObject.Instantiate(ArrowPrefab);
+            case Wearable.NameEnum.NailGun: return GameObject.Instantiate(NailTrioPrefab);
+            case Wearable.NameEnum.GMSeeds: return GameObject.Instantiate(SeedPrefab);
+            default: return GameObject.Instantiate(BulletPrefab);
         }
     }
 
     void ActivateProjectile(Wearable.NameEnum activationWearable, Vector3 direction, float distance, float duration)
     {
-        GameObject projectile = GetProjectileInstance(activationWearable);
-        var no_projectile = projectile.GetComponent<BallisticExplosionProjectile>();
+        var no_projectile = m_projectile.GetComponent<BallisticExplosionProjectile>();
         var no_projectileId = no_projectile.GetComponent<NetworkObject>().NetworkObjectId;
         var playerCharacter = Player.GetComponent<NetworkCharacter>();
         var startPosition =
@@ -156,6 +113,14 @@ public class BallisticExplosion : PlayerAbility
         // Local Client & Server
         if (Player.GetComponent<NetworkObject>().IsLocalPlayer || IsServer)
         {
+            if (IsClient)
+            {
+                m_instantiatedVisualProjectile = InstantiateProjectile(activationWearable);
+                m_instantiatedVisualProjectile.transform.position = startPosition;
+                if (no_projectile.VisualGameObject != null) Destroy(no_projectile.VisualGameObject);
+                no_projectile.VisualGameObject = m_instantiatedVisualProjectile;
+            }
+
             // init
             no_projectile.Init(startPosition, direction, distance, duration, ExplosionRadius,
                 IsServer ? PlayerAbility.NetworkRole.Server : PlayerAbility.NetworkRole.LocalClient,
@@ -180,14 +145,14 @@ public class BallisticExplosion : PlayerAbility
         if (IsServer)
         {
             ulong playerId = Player.GetComponent<NetworkObject>().NetworkObjectId;
-            ActivateProjectileClientRpc(startPosition,
+            ActivateProjectileClientRpc(activationWearable, startPosition,
                 direction, distance, duration,
                 playerId, no_projectileId);
         }
     }
 
     [Rpc(SendTo.ClientsAndHost)]
-    void ActivateProjectileClientRpc(Vector3 startPosition, Vector3 direction, 
+    void ActivateProjectileClientRpc(Wearable.NameEnum activationWearable, Vector3 startPosition, Vector3 direction, 
         float distance, float duration, ulong playerNetworkObjectId, ulong projectileNetworkObjectId)
     {
         // Remote Client
@@ -200,6 +165,11 @@ public class BallisticExplosion : PlayerAbility
         {
             var no_projectile = NetworkManager.SpawnManager.SpawnedObjects[projectileNetworkObjectId].
                 GetComponent<BallisticExplosionProjectile>();
+
+            m_instantiatedVisualProjectile = InstantiateProjectile(activationWearable);
+            m_instantiatedVisualProjectile.transform.position = startPosition;
+            if (no_projectile.VisualGameObject != null) Destroy(no_projectile.VisualGameObject);
+            no_projectile.VisualGameObject = m_instantiatedVisualProjectile;
 
             // init
             no_projectile.Init(startPosition, direction, distance, duration, 1,
