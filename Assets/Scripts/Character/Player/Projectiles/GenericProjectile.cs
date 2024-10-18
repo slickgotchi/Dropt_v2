@@ -135,8 +135,6 @@ public class GenericProjectile : NetworkBehaviour
                 {
                     enemyAI.Knockback(KnockbackDirection, KnockbackDistance, KnockbackStunDuration);
                 }
-
-                Debug.Log("Hit enemy at position: " + enemyAI.transform.position);
             }
             else if (hit.HasComponent<Destructible>())
             {

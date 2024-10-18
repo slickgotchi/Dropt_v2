@@ -477,8 +477,6 @@ public class PlayerAbility : NetworkBehaviour
                         var knockbackDir = Dropt.Utils.Battle.GetVectorFromAtoBAttackCentres(playerCharacter.gameObject, hit.gameObject).normalized;
                         enemyAI.Knockback(knockbackDir, KnockbackDistance, KnockbackStunDuration);
                     }
-
-                    Debug.Log("Hit enemy at position: " + enemyAI.transform.position);
                 }
             }
 

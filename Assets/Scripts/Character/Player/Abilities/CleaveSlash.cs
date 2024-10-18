@@ -25,8 +25,6 @@ public class CleaveSlash : PlayerAbility
         SetRotationToActionDirection();
         SetLocalPosition(PlayerAbilityCentreOffset + ActivationInput.actionDirection * Projection);
 
-        Debug.Log(transform.position);
-
         // collision check (no RPC's are involved in this call)
         OneFrameCollisionDamageCheck(m_collider, Wearable.WeaponTypeEnum.Cleave, DamageMultiplier);
 
@@ -34,8 +32,6 @@ public class CleaveSlash : PlayerAbility
         // animation on remote clients
         //PlayAnimation("CleaveSlash");
         PlayAnimationWithDuration("CleaveSlash", ExecutionDuration);
-
-
     }
 
     public override void OnUpdate()

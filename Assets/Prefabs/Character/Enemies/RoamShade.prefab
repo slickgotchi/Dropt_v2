@@ -184,7 +184,11 @@ MonoBehaviour:
   baseApRegen: 1
   baseKnockbackMutliplier: 1
   baseStunMultiplier: 1
-  popupTextOffset: {x: 0, y: 1.5, z: 0}
+  k_popupTextOffset: {x: 0, y: 1.5, z: 0}
+  ReceiveDamageColor: {r: 1, g: 1, b: 1, a: 1}
+  ReceiveDamageFontSize: 16
+  ReceiveCriticalDamageColor: {r: 1, g: 0.92156863, b: 0.34117648, a: 1}
+  ReceiveCriticalDamageFontSize: 24
   HpMax:
     m_InternalValue: 100
   HpCurrent:
@@ -221,7 +225,7 @@ MonoBehaviour:
     m_InternalValue: 0
   StunMultiplier:
     m_InternalValue: 0
-  OnHurtAudio: {fileID: 0}
+  OnHurtAudio: {fileID: 8300000, guid: 00338429dfad27d438bd1444b96d7e3a, type: 3}
 --- !u!114 &-206386862709377946
 MonoBehaviour:
   m_ObjectHideFlags: 0

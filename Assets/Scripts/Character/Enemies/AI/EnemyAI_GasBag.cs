@@ -127,7 +127,7 @@ namespace Dropt
 
             // set explosion radius
             GasBag_Explode gasBagExplosion = ability.GetComponent<GasBag_Explode>();
-            gasBagExplosion.ExplosionRadius = OnDestroyPoisonCloudRadius;
+            //gasBagExplosion.ExplosionRadius = OnDestroyPoisonCloudRadius;
             gasBagExplosion.transform.position = transform.position;
             // initialise the ability
             ability.GetComponent<NetworkObject>().Spawn();
