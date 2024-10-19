@@ -24,6 +24,8 @@ public class GenericProjectile : NetworkBehaviour
 
     [HideInInspector] public PlayerAbility.NetworkRole Role = PlayerAbility.NetworkRole.LocalClient;
 
+    [HideInInspector] public GameObject VisualGameObject;
+
     private float m_timer = 0;
     private bool m_isSpawned = false;
     private float m_speed = 1;
@@ -95,11 +97,18 @@ public class GenericProjectile : NetworkBehaviour
 
         if (m_timer < 0)
         {
+            if (VisualGameObject != null) Destroy(VisualGameObject);
             gameObject.SetActive(false);
         }
 
         transform.position += Direction * m_speed * Time.deltaTime;
         transform.rotation = PlayerAbility.GetRotationFromDirection(Direction);
+
+        if (IsClient)
+        {
+            VisualGameObject.transform.position = transform.position;
+            VisualGameObject.transform.rotation = transform.rotation;
+        }
 
         if (Role != PlayerAbility.NetworkRole.RemoteClient) CollisionCheck();
     }
@@ -154,6 +163,8 @@ public class GenericProjectile : NetworkBehaviour
 
     void Deactivate(Vector3 hitPosition)
     {
+        if (VisualGameObject != null) Destroy(VisualGameObject);
+
         VisualEffectsManager.Singleton.SpawnBulletExplosion(hitPosition);
         gameObject.SetActive(false);
 
