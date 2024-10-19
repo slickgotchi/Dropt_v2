@@ -239,7 +239,7 @@ MonoBehaviour:
   baseHpMax: 24
   baseHpCurrent: 24
   baseHpBuffer: 0
-  baseAttackPower: 8
+  baseAttackPower: 10
   baseCriticalChance: 0.1
   baseApMax: 0
   baseApCurrent: 0
@@ -423,8 +423,8 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 5
-  m_Acceleration: 12
+  m_Speed: 3.5
+  m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
   m_StoppingDistance: 0
@@ -460,20 +460,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 37bee416787f84fe69aaef0571b6bf5a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PursueSpeedMultiplier: 6
+  PursueSpeedMultiplier: 3.5
   RoamSpeedMultiplier: 2
   FleeSpeedMultiplier: 5
-  AggroRange: 10
-  AlertRange: 6
-  AttackRange: 6
-  BreakAggroRange: 16
+  AggroRange: 6
+  AlertRange: 5
+  AttackRange: 2.3
+  BreakAggroRange: 10
   MaxRoamRange: 10
   FleeRange: 0
   BreakFleeRange: 12
-  PursueStopShortRange: 5.5
+  PursueStopShortRange: 0.5
   SpawnDuration: 0.6
-  TelegraphDuration: 0
-  AttackDuration: 0.4
+  TelegraphDuration: 1
+  AttackDuration: 0.5
   CooldownDuration: 1
   TelegraphSelectTargetTimeRatio: 1
   PrimaryAttack: {fileID: 3159421716010617349, guid: 00326eeec0511704cbb24b1aefead78a, type: 3}
