@@ -32,8 +32,6 @@ public class CleaveSlash : PlayerAbility
         // animation on remote clients
         //PlayAnimation("CleaveSlash");
         PlayAnimationWithDuration("CleaveSlash", ExecutionDuration);
-
-
     }
 
     public override void OnUpdate()

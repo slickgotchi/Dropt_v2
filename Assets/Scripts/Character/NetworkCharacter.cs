@@ -25,7 +25,11 @@ public class NetworkCharacter : NetworkBehaviour
     public float baseStunMultiplier = 1f;
 
     [Header("Damage/Health Popup Offset")]
-    public Vector3 popupTextOffset = new Vector3(0, 1.5f, 0f);
+    public Vector3 k_popupTextOffset = new Vector3(0, 1.5f, 0f);
+    public Color ReceiveDamageColor = new Color(1,1,1);
+    public int ReceiveDamageFontSize = 16;
+    public Color ReceiveCriticalDamageColor = new Color(1,1,1);
+    public int ReceiveCriticalDamageFontSize = 24;
 
     private List<BuffObject> activeBuffObjects = new List<BuffObject>();
 
@@ -140,9 +144,12 @@ public class NetworkCharacter : NetworkBehaviour
             // deplete hp
             HpCurrent.Value -= (int)damage;
             if (HpCurrent.Value < 0) { HpCurrent.Value = 0; }
-            var position = transform.position + popupTextOffset;
-            DamagePopupTextClientRpc(damage, position, isCritical);
+            //var position = transform.position + popupTextOffset;
 
+            // show damage text
+            DamagePopupTextClientRpc(damage, isCritical);
+
+            // check for death
             if (HpCurrent.Value <= 0 && enemyController != null)
             {
                 var enemyAI = gameObject.GetComponent<Dropt.EnemyAI>();
@@ -176,7 +183,6 @@ public class NetworkCharacter : NetworkBehaviour
     [ClientRpc]
     private void HandleEnemyTakeDamageClientRpc(float damage, bool isCritical, ulong damageDealerNOID = 0)
     {
-        //HandleEnemyTakeDamage(damage, isCritical, damageDealerNOID);
         // get the local player
         ulong localPlayerNOID = 0;
         var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
@@ -240,8 +246,8 @@ public class NetworkCharacter : NetworkBehaviour
 
             HpCurrent.Value -= (int)damage;
             if (HpCurrent.Value < 0) { HpCurrent.Value = 0; }
-            var position = transform.position + popupTextOffset;
-            DamagePopupTextClientRpc(damage, position, isCritical);
+            //var position = transform.position + popupTextOffset;
+            DamagePopupTextClientRpc(damage, isCritical);
 
             if (HpCurrent.Value <= 0 && IsServer)
             {
@@ -289,15 +295,15 @@ public class NetworkCharacter : NetworkBehaviour
     }
 
     [Rpc(SendTo.ClientsAndHost)]
-    private void DamagePopupTextClientRpc(float damage, Vector3 position, bool isCritical)
+    private void DamagePopupTextClientRpc(float damage, bool isCritical)
     {
-        ColorUtility.TryParseHtmlString("#ffeb57", out Color critColor);
+        //ColorUtility.TryParseHtmlString(hexColorStr, out Color color);
 
         PopupTextManager.Instance.PopupText(
             damage.ToString("F0"),
-            position,
-            isCritical ? 24 : 16,
-            isCritical ? critColor : Color.white,
+            transform.position + k_popupTextOffset,
+            isCritical ? ReceiveCriticalDamageFontSize : ReceiveDamageFontSize,
+            isCritical ? ReceiveCriticalDamageColor : ReceiveDamageColor,
             0.2f);
     }
 

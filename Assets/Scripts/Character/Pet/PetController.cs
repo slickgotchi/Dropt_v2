@@ -83,7 +83,8 @@ public class PetController : NetworkBehaviour
     public void PickItem(PickupItem pickupItem)
     {
         m_pickUpItemsInRadius.Remove(pickupItem);
-        pickupItem.Pick(m_petOwner.GetComponentInChildren<PlayerPickupItemMagnet>());
+        //pickupItem.Pick(m_petOwner.GetComponentInChildren<PlayerPickupItemMagnet>());
+        pickupItem.TryGoTo(m_petOwner.gameObject);
     }
 
     public PickupItem GetPickUpItemFromList()

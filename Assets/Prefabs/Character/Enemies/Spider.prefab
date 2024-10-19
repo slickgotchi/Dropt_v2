@@ -107,6 +107,7 @@ GameObject:
   - component: {fileID: -3820588824164294264}
   - component: {fileID: 932985116294955918}
   - component: {fileID: 3785400363968830387}
+  - component: {fileID: 805373810793937261}
   m_Layer: 15
   m_Name: Spider
   m_TagString: Untagged
@@ -204,7 +205,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  UseUnreliableDeltas: 0
+  UseUnreliableDeltas: 1
   SyncPositionX: 1
   SyncPositionY: 1
   SyncPositionZ: 0
@@ -214,12 +215,12 @@ MonoBehaviour:
   SyncScaleX: 0
   SyncScaleY: 0
   SyncScaleZ: 0
-  PositionThreshold: 0.001
-  RotAngleThreshold: 0.01
-  ScaleThreshold: 0.01
+  PositionThreshold: 0.01
+  RotAngleThreshold: 1
+  ScaleThreshold: 1
   UseQuaternionSynchronization: 0
   UseQuaternionCompression: 0
-  UseHalfFloatPrecision: 0
+  UseHalfFloatPrecision: 1
   InLocalSpace: 0
   Interpolate: 1
   SlerpPosition: 0
@@ -253,7 +254,11 @@ MonoBehaviour:
   baseApRegen: 1
   baseKnockbackMutliplier: 1
   baseStunMultiplier: 1
-  popupTextOffset: {x: 0, y: 1.5, z: 0}
+  k_popupTextOffset: {x: 0, y: 1.5, z: 0}
+  ReceiveDamageColor: {r: 1, g: 1, b: 1, a: 1}
+  ReceiveDamageFontSize: 16
+  ReceiveCriticalDamageColor: {r: 1, g: 0.92156863, b: 0.34117648, a: 1}
+  ReceiveCriticalDamageFontSize: 24
   HpMax:
     m_InternalValue: 100
   HpCurrent:
@@ -290,7 +295,7 @@ MonoBehaviour:
     m_InternalValue: 0
   StunMultiplier:
     m_InternalValue: 0
-  OnHurtAudio: {fileID: 0}
+  OnHurtAudio: {fileID: 8300000, guid: 00338429dfad27d438bd1444b96d7e3a, type: 3}
 --- !u!114 &2642312668980575302
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -487,6 +492,18 @@ MonoBehaviour:
     m_InternalValue: 0
   SpawnDirection: {x: 0, y: 0, z: 0}
   SpawnDistance: 0
+--- !u!114 &805373810793937261
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0db5f2b26a4fc4689a51120be8962555, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2736674369248915178
 GameObject:
   m_ObjectHideFlags: 0
