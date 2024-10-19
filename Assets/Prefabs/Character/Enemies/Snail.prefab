@@ -261,7 +261,7 @@ MonoBehaviour:
   baseApBuffer: 0
   baseDoubleStrikeChance: 0.05
   baseCriticalDamage: 1.5
-  baseMoveSpeed: 1
+  baseMoveSpeed: 3
   baseAccuracy: 1
   baseEvasion: 0
   baseDamageReduction: 0
@@ -310,11 +310,7 @@ MonoBehaviour:
     m_InternalValue: 0
   StunMultiplier:
     m_InternalValue: 0
-<<<<<<< HEAD
-  OnHurtAudio: {fileID: 0}
-=======
   OnHurtAudio: {fileID: 8300000, guid: 00338429dfad27d438bd1444b96d7e3a, type: 3}
->>>>>>> e59c754e622652a03c325bde45ee679a8881dae1
 --- !u!61 &7690168732021353646
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -431,8 +427,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0859f92cf3655314fb98c52ff12a04a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PursueSpeedMultiplier: 5.4
-  RoamSpeedMultiplier: 1
+  PursueSpeedMultiplier: 1.7
+  RoamSpeedMultiplier: 0.3
   FleeSpeedMultiplier: 5
   AggroRange: 9
   AlertRange: 10
@@ -443,7 +439,7 @@ MonoBehaviour:
   BreakFleeRange: 12
   PursueStopShortRange: 0.5
   SpawnDuration: 1
-  TelegraphDuration: 0.6
+  TelegraphDuration: 1
   AttackDuration: 0.3
   CooldownDuration: 2
   TelegraphSelectTargetTimeRatio: 1
