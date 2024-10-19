@@ -68,7 +68,7 @@ namespace Dropt
             }
 
             // instantiate an attack
-            GameObject ability = Instantiate(PrimaryAttack);
+            GameObject ability = Instantiate(PrimaryAttack, transform.position, Quaternion.identity);
 
             // get enemy ability of attack
             EnemyAbility enemyAbility = ability.GetComponent<EnemyAbility>();

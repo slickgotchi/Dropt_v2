@@ -81,7 +81,7 @@ public class PlayerAbilityEditor : Editor
         // cooldown slow factor
         if (cooldownDuration.floatValue > 0)
         {
-            EditorGUILayout.PropertyField(cooldownSlowFactor, new GUIContent("Cooldown Slow Factor", "Slows player down during Cooldown"));
+            //EditorGUILayout.PropertyField(cooldownSlowFactor, new GUIContent("Cooldown Slow Factor", "Slows player down during Cooldown"));
         }
 
         // hold parameters

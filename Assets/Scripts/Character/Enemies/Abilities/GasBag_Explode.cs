@@ -7,7 +7,7 @@ using UnityEngine;
 public class GasBag_Explode : EnemyAbility
 {
     [Header("GasBag_Explode Parameters")]
-    public float ExplosionRadius = 3f;
+    //public float ExplosionRadius = 3f;
     public float PoisonDuration = 5f;
     public float PoisonDamagePerSecond = 4f;
 
@@ -26,9 +26,6 @@ public class GasBag_Explode : EnemyAbility
 
         // set position
         transform.position = Dropt.Utils.Battle.GetAttackCentrePosition(Parent);
-
-        // resize explosion collider and check collisions
-        Collider.GetComponent<CircleCollider2D>().radius = ExplosionRadius;
 
         m_isExploded = true;
 
@@ -76,7 +73,6 @@ public class GasBag_Explode : EnemyAbility
     public override void OnDeactivate()
     {
         base.OnDeactivate();
-        Debug.Log("Kill gasbag");
         Parent.GetComponent<NetworkObject>().Despawn();
         GetComponent<NetworkObject>().Despawn();
     }

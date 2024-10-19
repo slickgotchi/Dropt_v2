@@ -106,6 +106,7 @@ GameObject:
   - component: {fileID: 2975631533240675610}
   - component: {fileID: 1232825248513418453}
   - component: {fileID: 4369600644893451117}
+  - component: {fileID: -1282777230357317239}
   m_Layer: 15
   m_Name: PeacefulSnail
   m_TagString: Untagged
@@ -147,7 +148,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1697554027
+  GlobalObjectIdHash: 2242280965
   InScenePlacedSourceGlobalObjectIdHash: 2137105859
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -204,7 +205,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  UseUnreliableDeltas: 0
+  UseUnreliableDeltas: 1
   SyncPositionX: 1
   SyncPositionY: 1
   SyncPositionZ: 0
@@ -214,12 +215,12 @@ MonoBehaviour:
   SyncScaleX: 0
   SyncScaleY: 0
   SyncScaleZ: 0
-  PositionThreshold: 0.001
-  RotAngleThreshold: 0.01
-  ScaleThreshold: 0.01
+  PositionThreshold: 0.01
+  RotAngleThreshold: 1
+  ScaleThreshold: 1
   UseQuaternionSynchronization: 0
   UseQuaternionCompression: 0
-  UseHalfFloatPrecision: 0
+  UseHalfFloatPrecision: 1
   InLocalSpace: 0
   Interpolate: 1
   SlerpPosition: 0
@@ -253,7 +254,11 @@ MonoBehaviour:
   baseApRegen: 1
   baseKnockbackMutliplier: 1
   baseStunMultiplier: 1
-  popupTextOffset: {x: 0, y: 1.5, z: 0}
+  k_popupTextOffset: {x: 0, y: 1.5, z: 0}
+  ReceiveDamageColor: {r: 1, g: 1, b: 1, a: 1}
+  ReceiveDamageFontSize: 16
+  ReceiveCriticalDamageColor: {r: 1, g: 0.92156863, b: 0.34117648, a: 1}
+  ReceiveCriticalDamageFontSize: 24
   HpMax:
     m_InternalValue: 100
   HpCurrent:
@@ -290,6 +295,7 @@ MonoBehaviour:
     m_InternalValue: 0
   StunMultiplier:
     m_InternalValue: 0
+  OnHurtAudio: {fileID: 8300000, guid: 00338429dfad27d438bd1444b96d7e3a, type: 3}
 --- !u!61 &7690168732021353646
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -470,6 +476,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Multiplier: 1
+--- !u!114 &-1282777230357317239
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0db5f2b26a4fc4689a51120be8962555, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6525230415705073668
 GameObject:
   m_ObjectHideFlags: 0

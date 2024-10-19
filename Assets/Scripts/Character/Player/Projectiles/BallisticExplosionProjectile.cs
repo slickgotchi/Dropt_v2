@@ -116,6 +116,11 @@ public class BallisticExplosionProjectile : NetworkBehaviour
 
     public void CollisionCheck()
     {
+        if (IsServer && !IsHost) PlayerAbility.RollbackEnemies(LocalPlayer);
+
+        // resync transforms
+        Physics2D.SyncTransforms();
+
         // Use ColliderCast to perform continuous collision detection
         Vector2 castDirection = Direction.normalized;
         float castDistance = m_speed * Time.deltaTime;
@@ -158,6 +163,8 @@ public class BallisticExplosionProjectile : NetworkBehaviour
 
             Explode(hitInfo.point);
         }
+
+        if (IsServer && !IsHost) PlayerAbility.UnrollEnemies();
     }
 
     void Explode(Vector3 position)
@@ -217,8 +224,6 @@ public class BallisticExplosionProjectile : NetworkBehaviour
 
         // clear out colliders
         enemyHitColliders.Clear();
-
-        //Destroy(ExplosionCollider.gameObject);
     }
 
     void Deactivate(Vector3 hitPosition)

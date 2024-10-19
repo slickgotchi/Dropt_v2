@@ -40,6 +40,8 @@ public class ProximityManager : MonoBehaviour
             var levelObject = levelObjects[i];
             var levelObjectPos = levelObject.transform.position;
 
+            if (levelObject.HasComponent<Dropt.EnemyAI_RoamShade>()) continue;
+
             // also ensure we don't deactivate anything that has not yet spawned
             if (!levelObject.HasComponent<NetworkObject>()) continue;
             if (!levelObject.GetComponent<NetworkObject>().IsSpawned) continue;

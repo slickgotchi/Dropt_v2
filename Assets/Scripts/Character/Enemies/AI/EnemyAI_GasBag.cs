@@ -96,13 +96,21 @@ namespace Dropt
             {
                 return;
             }
+
             ShowPoisionCloudClientRpc();
             GenerateEnemyAbility();
+        }
+
+        private void HideHpBar()
+        {
+            GameObject hpBar = transform.GetComponentInChildren<StatBarCanvas>().gameObject;
+            hpBar.SetActive(false);
         }
 
         [ClientRpc]
         private void ShowPoisionCloudClientRpc()
         {
+            HideHpBar();
             m_greenCloud.SetActive(true);
         }
 
@@ -119,7 +127,7 @@ namespace Dropt
 
             // set explosion radius
             GasBag_Explode gasBagExplosion = ability.GetComponent<GasBag_Explode>();
-            gasBagExplosion.ExplosionRadius = OnDestroyPoisonCloudRadius;
+            //gasBagExplosion.ExplosionRadius = OnDestroyPoisonCloudRadius;
             gasBagExplosion.transform.position = transform.position;
             // initialise the ability
             ability.GetComponent<NetworkObject>().Spawn();
@@ -146,6 +154,14 @@ namespace Dropt
             // do a collision check
             List<Collider2D> playerHitColliders = new List<Collider2D>();
             OnTouchPoisonCollider.OverlapCollider(PlayerAbility.GetContactFilter(new string[] { "PlayerHurt" }), playerHitColliders);
+            if (playerHitColliders.Count == 0)
+            {
+                if (IsServer)
+                {
+                    Utils.Anim.Play(m_animator, "GasBag_Roam");
+                }
+                return;
+            }
             foreach (Collider2D hit in playerHitColliders)
             {
                 Transform player = hit.transform.parent;
