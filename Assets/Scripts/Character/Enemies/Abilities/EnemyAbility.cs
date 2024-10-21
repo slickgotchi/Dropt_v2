@@ -6,9 +6,9 @@ using UnityEngine.Pool;
 public class EnemyAbility : NetworkBehaviour
 {
     [Header("Base EnemyAbility Parameters")]
-    public float TelegraphDuration = 1f;
+    //public float TelegraphDuration = 1f;
     public float ExecutionDuration = 1f;
-    public float CooldownDuration = 1f;
+    //public float CooldownDuration = 1f;
     [HideInInspector] public GameObject Parent;
     [HideInInspector] public GameObject Target;
     [HideInInspector] public Vector3 AttackDirection;
@@ -31,7 +31,7 @@ public class EnemyAbility : NetworkBehaviour
         base.OnNetworkSpawn();
     }
 
-    public void Init(GameObject parent, GameObject target,
+    public void Activate(GameObject parent, GameObject target,
         Vector3 attackDirection, float executionDuration, Vector3 positionToAttack)
     {
         if (parent == null) return;
@@ -43,14 +43,21 @@ public class EnemyAbility : NetworkBehaviour
         ExecutionDuration = executionDuration;
         PositionToAttack = positionToAttack;
 
-        OnInit();
-    }
-
-    public void Activate()
-    {
         OnActivate();
         m_timer = ExecutionDuration;
         m_isActive = true;
+    }
+
+    public void Deactivate()
+    {
+        OnDeactivate();
+        m_isActive = false;
+
+        if (IsServer)
+        {
+            var networkObject = GetComponent<NetworkObject>();
+            if (networkObject != null) GetComponent<NetworkObject>().Despawn();
+        }
     }
 
     private void Update()
@@ -58,18 +65,17 @@ public class EnemyAbility : NetworkBehaviour
         m_timer -= Time.deltaTime;
         if (m_timer < 0 && m_isActive)
         {
-            OnDeactivate();
-            m_isActive = false;
+            Deactivate();
         } else
         {
             OnUpdate(Time.deltaTime);
         }
     }
 
-    public virtual void OnTelegraphStart() { }
-    public virtual void OnExecutionStart() { }
-    public virtual void OnCooldownStart() { }
-    public virtual void OnFinish() { }
+    //public virtual void OnTelegraphStart() { }
+    //public virtual void OnExecutionStart() { }
+    //public virtual void OnCooldownStart() { }
+    //public virtual void OnFinish() { }
     public virtual void OnUpdate(float dt) { }
 
     public virtual void OnInit() { }

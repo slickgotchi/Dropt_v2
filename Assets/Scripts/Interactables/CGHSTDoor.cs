@@ -30,15 +30,15 @@ public class CGHSTDoor : Interactable
     private void TryToOpenTheDoorServerRpc()
     {
         PlayerController playerController = GetPlayerController();
-        PlayerDungeonData playerDungeonData = playerController.GetComponent<PlayerDungeonData>();
-        int cGhst = playerDungeonData.cGHST.Value;
+        PlayerOffchainData playerDungeonData = playerController.GetComponent<PlayerOffchainData>();
+        int cGhst = playerDungeonData.Ecto.Value;
 
         if (m_costToOpenTheDoor > cGhst)
         {
             NotifyNotEnoughBalanceClientRpc();
             return;
         }
-        playerDungeonData.cGHST.Value -= m_costToOpenTheDoor;
+        playerDungeonData.Ecto.Value -= m_costToOpenTheDoor;
         m_animator.Play("ApeDoor_Open");
         OpenDoorClientRpc();
     }

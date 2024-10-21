@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Unity.Netcode;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class REKTCanvas : NetworkBehaviour
 {
@@ -56,6 +57,9 @@ public class REKTCanvas : NetworkBehaviour
     {
         Container.SetActive(false);
 
-        Game.Instance.TryConnectClientOrHostGame();
+        // reload the game scene
+        SceneManager.LoadScene("Game");
+
+        //Game.Instance.TryConnectClientOrHostGame();
     }
 }

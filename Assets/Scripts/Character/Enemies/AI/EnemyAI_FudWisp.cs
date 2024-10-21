@@ -7,7 +7,6 @@ namespace Dropt
     public class EnemyAI_FudWisp : EnemyAI
     {
         [Header("FudWisp Specific")]
-        public float ExplosionRadius = 2f;
         public float WaitForNonRootedPlayerRange = 4f;
         private Action<GameObject> m_onFudWispDespawn;
 
@@ -62,29 +61,18 @@ namespace Dropt
         protected void FudWisp_AttackStart()
         {
             // check we have a primary attack.
-            if (PrimaryAttack == null)
-            {
-                return;
-            }
+            if (PrimaryAttack == null) return;
 
             // instantiate an attack
             GameObject ability = Instantiate(PrimaryAttack, transform.position, Quaternion.identity);
 
             // get enemy ability of attack
             EnemyAbility enemyAbility = ability.GetComponent<EnemyAbility>();
-            if (enemyAbility == null)
-            {
-                return;
-            }
-
-            // set explosion radius
-            FudWisp_Explode fudWisp_Explosion = ability.GetComponent<FudWisp_Explode>();
-            fudWisp_Explosion.ExplosionRadius = ExplosionRadius;
+            if (enemyAbility == null) return;
 
             // initialise the ability           
             ability.GetComponent<NetworkObject>().Spawn();
-            enemyAbility.Init(gameObject, NearestPlayer, Vector3.zero, AttackDuration, PositionToAttack);
-            enemyAbility.Activate();
+            enemyAbility.Activate(gameObject, NearestPlayer, Vector3.zero, AttackDuration, PositionToAttack);
         }
 
         protected void FudWisp_PursueUpdate(float dt)

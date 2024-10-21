@@ -15,6 +15,7 @@ namespace Dropt
         private float m_onTouchPoisonDamageTimer = 0f;
 
         public Collider2D OnTouchPoisonCollider;
+        public Collider2D EnemyHurtCollider;
 
         private Animator m_animator;
         [SerializeField] private GameObject m_greenCloud;
@@ -86,6 +87,7 @@ namespace Dropt
             base.OnAttackStart();
             Utils.Anim.Play(m_animator, "GasBag_Death");
             OnTouchPoisonCollider.enabled = false;
+            EnemyHurtCollider.enabled = false;
             m_isExploded = true;
             m_navMeshAgent.isStopped = true;
         }
@@ -131,12 +133,7 @@ namespace Dropt
             gasBagExplosion.transform.position = transform.position;
             // initialise the ability
             ability.GetComponent<NetworkObject>().Spawn();
-            enemyAbility.Init(gameObject,
-                              NearestPlayer,
-                              Vector3.zero,
-                              PoisonCloudDuration,
-                              PositionToAttack);
-            enemyAbility.Activate();
+            enemyAbility.Activate(gameObject, NearestPlayer, Vector3.zero, PoisonCloudDuration, PositionToAttack);
         }
 
         // attack

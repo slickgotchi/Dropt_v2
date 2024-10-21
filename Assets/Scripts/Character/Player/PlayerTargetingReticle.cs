@@ -47,6 +47,12 @@ public class PlayerTargetingReticle : MonoBehaviour
         if (Bootstrap.IsServer()) GetComponent<PlayerTargetingReticle>().enabled = false;
     }
 
+    private void OnDestroy()
+    {
+        // destroy the reticle which was deparented
+        Destroy(ReticleTransform.gameObject);
+    }
+
     private void OnSignalMode_KeyboardMouse(InputValue value)
     {
         mode = Mode.KeyboardMouse;

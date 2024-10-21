@@ -11,12 +11,12 @@ using Thirdweb;
 // - players automatically enter dungeon by withdrawing from their bank up to cGhstDungeonStartAmount
 // - when players have more than their wallet amount
 
-public class PlayerDungeonData : NetworkBehaviour
+public class PlayerOffchainData : NetworkBehaviour
 {
     // Public properties with private setters
     public NetworkVariable<int> SpiritDust = new NetworkVariable<int>(0);
-    public NetworkVariable<int> cGHST = new NetworkVariable<int>(0);
-    public NetworkVariable<float> Essence = new NetworkVariable<float>(300);
+    public NetworkVariable<int> Ecto = new NetworkVariable<int>(0);
+    public NetworkVariable<float> Essence = new NetworkVariable<float>(1000);
 
     public int cGhstDungeonStartAmount = 10;
 
@@ -103,7 +103,7 @@ public class PlayerDungeonData : NetworkBehaviour
     [Rpc(SendTo.Server)]
     void DebugTopUpsServerRpc()
     {
-        cGHST.Value = 100;
+        Ecto.Value = 100;
         SpiritDust.Value = 100;
     }
 
@@ -132,14 +132,14 @@ public class PlayerDungeonData : NetworkBehaviour
 
                 var createResponse = await DroptWalletAPI.CreateDroptWalletDataAsync(droptData);
 
-                cGHST.Value = 0;
+                Ecto.Value = 0;
                 SpiritDust.Value = 0;
             }
 
             // if got data, populate cghst and gltr
             else
             {
-                cGHST.Value = fetchResponse.cGhst;
+                Ecto.Value = fetchResponse.cGhst;
                 SpiritDust.Value = fetchResponse.spiritDust;
             }
         }
@@ -164,7 +164,7 @@ public class PlayerDungeonData : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        cGHST.Value += value;
+        Ecto.Value += value;
     }
 
     public void AddEssence(float value)
@@ -180,7 +180,7 @@ public class PlayerDungeonData : NetworkBehaviour
         if (!IsServer) return;
 
         SpiritDust.Value = 0;
-        cGHST.Value = 0;
+        Ecto.Value = 0;
         Essence.Value = 300;
     }
 }

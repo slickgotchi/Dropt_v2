@@ -16,7 +16,7 @@ public class SpiderPod_SpawnSpiders : EnemyAbility
     private List<Vector3> m_spiderDirections = new List<Vector3>();
     private float m_speed = 1f;
 
-    public override void OnExecutionStart()
+    public override void OnActivate()
     {
         if (Parent == null) return;
 
@@ -47,7 +47,7 @@ public class SpiderPod_SpawnSpiders : EnemyAbility
         }
     }
 
-    public override void OnFinish()
+    public override void OnDeactivate()
     {
         m_spiders.Clear();
         m_spiderDirections.Clear();

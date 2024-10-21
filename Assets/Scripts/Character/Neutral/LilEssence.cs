@@ -38,7 +38,7 @@ public class LilEssence : NetworkBehaviour
     {
         if (IsServer)
         {
-            PlayerDungeonData playerData = collision.gameObject.GetComponent<PlayerDungeonData>();
+            PlayerOffchainData playerData = collision.gameObject.GetComponent<PlayerOffchainData>();
             if (playerData != null)
             {
                 Debug.Log("Add 10 essence to player");
