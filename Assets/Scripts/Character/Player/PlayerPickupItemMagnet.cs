@@ -7,7 +7,7 @@ public class PlayerPickupItemMagnet : NetworkBehaviour
     public float Radius = 5f;
     public Collider2D magnetCollider;
 
-    public PlayerDungeonData PlayerDungeonData;
+    public PlayerOffchainData PlayerDungeonData;
     private PickupItem m_currentPickupItem;
 
     void Start()

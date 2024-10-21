@@ -154,7 +154,7 @@ public class BallisticExplosion : PlayerAbility
     [Rpc(SendTo.ClientsAndHost)]
     void ActivateProjectileClientRpc(Wearable.NameEnum activationWearable, Vector3 startPosition, Vector3 direction, 
         float distance, float duration, ulong playerNetworkObjectId, ulong projectileNetworkObjectId)
-    {
+    { 
         // Remote Client
         Player = NetworkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId].gameObject;
         if (!Player) return;

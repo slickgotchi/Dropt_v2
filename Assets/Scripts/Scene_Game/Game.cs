@@ -59,7 +59,7 @@ public class Game : MonoBehaviour
             // high as it possible can and consume ALL of our remote servers resources.
             // NOTE: setting this value low (e.g. 15fps) will increase the ping and RTT
             // of our game. 60fps keeps it fairly low at 50-60ms ping on a local connection
-            Application.targetFrameRate = 60;
+            Application.targetFrameRate = 30;
             QualitySettings.vSyncCount = 0;
 
             ConnectServerGame();
@@ -70,7 +70,8 @@ public class Game : MonoBehaviour
         // 4. Client instances
         else if (Bootstrap.IsClient())
         {
-            ConnectClientGame();
+            m_isTryConnectClientOrHostGame = true;
+            //ConnectClientGame();
         }
         // 5. Host instances
         else if (Bootstrap.IsHost())
@@ -202,8 +203,9 @@ public class Game : MonoBehaviour
     public void TriggerGameOver(REKTCanvas.TypeOfREKT typeOfREKT)
     {
         REKTCanvas.Instance.Show(typeOfREKT);
-        LevelManager.Instance.DestroyCurrentLevel();
+        //LevelManager.Instance.DestroyCurrentLevel();
         NetworkManager.Singleton.Shutdown();
+        //SceneManager.LoadScene("Game");
     }
 
     private void LoadCertificateFiles()
