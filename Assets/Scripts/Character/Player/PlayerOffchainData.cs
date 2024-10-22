@@ -11,6 +11,17 @@ using Thirdweb;
 // - players automatically enter dungeon by withdrawing from their bank up to cGhstDungeonStartAmount
 // - when players have more than their wallet amount
 
+// what states can we have
+
+
+// wallet flow
+// 1. check player prefs for a saved wallet
+// 2. if no saved wallet and !IsHost, mark this instance IsConnectedWallet as false
+// 3. if no saved wallet and IsHost, use the Bootstrap TestWalletAddress and save to PlayerPrefa
+// 4. if a wallet address becomes connected, mark IsConnectedWallet as true and save to PlayerPrefs
+// 5. if saved wallet, load current data
+
+
 public class PlayerOffchainData : NetworkBehaviour
 {
     // Public properties with private setters

@@ -42,13 +42,11 @@ public class BallisticShot : PlayerAbility
 
     public override void OnNetworkDespawn()
     {
-
         if (!IsServer) return;
 
         if (m_projectile != null) m_projectile.GetComponent<NetworkObject>().Despawn();
 
         base.OnNetworkDespawn();
-
     }
 
     protected override void Update()
@@ -173,14 +171,5 @@ public class BallisticShot : PlayerAbility
             // init
             no_projectile.Fire();
         }
-    }
-
-    public override void OnUpdate()
-    {
-
-    }
-
-    public override void OnFinish()
-    {
     }
 }
