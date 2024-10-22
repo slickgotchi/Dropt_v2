@@ -62,7 +62,7 @@ public class PlayerHUDCanvas : MonoBehaviour
     [SerializeField] private TMPro.TextMeshProUGUI m_levelName;
 
     private NetworkCharacter m_localPlayerCharacter;
-    private PlayerDungeonData m_localPlayerDungeonData;
+    private PlayerOffchainData m_localPlayerDungeonData;
 
     [SerializeField] private Slider m_leftHandShieldBar;
     [SerializeField] private Slider m_rightHandShieldBar;
@@ -70,7 +70,7 @@ public class PlayerHUDCanvas : MonoBehaviour
     public void SetLocalPlayerCharacter(NetworkCharacter localPlayerCharacter)
     {
         m_localPlayerCharacter = localPlayerCharacter;
-        m_localPlayerDungeonData = localPlayerCharacter.GetComponent<PlayerDungeonData>();
+        m_localPlayerDungeonData = localPlayerCharacter.GetComponent<PlayerOffchainData>();
     }
 
     public void SetLevelNumberAndName(string number, string name)
@@ -168,7 +168,7 @@ public class PlayerHUDCanvas : MonoBehaviour
 
     void UpdateCGHST()
     {
-        var cGhst = m_localPlayerDungeonData.cGHST;
+        var cGhst = m_localPlayerDungeonData.Ecto;
         m_cGhstText.text = cGhst.Value.ToString("F0");
     }
 

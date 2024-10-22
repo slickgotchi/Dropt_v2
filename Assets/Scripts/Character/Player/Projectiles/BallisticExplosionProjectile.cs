@@ -98,6 +98,14 @@ public class BallisticExplosionProjectile : NetworkBehaviour
         m_collider = GetComponent<Collider2D>();
     }
 
+    public override void OnNetworkDespawn()
+    {
+        base.OnNetworkDespawn();
+
+        // destroy the ExplosionCollider which was deparented
+        Destroy(ExplosionCollider.gameObject);
+    }
+
     private void Update()
     {
         if (!m_isSpawned) return;

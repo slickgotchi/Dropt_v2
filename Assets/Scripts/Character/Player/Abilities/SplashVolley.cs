@@ -78,7 +78,7 @@ public class SplashVolley : PlayerAbility
         base.OnNetworkDespawn();
     }
 
-    void TryAddProjectile(int index)
+    void TryAddProjectileOnClient(int index)
     {
         var projectileId = GetSplashProjectileId(index).Value;
         if (m_splashProjectiles[index] == null && projectileId > 0)
@@ -89,14 +89,22 @@ public class SplashVolley : PlayerAbility
         }
     }
 
+    protected override void Update()
+    {
+        base.Update();
+
+        if (IsClient)
+        {
+            // Ensure remote clients associate projectiles with local projectile variables
+            for (int i = 0; i < m_splashProjectiles.Count; i++)
+            {
+                TryAddProjectileOnClient(i);
+            }
+        }
+    }
+
     public override void OnUpdate()
     {
-        // Ensure remote clients associate projectiles with local projectile variables
-        for (int i = 0; i < m_splashProjectiles.Count; i++)
-        {
-            TryAddProjectile(i);
-        }
-
         // Check scheduled projectiles for activation
         float currentTime = Time.time;
         for (int i = m_scheduledProjectiles.Count - 1; i >= 0; i--)

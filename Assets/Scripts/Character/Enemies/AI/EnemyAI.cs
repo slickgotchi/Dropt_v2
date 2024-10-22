@@ -115,7 +115,7 @@ namespace Dropt
 
             RoamAnchorPoint = transform.position;
             m_spawnTimer = SpawnDuration;
-            state.Value = State.Spawn;
+            if (IsServer) state.Value = State.Spawn;
             OnSpawnStart();
 
             // set debug visibility
@@ -442,7 +442,7 @@ namespace Dropt
             else if (IsClient)
             {
                 m_clientPredictedState = State.Knockback;
-                m_networkTransform.enabled = false;
+                if (m_networkTransform != null) m_networkTransform.enabled = false;
                 m_knockbackDuration = k_knockbackDuration;
             }
         }
@@ -461,7 +461,7 @@ namespace Dropt
             if (m_knockbackTimer >= m_knockbackDuration)
             {
                 m_clientPredictedState = State.Stun;
-                m_stunTimer = StunDuration;
+                if (m_networkTransform != null) m_stunTimer = StunDuration;
                 return;
             }
         }
