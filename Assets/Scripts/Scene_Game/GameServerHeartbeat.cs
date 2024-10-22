@@ -52,8 +52,8 @@ public class GameServerHeartbeat : MonoBehaviour
         // player count
         m_playerCount = FindObjectsByType<PlayerController>(FindObjectsSortMode.None).Length;
 
-        string HEARTBEAT_SECRET = EnvLoader.GetEnv("HEARTBEAT_SECRET");
-        if (HEARTBEAT_SECRET == null)
+        string HEARTBEAT_SECRET = Bootstrap.Instance.HeartbeatSecret;
+        if (string.IsNullOrEmpty(HEARTBEAT_SECRET))
         {
             Debug.LogError("Ensure there is a .env file with a HEARTBEAT_SECRET in the same folder as the .x86_64");
             return;
