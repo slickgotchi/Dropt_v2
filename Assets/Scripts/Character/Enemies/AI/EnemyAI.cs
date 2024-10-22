@@ -461,7 +461,7 @@ namespace Dropt
             if (m_knockbackTimer >= m_knockbackDuration)
             {
                 m_clientPredictedState = State.Stun;
-                m_stunTimer = StunDuration;
+                if (m_networkTransform != null) m_stunTimer = StunDuration;
                 return;
             }
         }
