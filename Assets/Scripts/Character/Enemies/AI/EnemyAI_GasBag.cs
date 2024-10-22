@@ -90,6 +90,15 @@ namespace Dropt
             EnemyHurtCollider.enabled = false;
             m_isExploded = true;
             m_navMeshAgent.isStopped = true;
+
+            DisableCollidersClientRpc();
+        }
+
+        [Rpc(SendTo.ClientsAndHost)]
+        void DisableCollidersClientRpc()
+        {
+            OnTouchPoisonCollider.enabled = false;
+            EnemyHurtCollider.enabled = false;
         }
 
         public void ShowPoisionCloud()

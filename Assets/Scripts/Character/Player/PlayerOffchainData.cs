@@ -68,6 +68,12 @@ public class PlayerOffchainData : NetworkBehaviour
     {
         if (!IsLocalPlayer) return;
 
+        if (IsHost)
+        {
+
+        }
+
+
         m_walletUpdateTimer -= Time.deltaTime;
         if (m_walletUpdateTimer > 0) return;
         m_walletUpdateTimer = k_walletUpdateInterval;

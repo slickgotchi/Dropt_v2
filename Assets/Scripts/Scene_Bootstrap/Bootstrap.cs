@@ -66,6 +66,8 @@ public class Bootstrap : MonoBehaviour
 
     public int TestBlockChainGotchiId = 0;
 
+    public string TestWalletAddress = "0xtest";
+
     private bool m_isUnityEditor = false;
 
     [SerializeField] private GameObject StartupButtons;

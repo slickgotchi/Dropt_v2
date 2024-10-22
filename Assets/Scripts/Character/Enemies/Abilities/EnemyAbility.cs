@@ -56,7 +56,7 @@ public class EnemyAbility : NetworkBehaviour
         if (IsServer)
         {
             var networkObject = GetComponent<NetworkObject>();
-            if (networkObject != null) GetComponent<NetworkObject>().Despawn();
+            if (networkObject != null && networkObject.IsSpawned) GetComponent<NetworkObject>().Despawn();
         }
     }
 
