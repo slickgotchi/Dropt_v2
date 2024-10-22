@@ -36,7 +36,6 @@ public class ServerManagerAgent : MonoBehaviour
             // setup post data and post request
             var getEmptyPostData = new GetEmpty_PostData { region = region };
             string json = JsonUtility.ToJson(getEmptyPostData);
-            Debug.Log(serverManagerUri + "/getempty");
             var responseString = await PostRequest(serverManagerUri + "/getempty", json);
 
             // Check if the response is not null
@@ -71,10 +70,6 @@ public class ServerManagerAgent : MonoBehaviour
             // Parse the response string into the JoinEmpty_ResponseData struct
             GetExisting_ResponseData responseData = JsonUtility.FromJson<GetExisting_ResponseData>(responseString);
 
-            // Now you can access the fields in responseData
-            Debug.Log("/getexisting success");
-            Debug.Log(responseData);
-
             return responseData;
         }
         catch (Exception e)
@@ -97,24 +92,17 @@ public class ServerManagerAgent : MonoBehaviour
             {
                 await request.SendWebRequest();
 
-                return request.downloadHandler.text;
-
-                //if (request.responseCode == 200)
-                //{
-                //    return request.downloadHandler.text;
-                //}
-
-                //switch (request.result)
-                //{
-                //    case UnityWebRequest.Result.Success:
-                //        return request.downloadHandler.text; // Return the response content
-                //    case UnityWebRequest.Result.ConnectionError:
-                //    case UnityWebRequest.Result.DataProcessingError:
-                //    case UnityWebRequest.Result.ProtocolError:
-                //    default:
-                //        Debug.LogError($"PostRequest() error: {request.error}");
-                //        return null; // Return null or an error message as appropriate
-                //}
+                switch (request.result)
+                {
+                    case UnityWebRequest.Result.Success:
+                        return request.downloadHandler.text; // Return the response content
+                    case UnityWebRequest.Result.ConnectionError:
+                    case UnityWebRequest.Result.DataProcessingError:
+                    case UnityWebRequest.Result.ProtocolError:
+                    default:
+                        Debug.LogError($"GetRequest() error: {request.error}");
+                        return null; // Return null or an error message as appropriate
+                }
             }
             catch (Exception e)
             {

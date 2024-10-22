@@ -6,6 +6,11 @@ using Unity.Netcode;
 
 public class PlayerCharacter : NetworkCharacter
 {
+    [Header("Essence Stat")]
+    public float baseEssence = 1000;
+    public float baseInfusedEssenceBonus = 250;
+    [HideInInspector] public NetworkVariable<float> Essence = new NetworkVariable<float>(0);
+
     [Header("Equipment Buff Objects")]
     public BuffObject bodyBuffObject;
     public BuffObject faceBuffObject;
@@ -14,6 +19,41 @@ public class PlayerCharacter : NetworkCharacter
     public BuffObject rightHandBuffObject;
     public BuffObject leftHandBuffObject;
     public BuffObject petBuffObject;
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        if (IsServer)
+        {
+            Essence.Value = baseEssence;
+        }
+    }
+
+    protected override void Update()
+    {
+        base.Update();
+
+        if (IsServer)
+        {
+            if (LevelManager.Instance.IsDegenapeVillage())
+            {
+                var playerOffchainData = GetComponent<PlayerOffchainData>();
+                if (playerOffchainData != null)
+                {
+                    Essence.Value = baseEssence + (playerOffchainData.isEssenceInfused_offchain.Value ? baseInfusedEssenceBonus : 0);
+                }
+            } else
+            {
+                Essence.Value -= Time.deltaTime;
+            }
+
+            if (Essence.Value <= 0 && !LevelManager.Instance.IsDegenapeVillage())
+            {
+                GetComponent<PlayerController>().KillPlayer(REKTCanvas.TypeOfREKT.Essence);
+            }
+        }
+    }
 
     public void InitGotchiStats(int gotchiId)
     {
