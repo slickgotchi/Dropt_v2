@@ -87,7 +87,7 @@ public class LevelManager : NetworkBehaviour
         if (m_levels == null) return false;
         if (m_levels.Count <= 0) return false;
 
-        return (m_levels[0] == ApeVillageLevel);
+        return (m_levels[CurrentLevelIndex.Value] == ApeVillageLevel);
     }
 
     public void DestroyCurrentLevel()

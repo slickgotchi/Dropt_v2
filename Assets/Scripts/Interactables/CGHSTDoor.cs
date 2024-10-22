@@ -31,14 +31,14 @@ public class CGHSTDoor : Interactable
     {
         PlayerController playerController = GetPlayerController();
         PlayerOffchainData playerDungeonData = playerController.GetComponent<PlayerOffchainData>();
-        int cGhst = playerDungeonData.Ecto.Value;
+        int cGhst = playerDungeonData.ectoCount_dungeon.Value;
 
         if (m_costToOpenTheDoor > cGhst)
         {
             NotifyNotEnoughBalanceClientRpc();
             return;
         }
-        playerDungeonData.Ecto.Value -= m_costToOpenTheDoor;
+        playerDungeonData.ectoCount_dungeon.Value -= m_costToOpenTheDoor;
         m_animator.Play("ApeDoor_Open");
         OpenDoorClientRpc();
     }

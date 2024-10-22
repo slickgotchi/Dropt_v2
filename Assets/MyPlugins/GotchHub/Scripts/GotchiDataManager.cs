@@ -32,7 +32,7 @@ namespace GotchiHub
         [HideInInspector] public List<GotchiData> remoteGotchiData = new List<GotchiData>();
         [HideInInspector] public List<GotchiSvgSet> remoteGotchiSvgSets = new List<GotchiSvgSet>();
 
-        private int m_selectedGotchiId = 0;
+        private int m_selectedGotchiId = 69420;
         public int GetSelectedGotchiId() { return m_selectedGotchiId; }
 
         // Event declaration

@@ -61,13 +61,13 @@ public class PlayerHUDCanvas : MonoBehaviour
     [SerializeField] private TMPro.TextMeshProUGUI m_levelNumber;
     [SerializeField] private TMPro.TextMeshProUGUI m_levelName;
 
-    private NetworkCharacter m_localPlayerCharacter;
+    private PlayerCharacter m_localPlayerCharacter;
     private PlayerOffchainData m_localPlayerDungeonData;
 
     [SerializeField] private Slider m_leftHandShieldBar;
     [SerializeField] private Slider m_rightHandShieldBar;
 
-    public void SetLocalPlayerCharacter(NetworkCharacter localPlayerCharacter)
+    public void SetLocalPlayerCharacter(PlayerCharacter localPlayerCharacter)
     {
         m_localPlayerCharacter = localPlayerCharacter;
         m_localPlayerDungeonData = localPlayerCharacter.GetComponent<PlayerOffchainData>();
@@ -154,21 +154,21 @@ public class PlayerHUDCanvas : MonoBehaviour
 
     void UpdateGltr()
     {
-        var gltrCount = m_localPlayerDungeonData.SpiritDust;
+        var gltrCount = LevelManager.Instance.IsDegenapeVillage() ? m_localPlayerDungeonData.dustBalance_offchain : m_localPlayerDungeonData.dustCount_dungeon;
         m_gltrText.text = gltrCount.Value.ToString();
     }
 
 
     void UpdateEssence()
     {
-        var essence = m_localPlayerDungeonData.Essence;
+        var essence = m_localPlayerCharacter.Essence;
         m_essenceText.text = essence.Value.ToString("F0");
         m_essenceImage.fillAmount = essence.Value / 1000;
     }
 
     void UpdateCGHST()
     {
-        var cGhst = m_localPlayerDungeonData.Ecto;
+        var cGhst = LevelManager.Instance.IsDegenapeVillage() ? m_localPlayerDungeonData.ectoBalance_offchain : m_localPlayerDungeonData.ectoCount_dungeon;
         m_cGhstText.text = cGhst.Value.ToString("F0");
     }
 
