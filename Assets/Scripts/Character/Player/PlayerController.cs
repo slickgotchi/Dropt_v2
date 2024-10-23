@@ -36,9 +36,12 @@ public class PlayerController : NetworkBehaviour
 
     private AttackCentre m_playerAttackCentre;
 
+    // tracking selected gotchi
+    private int m_selectedGotchiId = 0;
+
     // variables for trackign current gotchi
-    private int m_localGotchiId = -1;
-    private NetworkVariable<int> m_networkGotchiId = new NetworkVariable<int>(-1);
+    private int m_localGotchiId = 0;
+    private NetworkVariable<int> m_networkGotchiId = new NetworkVariable<int>(69420);
 
     private void Awake()
     {
@@ -58,7 +61,7 @@ public class PlayerController : NetworkBehaviour
             m_cameraFollower = GameObject.FindGameObjectWithTag("CameraFollower");
             m_cameraFollower.GetComponent<CameraFollowerAndPlayerInteractor>().Player = gameObject;
 
-            GotchiDataManager.Instance.onSelectedGotchi += HandleOnSelectedGotchi;
+            //GotchiDataManager.Instance.onSelectedGotchi += HandleOnSelectedGotchi;
 
 
             int gotchiId = 0;
@@ -79,14 +82,12 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
-
-
     public override void OnNetworkDespawn()
     {
 
         if (IsLocalPlayer)
         {
-            GotchiDataManager.Instance.onSelectedGotchi -= HandleOnSelectedGotchi;
+            //GotchiDataManager.Instance.onSelectedGotchi -= HandleOnSelectedGotchi;
         }
 
         base.OnNetworkDespawn();
@@ -98,35 +99,15 @@ public class PlayerController : NetworkBehaviour
         m_networkGotchiId.Value = gotchiId;
     }
 
-    private async UniTask SetupGotchi(int gotchiId)
-    {
-        if (!IsClient) return;
 
-        try
-        {
-            var isFetchSuccess = await GotchiDataManager.Instance.FetchGotchiById(gotchiId);
 
-            if (isFetchSuccess)
-            {
-                GetComponent<PlayerSVGs>().Init(gotchiId);
-                GetComponent<PlayerEquipment>().Init(gotchiId);
-                GetComponent<PlayerCharacter>().InitWearableBuffs(gotchiId);
-                GetComponent<PlayerCharacter>().InitGotchiStats(gotchiId);
-            }
-        }
-        catch (System.Exception ex)
-        {
-            Debug.Log(ex);
-        }
-    }
+    //void HandleOnSelectedGotchi(int id)
+    //{
+    //    if (!IsLocalPlayer) return;
+    //    if (!GetComponent<NetworkObject>().IsLocalPlayer) return;
 
-    void HandleOnSelectedGotchi(int id)
-    {
-        if (!IsLocalPlayer) return;
-        if (!GetComponent<NetworkObject>().IsLocalPlayer) return;
-
-        SetNetworkGotchiIdServerRpc(id);
-    }
+    //    SetNetworkGotchiIdServerRpc(id);
+    //}
 
     public void KillPlayer(REKTCanvas.TypeOfREKT typeOfREKT)
     {
@@ -179,6 +160,8 @@ public class PlayerController : NetworkBehaviour
             }
 
             HandleNextLevelCheat();
+
+
         }
 
         // handle level spawning
@@ -196,20 +179,60 @@ public class PlayerController : NetworkBehaviour
 
         HandleDegenapeHpAp();
         HandleInactivePlayer();
-        HandleGotchiIdChanges();
+
+        // handle gotchi changes
+        HandleLocalGotchiIdChanges();
+        HandleRemoteGotchiIdChanges();
 
         // keep the hold bar in position (webgl it is weirdly in wrong position);
         if (m_holdBarCanvas != null) m_holdBarCanvas.transform.localPosition = new Vector3(0, 2, 0);
     }
 
-    void HandleGotchiIdChanges()
+    void HandleLocalGotchiIdChanges()
+    {
+        if (!IsLocalPlayer) return;
+
+        // handle local player selected gotchi changes
+        if (LevelManager.Instance.IsDegenapeVillage())
+        {
+            var selectedGotchiId = GotchiDataManager.Instance.GetSelectedGotchiId();
+            if (selectedGotchiId != m_selectedGotchiId)
+            {
+                m_selectedGotchiId = selectedGotchiId;
+                SetNetworkGotchiIdServerRpc(m_selectedGotchiId);
+            }
+        }
+    }
+
+    void HandleRemoteGotchiIdChanges()
     {
         if (!IsClient) return;
-        if (m_networkGotchiId.Value == m_localGotchiId) return;
-        m_localGotchiId = m_networkGotchiId.Value;
 
-        // update player components
-        SetupGotchi(m_localGotchiId);
+        if (m_networkGotchiId.Value != m_localGotchiId)
+        {
+            m_localGotchiId = m_networkGotchiId.Value;
+            SetupGotchi(m_localGotchiId);
+        }
+    }
+
+    private async UniTask SetupGotchi(int gotchiId)
+    {
+        if (!IsClient) return;
+
+        try
+        {
+            var isFetchSuccess = await GotchiDataManager.Instance.FetchGotchiById(gotchiId);
+            if (isFetchSuccess)
+            {
+                GetComponent<PlayerSVGs>().Init(gotchiId);
+                GetComponent<PlayerEquipment>().Init(gotchiId);
+                GetComponent<PlayerCharacter>().Init(gotchiId);
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.Log(ex);
+        }
     }
 
 
