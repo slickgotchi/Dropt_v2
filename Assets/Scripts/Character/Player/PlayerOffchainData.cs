@@ -246,17 +246,56 @@ public class PlayerOffchainData : NetworkBehaviour
     {
         if (!IsClient) return;
 
-        if (Input.GetKeyDown(KeyCode.Alpha5))
+        // ecto top up
+        if (Input.GetKeyDown(KeyCode.Alpha7))
         {
-            DebugTopUpsServerRpc();
+            DebugTopUpWalletDataServerRpc(3, 0, 0);
+        }
+
+        // dust top up
+        if (Input.GetKeyDown(KeyCode.Alpha8))
+        {
+            DebugTopUpWalletDataServerRpc(0, 10, 0);
+        }
+
+        // bomb top up
+        if (Input.GetKeyDown(KeyCode.Alpha9))
+        {
+            DebugTopUpWalletDataServerRpc(0, 0, 1);
         }
     }
 
     [Rpc(SendTo.Server)]
-    void DebugTopUpsServerRpc()
+    void DebugTopUpWalletDataServerRpc(int ectoDelta, int dustDelta, int bombDelta)
     {
-        ectoCount_dungeon.Value = 100;
-        dustCount_dungeon.Value = 100;
+        DebugTopUpWalletDataServerRpcAsync(ectoDelta, dustDelta, bombDelta);
+    }
+
+    async UniTaskVoid DebugTopUpWalletDataServerRpcAsync(int ectoDelta, int dustDelta, int bombDelta)
+    {
+        try
+        {
+            var json = JsonUtility.ToJson(new WalletDelta_Data
+            {
+                ecto_delta = ectoDelta,
+                dust_delta = dustDelta,
+                bomb_delta = bombDelta
+            });
+
+            var responseStr = await Dropt.Utils.Http.PostRequest(dbUri + "/wallets/delta/" + m_walletAddress, json);
+            if (!string.IsNullOrEmpty(responseStr))
+            {
+                Wallet_Data data = JsonUtility.FromJson<Wallet_Data>(responseStr);
+                ectoBalance_offchain.Value = data.ecto_balance;
+                dustBalance_offchain.Value = data.dust_balance;
+                bombBalance_offchain.Value = data.bomb_balance;
+                return;
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogWarning(e);
+        }
     }
 
     // Method to add value to GltrCount
@@ -299,5 +338,13 @@ public class PlayerOffchainData : NetworkBehaviour
         public int bomb_dungeon_capacity;
         public int heal_salve_dungeon_charges;
         public bool is_essence_infused;
+    }
+
+    [System.Serializable]
+    public class WalletDelta_Data
+    {
+        public int ecto_delta;
+        public int dust_delta;
+        public int bomb_delta;
     }
 }
