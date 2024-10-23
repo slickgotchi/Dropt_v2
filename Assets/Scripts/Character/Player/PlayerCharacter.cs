@@ -55,23 +55,35 @@ public class PlayerCharacter : NetworkCharacter
         }
     }
 
-    public void InitGotchiStats(int gotchiId)
+    // called by PlayerController when gotchi changes
+    public void Init(int gotchiId)
     {
-        if (!IsClient) return;
-        if (gotchiId <= 0) return;
+        InitGotchiStats(gotchiId);
+        InitWearableBuffs(gotchiId);
+    }
+
+    private void InitGotchiStats(int gotchiId)
+    {
+        if (!IsLocalPlayer) return;
 
         // get gotchi data
         var gotchiData = GotchiHub.GotchiDataManager.Instance.GetGotchiDataById(gotchiId);
-        if (gotchiData == null)
+        if (gotchiData != null)
         {
-            Debug.LogWarning("No gotchiData avaiable for gotchi ID: " + gotchiId);
+            InitGotchiStatsServerRpc(gotchiData.numericTraits);
             return;
         }
 
-        if (IsLocalPlayer)
+        // if got to here, try offchain data
+        var offchainGotchiData = GotchiHub.GotchiDataManager.Instance.GetOffchainGotchiDataById(gotchiId);
+        if (offchainGotchiData != null)
         {
-            InitGotchiStatsServerRpc(gotchiData.numericTraits);
+            InitGotchiStatsServerRpc(offchainGotchiData.numericTraits);
+            return;
         }
+
+        // no matches so log a warning
+        Debug.LogWarning("No gotchiData avaiable for gotchi ID: " + gotchiId);
     }
 
     [Rpc(SendTo.Server)]
@@ -106,23 +118,27 @@ public class PlayerCharacter : NetworkCharacter
         RecalculateStats();
     }
 
-    public void InitWearableBuffs(int gotchiId)
+    private void InitWearableBuffs(int gotchiId)
     {
-        if (!IsClient) return;
-        if (gotchiId <= 0) return;
+        if (!IsLocalPlayer) return;
 
         // get gotchi data
         var gotchiData = GotchiHub.GotchiDataManager.Instance.GetGotchiDataById(gotchiId);
-        if (gotchiData == null)
+        if (gotchiData != null)
         {
-            Debug.LogWarning("No gotchiData avaiable for gotchi ID: " + gotchiId);
+            InitWearableBuffsServerRpc(gotchiData.equippedWearables);
             return;
         }
 
-        if (IsLocalPlayer)
+        // try offchain gotchi data
+        var offchainGotchiData = GotchiHub.GotchiDataManager.Instance.GetOffchainGotchiDataById(gotchiId);
+        if (offchainGotchiData != null)
         {
-            InitWearableBuffsServerRpc(gotchiData.equippedWearables);
+            InitWearableBuffsServerRpc(offchainGotchiData.equippedWearables);
+            return;
         }
+
+        Debug.LogWarning("No gotchiData avaiable for gotchi ID: " + gotchiId);
     }
 
     [Rpc(SendTo.Server)]
