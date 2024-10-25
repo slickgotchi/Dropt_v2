@@ -5,6 +5,7 @@ using UnityEngine;
 using Thirdweb;
 using GotchiHub;
 using Cysharp.Threading.Tasks;
+using Unity.Mathematics;
 
 // cGHST bank logic
 // - cGhstVillageBank is the total cGhst you have when in the village
@@ -64,15 +65,38 @@ public class PlayerOffchainData : NetworkBehaviour
     private float k_gotchiIdUpdateInterval = 1f;
     private float m_gotchiIdUpdateTimer = 0f;
 
+    // isEnteredDungeon
+    private bool m_isEnteredDungeon = false;
+    private bool m_isDegenapeVillage = true;
+
+    public override void OnNetworkSpawn()
+    {
+        
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        // WARNING: we need a way to differentiate between full disconnects and temporary internet loss disconnect/reconnects
+        if (IsServer)
+        {
+            Debug.Log("ExitDungeonCalculateBalances()");
+            ExitDungeonCalculateBalances(false);
+        }
+    }
+
     private void Update()
     {
         if (IsLocalPlayer)
         {
             CheckWalletAddressChanged();
             CheckGotchiIdChanged();
+            UpdateDebugTopUps();
         }
 
-        UpdateDebugTopUps();
+        if (IsServer)
+        {
+            CheckIsEnteredDungeon();
+        }
     }
 
     private async UniTaskVoid CheckWalletAddressChanged()
@@ -242,9 +266,72 @@ public class PlayerOffchainData : NetworkBehaviour
         }
     }
 
+    void CheckIsEnteredDungeon()
+    {
+        if (!IsServer) return;
+
+        var isDegenapeVillage = LevelManager.Instance.IsDegenapeVillage();
+        if (isDegenapeVillage) m_isEnteredDungeon = false;
+
+        if (!m_isEnteredDungeon && !isDegenapeVillage)
+        {
+            Debug.Log("EnterDungeonCalculateBalances()");
+            EnterDungeonCalculateBalances();
+            m_isEnteredDungeon = true;
+        }
+    }
+
+    // enter dungeon method that calculates balance
+    public void EnterDungeonCalculateBalances()
+    {
+        if (!IsServer) return;
+
+        ectoStartCount_dungeon.Value = math.min(ectoDungeonStartAmount_offchain.Value, ectoBalance_offchain.Value);
+        ectoCount_dungeon.Value = ectoStartCount_dungeon.Value;
+
+        dustStartCount_dungeon.Value = 0;
+        dustCount_dungeon.Value = 0;
+
+        bombStartCount_dungeon.Value = math.min(bombDungeonCapacity_offchain.Value, bombBalance_offchain.Value);
+        bombCount_dungeon.Value = bombStartCount_dungeon.Value;
+
+        healSalveChargeCount_dungeon.Value = healSalveDungeonCharges_offchain.Value;
+    }
+
+    // exit dungeon calculates new balances and updates the database
+    public async void ExitDungeonCalculateBalances(bool isEscaped)
+    {
+        if (!IsServer) return;
+
+        var finalEctoCount = isEscaped ? ectoCount_dungeon.Value : math.min(ectoCount_dungeon.Value, ectoDungeonStartAmount_offchain.Value);
+        var finalDustCount = isEscaped ? dustCount_dungeon.Value : 0;
+        var finalBombCount = isEscaped ? bombCount_dungeon.Value : math.min(bombCount_dungeon.Value, bombDungeonCapacity_offchain.Value);
+
+        var postDungeonEctoDelta = finalEctoCount - ectoStartCount_dungeon.Value;
+        var postDungeonDustDelta = finalDustCount - dustStartCount_dungeon.Value;
+        var postDungeonBombDelta = finalBombCount - bombStartCount_dungeon.Value;
+
+        try
+        {
+            await LogWalletDeltaDataServerRpcAsync(postDungeonEctoDelta, postDungeonDustDelta, postDungeonBombDelta);
+
+            // successfully logged deltas so zero all the balances
+            ectoCount_dungeon.Value = 0;
+            dustCount_dungeon.Value = 0;
+            bombCount_dungeon.Value = 0;
+            ectoStartCount_dungeon.Value = 0;
+            dustStartCount_dungeon.Value = 0;
+            bombStartCount_dungeon.Value = 0;
+
+        } catch
+        {
+
+        }
+    }
+
     private void UpdateDebugTopUps()
     {
-        if (!IsClient) return;
+        if (!IsLocalPlayer) return;
 
         // ecto top up
         if (Input.GetKeyDown(KeyCode.Alpha7))
@@ -268,10 +355,10 @@ public class PlayerOffchainData : NetworkBehaviour
     [Rpc(SendTo.Server)]
     void DebugTopUpWalletDataServerRpc(int ectoDelta, int dustDelta, int bombDelta)
     {
-        DebugTopUpWalletDataServerRpcAsync(ectoDelta, dustDelta, bombDelta);
+        LogWalletDeltaDataServerRpcAsync(ectoDelta, dustDelta, bombDelta);
     }
 
-    async UniTaskVoid DebugTopUpWalletDataServerRpcAsync(int ectoDelta, int dustDelta, int bombDelta)
+    async UniTask LogWalletDeltaDataServerRpcAsync(int ectoDelta, int dustDelta, int bombDelta)
     {
         try
         {

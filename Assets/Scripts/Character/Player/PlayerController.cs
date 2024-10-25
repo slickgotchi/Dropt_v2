@@ -61,9 +61,6 @@ public class PlayerController : NetworkBehaviour
             m_cameraFollower = GameObject.FindGameObjectWithTag("CameraFollower");
             m_cameraFollower.GetComponent<CameraFollowerAndPlayerInteractor>().Player = gameObject;
 
-            //GotchiDataManager.Instance.onSelectedGotchi += HandleOnSelectedGotchi;
-
-
             int gotchiId = 0;
             if (PlayerPrefs.HasKey("GotchiId"))
             {
@@ -84,12 +81,6 @@ public class PlayerController : NetworkBehaviour
 
     public override void OnNetworkDespawn()
     {
-
-        if (IsLocalPlayer)
-        {
-            //GotchiDataManager.Instance.onSelectedGotchi -= HandleOnSelectedGotchi;
-        }
-
         base.OnNetworkDespawn();
     }
 
@@ -98,16 +89,6 @@ public class PlayerController : NetworkBehaviour
     {
         m_networkGotchiId.Value = gotchiId;
     }
-
-
-
-    //void HandleOnSelectedGotchi(int id)
-    //{
-    //    if (!IsLocalPlayer) return;
-    //    if (!GetComponent<NetworkObject>().IsLocalPlayer) return;
-
-    //    SetNetworkGotchiIdServerRpc(id);
-    //}
 
     public void KillPlayer(REKTCanvas.TypeOfREKT typeOfREKT)
     {
@@ -125,7 +106,11 @@ public class PlayerController : NetworkBehaviour
         var localId = GetComponent<NetworkObject>().NetworkObjectId;
         if (player.NetworkObjectId != localId) return;
 
-        Game.Instance.TriggerGameOver(typeOfREKT);
+        // show the game over canvas
+        REKTCanvas.Instance.Show(typeOfREKT);
+
+        // shutdown the networkmanager for the client
+        NetworkManager.Singleton.Shutdown();
     }
 
     public void StartTransition()
@@ -160,8 +145,6 @@ public class PlayerController : NetworkBehaviour
             }
 
             HandleNextLevelCheat();
-
-
         }
 
         // handle level spawning
