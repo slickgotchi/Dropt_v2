@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
@@ -26,12 +27,14 @@ public class NetworkCharacter : NetworkBehaviour
 
     [Header("Damage/Health Popup Offset")]
     public Vector3 k_popupTextOffset = new Vector3(0, 1.5f, 0f);
-    public Color ReceiveDamageColor = new Color(1,1,1);
+    public Color ReceiveDamageColor = new Color(1, 1, 1);
     public int ReceiveDamageFontSize = 16;
-    public Color ReceiveCriticalDamageColor = new Color(1,1,1);
+    public Color ReceiveCriticalDamageColor = new Color(1, 1, 1);
     public int ReceiveCriticalDamageFontSize = 24;
 
     private List<BuffObject> activeBuffObjects = new List<BuffObject>();
+
+    //private Action<ulong> m_onDamageToEnemy;
 
     // NetworkVariables
     [HideInInspector] public NetworkVariable<float> HpMax = new NetworkVariable<float>(0);
@@ -96,6 +99,18 @@ public class NetworkCharacter : NetworkBehaviour
         return rand < CriticalChance.Value;
     }
 
+    //public void SubscribeOnDamageEnemy(Action<ulong> onDamageToEnemy)
+    //{
+    //    Debug.Log("SubscribeOnDamageEnemy " + GetComponent<NetworkObject>().NetworkObjectId);
+    //    m_onDamageToEnemy = onDamageToEnemy;
+    //}
+
+    //public void UnsubscribeOnDamageEnemy()
+    //{
+    //    Debug.Log("UnsubscribeOnDamageEnemy" + GetComponent<NetworkObject>().NetworkObjectId);
+    //    m_onDamageToEnemy = null;
+    //}
+
     public virtual void TakeDamage(float damage, bool isCritical, GameObject damageDealer = null)
     {
         // reduce damage
@@ -139,7 +154,11 @@ public class NetworkCharacter : NetworkBehaviour
         // SERVER
         if (IsServer)
         {
-            if (!IsHost) HandleEnemyTakeDamageClientRpc(damage, isCritical, damageDealerNOID);
+            EventManager.Instance.TriggerEventWithParam("OnEnemyGetDamage", damageDealerNOID);
+            if (!IsHost)
+            {
+                HandleEnemyTakeDamageClientRpc(damage, isCritical, damageDealerNOID);
+            }
 
             // deplete hp
             HpCurrent.Value -= (int)damage;
@@ -311,7 +330,7 @@ public class NetworkCharacter : NetworkBehaviour
     {
         // set values to base values
         HpMax.Value = baseHpMax;           // needs to be += as we also add to hp from enemy controller with dynamicHp
-        HpCurrent.Value = baseHpCurrent;    
+        HpCurrent.Value = baseHpCurrent;
         HpBuffer.Value = baseHpBuffer;
         AttackPower.Value = baseAttackPower;
         CriticalChance.Value = baseCriticalChance;
