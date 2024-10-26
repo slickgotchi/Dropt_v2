@@ -41,7 +41,7 @@ public class PetAttackState : PetState
         }
 
         m_counter = 0;
-        Transform enemyTransform = m_PetController.GetEnemyinPlayerRange(m_previousEnemy);
+        Transform enemyTransform = m_PetController.GetEnemyInPlayerRange(m_previousEnemy);
         if (enemyTransform == null)
         {
             m_PetStateMachine.ChangeState(m_PetStateMachine.PetFollowOwnerState);
