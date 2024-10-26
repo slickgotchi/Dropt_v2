@@ -79,7 +79,6 @@ public class PlayerOffchainData : NetworkBehaviour
         // WARNING: we need a way to differentiate between full disconnects and temporary internet loss disconnect/reconnects
         if (IsServer)
         {
-            Debug.Log("ExitDungeonCalculateBalances()");
             ExitDungeonCalculateBalances(false);
         }
     }
@@ -275,7 +274,6 @@ public class PlayerOffchainData : NetworkBehaviour
 
         if (!m_isEnteredDungeon && !isDegenapeVillage)
         {
-            Debug.Log("EnterDungeonCalculateBalances()");
             EnterDungeonCalculateBalances();
             m_isEnteredDungeon = true;
         }
@@ -284,6 +282,8 @@ public class PlayerOffchainData : NetworkBehaviour
     // enter dungeon method that calculates balance
     public void EnterDungeonCalculateBalances()
     {
+        Debug.Log("EnterDungeonCalculateBalances()");
+
         if (!IsServer) return;
 
         ectoStartCount_dungeon.Value = math.min(ectoDungeonStartAmount_offchain.Value, ectoBalance_offchain.Value);
@@ -301,6 +301,8 @@ public class PlayerOffchainData : NetworkBehaviour
     // exit dungeon calculates new balances and updates the database
     public async void ExitDungeonCalculateBalances(bool isEscaped)
     {
+        Debug.Log("ExitDungeonCalculateBalances()");
+
         if (!IsServer) return;
 
         var finalEctoCount = isEscaped ? ectoCount_dungeon.Value : math.min(ectoCount_dungeon.Value, ectoDungeonStartAmount_offchain.Value);
