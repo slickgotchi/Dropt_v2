@@ -809,6 +809,7 @@ GameObject:
   - component: {fileID: 407757288669581628}
   - component: {fileID: 3353798826812701960}
   - component: {fileID: 1149752790437833971}
+  - component: {fileID: 9139733696831883361}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -1246,18 +1247,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4fab4410d163ddc4d904b5305706efd5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SpiritDust:
+  ectoBalance_offchain:
     m_InternalValue: 0
-  cGHST:
+  dustBalance_offchain:
     m_InternalValue: 0
-  Essence:
-    m_InternalValue: 1000
-  cGhstDungeonStartAmount: 10
-  cGhstVillageBank:
+  bombBalance_offchain:
     m_InternalValue: 0
-  cGhstDungeonBank:
+  ectoDungeonStartAmount_offchain:
     m_InternalValue: 0
-  cGhstDungeon:
+  bombDungeonCapacity_offchain:
+    m_InternalValue: 0
+  healSalveDungeonCharges_offchain:
+    m_InternalValue: 0
+  isEssenceInfused_offchain:
+    m_InternalValue: 0
+  ectoStartCount_dungeon:
+    m_InternalValue: 0
+  ectoCount_dungeon:
+    m_InternalValue: 0
+  dustStartCount_dungeon:
+    m_InternalValue: 0
+  dustCount_dungeon:
+    m_InternalValue: 0
+  bombStartCount_dungeon:
+    m_InternalValue: 0
+  bombCount_dungeon:
+    m_InternalValue: 0
+  healSalveChargeCount_dungeon:
     m_InternalValue: 0
 --- !u!114 &3933483105401015273
 MonoBehaviour:
@@ -1383,6 +1399,10 @@ MonoBehaviour:
   StunMultiplier:
     m_InternalValue: 0
   OnHurtAudio: {fileID: 0}
+  baseEssence: 1000
+  baseInfusedEssenceBonus: 250
+  Essence:
+    m_InternalValue: 0
   bodyBuffObject: {fileID: 0}
   faceBuffObject: {fileID: 0}
   eyesBuffObject: {fileID: 0}
@@ -1418,6 +1438,22 @@ MonoBehaviour:
   ReticleTransform: {fileID: 2346943555948467453}
   mode: 2
   MaxDistance: 8
+--- !u!114 &9139733696831883361
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1519051571170098037}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66e9bbd246ad54123bd60196dcfc1714, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  boxSize: {x: 30, y: 24}
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 32768
 --- !u!1 &1722710475381033325
 GameObject:
   m_ObjectHideFlags: 0

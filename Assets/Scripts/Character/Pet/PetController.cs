@@ -36,10 +36,10 @@ public class PetController : NetworkBehaviour
         }
 
         InitializeNavmeshAgent();
-        m_enemyDetactor = GetComponent<EnemyDetactor>();
         m_petMeter = GetComponent<PetMeter>();
         m_transform = transform;
         m_petOwner = NetworkManager.SpawnManager.SpawnedObjects[m_ownerObjectId].transform;
+        m_enemyDetactor = m_petOwner.GetComponent<EnemyDetactor>();
         m_petStateMachine = new PetStateMachine(this);
         m_petStateMachine.ChangeState(m_petStateMachine.PetFollowOwnerState);
         ActivatePetMeterViewClientRpc(m_ownerObjectId);
@@ -267,7 +267,8 @@ public class PetController : NetworkBehaviour
     [ClientRpc]
     public void CloudExplosionClientRpc()
     {
-        VisualEffectsManager.Singleton.SpawnCloudExplosion(transform.position);
+        GameObject cloud = VisualEffectsManager.Singleton.SpawnCloudExplosion(transform.position);
+        cloud.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
     }
 
     [ClientRpc]
