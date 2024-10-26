@@ -3,7 +3,6 @@ using Unity.Netcode;
 using UnityEngine.AI;
 using System.Linq;
 using Random = UnityEngine.Random;
-using System.Threading.Tasks;
 
 public class PetController : NetworkBehaviour
 {
@@ -21,7 +20,6 @@ public class PetController : NetworkBehaviour
     private Transform m_transform;
 
     private ulong m_ownerObjectId;
-
     private float m_damageMultiplier;
 
     public override void OnNetworkSpawn()
@@ -236,7 +234,7 @@ public class PetController : NetworkBehaviour
         return m_enemyDetactor.DetectEnemies(m_petOwner).Length > 0;
     }
 
-    public Transform GetEnemyinPlayerRange(Transform previousEnemy)
+    public Transform GetEnemyInPlayerRange(Transform previousEnemy)
     {
         Collider2D[] enemiesCollider = m_enemyDetactor.DetectEnemies(m_petOwner);
         if (enemiesCollider.Length == 0)
@@ -274,7 +272,7 @@ public class PetController : NetworkBehaviour
     [ClientRpc]
     public void SpawnAttackAnimationClientRpc()
     {
-        VisualEffectsManager.Singleton.SpawnPetAttackEffect(transform.position);
+        _ = VisualEffectsManager.Singleton.SpawnPetAttackEffect(transform.position);
     }
 
     public float GetAttackInterval()

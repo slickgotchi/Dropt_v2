@@ -1,5 +1,3 @@
-using UnityEngine;
-
 public class PetFollowOwnerState : PetState
 {
     public PetFollowOwnerState(PetController petController, PetStateMachine petStateMachine) : base(petController, petStateMachine)
