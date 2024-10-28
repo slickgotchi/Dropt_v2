@@ -134,6 +134,24 @@ public class PetController : NetworkBehaviour
         }
     }
 
+    public void SetFacingDirectionToOwnner()
+    {
+        SetFacingDirection(m_petOwner);
+    }
+
+    public void SetFacingDirection(Transform facingTransform)
+    {
+        Vector3 direction = (transform.position - facingTransform.position).normalized;
+        if (Mathf.Abs(direction.x) > Mathf.Abs(direction.y))
+        {
+            ChangeSprite(direction.x > 0 ? Direction.Left : Direction.Right);
+        }
+        else
+        {
+            ChangeSprite(direction.y > 0 ? Direction.Down : Direction.Up);
+        }
+    }
+
     private void ChangeSprite(Direction direction)
     {
         m_petView.SetSprite(direction);

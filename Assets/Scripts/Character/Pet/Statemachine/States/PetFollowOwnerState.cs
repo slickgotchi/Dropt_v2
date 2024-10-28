@@ -9,6 +9,7 @@ public class PetFollowOwnerState : PetState
     {
         m_PetController.ActivateAgent();
         m_PetController.TeleportCloseToPlayer();
+        m_PetController.SetFacingDirectionToOwnner();
         m_PetController.CloudExplosionClientRpc();
         m_PetController.ActivatePetViewClientRpc();
     }
@@ -21,6 +22,13 @@ public class PetFollowOwnerState : PetState
     public override void Update()
     {
         m_PetController.FollowOwner();
+        if (m_PetController.IsPlayerOutOfTeleportRange())
+        {
+            m_PetController.CloudExplosionClientRpc();
+            m_PetController.TeleportCloseToPlayer();
+            m_PetController.SetFacingDirectionToOwnner();
+            m_PetController.CloudExplosionClientRpc();
+        }
         m_PetController.SetFacingDirection();
 
         if (m_PetController.IsEnemyInPlayerRange())
