@@ -169,7 +169,7 @@ public class PetController : NetworkBehaviour
         m_petView.SetSprite(direction);
     }
 
-    public void InitlaizePet(ulong ownerObjectId, float damageMulitplier)
+    public void InitializePet(ulong ownerObjectId, float damageMulitplier)
     {
         m_ownerObjectId = ownerObjectId;
         m_damageMultiplier = damageMulitplier;
@@ -311,7 +311,7 @@ public class PetController : NetworkBehaviour
 
     public void ApplyDamageToEnemy(Transform enemyTransform)
     {
-        float damage = m_petMeter.basePetAttackPower * m_damageMultiplier;
+        float damage = m_petMeter.basePetAttackMultiplier * m_damageMultiplier * m_petOwner.GetComponent<NetworkCharacter>().AttackPower.Value;
         NetworkCharacter networkCharacter = enemyTransform.GetComponent<NetworkCharacter>();
         networkCharacter.TakeDamage(damage, false, m_petOwner.gameObject);
     }

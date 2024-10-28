@@ -35,7 +35,7 @@ public class PetsManager : NetworkBehaviour
 
         GameObject petPrefab = (GameObject)request.asset;
         var pet = Instantiate(petPrefab, position, Quaternion.identity);
-        pet.GetComponent<PetController>().InitlaizePet(ownerObjectId, GetDamageMultiplier(petType));
+        pet.GetComponent<PetController>().InitializePet(ownerObjectId, GetDamageMultiplier(petType));
         NetworkObject networkObj = pet.GetComponent<NetworkObject>();
         networkObj.Spawn();
     }
@@ -43,24 +43,7 @@ public class PetsManager : NetworkBehaviour
     private float GetDamageMultiplier(PetType petType)
     {
         Wearable.NameEnum nameEnum = Enum.Parse<Wearable.NameEnum>(petType.ToString(), true);
-        Wearable.RarityEnum rarityEnum = WearableManager.Instance.GetWearable(nameEnum).Rarity;
-
-        switch (rarityEnum)
-        {
-            case Wearable.RarityEnum.Common:
-                return 1.0f;
-            case Wearable.RarityEnum.Uncommon:
-                return 1.1f;
-            case Wearable.RarityEnum.Rare:
-                return 1.25f;
-            case Wearable.RarityEnum.Legendary:
-                return 1.6f;
-            case Wearable.RarityEnum.Mythical:
-                return 2.0f;
-            case Wearable.RarityEnum.Godlike:
-                return 2.5f;
-        }
-
-        return 0;
+        var rarityEnum = WearableManager.Instance.GetWearable(nameEnum).Rarity;
+        return Wearable.GetRarityMultiplier(rarityEnum);
     }
 }
