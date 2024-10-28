@@ -48,7 +48,7 @@ public class PetMeter : MonoBehaviour
 
     public void Drain()
     {
-        m_currentChargeAmount -= chargeDrainPerSecond;
+        m_currentChargeAmount -= chargeDrainPerSecond * Time.deltaTime;
         if (m_currentChargeAmount < 0)
         {
             m_currentChargeAmount = 0;
