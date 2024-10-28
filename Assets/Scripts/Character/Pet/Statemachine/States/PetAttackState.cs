@@ -14,10 +14,8 @@ public class PetAttackState : PetState
 
     public override void Enter()
     {
-        //m_PetController.ActivatePetViewClientRpc();
         m_attackInterval = m_PetController.GetAttackInterval();
         m_summonCounter = m_summonDuration = m_PetController.GetSummonDuration();
-        m_PetController.ActivatePetViewClientRpc();
         AttackToEnemy();
     }
 
@@ -33,14 +31,13 @@ public class PetAttackState : PetState
         m_PetController.SetSummonProgress(m_summonCounter / m_summonDuration);
         if (m_summonCounter <= 0)
         {
-            m_PetStateMachine.ChangeState(m_PetStateMachine.PetDeactivateState);
+            m_PetStateMachine.ChangeState(m_PetController.IsEnemyInPlayerRange()
+                                          ? m_PetStateMachine.PetDeactivateState
+                                          : m_PetStateMachine.PetFollowOwnerState);
             return;
         }
 
-        if (m_counter < m_attackInterval)
-        {
-            return;
-        }
+        if (m_counter < m_attackInterval) return;
 
         m_counter = 0;
         AttackToEnemy();
@@ -51,12 +48,14 @@ public class PetAttackState : PetState
         Transform enemyTransform = m_PetController.GetEnemyInPlayerRange(m_previousEnemy);
         if (enemyTransform == null)
         {
-            m_PetStateMachine.ChangeState(m_PetStateMachine.PetFollowOwnerState);
+            m_PetController.CloudExplosionClientRpc();
+            m_PetController.DeactivatePetViewClientRpc();
             return;
         }
         m_previousEnemy = enemyTransform;
         m_PetController.CloudExplosionClientRpc();
         m_PetController.TeleportCloseToEnemy(enemyTransform);
+        m_PetController.ActivatePetViewClientRpc();
         m_PetController.CloudExplosionClientRpc();
         m_PetController.SetFacingDirection(enemyTransform);
         m_PetController.SpawnAttackAnimation(enemyTransform);
