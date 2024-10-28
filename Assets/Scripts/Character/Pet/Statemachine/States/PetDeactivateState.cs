@@ -2,7 +2,9 @@ using UnityEngine;
 
 public class PetDeactivateState : PetState
 {
-    public PetDeactivateState(PetController petController, PetStateMachine petStateMachine) : base(petController, petStateMachine)
+    public PetDeactivateState(PetController petController,
+                              PetStateMachine petStateMachine) : base(petController,
+                                                                      petStateMachine)
     {
     }
 
