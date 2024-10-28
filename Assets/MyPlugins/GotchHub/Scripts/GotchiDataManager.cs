@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Thirdweb;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
+using PortalDefender.AavegotchiKit;
 
 namespace GotchiHub
 {
@@ -25,6 +26,9 @@ namespace GotchiHub
         [Header("Sprite Styling")]
         public GotchiSvgStyling stylingGame;
         public GotchiSvgStyling stylingUI;
+
+        [Header("Offchain & Default Gotchis")]
+        public List<DefaultGotchiData> offchainGotchiData = new List<DefaultGotchiData>();
 
         [HideInInspector] public List<GotchiData> localGotchiData = new List<GotchiData>();
         [HideInInspector] public List<GotchiSvgSet> localGotchiSvgSets = new List<GotchiSvgSet>();
@@ -83,6 +87,7 @@ namespace GotchiHub
             {
                 if (id == remoteGotchiData[i].id)
                 {
+                    Debug.Log("foudn remote gotchi match: " + remoteGotchiData[i]);
                     return remoteGotchiData[i];
                 }
             }
@@ -92,12 +97,29 @@ namespace GotchiHub
             {
                 if (id == localGotchiData[i].id)
                 {
+                    Debug.Log("found local gotchi match: " + localGotchiData[i]);
                     return localGotchiData[i];
                 }
             }
 
             // if got here we were passed invalid id
             Debug.Log("Invalid id passed to GetGotchiDataById()");
+            return null;
+        }
+
+        public DefaultGotchiData GetOffchainGotchiDataById(int id)
+        {
+            // finally check offchain
+            for (int i = 0; i < offchainGotchiData.Count; i++)
+            {
+                if (id == offchainGotchiData[i].id)
+                {
+                    return offchainGotchiData[i];
+                }
+            }
+
+            // if got here we were passed invalid id
+            Debug.Log("Invalid id passed to GetOffchainGotchiDataById()");
             return null;
         }
 
@@ -184,31 +206,35 @@ namespace GotchiHub
 
         public async UniTask<bool> FetchGotchiById(int id)
         {
-            try
+
+            var gotchiData = await graphManager.GetGotchiData(id.ToString());
+            if (gotchiData != null && gotchiData.id != 0)   // we need to check against id 0 here too because if we don't have the gotchidata we still seem to return a valid gotchiData object
             {
-                var gotchiData = await graphManager.GetGotchiData(id.ToString());
-                if (gotchiData == null) return false;
-
                 var svgs = await graphManager.GetGotchiSvg(id.ToString());
-                if (svgs == null) return false;
-
-                remoteGotchiData.Add(gotchiData);
-                remoteGotchiSvgSets.Add(new GotchiSvgSet
+                if (svgs != null)
                 {
-                    id = id,
-                    Front = svgs.svg,
-                    Back = svgs.back,
-                    Left = svgs.left,
-                    Right = svgs.right,
-                });
+                    remoteGotchiData.Add(gotchiData);
+                    remoteGotchiSvgSets.Add(new GotchiSvgSet
+                    {
+                        id = id,
+                        Front = svgs.svg,
+                        Back = svgs.back,
+                        Left = svgs.left,
+                        Right = svgs.right,
+                    });
+                    return true;
+                }
+            }
 
+            // try get an offchain gotchi
+            var offchainGotchiData = GetOffchainGotchiDataById(id);
+            if (offchainGotchiData != null)
+            {
                 return true;
             }
-            catch (Exception ex)
-            {
-                Debug.Log(ex);
-                return false;
-            }
+
+            // otherwise, output exception and return false
+            return false;
         }
 
         public async void FetchRemoteGotchiSvgsById(int id)

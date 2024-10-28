@@ -28,6 +28,8 @@ public class PlayerEquipment : NetworkBehaviour
 
     private PlayerGotchi m_playerGotchi;
 
+    private int m_gotchiId = -1;
+
 
     public override void OnNetworkSpawn()
     {
@@ -41,10 +43,10 @@ public class PlayerEquipment : NetworkBehaviour
         base.OnNetworkDespawn();
     }
 
+    // this function called by PlayerController when gotchi changes
     public void Init(int gotchiId)
     {
-        if (!IsClient) return;
-
+        Debug.Log("PlayerEquipment init for: " + gotchiId);
         SetPlayerWeaponsByGotchiId(gotchiId);
         SetPlayerPetByGotchiId(gotchiId);
     }
@@ -56,6 +58,17 @@ public class PlayerEquipment : NetworkBehaviour
 
         // pet updates
         UpdatePets();
+
+        //// if in degenape village, try setup any new gotchis that we get switched to
+        //if (IsLocalPlayer && LevelManager.Instance.IsDegenapeVillage())
+        //{
+        //    var gotchiId = GotchiDataManager.Instance.GetSelectedGotchiId();
+        //    if (gotchiId != m_gotchiId)
+        //    {
+        //        m_gotchiId = gotchiId;
+        //        Init(gotchiId);
+        //    }
+        //}
     }
 
     private void UpdateWeaponSprites()
@@ -110,40 +123,96 @@ public class PlayerEquipment : NetworkBehaviour
 
     public void SetPlayerWeaponsByGotchiId(int id)
     {
-        if (!IsClient) return;
+        if (!IsLocalPlayer) return;
 
-        if (id <= 0)
+
+
+        // get gotchi data
+        var gotchiData = GotchiDataManager.Instance.GetGotchiDataById(id);
+        if (gotchiData != null)
         {
-            // tell server to change our equipment if we're the local player
-            if (IsLocalPlayer)
-            {
-                SetEquipmentServerRpc(Slot.LeftHand, leftHandStarterWeapon);
-                SetEquipmentServerRpc(Slot.RightHand, rightHandStarterWeapon);
-            }
+            var lhWearable = WearableManager.Instance.GetWearable(gotchiData.equippedWearables[5]);
+            var rhWearable = WearableManager.Instance.GetWearable(gotchiData.equippedWearables[4]);
+
+            SetEquipmentServerRpc(Slot.LeftHand, lhWearable != null ? lhWearable.NameType : Wearable.NameEnum.Unarmed);
+            SetEquipmentServerRpc(Slot.RightHand, rhWearable != null ? rhWearable.NameType : Wearable.NameEnum.Unarmed);
+
+            return;
         }
-        else
+
+        // try get offchain gotchi data
+        var offchainGotchiData = GotchiDataManager.Instance.GetOffchainGotchiDataById(id);
+        if (offchainGotchiData != null)
         {
-            var gotchiData = GotchiDataManager.Instance.GetGotchiDataById(id);
-            var rightHandWearableId = gotchiData.equippedWearables[4];
-            var leftHandWearableId = gotchiData.equippedWearables[5];
+            var lhWearable = WearableManager.Instance.GetWearable(offchainGotchiData.equippedWearables[5]);
+            var rhWearable = WearableManager.Instance.GetWearable(offchainGotchiData.equippedWearables[4]);
 
-            var lhWearable = WearableManager.Instance.GetWearable(leftHandWearableId);
-            var rhWearable = WearableManager.Instance.GetWearable(rightHandWearableId);
+            var lh = lhWearable != null ? lhWearable.NameType : Wearable.NameEnum.Unarmed;
+            var rh = rhWearable != null ? rhWearable.NameType : Wearable.NameEnum.Unarmed;
 
-            // tell server to change our equipment if we're the local player
-            if (IsLocalPlayer)
-            {
-                SetEquipmentServerRpc(Slot.LeftHand, lhWearable != null ? lhWearable.NameType : Wearable.NameEnum.Unarmed);
-                SetEquipmentServerRpc(Slot.RightHand, rhWearable != null ? rhWearable.NameType : Wearable.NameEnum.Unarmed);
-            }
+            SetEquipmentServerRpc(Slot.LeftHand, lhWearable != null ? lhWearable.NameType : Wearable.NameEnum.Unarmed);
+            SetEquipmentServerRpc(Slot.RightHand, rhWearable != null ? rhWearable.NameType : Wearable.NameEnum.Unarmed);
+
+            return;
         }
+
+        Debug.LogWarning("No gotchi data found for: " + id);
+
+        //// check for default gotchi
+        //if (id <= 0 || id == 69420)
+        //{
+        //    // tell server to change our equipment if we're the local player
+        //    if (IsLocalPlayer)
+        //    {
+        //        Debug.Log("Set weapons");
+        //        SetEquipmentServerRpc(Slot.LeftHand, leftHandStarterWeapon);
+        //        SetEquipmentServerRpc(Slot.RightHand, rightHandStarterWeapon);
+        //    }
+        //}
+        //else
+        //{
+        //    var gotchiData = GotchiDataManager.Instance.GetGotchiDataById(id);
+        //    var rightHandWearableId = gotchiData.equippedWearables[4];
+        //    var leftHandWearableId = gotchiData.equippedWearables[5];
+
+        //    var lhWearable = WearableManager.Instance.GetWearable(leftHandWearableId);
+        //    var rhWearable = WearableManager.Instance.GetWearable(rightHandWearableId);
+
+        //    // tell server to change our equipment if we're the local player
+        //    if (IsLocalPlayer)
+        //    {
+        //        SetEquipmentServerRpc(Slot.LeftHand, lhWearable != null ? lhWearable.NameType : Wearable.NameEnum.Unarmed);
+        //        SetEquipmentServerRpc(Slot.RightHand, rhWearable != null ? rhWearable.NameType : Wearable.NameEnum.Unarmed);
+        //    }
+        //}
     }
 
     public void SetPlayerPetByGotchiId(int id)
     {
+        if (!IsLocalPlayer) return;
+
+        // get gotchi data
+        var gotchiData = GotchiDataManager.Instance.GetGotchiDataById(id);
+        if (gotchiData != null)
+        {
+            var petWearable = WearableManager.Instance.GetWearable(gotchiData.equippedWearables[6]);
+            SetEquipmentServerRpc(Slot.Pet, petWearable != null ? petWearable.NameType : Wearable.NameEnum.Null);
+            return;
+        }
+
+        // try get offchain gotchi data
+        var offchainGotchiData = GotchiDataManager.Instance.GetOffchainGotchiDataById(id);
+        if (offchainGotchiData != null)
+        {
+            var petWearable = WearableManager.Instance.GetWearable(offchainGotchiData.equippedWearables[6]);
+            SetEquipmentServerRpc(Slot.Pet, petWearable != null ? petWearable.NameType : Wearable.NameEnum.Null);
+            return;
+        }
+
+        /*
         if (!IsClient) return;
 
-        if (id <= 0)
+        if (id <= 0 || id == 69420)
         {
             if (IsLocalPlayer)
             {
@@ -162,6 +231,7 @@ public class PlayerEquipment : NetworkBehaviour
             }
 
         }
+        */
     }
 
     public void SetPlayerWeapon(Hand hand, Wearable.NameEnum nameEnum)

@@ -45,8 +45,9 @@ public class PlayerHUDCanvas : MonoBehaviour
     [SerializeField] private TextMeshProUGUI m_lhCooldownText;
     [SerializeField] private TextMeshProUGUI m_rhCooldownText;
 
-    [SerializeField] private TextMeshProUGUI m_gltrText;
-    [SerializeField] private TextMeshProUGUI m_cGhstText;
+    [SerializeField] private TextMeshProUGUI m_bombsText;
+    [SerializeField] private TextMeshProUGUI m_dustText;
+    [SerializeField] private TextMeshProUGUI m_ectoText;
 
     [SerializeField] private TextMeshProUGUI m_essenceText;
     [SerializeField] private Image m_essenceImage;
@@ -103,19 +104,13 @@ public class PlayerHUDCanvas : MonoBehaviour
 
         UpdateStatBars();
         UpdateCooldowns();
-        UpdateGltr();
-        UpdateEssence();
-        UpdateCGHST();
-        UpdateAbilityIcons();
 
-        if (Screen.fullScreen)
-        {
-            m_dungeonCollectibles.GetComponent<RectTransform>().anchoredPosition = new Vector3(-10, 10, 0);
-        }
-        else
-        {
-            m_dungeonCollectibles.GetComponent<RectTransform>().anchoredPosition = new Vector3(-10, 50, 0);
-        }
+        UpdateBombs();
+        UpdateDust();
+        UpdateEcto();
+
+        UpdateEssence();
+        UpdateAbilityIcons();
     }
 
     void UpdateStatBars()
@@ -148,29 +143,31 @@ public class PlayerHUDCanvas : MonoBehaviour
 
         m_lhCooldownText.text = lhRem < 0.1f ? "" : lhRem.ToString("F0");
         m_rhCooldownText.text = rhRem < 0.1f ? "" : rhRem.ToString("F0");
-
-        //m_lhCooldownText.text = math.ceil(lhRem).ToString("F0");
-        //m_rhCooldownText.text = math.ceil(rhRem).ToString("F0");
     }
 
-    void UpdateGltr()
+    void UpdateDust()
     {
-        var gltrCount = LevelManager.Instance.IsDegenapeVillage() ? m_localPlayerDungeonData.dustBalance_offchain : m_localPlayerDungeonData.dustCount_dungeon;
-        m_gltrText.text = gltrCount.Value.ToString();
+        var dust = LevelManager.Instance.IsDegenapeVillage() ? m_localPlayerDungeonData.dustBalance_offchain : m_localPlayerDungeonData.dustCount_dungeon;
+        m_dustText.text = dust.Value.ToString();
     }
 
+    void UpdateBombs()
+    {
+        var bombs = LevelManager.Instance.IsDegenapeVillage() ? m_localPlayerDungeonData.bombBalance_offchain : m_localPlayerDungeonData.bombCount_dungeon;
+        m_bombsText.text = bombs.Value.ToString("F0");
+    }
+
+    void UpdateEcto()
+    {
+        var ecto = LevelManager.Instance.IsDegenapeVillage() ? m_localPlayerDungeonData.ectoBalance_offchain : m_localPlayerDungeonData.ectoCount_dungeon;
+        m_ectoText.text = ecto.Value.ToString("F0");
+    }
 
     void UpdateEssence()
     {
         var essence = m_localPlayerCharacter.Essence;
         m_essenceText.text = essence.Value.ToString("F0");
         m_essenceImage.fillAmount = essence.Value / 1000;
-    }
-
-    void UpdateCGHST()
-    {
-        var cGhst = LevelManager.Instance.IsDegenapeVillage() ? m_localPlayerDungeonData.ectoBalance_offchain : m_localPlayerDungeonData.ectoCount_dungeon;
-        m_cGhstText.text = cGhst.Value.ToString("F0");
     }
 
     Wearable.NameEnum lhOld;
