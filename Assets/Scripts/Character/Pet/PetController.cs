@@ -269,10 +269,10 @@ public class PetController : NetworkBehaviour
         cloud.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
     }
 
-    [ClientRpc]
-    public void SpawnAttackAnimationClientRpc()
+    public void SpawnAttackAnimation(Transform enemyTransform)
     {
-        _ = VisualEffectsManager.Singleton.SpawnPetAttackEffect(transform.position);
+        AttackCentre attackCentre = enemyTransform.GetComponentInChildren<AttackCentre>();
+        attackCentre.SpawnAttackEffect(transform.position);
     }
 
     public float GetAttackInterval()

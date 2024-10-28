@@ -51,7 +51,7 @@ public class PetAttackState : PetState
         m_PetController.CloudExplosionClientRpc();
         m_PetController.TeleportCloseToEnemy(enemyTransform);
         m_PetController.CloudExplosionClientRpc();
-        m_PetController.SpawnAttackAnimationClientRpc();
+        m_PetController.SpawnAttackAnimation(enemyTransform);
         m_PetController.ApplyDamageToEnemy(enemyTransform);
     }
 }

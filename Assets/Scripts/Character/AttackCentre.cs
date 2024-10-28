@@ -1,18 +1,19 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using Unity.Netcode;
 
-public class AttackCentre : MonoBehaviour
+public class AttackCentre : NetworkBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    public void SpawnAttackEffect(Vector3 attackerPosition)
     {
-        
+        Vector3 enemyPosition = transform.position;
+        Vector3 direction = (attackerPosition - enemyPosition).normalized;
+        Vector3 attackEffectPosition = enemyPosition + (direction * 0.3f);
+        SpawnEffectClientRpc(attackEffectPosition);
     }
 
-    // Update is called once per frame
-    void Update()
+    [ClientRpc]
+    private void SpawnEffectClientRpc(Vector3 position)
     {
-        
+        VisualEffectsManager.Singleton.SpawnPetAttackEffect(position);
     }
 }
