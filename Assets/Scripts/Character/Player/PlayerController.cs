@@ -43,6 +43,10 @@ public class PlayerController : NetworkBehaviour
     private int m_localGotchiId = 0;
     private NetworkVariable<int> m_networkGotchiId = new NetworkVariable<int>(69420);
 
+    private CinemachineVirtualCamera m_virtualCamera;
+
+    private Vector3 m_spawnPoint;
+
     private void Awake()
     {
         m_networkCharacter = GetComponent<NetworkCharacter>();
@@ -70,6 +74,15 @@ public class PlayerController : NetworkBehaviour
             {
                 gotchiId = Bootstrap.Instance.TestBlockChainGotchiId;
             }
+
+            var virtualCameraGameObject = GameObject.FindGameObjectWithTag("VirtualCamera");
+            if (virtualCameraGameObject == null)
+            {
+                Debug.LogWarning("No virtual camera exists in the scene");
+                return;
+            }
+
+            m_virtualCamera = virtualCameraGameObject.GetComponent<CinemachineVirtualCamera>();
 
             SetNetworkGotchiIdServerRpc(gotchiId);
         }
@@ -137,17 +150,16 @@ public class PlayerController : NetworkBehaviour
                 PlayerHUDCanvas.Singleton.SetLocalPlayerCharacter(GetComponent<PlayerCharacter>());
             }
 
-            // set camera to follow player
+            // Set camera to follow player
             if (m_cameraFollower != null)
             {
-                // make camera follow player and allow for offset to centre of gotchi
                 m_cameraFollower.transform.position = m_playerPrediction.GetLocalPlayerInterpPosition() + new Vector3(0, 0.5f, 0f);
             }
 
             HandleNextLevelCheat();
         }
 
-        // handle level spawning
+        // Handle level spawning on the server
         if (IsServer && !IsLevelSpawnPositionSet)
         {
             var pos = LevelManager.Instance.TryGetPlayerSpawnPoint();
@@ -155,8 +167,16 @@ public class PlayerController : NetworkBehaviour
             {
                 var spawnPoint = (Vector3)pos;
                 GetComponent<PlayerPrediction>().SetPlayerPosition(spawnPoint);
-                GetComponent<PlayerGotchi>().DropSpawn(spawnPoint);
+
+                // Position the camera follower directly at the spawn point
+                SetCameraPositionClientRpc(spawnPoint + new Vector3(0, 0.5f, 0), GetComponent<NetworkObject>().NetworkObjectId);
+
+                // Call DropSpawn to perform any additional logic
+                GetComponent<PlayerGotchi>().PlayDropAnimation();
+
+                // Mark the spawn position as set
                 IsLevelSpawnPositionSet = true;
+                m_spawnPoint = spawnPoint;
             }
         }
 
@@ -169,6 +189,53 @@ public class PlayerController : NetworkBehaviour
 
         // keep the hold bar in position (webgl it is weirdly in wrong position);
         if (m_holdBarCanvas != null) m_holdBarCanvas.transform.localPosition = new Vector3(0, 2, 0);
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    void SetCameraPositionClientRpc(Vector3 position, ulong networkObjectId)
+    {
+        if (GetComponent<NetworkObject>().NetworkObjectId != networkObjectId) return;
+
+        var delta = position - m_cameraFollower.transform.position;
+        m_cameraFollower.transform.position = position;
+
+        // Temporarily set damping to zero for instant teleport
+        var framingTransposer = m_virtualCamera.GetCinemachineComponent<Cinemachine.CinemachineFramingTransposer>();
+        Debug.Log("transposer: " + framingTransposer);
+        float originalDamping = framingTransposer.m_XDamping; // Store original damping
+        framingTransposer.m_XDamping = 0;
+        framingTransposer.m_YDamping = 0;
+        framingTransposer.m_ZDamping = 0;
+
+        m_virtualCamera.OnTargetObjectWarped(m_cameraFollower.transform, delta);
+
+        // Restore original damping settings
+        //framingTransposer.m_XDamping = originalDamping;
+        //framingTransposer.m_YDamping = originalDamping;
+        //framingTransposer.m_ZDamping = originalDamping;
+
+        m_isDoReset = true;
+        m_resetTimer = 1f;
+    }
+
+    private bool m_isDoReset = false;
+    private float m_resetTimer = 0f;
+
+    private void LateUpdate()
+    {
+        m_resetTimer -= Time.deltaTime;
+
+        if (m_isDoReset && m_resetTimer < 0)
+        {
+            m_isDoReset = false;
+
+            var framingTransposer = m_virtualCamera.GetCinemachineComponent<Cinemachine.CinemachineFramingTransposer>();
+            Debug.Log("transposer: " + framingTransposer);
+            float originalDamping = framingTransposer.m_XDamping; // Store original damping
+            framingTransposer.m_XDamping = 1;
+            framingTransposer.m_YDamping = 1;
+            framingTransposer.m_ZDamping = 1;
+        }
     }
 
     void HandleLocalGotchiIdChanges()

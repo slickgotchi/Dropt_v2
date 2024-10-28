@@ -134,23 +134,17 @@ public class PlayerGotchi : NetworkBehaviour
         }
     }
 
-    public void DropSpawn(Vector3 newSpawnPoint)
+    public void PlayDropAnimation()
     {
-        if (IsLocalPlayer || IsHost)
-        {
-
-        }
-
-
         if (!IsServer) return;
 
-        PlayDropAnimationClientRpc(newSpawnPoint);
+        PlayDropAnimationClientRpc();
     }
 
     
 
     [Rpc(SendTo.ClientsAndHost)]
-    void PlayDropAnimationClientRpc(Vector3 spawnPoint)
+    void PlayDropAnimationClientRpc()
     {
         if (!IsLocalPlayer) return;
 
