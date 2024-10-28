@@ -272,7 +272,7 @@ public class PetController : NetworkBehaviour
     public void SpawnAttackAnimation(Transform enemyTransform)
     {
         AttackCentre attackCentre = enemyTransform.GetComponentInChildren<AttackCentre>();
-        attackCentre.SpawnAttackEffect(transform.position);
+        attackCentre.SpawnAttackEffect();
     }
 
     public float GetAttackInterval()

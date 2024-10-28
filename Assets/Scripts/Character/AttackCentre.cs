@@ -3,17 +3,27 @@ using Unity.Netcode;
 
 public class AttackCentre : NetworkBehaviour
 {
-    public void SpawnAttackEffect(Vector3 attackerPosition)
+    public void SpawnAttackEffect()
     {
-        Vector3 enemyPosition = transform.position;
-        Vector3 direction = (attackerPosition - enemyPosition).normalized;
-        Vector3 attackEffectPosition = enemyPosition + (direction * 0.3f);
-        SpawnEffectClientRpc(attackEffectPosition);
+        SpawnEffectClientRpc();
     }
 
     [ClientRpc]
-    private void SpawnEffectClientRpc(Vector3 position)
+    private void SpawnEffectClientRpc()
     {
-        VisualEffectsManager.Singleton.SpawnPetAttackEffect(position);
+        Vector3 attackEffectPosition = GetRandomPosition(transform.position, 0.3f);
+        GameObject effect = VisualEffectsManager.Singleton.SpawnPetAttackEffect(attackEffectPosition);
+        effect.transform.SetParent(transform);
+    }
+
+    public Vector3 GetRandomPosition(Vector3 center, float radius)
+    {
+        // Get a random point in a unit circle and scale it by the radius
+        Vector2 randomPoint = Random.insideUnitCircle * radius;
+
+        // Offset the point by the center position
+        Vector3 randomPosition = new Vector3(center.x + randomPoint.x, center.y, center.z + randomPoint.y);
+
+        return randomPosition;
     }
 }
