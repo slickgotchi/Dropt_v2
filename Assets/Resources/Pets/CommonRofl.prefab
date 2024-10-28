@@ -50,7 +50,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2154845690
+  GlobalObjectIdHash: 1394324194
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -138,11 +138,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fullCharge: 100
-  chargePerHit: 2
+  chargePerHit: 30
   chargeDrainPerSecond: 0.5
+  isDrainWhenNoEnemies: 0
   summonDuration: 5
-  attackInterval: 0.3
-  basePetAttackPower: 2
+  attackInterval: 0.5
+  basePetAttackMultiplier: 1
 --- !u!1 &620094008209364294
 GameObject:
   m_ObjectHideFlags: 0
