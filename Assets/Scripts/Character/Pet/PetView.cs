@@ -40,4 +40,9 @@ public class PetView : MonoBehaviour
                 break;
         }
     }
+
+    public bool IsActivated()
+    {
+        return m_body.enabled;
+    }
 }

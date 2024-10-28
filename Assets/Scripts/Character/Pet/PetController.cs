@@ -20,6 +20,12 @@ public class PetController : NetworkBehaviour
     private Transform m_transform;
 
     private ulong m_ownerObjectId;
+
+    public void ResetSummonDuration()
+    {
+        m_petMeter.ResetSummonDuration();
+    }
+
     private float m_damageMultiplier;
 
     public override void OnNetworkSpawn()
@@ -43,6 +49,15 @@ public class PetController : NetworkBehaviour
         ActivatePetMeterViewClientRpc(m_ownerObjectId);
     }
 
+    public bool IsSummonDurationOver()
+    {
+        return m_petMeter.IsSummonDurationOver();
+    }
+
+    internal void DrainSummonDuration()
+    {
+        m_petMeter.DrainSummonDuration();
+    }
 
     public void RemoveDestination()
     {
@@ -56,6 +71,11 @@ public class PetController : NetworkBehaviour
         {
             PlayerHUDCanvas.Singleton.ActivatePetMeter(m_petView.m_downSprite);
         }
+    }
+
+    public bool IsDeactivated()
+    {
+        return m_petView.IsActivated();
     }
 
     private bool IsOwnerOfPet(ulong id)
@@ -180,10 +200,29 @@ public class PetController : NetworkBehaviour
         return m_ownerObjectId;
     }
 
+    public void DeactivatePet()
+    {
+        if (IsServer && !IsHost)
+        {
+            m_petView.Hide();
+        }
+        DeactivatePetViewClientRpc();
+    }
+
     [ClientRpc]
     public void DeactivatePetViewClientRpc()
     {
         m_petView.Hide();
+    }
+
+    public void ActivatePet()
+    {
+        if (IsServer && !IsHost)
+        {
+            m_petView.Show();
+        }
+
+        ActivatePetViewClientRpc();
     }
 
     [ClientRpc]
@@ -233,9 +272,9 @@ public class PetController : NetworkBehaviour
         SetPetMeterProgressClientRpc(m_ownerObjectId, m_petMeter.GetProgress());
     }
 
-    public void SetSummonProgress(float progress)
+    public void SetSummonProgress()
     {
-        SetPetMeterProgressClientRpc(m_ownerObjectId, progress);
+        SetPetMeterProgressClientRpc(m_ownerObjectId, m_petMeter.GetSummonProgress());
     }
 
     [ClientRpc]
@@ -318,6 +357,6 @@ public class PetController : NetworkBehaviour
 
     public void ResetPetMeter()
     {
-        m_petMeter.Reset();
+        m_petMeter.ResetCharge();
     }
 }
