@@ -208,6 +208,30 @@ public class Interactable : NetworkBehaviour
         }
     }
 
+    //public bool IsPlayerInRange(ulong playerNetworkObjectId)
+    //{
+    //    var player = NetworkManager.SpawnManager
+
+    //    var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+    //    foreach (var player in players)
+    //    {
+    //        var dist = math.distance(transform.position, player.transform.position);
+    //        if (dist < k_validateInteractionDistance) return true;
+    //    }
+
+    //    return false;
+    //}
+
+    public ulong GetLocalPlayerNetworkObjectId()
+    {
+        return m_localPlayerPrediction.GetComponent<NetworkObject>().NetworkObjectId;
+    }
+
+    public bool IsLocalPlayerNetworkObjectId(ulong playerNetworkObjectId)
+    {
+        return playerNetworkObjectId == GetLocalPlayerNetworkObjectId();
+    }
+
     public bool IsValidInteraction(ulong networkObjectId)
     {
         // try get player controller
