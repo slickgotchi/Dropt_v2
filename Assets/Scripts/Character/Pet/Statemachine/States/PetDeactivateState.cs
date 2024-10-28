@@ -12,7 +12,7 @@ public class PetDeactivateState : PetState
     {
         m_PetController.CloudExplosionClientRpc();
         m_PetController.DeactivateAgent();
-        m_PetController.DeactivatePetViewClientRpc();
+        m_PetController.DeactivatePet();
         m_PetController.SubscribeOnEnemyGetDamage();
     }
 

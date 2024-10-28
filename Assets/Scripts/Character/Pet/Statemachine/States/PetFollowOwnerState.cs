@@ -11,7 +11,7 @@ public class PetFollowOwnerState : PetState
         m_PetController.TeleportCloseToPlayer();
         m_PetController.SetFacingDirectionToOwnner();
         m_PetController.CloudExplosionClientRpc();
-        m_PetController.ActivatePetViewClientRpc();
+        m_PetController.ActivatePet();
     }
 
     public override void Exit()
@@ -35,5 +35,8 @@ public class PetFollowOwnerState : PetState
         {
             m_PetStateMachine.ChangeState(m_PetStateMachine.PetDeactivateState);
         }
+
+        m_PetController.DrainPetMeter();
+        m_PetController.SetPetMeterProgress();
     }
 }

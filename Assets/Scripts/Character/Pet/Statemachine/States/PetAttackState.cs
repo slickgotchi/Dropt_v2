@@ -5,8 +5,6 @@ public class PetAttackState : PetState
     private float m_attackInterval;
     private float m_counter;
     private Transform m_previousEnemy;
-    private float m_summonDuration;
-    private float m_summonCounter;
 
     public PetAttackState(PetController petController, PetStateMachine petStateMachine) : base(petController, petStateMachine)
     {
@@ -15,7 +13,7 @@ public class PetAttackState : PetState
     public override void Enter()
     {
         m_attackInterval = m_PetController.GetAttackInterval();
-        m_summonCounter = m_summonDuration = m_PetController.GetSummonDuration();
+        m_PetController.ResetSummonDuration();
         AttackToEnemy();
     }
 
@@ -27,9 +25,9 @@ public class PetAttackState : PetState
     public override void Update()
     {
         m_counter += Time.deltaTime;
-        m_summonCounter -= Time.deltaTime;
-        m_PetController.SetSummonProgress(m_summonCounter / m_summonDuration);
-        if (m_summonCounter <= 0)
+        m_PetController.DrainSummonDuration();
+        m_PetController.SetSummonProgress();
+        if (m_PetController.IsSummonDurationOver())
         {
             m_PetStateMachine.ChangeState(m_PetController.IsEnemyInPlayerRange()
                                           ? m_PetStateMachine.PetDeactivateState
@@ -48,14 +46,19 @@ public class PetAttackState : PetState
         Transform enemyTransform = m_PetController.GetEnemyInPlayerRange(m_previousEnemy);
         if (enemyTransform == null)
         {
+            if (m_PetController.IsDeactivated())
+            {
+                return;
+            }
+
             m_PetController.CloudExplosionClientRpc();
-            m_PetController.DeactivatePetViewClientRpc();
+            m_PetController.DeactivatePet();
             return;
         }
         m_previousEnemy = enemyTransform;
         m_PetController.CloudExplosionClientRpc();
         m_PetController.TeleportCloseToEnemy(enemyTransform);
-        m_PetController.ActivatePetViewClientRpc();
+        m_PetController.ActivatePet();
         m_PetController.CloudExplosionClientRpc();
         m_PetController.SetFacingDirection(enemyTransform);
         m_PetController.SpawnAttackAnimation(enemyTransform);
