@@ -98,7 +98,6 @@ GameObject:
   - component: {fileID: 5346642218723636926}
   - component: {fileID: -6426811319550223535}
   - component: {fileID: 1735100677614209308}
-  - component: {fileID: -1273593988190568045}
   - component: {fileID: 7690168732021353646}
   - component: {fileID: 990222868014410655}
   - component: {fileID: -8885356297908006619}
@@ -108,6 +107,7 @@ GameObject:
   - component: {fileID: 1232825248513418453}
   - component: {fileID: 4369600644893451117}
   - component: {fileID: 4081501530589712187}
+  - component: {fileID: 307564490861362295}
   m_Layer: 15
   m_Name: Snail
   m_TagString: Untagged
@@ -170,7 +170,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2137105859
+  GlobalObjectIdHash: 1218351389
   InScenePlacedSourceGlobalObjectIdHash: 2137105859
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -239,78 +239,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TransitionStateInfoList: []
   m_Animator: {fileID: 166411181886647591}
---- !u!114 &-1273593988190568045
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1249991746567512264}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6494b87727298314987516d4f17c6c93, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  baseHpMax: 40
-  baseHpCurrent: 40
-  baseHpBuffer: 0
-  baseAttackPower: 10
-  baseCriticalChance: 0.1
-  baseApMax: 0
-  baseApCurrent: 0
-  baseApBuffer: 0
-  baseDoubleStrikeChance: 0.05
-  baseCriticalDamage: 1.5
-  baseMoveSpeed: 1
-  baseAccuracy: 1
-  baseEvasion: 0
-  baseDamageReduction: 0
-  baseApLeech: 0
-  baseApRegen: 1
-  baseKnockbackMutliplier: 1
-  baseStunMultiplier: 1
-  k_popupTextOffset: {x: 0, y: 1.5, z: 0}
-  ReceiveDamageColor: {r: 1, g: 1, b: 1, a: 1}
-  ReceiveDamageFontSize: 16
-  ReceiveCriticalDamageColor: {r: 1, g: 0.92156863, b: 0.34117648, a: 1}
-  ReceiveCriticalDamageFontSize: 24
-  HpMax:
-    m_InternalValue: 100
-  HpCurrent:
-    m_InternalValue: 100
-  HpBuffer:
-    m_InternalValue: 0
-  AttackPower:
-    m_InternalValue: 10
-  CriticalChance:
-    m_InternalValue: 0.1
-  ApMax:
-    m_InternalValue: 50
-  ApCurrent:
-    m_InternalValue: 50
-  ApBuffer:
-    m_InternalValue: 0
-  DoubleStrikeChance:
-    m_InternalValue: 0.05
-  CriticalDamage:
-    m_InternalValue: 0
-  MoveSpeed:
-    m_InternalValue: 6.22
-  Accuracy:
-    m_InternalValue: 1
-  Evasion:
-    m_InternalValue: 0
-  DamageReduction:
-    m_InternalValue: 0
-  ApLeech:
-    m_InternalValue: 0
-  ApRegen:
-    m_InternalValue: 0
-  KnockbackMultiplier:
-    m_InternalValue: 0
-  StunMultiplier:
-    m_InternalValue: 0
-  OnHurtAudio: {fileID: 8300000, guid: 00338429dfad27d438bd1444b96d7e3a, type: 3}
 --- !u!61 &7690168732021353646
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -504,6 +432,78 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0db5f2b26a4fc4689a51120be8962555, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &307564490861362295
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 14871d16e352d4404a67cb881181344a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseHpMax: 40
+  baseHpCurrent: 40
+  baseHpBuffer: 0
+  baseAttackPower: 10
+  baseCriticalChance: 0.1
+  baseApMax: 0
+  baseApCurrent: 0
+  baseApBuffer: 0
+  baseDoubleStrikeChance: 0.05
+  baseCriticalDamage: 1.5
+  baseMoveSpeed: 1
+  baseAccuracy: 1
+  baseEvasion: 0
+  baseDamageReduction: 0
+  baseApLeech: 0
+  baseApRegen: 1
+  baseKnockbackMutliplier: 1
+  baseStunMultiplier: 1
+  k_popupTextOffset: {x: 0, y: 1.5, z: 0}
+  ReceiveDamageColor: {r: 1, g: 1, b: 1, a: 1}
+  ReceiveDamageFontSize: 16
+  ReceiveCriticalDamageColor: {r: 1, g: 0.92156863, b: 0.34117648, a: 1}
+  ReceiveCriticalDamageFontSize: 24
+  HpMax:
+    m_InternalValue: 100
+  HpCurrent:
+    m_InternalValue: 100
+  HpBuffer:
+    m_InternalValue: 0
+  AttackPower:
+    m_InternalValue: 10
+  CriticalChance:
+    m_InternalValue: 0.1
+  ApMax:
+    m_InternalValue: 50
+  ApCurrent:
+    m_InternalValue: 50
+  ApBuffer:
+    m_InternalValue: 0
+  DoubleStrikeChance:
+    m_InternalValue: 0.05
+  CriticalDamage:
+    m_InternalValue: 0
+  MoveSpeed:
+    m_InternalValue: 6.22
+  Accuracy:
+    m_InternalValue: 1
+  Evasion:
+    m_InternalValue: 0
+  DamageReduction:
+    m_InternalValue: 0
+  ApLeech:
+    m_InternalValue: 0
+  ApRegen:
+    m_InternalValue: 0
+  KnockbackMultiplier:
+    m_InternalValue: 0
+  StunMultiplier:
+    m_InternalValue: 0
+  OnHurtAudio: {fileID: 8300000, guid: 00338429dfad27d438bd1444b96d7e3a, type: 3}
 --- !u!1 &6525230415705073668
 GameObject:
   m_ObjectHideFlags: 0
@@ -770,10 +770,6 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 15
       objectReference: {fileID: 0}
-    - target: {fileID: 280974544690016271, guid: 8888b61c045151e4a9ab367f7299feda, type: 3}
-      propertyPath: character
-      value: 
-      objectReference: {fileID: -1273593988190568045}
     - target: {fileID: 374510274411942147, guid: 8888b61c045151e4a9ab367f7299feda, type: 3}
       propertyPath: m_Layer
       value: 15
@@ -1132,10 +1128,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 5272144323970760193, guid: 5ef640013bf57374c9d35ac60df66d89, type: 3}
-      propertyPath: networkCharacter
-      value: 
-      objectReference: {fileID: -1273593988190568045}
     - target: {fileID: 6411582197230323221, guid: 5ef640013bf57374c9d35ac60df66d89, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
