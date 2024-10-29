@@ -12,12 +12,13 @@ public class VisualEffectsManager : MonoBehaviour
     [SerializeField] private GameObject fudWispExplosionPrefab;
     [SerializeField] private GameObject stompCirclePrefab;
     [SerializeField] private GameObject basicCirclePrefab;
-
+    [SerializeField] private GameObject petAttackPerfab;
     private Queue<GameObject> m_cloudExplosionPool = new Queue<GameObject>();
     private Queue<GameObject> m_bulletExplosionPool = new Queue<GameObject>();
     private Queue<GameObject> m_splashExplosionPool = new Queue<GameObject>();
     private Queue<GameObject> m_fudWispExplosionPool = new Queue<GameObject>();
     private Queue<GameObject> m_stompCirclePool = new Queue<GameObject>();
+    private Queue<GameObject> m_petAttackPool = new Queue<GameObject>();
     private Queue<GameObject> m_basicCirclePool = new Queue<GameObject>();
 
     private void Awake()
@@ -156,6 +157,24 @@ public class VisualEffectsManager : MonoBehaviour
         return instance;
     }
 
+    public GameObject SpawnPetAttackEffect(Vector3 position)
+    {
+        GameObject instance;
+
+        if (m_petAttackPool.Count > 0)
+        {
+            instance = m_petAttackPool.Dequeue();
+            instance.SetActive(true);
+        }
+        else
+        {
+            instance = Instantiate(petAttackPerfab);
+        }
+
+        instance.transform.position = position;
+        return instance;
+    }
+
     public void ReturnToPool(GameObject instance)
     {
         instance.SetActive(false);
@@ -166,5 +185,6 @@ public class VisualEffectsManager : MonoBehaviour
         if (instance.HasComponent<FudWispExplosion>()) m_fudWispExplosionPool.Enqueue(instance);
         if (instance.HasComponent<StompCircle>()) m_stompCirclePool.Enqueue(instance);
         if (instance.HasComponent<BasicCircle>()) m_basicCirclePool.Enqueue(instance);
+        if (instance.HasComponent<PetAttackEffect>()) m_petAttackPool.Enqueue(instance);
     }
 }
