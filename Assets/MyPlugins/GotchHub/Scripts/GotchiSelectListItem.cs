@@ -46,7 +46,7 @@ namespace GotchiHub
         {
             GotchiDataManager.Instance.SetSelectedGotchiById(Id);
 
-            GotchiSelectCanvas.Instance.HighlightById(Id);
+            //GotchiSelectCanvas.Instance.HighlightById(Id);
         }
 
         public void SetSelected(bool isSelected)

@@ -15,10 +15,9 @@ namespace GotchiHub
         public GameObject gotchiSelectCard;
 
         [Header("Child Object References")]
-        public Button SelectGotchiButton;
-        public GameObject gotchiList;
-        public SVGImage AvatarSvgImage;
-        public GotchiStatsCard GotchiStatsCard;
+        //public GameObject gotchiList;
+        //public SVGImage AvatarSvgImage;
+        //public GotchiStatsCard GotchiStatsCard;
 
         [Header("Menus")]
         public GameObject GotchiSelect_Menu;
@@ -31,6 +30,7 @@ namespace GotchiHub
         public TMPro.TextMeshProUGUI WalletInfoText;
         public Button VisitAavegotchiButton;
         public Button ConnectButton;
+        public Button ConfirmButton;
 
         // private variables
         private GotchiDataManager m_gotchiDataManager;
@@ -58,7 +58,7 @@ namespace GotchiHub
         {
             Instance = this;
             VisitAavegotchiButton.onClick.AddListener(HandleOnClick_VisitAavegotchiButton);
-
+            ConfirmButton.onClick.AddListener(() => HideCanvas());
             HideCanvas();
         }
 
@@ -76,32 +76,31 @@ namespace GotchiHub
             HideAllMenus();
 
             // Clear out gotchi list children
-            ClearGotchiListChildren();
+            //ClearGotchiListChildren();
 
             // sign up to onFetchData success function
             m_gotchiDataManager.onFetchGotchiDataSuccess += HandleOnFetchGotchiDataSuccess;
         }
 
-        //public void SetMenuScreen(MenuScreen menuScreen)
-        //{
-        //    HideAllMenus();
+        public void SetMenuScreen(MenuScreen menuScreen)
+        {
+            HideAllMenus();
 
-        //    switch (menuScreen)
-        //    {
-        //        case MenuScreen.NotConnected: GotchiSelect_NotConnected.SetActive(true); break;
-        //        case MenuScreen.Loading: GotchiSelect_Loading.SetActive(true); break;
-        //        case MenuScreen.GotchiSelect: GotchiSelect_Menu.SetActive(true); break;
-        //        case MenuScreen.NoGotchis: GotchiSelect_NoGotchis.SetActive(true); break;
-        //        default: break;
-        //    }
+            switch (menuScreen)
+            {
+                case MenuScreen.NotConnected: GotchiSelect_NotConnected.SetActive(true); break;
+                case MenuScreen.Loading: GotchiSelect_Loading.SetActive(true); break;
+                case MenuScreen.GotchiSelect: GotchiSelect_Menu.SetActive(true); break;
+                case MenuScreen.NoGotchis: GotchiSelect_NoGotchis.SetActive(true); break;
+                default: break;
+            }
 
-        //    m_menuScreen = menuScreen;
-        //}
+            m_menuScreen = menuScreen;
+        }
 
         private void OnDestroy()
         {
             // Unsubscribe from events
-            //SelectGotchiButton.onClick.RemoveListener(HandleOnClick_GotchiSelect_ShowButton);
             VisitAavegotchiButton.onClick.RemoveListener(HandleOnClick_VisitAavegotchiButton);
             m_gotchiDataManager.onFetchGotchiDataSuccess -= HandleOnFetchGotchiDataSuccess;
         }
@@ -115,7 +114,7 @@ namespace GotchiHub
 
         void HandleOnFetchGotchiDataSuccess()
         {
-            UpdateGotchiList();
+            //UpdateGotchiList();
         }
 
         private float k_updateInterval = 0.3f;
@@ -146,7 +145,7 @@ namespace GotchiHub
                 var isConnected = await ThirdwebManager.Instance.SDK.Wallet.IsConnected();
                 if (!isConnected)
                 {
-                    //SetMenuScreen(MenuScreen.NotConnected);
+                    SetMenuScreen(MenuScreen.NotConnected);
                     return;
                 }
 
@@ -166,10 +165,10 @@ namespace GotchiHub
                 var numGotchis = m_gotchiDataManager.localGotchiData.Count;
                 if (numGotchis <= 0)
                 {
-                    //SetMenuScreen(MenuScreen.NoGotchis);
+                    SetMenuScreen(MenuScreen.NoGotchis);
                 } else
                 {
-                    //SetMenuScreen(MenuScreen.GotchiSelect);
+                    SetMenuScreen(MenuScreen.GotchiSelect);
                 }
             }
             catch (System.Exception e)
@@ -185,6 +184,8 @@ namespace GotchiHub
             GotchiSelect_NoGotchis.SetActive(false);
             GotchiSelect_NotConnected.SetActive(false);
         }
+
+        /*
 
         private void InitAvatarById(int id)
         {
@@ -293,5 +294,8 @@ namespace GotchiHub
             }
 
         }
+
+
+        */
     }
 }
