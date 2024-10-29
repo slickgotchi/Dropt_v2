@@ -39,6 +39,15 @@ namespace Dropt
             SimpleRoamUpdate(dt);
         }
 
+        public override void OnAggroStart()
+        {
+            base.OnAggroStart();
+            if (IsServer)
+            {
+                Utils.Anim.Play(m_animator, "LeafShade_Roam");
+            }
+        }
+
         public override void OnAggroUpdate(float dt)
         {
             SimplePursueUpdate(dt);
@@ -56,6 +65,10 @@ namespace Dropt
 
         public override void OnCooldownStart()
         {
+            if (IsServer)
+            {
+                Utils.Anim.Play(m_animator, "LeafShade_Roam");
+            }
         }
 
         public override void OnCooldownUpdate(float dt)
