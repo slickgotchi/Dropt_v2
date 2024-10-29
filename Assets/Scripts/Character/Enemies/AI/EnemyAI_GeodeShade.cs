@@ -1,10 +1,4 @@
-using Dropt;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AI;
-using Unity.Mathematics;
-using Unity.Netcode;
 
 namespace Dropt
 {
@@ -19,6 +13,12 @@ namespace Dropt
 
         public override void OnSpawnStart()
         {
+            if (IsServer)
+            {
+                Utils.Anim.PlayAnimationWithDuration(m_animator,
+                                                     "GeodeShade_Spawn",
+                                                     SpawnDuration);
+            }
         }
 
         public override void OnTelegraphStart()
@@ -26,12 +26,33 @@ namespace Dropt
             if (IsServer)
             {
                 m_navMeshAgent.isStopped = true;
+                Utils.Anim.PlayAnimationWithDuration(m_animator,
+                                                     "GeodeShade_Anticipation",
+                                                     TelegraphDuration);
             }
         }
-        
+
+        public override void OnRoamStart()
+        {
+            base.OnRoamStart();
+            if (IsServer)
+            {
+                Utils.Anim.Play(m_animator, "GeodeShade_Roam");
+            }
+        }
+
         public override void OnRoamUpdate(float dt)
         {
-            SimpleRoamUpdate(dt);   
+            SimpleRoamUpdate(dt);
+        }
+
+        public override void OnAggroStart()
+        {
+            base.OnAggroStart();
+            if (IsServer)
+            {
+                Utils.Anim.Play(m_animator, "GeodeShade_Roam");
+            }
         }
 
         public override void OnAggroUpdate(float dt)
@@ -42,13 +63,20 @@ namespace Dropt
         public override void OnAttackStart()
         {
             SimpleAttackStart();
-
-            // set facing
-            GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, AttackDuration);
+            GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection,
+                                                                   AttackDuration);
+            if (IsServer)
+            {
+                Utils.Anim.Play(m_animator, "GeodeShade_Attack");
+            }
         }
 
         public override void OnCooldownStart()
         {
+            if (IsServer)
+            {
+                Utils.Anim.Play(m_animator, "GeodeShade_Roam");
+            }
         }
 
         public override void OnCooldownUpdate(float dt)
