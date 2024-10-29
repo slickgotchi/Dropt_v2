@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -59,14 +57,17 @@ public class PlayerHUDCanvas : MonoBehaviour
 
     [SerializeField] private GameObject m_dungeonCollectibles;
 
-    [SerializeField] private TMPro.TextMeshProUGUI m_levelNumber;
-    [SerializeField] private TMPro.TextMeshProUGUI m_levelName;
+    [SerializeField] private TextMeshProUGUI m_levelNumber;
+    [SerializeField] private TextMeshProUGUI m_levelName;
 
     private PlayerCharacter m_localPlayerCharacter;
     private PlayerOffchainData m_localPlayerDungeonData;
 
     [SerializeField] private Slider m_leftHandShieldBar;
     [SerializeField] private Slider m_rightHandShieldBar;
+
+    [SerializeField] private PetMeterView m_PetMeterView;
+
 
     public void SetLocalPlayerCharacter(PlayerCharacter localPlayerCharacter)
     {
@@ -215,5 +216,20 @@ public class PlayerHUDCanvas : MonoBehaviour
         {
             m_rightHandShieldBar.value = progress;
         }
+    }
+
+    public void ActivatePetMeter(Sprite pet)
+    {
+        m_PetMeterView.Activate(pet);
+    }
+
+    public void DeactivatePetMeter()
+    {
+        m_PetMeterView.Deactivate();
+    }
+
+    public void SetPetMeterProgress(float progress)
+    {
+        m_PetMeterView.SetProgress(progress);
     }
 }

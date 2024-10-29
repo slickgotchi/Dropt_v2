@@ -8,13 +8,13 @@ public class PetFollowPickupItemState : PetState
 
     public override void Enter()
     {
-        m_PetController.InitializeNavMeshAgentWhenFillowPickUpItem();
+        //m_PetController.InitializeNavMeshAgentWhenFillowPickUpItem();
         FindPickUpItemsInRangeAndFollowIt();
     }
 
     public override void Exit()
     {
-        m_PetController.ClearPicupItemList();
+        //m_PetController.ClearPicupItemList();
     }
 
     public override void Update()
@@ -30,24 +30,24 @@ public class PetFollowPickupItemState : PetState
             m_PetController.TeleportCloseToPlayer();
             m_PetStateMachine.ChangeState(m_PetStateMachine.PetFollowOwnerState);
         }
-        m_PetController.LookForPickupItems();
+        //m_PetController.LookForPickupItems();
         if (m_PetController.IsPetReachToDestination())
         {
-            m_PetController.PickItem(m_currentPickUpItem);
+            //m_PetController.PickItem(m_currentPickUpItem);
             FindPickUpItemsInRangeAndFollowIt();
         }
     }
 
     private void FindPickUpItemsInRangeAndFollowIt()
     {
-        if (m_PetController.IsPickupItemsInRange())
-        {
-            m_currentPickUpItem = m_PetController.GetPickUpItemFromList();
-            m_PetController.FollowPickUpItem(m_currentPickUpItem.transform);
-        }
-        else
-        {
-            m_PetStateMachine.ChangeState(m_PetStateMachine.PetFollowOwnerState);
-        }
+        //if (m_PetController.IsPickupItemsInRange())
+        //{
+        //    m_currentPickUpItem = m_PetController.GetPickUpItemFromList();
+        //    m_PetController.FollowPickUpItem(m_currentPickUpItem.transform);
+        //}
+        //else
+        //{
+        //    m_PetStateMachine.ChangeState(m_PetStateMachine.PetFollowOwnerState);
+        //}
     }
 }
