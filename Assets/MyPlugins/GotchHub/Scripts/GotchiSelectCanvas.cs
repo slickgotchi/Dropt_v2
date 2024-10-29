@@ -12,7 +12,7 @@ namespace GotchiHub
         public static GotchiSelectCanvas Instance { get; private set; }
 
         [Header("Prefabs")]
-        public GameObject gotchiListItemPrefab;
+        public GameObject gotchiSelectCard;
 
         [Header("Child Object References")]
         public Button SelectGotchiButton;
@@ -82,21 +82,21 @@ namespace GotchiHub
             m_gotchiDataManager.onFetchGotchiDataSuccess += HandleOnFetchGotchiDataSuccess;
         }
 
-        public void SetMenuScreen(MenuScreen menuScreen)
-        {
-            HideAllMenus();
+        //public void SetMenuScreen(MenuScreen menuScreen)
+        //{
+        //    HideAllMenus();
 
-            switch (menuScreen)
-            {
-                case MenuScreen.NotConnected: GotchiSelect_NotConnected.SetActive(true); break;
-                case MenuScreen.Loading: GotchiSelect_Loading.SetActive(true); break;
-                case MenuScreen.GotchiSelect: GotchiSelect_Menu.SetActive(true); break;
-                case MenuScreen.NoGotchis: GotchiSelect_NoGotchis.SetActive(true); break;
-                default: break;
-            }
+        //    switch (menuScreen)
+        //    {
+        //        case MenuScreen.NotConnected: GotchiSelect_NotConnected.SetActive(true); break;
+        //        case MenuScreen.Loading: GotchiSelect_Loading.SetActive(true); break;
+        //        case MenuScreen.GotchiSelect: GotchiSelect_Menu.SetActive(true); break;
+        //        case MenuScreen.NoGotchis: GotchiSelect_NoGotchis.SetActive(true); break;
+        //        default: break;
+        //    }
 
-            m_menuScreen = menuScreen;
-        }
+        //    m_menuScreen = menuScreen;
+        //}
 
         private void OnDestroy()
         {
@@ -146,7 +146,7 @@ namespace GotchiHub
                 var isConnected = await ThirdwebManager.Instance.SDK.Wallet.IsConnected();
                 if (!isConnected)
                 {
-                    SetMenuScreen(MenuScreen.NotConnected);
+                    //SetMenuScreen(MenuScreen.NotConnected);
                     return;
                 }
 
@@ -166,10 +166,10 @@ namespace GotchiHub
                 var numGotchis = m_gotchiDataManager.localGotchiData.Count;
                 if (numGotchis <= 0)
                 {
-                    SetMenuScreen(MenuScreen.NoGotchis);
+                    //SetMenuScreen(MenuScreen.NoGotchis);
                 } else
                 {
-                    SetMenuScreen(MenuScreen.GotchiSelect);
+                    //SetMenuScreen(MenuScreen.GotchiSelect);
                 }
             }
             catch (System.Exception e)
@@ -224,7 +224,7 @@ namespace GotchiHub
             var gotchiData = m_gotchiDataManager.localGotchiData;
             for (int i = 0; i < gotchiSvgs.Count; i++)
             {
-                var newListItem = Instantiate(gotchiListItemPrefab);
+                var newListItem = Instantiate(gotchiSelectCard);
                 newListItem.transform.SetParent(gotchiList.transform, false);
 
                 var listItem = newListItem.GetComponent<GotchiSelectListItem>();
