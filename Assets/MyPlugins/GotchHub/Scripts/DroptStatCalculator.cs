@@ -1,5 +1,7 @@
 using System;
 using UnityEngine;
+using Unity.Mathematics;
+using GotchiHub;
 
 public enum TraitType
 {
@@ -25,7 +27,66 @@ public static class DroptStatCalculator
         Hp, Ap, Armour, Special, Regen, Critical, Melee, Ranged,
     };
 
-    public static float GetPrimaryGameStat(float traitValue, TraitType traitType)
+    public static float GetDroptStatForGotchiAndAllWearablesByGotchiId(int gotchiId, TraitType traitType)
+    {
+        var statForGotchi = GetDroptStatForGotchiByGotchiId(gotchiId, traitType);
+        var statForWearables = GetDroptStatForAllWearablesByGotchiId(gotchiId, traitType);
+
+        //Debug.Log(traitType.ToString() + " " + statForGotchi + " " + statForWearables);
+
+        return statForGotchi + statForWearables;
+    }
+
+    public static float GetDroptStatForGotchiByGotchiId(int gotchiId, TraitType traitType)
+    {
+        // try onchain first
+        var gotchiData = GotchiDataManager.Instance.GetGotchiDataById(gotchiId);
+        if (gotchiData != null)
+        {
+            switch (traitType)
+            {
+                case TraitType.NRG:
+                    return GetDroptStatForGotchiByTraitPoints(gotchiData.numericTraits[0], traitType);
+                case TraitType.AGG:
+                    return GetDroptStatForGotchiByTraitPoints(gotchiData.numericTraits[1], traitType);
+                case TraitType.SPK:
+                    return GetDroptStatForGotchiByTraitPoints(gotchiData.numericTraits[2], traitType);
+                case TraitType.BRN:
+                    return GetDroptStatForGotchiByTraitPoints(gotchiData.numericTraits[3], traitType);
+                case TraitType.EYS:
+                    return GetDroptStatForGotchiByTraitPoints(gotchiData.numericTraits[4], traitType);
+                case TraitType.EYC:
+                    return GetDroptStatForGotchiByTraitPoints(gotchiData.numericTraits[5], traitType);
+                default: break;
+            }
+        }
+
+        // try offchain
+        var offchainGotchiData = GotchiDataManager.Instance.GetOffchainGotchiDataById(gotchiId);
+        if (offchainGotchiData != null)
+        {
+            switch (traitType)
+            {
+                case TraitType.NRG:
+                    return GetDroptStatForGotchiByTraitPoints(offchainGotchiData.numericTraits[0], traitType);
+                case TraitType.AGG:
+                    return GetDroptStatForGotchiByTraitPoints(offchainGotchiData.numericTraits[1], traitType);
+                case TraitType.SPK:
+                    return GetDroptStatForGotchiByTraitPoints(offchainGotchiData.numericTraits[2], traitType);
+                case TraitType.BRN:
+                    return GetDroptStatForGotchiByTraitPoints(offchainGotchiData.numericTraits[3], traitType);
+                case TraitType.EYS:
+                    return GetDroptStatForGotchiByTraitPoints(offchainGotchiData.numericTraits[4], traitType);
+                case TraitType.EYC:
+                    return GetDroptStatForGotchiByTraitPoints(offchainGotchiData.numericTraits[5], traitType);
+                default: break;
+            }
+        }
+
+        return 0;
+    }
+
+    public static float GetDroptStatForGotchiByTraitPoints(float traitValue, TraitType traitType)
     {
         float traitDelta = Math.Min(Math.Abs(49.5f - traitValue), TraitDeltaCap);
         float x = traitDelta / TraitDeltaCap;
@@ -83,6 +144,134 @@ public static class DroptStatCalculator
 
         return brs;
     }
+
+    public static float GetDroptStatForAllWearablesByGotchiId(int gotchiId, TraitType traitType)
+    {
+        // try onchain first
+        var gotchiData = GotchiDataManager.Instance.GetGotchiDataById(gotchiId);
+        if (gotchiData != null)
+        {
+            float sum = 0;
+            foreach (var equippedWearable in gotchiData.equippedWearables)
+            {
+                sum += GetDroptStatByWearableId(equippedWearable, traitType);
+            }
+            return sum;
+        }
+
+        // try offchain
+        var offchainGotchiData = GotchiDataManager.Instance.GetOffchainGotchiDataById(gotchiId);
+        if (offchainGotchiData != null)
+        {
+            float sum = 0;
+            foreach (var equippedWearable in offchainGotchiData.equippedWearables)
+            {
+                sum += GetDroptStatByWearableId(equippedWearable, traitType);
+            }
+            return sum;
+        }
+
+        return 0;
+    }
+
+
+    public static float GetDroptStatByWearableId(int wearableId, TraitType traitType)
+    {
+        var wearable = WearableManager.Instance.GetWearable(wearableId);
+        if (wearable == null)
+        {
+            return 0;
+        }
+
+        switch (traitType)
+        {
+            case TraitType.NRG:
+                return GetDroptStatForWearableByTraitPoints(wearable.Nrg, wearable.Rarity, TraitType.NRG);
+            case TraitType.AGG:
+                return GetDroptStatForWearableByTraitPoints(wearable.Agg, wearable.Rarity, TraitType.AGG);
+            case TraitType.SPK:
+                return GetDroptStatForWearableByTraitPoints(wearable.Spk, wearable.Rarity, TraitType.SPK);
+            case TraitType.BRN:
+                return GetDroptStatForWearableByTraitPoints(wearable.Brn, wearable.Rarity, TraitType.BRN);
+            default: break;
+        }
+
+        return 0;
+    }
+
+    public static float GetDroptStatForWearableByTraitPoints(int traitPoints, Wearable.RarityEnum rarityEnum, TraitType traitType)
+    {
+        traitPoints = math.abs(traitPoints);
+
+        switch (rarityEnum)
+        {
+            case Wearable.RarityEnum.Common:
+                switch (traitType)
+                {
+                    case TraitType.NRG: return 25 * traitPoints;
+                    case TraitType.AGG: return 2.5f * traitPoints;
+                    case TraitType.SPK: return 0.02f * traitPoints;
+                    case TraitType.BRN: return 12.5f * traitPoints;
+                    default: break;
+                }
+                break;
+            case Wearable.RarityEnum.Uncommon:
+                switch (traitType)
+                {
+                    case TraitType.NRG: return 37.5f * traitPoints;
+                    case TraitType.AGG: return 3.75f * traitPoints;
+                    case TraitType.SPK: return 0.015f * traitPoints;
+                    case TraitType.BRN: return 18.75f * traitPoints;
+                    default: break;
+                }
+                break;
+            case Wearable.RarityEnum.Rare:
+                switch (traitType)
+                {
+                    case TraitType.NRG: return 50 * traitPoints;
+                    case TraitType.AGG: return 5f * traitPoints;
+                    case TraitType.SPK: return 0.017f * traitPoints;
+                    case TraitType.BRN: return 25f * traitPoints;
+                    default: break;
+                }
+                break;
+            case Wearable.RarityEnum.Legendary:
+                switch (traitType)
+                {
+                    case TraitType.NRG: return 56 * traitPoints;
+                    case TraitType.AGG: return 5.5f * traitPoints;
+                    case TraitType.SPK: return 0.018f * traitPoints;
+                    case TraitType.BRN: return 28f * traitPoints;
+                    default: break;
+                }
+                break;
+            case Wearable.RarityEnum.Mythical:
+                switch (traitType)
+                {
+                    case TraitType.NRG: return 60 * traitPoints;
+                    case TraitType.AGG: return 6f * traitPoints;
+                    case TraitType.SPK: return 0.02f * traitPoints;
+                    case TraitType.BRN: return 30f * traitPoints;
+                    default: break;
+                }
+                break;
+            case Wearable.RarityEnum.Godlike:
+                switch (traitType)
+                {
+                    case TraitType.NRG: return 70 * traitPoints;
+                    case TraitType.AGG: return 6.67f * traitPoints;
+                    case TraitType.SPK: return 0.023f * traitPoints;
+                    case TraitType.BRN: return 35f * traitPoints;
+                    default: break;
+                }
+                break;
+            default: break;
+        }
+
+
+        return 0;
+    }
+
 }
 
 [System.Serializable]
