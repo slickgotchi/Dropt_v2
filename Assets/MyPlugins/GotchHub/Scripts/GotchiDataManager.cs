@@ -43,6 +43,9 @@ namespace GotchiHub
         public event Action<int> onSelectedGotchi;
         public event Action onFetchGotchiDataSuccess;
 
+        public enum DroptStat { Hp, AttackPower, CriticalChance, Ap, DoubleStrikeChance, CriticalDamage }
+        public enum StatBreakdown { Total, Gotchi, Equipment }
+
         private void Awake()
         {
             Instance = this;

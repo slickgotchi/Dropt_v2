@@ -15,7 +15,7 @@ namespace GotchiHub
         public GameObject gotchiSelectCard;
 
         [Header("Child Object References")]
-        //public GameObject gotchiList;
+        public GameObject gotchiList;
         //public SVGImage AvatarSvgImage;
         //public GotchiStatsCard GotchiStatsCard;
 
@@ -76,7 +76,7 @@ namespace GotchiHub
             HideAllMenus();
 
             // Clear out gotchi list children
-            //ClearGotchiListChildren();
+            ClearGotchiListChildren();
 
             // sign up to onFetchData success function
             m_gotchiDataManager.onFetchGotchiDataSuccess += HandleOnFetchGotchiDataSuccess;
@@ -105,6 +105,10 @@ namespace GotchiHub
             m_gotchiDataManager.onFetchGotchiDataSuccess -= HandleOnFetchGotchiDataSuccess;
         }
 
+        public override void OnShowCanvas()
+        {
+            UpdateGotchiList();
+        }
 
         void HandleOnClick_VisitAavegotchiButton()
         {
@@ -114,7 +118,7 @@ namespace GotchiHub
 
         void HandleOnFetchGotchiDataSuccess()
         {
-            //UpdateGotchiList();
+            UpdateGotchiList();
         }
 
         private float k_updateInterval = 0.3f;
@@ -185,88 +189,108 @@ namespace GotchiHub
             GotchiSelect_NotConnected.SetActive(false);
         }
 
-        /*
 
-        private void InitAvatarById(int id)
-        {
-            var gotchiSvg = m_gotchiDataManager.GetGotchiSvgsById(id);
-            if (gotchiSvg == null) return;
 
-            AvatarSvgImage.sprite =
-                CustomSvgLoader.CreateSvgSprite(m_gotchiDataManager.stylingUI.CustomizeSVG(gotchiSvg.Front), Vector2.zero);
-            AvatarSvgImage.material = m_gotchiDataManager.Material_Unlit_VectorGradientUI;
+        //private void InitAvatarById(int id)
+        //{
+        //    var gotchiSvg = m_gotchiDataManager.GetGotchiSvgsById(id);
+        //    if (gotchiSvg == null) return;
 
-            GotchiStatsCard.UpdateStatsCard();
-        }
+        //    AvatarSvgImage.sprite =
+        //        CustomSvgLoader.CreateSvgSprite(m_gotchiDataManager.stylingUI.CustomizeSVG(gotchiSvg.Front), Vector2.zero);
+        //    AvatarSvgImage.material = m_gotchiDataManager.Material_Unlit_VectorGradientUI;
 
-        public void HighlightById(int id)
-        {
-            var gotchiData = m_gotchiDataManager.GetGotchiDataById(id);
-            if (gotchiData == null) return;
+        //    GotchiStatsCard.UpdateStatsCard();
+        //}
 
-            // Deselect all selections except our chosen
-            for (int i = 0; i < gotchiList.transform.childCount; i++)
-            {
-                var listItem = gotchiList.transform.GetChild(i).GetComponent<GotchiSelectListItem>();
-                listItem.SetSelected(listItem.Id == id);
-            }
+        //public void HighlightById(int id)
+        //{
+        //    var gotchiData = m_gotchiDataManager.GetGotchiDataById(id);
+        //    if (gotchiData == null) return;
 
-            // Set our avatar
-            InitAvatarById(id);
-        }
+        //    // Deselect all selections except our chosen
+        //    for (int i = 0; i < gotchiList.transform.childCount; i++)
+        //    {
+        //        var listItem = gotchiList.transform.GetChild(i).GetComponent<GotchiSelectListItem>();
+        //        listItem.SetSelected(listItem.Id == id);
+        //    }
+
+        //    // Set our avatar
+        //    InitAvatarById(id);
+        //}
 
         public void UpdateGotchiList()
         {
-            // Clear out existing children
+            // 1. clear existing GotchiSelectCard's
             ClearGotchiListChildren();
 
-            // Create new instance of gotchi list item and set parent to gotchi list
+            // 2. add offchain gotchis as cards
+            foreach (var offchainGotchi in GotchiDataManager.Instance.offchainGotchiData)
+            {
+                var newGotchiSelectCard = Instantiate(gotchiSelectCard).GetComponent<GotchiSelectCard>();
+                if (newGotchiSelectCard != null)
+                {
+                    newGotchiSelectCard.transform.SetParent(gotchiList.transform, false);
+                    newGotchiSelectCard.InitById(offchainGotchi.id);
+                }
+            }
+
+            // 3. reate new instance of gotchi list item and set parent to gotchi list
             var gotchiSvgs = m_gotchiDataManager.localGotchiSvgSets;
             var gotchiData = m_gotchiDataManager.localGotchiData;
             for (int i = 0; i < gotchiSvgs.Count; i++)
             {
-                var newListItem = Instantiate(gotchiSelectCard);
-                newListItem.transform.SetParent(gotchiList.transform, false);
-
-                var listItem = newListItem.GetComponent<GotchiSelectListItem>();
-                listItem.InitById(gotchiData[i].id);
+                var newGotchiSelectCard = Instantiate(gotchiSelectCard).GetComponent<GotchiSelectCard>();
+                if (newGotchiSelectCard != null)
+                {
+                    newGotchiSelectCard.transform.SetParent(gotchiList.transform, false);
+                    newGotchiSelectCard.InitById(gotchiData[i].id);
+                }
             }
 
             // Organize list by BRS
             ReorganizeList(ReorganizeMethod.BRSHighToLow); // Example usage, you can change the method as needed
-            HighlightById(m_gotchiDataManager.GetSelectedGotchiId());
+            //HighlightById(m_gotchiDataManager.GetSelectedGotchiId());
 
         }
 
         void ClearGotchiListChildren()
         {
-            // Create a list of children to destroy
-            List<GameObject> children = new List<GameObject>();
-            for (int i = 0; i < gotchiList.transform.childCount; i++)
+            foreach (Transform child in gotchiList.transform)
             {
-                children.Add(gotchiList.transform.GetChild(i).gameObject);
+                Destroy(child.gameObject);
             }
-
-            // Destroy all children
-            foreach (var child in children)
-            {
-                Destroy(child);
-            }
-
-            children.Clear();
         }
+
+        //void ClearGotchiListChildren()
+        //{
+        //    // Create a list of children to destroy
+        //    List<GameObject> children = new List<GameObject>();
+        //    for (int i = 0; i < gotchiList.transform.childCount; i++)
+        //    {
+        //        children.Add(gotchiList.transform.GetChild(i).gameObject);
+        //    }
+
+        //    // Destroy all children
+        //    foreach (var child in children)
+        //    {
+        //        Destroy(child);
+        //    }
+
+        //    children.Clear();
+        //}
 
         public void ReorganizeList(ReorganizeMethod method)
         {
-            List<GotchiSelectListItem> gotchiListItems = new List<GotchiSelectListItem>();
+            List<GotchiSelectCard> gotchiSelectCards = new List<GotchiSelectCard>();
 
             // Get all GotchiSelect_ListItem components under the parent
             foreach (Transform child in gotchiList.transform)
             {
-                GotchiSelectListItem listItem = child.GetComponent<GotchiSelectListItem>();
-                if (listItem != null)
+                GotchiSelectCard gotchiSelectCard = child.GetComponent<GotchiSelectCard>();
+                if (gotchiSelectCard != null)
                 {
-                    gotchiListItems.Add(listItem);
+                    gotchiSelectCards.Add(gotchiSelectCard);
                 }
             }
 
@@ -274,28 +298,25 @@ namespace GotchiHub
             switch (method)
             {
                 case ReorganizeMethod.BRSLowToHigh:
-                    gotchiListItems.Sort((item1, item2) => item1.BRS.CompareTo(item2.BRS));
+                    gotchiSelectCards.Sort((item1, item2) => item1.BRS.CompareTo(item2.BRS));
                     break;
                 case ReorganizeMethod.BRSHighToLow:
-                    gotchiListItems.Sort((item1, item2) => item2.BRS.CompareTo(item1.BRS));
+                    gotchiSelectCards.Sort((item1, item2) => item2.BRS.CompareTo(item1.BRS));
                     break;
                 case ReorganizeMethod.IdLowToHigh:
-                    gotchiListItems.Sort((item1, item2) => item1.Id.CompareTo(item2.Id));
+                    gotchiSelectCards.Sort((item1, item2) => item1.Id.CompareTo(item2.Id));
                     break;
                 case ReorganizeMethod.IdHighToLow:
-                    gotchiListItems.Sort((item1, item2) => item2.Id.CompareTo(item1.Id));
+                    gotchiSelectCards.Sort((item1, item2) => item2.Id.CompareTo(item1.Id));
                     break;
             }
 
             // Reorder the child transforms based on the sorted list
-            for (int i = 0; i < gotchiListItems.Count; i++)
+            for (int i = 0; i < gotchiSelectCards.Count; i++)
             {
-                gotchiListItems[i].transform.SetSiblingIndex(i);
+                gotchiSelectCards[i].transform.SetSiblingIndex(i);
             }
 
         }
-
-
-        */
     }
 }
