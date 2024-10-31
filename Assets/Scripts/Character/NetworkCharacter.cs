@@ -56,6 +56,7 @@ public class NetworkCharacter : NetworkBehaviour
     [HideInInspector] public NetworkVariable<float> KnockbackMultiplier = new NetworkVariable<float>(0);
     [HideInInspector] public NetworkVariable<float> StunMultiplier = new NetworkVariable<float>(0);
 
+
     public AudioClip OnHurtAudio;
 
     public override void OnNetworkSpawn()

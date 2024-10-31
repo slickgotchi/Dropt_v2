@@ -90,12 +90,12 @@ public class PlayerCharacter : NetworkCharacter
     private void InitGotchiStatsServerRpc(short[] numericTraits)
     {
         // update character stats
-        var hp = DroptStatCalculator.GetPrimaryGameStat(numericTraits[0], TraitType.NRG);
-        var attack = DroptStatCalculator.GetPrimaryGameStat(numericTraits[1], TraitType.AGG);
-        var critChance = DroptStatCalculator.GetPrimaryGameStat(numericTraits[2], TraitType.SPK);
-        var ap = DroptStatCalculator.GetPrimaryGameStat(numericTraits[3], TraitType.BRN);
-        var doubleStrikeChance = DroptStatCalculator.GetPrimaryGameStat(numericTraits[4], TraitType.EYS);
-        var critDamage = DroptStatCalculator.GetPrimaryGameStat(numericTraits[5], TraitType.EYC);
+        var hp = DroptStatCalculator.GetDroptStatForGotchiByTraitPoints(numericTraits[0], TraitType.NRG);
+        var attack = DroptStatCalculator.GetDroptStatForGotchiByTraitPoints(numericTraits[1], TraitType.AGG);
+        var critChance = DroptStatCalculator.GetDroptStatForGotchiByTraitPoints(numericTraits[2], TraitType.SPK);
+        var ap = DroptStatCalculator.GetDroptStatForGotchiByTraitPoints(numericTraits[3], TraitType.BRN);
+        var doubleStrikeChance = DroptStatCalculator.GetDroptStatForGotchiByTraitPoints(numericTraits[4], TraitType.EYS);
+        var critDamage = DroptStatCalculator.GetDroptStatForGotchiByTraitPoints(numericTraits[5], TraitType.EYC);
 
         baseHpMax = hp;
         baseHpCurrent = hp;
@@ -235,10 +235,10 @@ public class PlayerCharacter : NetworkCharacter
             buffObject.buffs = new List<Buff>();
         }
 
-        var hp = GetWearableStat(wearable.Nrg, wearable.Rarity, TraitType.NRG);
-        var atk = GetWearableStat(wearable.Agg, wearable.Rarity, TraitType.AGG);
-        var crit = GetWearableStat(wearable.Spk, wearable.Rarity, TraitType.SPK);
-        var ap = GetWearableStat(wearable.Brn, wearable.Rarity, TraitType.BRN);
+        var hp = DroptStatCalculator.GetDroptStatForWearableByTraitPoints(wearable.Nrg, wearable.Rarity, TraitType.NRG);
+        var atk = DroptStatCalculator.GetDroptStatForWearableByTraitPoints(wearable.Agg, wearable.Rarity, TraitType.AGG);
+        var crit = DroptStatCalculator.GetDroptStatForWearableByTraitPoints(wearable.Spk, wearable.Rarity, TraitType.SPK);
+        var ap = DroptStatCalculator.GetDroptStatForWearableByTraitPoints(wearable.Brn, wearable.Rarity, TraitType.BRN);
 
         //Debug.Log("Create buff from wearable: " + wearable.Name + ", hp + " + hp + ", atk + " + atk + ", crit + " + crit + ", ap + " + ap);
 
@@ -278,76 +278,5 @@ public class PlayerCharacter : NetworkCharacter
         return buffObject;
     }
 
-    float GetWearableStat(int traitPoints, Wearable.RarityEnum rarityEnum, TraitType traitType)
-    {
-        traitPoints = math.abs(traitPoints);
-
-        switch (rarityEnum)
-        {
-            case Wearable.RarityEnum.Common: 
-                switch (traitType)
-                {
-                    case TraitType.NRG: return 25 * traitPoints;
-                    case TraitType.AGG: return 2.5f * traitPoints;
-                    case TraitType.SPK: return 0.02f * traitPoints;
-                    case TraitType.BRN: return 12.5f * traitPoints;
-                    default: break;
-                }
-                break;
-            case Wearable.RarityEnum.Uncommon:
-                switch (traitType)
-                {
-                    case TraitType.NRG: return 37.5f * traitPoints;
-                    case TraitType.AGG: return 3.75f * traitPoints;
-                    case TraitType.SPK: return 0.015f * traitPoints;
-                    case TraitType.BRN: return 18.75f * traitPoints;
-                    default: break;
-                }
-                break;
-            case Wearable.RarityEnum.Rare:
-                switch (traitType)
-                {
-                    case TraitType.NRG: return 50 * traitPoints;
-                    case TraitType.AGG: return 5f * traitPoints;
-                    case TraitType.SPK: return 0.017f * traitPoints;
-                    case TraitType.BRN: return 25f * traitPoints;
-                    default: break;
-                }
-                break;
-            case Wearable.RarityEnum.Legendary:
-                switch (traitType)
-                {
-                    case TraitType.NRG: return 56 * traitPoints;
-                    case TraitType.AGG: return 5.5f * traitPoints;
-                    case TraitType.SPK: return 0.018f * traitPoints;
-                    case TraitType.BRN: return 28f * traitPoints;
-                    default: break;
-                }
-                break;
-            case Wearable.RarityEnum.Mythical:
-                switch (traitType)
-                {
-                    case TraitType.NRG: return 60 * traitPoints;
-                    case TraitType.AGG: return 6f * traitPoints;
-                    case TraitType.SPK: return 0.02f * traitPoints;
-                    case TraitType.BRN: return 30f * traitPoints;
-                    default: break;
-                }
-                break;
-            case Wearable.RarityEnum.Godlike:
-                switch (traitType)
-                {
-                    case TraitType.NRG: return 70 * traitPoints;
-                    case TraitType.AGG: return 6.67f * traitPoints;
-                    case TraitType.SPK: return 0.023f * traitPoints;
-                    case TraitType.BRN: return 35f * traitPoints;
-                    default: break;
-                }
-                break;
-            default: break;
-        }
-
-
-        return 0;
-    }
+    
 }
