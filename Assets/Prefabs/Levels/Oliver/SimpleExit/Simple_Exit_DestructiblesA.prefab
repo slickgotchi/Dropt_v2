@@ -63,7 +63,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1669506998
+  GlobalObjectIdHash: 4234858653
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -187,6 +187,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 294776227779223792, guid: 53367b53dc7c54ba39f6ba8298dc4cce, type: 3}
+    - {fileID: 3946420371096035175, guid: 53367b53dc7c54ba39f6ba8298dc4cce, type: 3}
     m_RemovedGameObjects:
     - {fileID: 2245420641901633560, guid: 53367b53dc7c54ba39f6ba8298dc4cce, type: 3}
     m_AddedGameObjects:
@@ -283,11 +284,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc2d1349f2b5d4172a38f28982df173d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SpawnOnDestroyPrefab: {fileID: 1249991746567512264, guid: 970b46789a867e74ebfdba09e3228b83, type: 3}
+  SpawnOnDestroyPrefab: {fileID: 1249991746567512264, guid: 9250a285bcfa44e378c492d6b60e9be8, type: 3}
   Offset: {x: 0, y: 0, z: 0}
   SpawnChance: 0.15
   MinNumberSpawns: 1
-  MaxNumberSpawns: 1
+  MaxNumberSpawns: 2
 --- !u!1001 &218574098944202711
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1669,13 +1670,38 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 7100864601673292601, guid: bdc66fba857ab451e88e1a466fa898e0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 259259253280586222}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6128675704014357241, guid: bdc66fba857ab451e88e1a466fa898e0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8864621907884838816}
   m_SourcePrefab: {fileID: 100100000, guid: bdc66fba857ab451e88e1a466fa898e0, type: 3}
 --- !u!4 &4957706143581554135 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7100864601673292601, guid: bdc66fba857ab451e88e1a466fa898e0, type: 3}
   m_PrefabInstance: {fileID: 2757920150342770414}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &8307865703609097239 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6128675704014357241, guid: bdc66fba857ab451e88e1a466fa898e0, type: 3}
+  m_PrefabInstance: {fileID: 2757920150342770414}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &8864621907884838816
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8307865703609097239}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc2d1349f2b5d4172a38f28982df173d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SpawnOnDestroyPrefab: {fileID: 1249991746567512264, guid: 9250a285bcfa44e378c492d6b60e9be8, type: 3}
+  Offset: {x: 0, y: 0, z: 0}
+  SpawnChance: 0.1
+  MinNumberSpawns: 1
+  MaxNumberSpawns: 1
 --- !u!1001 &2796801868455257430
 PrefabInstance:
   m_ObjectHideFlags: 0
