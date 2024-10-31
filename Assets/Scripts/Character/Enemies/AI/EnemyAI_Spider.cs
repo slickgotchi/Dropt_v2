@@ -112,8 +112,7 @@ namespace Dropt
 
         public override void OnCooldownUpdate(float dt)
         {
-            SimplePursueUpdate(dt);
-
+            SimpleCooldownUpdate(dt);
         }
 
 

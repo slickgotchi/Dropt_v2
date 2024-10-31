@@ -63,8 +63,7 @@ namespace Dropt
         public override void OnAttackStart()
         {
             SimpleAttackStart();
-            GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection,
-                                                                   AttackDuration);
+            GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, 0.1f);
             if (IsServer)
             {
                 Utils.Anim.Play(m_animator, "GeodeShade_Attack");
@@ -81,7 +80,7 @@ namespace Dropt
 
         public override void OnCooldownUpdate(float dt)
         {
-            SimplePursueUpdate(dt);
+            SimpleCooldownUpdate(dt);
         }
     }
 }

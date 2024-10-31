@@ -23,6 +23,7 @@ namespace Dropt
                 m_navMeshAgent.isStopped = true;
                 Utils.Anim.PlayAnimationWithDuration(m_animator, "LeafShade_Anticipation", TelegraphDuration);
             }
+            GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, 0.1f);
         }
 
         public override void OnRoamStart()
@@ -60,7 +61,7 @@ namespace Dropt
                 Utils.Anim.Play(m_animator, "LeafShade_Attack");
             }
             SimpleAttackStart();
-            GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, AttackDuration);
+            GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, 0.1f);
         }
 
         public override void OnCooldownStart()
@@ -73,7 +74,7 @@ namespace Dropt
 
         public override void OnCooldownUpdate(float dt)
         {
-            SimplePursueUpdate(dt);
+            SimpleCooldownUpdate(dt);
         }
     }
 }

@@ -57,6 +57,7 @@ public class NetworkCharacter : NetworkBehaviour
     [HideInInspector] public NetworkVariable<float> EnemyShield = new NetworkVariable<float>(0);
     [HideInInspector] public NetworkVariable<float> MaxEnemyShield = new NetworkVariable<float>(0);
 
+
     public AudioClip OnHurtAudio;
 
     public override void OnNetworkSpawn()
