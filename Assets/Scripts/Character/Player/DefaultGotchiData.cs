@@ -13,7 +13,7 @@ namespace PortalDefender.AavegotchiKit
 
         [Header("Gotchi Traits")]
         public short[] numericTraits = new short[6];
-        public ushort[] equippedWearables = new ushort[8];
+        public ushort[] equippedWearables = new ushort[8]; // 0 = body, 1 = face, 2 = eyes, 3 = head, 4 = r hand, 5 = l hand, 6 = pet
         public int level = 1;
         public int kinship = 0;
         public int status = 0; // 0 == portal, 1 == VRF_PENDING, 2 == open portal, 3 == Aavegotchi

@@ -24,6 +24,7 @@ public class DroptCanvas : MonoBehaviour
     {
         m_container.SetActive(true);
         m_canvasGroup.blocksRaycasts = true;
+        PlayerInputMapSwitcher.Instance.SwitchToInUI();
         OnShowCanvas();
     }
 
@@ -32,6 +33,7 @@ public class DroptCanvas : MonoBehaviour
         OnHideCanvas();
         m_container.SetActive(false);
         m_canvasGroup.blocksRaycasts = false;
+        PlayerInputMapSwitcher.Instance.SwitchToInGame();
     }
 
     public bool IsActive()

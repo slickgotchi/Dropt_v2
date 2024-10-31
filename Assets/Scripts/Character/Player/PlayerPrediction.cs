@@ -475,11 +475,11 @@ public partial class PlayerPrediction : NetworkBehaviour
             // 9. tell client the last state we have as a server
             SendToClientRpc(statePayload);
 
-            // 10. resest player inactive state (if we moved or ability triggered)
-            if (triggeredAbility != null || inputPayload.moveDirection.magnitude > 0.01)
-            {
-                m_playerController.ResetInactiveTimer();
-            }
+            //// 10. resest player inactive state (if we moved or ability triggered)
+            //if (triggeredAbility != null || inputPayload.moveDirection.magnitude > 0.01)
+            //{
+            //    m_playerController.ResetInactiveTimer();
+            //}
         }
 
         // reset state of setting player position

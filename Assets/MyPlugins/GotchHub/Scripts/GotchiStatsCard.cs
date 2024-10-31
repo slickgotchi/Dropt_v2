@@ -26,12 +26,12 @@ namespace GotchiHub
             int kinship = gotchiData.kinship;
             int level = gotchiData.level;
 
-            float hp = DroptStatCalculator.GetPrimaryGameStat(gotchiData.numericTraits[0], TraitType.NRG);
-            float attack = DroptStatCalculator.GetPrimaryGameStat(gotchiData.numericTraits[1], TraitType.AGG);
-            float critical = DroptStatCalculator.GetPrimaryGameStat(gotchiData.numericTraits[2], TraitType.SPK);
-            float ap = DroptStatCalculator.GetPrimaryGameStat(gotchiData.numericTraits[3], TraitType.BRN);
-            float doubleStrike = DroptStatCalculator.GetPrimaryGameStat(gotchiData.numericTraits[4], TraitType.EYS);
-            float critDamage = DroptStatCalculator.GetPrimaryGameStat(gotchiData.numericTraits[5], TraitType.EYC);
+            float hp = DroptStatCalculator.GetDroptStatForGotchiByTraitPoints(gotchiData.numericTraits[0], TraitType.NRG);
+            float attack = DroptStatCalculator.GetDroptStatForGotchiByTraitPoints(gotchiData.numericTraits[1], TraitType.AGG);
+            float critical = DroptStatCalculator.GetDroptStatForGotchiByTraitPoints(gotchiData.numericTraits[2], TraitType.SPK);
+            float ap = DroptStatCalculator.GetDroptStatForGotchiByTraitPoints(gotchiData.numericTraits[3], TraitType.BRN);
+            float doubleStrike = DroptStatCalculator.GetDroptStatForGotchiByTraitPoints(gotchiData.numericTraits[4], TraitType.EYS);
+            float critDamage = DroptStatCalculator.GetDroptStatForGotchiByTraitPoints(gotchiData.numericTraits[5], TraitType.EYC);
 
             /*
             // iterate over wearables
