@@ -157,6 +157,9 @@ public class PlayerController : NetworkBehaviour
             }
 
             HandleNextLevelCheat();
+
+            // check for player input to ensure we stay active
+            CheckForPlayerInput();
         }
 
         // Handle level spawning on the server
@@ -361,6 +364,45 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
+    private bool m_isActiveInput = false;
+    private float m_isActiveInputTimer = 0f;
+
+    void CheckForPlayerInput()
+    {
+        m_isActiveInputTimer -= Time.deltaTime;
+
+        // Check for any key or mouse button
+        if (Input.anyKey)
+        {
+            m_isActiveInput = true;
+        }
+
+        // Check for any mouse movement
+        if (Input.GetAxis("Mouse X") != 0 || Input.GetAxis("Mouse Y") != 0)
+        {
+            m_isActiveInput = true;
+        }
+
+        // Check for mouse scroll wheel movement
+        if (Input.GetAxis("Mouse ScrollWheel") != 0)
+        {
+            m_isActiveInput = true;
+        }
+
+        // Check for any touch input (mobile devices)
+        if (Input.touchCount > 0)
+        {
+            m_isActiveInput = true;
+        }
+
+        if (m_isActiveInput && m_isActiveInputTimer < 0)
+        {
+            m_isActiveInput = false;
+            m_isActiveInputTimer = 10;
+            ResetInactiveTimerServerRpc();
+        }
+    }
+
     // need this so that a player that is not playing gets booted off the server
     void HandleInactivePlayer()
     {
@@ -375,7 +417,8 @@ public class PlayerController : NetworkBehaviour
     }
 
     // this gets called by the server side of PlayerPrediction
-    public void ResetInactiveTimer()
+    [Rpc(SendTo.Server)]
+    public void ResetInactiveTimerServerRpc()
     {
         if (!IsServer) return;
 
