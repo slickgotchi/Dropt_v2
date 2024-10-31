@@ -78,7 +78,7 @@ public class GotchiSelectCard : MonoBehaviour
     {
         Debug.Log("Clicked ID: " + Id);
         GotchiDataManager.Instance.SetSelectedGotchiById(Id);
-        GotchiSelectCanvas.Instance.HighlightById(Id);
+        GotchiSelectCanvas.Instance.SelectById(Id);
     }
 
     public void SetSelected(bool isSelected)
