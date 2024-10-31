@@ -89,7 +89,7 @@ namespace Dropt
             {
                 Utils.Anim.PlayAnimationWithDuration(m_animator, "Snail_Roam", TelegraphDuration);
             }
-            SimplePursueUpdate(dt);
+            SimpleCooldownUpdate(dt);
         }
 
         //public override void OnKnockback(Vector3 direction, float distance, float duration)
