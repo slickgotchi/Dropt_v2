@@ -85,6 +85,51 @@ namespace GotchiHub
         public SVGImage RH_OnchainSVGImage;
         public Outline RH_Outline;
 
+        [Header("Wearable - Body")]
+        public TextMeshProUGUI Body_NameText;
+        public TextMeshProUGUI Body_HpText;
+        public TextMeshProUGUI Body_AtkText;
+        public TextMeshProUGUI Body_CritText;
+        public TextMeshProUGUI Body_ApText;
+        public SVGImage Body_OnchainSVGImage;
+        public Outline Body_Outline;
+
+        [Header("Wearable - Face")]
+        public TextMeshProUGUI Face_NameText;
+        public TextMeshProUGUI Face_HpText;
+        public TextMeshProUGUI Face_AtkText;
+        public TextMeshProUGUI Face_CritText;
+        public TextMeshProUGUI Face_ApText;
+        public SVGImage Face_OnchainSVGImage;
+        public Outline Face_Outline;
+
+        [Header("Wearable - Eyes")]
+        public TextMeshProUGUI Eyes_NameText;
+        public TextMeshProUGUI Eyes_HpText;
+        public TextMeshProUGUI Eyes_AtkText;
+        public TextMeshProUGUI Eyes_CritText;
+        public TextMeshProUGUI Eyes_ApText;
+        public SVGImage Eyes_OnchainSVGImage;
+        public Outline Eyes_Outline;
+
+        [Header("Wearable - Head")]
+        public TextMeshProUGUI Head_NameText;
+        public TextMeshProUGUI Head_HpText;
+        public TextMeshProUGUI Head_AtkText;
+        public TextMeshProUGUI Head_CritText;
+        public TextMeshProUGUI Head_ApText;
+        public SVGImage Head_OnchainSVGImage;
+        public Outline Head_Outline;
+
+        [Header("Wearable - Pet")]
+        public TextMeshProUGUI Pet_NameText;
+        public TextMeshProUGUI Pet_HpText;
+        public TextMeshProUGUI Pet_AtkText;
+        public TextMeshProUGUI Pet_CritText;
+        public TextMeshProUGUI Pet_ApText;
+        public SVGImage Pet_OnchainSVGImage;
+        public Outline Pet_Outline;
+
 
         // private variables
         private GotchiDataManager m_gotchiDataManager;
@@ -165,6 +210,7 @@ namespace GotchiHub
         public override void OnShowCanvas()
         {
             UpdateGotchiList();
+            SelectById(GotchiDataManager.Instance.GetSelectedGotchiId());
         }
 
         void HandleOnClick_VisitAavegotchiButton()
@@ -260,21 +306,21 @@ namespace GotchiHub
             AtkGotchiText.text = DroptStatCalculator.GetDroptStatForGotchiByGotchiId(id, TraitType.AGG).ToString("F0");
             AtkGearText.text = DroptStatCalculator.GetDroptStatForAllWearablesByGotchiId(id, TraitType.AGG).ToString("F0");
 
-            CritChanceTotalText.text = (DroptStatCalculator.GetDroptStatForGotchiAndAllWearablesByGotchiId(id, TraitType.SPK)*100).ToString("F0");
-            CritChanceGotchiText.text = (DroptStatCalculator.GetDroptStatForGotchiByGotchiId(id, TraitType.SPK)*100).ToString("F0");
-            CritChanceGearText.text = (DroptStatCalculator.GetDroptStatForAllWearablesByGotchiId(id, TraitType.SPK)*100).ToString("F0");
+            CritChanceTotalText.text = (DroptStatCalculator.GetDroptStatForGotchiAndAllWearablesByGotchiId(id, TraitType.SPK)*100).ToString("F1");
+            CritChanceGotchiText.text = (DroptStatCalculator.GetDroptStatForGotchiByGotchiId(id, TraitType.SPK)*100).ToString("F1");
+            CritChanceGearText.text = (DroptStatCalculator.GetDroptStatForAllWearablesByGotchiId(id, TraitType.SPK)*100).ToString("F1");
 
             ApTotalText.text = DroptStatCalculator.GetDroptStatForGotchiAndAllWearablesByGotchiId(id, TraitType.BRN).ToString("F0");
             ApGotchiText.text = DroptStatCalculator.GetDroptStatForGotchiByGotchiId(id, TraitType.BRN).ToString("F0");
             ApGearText.text = DroptStatCalculator.GetDroptStatForAllWearablesByGotchiId(id, TraitType.BRN).ToString("F0");
 
-            DblStrikeTotalText.text = (DroptStatCalculator.GetDroptStatForGotchiAndAllWearablesByGotchiId(id, TraitType.EYS)*100).ToString("F0");
-            DblStrikeGotchiText.text = (DroptStatCalculator.GetDroptStatForGotchiByGotchiId(id, TraitType.EYS)*100).ToString("F0");
-            DblStrikeGearText.text = (DroptStatCalculator.GetDroptStatForAllWearablesByGotchiId(id, TraitType.EYS)*100).ToString("F0");
+            DblStrikeTotalText.text = (DroptStatCalculator.GetDroptStatForGotchiAndAllWearablesByGotchiId(id, TraitType.EYS)*100).ToString("F1");
+            DblStrikeGotchiText.text = (DroptStatCalculator.GetDroptStatForGotchiByGotchiId(id, TraitType.EYS)*100).ToString("F1");
+            DblStrikeGearText.text = (DroptStatCalculator.GetDroptStatForAllWearablesByGotchiId(id, TraitType.EYS)*100).ToString("F1");
 
-            CritDamageTotalText.text = DroptStatCalculator.GetDroptStatForGotchiAndAllWearablesByGotchiId(id, TraitType.EYC).ToString("F2");
-            CritDamageGotchiText.text = DroptStatCalculator.GetDroptStatForGotchiByGotchiId(id, TraitType.EYC).ToString("F2");
-            CritDamageGearText.text = DroptStatCalculator.GetDroptStatForAllWearablesByGotchiId(id, TraitType.EYC).ToString("F2");
+            CritDamageTotalText.text = DroptStatCalculator.GetDroptStatForGotchiAndAllWearablesByGotchiId(id, TraitType.EYC).ToString("F2") + "x";
+            CritDamageGotchiText.text = DroptStatCalculator.GetDroptStatForGotchiByGotchiId(id, TraitType.EYC).ToString("F2") + "x";
+            CritDamageGearText.text = DroptStatCalculator.GetDroptStatForAllWearablesByGotchiId(id, TraitType.EYC).ToString("F2") + "x";
 
             var gotchiData = m_gotchiDataManager.GetGotchiDataById(id);
             if (gotchiData != null)
@@ -293,7 +339,7 @@ namespace GotchiHub
             }
         }
 
-        public void HighlightById(int id)
+        public void SelectById(int id)
         {
             // Deselect all selections except our chosen
             for (int i = 0; i < gotchiList.transform.childCount; i++)
@@ -318,7 +364,7 @@ namespace GotchiHub
             {
                 OnchainSvgImage.sprite = CustomSvgLoader.CreateSvgSprite(GotchiDataManager.Instance.stylingUI.CustomizeSVG(gotchiSvg.Front), Vector2.zero);
                 OnchainSvgImage.material = GotchiDataManager.Instance.Material_Unlit_VectorGradientUI;
-                NameText.text = gotchiData.name + "(" + gotchiData.id + ")";
+                NameText.text = gotchiData.name + " (" + gotchiData.id + ")";
                 OffchainImage.enabled = false;
                 return;
             }
@@ -329,7 +375,7 @@ namespace GotchiHub
             {
                 OffchainImage.sprite = offchainGotchiData.spriteFront;
                 OffchainImage.material = GotchiDataManager.Instance.Material_Sprite_Unlit_Default;
-                NameText.text = offchainGotchiData.gotchiName + "(" + offchainGotchiData.id + ")";
+                NameText.text = offchainGotchiData.gotchiName + " (" + offchainGotchiData.id + ")";
                 OnchainSvgImage.enabled = false;
                 return;
             }
@@ -337,62 +383,58 @@ namespace GotchiHub
 
         private void InitGotchiWearablesById(int id)
         {
-            var lhId = 0;
+            // 0 = body, 1 = face, 2 = eyes, 3 = head, 4 = r hand, 5 = l hand, 6 = pet
+            var bodyId = 0;
+            var faceId = 0;
+            var eyesId = 0;
+            var headId = 0;
             var rhId = 0;
-
+            var lhId = 0;
+            var petId = 0;
 
 
             var gotchiData = GotchiDataManager.Instance.GetGotchiDataById(id);
             if (gotchiData != null)
             {
-                lhId = (int)gotchiData.equippedWearables[5];
+                bodyId = (int)gotchiData.equippedWearables[0];
+                faceId = (int)gotchiData.equippedWearables[1];
+                eyesId = (int)gotchiData.equippedWearables[2];
+                headId = (int)gotchiData.equippedWearables[3];
                 rhId = (int)gotchiData.equippedWearables[4];
+                lhId = (int)gotchiData.equippedWearables[5];
+                petId = (int)gotchiData.equippedWearables[6];
             }
 
             var offchainGotchiData = GotchiDataManager.Instance.GetOffchainGotchiDataById(id);
             if (offchainGotchiData != null)
             {
-                lhId = (int)offchainGotchiData.equippedWearables[5];
+                bodyId = (int)offchainGotchiData.equippedWearables[0];
+                faceId = (int)offchainGotchiData.equippedWearables[1];
+                eyesId = (int)offchainGotchiData.equippedWearables[2];
+                headId = (int)offchainGotchiData.equippedWearables[3];
                 rhId = (int)offchainGotchiData.equippedWearables[4];
+                lhId = (int)offchainGotchiData.equippedWearables[5];
+                petId = (int)offchainGotchiData.equippedWearables[6];
             }
 
             // set all wearable cards
-            SetWearableCard(lhId, id, LH_NameText, LH_SubtitleText, LH_HpText, LH_AtkText, LH_CritText, LH_ApText, LH_OnchainSVGImage, LH_Outline, true);
+            SetWearableCard(bodyId, id, Body_NameText, null, Body_HpText, Body_AtkText, Body_CritText, Body_ApText, Body_OnchainSVGImage, Body_Outline);
+            SetWearableCard(faceId, id, Face_NameText, null, Face_HpText, Face_AtkText, Face_CritText, Face_ApText, Face_OnchainSVGImage, Face_Outline);
+            SetWearableCard(eyesId, id, Eyes_NameText, null, Eyes_HpText, Eyes_AtkText, Eyes_CritText, Eyes_ApText, Eyes_OnchainSVGImage, Eyes_Outline);
+            SetWearableCard(headId, id, Head_NameText, null, Head_HpText, Head_AtkText, Head_CritText, Head_ApText, Head_OnchainSVGImage, Head_Outline);
             SetWearableCard(rhId, id, RH_NameText, RH_SubtitleText, RH_HpText, RH_AtkText, RH_CritText, RH_ApText, RH_OnchainSVGImage, RH_Outline, false);
-
-            // LEFT HAND
-            //var lhWearable = WearableManager.Instance.GetWearable(lhId);
-
-            //var hp = DroptStatCalculator.GetDroptStatByWearableId(lhId, TraitType.NRG);
-            //var atk = DroptStatCalculator.GetDroptStatByWearableId(lhId, TraitType.AGG);
-            //var crit = DroptStatCalculator.GetDroptStatByWearableId(lhId, TraitType.SPK);
-            //var ap = DroptStatCalculator.GetDroptStatByWearableId(lhId, TraitType.BRN);
-
-            //var damage = DroptStatCalculator.GetDroptStatForGotchiAndAllWearablesByGotchiId(id, TraitType.AGG) * lhWearable.RarityMultiplier * GetBaseAttackMultiplier(lhWearable.WeaponType);
-
-            //LH_NameText.text = lhWearable.Name;
-            //LH_SubtitleText.text = lhWearable.WeaponType.ToString() + " | " + "Left Hand" + " | " + damage.ToString("F0") + " Dmg";
-            //LH_HpText.text = "+" + hp.ToString("F0") + " Health";
-            //LH_AtkText.text = "+" + atk.ToString("F0") + " Attack";
-            //LH_CritText.text = "+" + (crit*100).ToString("F1") + " Critical %";
-            //LH_ApText.text = "+" + ap.ToString("F0") + " Ability Pts";
-            //LH_OffchainImage.sprite = WeaponSpriteManager.Instance.GetSprite(lhWearable.NameType, PlayerGotchi.Facing.Right);
-
-            //LH_HpText.color = hp <= 0.1f ? inactiveTextColor : activeTextColor;
-            //LH_AtkText.color = atk <= 0.1f ? inactiveTextColor : activeTextColor;
-            //LH_CritText.color = crit < 0.01f ? inactiveTextColor : activeTextColor;
-            //LH_ApText.color = ap < 0.1f ? inactiveTextColor : activeTextColor;
-
-            //// set border color
-            //LH_Outline.effectColor = lhWearable.RarityColor;
+            SetWearableCard(lhId, id, LH_NameText, LH_SubtitleText, LH_HpText, LH_AtkText, LH_CritText, LH_ApText, LH_OnchainSVGImage, LH_Outline, true);
+            SetWearableCard(petId, id, Pet_NameText, null, Pet_HpText, Pet_AtkText, Pet_CritText, Pet_ApText, Pet_OnchainSVGImage, Pet_Outline);
         }
 
         public void SetWearableCard(int wearableId, int gotchiId, TextMeshProUGUI nameText, TextMeshProUGUI subtitleText,
-            TextMeshProUGUI hpText, TextMeshProUGUI atkText, TextMeshProUGUI critText, TextMeshProUGUI apText, SVGImage onchainSvgImage, Outline outline, bool isLeftIfWeapon)
+            TextMeshProUGUI hpText, TextMeshProUGUI atkText, TextMeshProUGUI critText, TextMeshProUGUI apText, SVGImage onchainSvgImage, Outline outline, bool isLeftIfWeapon = true)
         {
+            if (wearableId == 0) return;
+
             // set some text colorisations
             var activeTextColor = Dropt.Utils.Color.HexToColor("#ffffff");
-            var inactiveTextColor = Dropt.Utils.Color.HexToColor("#b4b4b4");
+            var inactiveTextColor = Dropt.Utils.Color.HexToColor("#858585");
 
             // get wearable
             var wearable = WearableManager.Instance.GetWearable(wearableId);
@@ -411,7 +453,7 @@ namespace GotchiHub
             atkText.text = "+" + atk.ToString("F0") + " Attack";
             critText.text = "+" + (crit * 100).ToString("F1") + " Critical %";
             apText.text = "+" + ap.ToString("F0") + " Ability Pts";
-            //LH_OffchainImage.sprite = WeaponSpriteManager.Instance.GetSprite(lhWearable.NameType, PlayerGotchi.Facing.Right);
+            //onchainSvgImage.sprite = WeaponSpriteManager.Instance.GetSprite(lhWearable.NameType, PlayerGotchi.Facing.Right);
 
             hpText.color = hp <= 0.1f ? inactiveTextColor : activeTextColor;
             atkText.color = atk <= 0.1f ? inactiveTextColor : activeTextColor;
@@ -419,7 +461,7 @@ namespace GotchiHub
             apText.color = ap < 0.1f ? inactiveTextColor : activeTextColor;
 
             // set border color
-            LH_Outline.effectColor = wearable.RarityColor;
+            outline.effectColor = wearable.RarityColor;
         }
 
         public float GetBaseAttackMultiplier(Wearable.WeaponTypeEnum weaponType)
