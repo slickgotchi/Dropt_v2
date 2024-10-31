@@ -9,14 +9,5 @@ public class GotchiSelectPortal : Interactable
     {
         ThirdwebCanvas.Instance.ShowCanvas();
         GotchiSelectCanvas.Instance.ShowCanvas();
-        PlayerInputMapSwitcher.Instance.SwitchToInUI();
     }
-
-    //public override void OnPressCloseInteraction()
-    //{
-    //    Debug.Log("GotchiSelectPortal.OnPressCloseInteraction()");
-    //    ThirdwebCanvas.Instance.HideCanvas();
-    //    GotchiSelectCanvas.Instance.HideCanvas();
-    //    PlayerInputMapSwitcher.Instance.SwitchToInGame();
-    //}
 }

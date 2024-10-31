@@ -43,6 +43,9 @@ namespace GotchiHub
         public event Action<int> onSelectedGotchi;
         public event Action onFetchGotchiDataSuccess;
 
+        public enum DroptStat { Hp, AttackPower, CriticalChance, Ap, DoubleStrikeChance, CriticalDamage }
+        public enum StatBreakdown { Total, Gotchi, Equipment }
+
         private void Awake()
         {
             Instance = this;
@@ -72,6 +75,16 @@ namespace GotchiHub
                 {
                     m_selectedGotchiId = id;
                     onSelectedGotchi?.Invoke(m_selectedGotchiId); // Trigger event
+                    return true;
+                }
+            }
+
+            for (int i = 0; i < offchainGotchiData.Count; i++)
+            {
+                if (id == offchainGotchiData[i].id)
+                {
+                    m_selectedGotchiId = id;
+                    onSelectedGotchi?.Invoke(m_selectedGotchiId);
                     return true;
                 }
             }
