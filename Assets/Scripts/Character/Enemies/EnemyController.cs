@@ -94,12 +94,11 @@ public class EnemyController : NetworkBehaviour
         m_facingTimer = facingTimer;
         m_facingDirection = facingDirection;
         //SpriteToFlip.flipX = FacingDirection == Facing.Left ? true : false;
-        FlipEnemySprites();
+        SetEnemySpritesFlip();
     }
 
     public void HandleFacing()
     {
-        //if (SpriteToFlip == null) return;
         if (m_spritesToFlip.Count == 0) return;
 
         if (IsServer)
@@ -115,11 +114,11 @@ public class EnemyController : NetworkBehaviour
             if (m_facingTimer > 0f) return;
 
             m_facingDirection = m_agentVelocity.Value.x < 0 ? Facing.Left : Facing.Right;
-            FlipEnemySprites();
+            SetEnemySpritesFlip();
         }
     }
 
-    private void FlipEnemySprites()
+    private void SetEnemySpritesFlip()
     {
         foreach (SpriteRenderer spriteRenderer in m_spritesToFlip)
         {
