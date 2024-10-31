@@ -1,0 +1,144 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3574398527922744696
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2233975087753818482}
+  - component: {fileID: 8204016846899322613}
+  - component: {fileID: 1747359856502375452}
+  m_Layer: 0
+  m_Name: CodeInjector
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2233975087753818482
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3574398527922744696}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8204016846899322613
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3574398527922744696}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 1707499204
+  InScenePlacedSourceGlobalObjectIdHash: 2839656335
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+--- !u!114 &1747359856502375452
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3574398527922744696}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a21e4c199e684dbcb6b4dce6738aa56, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_enemyHp:
+    VariableType: 0
+    Inputs:
+    - Multiplier: 0.6
+      Value: 0
+    - Multiplier: 0.7
+      Value: 0.25
+    - Multiplier: 0.8
+      Value: 0.5
+    - Multiplier: 0.9
+      Value: 0.75
+    - Multiplier: 1
+      Value: 1
+    - Multiplier: 1.1
+      Value: 1.5
+    - Multiplier: 1.2
+      Value: 2
+    - Multiplier: 1.3
+      Value: 3
+    - Multiplier: 1.4
+      Value: 4
+    DefalutValue: 1
+  m_enemyDamage:
+    VariableType: 1
+    Inputs:
+    - Multiplier: 0.6
+      Value: 0
+    - Multiplier: 0.7
+      Value: 0.25
+    - Multiplier: 0.8
+      Value: 0.5
+    - Multiplier: 0.9
+      Value: 0.75
+    - Multiplier: 1
+      Value: 1
+    - Multiplier: 1.1
+      Value: 1.5
+    - Multiplier: 1.2
+      Value: 2
+    - Multiplier: 1.3
+      Value: 3
+    - Multiplier: 1.4
+      Value: 4
+    DefalutValue: 1
+  m_enemySpeed:
+    VariableType: 2
+    Inputs:
+    - Multiplier: 1
+      Value: 1
+    - Multiplier: 1.1
+      Value: 1.5
+    - Multiplier: 1.2
+      Value: 2
+    DefalutValue: 1
+  m_enemyShield:
+    VariableType: 3
+    Inputs:
+    - Multiplier: 1
+      Value: 0
+    - Multiplier: 1.1
+      Value: 1
+    - Multiplier: 1.2
+      Value: 2
+    DefalutValue: 0
+  m_essencePressure:
+    VariableType: 4
+    Inputs:
+    - Multiplier: 0.9
+      Value: 694.2
+    - Multiplier: 1
+      Value: 1
+    - Multiplier: 1.1
+      Value: 0.75
+    - Multiplier: 1.2
+      Value: 0.5
+    DefalutValue: 1
