@@ -33,6 +33,7 @@ public class TextEllipsisInMiddle : MonoBehaviour
 
     public void UpdateTextWithEllipsis()
     {
+        fullText = GetComponent<TMPro.TextMeshProUGUI>().text;
         if (fullText.Length > startCharacters + endCharacters)
         {
             // Show the first `startCharacters`, then "...", then the last `endCharacters`
