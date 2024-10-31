@@ -2,7 +2,6 @@ using Dropt;
 using Nethereum.RPC.Shh.KeyPair;
 using System.Collections;
 using System.Collections.Generic;
-using Audio.Game;
 using Unity.Mathematics;
 using Unity.Netcode;
 using UnityEditor.Rendering;
@@ -66,6 +65,9 @@ public class PlayerAbility : NetworkBehaviour
 
     [HideInInspector] public GameObject Player;
     [HideInInspector] public float SpecialCooldown;
+
+    [Header("Ability Activation Audio")]
+    public AudioClip audioOnActivate;
 
     public Vector3 PlayerAbilityCentreOffset = new Vector3(0, 0.5f, 0);
     protected bool IsActivated = false;
@@ -165,6 +167,21 @@ public class PlayerAbility : NetworkBehaviour
     public virtual void OnHoldStart() { }
     public virtual void OnHoldFinish() { }
 
+    private float m_cooldownExpiryTick = 0;
+
+    public bool IsCooldownFinished()
+    {
+        return m_cooldownExpiryTick < NetworkTimer_v2.Instance.TickCurrent;
+    }
+
+    public float GetCooldownRemaining()
+    {
+        var remainingTicks = m_cooldownExpiryTick - NetworkTimer_v2.Instance.TickCurrent;
+        if (remainingTicks <= 0) return 0;
+
+        return remainingTicks * NetworkTimer_v2.Instance.TickInterval;
+    }
+
     public bool Activate(GameObject playerObject, StatePayload state, InputPayload input, float holdDuration)
     {
         Player = playerObject;
@@ -181,6 +198,10 @@ public class PlayerAbility : NetworkBehaviour
         m_teleportLagTimer = 1 / playerObject.GetComponent<PlayerPrediction>().GetServerTickRate() * 2;
         m_isOnTeleportStartChecking = true;
 
+        // calc cooldown
+        var totalCooldownTicks = (int)((ExecutionDuration + CooldownDuration) * NetworkTimer_v2.Instance.TickRate);
+        m_cooldownExpiryTick = NetworkTimer_v2.Instance.TickCurrent + totalCooldownTicks;
+
         // deduct ap from the player
         if (IsServer)
         {
@@ -194,9 +215,14 @@ public class PlayerAbility : NetworkBehaviour
             Player.GetComponent<PlayerGotchi>().HideHand(input.abilityHand, ExecutionDuration);
         }
 
+        if (IsClient && audioOnActivate != null)
+        {
+            AudioManager.Instance.PlaySpatialSFX(audioOnActivate, Vector3.zero, true);
+        }
+
         if (Player != null) OnStart();
 
-        GameAudioManager.Instance.PlayerAbility(Player.GetComponent<NetworkCharacter>().NetworkObjectId, input.triggeredAbilityEnum, transform.position);
+        //GameAudioManager.Instance.PlayerAbility(Player.GetComponent<NetworkCharacter>().NetworkObjectId, input.triggeredAbilityEnum, transform.position);
         return true;
     }
 
@@ -214,7 +240,7 @@ public class PlayerAbility : NetworkBehaviour
     }
 
     // DO NOT override this in children without calling teh base function, use OnUpdate instead
-    protected void Update()
+    protected virtual void Update()
     {
         m_timer -= Time.deltaTime;
         m_autoMoveTimer -= Time.deltaTime;
@@ -424,6 +450,8 @@ public class PlayerAbility : NetworkBehaviour
 
     protected void OneFrameCollisionDamageCheck(Collider2D abilityCollider, Wearable.WeaponTypeEnum weaponType, float damageMultiplier = 1f)
     {
+        if (IsServer && !IsHost) PlayerAbility.RollbackEnemies(Player);
+
         Physics2D.SyncTransforms();
         List<Collider2D> enemyHitColliders = new List<Collider2D>();
         abilityCollider.OverlapCollider(GetContactFilter(new string[] { "EnemyHurt", "Destructible" }), enemyHitColliders);
@@ -466,6 +494,61 @@ public class PlayerAbility : NetworkBehaviour
 
         // clear out colliders
         enemyHitColliders.Clear();
+
+
+        if (IsServer && !IsHost) PlayerAbility.UnrollEnemies();
+    }
+
+    public static void RollbackEnemies(GameObject Player)
+    {
+        // 0. determine lag based on our player
+        var playerPing = Player.GetComponent<PlayerPing>();
+        if (playerPing == null)
+        {
+            Debug.Log("No valid player still alive for projectile");
+            return;
+        }
+
+        // get round trip time
+        var rtt_s = (float)playerPing.RTT.Value / 1000;
+
+        // IMPORTANT: There was ALOT of finessing that went into this delay calc and
+        // it MIGHT only work with ticks at 15 ticks per second.
+        var delay_s = 1f * rtt_s + 0.29f;
+
+        // convert delay in seconds to delay in ticks
+        var delay_ticks = delay_s * NetworkTimer_v2.Instance.TickRate;
+
+        // grap the current tick + fraction
+        var currentTickAndFraction = NetworkTimer_v2.Instance.TickCurrent + NetworkTimer_v2.Instance.TickFraction;
+
+        // calc the target tick + fraction
+        var targetTickAndFraction = currentTickAndFraction - delay_ticks;
+
+        // 1. if we are on server we need to do lag compensation
+        var positionBuffers = FindObjectsByType<PositionBuffer>(FindObjectsSortMode.None);
+        foreach (var positionBuffer in positionBuffers)
+        {
+            // stash our enemies current position
+            positionBuffer.StashCurrentPosition();
+
+            // calc the new delay position
+            var delayPos = positionBuffer.GetPositionAtTickAndFraction(targetTickAndFraction);
+
+            // update to position lagTicks ago
+            positionBuffer.transform.position = delayPos;
+        }
+    }
+
+    public static void UnrollEnemies()
+    {
+        // reset positions to those that were stashed
+        var positionBuffers = FindObjectsByType<PositionBuffer>(FindObjectsSortMode.None);
+        foreach (var positionBuffer in positionBuffers)
+        {
+            // set position back to the stashed position
+            positionBuffer.transform.position = positionBuffer.GetStashPosition();
+        }
     }
 
     Vector3 GetAttackVectorFromAToB(GameObject a, GameObject b)

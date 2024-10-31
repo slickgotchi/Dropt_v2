@@ -1,4 +1,3 @@
-using Audio.Game;
 using Cinemachine;
 using GotchiHub;
 using Unity.Mathematics;
@@ -40,6 +39,9 @@ public class PlayerGotchi : NetworkBehaviour
 
     [Header("Effects")]
     [SerializeField] private ParticleSystem DustParticleSystem;
+
+    [Header("Audio")]
+    [SerializeField] AudioClip hitGroundAudio;
 
     private Animator animator;
     private PlayerPrediction m_playerPrediction;
@@ -132,23 +134,17 @@ public class PlayerGotchi : NetworkBehaviour
         }
     }
 
-    public void DropSpawn(Vector3 newSpawnPoint)
+    public void PlayDropAnimation()
     {
-        if (IsLocalPlayer || IsHost)
-        {
-
-        }
-
-
         if (!IsServer) return;
 
-        PlayDropAnimationClientRpc(newSpawnPoint);
+        PlayDropAnimationClientRpc();
     }
 
     
 
     [Rpc(SendTo.ClientsAndHost)]
-    void PlayDropAnimationClientRpc(Vector3 spawnPoint)
+    void PlayDropAnimationClientRpc()
     {
         if (!IsLocalPlayer) return;
 
@@ -162,7 +158,7 @@ public class PlayerGotchi : NetworkBehaviour
 
         animator.Play("PlayerGotchi_DropSpawn");
 
-        GameAudioManager.Instance.FallNewLevel(spawnPoint);
+        AudioManager.Instance.PlaySpatialSFX(hitGroundAudio, Vector3.zero, true);
     }
 
     public void ResetIdleAnimation()

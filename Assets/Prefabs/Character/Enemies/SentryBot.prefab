@@ -138,10 +138,9 @@ GameObject:
   m_Component:
   - component: {fileID: 551280027139294499}
   - component: {fileID: -3599212634581151793}
+  - component: {fileID: -1411043297097001130}
   - component: {fileID: -2943007521765018699}
   - component: {fileID: 4856163328072215160}
-  - component: {fileID: 2330254351843851712}
-  - component: {fileID: -1411043297097001130}
   - component: {fileID: 6868700883412853060}
   - component: {fileID: 6791705307647355733}
   - component: {fileID: -1020003051409179827}
@@ -149,6 +148,8 @@ GameObject:
   - component: {fileID: 7679245326083954236}
   - component: {fileID: -3600999839599436370}
   - component: {fileID: 2715484967462661444}
+  - component: {fileID: 1012024665097209197}
+  - component: {fileID: 2725327457471701031}
   m_Layer: 15
   m_Name: SentryBot
   m_TagString: Untagged
@@ -199,6 +200,23 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
+--- !u!114 &-1411043297097001130
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc87cfd934687634ca27afcc4e9b8d4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_spritesToFlip:
+  - {fileID: 361146906994616670}
+  IsSpawning: 1
+  SpawnDuration: 0
+  IsArmed: 0
 --- !u!114 &-2943007521765018699
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -226,7 +244,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  UseUnreliableDeltas: 0
+  UseUnreliableDeltas: 1
   SyncPositionX: 1
   SyncPositionY: 1
   SyncPositionZ: 0
@@ -236,99 +254,15 @@ MonoBehaviour:
   SyncScaleX: 0
   SyncScaleY: 0
   SyncScaleZ: 0
-  PositionThreshold: 0.001
-  RotAngleThreshold: 0.01
-  ScaleThreshold: 0.01
+  PositionThreshold: 0.01
+  RotAngleThreshold: 1
+  ScaleThreshold: 1
   UseQuaternionSynchronization: 0
   UseQuaternionCompression: 0
-  UseHalfFloatPrecision: 0
+  UseHalfFloatPrecision: 1
   InLocalSpace: 0
   Interpolate: 1
   SlerpPosition: 0
---- !u!114 &2330254351843851712
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1249991746567512264}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6494b87727298314987516d4f17c6c93, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  baseHpMax: 100
-  baseHpCurrent: 100
-  baseHpBuffer: 0
-  baseAttackPower: 10
-  baseCriticalChance: 0.1
-  baseApMax: 0
-  baseApCurrent: 0
-  baseApBuffer: 0
-  baseDoubleStrikeChance: 0.05
-  baseCriticalDamage: 1.5
-  baseMoveSpeed: 1
-  baseAccuracy: 1
-  baseEvasion: 0
-  baseDamageReduction: 0
-  baseApLeech: 0
-  baseApRegen: 1
-  baseKnockbackMutliplier: 1
-  baseStunMultiplier: 1
-  popupTextOffset: {x: 0, y: 1.5, z: 0}
-  HpMax:
-    m_InternalValue: 100
-  HpCurrent:
-    m_InternalValue: 100
-  HpBuffer:
-    m_InternalValue: 0
-  AttackPower:
-    m_InternalValue: 10
-  CriticalChance:
-    m_InternalValue: 0.1
-  ApMax:
-    m_InternalValue: 50
-  ApCurrent:
-    m_InternalValue: 50
-  ApBuffer:
-    m_InternalValue: 0
-  DoubleStrikeChance:
-    m_InternalValue: 0.05
-  CriticalDamage:
-    m_InternalValue: 0
-  MoveSpeed:
-    m_InternalValue: 6.22
-  Accuracy:
-    m_InternalValue: 1
-  Evasion:
-    m_InternalValue: 0
-  DamageReduction:
-    m_InternalValue: 0
-  ApLeech:
-    m_InternalValue: 0
-  ApRegen:
-    m_InternalValue: 0
-  KnockbackMultiplier:
-    m_InternalValue: 0
-  StunMultiplier:
-    m_InternalValue: 0
---- !u!114 &-1411043297097001130
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1249991746567512264}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bc87cfd934687634ca27afcc4e9b8d4f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  SpriteToFlip: {fileID: 361146906994616670}
-  FacingDirection: 0
-  IsSpawning: 1
-  SpawnDuration: 0
-  IsArmed: 0
 --- !u!61 &6868700883412853060
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -450,6 +384,7 @@ MonoBehaviour:
   MaxRoamRange: 10
   FleeRange: 6
   BreakFleeRange: 12
+  PursueStopShortRange: 0.5
   SpawnDuration: 1
   TelegraphDuration: 1
   AttackDuration: 0.5
@@ -491,6 +426,90 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!114 &1012024665097209197
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0db5f2b26a4fc4689a51120be8962555, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2725327457471701031
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 14871d16e352d4404a67cb881181344a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseHpMax: 100
+  baseHpCurrent: 100
+  baseHpBuffer: 0
+  baseAttackPower: 10
+  baseCriticalChance: 0.1
+  baseApMax: 0
+  baseApCurrent: 0
+  baseApBuffer: 0
+  baseDoubleStrikeChance: 0.05
+  baseCriticalDamage: 1.5
+  baseMoveSpeed: 1
+  baseAccuracy: 1
+  baseEvasion: 0
+  baseDamageReduction: 0
+  baseApLeech: 0
+  baseApRegen: 1
+  baseKnockbackMutliplier: 1
+  baseStunMultiplier: 1
+  k_popupTextOffset: {x: 0, y: 1.5, z: 0}
+  ReceiveDamageColor: {r: 1, g: 1, b: 1, a: 1}
+  ReceiveDamageFontSize: 16
+  ReceiveCriticalDamageColor: {r: 1, g: 0.92156863, b: 0.34117648, a: 1}
+  ReceiveCriticalDamageFontSize: 24
+  HpMax:
+    m_InternalValue: 100
+  HpCurrent:
+    m_InternalValue: 100
+  HpBuffer:
+    m_InternalValue: 0
+  AttackPower:
+    m_InternalValue: 10
+  CriticalChance:
+    m_InternalValue: 0.1
+  ApMax:
+    m_InternalValue: 50
+  ApCurrent:
+    m_InternalValue: 50
+  ApBuffer:
+    m_InternalValue: 0
+  DoubleStrikeChance:
+    m_InternalValue: 0.05
+  CriticalDamage:
+    m_InternalValue: 0
+  MoveSpeed:
+    m_InternalValue: 6.22
+  Accuracy:
+    m_InternalValue: 1
+  Evasion:
+    m_InternalValue: 0
+  DamageReduction:
+    m_InternalValue: 0
+  ApLeech:
+    m_InternalValue: 0
+  ApRegen:
+    m_InternalValue: 0
+  KnockbackMultiplier:
+    m_InternalValue: 0
+  StunMultiplier:
+    m_InternalValue: 0
+  OnHurtAudio: {fileID: 8300000, guid: 00338429dfad27d438bd1444b96d7e3a, type: 3}
 --- !u!1 &6525230415705073668
 GameObject:
   m_ObjectHideFlags: 0
@@ -5643,10 +5662,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 5272144323970760193, guid: 5ef640013bf57374c9d35ac60df66d89, type: 3}
-      propertyPath: networkCharacter
-      value: 
-      objectReference: {fileID: 2330254351843851712}
     - target: {fileID: 6693740103783179488, guid: 5ef640013bf57374c9d35ac60df66d89, type: 3}
       propertyPath: m_Name
       value: NetworkCharacterDebugCanvas
@@ -5677,10 +5692,6 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 280974544690016271, guid: 8888b61c045151e4a9ab367f7299feda, type: 3}
-      propertyPath: character
-      value: 
-      objectReference: {fileID: 2330254351843851712}
     - target: {fileID: 3199090954834604453, guid: 8888b61c045151e4a9ab367f7299feda, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5

@@ -12,6 +12,8 @@ public class CleaveSlash : PlayerAbility
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         m_collider = GetComponent<Collider2D>();
     }
 
@@ -30,8 +32,6 @@ public class CleaveSlash : PlayerAbility
         // animation on remote clients
         //PlayAnimation("CleaveSlash");
         PlayAnimationWithDuration("CleaveSlash", ExecutionDuration);
-
-
     }
 
     public override void OnUpdate()

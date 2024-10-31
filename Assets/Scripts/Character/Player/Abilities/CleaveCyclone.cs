@@ -22,6 +22,8 @@ public class CleaveCyclone : PlayerAbility
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         if (IsServer)
         {
             GenericProjectile.InitSpawnProjectileOnServer(ref m_projectile, ref m_projectileId, ProjectilePrefab);
@@ -30,14 +32,20 @@ public class CleaveCyclone : PlayerAbility
 
     public override void OnNetworkDespawn()
     {
+
         if (m_projectile != null)
         {
             if (IsServer) m_projectile.GetComponent<NetworkObject>().Despawn();
         }
+
+        base.OnNetworkDespawn();
+
     }
 
-    private void Update()
+    protected override void Update()
     {
+        base.Update();
+
         if (IsClient)
         {
             GenericProjectile.TryAddProjectileOnClient(ref m_projectile, ref m_projectileId, NetworkManager);
@@ -71,6 +79,7 @@ public class CleaveCyclone : PlayerAbility
                 duration,
                 scale,
                 IsServer ? PlayerAbility.NetworkRole.Server : PlayerAbility.NetworkRole.LocalClient,
+                NumberHits,
                 Player,
                 playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier * DamageMultiplier,
                 playerCharacter.CriticalChance.Value,
@@ -87,12 +96,12 @@ public class CleaveCyclone : PlayerAbility
         if (IsServer)
         {
             ulong playerNetworkObjectid = Player.GetComponent<NetworkObject>().NetworkObjectId;
-            ActivateProjectileClientRpc(direction, distance, duration, scale, playerNetworkObjectid, projectileId);
+            ActivateProjectileClientRpc(direction, distance, duration, scale, NumberHits, playerNetworkObjectid, projectileId);
         }
     }
 
     [Rpc(SendTo.ClientsAndHost)]
-    void ActivateProjectileClientRpc(Vector3 direction, float distance, float duration, float scale, 
+    void ActivateProjectileClientRpc(Vector3 direction, float distance, float duration, float scale, int numberHits,
         ulong playerNetworkObjectId, ulong projectileId)
     {
         // Remote Client
@@ -112,6 +121,7 @@ public class CleaveCyclone : PlayerAbility
                 duration,
                 scale,
                 PlayerAbility.NetworkRole.RemoteClient,
+                numberHits,
                 Player,
                 0,
                 0,

@@ -89,6 +89,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68a437cd191db314f9e436ebc9a0cb26, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  levelMusic: {fileID: 0}
+  isEssenceDepleting: 1
 --- !u!114 &3562590292494064393
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -297,10 +299,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53d84f81f4d474f5a85c8dc0809c63ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nillSpawnChance: 0
+  nillSpawnChance: 0.6
   spawnOptions:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: e5a9c429137cfff40b915d8772115d37, type: 3}
-    Chance: 0.7
+    Chance: 0.4
   spawnerId: -1
   spawnedNetworkObject: {fileID: 0}
 --- !u!4 &6382557622865840847 stripped
@@ -831,10 +833,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53d84f81f4d474f5a85c8dc0809c63ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nillSpawnChance: 0
+  nillSpawnChance: 0.6
   spawnOptions:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: e5a9c429137cfff40b915d8772115d37, type: 3}
-    Chance: 0.7
+    Chance: 0.4
   spawnerId: -1
   spawnedNetworkObject: {fileID: 0}
 --- !u!4 &6494518907277289759 stripped
@@ -919,10 +921,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53d84f81f4d474f5a85c8dc0809c63ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nillSpawnChance: 0
+  nillSpawnChance: 0.6
   spawnOptions:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: e5a9c429137cfff40b915d8772115d37, type: 3}
-    Chance: 0.7
+    Chance: 0.4
   spawnerId: -1
   spawnedNetworkObject: {fileID: 0}
 --- !u!4 &6499208122268991480 stripped
@@ -1625,10 +1627,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53d84f81f4d474f5a85c8dc0809c63ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nillSpawnChance: 0
+  nillSpawnChance: 0.6
   spawnOptions:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: e5a9c429137cfff40b915d8772115d37, type: 3}
-    Chance: 0.7
+    Chance: 0.4
   spawnerId: -1
   spawnedNetworkObject: {fileID: 0}
 --- !u!4 &6811574442020586858 stripped
@@ -3307,10 +3309,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53d84f81f4d474f5a85c8dc0809c63ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nillSpawnChance: 0
+  nillSpawnChance: 0.6
   spawnOptions:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: e5a9c429137cfff40b915d8772115d37, type: 3}
-    Chance: 0.7
+    Chance: 0.4
   spawnerId: -1
   spawnedNetworkObject: {fileID: 0}
 --- !u!4 &6247413670654723312 stripped
@@ -3905,10 +3907,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53d84f81f4d474f5a85c8dc0809c63ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nillSpawnChance: 0
+  nillSpawnChance: 0.6
   spawnOptions:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: e5a9c429137cfff40b915d8772115d37, type: 3}
-    Chance: 0.7
+    Chance: 0.4
   spawnerId: -1
   spawnedNetworkObject: {fileID: 0}
 --- !u!4 &5212078322496403128 stripped
@@ -4169,10 +4171,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53d84f81f4d474f5a85c8dc0809c63ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nillSpawnChance: 0
+  nillSpawnChance: 0.6
   spawnOptions:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: e5a9c429137cfff40b915d8772115d37, type: 3}
-    Chance: 0.7
+    Chance: 0.4
   spawnerId: -1
   spawnedNetworkObject: {fileID: 0}
 --- !u!4 &5358074099447637834 stripped
@@ -5759,10 +5761,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53d84f81f4d474f5a85c8dc0809c63ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nillSpawnChance: 0
+  nillSpawnChance: 0.6
   spawnOptions:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: e5a9c429137cfff40b915d8772115d37, type: 3}
-    Chance: 0.7
+    Chance: 0.4
   spawnerId: -1
   spawnedNetworkObject: {fileID: 0}
 --- !u!4 &4645031693608298367 stripped
@@ -6111,10 +6113,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53d84f81f4d474f5a85c8dc0809c63ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nillSpawnChance: 0
+  nillSpawnChance: 0.6
   spawnOptions:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: e5a9c429137cfff40b915d8772115d37, type: 3}
-    Chance: 0.7
+    Chance: 0.4
   spawnerId: -1
   spawnedNetworkObject: {fileID: 0}
 --- !u!4 &4819489743787880497 stripped
@@ -6555,10 +6557,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53d84f81f4d474f5a85c8dc0809c63ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nillSpawnChance: 0
+  nillSpawnChance: 0.6
   spawnOptions:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: e5a9c429137cfff40b915d8772115d37, type: 3}
-    Chance: 0.7
+    Chance: 0.4
   spawnerId: -1
   spawnedNetworkObject: {fileID: 0}
 --- !u!4 &5158996963808409688 stripped
@@ -7357,10 +7359,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53d84f81f4d474f5a85c8dc0809c63ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nillSpawnChance: 0
+  nillSpawnChance: 0.6
   spawnOptions:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: e5a9c429137cfff40b915d8772115d37, type: 3}
-    Chance: 0.7
+    Chance: 0.4
   spawnerId: -1
   spawnedNetworkObject: {fileID: 0}
 --- !u!4 &8962755872667383304 stripped
@@ -7533,10 +7535,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53d84f81f4d474f5a85c8dc0809c63ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nillSpawnChance: 0
+  nillSpawnChance: 0.6
   spawnOptions:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: e5a9c429137cfff40b915d8772115d37, type: 3}
-    Chance: 0.7
+    Chance: 0.4
   spawnerId: -1
   spawnedNetworkObject: {fileID: 0}
 --- !u!4 &9211825379705221747 stripped
@@ -7711,10 +7713,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53d84f81f4d474f5a85c8dc0809c63ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nillSpawnChance: 0
+  nillSpawnChance: 0.6
   spawnOptions:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: e5a9c429137cfff40b915d8772115d37, type: 3}
-    Chance: 0.7
+    Chance: 0.4
   spawnerId: -1
   spawnedNetworkObject: {fileID: 0}
 --- !u!4 &9180348483148254644 stripped
@@ -7799,10 +7801,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53d84f81f4d474f5a85c8dc0809c63ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nillSpawnChance: 0
+  nillSpawnChance: 0.6
   spawnOptions:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: e5a9c429137cfff40b915d8772115d37, type: 3}
-    Chance: 0.7
+    Chance: 0.4
   spawnerId: -1
   spawnedNetworkObject: {fileID: 0}
 --- !u!4 &8188853386793689520 stripped
@@ -8065,10 +8067,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53d84f81f4d474f5a85c8dc0809c63ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nillSpawnChance: 0
+  nillSpawnChance: 0.6
   spawnOptions:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: e5a9c429137cfff40b915d8772115d37, type: 3}
-    Chance: 0.7
+    Chance: 0.4
   spawnerId: -1
   spawnedNetworkObject: {fileID: 0}
 --- !u!4 &8333793207014953174 stripped
@@ -9129,10 +9131,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53d84f81f4d474f5a85c8dc0809c63ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nillSpawnChance: 0
+  nillSpawnChance: 0.6
   spawnOptions:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: e5a9c429137cfff40b915d8772115d37, type: 3}
-    Chance: 0.7
+    Chance: 0.4
   spawnerId: -1
   spawnedNetworkObject: {fileID: 0}
 --- !u!4 &7538658200486616658 stripped
@@ -9280,7 +9282,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2368901502827774774, guid: 747ffcac3787c4803a5dc2c099efcc53, type: 3}
       propertyPath: m_Name
-      value: Fusspots70
+      value: Fusspots40
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 3380821045247674828, guid: 747ffcac3787c4803a5dc2c099efcc53, type: 3}
@@ -10795,10 +10797,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53d84f81f4d474f5a85c8dc0809c63ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nillSpawnChance: 0
+  nillSpawnChance: 0.6
   spawnOptions:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: e5a9c429137cfff40b915d8772115d37, type: 3}
-    Chance: 0.7
+    Chance: 0.4
   spawnerId: -1
   spawnedNetworkObject: {fileID: 0}
 --- !u!4 &7207134633658208840 stripped
@@ -11001,10 +11003,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53d84f81f4d474f5a85c8dc0809c63ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nillSpawnChance: 0
+  nillSpawnChance: 0.6
   spawnOptions:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: e5a9c429137cfff40b915d8772115d37, type: 3}
-    Chance: 0.7
+    Chance: 0.4
   spawnerId: -1
   spawnedNetworkObject: {fileID: 0}
 --- !u!4 &7464519087318714416 stripped
@@ -12608,10 +12610,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53d84f81f4d474f5a85c8dc0809c63ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nillSpawnChance: 0
+  nillSpawnChance: 0.6
   spawnOptions:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: e5a9c429137cfff40b915d8772115d37, type: 3}
-    Chance: 0.7
+    Chance: 0.4
   spawnerId: -1
   spawnedNetworkObject: {fileID: 0}
 --- !u!1001 &5348480574603376447
@@ -12874,10 +12876,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53d84f81f4d474f5a85c8dc0809c63ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nillSpawnChance: 0
+  nillSpawnChance: 0.6
   spawnOptions:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: e5a9c429137cfff40b915d8772115d37, type: 3}
-    Chance: 0.7
+    Chance: 0.4
   spawnerId: -1
   spawnedNetworkObject: {fileID: 0}
 --- !u!1001 &5407587665016562637
@@ -12962,10 +12964,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53d84f81f4d474f5a85c8dc0809c63ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nillSpawnChance: 0
+  nillSpawnChance: 0.6
   spawnOptions:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: e5a9c429137cfff40b915d8772115d37, type: 3}
-    Chance: 0.7
+    Chance: 0.4
   spawnerId: -1
   spawnedNetworkObject: {fileID: 0}
 --- !u!1001 &5432844198100595332
@@ -13050,10 +13052,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53d84f81f4d474f5a85c8dc0809c63ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nillSpawnChance: 0
+  nillSpawnChance: 0.6
   spawnOptions:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: e5a9c429137cfff40b915d8772115d37, type: 3}
-    Chance: 0.7
+    Chance: 0.4
   spawnerId: -1
   spawnedNetworkObject: {fileID: 0}
 --- !u!1001 &5504083930316940737
@@ -13492,10 +13494,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53d84f81f4d474f5a85c8dc0809c63ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nillSpawnChance: 0
+  nillSpawnChance: 0.6
   spawnOptions:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: e5a9c429137cfff40b915d8772115d37, type: 3}
-    Chance: 0.7
+    Chance: 0.4
   spawnerId: -1
   spawnedNetworkObject: {fileID: 0}
 --- !u!1001 &5798627051376814022
@@ -13932,10 +13934,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53d84f81f4d474f5a85c8dc0809c63ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nillSpawnChance: 0
+  nillSpawnChance: 0.6
   spawnOptions:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: e5a9c429137cfff40b915d8772115d37, type: 3}
-    Chance: 0.7
+    Chance: 0.4
   spawnerId: -1
   spawnedNetworkObject: {fileID: 0}
 --- !u!1001 &5974062736269405019
@@ -14615,10 +14617,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53d84f81f4d474f5a85c8dc0809c63ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nillSpawnChance: 0
+  nillSpawnChance: 0.6
   spawnOptions:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: e5a9c429137cfff40b915d8772115d37, type: 3}
-    Chance: 0.7
+    Chance: 0.4
   spawnerId: -1
   spawnedNetworkObject: {fileID: 0}
 --- !u!1001 &6336832499688733472
@@ -15943,10 +15945,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53d84f81f4d474f5a85c8dc0809c63ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nillSpawnChance: 0
+  nillSpawnChance: 0.6
   spawnOptions:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: e5a9c429137cfff40b915d8772115d37, type: 3}
-    Chance: 0.7
+    Chance: 0.4
   spawnerId: -1
   spawnedNetworkObject: {fileID: 0}
 --- !u!1001 &6748070591736854470
@@ -17867,10 +17869,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53d84f81f4d474f5a85c8dc0809c63ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nillSpawnChance: 0
+  nillSpawnChance: 0.6
   spawnOptions:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: e5a9c429137cfff40b915d8772115d37, type: 3}
-    Chance: 0.7
+    Chance: 0.4
   spawnerId: -1
   spawnedNetworkObject: {fileID: 0}
 --- !u!1001 &7609071147088030310
@@ -17955,10 +17957,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53d84f81f4d474f5a85c8dc0809c63ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nillSpawnChance: 0
+  nillSpawnChance: 0.6
   spawnOptions:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: e5a9c429137cfff40b915d8772115d37, type: 3}
-    Chance: 0.7
+    Chance: 0.4
   spawnerId: -1
   spawnedNetworkObject: {fileID: 0}
 --- !u!1001 &7669272626830115459
@@ -19735,10 +19737,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53d84f81f4d474f5a85c8dc0809c63ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nillSpawnChance: 0
+  nillSpawnChance: 0.6
   spawnOptions:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: e5a9c429137cfff40b915d8772115d37, type: 3}
-    Chance: 0.7
+    Chance: 0.4
   spawnerId: -1
   spawnedNetworkObject: {fileID: 0}
 --- !u!1001 &8432078384236717218
@@ -20355,10 +20357,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53d84f81f4d474f5a85c8dc0809c63ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nillSpawnChance: 0
+  nillSpawnChance: 0.6
   spawnOptions:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: e5a9c429137cfff40b915d8772115d37, type: 3}
-    Chance: 0.7
+    Chance: 0.4
   spawnerId: -1
   spawnedNetworkObject: {fileID: 0}
 --- !u!1001 &8741134706911647833
@@ -20619,10 +20621,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53d84f81f4d474f5a85c8dc0809c63ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nillSpawnChance: 0
+  nillSpawnChance: 0.6
   spawnOptions:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: e5a9c429137cfff40b915d8772115d37, type: 3}
-    Chance: 0.7
+    Chance: 0.4
   spawnerId: -1
   spawnedNetworkObject: {fileID: 0}
 --- !u!1001 &8777658263362441619
@@ -20971,10 +20973,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53d84f81f4d474f5a85c8dc0809c63ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nillSpawnChance: 0
+  nillSpawnChance: 0.6
   spawnOptions:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: e5a9c429137cfff40b915d8772115d37, type: 3}
-    Chance: 0.7
+    Chance: 0.4
   spawnerId: -1
   spawnedNetworkObject: {fileID: 0}
 --- !u!1001 &9058970505296787279

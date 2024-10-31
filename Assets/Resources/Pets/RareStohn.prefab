@@ -96,6 +96,8 @@ GameObject:
   - component: {fileID: 1310532602511500567}
   - component: {fileID: 1162409555044919649}
   - component: {fileID: 1568754597152256769}
+  - component: {fileID: 4182396978586599434}
+  - component: {fileID: 1591258904490432295}
   m_Layer: 0
   m_Name: RareStohn
   m_TagString: Untagged
@@ -132,7 +134,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2277708102
+  GlobalObjectIdHash: 890623084
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -158,14 +160,6 @@ MonoBehaviour:
     OffsetDistance: 3
     TeleportDistance: 20
     ItemPickupRadius: 10
-  m_spriteRenderer: {fileID: 1210861587871723280}
-  m_pickItemLayer:
-    serializedVersion: 2
-    m_Bits: 131072
-  LeftSprite: {fileID: 332736609738624889, guid: e02243da95413415ca57f5ba8de37b84, type: 3}
-  RightSprite: {fileID: 5252921835160165703, guid: e02243da95413415ca57f5ba8de37b84, type: 3}
-  UpSprite: {fileID: 3126181205629675148, guid: e02243da95413415ca57f5ba8de37b84, type: 3}
-  DownSprite: {fileID: 4390489207498840340, guid: e02243da95413415ca57f5ba8de37b84, type: 3}
 --- !u!114 &1568754597152256769
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -197,6 +191,43 @@ MonoBehaviour:
   InLocalSpace: 0
   Interpolate: 1
   SlerpPosition: 0
+--- !u!114 &4182396978586599434
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 343445268730881899}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b7b73e706e384e9c820d6fc76ab5412, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_body: {fileID: 1210861587871723280}
+  m_shadow: {fileID: 6379439462685292940}
+  m_leftSprite: {fileID: 332736609738624889, guid: e02243da95413415ca57f5ba8de37b84, type: 3}
+  m_rightSprite: {fileID: 5252921835160165703, guid: e02243da95413415ca57f5ba8de37b84, type: 3}
+  m_upSprite: {fileID: 3126181205629675148, guid: e02243da95413415ca57f5ba8de37b84, type: 3}
+  m_downSprite: {fileID: 4390489207498840340, guid: e02243da95413415ca57f5ba8de37b84, type: 3}
+--- !u!114 &1591258904490432295
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 343445268730881899}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae6bc8819fcd748ffaa561073f19cdd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fullCharge: 100
+  chargePerHit: 30
+  chargeDrainPerSecond: 0.5
+  isDrainWhenNoEnemies: 0
+  summonDuration: 5
+  attackInterval: 0.5
+  basePetAttackMultiplier: 1
 --- !u!1 &3096911254616915499
 GameObject:
   m_ObjectHideFlags: 0

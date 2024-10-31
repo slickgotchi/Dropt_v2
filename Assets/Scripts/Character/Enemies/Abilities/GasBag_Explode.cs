@@ -7,7 +7,7 @@ using UnityEngine;
 public class GasBag_Explode : EnemyAbility
 {
     [Header("GasBag_Explode Parameters")]
-    public float ExplosionRadius = 3f;
+    //public float ExplosionRadius = 3f;
     public float PoisonDuration = 5f;
     public float PoisonDamagePerSecond = 4f;
 
@@ -15,9 +15,9 @@ public class GasBag_Explode : EnemyAbility
 
     bool m_isExploded = false;
 
-    private void Awake()
-    {
-    }
+    private float m_stackTimer = 0f;
+
+    private float m_durationTimer = 0f;
 
     public override void OnActivate()
     {
@@ -27,19 +27,25 @@ public class GasBag_Explode : EnemyAbility
         // set position
         transform.position = Dropt.Utils.Battle.GetAttackCentrePosition(Parent);
 
-        // resize explosion collider and check collisions
-        Collider.GetComponent<CircleCollider2D>().radius = ExplosionRadius;
-        HandleCollisions(Collider);
-
-        // do visual explosion
-        SpawnBasicCircleClientRpc(
-            transform.position,
-            Dropt.Utils.Color.HexToColor("#7a09fa", 0.5f),
-            ExplosionRadius);
-
-        Parent.GetComponent<NetworkObject>().Despawn();
-
         m_isExploded = true;
+
+        m_stackTimer = 0.5f;
+        m_durationTimer = PoisonDuration;
+    }
+
+    public override void OnUpdate(float dt)
+    {
+        if (!m_isExploded) return;
+        base.OnUpdate(dt);
+
+        m_stackTimer -= dt;
+
+        if (m_stackTimer < 0f)
+        {
+            HandleCollisions(Collider);
+            m_stackTimer = 0.5f;
+        }
+
     }
 
     private void HandleCollisions(Collider2D collider)
@@ -56,11 +62,18 @@ public class GasBag_Explode : EnemyAbility
             if (player.HasComponent<NetworkCharacter>())
             {
                 // apply a stack of poison
-                PoisonStack.ApplyPoisonStack(player.gameObject, 3, 10, 5);
+                PoisonStack.ApplyPoisonStack(player.gameObject, PoisonDamagePerSecond, PoisonDuration, 5);
             }
         }
 
         // clear out colliders
         playerHitColliders.Clear();
+    }
+
+    public override void OnDeactivate()
+    {
+        base.OnDeactivate();
+        Parent.GetComponent<NetworkObject>().Despawn();
+        GetComponent<NetworkObject>().Despawn();
     }
 }

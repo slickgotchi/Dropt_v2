@@ -177,24 +177,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   abilityType: 1
   ApCost: 0
-  DamageMultiplier: 1
+  DamageMultiplier: 2.5
   ExecutionDuration: 0.5
   ExecutionSlowFactor: 0.5
-  CooldownDuration: 0
+  CooldownDuration: 0.05
   CooldownSlowFactor: 1
   TeleportDistance: 0
   AutoMoveDistance: 0
   AutoMoveDuration: 0
-  HoldChargeTime: 2
-  HoldSlowFactor: 0.3
-  KnockbackDistance: 0.3
-  KnockbackStunDuration: 0.3
+  HoldChargeTime: 3
+  HoldSlowFactor: 0.2
+  KnockbackDistance: 2.5
+  KnockbackStunDuration: 1.5
   Player: {fileID: 0}
   SpecialCooldown: 0
+  audioOnActivate: {fileID: 8300000, guid: fa6b48767eb203e4ca945d5d7997711b, type: 3}
   PlayerAbilityCentreOffset: {x: 0, y: 0.5, z: 0}
   Projection: 1.5
   Distance: 12
   Duration: 0.5
+  ProjectilePrefab: {fileID: 2544078778212307353, guid: fa9a891fbbc95493ab93c370905b45bd, type: 3}
   ApplePrefab: {fileID: 2544078778212307353, guid: 2e5dac988ae7b4068a2f3fc022921a31, type: 3}
   ArrowPrefab: {fileID: 2544078778212307353, guid: 6171b65097864a0428954e5128192b0c, type: 3}
   BasketballPrefab: {fileID: 2544078778212307353, guid: 0606bf8814fd81a4f96a6b9263e89c1f, type: 3}

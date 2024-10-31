@@ -66,6 +66,21 @@ namespace Dropt
             HandleAlertOthers();
         }
 
+        // cooldown - don't move for first half, then do simple pursue
+        protected void SimpleCooldownUpdate(float dt)
+        {
+            Debug.Log(m_cooldownTimer + " " + CooldownDuration);
+            if (m_cooldownTimer > 0.5 * CooldownDuration)
+            {
+                m_navMeshAgent.isStopped = true;
+                
+            } else
+            {
+                SimplePursueUpdate(dt);
+            }
+
+        }
+
         // flee
         protected void SimpleFleeUpdate(float dt)
         {
@@ -141,7 +156,7 @@ namespace Dropt
         }
 
         // telegraph
-        private Vector3 CalculateAttackDirectionAndPosition()
+        private void CalculateAttackDirectionAndPosition()
         {
             // get target attack centre
             var targetCentre = NearestPlayer.GetComponentInChildren<AttackCentre>();
@@ -157,7 +172,7 @@ namespace Dropt
             // set attack position
             PositionToAttack = targetCentrePos;
 
-            return AttackDirection;
+            //return AttackDirection;
         }
 
         // attack
@@ -170,16 +185,15 @@ namespace Dropt
             GetComponent<NavMeshAgent>().isStopped = true;
 
             // instantiate an attack
-            var ability = Instantiate(PrimaryAttack);
-            
+            GameObject ability = Instantiate(PrimaryAttack, transform.position, Quaternion.identity);
+
             // get enemy ability of attack
-            var enemyAbility = ability.GetComponent<EnemyAbility>();
+            EnemyAbility enemyAbility = ability.GetComponent<EnemyAbility>();
             if (enemyAbility == null) return;
 
             // initialise the ability
             ability.GetComponent<NetworkObject>().Spawn();
-            enemyAbility.Init(gameObject, NearestPlayer, AttackDirection, AttackDuration, PositionToAttack);
-            enemyAbility.Activate();
+            enemyAbility.Activate(gameObject, NearestPlayer, AttackDirection, AttackDuration, PositionToAttack);
 
             // ensure state is attack
             state.Value = State.Attack;

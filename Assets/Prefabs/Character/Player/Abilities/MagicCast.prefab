@@ -133,7 +133,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3524941226
+  GlobalObjectIdHash: 587400483
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -179,7 +179,7 @@ MonoBehaviour:
   ApCost: 0
   DamageMultiplier: 1.875
   ExecutionDuration: 0.75
-  ExecutionSlowFactor: 0.5
+  ExecutionSlowFactor: 0.7
   CooldownDuration: 0
   CooldownSlowFactor: 1
   TeleportDistance: 0
@@ -187,15 +187,17 @@ MonoBehaviour:
   AutoMoveDuration: 0
   HoldChargeTime: 3
   HoldSlowFactor: 1
-  KnockbackDistance: 0.5
-  KnockbackStunDuration: 0.5
+  KnockbackDistance: 2
+  KnockbackStunDuration: 1
   Player: {fileID: 0}
   SpecialCooldown: 0
+  audioOnActivate: {fileID: 8300000, guid: fa6b48767eb203e4ca945d5d7997711b, type: 3}
   PlayerAbilityCentreOffset: {x: 0, y: 0.5, z: 0}
   Projection: 1
   Distance: 8
   Duration: 0.75
-  MagicOrbPrefab: {fileID: 2544078778212307353, guid: 14cc998ed0c22e24cb3fdd37fceb786f, type: 3}
+  ProjectilePrefab: {fileID: 2544078778212307353, guid: fa9a891fbbc95493ab93c370905b45bd, type: 3}
+  VisualProjectilePrefab: {fileID: 2544078778212307353, guid: 14cc998ed0c22e24cb3fdd37fceb786f, type: 3}
 --- !u!1 &4708556748347195212
 GameObject:
   m_ObjectHideFlags: 0

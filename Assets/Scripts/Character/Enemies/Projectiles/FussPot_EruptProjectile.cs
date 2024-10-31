@@ -41,6 +41,8 @@ public class FussPot_EruptProjectile : NetworkBehaviour
         {
             VisualEffectsManager.Singleton.SpawnCloudExplosion(transform.position);
         }
+
+        base.OnNetworkDespawn();
     }
 
     public void Init(Vector3 position, Quaternion rotation, Vector3 direction, float distance, float duration, float damagePerHit,

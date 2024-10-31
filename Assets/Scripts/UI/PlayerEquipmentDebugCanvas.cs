@@ -20,27 +20,25 @@ public class PlayerEquipmentDebugCanvas : DroptCanvas
     public TMP_Dropdown leftHandWearableDropdown;
     public TMP_Dropdown petDropdown;
 
+
     private void Awake()
     {
         Instance = this;
     }
 
+    bool m_isInitialized = false;
+
     private void Update()
     {
-        if (playerEquipment == null)
+        FindLatestPlayerEquipment();
+        if (playerEquipment != null)
         {
-            // Find the local player's PlayerEquipment component
-            var players = FindObjectsByType<PlayerEquipment>(FindObjectsSortMode.None);
-
-            for (int i = 0; i < players.Length; i++)
+            if (!m_isInitialized)
             {
-                if (players[i].GetComponent<NetworkObject>().IsLocalPlayer)
-                {
-                    playerEquipment = players[i];
-                    InitializeDropdowns();
-                    SetDropdownValues();
-                    SetUpDropdownListeners();
-                }
+                InitializeDropdowns();
+                SetDropdownValues();
+                SetUpDropdownListeners();
+                m_isInitialized = true;
             }
         }
 
@@ -84,6 +82,8 @@ public class PlayerEquipmentDebugCanvas : DroptCanvas
 
     private void SetDropdownValues()
     {
+        FindLatestPlayerEquipment();
+
         SetDropdownValue(bodyDropdown, playerEquipment.Body.Value);
         SetDropdownValue(faceDropdown, playerEquipment.Face.Value);
         SetDropdownValue(eyesDropdown, playerEquipment.Eyes.Value);
@@ -99,6 +99,22 @@ public class PlayerEquipmentDebugCanvas : DroptCanvas
         SetDropdownValue(leftHandWeaponDropdown, leftHandWeaponType);
         InitializeDropdown(leftHandWearableDropdown, Wearable.SlotEnum.Hand, leftHandWeaponType);
         SetDropdownValue(leftHandWearableDropdown, playerEquipment.LeftHand.Value);
+    }
+
+    void FindLatestPlayerEquipment()
+    {
+        // get the most up to date playerEquipment object
+        playerEquipment = null;
+        var playerEquipments = FindObjectsByType<PlayerEquipment>(FindObjectsSortMode.None);
+        for (int i = 0; i < playerEquipments.Length; i++)
+        {
+            var networkObject = playerEquipments[i].GetComponent<NetworkObject>();
+            if (networkObject != null && networkObject.IsLocalPlayer)
+            {
+                playerEquipment = playerEquipments[i];
+                break;
+            }
+        }
     }
 
     private void InitializeDropdown(TMP_Dropdown dropdown, Wearable.SlotEnum slot)
@@ -132,6 +148,8 @@ public class PlayerEquipmentDebugCanvas : DroptCanvas
 
     private void OnDropdownChanged(TMP_Dropdown dropdown, Wearable.SlotEnum slot)
     {
+        FindLatestPlayerEquipment();
+
         var selectedNameEnum = (Wearable.NameEnum)System.Enum.Parse(typeof(Wearable.NameEnum), dropdown.options[dropdown.value].text);
         var wearable = WearableManager.Instance.GetWearable(selectedNameEnum);
 
@@ -161,6 +179,7 @@ public class PlayerEquipmentDebugCanvas : DroptCanvas
                 }
                 break;
             case Wearable.SlotEnum.Pet:
+                Debug.Log(selectedNameEnum);
                 playerEquipment.SetEquipmentServerRpc(PlayerEquipment.Slot.Pet, selectedNameEnum);
                 break;
         }

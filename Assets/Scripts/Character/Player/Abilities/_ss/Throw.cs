@@ -20,6 +20,8 @@ public class Throw : PlayerAbility
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         if (!IsServer) return;
 
         GenericProjectile.InitSpawnProjectileOnServer(ref m_throwProjectile, ref m_throwProjectileId, ThrowProjectilePrefab);
@@ -31,10 +33,14 @@ public class Throw : PlayerAbility
         {
             if (IsServer) m_throwProjectile.GetComponent<NetworkObject>().Despawn();
         }
+
+        base.OnNetworkDespawn();
     }
 
-    private void Update()
+    protected override void Update()
     {
+        base.Update();
+
         // ensure remote clients associate projectiles with local projectile variables
         GenericProjectile.TryAddProjectileOnClient(ref m_throwProjectile, ref m_throwProjectileId, NetworkManager);
     }

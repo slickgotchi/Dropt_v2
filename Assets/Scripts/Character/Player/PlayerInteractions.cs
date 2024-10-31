@@ -16,6 +16,8 @@ public class PlayerInteractions : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         m_playerNetworkObjectId = GetComponent<NetworkObject>().NetworkObjectId;
     }
 

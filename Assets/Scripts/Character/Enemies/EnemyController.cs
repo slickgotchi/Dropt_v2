@@ -8,9 +8,9 @@ using Unity.Mathematics;
 public class EnemyController : NetworkBehaviour
 {
     [Header("Rendering Parameters")]
-    public SpriteRenderer SpriteToFlip;
+    [SerializeField] private List<SpriteRenderer> m_spritesToFlip;
     public enum Facing { Left, Right }
-    [HideInInspector] public Facing FacingDirection;
+    private Facing m_facingDirection;
 
     private NavMeshAgent m_navMeshAgent;
 
@@ -34,10 +34,13 @@ public class EnemyController : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         if (IsClient && !IsHost)
         {
             Destroy(GetComponent<NavMeshAgent>());
-        } else
+        }
+        else
         {
             m_navMeshAgent = GetComponent<NavMeshAgent>();
             if (m_navMeshAgent == null) return;
@@ -46,13 +49,13 @@ public class EnemyController : NetworkBehaviour
             m_navMeshAgent.updateUpAxis = false;
             m_navMeshAgent.obstacleAvoidanceType = ObstacleAvoidanceType.NoObstacleAvoidance;
             m_navMeshAgent.enabled = true;
-
         }
 
     }
 
     public override void OnNetworkDespawn()
     {
+        base.OnNetworkDespawn();
     }
 
     // Update is called once per frame
@@ -64,34 +67,39 @@ public class EnemyController : NetworkBehaviour
     public void SetFacingFromDirection(Vector3 direction, float facingTimer)
     {
         // client or host
-        if (IsClient || IsHost)
-        {
-            SetFacing(direction.x > 0 ? Facing.Right : Facing.Left, facingTimer);
-        }
-        // server
-        else
+        if (IsHost || IsServer)
         {
             SetFacingFromDirectionClientRpc(direction, facingTimer);
         }
+        //if (IsClient || IsHost)
+        //{
+        //    SetFacing(direction.x > 0 ? Facing.Right : Facing.Left, facingTimer);
+        //}
+        //// server
+        //else
+        //{
+        //    SetFacingFromDirectionClientRpc(direction, facingTimer);
+        //}        
     }
 
     [ClientRpc]
     void SetFacingFromDirectionClientRpc(Vector3 direction, float facingTimer)
     {
-        SetFacingFromDirection(direction, facingTimer);
+        //SetFacingFromDirection(direction, facingTimer);
+        SetFacing(direction.x > 0 ? Facing.Right : Facing.Left, facingTimer);
     }
 
     public void SetFacing(Facing facingDirection, float facingTimer = 0.5f)
     {
         m_facingTimer = facingTimer;
-        FacingDirection = facingDirection;
-        SpriteToFlip.flipX = FacingDirection == Facing.Left ? true : false;
+        m_facingDirection = facingDirection;
+        //SpriteToFlip.flipX = FacingDirection == Facing.Left ? true : false;
+        SetEnemySpritesFlip();
     }
 
     public void HandleFacing()
     {
-        if (SpriteToFlip == null) return;
-        
+        if (m_spritesToFlip.Count == 0) return;
 
         if (IsServer)
         {
@@ -105,8 +113,16 @@ public class EnemyController : NetworkBehaviour
             m_facingTimer -= Time.deltaTime;
             if (m_facingTimer > 0f) return;
 
-            FacingDirection = m_agentVelocity.Value.x < 0 ? Facing.Left : Facing.Right;
-            SpriteToFlip.flipX = FacingDirection == Facing.Left ? true : false;
+            m_facingDirection = m_agentVelocity.Value.x < 0 ? Facing.Left : Facing.Right;
+            SetEnemySpritesFlip();
+        }
+    }
+
+    private void SetEnemySpritesFlip()
+    {
+        foreach (SpriteRenderer spriteRenderer in m_spritesToFlip)
+        {
+            spriteRenderer.flipX = m_facingDirection == Facing.Left;
         }
     }
 }

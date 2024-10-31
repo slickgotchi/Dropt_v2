@@ -28,6 +28,8 @@ public class BallisticExplosionProjectile : NetworkBehaviour
 
     [HideInInspector] public PlayerAbility.NetworkRole Role = PlayerAbility.NetworkRole.LocalClient;
 
+    [HideInInspector] public GameObject VisualGameObject;
+
     private float m_timer = 0;
     private bool m_isSpawned = false;
     private float m_speed = 1;
@@ -96,6 +98,14 @@ public class BallisticExplosionProjectile : NetworkBehaviour
         m_collider = GetComponent<Collider2D>();
     }
 
+    public override void OnNetworkDespawn()
+    {
+        base.OnNetworkDespawn();
+
+        // destroy the ExplosionCollider which was deparented
+        Destroy(ExplosionCollider.gameObject);
+    }
+
     private void Update()
     {
         if (!m_isSpawned) return;
@@ -104,6 +114,7 @@ public class BallisticExplosionProjectile : NetworkBehaviour
 
         if (m_timer < 0)
         {
+            if (VisualGameObject != null) Destroy(VisualGameObject);
             Explode(transform.position);
             gameObject.SetActive(false);
         }
@@ -111,11 +122,22 @@ public class BallisticExplosionProjectile : NetworkBehaviour
         transform.position += Direction * m_speed * Time.deltaTime;
         transform.rotation = PlayerAbility.GetRotationFromDirection(Direction);
 
+        if (IsClient)
+        {
+            VisualGameObject.transform.position = transform.position;
+            VisualGameObject.transform.rotation = transform.rotation;
+        }
+
         if (Role != PlayerAbility.NetworkRole.RemoteClient) CollisionCheck();
     }
 
     public void CollisionCheck()
     {
+        if (IsServer && !IsHost) PlayerAbility.RollbackEnemies(LocalPlayer);
+
+        // resync transforms
+        Physics2D.SyncTransforms();
+
         // Use ColliderCast to perform continuous collision detection
         Vector2 castDirection = Direction.normalized;
         float castDistance = m_speed * Time.deltaTime;
@@ -158,6 +180,8 @@ public class BallisticExplosionProjectile : NetworkBehaviour
 
             Explode(hitInfo.point);
         }
+
+        if (IsServer && !IsHost) PlayerAbility.UnrollEnemies();
     }
 
     void Explode(Vector3 position)
@@ -189,7 +213,7 @@ public class BallisticExplosionProjectile : NetworkBehaviour
                 var damage = PlayerAbility.GetRandomVariation(DamagePerHit * ExplosionDamageMultiplier);
                 var isCritical = PlayerAbility.IsCriticalAttack(CriticalChance);
                 damage = (int)(isCritical ? damage * CriticalDamage : damage);
-                hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical);
+                hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical, LocalPlayer);
                 var knockbackDirection = (Dropt.Utils.Battle.GetAttackCentrePosition(hit.gameObject) - position).normalized;
                 var enemyAI = hit.GetComponent<Dropt.EnemyAI>();
                 if (enemyAI != null)
@@ -217,12 +241,11 @@ public class BallisticExplosionProjectile : NetworkBehaviour
 
         // clear out colliders
         enemyHitColliders.Clear();
-
-        //Destroy(ExplosionCollider.gameObject);
     }
 
     void Deactivate(Vector3 hitPosition)
     {
+        if (VisualGameObject != null) Destroy(VisualGameObject);
         VisualEffectsManager.Singleton.SpawnBulletExplosion(hitPosition);
         gameObject.SetActive(false);
 

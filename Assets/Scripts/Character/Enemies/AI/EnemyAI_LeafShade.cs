@@ -1,10 +1,4 @@
-using Dropt;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AI;
-using Unity.Mathematics;
-using Unity.Netcode;
 
 namespace Dropt
 {
@@ -19,15 +13,40 @@ namespace Dropt
 
         public override void OnSpawnStart()
         {
+            Utils.Anim.PlayAnimationWithDuration(m_animator, "LeafShade_Spawn", SpawnDuration);
         }
 
         public override void OnTelegraphStart()
         {
+            if (IsServer)
+            {
+                m_navMeshAgent.isStopped = true;
+                Utils.Anim.PlayAnimationWithDuration(m_animator, "LeafShade_Anticipation", TelegraphDuration);
+            }
+            GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, 0.1f);
         }
-        
+
+        public override void OnRoamStart()
+        {
+            base.OnRoamStart();
+            if (IsServer)
+            {
+                Utils.Anim.Play(m_animator, "LeafShade_Roam");
+            }
+        }
+
         public override void OnRoamUpdate(float dt)
         {
-            SimpleRoamUpdate(dt);   
+            SimpleRoamUpdate(dt);
+        }
+
+        public override void OnAggroStart()
+        {
+            base.OnAggroStart();
+            if (IsServer)
+            {
+                Utils.Anim.Play(m_animator, "LeafShade_Roam");
+            }
         }
 
         public override void OnAggroUpdate(float dt)
@@ -37,19 +56,25 @@ namespace Dropt
 
         public override void OnAttackStart()
         {
+            if (IsServer)
+            {
+                Utils.Anim.Play(m_animator, "LeafShade_Attack");
+            }
             SimpleAttackStart();
-
-            // set facing
-            GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, AttackDuration);
+            GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, 0.1f);
         }
 
         public override void OnCooldownStart()
         {
+            if (IsServer)
+            {
+                Utils.Anim.Play(m_animator, "LeafShade_Roam");
+            }
         }
 
         public override void OnCooldownUpdate(float dt)
         {
-            SimplePursueUpdate(dt);
+            SimpleCooldownUpdate(dt);
         }
     }
 }

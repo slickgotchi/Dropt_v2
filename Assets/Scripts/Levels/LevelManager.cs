@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Audio.Game;
 using UnityEngine;
 using Unity.Netcode;
 
@@ -10,9 +9,6 @@ public class LevelManager : NetworkBehaviour
     // level tracking variables
     public GameObject ApeVillageLevel;
     private List<GameObject> m_levels = new List<GameObject>();
-    //public int TutorialStartLevel = 0;
-    //public int DegenapeVillageLevel = 2;
-    //public int DungeonStartLevel = 3;
 
     private GameObject m_currentLevel;
     [HideInInspector] public int m_currentLevelIndex = -1;
@@ -30,6 +26,12 @@ public class LevelManager : NetworkBehaviour
     private List<NetworkObject> m_networkObjectSpawns = new List<NetworkObject>();
 
     private float m_depthCounter = 0;
+
+    public Level.NetworkLevel GetCurrentNetworkLevel()
+    {
+        if (m_currentLevel == null) return null;
+        return m_currentLevel.GetComponent<Level.NetworkLevel>();
+    }
 
     public void AddToSpawnList(NetworkObject networkObject)
     {
@@ -54,22 +56,14 @@ public class LevelManager : NetworkBehaviour
         }
     }
 
-    private void OnDestroy()
-    {
-        if (null != GameAudioManager.Instance)
-        {
-            GameAudioManager.Instance.PLAY_SOUND -= OnPlaySound;
-        }
-    }
-
     // Start is called before the first frame update
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         if (!IsServer) return;
 
         GoToDegenapeVillageLevel();
-
-        GameAudioManager.Instance.PLAY_SOUND += OnPlaySound;
     }
 
     public void GoToDegenapeVillageLevel()
@@ -84,30 +78,30 @@ public class LevelManager : NetworkBehaviour
 
         // set depth counter to 0
         m_depthCounter = 0;
+
+
     }
 
     public bool IsDegenapeVillage()
     {
+        if (!IsSpawned) return false;
         if (m_levels == null) return false;
         if (m_levels.Count <= 0) return false;
+        if (CurrentLevelIndex == null) return false;
+        if (CurrentLevelIndex.Value < 0) return false;
 
-        return (m_levels[0] == ApeVillageLevel);
+        return (m_levels[CurrentLevelIndex.Value] == ApeVillageLevel);
     }
 
-    private void DestroyCurrentLevel()
+    public void DestroyCurrentLevel()
     {
+        if (!IsServer) return;
+
         // disable proximity manager
         ProximityManager.Instance.enabled = false;
 
-        // spawn everything that hasn't already
-        var levelSpawns = FindObjectsByType<Level.LevelSpawn>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-        foreach (var levelSpawn in levelSpawns)
-        {
-            if (!levelSpawn.isSpawned)
-            {
-                levelSpawn.GetComponent<NetworkObject>().Spawn();
-            }
-        }
+        // tag all spawns to die
+        LevelSpawnManager.Instance.TagAllCurrentLevelSpawnsForDead();
 
         // find everything to destroy
         var destroyObjects = new List<DestroyAtLevelChange>(FindObjectsByType<DestroyAtLevelChange>(FindObjectsInactive.Include, FindObjectsSortMode.None));
@@ -143,7 +137,7 @@ public class LevelManager : NetworkBehaviour
             }
 
             // destroy object
-            if (destroyObject.HasComponent<NetworkObject>())
+            if (destroyObject != null && destroyObject.HasComponent<NetworkObject>() && IsServer)
             {
                 if (destroyObject.GetComponent<NetworkObject>().IsSpawned)
                 {
@@ -195,12 +189,6 @@ public class LevelManager : NetworkBehaviour
 
             NumberAndNameLevel();
         }
-
-        //if (IsClient)
-        //{
-        //    NumberAndNameLevel();
-        //}
-
     }
 
     private float k_numberAndLevelInterval = 0.5f;
@@ -334,7 +322,14 @@ public class LevelManager : NetworkBehaviour
             isLevelLoaded = true;
 
             // Update nav mesh
-            NavigationSurfaceSingleton.Instance.Surface.UpdateNavMesh(NavigationSurfaceSingleton.Instance.Surface.navMeshData);
+            //NavigationSurfaceSingleton.Instance.Surface.UpdateNavMesh(NavigationSurfaceSingleton.Instance.Surface.navMeshData);
+            //NavigationSurfaceSingleton.Instance.Surface.BuildNavMesh();
+
+            var navMeshes = FindObjectsByType<NavMeshPlus.Components.NavMeshSurface>(FindObjectsSortMode.None);
+            foreach (var surface in navMeshes)
+            {
+                surface.BuildNavMesh();
+            }
 
             // Spawn everything in the spawn list
             for (int i = 0; i < m_networkObjectSpawns.Count; i++)
@@ -431,6 +426,5 @@ public class LevelManager : NetworkBehaviour
     [Rpc(SendTo.NotMe)]
     void PlaySoundClientRpc(string type, Vector3 position, ulong id)
     {
-        GameAudioManager.Instance.PlaySoundForMe(type, position);
     }
 }

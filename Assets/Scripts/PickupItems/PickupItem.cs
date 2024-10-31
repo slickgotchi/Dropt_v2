@@ -1,53 +1,42 @@
 using Unity.Netcode;
 using UnityEngine;
-using DG.Tweening;
 
 public sealed class PickupItem : NetworkBehaviour
 {
-    private readonly float distanceForMagnet = 0.3f;
-    public float speed = 5f;
-    private GameObject target;
-    //private PlayerPickupItemMagnet m_playerPickupItemMagnet;
-    public NetworkVariable<bool> IsItemPicked = new NetworkVariable<bool>(false);
+    private readonly float m_distanceForMagnet = 0.3f;
+    private const float m_speed = 15f;
+    private GameObject m_target;
 
     private void Update()
     {
-        if (target != null)
-        {
-            float step = speed * Time.deltaTime;
-            transform.position = Vector3.MoveTowards(transform.position, target.transform.position, step);
+        if (m_target == null) return;
 
-            if (IsServer)
-            {
-                if (GetDistanceTo(target) < distanceForMagnet)
-                {
-                    // Notify the player's magnet that the item has been collected
-                    PlayerPickupItemMagnet magnet = target.GetComponentInChildren<PlayerPickupItemMagnet>();
-                    if (magnet != null)
-                    {
-                        magnet.Collect(this);
-                    }
-                }
-            }
-        }
+        float step = m_speed * Time.deltaTime;
+        transform.position = Vector3.MoveTowards(transform.position, m_target.transform.position, step);
+
+        if (!IsServer) return;
+
+        if (GetDistanceTo(m_target) > m_distanceForMagnet) return;
+
+        PlayerPickupItemMagnet magnet = m_target.GetComponentInChildren<PlayerPickupItemMagnet>();
+        magnet?.Collect(this);
     }
 
     public override void OnNetworkSpawn()
     {
-        IsItemPicked.Value = false;
         base.OnNetworkSpawn();
         gameObject.SetActive(true);
     }
 
     public override void OnNetworkDespawn()
     {
-        base.OnNetworkDespawn();
         gameObject.SetActive(false);
+        base.OnNetworkDespawn();
     }
 
     private void OnDisable()
     {
-        target = null;
+        m_target = null;
     }
 
     private float GetDistanceTo(GameObject target)
@@ -57,51 +46,23 @@ public sealed class PickupItem : NetworkBehaviour
 
     public bool TryGoTo(GameObject target)
     {
-        if (this.target == null)
+        if (m_target == null)
         {
-            this.target = target;
+            m_target = target;
             return true;
         }
 
-        if (GetDistanceTo(target) > GetDistanceTo(this.target))
+        if (GetDistanceTo(target) > GetDistanceTo(m_target))
         {
             return false;
         }
 
-        this.target = target;
+        m_target = target;
         return true;
-    }
-
-    public void Pick(PlayerPickupItemMagnet playerPickupItemMagnet)
-    {
-        if (playerPickupItemMagnet == null)
-        {
-            Debug.Log("no valid PlayerPickupItemMagent");
-        }
-
-        if (IsServer) IsItemPicked.Value = true;
-        Vector3 position = playerPickupItemMagnet.transform.position;
-        var tween = transform.DOMove(position, 10)
-                           .SetSpeedBased()
-                           .SetEase(Ease.Linear);
-        tween.OnComplete(() =>
-        {
-            playerPickupItemMagnet?.Collect(this);
-        });
-        GotoClientRpc(position);
-    }
-
-    [ClientRpc]
-    public void GotoClientRpc(Vector3 position)
-    {
-        if (IsServer) return;
-        _ = transform.DOMove(position, 10)
-                             .SetSpeedBased()
-                             .SetEase(Ease.Linear);
     }
 
     public bool AllowToPick()
     {
-        return !IsItemPicked.Value;
+        return m_target == null;
     }
 }

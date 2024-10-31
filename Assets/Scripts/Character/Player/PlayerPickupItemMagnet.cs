@@ -7,7 +7,7 @@ public class PlayerPickupItemMagnet : NetworkBehaviour
     public float Radius = 5f;
     public Collider2D magnetCollider;
 
-    public PlayerDungeonData PlayerDungeonData;
+    public PlayerOffchainData PlayerDungeonData;
     private PickupItem m_currentPickupItem;
 
     void Start()
@@ -24,7 +24,8 @@ public class PlayerPickupItemMagnet : NetworkBehaviour
 
         if (m_currentPickupItem != null)
         {
-            m_currentPickupItem.Pick(gameObject.GetComponent<PlayerPickupItemMagnet>());
+            //m_currentPickupItem.Pick(gameObject.GetComponent<PlayerPickupItemMagnet>());
+            m_currentPickupItem.TryGoTo(gameObject);
         }
     }
 
@@ -35,12 +36,12 @@ public class PlayerPickupItemMagnet : NetworkBehaviour
 
         if (pickupItem.gameObject.HasComponent<GltrOrb>())
         {
-            PlayerDungeonData.AddGltr(pickupItem.GetComponent<GltrOrb>().GetValue());
+            PlayerDungeonData.AddDungeonDust(pickupItem.GetComponent<GltrOrb>().GetValue());
         }
 
         if (pickupItem.gameObject.HasComponent<CGHSTOrb>())
         {
-            PlayerDungeonData.AddCGHST(pickupItem.GetComponent<CGHSTOrb>().GetValue());
+            PlayerDungeonData.AddDungeonEcto(pickupItem.GetComponent<CGHSTOrb>().GetValue());
         }
 
         PickupItemManager.Instance.ReturnToPool(pickupItem);

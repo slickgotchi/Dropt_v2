@@ -22,6 +22,7 @@ public class PlayerAbilityEditor : Editor
     SerializedProperty knockbackDistance;
     SerializedProperty knockbackStunDuration;
     SerializedProperty playerAbilityCentreOffset;
+    SerializedProperty audioOnActivate;
 
     private void OnEnable()
     {
@@ -42,6 +43,7 @@ public class PlayerAbilityEditor : Editor
         knockbackDistance = serializedObject.FindProperty("KnockbackDistance");
         knockbackStunDuration = serializedObject.FindProperty("KnockbackStunDuration");
         playerAbilityCentreOffset = serializedObject.FindProperty("PlayerAbilityCentreOffset");
+        audioOnActivate = serializedObject.FindProperty("audioOnActivate");
     }
 
     public override void OnInspectorGUI()
@@ -79,7 +81,7 @@ public class PlayerAbilityEditor : Editor
         // cooldown slow factor
         if (cooldownDuration.floatValue > 0)
         {
-            EditorGUILayout.PropertyField(cooldownSlowFactor, new GUIContent("Cooldown Slow Factor", "Slows player down during Cooldown"));
+            //EditorGUILayout.PropertyField(cooldownSlowFactor, new GUIContent("Cooldown Slow Factor", "Slows player down during Cooldown"));
         }
 
         // hold parameters
@@ -114,10 +116,13 @@ public class PlayerAbilityEditor : Editor
         // player ability centre offset
         EditorGUILayout.PropertyField(playerAbilityCentreOffset, new GUIContent("Player Ability Centre Offset", "How far away from the players centre this ability activates at"));
 
+        // audio on activate
+        EditorGUILayout.PropertyField(audioOnActivate, new GUIContent("Audio On Activate", "Audio played when ability is activated"));
+
         // Draw the rest of the properties
         DrawPropertiesExcluding(serializedObject, "DamageMultiplier", "PlayerAbilityCentreOffset", "m_Script", "ApCost", "ExecutionDuration", "ExecutionSlowFactor", "abilityType",
             "CooldownDuration", "CooldownSlowFactor", "isHoldAbility", "HoldSlowFactor", "HoldChargeTime", "TeleportDistance", "AutoMoveDistance", "AutoMoveDuration", "IsSpecialAbility",
-            "KnockbackDistance", "KnockbackStunDuration");
+            "KnockbackDistance", "KnockbackStunDuration", "audioOnActivate");
 
         serializedObject.ApplyModifiedProperties();
     }

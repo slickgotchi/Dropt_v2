@@ -28,6 +28,7 @@ public class SplashProjectile : NetworkBehaviour
     [HideInInspector] public PlayerAbility.NetworkRole Role = PlayerAbility.NetworkRole.LocalClient;
 
     public SpriteRenderer bodySpriteRenderer;
+    public SpriteRenderer shadowSpriteRenderer;
     public CircleCollider2D Collider;
 
     private float m_timer = 0;
@@ -105,6 +106,8 @@ public class SplashProjectile : NetworkBehaviour
         var wearable = WearableManager.Instance.GetWearable(WearableNameEnum);
         var wearablesSprite = WeaponSpriteManager.Instance.GetSprite(WearableNameEnum, wearable.AttackView);
         bodySpriteRenderer.sprite = wearablesSprite;
+        bodySpriteRenderer.enabled = true;
+        shadowSpriteRenderer.enabled = true;
     }
 
     private void Update()
@@ -119,6 +122,9 @@ public class SplashProjectile : NetworkBehaviour
             if (Role != PlayerAbility.NetworkRole.RemoteClient) CollisionCheck();
             gameObject.SetActive(false);
             VisualEffectsManager.Singleton.SpawnSplashExplosion(m_finalPosition, new Color(1, 0, 0, 0.5f), ExplosionRadius);
+
+            bodySpriteRenderer.enabled = false;
+            shadowSpriteRenderer.enabled = false;
         }
 
         transform.position += Direction * m_speed * Time.deltaTime;
@@ -126,7 +132,9 @@ public class SplashProjectile : NetworkBehaviour
 
     public void CollisionCheck()
     {
-        // sync colliders to current transform
+        if (IsServer && !IsHost) PlayerAbility.RollbackEnemies(LocalPlayer);
+
+        // resync transforms
         Physics2D.SyncTransforms();
 
         // do a collision check
@@ -166,6 +174,8 @@ public class SplashProjectile : NetworkBehaviour
 
         // clear out colliders
         enemyHitColliders.Clear();
+
+        if (IsServer && !IsHost) PlayerAbility.UnrollEnemies();
     }
 
     void Deactivate(Vector3 hitPosition)

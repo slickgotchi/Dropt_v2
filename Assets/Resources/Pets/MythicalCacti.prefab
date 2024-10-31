@@ -12,6 +12,8 @@ GameObject:
   - component: {fileID: 1310532602511500567}
   - component: {fileID: 1162409555044919649}
   - component: {fileID: 3486780320832730092}
+  - component: {fileID: 8915364734416736950}
+  - component: {fileID: 5783692264348638184}
   m_Layer: 0
   m_Name: MythicalCacti
   m_TagString: Untagged
@@ -48,7 +50,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1760600747
+  GlobalObjectIdHash: 3420144417
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -74,14 +76,6 @@ MonoBehaviour:
     OffsetDistance: 3
     TeleportDistance: 20
     ItemPickupRadius: 10
-  m_spriteRenderer: {fileID: 1210861587871723280}
-  m_pickItemLayer:
-    serializedVersion: 2
-    m_Bits: 131072
-  LeftSprite: {fileID: -3475361541993468807, guid: e02243da95413415ca57f5ba8de37b84, type: 3}
-  RightSprite: {fileID: -1698564820520411306, guid: e02243da95413415ca57f5ba8de37b84, type: 3}
-  UpSprite: {fileID: -4162007060195777331, guid: e02243da95413415ca57f5ba8de37b84, type: 3}
-  DownSprite: {fileID: 5562295618940898929, guid: e02243da95413415ca57f5ba8de37b84, type: 3}
 --- !u!114 &3486780320832730092
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -113,6 +107,43 @@ MonoBehaviour:
   InLocalSpace: 0
   Interpolate: 1
   SlerpPosition: 0
+--- !u!114 &8915364734416736950
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 343445268730881899}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b7b73e706e384e9c820d6fc76ab5412, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_body: {fileID: 1210861587871723280}
+  m_shadow: {fileID: 7786570696044809796}
+  m_leftSprite: {fileID: -3475361541993468807, guid: e02243da95413415ca57f5ba8de37b84, type: 3}
+  m_rightSprite: {fileID: -1698564820520411306, guid: e02243da95413415ca57f5ba8de37b84, type: 3}
+  m_upSprite: {fileID: -4162007060195777331, guid: e02243da95413415ca57f5ba8de37b84, type: 3}
+  m_downSprite: {fileID: 5562295618940898929, guid: e02243da95413415ca57f5ba8de37b84, type: 3}
+--- !u!114 &5783692264348638184
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 343445268730881899}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae6bc8819fcd748ffaa561073f19cdd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fullCharge: 100
+  chargePerHit: 30
+  chargeDrainPerSecond: 0.5
+  isDrainWhenNoEnemies: 0
+  summonDuration: 5
+  attackInterval: 0.5
+  basePetAttackMultiplier: 1
 --- !u!1 &1396179474280218425
 GameObject:
   m_ObjectHideFlags: 0

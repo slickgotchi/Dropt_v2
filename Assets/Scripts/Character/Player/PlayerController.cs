@@ -7,6 +7,8 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using GotchiHub;
 using Cysharp.Threading.Tasks;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.UI;
 
 public class PlayerController : NetworkBehaviour
 {
@@ -34,9 +36,16 @@ public class PlayerController : NetworkBehaviour
 
     private AttackCentre m_playerAttackCentre;
 
+    // tracking selected gotchi
+    private int m_selectedGotchiId = 0;
+
     // variables for trackign current gotchi
-    private int m_localGotchiId = -1;
-    private NetworkVariable<int> m_networkGotchiId = new NetworkVariable<int>(-1);
+    private int m_localGotchiId = 0;
+    private NetworkVariable<int> m_networkGotchiId = new NetworkVariable<int>(69420);
+
+    private CinemachineVirtualCamera m_virtualCamera;
+
+    private Vector3 m_spawnPoint;
 
     private void Awake()
     {
@@ -48,14 +57,13 @@ public class PlayerController : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         // local player
         if (IsLocalPlayer)
         {
             m_cameraFollower = GameObject.FindGameObjectWithTag("CameraFollower");
             m_cameraFollower.GetComponent<CameraFollowerAndPlayerInteractor>().Player = gameObject;
-
-            GotchiDataManager.Instance.onSelectedGotchi += HandleOnSelectedGotchi;
-
 
             int gotchiId = 0;
             if (PlayerPrefs.HasKey("GotchiId"))
@@ -67,6 +75,15 @@ public class PlayerController : NetworkBehaviour
                 gotchiId = Bootstrap.Instance.TestBlockChainGotchiId;
             }
 
+            var virtualCameraGameObject = GameObject.FindGameObjectWithTag("VirtualCamera");
+            if (virtualCameraGameObject == null)
+            {
+                Debug.LogWarning("No virtual camera exists in the scene");
+                return;
+            }
+
+            m_virtualCamera = virtualCameraGameObject.GetComponent<CinemachineVirtualCamera>();
+
             SetNetworkGotchiIdServerRpc(gotchiId);
         }
         else
@@ -77,46 +94,13 @@ public class PlayerController : NetworkBehaviour
 
     public override void OnNetworkDespawn()
     {
-        if (IsLocalPlayer)
-        {
-            GotchiDataManager.Instance.onSelectedGotchi -= HandleOnSelectedGotchi;
-        }
+        base.OnNetworkDespawn();
     }
 
     [Rpc(SendTo.Server)]
     private void SetNetworkGotchiIdServerRpc(int gotchiId)
     {
         m_networkGotchiId.Value = gotchiId;
-    }
-
-    private async UniTask SetupGotchi(int gotchiId)
-    {
-        if (!IsClient) return;
-
-        try
-        {
-            var isFetchSuccess = await GotchiDataManager.Instance.FetchGotchiById(gotchiId);
-
-            if (isFetchSuccess)
-            {
-                GetComponent<PlayerSVGs>().Init(gotchiId);
-                GetComponent<PlayerEquipment>().Init(gotchiId);
-                GetComponent<PlayerCharacter>().InitWearableBuffs(gotchiId);
-                GetComponent<PlayerCharacter>().InitGotchiStats(gotchiId);
-            }
-        }
-        catch (System.Exception ex)
-        {
-            Debug.Log(ex);
-        }
-    }
-
-    void HandleOnSelectedGotchi(int id)
-    {
-        if (!IsLocalPlayer) return;
-        if (!GetComponent<NetworkObject>().IsLocalPlayer) return;
-
-        SetNetworkGotchiIdServerRpc(id);
     }
 
     public void KillPlayer(REKTCanvas.TypeOfREKT typeOfREKT)
@@ -135,7 +119,11 @@ public class PlayerController : NetworkBehaviour
         var localId = GetComponent<NetworkObject>().NetworkObjectId;
         if (player.NetworkObjectId != localId) return;
 
-        Game.Instance.TriggerGameOver(typeOfREKT);
+        // show the game over canvas
+        REKTCanvas.Instance.Show(typeOfREKT);
+
+        // shutdown the networkmanager for the client
+        NetworkManager.Singleton.Shutdown();
     }
 
     public void StartTransition()
@@ -159,20 +147,22 @@ public class PlayerController : NetworkBehaviour
             // setup player hud
             if (!m_isPlayerHUDInitialized && GetComponent<NetworkCharacter>() != null)
             {
-                PlayerHUDCanvas.Singleton.SetLocalPlayerCharacter(GetComponent<NetworkCharacter>());
+                PlayerHUDCanvas.Singleton.SetLocalPlayerCharacter(GetComponent<PlayerCharacter>());
             }
 
-            // set camera to follow player
+            // Set camera to follow player
             if (m_cameraFollower != null)
             {
-                // make camera follow player and allow for offset to centre of gotchi
                 m_cameraFollower.transform.position = m_playerPrediction.GetLocalPlayerInterpPosition() + new Vector3(0, 0.5f, 0f);
             }
 
             HandleNextLevelCheat();
+
+            // check for player input to ensure we stay active
+            CheckForPlayerInput();
         }
 
-        // handle level spawning
+        // Handle level spawning on the server
         if (IsServer && !IsLevelSpawnPositionSet)
         {
             var pos = LevelManager.Instance.TryGetPlayerSpawnPoint();
@@ -180,27 +170,122 @@ public class PlayerController : NetworkBehaviour
             {
                 var spawnPoint = (Vector3)pos;
                 GetComponent<PlayerPrediction>().SetPlayerPosition(spawnPoint);
-                GetComponent<PlayerGotchi>().DropSpawn(spawnPoint);
+
+                // Position the camera follower directly at the spawn point
+                SetCameraPositionClientRpc(spawnPoint + new Vector3(0, 0.5f, 0), GetComponent<NetworkObject>().NetworkObjectId);
+
+                // Call DropSpawn to perform any additional logic
+                GetComponent<PlayerGotchi>().PlayDropAnimation();
+
+                // Mark the spawn position as set
                 IsLevelSpawnPositionSet = true;
+                m_spawnPoint = spawnPoint;
             }
         }
 
         HandleDegenapeHpAp();
         HandleInactivePlayer();
-        HandleGotchiIdChanges();
+
+        // handle gotchi changes
+        HandleLocalGotchiIdChanges();
+        HandleRemoteGotchiIdChanges();
 
         // keep the hold bar in position (webgl it is weirdly in wrong position);
         if (m_holdBarCanvas != null) m_holdBarCanvas.transform.localPosition = new Vector3(0, 2, 0);
     }
 
-    void HandleGotchiIdChanges()
+    [Rpc(SendTo.ClientsAndHost)]
+    void SetCameraPositionClientRpc(Vector3 position, ulong networkObjectId)
+    {
+        if (GetComponent<NetworkObject>().NetworkObjectId != networkObjectId) return;
+
+        var delta = position - m_cameraFollower.transform.position;
+        m_cameraFollower.transform.position = position;
+
+        // Temporarily set damping to zero for instant teleport
+        var framingTransposer = m_virtualCamera.GetCinemachineComponent<Cinemachine.CinemachineFramingTransposer>();
+        Debug.Log("transposer: " + framingTransposer);
+        float originalDamping = framingTransposer.m_XDamping; // Store original damping
+        framingTransposer.m_XDamping = 0;
+        framingTransposer.m_YDamping = 0;
+        framingTransposer.m_ZDamping = 0;
+
+        m_virtualCamera.OnTargetObjectWarped(m_cameraFollower.transform, delta);
+
+        // Restore original damping settings
+        //framingTransposer.m_XDamping = originalDamping;
+        //framingTransposer.m_YDamping = originalDamping;
+        //framingTransposer.m_ZDamping = originalDamping;
+
+        m_isDoReset = true;
+        m_resetTimer = 1f;
+    }
+
+    private bool m_isDoReset = false;
+    private float m_resetTimer = 0f;
+
+    private void LateUpdate()
+    {
+        m_resetTimer -= Time.deltaTime;
+
+        if (m_isDoReset && m_resetTimer < 0)
+        {
+            m_isDoReset = false;
+
+            var framingTransposer = m_virtualCamera.GetCinemachineComponent<Cinemachine.CinemachineFramingTransposer>();
+            Debug.Log("transposer: " + framingTransposer);
+            float originalDamping = framingTransposer.m_XDamping; // Store original damping
+            framingTransposer.m_XDamping = 1;
+            framingTransposer.m_YDamping = 1;
+            framingTransposer.m_ZDamping = 1;
+        }
+    }
+
+    void HandleLocalGotchiIdChanges()
+    {
+        if (!IsLocalPlayer) return;
+
+        // handle local player selected gotchi changes
+        if (LevelManager.Instance.IsDegenapeVillage())
+        {
+            var selectedGotchiId = GotchiDataManager.Instance.GetSelectedGotchiId();
+            if (selectedGotchiId != m_selectedGotchiId)
+            {
+                m_selectedGotchiId = selectedGotchiId;
+                SetNetworkGotchiIdServerRpc(m_selectedGotchiId);
+            }
+        }
+    }
+
+    void HandleRemoteGotchiIdChanges()
     {
         if (!IsClient) return;
-        if (m_networkGotchiId.Value == m_localGotchiId) return;
-        m_localGotchiId = m_networkGotchiId.Value;
 
-        // update player components
-        SetupGotchi(m_localGotchiId);
+        if (m_networkGotchiId.Value != m_localGotchiId)
+        {
+            m_localGotchiId = m_networkGotchiId.Value;
+            SetupGotchi(m_localGotchiId);
+        }
+    }
+
+    private async UniTask SetupGotchi(int gotchiId)
+    {
+        if (!IsClient) return;
+
+        try
+        {
+            var isFetchSuccess = await GotchiDataManager.Instance.FetchGotchiById(gotchiId);
+            if (isFetchSuccess)
+            {
+                GetComponent<PlayerSVGs>().Init(gotchiId);
+                GetComponent<PlayerEquipment>().Init(gotchiId);
+                GetComponent<PlayerCharacter>().Init(gotchiId);
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.Log(ex);
+        }
     }
 
 
@@ -256,10 +341,10 @@ public class PlayerController : NetworkBehaviour
     // cheat to go to next level
     void HandleNextLevelCheat()
     {
-        if (Input.GetKeyDown(KeyCode.N))
-        {
-            GoNextLevelServerRpc();
-        }
+        //if (Input.GetKeyDown(KeyCode.N))
+        //{
+        //    GoNextLevelServerRpc();
+        //}
     }
 
     [Rpc(SendTo.Server)]
@@ -279,6 +364,45 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
+    private bool m_isActiveInput = false;
+    private float m_isActiveInputTimer = 0f;
+
+    void CheckForPlayerInput()
+    {
+        m_isActiveInputTimer -= Time.deltaTime;
+
+        // Check for any key or mouse button
+        if (Input.anyKey)
+        {
+            m_isActiveInput = true;
+        }
+
+        // Check for any mouse movement
+        if (Input.GetAxis("Mouse X") != 0 || Input.GetAxis("Mouse Y") != 0)
+        {
+            m_isActiveInput = true;
+        }
+
+        // Check for mouse scroll wheel movement
+        if (Input.GetAxis("Mouse ScrollWheel") != 0)
+        {
+            m_isActiveInput = true;
+        }
+
+        // Check for any touch input (mobile devices)
+        if (Input.touchCount > 0)
+        {
+            m_isActiveInput = true;
+        }
+
+        if (m_isActiveInput && m_isActiveInputTimer < 0)
+        {
+            m_isActiveInput = false;
+            m_isActiveInputTimer = 10;
+            ResetInactiveTimerServerRpc();
+        }
+    }
+
     // need this so that a player that is not playing gets booted off the server
     void HandleInactivePlayer()
     {
@@ -293,7 +417,8 @@ public class PlayerController : NetworkBehaviour
     }
 
     // this gets called by the server side of PlayerPrediction
-    public void ResetInactiveTimer()
+    [Rpc(SendTo.Server)]
+    public void ResetInactiveTimerServerRpc()
     {
         if (!IsServer) return;
 

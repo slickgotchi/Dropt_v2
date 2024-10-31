@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Unity.Netcode;
@@ -17,7 +15,7 @@ public class DroptCanvas : MonoBehaviour
         HideCanvas();
     }
 
-    protected void Update()
+    protected virtual void Update()
     {
         TryGetLocalPlayerInput();
     }
@@ -26,6 +24,7 @@ public class DroptCanvas : MonoBehaviour
     {
         m_container.SetActive(true);
         m_canvasGroup.blocksRaycasts = true;
+        PlayerInputMapSwitcher.Instance.SwitchToInUI();
         OnShowCanvas();
     }
 
@@ -34,6 +33,7 @@ public class DroptCanvas : MonoBehaviour
         OnHideCanvas();
         m_container.SetActive(false);
         m_canvasGroup.blocksRaycasts = false;
+        PlayerInputMapSwitcher.Instance.SwitchToInGame();
     }
 
     public bool IsActive()
@@ -41,7 +41,8 @@ public class DroptCanvas : MonoBehaviour
         return m_container.activeSelf;
     }
 
-    public bool IsInputActionSelectPressed() {
+    public bool IsInputActionSelectPressed()
+    {
         return (m_localPlayerInput != null
                 && m_localPlayerInput.actions["Select"] != null
                 && m_localPlayerInput.actions["Select"].IsPressed()

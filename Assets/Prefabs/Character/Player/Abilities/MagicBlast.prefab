@@ -222,11 +222,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   abilityType: 2
-  ApCost: 0
-  DamageMultiplier: 1
+  ApCost: 90
+  DamageMultiplier: 1.875
   ExecutionDuration: 1
   ExecutionSlowFactor: 0
-  CooldownDuration: 0
+  CooldownDuration: 10
   CooldownSlowFactor: 1
   TeleportDistance: 0
   AutoMoveDistance: 0
@@ -237,6 +237,7 @@ MonoBehaviour:
   KnockbackStunDuration: 1
   Player: {fileID: 0}
   SpecialCooldown: 0
+  audioOnActivate: {fileID: 8300000, guid: fa6b48767eb203e4ca945d5d7997711b, type: 3}
   PlayerAbilityCentreOffset: {x: 0, y: 0.5, z: 0}
   Projection: 0
   NumberHits: 4

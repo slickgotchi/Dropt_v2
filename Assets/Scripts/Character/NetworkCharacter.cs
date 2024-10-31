@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Audio.Game;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -26,9 +25,15 @@ public class NetworkCharacter : NetworkBehaviour
     public float baseStunMultiplier = 1f;
 
     [Header("Damage/Health Popup Offset")]
-    public Vector3 popupTextOffset = new Vector3(0, 1.5f, 0f);
+    public Vector3 k_popupTextOffset = new Vector3(0, 1.5f, 0f);
+    public Color ReceiveDamageColor = new Color(1, 1, 1);
+    public int ReceiveDamageFontSize = 16;
+    public Color ReceiveCriticalDamageColor = new Color(1, 1, 1);
+    public int ReceiveCriticalDamageFontSize = 24;
 
     private List<BuffObject> activeBuffObjects = new List<BuffObject>();
+
+    //private Action<ulong> m_onDamageToEnemy;
 
     // NetworkVariables
     [HideInInspector] public NetworkVariable<float> HpMax = new NetworkVariable<float>(0);
@@ -49,17 +54,29 @@ public class NetworkCharacter : NetworkBehaviour
     [HideInInspector] public NetworkVariable<float> ApRegen = new NetworkVariable<float>(0);
     [HideInInspector] public NetworkVariable<float> KnockbackMultiplier = new NetworkVariable<float>(0);
     [HideInInspector] public NetworkVariable<float> StunMultiplier = new NetworkVariable<float>(0);
+    [HideInInspector] public NetworkVariable<float> EnemyShield = new NetworkVariable<float>(0);
+    [HideInInspector] public NetworkVariable<float> MaxEnemyShield = new NetworkVariable<float>(0);
+
+
+    public AudioClip OnHurtAudio;
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         if (IsServer)
         {
             // baseize default values on the server
             InitializeStats();
         }
+
+        if (OnHurtAudio == null)
+        {
+            OnHurtAudio = AudioLibrary.Instance.EnemyHurt;
+        }
     }
 
-    private void Update()
+    protected virtual void Update()
     {
         if (!IsServer) return;
 
@@ -73,14 +90,14 @@ public class NetworkCharacter : NetworkBehaviour
 
     public float GetAttackPower(float randomVariation = 0.1f)
     {
-        return UnityEngine.Random.Range(
+        return Random.Range(
             AttackPower.Value * (1 - randomVariation),
             AttackPower.Value * (1 + randomVariation));
     }
 
     public bool IsCriticalAttack()
     {
-        var rand = UnityEngine.Random.Range(0f, 0.999f);
+        var rand = Random.Range(0f, 0.999f);
         return rand < CriticalChance.Value;
     }
 
@@ -99,27 +116,54 @@ public class NetworkCharacter : NetworkBehaviour
         var enemyController = GetComponent<EnemyController>();
         if (enemyController == null) return;
 
-        // CLIENT or HOST
-        if (IsClient)
+        // get the local player
+        ulong localPlayerNOID = 0;
+        PlayerController[] players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+        foreach (var player in players)
         {
-            // do sprite flash
-            var spriteFlash = GetComponentInChildren<SpriteFlash>();
-            if (spriteFlash != null) spriteFlash.DamageFlash();
-
-            // play damage audio
-            GameAudioManager.Instance.EnemyHurt(transform.position);
+            if (player.GetComponent<NetworkObject>().IsLocalPlayer)
+            {
+                localPlayerNOID = player.GetComponent<NetworkObject>().NetworkObjectId;
+            }
         }
 
-        // SERVER or HOST
+        // LOCAL PLAYER
+        if (IsClient)
+        {
+            if (localPlayerNOID == damageDealerNOID)
+            {
+                // do sprite flash
+                var spriteFlash = GetComponentInChildren<SpriteFlash>();
+                if (spriteFlash != null) spriteFlash.DamageFlash();
+
+                // play damage audio
+                AudioManager.Instance.PlaySpatialSFX(OnHurtAudio, transform.position);
+            }
+        }
+
+        // SERVER
         if (IsServer)
         {
-            if (!IsHost) HandleEnemyTakeDamageClientRpc(damage, isCritical, damageDealerNOID);
+            EventManager.Instance.TriggerEventWithParam("OnEnemyGetDamage", damageDealerNOID);
+            if (EnemyShield.Value > 0)
+            {
+                EnemyShield.Value--;
+                damage = 0;
+            }
+            if (!IsHost)
+            {
+                HandleEnemyTakeDamageClientRpc(damage, isCritical, damageDealerNOID);
+            }
 
+            // deplete hp
             HpCurrent.Value -= (int)damage;
             if (HpCurrent.Value < 0) { HpCurrent.Value = 0; }
-            var position = transform.position + popupTextOffset;
-            DamagePopupTextClientRpc(damage, position, isCritical);
+            //var position = transform.position + popupTextOffset;
 
+            // show damage text
+            DamagePopupTextClientRpc(damage, isCritical);
+
+            // check for death
             if (HpCurrent.Value <= 0 && enemyController != null)
             {
                 var enemyAI = gameObject.GetComponent<Dropt.EnemyAI>();
@@ -153,7 +197,30 @@ public class NetworkCharacter : NetworkBehaviour
     [ClientRpc]
     private void HandleEnemyTakeDamageClientRpc(float damage, bool isCritical, ulong damageDealerNOID = 0)
     {
-        HandleEnemyTakeDamage(damage, isCritical, damageDealerNOID);
+        // get the local player
+        ulong localPlayerNOID = 0;
+        PlayerController[] players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+        foreach (var player in players)
+        {
+            if (player.GetComponent<NetworkObject>().IsLocalPlayer)
+            {
+                localPlayerNOID = player.GetComponent<NetworkObject>().NetworkObjectId;
+            }
+        }
+
+        // LOCAL PLAYER
+        if (IsClient)
+        {
+            if (localPlayerNOID != damageDealerNOID)
+            {
+                // do sprite flash
+                var spriteFlash = GetComponentInChildren<SpriteFlash>();
+                if (spriteFlash != null) spriteFlash.DamageFlash();
+
+                // play damage audio
+                AudioManager.Instance.PlaySpatialSFX(OnHurtAudio, transform.position);
+            }
+        }
     }
 
     // PLAYER
@@ -175,9 +242,6 @@ public class NetworkCharacter : NetworkBehaviour
             var spriteFlash = GetComponentInChildren<SpriteFlash>();
             if (spriteFlash != null) spriteFlash.DamageFlash();
 
-            // play damage audio (should replace this with a gotchi sound)
-            GameAudioManager.Instance.PlayerHurt(transform.position);
-
             // do local only effects
             if (gameObject.GetComponent<NetworkObject>().IsLocalPlayer)
             {
@@ -196,8 +260,8 @@ public class NetworkCharacter : NetworkBehaviour
 
             HpCurrent.Value -= (int)damage;
             if (HpCurrent.Value < 0) { HpCurrent.Value = 0; }
-            var position = transform.position + popupTextOffset;
-            DamagePopupTextClientRpc(damage, position, isCritical);
+            //var position = transform.position + popupTextOffset;
+            DamagePopupTextClientRpc(damage, isCritical);
 
             if (HpCurrent.Value <= 0 && IsServer)
             {
@@ -245,15 +309,15 @@ public class NetworkCharacter : NetworkBehaviour
     }
 
     [Rpc(SendTo.ClientsAndHost)]
-    private void DamagePopupTextClientRpc(float damage, Vector3 position, bool isCritical)
+    private void DamagePopupTextClientRpc(float damage, bool isCritical)
     {
-        ColorUtility.TryParseHtmlString("#ffeb57", out Color critColor);
+        //ColorUtility.TryParseHtmlString(hexColorStr, out Color color);
 
         PopupTextManager.Instance.PopupText(
             damage.ToString("F0"),
-            position,
-            isCritical ? 24 : 16,
-            isCritical ? critColor : Color.white,
+            transform.position + k_popupTextOffset,
+            isCritical ? ReceiveCriticalDamageFontSize : ReceiveDamageFontSize,
+            isCritical ? ReceiveCriticalDamageColor : ReceiveDamageColor,
             0.2f);
     }
 
@@ -261,7 +325,7 @@ public class NetworkCharacter : NetworkBehaviour
     {
         // set values to base values
         HpMax.Value = baseHpMax;           // needs to be += as we also add to hp from enemy controller with dynamicHp
-        HpCurrent.Value = baseHpCurrent;    
+        HpCurrent.Value = baseHpCurrent;
         HpBuffer.Value = baseHpBuffer;
         AttackPower.Value = baseAttackPower;
         CriticalChance.Value = baseCriticalChance;
@@ -330,7 +394,9 @@ public class NetworkCharacter : NetworkBehaviour
             return;
         }
 
-        //Debug.Log("RecalculateStats()");
+        var hpRatio = HpCurrent.Value / HpMax.Value;
+        var apRatio = ApCurrent.Value / ApMax.Value;
+
 
         Dictionary<CharacterStat, float> baseStats = new Dictionary<CharacterStat, float>
         {
@@ -397,12 +463,12 @@ public class NetworkCharacter : NetworkBehaviour
 
         // Update network variables with final calculated stats
         HpMax.Value = baseStats[CharacterStat.HpMax];
-        HpCurrent.Value = HpMax.Value;
+        HpCurrent.Value = HpMax.Value * hpRatio;
         HpBuffer.Value = baseStats[CharacterStat.HpBuffer];
         AttackPower.Value = baseStats[CharacterStat.AttackPower];
         CriticalChance.Value = baseStats[CharacterStat.CriticalChance];
         ApMax.Value = baseStats[CharacterStat.ApMax];
-        ApCurrent.Value = ApMax.Value;
+        ApCurrent.Value = ApMax.Value * apRatio;
         ApBuffer.Value = baseStats[CharacterStat.ApBuffer];
         DoubleStrikeChance.Value = baseStats[CharacterStat.DoubleStrikeChance];
         CriticalDamage.Value = baseStats[CharacterStat.CriticalDamage];

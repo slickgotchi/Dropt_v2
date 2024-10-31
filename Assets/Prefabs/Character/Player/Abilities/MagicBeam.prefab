@@ -223,7 +223,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   abilityType: 1
   ApCost: 0
-  DamageMultiplier: 1
+  DamageMultiplier: 1.875
   ExecutionDuration: 0.7
   ExecutionSlowFactor: 0
   CooldownDuration: 0
@@ -231,16 +231,17 @@ MonoBehaviour:
   TeleportDistance: 0
   AutoMoveDistance: 0
   AutoMoveDuration: 0
-  HoldChargeTime: 2
+  HoldChargeTime: 3
   HoldSlowFactor: 0.2
   KnockbackDistance: 0
   KnockbackStunDuration: 0
   Player: {fileID: 0}
   SpecialCooldown: 0
+  audioOnActivate: {fileID: 8300000, guid: fa6b48767eb203e4ca945d5d7997711b, type: 3}
   PlayerAbilityCentreOffset: {x: 0, y: 0.5, z: 0}
   Projection: 0
-  HoldStartDamageMultiplier: 0.5
-  HoldFinishDamageMultiplier: 2.5
+  HoldStartDamageMultiplier: 0.7
+  HoldFinishDamageMultiplier: 6
 --- !u!1 &4708556748347195212
 GameObject:
   m_ObjectHideFlags: 0

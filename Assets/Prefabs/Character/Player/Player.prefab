@@ -786,8 +786,8 @@ GameObject:
   m_Component:
   - component: {fileID: 3968243587037172639}
   - component: {fileID: 3292186484427281000}
-  - component: {fileID: 8536356964330383299}
   - component: {fileID: -2378564677302240399}
+  - component: {fileID: 8536356964330383299}
   - component: {fileID: 8612981247896588042}
   - component: {fileID: 5680879491830858358}
   - component: {fileID: 3992886838419682707}
@@ -809,6 +809,7 @@ GameObject:
   - component: {fileID: 407757288669581628}
   - component: {fileID: 3353798826812701960}
   - component: {fileID: 1149752790437833971}
+  - component: {fileID: 9139733696831883361}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -876,6 +877,27 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
+--- !u!114 &-2378564677302240399
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1519051571170098037}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 1051059747
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
 --- !u!114 &8536356964330383299
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -906,27 +928,6 @@ MonoBehaviour:
   m_DefaultActionMap: InGame
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
---- !u!114 &-2378564677302240399
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1519051571170098037}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1311497934
-  InScenePlacedSourceGlobalObjectIdHash: 0
-  AlwaysReplicateAsRoot: 0
-  SynchronizeTransform: 1
-  ActiveSceneSynchronization: 0
-  SceneMigrationSynchronization: 1
-  SpawnWithObservers: 1
-  DontDestroyWithOwner: 1
-  AutoObjectParentSync: 1
 --- !u!95 &8612981247896588042
 Animator:
   serializedVersion: 5
@@ -998,6 +999,7 @@ MonoBehaviour:
   m_leftHandFaceLeft: {fileID: 8556272444903127599}
   m_leftHandFaceRight: {fileID: 5934498262566843807}
   DustParticleSystem: {fileID: 2269189495425275192}
+  hitGroundAudio: {fileID: 8300000, guid: 1be6401f2a821834c87d3f7c53f5dd9f, type: 3}
 --- !u!114 &-774090055585674696
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1134,8 +1136,9 @@ MonoBehaviour:
     m_InternalValue: 0
   Pet:
     m_InternalValue: 0
-  leftHandStarterWeapon: 161
+  leftHandStarterWeapon: 120
   rightHandStarterWeapon: 7
+  starterPet: 301
 --- !u!114 &2488828689398098102
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1186,12 +1189,6 @@ MonoBehaviour:
   SplashVolley: {fileID: 0}
   splashBombPrefab: {fileID: 2544078778212307353, guid: c12b8e341e450584e9ac58a8c8873a2f, type: 3}
   SplashBomb: {fileID: 0}
-  consumePrefab: {fileID: 5513961950994649154, guid: 8f715fe5706413d4e804bc231e6c9ed5, type: 3}
-  Consume: {fileID: 0}
-  auraPrefab: {fileID: 2544078778212307353, guid: 01789990e9b735645a2f544908f6d8d9, type: 3}
-  Aura: {fileID: 0}
-  throwPrefab: {fileID: 2544078778212307353, guid: 2f453ceff28fe1b4d88a614ef3e87ea9, type: 3}
-  Throw: {fileID: 0}
   shieldBashPrefab: {fileID: 2544078778212307353, guid: 501fb9e2cbad2ac4cb4f9a2274247224, type: 3}
   ShieldBash: {fileID: 0}
   shieldBlockPrefab: {fileID: 2544078778212307353, guid: 1211080fa1b594cbf86cbd168127c93c, type: 3}
@@ -1216,7 +1213,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df456dae0e37bc44489437af91b77145, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Ping: 0
+  RTT:
+    m_InternalValue: 0
 --- !u!114 &3592093351719058109
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1249,18 +1247,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4fab4410d163ddc4d904b5305706efd5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SpiritDust:
+  ectoBalance_offchain:
     m_InternalValue: 0
-  cGHST:
+  dustBalance_offchain:
+  Ecto:
     m_InternalValue: 0
-  Essence:
-    m_InternalValue: 1000
-  cGhstDungeonStartAmount: 10
-  cGhstVillageBank:
+  bombBalance_offchain:
     m_InternalValue: 0
-  cGhstDungeonBank:
+  ectoDungeonStartAmount_offchain:
     m_InternalValue: 0
-  cGhstDungeon:
+  bombDungeonCapacity_offchain:
+    m_InternalValue: 0
+  healSalveDungeonCharges_offchain:
+    m_InternalValue: 0
+  isEssenceInfused_offchain:
+    m_InternalValue: 0
+  ectoStartCount_dungeon:
+    m_InternalValue: 0
+  ectoCount_dungeon:
+    m_InternalValue: 0
+  dustStartCount_dungeon:
+    m_InternalValue: 0
+  dustCount_dungeon:
+    m_InternalValue: 0
+  bombStartCount_dungeon:
+    m_InternalValue: 0
+  bombCount_dungeon:
+    m_InternalValue: 0
+  healSalveChargeCount_dungeon:
     m_InternalValue: 0
 --- !u!114 &3933483105401015273
 MonoBehaviour:
@@ -1326,8 +1340,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8155b730471d24c6d88ac78639bbd0c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseHpMax: 420
-  baseHpCurrent: 420
+  baseHpMax: 500
+  baseHpCurrent: 500
   baseHpBuffer: 0
   baseAttackPower: 30
   baseCriticalChance: 0.1
@@ -1336,7 +1350,7 @@ MonoBehaviour:
   baseApBuffer: 0
   baseDoubleStrikeChance: 0.05
   baseCriticalDamage: 1.5
-  baseMoveSpeed: 6.22
+  baseMoveSpeed: 7.2
   baseAccuracy: 1
   baseEvasion: 0
   baseDamageReduction: 0
@@ -1344,7 +1358,11 @@ MonoBehaviour:
   baseApRegen: 2.5
   baseKnockbackMutliplier: 1
   baseStunMultiplier: 1
-  popupTextOffset: {x: 0, y: 1.5, z: 0}
+  k_popupTextOffset: {x: 0, y: 1.5, z: 0}
+  ReceiveDamageColor: {r: 0.76862746, g: 0.14117648, b: 0.1882353, a: 1}
+  ReceiveDamageFontSize: 16
+  ReceiveCriticalDamageColor: {r: 1, g: 0, b: 0.2509804, a: 1}
+  ReceiveCriticalDamageFontSize: 24
   HpMax:
     m_InternalValue: 0
   HpCurrent:
@@ -1381,6 +1399,11 @@ MonoBehaviour:
     m_InternalValue: 0
   StunMultiplier:
     m_InternalValue: 0
+  OnHurtAudio: {fileID: 0}
+  baseEssence: 1000
+  baseInfusedEssenceBonus: 250
+  Essence:
+    m_InternalValue: 0
   bodyBuffObject: {fileID: 0}
   faceBuffObject: {fileID: 0}
   eyesBuffObject: {fileID: 0}
@@ -1416,6 +1439,22 @@ MonoBehaviour:
   ReticleTransform: {fileID: 2346943555948467453}
   mode: 2
   MaxDistance: 8
+--- !u!114 &9139733696831883361
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1519051571170098037}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66e9bbd246ad54123bd60196dcfc1714, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  boxSize: {x: 30, y: 24}
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 32768
 --- !u!1 &1722710475381033325
 GameObject:
   m_ObjectHideFlags: 0

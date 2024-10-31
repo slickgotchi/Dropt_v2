@@ -18,6 +18,8 @@ public class SmashWave : PlayerAbility
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         m_collider = GetComponentInChildren<Collider2D>();
     }
 
@@ -59,7 +61,9 @@ public class SmashWave : PlayerAbility
 
     private void CustomCollisionCheck()
     {
-        // each frame do our collision checks
+        if (IsServer && !IsHost) PlayerAbility.RollbackEnemies(Player);
+
+        // resync transforms
         Physics2D.SyncTransforms();
 
         // do a collision check
@@ -104,5 +108,7 @@ public class SmashWave : PlayerAbility
         }
         // clear out colliders
         enemyHitColliders.Clear();
+
+        if (IsServer && !IsHost) PlayerAbility.UnrollEnemies();
     }
 }

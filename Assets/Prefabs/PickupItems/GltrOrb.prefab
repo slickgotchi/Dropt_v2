@@ -93,9 +93,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5166353794626948308}
+  - component: {fileID: 4644299227044984160}
   - component: {fileID: 5817142193143387106}
   - component: {fileID: 4276380145464088832}
-  - component: {fileID: 4644299227044984160}
   - component: {fileID: -5479798731662930110}
   m_Layer: 17
   m_Name: GltrOrb
@@ -121,44 +121,6 @@ Transform:
   - {fileID: 7773363580230098900}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5817142193143387106
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 790926647510716971}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c2dd4ef68e5f9844d8c9b0a62466b7c2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  tinySprite: {fileID: 21300000, guid: 0e778a4f209d0ce45a804ea64392058b, type: 3}
-  smallSprite: {fileID: 21300000, guid: ef160ce2eaa38ca4ba4b723ea674117a, type: 3}
-  mediumSprite: {fileID: 21300000, guid: 817b3d29840f4044d8e4b7e6ef2b524d, type: 3}
-  largeSprite: {fileID: 21300000, guid: b8a2acc2b136b524fb4d8e82c355a83a, type: 3}
-  m_spriteRenderer: {fileID: 4654335252262048521}
---- !u!114 &4276380145464088832
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 790926647510716971}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2936512869
-  InScenePlacedSourceGlobalObjectIdHash: 0
-  AlwaysReplicateAsRoot: 0
-  SynchronizeTransform: 1
-  ActiveSceneSynchronization: 0
-  SceneMigrationSynchronization: 1
-  SpawnWithObservers: 1
-  DontDestroyWithOwner: 0
-  AutoObjectParentSync: 1
 --- !u!58 &4644299227044984160
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -194,6 +156,44 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 0.25
+--- !u!114 &5817142193143387106
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 790926647510716971}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2dd4ef68e5f9844d8c9b0a62466b7c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tinySprite: {fileID: 21300000, guid: 0e778a4f209d0ce45a804ea64392058b, type: 3}
+  smallSprite: {fileID: 21300000, guid: ef160ce2eaa38ca4ba4b723ea674117a, type: 3}
+  mediumSprite: {fileID: 21300000, guid: 817b3d29840f4044d8e4b7e6ef2b524d, type: 3}
+  largeSprite: {fileID: 21300000, guid: b8a2acc2b136b524fb4d8e82c355a83a, type: 3}
+  m_spriteRenderer: {fileID: 4654335252262048521}
+--- !u!114 &4276380145464088832
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 790926647510716971}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 3377569019
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
 --- !u!114 &-5479798731662930110
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -207,8 +207,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 8
-  IsItemPicked:
-    m_InternalValue: 0
 --- !u!1 &2124482364370350586
 GameObject:
   m_ObjectHideFlags: 0

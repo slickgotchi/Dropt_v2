@@ -61,6 +61,7 @@ namespace Dropt
         protected Vector3 RoamAnchorPoint;
         protected NetworkCharacter networkCharacter;
         [HideInInspector] public NavMeshAgent m_navMeshAgent;
+        protected Unity.Netcode.Components.NetworkTransform m_networkTransform;
 
 
         [HideInInspector] public Vector3 AttackDirection;
@@ -86,23 +87,35 @@ namespace Dropt
             Knockback,
             Stun,
             Flee,
+            PredictionToAuthorativeSmoothing
         }
 
         [HideInInspector] public NetworkVariable<State> state = new NetworkVariable<State>(State.Spawn);
         [HideInInspector] public NetworkVariable<float> debugSlider = new NetworkVariable<float>(0);
 
-        private void Awake()
-        {
-        }
 
         public override void OnNetworkSpawn()
         {
+            base.OnNetworkSpawn();
+
             networkCharacter = GetComponent<NetworkCharacter>();
             m_navMeshAgent = GetComponent<NavMeshAgent>();
+            m_networkTransform = GetComponent<Unity.Netcode.Components.NetworkTransform>();
+
+            // Find the closest point on the NavMesh
+            Vector3 navMeshPosition;
+            if (FindClosestNavMeshPosition(transform.position, out navMeshPosition))
+            {
+                transform.position = navMeshPosition;
+            }
+            else
+            {
+                Debug.LogWarning("No valid NavMesh found near spawn position.");
+            }
 
             RoamAnchorPoint = transform.position;
             m_spawnTimer = SpawnDuration;
-            state.Value = State.Spawn;
+            if (IsServer) state.Value = State.Spawn;
             OnSpawnStart();
 
             // set debug visibility
@@ -117,6 +130,9 @@ namespace Dropt
             OnUpdate(dt);
             HandleDebugCanvas();
 
+            HandleClientPredictedKnockback(dt);
+            HandleClientPredictedStun(dt);
+
             if (!IsServer) return;
             if (NearestPlayer == null) return;
 
@@ -124,7 +140,7 @@ namespace Dropt
             {
                 case State.Null:
                     HandleNull(dt);
-                    break;                
+                    break;
                 case State.Spawn:
                     HandleSpawning(dt);
                     break;
@@ -154,6 +170,13 @@ namespace Dropt
                     break;
                 default: break;
             }
+        }
+
+        private void LateUpdate()
+        {
+            float dt = Time.deltaTime;
+
+            HandlClientPredictionToAuthorativeSmoothing(dt);
         }
 
         public virtual void OnNullUpdate(float dt) { }
@@ -412,7 +435,73 @@ namespace Dropt
             m_preKnockbackState = state.Value;
 
             // start knockback state
-            StartState(State.Knockback, k_knockbackDuration);
+            if (IsServer)
+            {
+                StartState(State.Knockback, k_knockbackDuration);
+            }
+            else if (IsClient)
+            {
+                m_clientPredictedState = State.Knockback;
+                if (m_networkTransform != null) m_networkTransform.enabled = false;
+                m_knockbackDuration = k_knockbackDuration;
+            }
+        }
+
+        State m_clientPredictedState = State.Null;
+
+        void HandleClientPredictedKnockback(float dt)
+        {
+            if (!IsClient) return;
+            if (m_clientPredictedState != State.Knockback) return;
+
+            m_knockbackTimer += dt;
+            var alpha = math.min(m_knockbackTimer / m_knockbackDuration, 1);
+            transform.position = math.lerp(m_knockbackStartPosition, m_knockbackFinishPosition, alpha);
+
+            if (m_knockbackTimer >= m_knockbackDuration)
+            {
+                m_clientPredictedState = State.Stun;
+                if (m_networkTransform != null) m_stunTimer = StunDuration;
+                return;
+            }
+        }
+
+        void HandleClientPredictedStun(float dt)
+        {
+            if (!IsClient) return;
+            if (m_clientPredictedState != State.Stun) return;
+
+            m_stunTimer -= dt;
+            if (m_stunTimer < 0)
+            {
+                m_clientPredictedState = State.PredictionToAuthorativeSmoothing;
+                m_smoothingTimer = 0f;
+                m_predictedStunFinishPosition = transform.position;
+                m_networkTransform.enabled = true;
+                return;
+            }
+        }
+
+        float m_smoothingTimer = 0f;
+        float k_smoothingDuration = 1f;
+        Vector3 m_predictedStunFinishPosition;
+
+        void HandlClientPredictionToAuthorativeSmoothing(float dt)
+        {
+            if (!IsClient) return;
+            if (m_clientPredictedState != State.PredictionToAuthorativeSmoothing) return;
+
+            var networkTransformPosition = transform.position;
+
+            m_smoothingTimer += dt;
+            var alpha = math.min(m_smoothingTimer / k_smoothingDuration, 1);
+
+            transform.position = math.lerp(m_predictedStunFinishPosition, networkTransformPosition, alpha);
+
+            if (m_smoothingTimer >= k_smoothingDuration)
+            {
+                m_clientPredictedState = State.Null;
+            }
         }
 
         private float CalculateKnockbackDistance(Vector3 direction, float distance)
@@ -541,12 +630,27 @@ namespace Dropt
             }
         }
 
-        public void ChangeState(State newState, float newDuration =  -1f)
+        public void ChangeState(State newState, float newDuration = -1f)
         {
             if (!IsServer) return;
 
             FinishState(state.Value);
             StartState(newState, newDuration);
         }
+
+        private bool FindClosestNavMeshPosition(Vector3 origin, out Vector3 navMeshPosition, float maxNavMeshDistance = 5f)
+        {
+            // Sample the NavMesh to find the closest point within the specified range
+            NavMeshHit hit;
+            if (NavMesh.SamplePosition(origin, out hit, maxNavMeshDistance, NavMesh.AllAreas))
+            {
+                navMeshPosition = hit.position;
+                return true; // Found a valid NavMesh surface
+            }
+
+            navMeshPosition = Vector3.zero;
+            return false; // No valid NavMesh surface found
+        }
+
     }
 }

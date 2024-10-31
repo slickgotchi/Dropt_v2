@@ -8,7 +8,6 @@ public class FudWisp_Explode : EnemyAbility
 {
     [Header("FudWisp_Explode Parameters")]
     public float ExplosionDuration = 1f;
-    public float ExplosionRadius = 3f;
     public float RootDuration = 3f;
 
     [SerializeField] private Collider2D Collider;
@@ -26,7 +25,6 @@ public class FudWisp_Explode : EnemyAbility
         transform.position = Parent.transform.position;
 
         // resize explosion collider and check collisions
-        Collider.GetComponent<CircleCollider2D>().radius = ExplosionRadius;
         HandleCollisions(Collider);
 
         // destroy the parent object
@@ -35,12 +33,6 @@ public class FudWisp_Explode : EnemyAbility
             transform.parent = null;
             Parent.GetComponent<NetworkObject>().Despawn();
         }
-
-        // spawn visual effect
-        SpawnBasicCircleClientRpc(
-            transform.position,
-            Dropt.Utils.Color.HexToColor("#99e65f", 0.5f),
-            ExplosionRadius);
     }
 
     private void HandleCollisions(Collider2D collider)

@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
@@ -28,7 +26,7 @@ public class Interactable : NetworkBehaviour
     private Slider m_holdSlider;
     private Animator m_popupAnimator;
     private bool m_isPopupVisible = false;
-    
+
     [HideInInspector] public Status status;
     [HideInInspector] public ulong playerNetworkObjectId;
 
@@ -62,6 +60,8 @@ public class Interactable : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         if (PopupCanvasPrefab != null && IsClient)
         {
             m_popupCanvas = Instantiate(PopupCanvasPrefab);
@@ -94,12 +94,13 @@ public class Interactable : NetworkBehaviour
     {
         if (!IsClient) return;
         if (!collider.HasComponent<CameraFollowerAndPlayerInteractor>()) return;
-
         status = Status.Active;
-
         playerNetworkObjectId = collider.GetComponent<CameraFollowerAndPlayerInteractor>()
-            .Player.GetComponent<NetworkObject>().NetworkObjectId;
-
+                .Player.GetComponent<NetworkObject>().NetworkObjectId;
+        if (!IsServer)
+        {
+            SetPlayerNetworkObjectIdServerRpc(playerNetworkObjectId);
+        }
         OnTriggerStartInteraction();
 
         if (m_popupCanvas != null)
@@ -108,12 +109,18 @@ public class Interactable : NetworkBehaviour
         }
     }
 
+    [ServerRpc(RequireOwnership = false)]
+    private void SetPlayerNetworkObjectIdServerRpc(ulong playerObjectId)
+    {
+        playerNetworkObjectId = playerObjectId;
+    }
+
     private bool m_isOpen = false;
 
     private void Update()
     {
         TryGetLocalPlayerPrediction();
-        
+
         m_pressTimer -= Time.deltaTime;
 
         if (status == Status.Inactive) return;
@@ -201,6 +208,30 @@ public class Interactable : NetworkBehaviour
         }
     }
 
+    //public bool IsPlayerInRange(ulong playerNetworkObjectId)
+    //{
+    //    var player = NetworkManager.SpawnManager
+
+    //    var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+    //    foreach (var player in players)
+    //    {
+    //        var dist = math.distance(transform.position, player.transform.position);
+    //        if (dist < k_validateInteractionDistance) return true;
+    //    }
+
+    //    return false;
+    //}
+
+    public ulong GetLocalPlayerNetworkObjectId()
+    {
+        return m_localPlayerPrediction.GetComponent<NetworkObject>().NetworkObjectId;
+    }
+
+    public bool IsLocalPlayerNetworkObjectId(ulong playerNetworkObjectId)
+    {
+        return playerNetworkObjectId == GetLocalPlayerNetworkObjectId();
+    }
+
     public bool IsValidInteraction(ulong networkObjectId)
     {
         // try get player controller
@@ -209,6 +240,6 @@ public class Interactable : NetworkBehaviour
 
         // is player controller within "check" radius of interactor
         var distance = math.distance(playerController.transform.position, transform.position);
-        return distance < k_validateInteractionDistance; 
+        return distance < k_validateInteractionDistance;
     }
 }

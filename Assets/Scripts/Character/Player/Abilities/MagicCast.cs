@@ -11,32 +11,42 @@ public class MagicCast : PlayerAbility
     public float Duration = 1f;
 
     [Header("Projectile Prefab")]
-    public GameObject MagicOrbPrefab;
+    public GameObject ProjectilePrefab;
+
+    [Header("Visual Projectile Prefab")]
+    public GameObject VisualProjectilePrefab;
 
     // variables for keeping track of the spawned projectile
-    private GameObject m_orbProjectile;
-    private NetworkVariable<ulong> m_orbProjectileId = new NetworkVariable<ulong>(0);
+    private GameObject m_projectile;
+    private NetworkVariable<ulong> m_projectileId = new NetworkVariable<ulong>(0);
+
+    private GameObject m_instantiatedVisualProjectile;
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         if (!IsServer) return;
 
-        GenericProjectile.InitSpawnProjectileOnServer(ref m_orbProjectile, ref m_orbProjectileId, MagicOrbPrefab);
+        GenericProjectile.InitSpawnProjectileOnServer(ref m_projectile, ref m_projectileId, ProjectilePrefab);
     }
 
     public override void OnNetworkDespawn()
     {
-        if (m_orbProjectile != null)
-        {
-            if (IsServer) m_orbProjectile.GetComponent<NetworkObject>().Despawn();
-        }
+        if (!IsServer) return;
+
+        if (m_projectile != null) m_projectile.GetComponent<NetworkObject>().Despawn();
+
+        base.OnNetworkDespawn();
     }
 
-    public override void OnUpdate()
+    protected override void Update()
     {
+        base.Update();
+
         if (IsClient)
         {
-            GenericProjectile.TryAddProjectileOnClient(ref m_orbProjectile, ref m_orbProjectileId, NetworkManager);
+            GenericProjectile.TryAddProjectileOnClient(ref m_projectile, ref m_projectileId, NetworkManager);
         }
     }
 
@@ -54,15 +64,14 @@ public class MagicCast : PlayerAbility
         ActivateProjectile(ActivationWearableNameEnum, ActivationInput.actionDirection, Distance, Duration);
     }
 
-    ref GameObject GetProjectileInstance(Wearable.NameEnum activationWearable)
+    GameObject InstantiateProjectile(Wearable.NameEnum activationWearable)
     {
-        return ref m_orbProjectile;
+        return Instantiate(VisualProjectilePrefab);
     }
 
     void ActivateProjectile(Wearable.NameEnum activationWearable, Vector3 direction, float distance, float duration)
     {
-        GameObject projectile = GetProjectileInstance(activationWearable);
-        var no_projectile = projectile.GetComponent<GenericProjectile>();
+        var no_projectile = m_projectile.GetComponent<GenericProjectile>();
         var no_projectileId = no_projectile.GetComponent<NetworkObject>().NetworkObjectId;
         var playerCharacter = Player.GetComponent<NetworkCharacter>();
         var startPosition =
@@ -73,6 +82,14 @@ public class MagicCast : PlayerAbility
         // Local Client & Server
         if (Player.GetComponent<NetworkObject>().IsLocalPlayer || IsServer)
         {
+            if (IsClient)
+            {
+                m_instantiatedVisualProjectile = InstantiateProjectile(activationWearable);
+                m_instantiatedVisualProjectile.transform.position = startPosition;
+                if (no_projectile.VisualGameObject != null) Destroy(no_projectile.VisualGameObject);
+                no_projectile.VisualGameObject = m_instantiatedVisualProjectile;
+            }
+
             // init
             no_projectile.Init(startPosition, direction, distance, duration, 1,
                 IsServer ? PlayerAbility.NetworkRole.Server : PlayerAbility.NetworkRole.LocalClient,
@@ -92,14 +109,15 @@ public class MagicCast : PlayerAbility
         if (IsServer)
         {
             ulong playerId = Player.GetComponent<NetworkObject>().NetworkObjectId;
-            ActivateProjectileClientRpc(startPosition,
+            ActivateProjectileClientRpc(
+                activationWearable, startPosition,
                 direction, distance, duration,
                 playerId, no_projectileId);
         }
     }
 
     [Rpc(SendTo.ClientsAndHost)]
-    void ActivateProjectileClientRpc(Vector3 startPosition, Vector3 direction,
+    void ActivateProjectileClientRpc(Wearable.NameEnum activationWearable, Vector3 startPosition, Vector3 direction,
         float distance, float duration, ulong playerNetworkObjectId, ulong projectileNetworkObjectId)
     {
         // Remote Client
@@ -113,6 +131,11 @@ public class MagicCast : PlayerAbility
             var no_projectile = NetworkManager.SpawnManager.SpawnedObjects[projectileNetworkObjectId].
                 GetComponent<GenericProjectile>();
 
+            m_instantiatedVisualProjectile = InstantiateProjectile(activationWearable);
+            m_instantiatedVisualProjectile.transform.position = startPosition;
+            if (no_projectile.VisualGameObject != null) Destroy(no_projectile.VisualGameObject);
+            no_projectile.VisualGameObject = m_instantiatedVisualProjectile;
+
             // init
             no_projectile.Init(startPosition, direction, distance, duration, 1,
                 PlayerAbility.NetworkRole.RemoteClient,
@@ -123,9 +146,5 @@ public class MagicCast : PlayerAbility
             // init
             no_projectile.Fire();
         }
-    }
-
-    public override void OnFinish()
-    {
     }
 }

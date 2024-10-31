@@ -686,6 +686,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68a437cd191db314f9e436ebc9a0cb26, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  levelMusic: {fileID: 0}
+  isEssenceDepleting: 1
 --- !u!114 &1916877586594215006
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4760,6 +4762,14 @@ PrefabInstance:
       propertyPath: SubLevels.Array.data[1].SpawnChance
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 5418455863162677766, guid: 22473e0d91a435e46aa11980314009a2, type: 3}
+      propertyPath: SubLevels.Array.data[0].SubLevelPrefab
+      value: 
+      objectReference: {fileID: 4975717764247852311, guid: 8490120a18b3a4ffb9cc8e91745ba50f, type: 3}
+    - target: {fileID: 5418455863162677766, guid: 22473e0d91a435e46aa11980314009a2, type: 3}
+      propertyPath: SubLevels.Array.data[1].SubLevelPrefab
+      value: 
+      objectReference: {fileID: 4194175158865134083, guid: 6413385158f6342bca5973eae7579e12, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

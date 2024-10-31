@@ -42,6 +42,11 @@ public abstract class CodeInjectorVariable<T>
     {
         return UpdatedValue;
     }
+
+    public T GetValue()
+    {
+        return Value;
+    }
 }
 
 [System.Serializable]
@@ -50,4 +55,3 @@ public class CodeInjectorVariableInput<T>
     public float Multiplier;
     public T Value;
 }
-

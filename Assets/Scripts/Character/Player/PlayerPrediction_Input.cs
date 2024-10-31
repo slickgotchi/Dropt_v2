@@ -9,6 +9,9 @@ using Unity.Mathematics;
 
 public partial class PlayerPrediction : NetworkBehaviour
 {
+    // for calculating mouse positions
+    private Vector2 m_cursorScreenPosition;
+
     // called every frame in the main PlayerPrediction.cs file Update()
     private void UpdateInput()
     {
@@ -20,7 +23,7 @@ public partial class PlayerPrediction : NetworkBehaviour
             new Vector3(m_cursorScreenPosition.x, m_cursorScreenPosition.y, Camera.main.transform.position.z));
 
         // Since it's a 2D game, we set the Z coordinate to 0
-        m_cursorWorldPosition = new Vector3(screenToWorldPosition.x, screenToWorldPosition.y, 0);
+        //m_cursorWorldPosition = new Vector3(screenToWorldPosition.x, screenToWorldPosition.y, 0);
 
         // handle movement
         if (IsMovementEnabled && IsInputEnabled)
@@ -86,7 +89,7 @@ public partial class PlayerPrediction : NetworkBehaviour
         if (!IsInputEnabled) return;
 
         m_abilityHand = Hand.Left;
-        var lhWearable = GetComponent<PlayerEquipment>().LeftHand.Value;
+        var lhWearable = m_playerEquipment.LeftHand.Value;
         m_triggeredAbilityEnum = m_playerAbilities.GetAttackAbilityEnum(lhWearable);
     }
 
@@ -115,7 +118,7 @@ public partial class PlayerPrediction : NetworkBehaviour
         if (!IsInputEnabled) return;
 
         m_abilityHand = Hand.Left;
-        var lhWearable = GetComponent<PlayerEquipment>().LeftHand.Value;
+        var lhWearable = m_playerEquipment.LeftHand.Value;
         m_triggeredAbilityEnum = m_playerAbilities.GetSpecialAbilityEnum(lhWearable);
     }
 
@@ -143,7 +146,7 @@ public partial class PlayerPrediction : NetworkBehaviour
         if (!IsLocalPlayer) return;
         if (!IsInputEnabled) return;
 
-        var lhWearable = GetComponent<PlayerEquipment>().LeftHand.Value;
+        var lhWearable = m_playerEquipment.LeftHand.Value;
         m_holdStartTriggeredAbilityEnum = m_playerAbilities.GetHoldAbilityEnum(lhWearable);
         var holdAbility = m_playerAbilities.GetAbility(m_holdStartTriggeredAbilityEnum);
         m_IsShieldAbilityActive = m_holdStartTriggeredAbilityEnum == PlayerAbilityEnum.ShieldBlock;
@@ -152,7 +155,7 @@ public partial class PlayerPrediction : NetworkBehaviour
 
         m_holdState = HoldState.LeftActive;
         m_holdChargeTime = holdAbility.HoldChargeTime;
-        m_holdInputStartTick = timer.CurrentTick;
+        m_holdInputStartTick = NetworkTimer_v2.Instance.TickCurrent;
     }
 
     private void OnMouse_LeftHoldStart(InputValue value)
@@ -178,7 +181,7 @@ public partial class PlayerPrediction : NetworkBehaviour
         if (m_holdState != HoldState.LeftActive) return;
 
         m_abilityHand = Hand.Left;
-        var lhWearable = GetComponent<PlayerEquipment>().LeftHand.Value;
+        var lhWearable = m_playerEquipment.LeftHand.Value;
         m_triggeredAbilityEnum = m_playerAbilities.GetHoldAbilityEnum(lhWearable);
 
         m_isHoldFinishFlag = true;
@@ -213,7 +216,7 @@ public partial class PlayerPrediction : NetworkBehaviour
         if (!IsInputEnabled) return;
 
         m_abilityHand = Hand.Right;
-        var rhWearable = GetComponent<PlayerEquipment>().RightHand.Value;
+        var rhWearable = m_playerEquipment.RightHand.Value;
         m_triggeredAbilityEnum = m_playerAbilities.GetAttackAbilityEnum(rhWearable);
     }
 
@@ -242,7 +245,7 @@ public partial class PlayerPrediction : NetworkBehaviour
         if (!IsInputEnabled) return;
 
         m_abilityHand = Hand.Right;
-        var rhWearable = GetComponent<PlayerEquipment>().RightHand.Value;
+        var rhWearable = m_playerEquipment.RightHand.Value;
         m_triggeredAbilityEnum = m_playerAbilities.GetSpecialAbilityEnum(rhWearable);
     }
 
@@ -270,7 +273,7 @@ public partial class PlayerPrediction : NetworkBehaviour
         if (!IsLocalPlayer) return;
         if (!IsInputEnabled) return;
 
-        var rhWearable = GetComponent<PlayerEquipment>().RightHand.Value;
+        var rhWearable = m_playerEquipment.RightHand.Value;
         m_holdStartTriggeredAbilityEnum = m_playerAbilities.GetHoldAbilityEnum(rhWearable);
         var holdAbility = m_playerAbilities.GetAbility(m_holdStartTriggeredAbilityEnum);
         m_IsShieldAbilityActive = m_holdStartTriggeredAbilityEnum == PlayerAbilityEnum.ShieldBlock;
@@ -279,7 +282,7 @@ public partial class PlayerPrediction : NetworkBehaviour
 
         m_holdChargeTime = holdAbility.HoldChargeTime;
         m_holdState = HoldState.RightActive;
-        m_holdInputStartTick = timer.CurrentTick;
+        m_holdInputStartTick = NetworkTimer_v2.Instance.TickCurrent;
     }
 
     private void OnMouse_RightHoldStart(InputValue value)
@@ -305,7 +308,7 @@ public partial class PlayerPrediction : NetworkBehaviour
         if (m_holdState != HoldState.RightActive) return;
 
         m_abilityHand = Hand.Right;
-        var rhWearable = GetComponent<PlayerEquipment>().RightHand.Value;
+        var rhWearable = m_playerEquipment.RightHand.Value;
         m_triggeredAbilityEnum = m_playerAbilities.GetHoldAbilityEnum(rhWearable);
 
         m_isHoldFinishFlag = true;
