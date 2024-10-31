@@ -41,14 +41,14 @@ public class VisualEffectsManager : MonoBehaviour
         if (m_cloudExplosionPool.Count > 0)
         {
             instance = m_cloudExplosionPool.Dequeue();
-            instance.SetActive(true);
+            instance?.SetActive(true);
         }
         else
         {
             instance = Instantiate(cloudExplosionPrefab);
         }
 
-        instance.transform.position = position;
+        if (instance != null) instance.transform.position = position;
         return instance;
     }
 
@@ -59,14 +59,14 @@ public class VisualEffectsManager : MonoBehaviour
         if (m_bulletExplosionPool.Count > 0)
         {
             instance = m_bulletExplosionPool.Dequeue();
-            instance.SetActive(true);
+            instance?.SetActive(true);
         }
         else
         {
             instance = Instantiate(bulletExplosionPrefab);
         }
 
-        instance.transform.position = position;
+        if (instance != null) instance.transform.position = position;
         return instance;
     }
 
@@ -79,16 +79,19 @@ public class VisualEffectsManager : MonoBehaviour
         if (m_splashExplosionPool.Count > 0)
         {
             instance = m_splashExplosionPool.Dequeue();
-            instance.SetActive(true);
+            instance?.SetActive(true);
         }
         else
         {
             instance = Instantiate(splashExplosionPrefab);
         }
 
-        instance.transform.position = position;
-        instance.transform.localScale = new Vector3(scale, scale, 1);
-        instance.GetComponentInChildren<SpriteRenderer>().color = (Color)color;
+        if (instance != null)
+        {
+            instance.transform.position = position;
+            instance.transform.localScale = new Vector3(scale, scale, 1);
+            instance.GetComponentInChildren<SpriteRenderer>().color = (Color)color;
+        }
         return instance;
     }
 
