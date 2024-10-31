@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
@@ -55,6 +54,8 @@ public class NetworkCharacter : NetworkBehaviour
     [HideInInspector] public NetworkVariable<float> ApRegen = new NetworkVariable<float>(0);
     [HideInInspector] public NetworkVariable<float> KnockbackMultiplier = new NetworkVariable<float>(0);
     [HideInInspector] public NetworkVariable<float> StunMultiplier = new NetworkVariable<float>(0);
+    [HideInInspector] public NetworkVariable<float> EnemyShield = new NetworkVariable<float>(0);
+    [HideInInspector] public NetworkVariable<float> MaxEnemyShield = new NetworkVariable<float>(0);
 
     public AudioClip OnHurtAudio;
 
@@ -88,28 +89,16 @@ public class NetworkCharacter : NetworkBehaviour
 
     public float GetAttackPower(float randomVariation = 0.1f)
     {
-        return UnityEngine.Random.Range(
+        return Random.Range(
             AttackPower.Value * (1 - randomVariation),
             AttackPower.Value * (1 + randomVariation));
     }
 
     public bool IsCriticalAttack()
     {
-        var rand = UnityEngine.Random.Range(0f, 0.999f);
+        var rand = Random.Range(0f, 0.999f);
         return rand < CriticalChance.Value;
     }
-
-    //public void SubscribeOnDamageEnemy(Action<ulong> onDamageToEnemy)
-    //{
-    //    Debug.Log("SubscribeOnDamageEnemy " + GetComponent<NetworkObject>().NetworkObjectId);
-    //    m_onDamageToEnemy = onDamageToEnemy;
-    //}
-
-    //public void UnsubscribeOnDamageEnemy()
-    //{
-    //    Debug.Log("UnsubscribeOnDamageEnemy" + GetComponent<NetworkObject>().NetworkObjectId);
-    //    m_onDamageToEnemy = null;
-    //}
 
     public virtual void TakeDamage(float damage, bool isCritical, GameObject damageDealer = null)
     {
@@ -128,7 +117,7 @@ public class NetworkCharacter : NetworkBehaviour
 
         // get the local player
         ulong localPlayerNOID = 0;
-        var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+        PlayerController[] players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
         foreach (var player in players)
         {
             if (player.GetComponent<NetworkObject>().IsLocalPlayer)
@@ -155,6 +144,11 @@ public class NetworkCharacter : NetworkBehaviour
         if (IsServer)
         {
             EventManager.Instance.TriggerEventWithParam("OnEnemyGetDamage", damageDealerNOID);
+            if (EnemyShield.Value > 0)
+            {
+                EnemyShield.Value--;
+                damage = 0;
+            }
             if (!IsHost)
             {
                 HandleEnemyTakeDamageClientRpc(damage, isCritical, damageDealerNOID);
@@ -204,7 +198,7 @@ public class NetworkCharacter : NetworkBehaviour
     {
         // get the local player
         ulong localPlayerNOID = 0;
-        var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+        PlayerController[] players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
         foreach (var player in players)
         {
             if (player.GetComponent<NetworkObject>().IsLocalPlayer)
