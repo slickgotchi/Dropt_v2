@@ -32,6 +32,9 @@ namespace GotchiHub
         public Button ConnectButton;
         public Button ConfirmButton;
 
+        [Header("Wallet Card")]
+        public TextMeshProUGUI ghstBalance;
+
         [Header("Gotchi Avatar & Name Card")]
         public TextMeshProUGUI NameText;
         public SVGImage OnchainSvgImage;
@@ -130,6 +133,7 @@ namespace GotchiHub
         public SVGImage Pet_OnchainSVGImage;
         public Outline Pet_Outline;
 
+        private string polygonGHSTAddress = "0x385eeac5cb85a38a9a07a70c73e0a3271cfb54a7";
 
         // private variables
         private GotchiDataManager m_gotchiDataManager;
@@ -147,7 +151,7 @@ namespace GotchiHub
         {
             NotConnected,
             Loading,
-            GotchiSelect,
+            Connected,
             NoGotchis,
             Hidden,
         }
@@ -192,12 +196,35 @@ namespace GotchiHub
             {
                 case MenuScreen.NotConnected: GotchiSelect_NotConnected.SetActive(true); break;
                 case MenuScreen.Loading: GotchiSelect_Loading.SetActive(true); break;
-                case MenuScreen.GotchiSelect: GotchiSelect_Menu.SetActive(true); break;
+                case MenuScreen.Connected:
+                    GotchiSelect_Menu.SetActive(true);
+                    UpdateGHSTBalance();
+                    break;
                 case MenuScreen.NoGotchis: GotchiSelect_NoGotchis.SetActive(true); break;
                 default: break;
             }
 
             m_menuScreen = menuScreen;
+        }
+
+        private float m_updateGHSTimer = 0f;
+
+        private async void UpdateGHSTBalance()
+        {
+            m_updateGHSTimer -= Time.deltaTime;
+            if (m_updateGHSTimer > 0) return;
+            m_updateGHSTimer = 10f;
+
+            try
+            {
+                // get ghst balance
+                var bal = await ThirdwebManager.Instance.SDK.Wallet.GetBalance(polygonGHSTAddress);
+                ghstBalance.text = (float.Parse(bal.value) / 1e18).ToString("F2");
+            }
+            catch (System.Exception e)
+            {
+                Debug.Log(e);
+            }
         }
 
         private void OnDestroy()
@@ -264,9 +291,10 @@ namespace GotchiHub
                     m_walletAddress = address;
 
                     ConnectButton.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = address;
+                    ConnectButton.GetComponentInChildren<Image>().color = Dropt.Utils.Color.HexToColor("#d3fc7e");
+                    ConnectButton.GetComponentInChildren<TextEllipsisInMiddle>().UpdateTextWithEllipsis();
 
                     // fetch new gotchis due to different address
-                    Debug.Log("Fetch gotchis");
                     await m_gotchiDataManager.FetchWalletGotchiData();
                 }
 
@@ -277,7 +305,7 @@ namespace GotchiHub
                     SetMenuScreen(MenuScreen.NoGotchis);
                 } else
                 {
-                    SetMenuScreen(MenuScreen.GotchiSelect);
+                    SetMenuScreen(MenuScreen.Connected);
                 }
             }
             catch (System.Exception e)
