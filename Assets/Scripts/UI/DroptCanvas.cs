@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Unity.Netcode;
@@ -41,7 +39,8 @@ public class DroptCanvas : MonoBehaviour
         return m_container.activeSelf;
     }
 
-    public bool IsInputActionSelectPressed() {
+    public bool IsInputActionSelectPressed()
+    {
         return (m_localPlayerInput != null
                 && m_localPlayerInput.actions["Select"] != null
                 && m_localPlayerInput.actions["Select"].IsPressed()

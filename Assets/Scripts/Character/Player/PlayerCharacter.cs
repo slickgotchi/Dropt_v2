@@ -42,8 +42,10 @@ public class PlayerCharacter : NetworkCharacter
                 if (playerOffchainData != null)
                 {
                     Essence.Value = baseEssence + (playerOffchainData.isEssenceInfused_offchain.Value ? baseInfusedEssenceBonus : 0);
+                    Essence.Value *= CodeInjector.Instance.EssencePressure.GetValue();
                 }
-            } else
+            }
+            else
             {
                 Essence.Value -= Time.deltaTime;
             }
@@ -284,7 +286,7 @@ public class PlayerCharacter : NetworkCharacter
 
         switch (rarityEnum)
         {
-            case Wearable.RarityEnum.Common: 
+            case Wearable.RarityEnum.Common:
                 switch (traitType)
                 {
                     case TraitType.NRG: return 25 * traitPoints;

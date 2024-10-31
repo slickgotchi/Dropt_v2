@@ -10,11 +10,11 @@ public class CodeInjector : NetworkBehaviour
         EnemyHP,
         EnemyDamage,
         EnemySpeed,
-        EliteEnemies,
+        //EliteEnemies,
         EnemyShield,
-        TrapDamage,
-        LimitedStock,
-        UnderPressure
+        //TrapDamage,
+        //LimitedStock,
+        EssencePressure
     }
 
     public static CodeInjector Instance { get; private set; }
@@ -22,11 +22,22 @@ public class CodeInjector : NetworkBehaviour
     [SerializeField] private CodeInjectorFloat m_enemyHp;
     [SerializeField] private CodeInjectorFloat m_enemyDamage;
     [SerializeField] private CodeInjectorFloat m_enemySpeed;
-    [SerializeField] private CodeInjectorFloat m_eliteEnemies;
+    //[SerializeField] private CodeInjectorFloat m_eliteEnemies;
     [SerializeField] private CodeInjectorInt m_enemyShield;
-    [SerializeField] private CodeInjectorFloat m_trapDamage;
-    [SerializeField] private CodeInjectorInt m_limitedStock;
-    [SerializeField] private CodeInjectorFloat m_underPressure;
+    //[SerializeField] private CodeInjectorFloat m_trapDamage;
+    //[SerializeField] private CodeInjectorInt m_limitedStock;
+    //[SerializeField] private CodeInjectorFloat m_underPressure;
+    [SerializeField] private CodeInjectorFloat m_essencePressure;
+
+    public CodeInjectorFloat EnemyHp => m_enemyHp;
+    public CodeInjectorFloat EnemyDamage => m_enemyDamage;
+    public CodeInjectorFloat EnemySpeed => m_enemySpeed;
+    //public CodeInjectorFloat EliteEnemies => m_eliteEnemies;
+    public CodeInjectorInt EnemyShield => m_enemyShield;
+    //public CodeInjectorFloat TrapDamage => m_trapDamage;
+    //public CodeInjectorInt LimitedStock => m_limitedStock;
+    //public CodeInjectorFloat UnderPressure => m_underPressure;
+    public CodeInjectorFloat EssencePressure => m_essencePressure;
 
     private float m_outputMultiplier;
 
@@ -83,11 +94,11 @@ public class CodeInjector : NetworkBehaviour
         m_enemyHp.Initialize();
         m_enemyDamage.Initialize();
         m_enemySpeed.Initialize();
-        m_eliteEnemies.Initialize();
+        //m_eliteEnemies.Initialize();
         m_enemyShield.Initialize();
-        m_trapDamage.Initialize();
-        m_limitedStock.Initialize();
-        m_underPressure.Initialize();
+        //m_trapDamage.Initialize();
+        //m_limitedStock.Initialize();
+        m_essencePressure.Initialize();
         UpdateOutputMultiplier();
         CodeInjectorCanvas.Instance.UpdateVariables();
     }
@@ -105,20 +116,20 @@ public class CodeInjector : NetworkBehaviour
             case Variable.EnemySpeed:
                 m_enemySpeed.Add();
                 break;
-            case Variable.EliteEnemies:
-                m_eliteEnemies.Add();
-                break;
+            //case Variable.EliteEnemies:
+            //    m_eliteEnemies.Add();
+            //    break;
             case Variable.EnemyShield:
                 m_enemyShield.Add();
                 break;
-            case Variable.TrapDamage:
-                m_trapDamage.Add();
-                break;
-            case Variable.LimitedStock:
-                m_limitedStock.Add();
-                break;
-            case Variable.UnderPressure:
-                m_underPressure.Add();
+            //case Variable.TrapDamage:
+            //    m_trapDamage.Add();
+            //    break;
+            //case Variable.LimitedStock:
+            //    m_limitedStock.Add();
+            //    break;
+            case Variable.EssencePressure:
+                m_essencePressure.Add();
                 break;
             default:
                 break;
@@ -139,20 +150,20 @@ public class CodeInjector : NetworkBehaviour
             case Variable.EnemySpeed:
                 m_enemySpeed.Subtract();
                 break;
-            case Variable.EliteEnemies:
-                m_eliteEnemies.Subtract();
-                break;
+            //case Variable.EliteEnemies:
+            //    m_eliteEnemies.Subtract();
+            //    break;
             case Variable.EnemyShield:
                 m_enemyShield.Subtract();
                 break;
-            case Variable.TrapDamage:
-                m_trapDamage.Subtract();
-                break;
-            case Variable.LimitedStock:
-                m_limitedStock.Subtract();
-                break;
-            case Variable.UnderPressure:
-                m_underPressure.Subtract();
+            //case Variable.TrapDamage:
+            //    m_trapDamage.Subtract();
+            //    break;
+            //case Variable.LimitedStock:
+            //    m_limitedStock.Subtract();
+            //    break;
+            case Variable.EssencePressure:
+                m_essencePressure.Subtract();
                 break;
         }
         UpdateOutputMultiplier();
@@ -165,11 +176,11 @@ public class CodeInjector : NetworkBehaviour
             Variable.EnemyHP => m_enemyHp.ToString(),
             Variable.EnemyDamage => m_enemyDamage.ToString(),
             Variable.EnemySpeed => m_enemySpeed.ToString(),
-            Variable.EliteEnemies => m_eliteEnemies.ToString(),
+            //Variable.EliteEnemies => m_eliteEnemies.ToString(),
             Variable.EnemyShield => m_enemyShield.ToString(),
-            Variable.TrapDamage => m_trapDamage.ToString(),
-            Variable.LimitedStock => m_limitedStock.ToString(),
-            Variable.UnderPressure => m_underPressure.ToString(),
+            //Variable.TrapDamage => m_trapDamage.ToString(),
+            //Variable.LimitedStock => m_limitedStock.ToString(),
+            Variable.EssencePressure => m_essencePressure.ToString(),
             _ => "",
         };
     }
@@ -179,11 +190,11 @@ public class CodeInjector : NetworkBehaviour
         m_enemyHp.ResetUpdatedValue();
         m_enemyDamage.ResetUpdatedValue();
         m_enemySpeed.ResetUpdatedValue();
-        m_eliteEnemies.ResetUpdatedValue();
+        //m_eliteEnemies.ResetUpdatedValue();
         m_enemyShield.ResetUpdatedValue();
-        m_trapDamage.ResetUpdatedValue();
-        m_limitedStock.ResetUpdatedValue();
-        m_underPressure.ResetUpdatedValue();
+        //m_trapDamage.ResetUpdatedValue();
+        //m_limitedStock.ResetUpdatedValue();
+        m_essencePressure.ResetUpdatedValue();
         UpdateOutputMultiplier();
     }
 
@@ -192,11 +203,11 @@ public class CodeInjector : NetworkBehaviour
         m_enemyHp.ResetToDefault();
         m_enemyDamage.ResetToDefault();
         m_enemySpeed.ResetToDefault();
-        m_eliteEnemies.ResetToDefault();
+        //m_eliteEnemies.ResetToDefault();
         m_enemyShield.ResetToDefault();
-        m_trapDamage.ResetToDefault();
-        m_limitedStock.ResetToDefault();
-        m_underPressure.ResetToDefault();
+        //m_trapDamage.ResetToDefault();
+        //m_limitedStock.ResetToDefault();
+        m_essencePressure.ResetToDefault();
         UpdateOutputMultiplier();
     }
 
@@ -301,14 +312,14 @@ public class CodeInjector : NetworkBehaviour
             case Variable.EnemySpeed:
                 m_enemySpeed.SetValue(value);
                 break;
-            case Variable.EliteEnemies:
-                m_eliteEnemies.SetValue(value);
-                break;
-            case Variable.TrapDamage:
-                m_trapDamage.SetValue(value);
-                break;
-            case Variable.UnderPressure:
-                m_underPressure.SetValue(value);
+            //case Variable.EliteEnemies:
+            //    //m_eliteEnemies.SetValue(value);
+            //    break;
+            //case Variable.TrapDamage:
+            //    m_trapDamage.SetValue(value);
+            //    break;
+            case Variable.EssencePressure:
+                m_essencePressure.SetValue(value);
                 break;
         }
     }
@@ -320,9 +331,9 @@ public class CodeInjector : NetworkBehaviour
             case Variable.EnemyShield:
                 m_enemyShield.SetValue(value);
                 break;
-            case Variable.LimitedStock:
-                m_limitedStock.SetValue(value);
-                break;
+                //case Variable.LimitedStock:
+                //    m_limitedStock.SetValue(value);
+                //    break;
         }
     }
 
@@ -364,9 +375,9 @@ public class CodeInjector : NetworkBehaviour
         floatVariables.Add(Variable.EnemyHP, m_enemyHp.GetUpdatedValue());
         floatVariables.Add(Variable.EnemyDamage, m_enemyDamage.GetUpdatedValue());
         floatVariables.Add(Variable.EnemySpeed, m_enemySpeed.GetUpdatedValue());
-        floatVariables.Add(Variable.EliteEnemies, m_eliteEnemies.GetUpdatedValue());
-        floatVariables.Add(Variable.TrapDamage, m_trapDamage.GetUpdatedValue());
-        floatVariables.Add(Variable.UnderPressure, m_underPressure.GetUpdatedValue());
+        //floatVariables.Add(Variable.EliteEnemies, m_eliteEnemies.GetUpdatedValue());
+        //floatVariables.Add(Variable.TrapDamage, m_trapDamage.GetUpdatedValue());
+        floatVariables.Add(Variable.EssencePressure, m_essencePressure.GetUpdatedValue());
         return JsonConvert.SerializeObject(floatVariables);
     }
 
@@ -374,7 +385,7 @@ public class CodeInjector : NetworkBehaviour
     {
         Dictionary<Variable, int> intVariables = new Dictionary<Variable, int>();
         intVariables.Add(Variable.EnemyShield, m_enemyShield.GetUpdatedValue());
-        intVariables.Add(Variable.LimitedStock, m_limitedStock.GetUpdatedValue());
+        //intVariables.Add(Variable.LimitedStock, m_limitedStock.GetUpdatedValue());
         return JsonConvert.SerializeObject(intVariables);
     }
 
@@ -396,19 +407,19 @@ public class CodeInjector : NetworkBehaviour
             floatVariables.Add(Variable.EnemySpeed, m_enemySpeed.GetUpdatedValue());
         }
 
-        if (m_eliteEnemies.IsChanged())
-        {
-            floatVariables.Add(Variable.EliteEnemies, m_eliteEnemies.GetUpdatedValue());
-        }
+        //if (m_eliteEnemies.IsChanged())
+        //{
+        //    floatVariables.Add(Variable.EliteEnemies, m_eliteEnemies.GetUpdatedValue());
+        //}
 
-        if (m_trapDamage.IsChanged())
-        {
-            floatVariables.Add(Variable.TrapDamage, m_trapDamage.GetUpdatedValue());
-        }
+        //if (m_trapDamage.IsChanged())
+        //{
+        //    floatVariables.Add(Variable.TrapDamage, m_trapDamage.GetUpdatedValue());
+        //}
 
-        if (m_underPressure.IsChanged())
+        if (m_essencePressure.IsChanged())
         {
-            floatVariables.Add(Variable.UnderPressure, m_underPressure.GetUpdatedValue());
+            floatVariables.Add(Variable.EssencePressure, m_essencePressure.GetUpdatedValue());
         }
 
         return JsonConvert.SerializeObject(floatVariables);
@@ -422,10 +433,10 @@ public class CodeInjector : NetworkBehaviour
             intVariables.Add(Variable.EnemyShield, m_enemyShield.GetUpdatedValue());
         }
 
-        if (m_limitedStock.IsChanged())
-        {
-            intVariables.Add(Variable.LimitedStock, m_limitedStock.GetUpdatedValue());
-        }
+        //if (m_limitedStock.IsChanged())
+        //{
+        //    intVariables.Add(Variable.LimitedStock, m_limitedStock.GetUpdatedValue());
+        //}
 
         return JsonConvert.SerializeObject(intVariables);
     }
@@ -436,11 +447,11 @@ public class CodeInjector : NetworkBehaviour
         m_outputMultiplier = m_enemyHp.GetMultiplier()
                              * m_enemyDamage.GetMultiplier()
                              * m_enemySpeed.GetMultiplier()
-                             * m_eliteEnemies.GetMultiplier()
+                             //* m_eliteEnemies.GetMultiplier()
                              * m_enemyShield.GetMultiplier()
-                             * m_trapDamage.GetMultiplier()
-                             * m_limitedStock.GetMultiplier()
-                             * m_underPressure.GetMultiplier();
+                             //* m_trapDamage.GetMultiplier()
+                             //* m_limitedStock.GetMultiplier()
+                             * m_essencePressure.GetMultiplier();
         CodeInjectorCanvas.Instance.UpdateOutputMultiplier();
         //Debug.Log("UpdateOutputMultiplier - " + m_outputMultiplier);
     }

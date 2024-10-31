@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using Unity.Netcode;
 
 public class CodeInjectorCanvas : DroptCanvas
 {
