@@ -200,13 +200,16 @@ public class Game : MonoBehaviour
         NetworkManager.Singleton.StartHost();
     }
 
-    public void TriggerGameOver(REKTCanvas.TypeOfREKT typeOfREKT)
-    {
-        REKTCanvas.Instance.Show(typeOfREKT);
-        //LevelManager.Instance.DestroyCurrentLevel();
-        NetworkManager.Singleton.Shutdown();
-        //SceneManager.LoadScene("Game");
-    }
+    //public void TriggerGameOver(ulong playerNetworkObjectId, REKTCanvas.TypeOfREKT typeOfREKT, NetworkManager networkManager)
+    //{
+    //    var networkObject = networkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId];
+    //    if (networkObject == null) { Debug.LogWarning("Invalid playerNetworkObjectId in TriggerGameOver on server"); return; }
+
+    //    var playerController = networkObject.GetComponent<PlayerController>();
+    //    if (playerController == null) { Debug.LogWarning("Invalid playerController in TriggerGameOver on server"); return; }
+
+    //    NetworkManager.Singleton.Shutdown();
+    //}
 
     private void LoadCertificateFiles()
     {

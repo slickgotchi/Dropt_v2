@@ -64,7 +64,7 @@ public class JoostInteractable : Interactable
     {
         var playerController = GetPlayerController();
         var playerDungeonData = playerController.GetComponent<PlayerOffchainData>();
-        var cGhst = playerDungeonData.Ecto.Value;
+        var cGhst = playerDungeonData.ectoCount_dungeon.Value;
 
         // check we have enough cGHST
         if (m_cost > cGhst) return;
@@ -75,7 +75,7 @@ public class JoostInteractable : Interactable
         if (!isBuffAdded) return;
 
         // deduct cGHST
-        playerDungeonData.Ecto.Value -= m_cost;
+        playerDungeonData.ectoCount_dungeon.Value -= m_cost;
     }
 
     private string AddSpacesToCamelCase(string text)

@@ -84,10 +84,13 @@ public class LevelManager : NetworkBehaviour
 
     public bool IsDegenapeVillage()
     {
+        if (!IsSpawned) return false;
         if (m_levels == null) return false;
         if (m_levels.Count <= 0) return false;
+        if (CurrentLevelIndex == null) return false;
+        if (CurrentLevelIndex.Value < 0) return false;
 
-        return (m_levels[0] == ApeVillageLevel);
+        return (m_levels[CurrentLevelIndex.Value] == ApeVillageLevel);
     }
 
     public void DestroyCurrentLevel()

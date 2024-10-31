@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -47,8 +45,9 @@ public class PlayerHUDCanvas : MonoBehaviour
     [SerializeField] private TextMeshProUGUI m_lhCooldownText;
     [SerializeField] private TextMeshProUGUI m_rhCooldownText;
 
-    [SerializeField] private TextMeshProUGUI m_gltrText;
-    [SerializeField] private TextMeshProUGUI m_cGhstText;
+    [SerializeField] private TextMeshProUGUI m_bombsText;
+    [SerializeField] private TextMeshProUGUI m_dustText;
+    [SerializeField] private TextMeshProUGUI m_ectoText;
 
     [SerializeField] private TextMeshProUGUI m_essenceText;
     [SerializeField] private Image m_essenceImage;
@@ -58,16 +57,19 @@ public class PlayerHUDCanvas : MonoBehaviour
 
     [SerializeField] private GameObject m_dungeonCollectibles;
 
-    [SerializeField] private TMPro.TextMeshProUGUI m_levelNumber;
-    [SerializeField] private TMPro.TextMeshProUGUI m_levelName;
+    [SerializeField] private TextMeshProUGUI m_levelNumber;
+    [SerializeField] private TextMeshProUGUI m_levelName;
 
-    private NetworkCharacter m_localPlayerCharacter;
+    private PlayerCharacter m_localPlayerCharacter;
     private PlayerOffchainData m_localPlayerDungeonData;
 
     [SerializeField] private Slider m_leftHandShieldBar;
     [SerializeField] private Slider m_rightHandShieldBar;
 
-    public void SetLocalPlayerCharacter(NetworkCharacter localPlayerCharacter)
+    [SerializeField] private PetMeterView m_PetMeterView;
+
+
+    public void SetLocalPlayerCharacter(PlayerCharacter localPlayerCharacter)
     {
         m_localPlayerCharacter = localPlayerCharacter;
         m_localPlayerDungeonData = localPlayerCharacter.GetComponent<PlayerOffchainData>();
@@ -102,19 +104,13 @@ public class PlayerHUDCanvas : MonoBehaviour
 
         UpdateStatBars();
         UpdateCooldowns();
-        UpdateGltr();
-        UpdateEssence();
-        UpdateCGHST();
-        UpdateAbilityIcons();
 
-        if (Screen.fullScreen)
-        {
-            m_dungeonCollectibles.GetComponent<RectTransform>().anchoredPosition = new Vector3(-10, 10, 0);
-        }
-        else
-        {
-            m_dungeonCollectibles.GetComponent<RectTransform>().anchoredPosition = new Vector3(-10, 50, 0);
-        }
+        UpdateBombs();
+        UpdateDust();
+        UpdateEcto();
+
+        UpdateEssence();
+        UpdateAbilityIcons();
     }
 
     void UpdateStatBars()
@@ -147,29 +143,31 @@ public class PlayerHUDCanvas : MonoBehaviour
 
         m_lhCooldownText.text = lhRem < 0.1f ? "" : lhRem.ToString("F0");
         m_rhCooldownText.text = rhRem < 0.1f ? "" : rhRem.ToString("F0");
-
-        //m_lhCooldownText.text = math.ceil(lhRem).ToString("F0");
-        //m_rhCooldownText.text = math.ceil(rhRem).ToString("F0");
     }
 
-    void UpdateGltr()
+    void UpdateDust()
     {
-        var gltrCount = m_localPlayerDungeonData.SpiritDust;
-        m_gltrText.text = gltrCount.Value.ToString();
+        var dust = LevelManager.Instance.IsDegenapeVillage() ? m_localPlayerDungeonData.dustBalance_offchain : m_localPlayerDungeonData.dustCount_dungeon;
+        m_dustText.text = dust.Value.ToString();
     }
 
+    void UpdateBombs()
+    {
+        var bombs = LevelManager.Instance.IsDegenapeVillage() ? m_localPlayerDungeonData.bombBalance_offchain : m_localPlayerDungeonData.bombCount_dungeon;
+        m_bombsText.text = bombs.Value.ToString("F0");
+    }
+
+    void UpdateEcto()
+    {
+        var ecto = LevelManager.Instance.IsDegenapeVillage() ? m_localPlayerDungeonData.ectoBalance_offchain : m_localPlayerDungeonData.ectoCount_dungeon;
+        m_ectoText.text = ecto.Value.ToString("F0");
+    }
 
     void UpdateEssence()
     {
-        var essence = m_localPlayerDungeonData.Essence;
+        var essence = m_localPlayerCharacter.Essence;
         m_essenceText.text = essence.Value.ToString("F0");
         m_essenceImage.fillAmount = essence.Value / 1000;
-    }
-
-    void UpdateCGHST()
-    {
-        var cGhst = m_localPlayerDungeonData.Ecto;
-        m_cGhstText.text = cGhst.Value.ToString("F0");
     }
 
     Wearable.NameEnum lhOld;
@@ -218,5 +216,20 @@ public class PlayerHUDCanvas : MonoBehaviour
         {
             m_rightHandShieldBar.value = progress;
         }
+    }
+
+    public void ActivatePetMeter(Sprite pet)
+    {
+        m_PetMeterView.Activate(pet);
+    }
+
+    public void DeactivatePetMeter()
+    {
+        m_PetMeterView.Deactivate();
+    }
+
+    public void SetPetMeterProgress(float progress)
+    {
+        m_PetMeterView.SetProgress(progress);
     }
 }

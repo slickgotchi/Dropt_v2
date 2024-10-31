@@ -12,6 +12,8 @@ GameObject:
   - component: {fileID: 1310532602511500567}
   - component: {fileID: 1162409555044919649}
   - component: {fileID: 7237864409254240696}
+  - component: {fileID: 3121502014215384241}
+  - component: {fileID: 741668014334275059}
   m_Layer: 0
   m_Name: RoyalRofl
   m_TagString: Untagged
@@ -74,14 +76,6 @@ MonoBehaviour:
     OffsetDistance: 3
     TeleportDistance: 20
     ItemPickupRadius: 10
-  m_spriteRenderer: {fileID: 1210861587871723280}
-  m_pickItemLayer:
-    serializedVersion: 2
-    m_Bits: 131072
-  LeftSprite: {fileID: 7493037055492639735, guid: e02243da95413415ca57f5ba8de37b84, type: 3}
-  RightSprite: {fileID: 4703581324663701530, guid: e02243da95413415ca57f5ba8de37b84, type: 3}
-  UpSprite: {fileID: 6406371933323527333, guid: e02243da95413415ca57f5ba8de37b84, type: 3}
-  DownSprite: {fileID: -8783581687223550381, guid: e02243da95413415ca57f5ba8de37b84, type: 3}
 --- !u!114 &7237864409254240696
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -113,6 +107,43 @@ MonoBehaviour:
   InLocalSpace: 0
   Interpolate: 1
   SlerpPosition: 0
+--- !u!114 &3121502014215384241
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 343445268730881899}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b7b73e706e384e9c820d6fc76ab5412, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_body: {fileID: 1210861587871723280}
+  m_shadow: {fileID: 3007358878886016043}
+  m_leftSprite: {fileID: 7493037055492639735, guid: e02243da95413415ca57f5ba8de37b84, type: 3}
+  m_rightSprite: {fileID: 4703581324663701530, guid: e02243da95413415ca57f5ba8de37b84, type: 3}
+  m_upSprite: {fileID: 6406371933323527333, guid: e02243da95413415ca57f5ba8de37b84, type: 3}
+  m_downSprite: {fileID: -8783581687223550381, guid: e02243da95413415ca57f5ba8de37b84, type: 3}
+--- !u!114 &741668014334275059
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 343445268730881899}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae6bc8819fcd748ffaa561073f19cdd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fullCharge: 100
+  chargePerHit: 30
+  chargeDrainPerSecond: 0.5
+  isDrainWhenNoEnemies: 0
+  summonDuration: 5
+  attackInterval: 0.5
+  basePetAttackMultiplier: 1
 --- !u!1 &2795700981388841713
 GameObject:
   m_ObjectHideFlags: 0
