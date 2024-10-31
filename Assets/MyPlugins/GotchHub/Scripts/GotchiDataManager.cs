@@ -79,6 +79,16 @@ namespace GotchiHub
                 }
             }
 
+            for (int i = 0; i < offchainGotchiData.Count; i++)
+            {
+                if (id == offchainGotchiData[i].id)
+                {
+                    m_selectedGotchiId = id;
+                    onSelectedGotchi?.Invoke(m_selectedGotchiId);
+                    return true;
+                }
+            }
+
             Debug.Log("Gotchi with id " + id + " does not exist in GotchiDataManager");
             return false;
         }

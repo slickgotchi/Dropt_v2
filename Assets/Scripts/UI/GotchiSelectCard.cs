@@ -19,17 +19,17 @@ public class GotchiSelectCard : MonoBehaviour
     public SVGImage OnchainSvgImage;
     public Image OffchainImage;
 
-    private Button m_button;
+    public Button SelectMeButton;
     private TMPro.TextMeshProUGUI m_nameText;
 
     private void Awake()
     {
-        m_button = GetComponent<Button>();
+        SelectMeButton = GetComponent<Button>();
         m_nameText = GetComponentInChildren<TMPro.TextMeshProUGUI>();
         OnchainSvgImage = GetComponentInChildren<SVGImage>();
         CardBackgroundImage = GetComponentInChildren<Image>();
 
-        //m_button.onClick.AddListener(HandleOnClick);
+        SelectMeButton.onClick.AddListener(HandleOnClick);
         CardBackgroundImage.color = Dropt.Utils.Color.HexToColor("#3d3d3d");
     }
 
@@ -76,15 +76,15 @@ public class GotchiSelectCard : MonoBehaviour
 
     private void HandleOnClick()
     {
+        Debug.Log("Clicked ID: " + Id);
         GotchiDataManager.Instance.SetSelectedGotchiById(Id);
-
-        //GotchiSelectCanvas.Instance.HighlightById(Id);
+        GotchiSelectCanvas.Instance.HighlightById(Id);
     }
 
     public void SetSelected(bool isSelected)
     {
         //CardBackgroundImage.enabled = isSelected;
-        CardBackgroundImage.color = Dropt.Utils.Color.HexToColor(isSelected ? "#7a09fa" : "#3d3d3d");
+        CardBackgroundImage.color = Dropt.Utils.Color.HexToColor(isSelected ? "#3b1443" : "#3d3d3d");
     }
 }
 
