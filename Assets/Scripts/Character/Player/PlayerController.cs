@@ -39,9 +39,9 @@ public class PlayerController : NetworkBehaviour
     // tracking selected gotchi
     private int m_selectedGotchiId = 0;
 
-    // variables for trackign current gotchi
+    // variables for tracking current gotchi
     private int m_localGotchiId = 0;
-    private NetworkVariable<int> m_networkGotchiId = new NetworkVariable<int>(69420);
+    public NetworkVariable<int> NetworkGotchiId = new NetworkVariable<int>(69420);
 
     private CinemachineVirtualCamera m_virtualCamera;
 
@@ -100,7 +100,7 @@ public class PlayerController : NetworkBehaviour
     [Rpc(SendTo.Server)]
     private void SetNetworkGotchiIdServerRpc(int gotchiId)
     {
-        m_networkGotchiId.Value = gotchiId;
+        NetworkGotchiId.Value = gotchiId;
     }
 
     public void KillPlayer(REKTCanvas.TypeOfREKT typeOfREKT)
@@ -261,9 +261,9 @@ public class PlayerController : NetworkBehaviour
     {
         if (!IsClient) return;
 
-        if (m_networkGotchiId.Value != m_localGotchiId)
+        if (NetworkGotchiId.Value != m_localGotchiId)
         {
-            m_localGotchiId = m_networkGotchiId.Value;
+            m_localGotchiId = NetworkGotchiId.Value;
             SetupGotchi(m_localGotchiId);
         }
     }

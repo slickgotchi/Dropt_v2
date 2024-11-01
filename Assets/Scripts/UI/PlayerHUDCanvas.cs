@@ -147,20 +147,21 @@ public class PlayerHUDCanvas : MonoBehaviour
 
     void UpdateDust()
     {
-        var dust = LevelManager.Instance.IsDegenapeVillage() ? m_localPlayerDungeonData.dustBalance_offchain : m_localPlayerDungeonData.dustCount_dungeon;
+        var dust = LevelManager.Instance.IsDegenapeVillage() ? m_localPlayerDungeonData.dustBalance_offchain : m_localPlayerDungeonData.dustLiveCount_dungeon;
         m_dustText.text = dust.Value.ToString();
     }
 
     void UpdateBombs()
     {
-        var bombs = LevelManager.Instance.IsDegenapeVillage() ? m_localPlayerDungeonData.bombBalance_offchain : m_localPlayerDungeonData.bombCount_dungeon;
+        var bombs = LevelManager.Instance.IsDegenapeVillage() ? m_localPlayerDungeonData.bombBalance_offchain : m_localPlayerDungeonData.bombLiveCount_dungeon;
         m_bombsText.text = bombs.Value.ToString("F0");
     }
 
     void UpdateEcto()
     {
-        var ecto = LevelManager.Instance.IsDegenapeVillage() ? m_localPlayerDungeonData.ectoBalance_offchain : m_localPlayerDungeonData.ectoCount_dungeon;
-        m_ectoText.text = ecto.Value.ToString("F0");
+        m_ectoText.text = LevelManager.Instance.IsDegenapeVillage() ?
+            m_localPlayerDungeonData.ectoBalance_offchain.Value.ToString("F0") :
+            "(" + m_localPlayerDungeonData.ectoDebitCount_dungeon.Value + ") " + m_localPlayerDungeonData.ectoLiveCount_dungeon.Value;
     }
 
     void UpdateEssence()
