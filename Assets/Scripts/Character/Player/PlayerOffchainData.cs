@@ -470,9 +470,17 @@ public class PlayerOffchainData : NetworkBehaviour
         if (!IsServer) return;
 
         GetComponent<PlayerCharacter>().Essence.Value += value;
+        PopupEssenceTextClientRpc(value, GetComponent<NetworkObject>().NetworkObjectId);
     }
 
+    [ClientRpc]
+    void PopupEssenceTextClientRpc(float value, ulong networkObjectId)
+    {
+        var player = NetworkManager.SpawnManager.SpawnedObjects[networkObjectId];
+        if (player == null) return;
 
+        PopupTextManager.Instance.PopupText(value.ToString("F0"), player.transform.position + new Vector3(0, 1.5f, 0), 30, Dropt.Utils.Color.HexToColor("#94fdff"));
+    }
 
     [System.Serializable]
     public class Wallet_Data
