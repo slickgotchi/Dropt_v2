@@ -64,6 +64,9 @@ public class PlayerHUDCanvas : MonoBehaviour
     [SerializeField] private TextMeshProUGUI m_levelName;
     [SerializeField] private TextMeshProUGUI m_levelObjective;
 
+    [Header("Multiplayer Menu")]
+    [SerializeField] private GameObject m_multiplayerMenuNote;
+
     private PlayerCharacter m_localPlayerCharacter;
     private PlayerOffchainData m_localPlayerDungeonData;
 
@@ -106,6 +109,8 @@ public class PlayerHUDCanvas : MonoBehaviour
         }
 
         m_container.SetActive(true);
+
+        m_multiplayerMenuNote.SetActive(LevelManager.Instance.IsDegenapeVillage());
 
         UpdateStatBars();
         UpdateCooldowns();

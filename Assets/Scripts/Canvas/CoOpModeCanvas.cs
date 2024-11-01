@@ -30,8 +30,10 @@ public class CoOpModeCanvas : DroptCanvas
         IsPublicToggle.onValueChanged.AddListener(HandleChange_IsPublicToggle);
 
         m_copyButtonText = CopyMyGameIdButton.GetComponentInChildren<TextMeshProUGUI>();
-        MenuCard.SetActive(false);
+    }
 
+    private void Start()
+    {
         HideCanvas();
     }
 
@@ -50,18 +52,16 @@ public class CoOpModeCanvas : DroptCanvas
             m_copyButtonText.text = Bootstrap.Instance.GameId.ToString();
         }
 
-        if (Input.GetKeyDown(KeyCode.M))
+        if (Input.GetKeyDown(KeyCode.M) && LevelManager.Instance.IsDegenapeVillage())
         {
-            //MenuCard.SetActive(!MenuCard.activeSelf);
-        }
-
-        if (LevelManager.Instance.IsDegenapeVillage())
-        {
-            ShowCanvas();
-        }
-        else
-        {
-            HideCanvas();
+            if (IsActive())
+            {
+                HideCanvas();
+            }
+            else
+            {
+                ShowCanvas();
+            }
         }
     }
 
