@@ -70,16 +70,7 @@ public class EnemyController : NetworkBehaviour
         if (IsHost || IsServer)
         {
             SetFacingFromDirectionClientRpc(direction, facingTimer);
-        }
-        //if (IsClient || IsHost)
-        //{
-        //    SetFacing(direction.x > 0 ? Facing.Right : Facing.Left, facingTimer);
-        //}
-        //// server
-        //else
-        //{
-        //    SetFacingFromDirectionClientRpc(direction, facingTimer);
-        //}        
+        }    
     }
 
     [ClientRpc]

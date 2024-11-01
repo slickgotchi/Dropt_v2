@@ -12,6 +12,8 @@ namespace Dropt
     {
         private Animator m_animator;
         public float EssenceReward = 10;
+        private NetworkVariable<Vector3> m_agentVelocity = new NetworkVariable<Vector3>();
+        [SerializeField] private List<SpriteRenderer> m_spritesToFlip;
 
         private void Awake()
         {
@@ -28,12 +30,29 @@ namespace Dropt
         
         public override void OnRoamUpdate(float dt)
         {
-            SimpleRoamUpdate(dt);   
+            SimpleRoamUpdate(dt);
+
+            if (IsServer)
+            {
+                m_animator.Play("LilEssence_Idle");
+            }
+        }
+
+        public override void OnFleeStart()
+        {
+            base.OnFleeStart();
+
+            if (IsServer)
+            {
+                m_animator.Play("LilEssence_Alert");
+            }
         }
 
         public override void OnFleeUpdate(float dt)
         {
             SimpleFleeUpdate(dt);
+
+
         }
 
         public override void OnAggroUpdate(float dt)
@@ -50,6 +69,10 @@ namespace Dropt
         }
 
         public override void OnCooldownUpdate(float dt)
+        {
+        }
+
+        public override void OnUpdate(float dt)
         {
         }
 

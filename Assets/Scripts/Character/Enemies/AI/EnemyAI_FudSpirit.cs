@@ -41,6 +41,13 @@ namespace Dropt
             }
         }
 
+        public override void OnAggroStart()
+        {
+            base.OnAggroStart();
+
+            ChangeState(State.Telegraph);
+        }
+
         public override void OnTelegraphStart()
         {
             base.OnTelegraphStart();
@@ -50,14 +57,6 @@ namespace Dropt
             m_invisibleTimer = InvisibleDuration + m_fadeoutDuration;
             m_isInvisibleUsed = false;
             Utils.Anim.PlayAnimationWithDuration(m_animator, "FudSpirit_Fadeout", m_fadeoutDuration);
-            //await Task.Delay((int)(m_fadeoutDuration * 1000));
-            //if (gameObject == null)
-            //{
-            //    return;
-            //}
-
-            //SetSpritesAndCollidersEnabled(false);
-            //TeleportToNewAttackPosition();
             Invoke(nameof(DisableSpritesAndCollidersAndTeleportToNewPosition), m_fadeoutDuration);
         }
 

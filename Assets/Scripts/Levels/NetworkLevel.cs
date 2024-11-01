@@ -10,6 +10,7 @@ namespace Level
     {
         public AudioClip levelMusic;
         public bool isEssenceDepleting = true;
+        public string objective = "Find a hole to descend";
 
         //private List<Vector3> m_availablePlayerSpawnPoints = new List<Vector3>();
         private List<SpawnerActivator> m_spawnerActivators = new List<SpawnerActivator>();

@@ -37,17 +37,12 @@ public class PlayerHUDCanvas : MonoBehaviour
     }
 
     [SerializeField] private GameObject m_container;
+
+    [Header("HP, AP & Special Cooldown")]
     [SerializeField] private Image m_hpImage;
     [SerializeField] private TextMeshProUGUI m_hpText;
     [SerializeField] private Image m_apImage;
     [SerializeField] private TextMeshProUGUI m_apText;
-
-    [SerializeField] private TextMeshProUGUI m_lhCooldownText;
-    [SerializeField] private TextMeshProUGUI m_rhCooldownText;
-
-    [SerializeField] private TextMeshProUGUI m_bombsText;
-    [SerializeField] private TextMeshProUGUI m_dustText;
-    [SerializeField] private TextMeshProUGUI m_ectoText;
 
     [SerializeField] private TextMeshProUGUI m_essenceText;
     [SerializeField] private Image m_essenceImage;
@@ -55,10 +50,19 @@ public class PlayerHUDCanvas : MonoBehaviour
     [SerializeField] private Image LHWearableImage;
     [SerializeField] private Image RHWearableImage;
 
+    [SerializeField] private TextMeshProUGUI m_lhCooldownText;
+    [SerializeField] private TextMeshProUGUI m_rhCooldownText;
+
+    [Header("Dungeon Collectibles")]
+    [SerializeField] private TextMeshProUGUI m_bombsText;
+    [SerializeField] private TextMeshProUGUI m_dustText;
+    [SerializeField] private TextMeshProUGUI m_ectoText;
     [SerializeField] private GameObject m_dungeonCollectibles;
 
+    [Header("Level Details")]
     [SerializeField] private TextMeshProUGUI m_levelNumber;
     [SerializeField] private TextMeshProUGUI m_levelName;
+    [SerializeField] private TextMeshProUGUI m_levelObjective;
 
     private PlayerCharacter m_localPlayerCharacter;
     private PlayerOffchainData m_localPlayerDungeonData;
@@ -75,10 +79,11 @@ public class PlayerHUDCanvas : MonoBehaviour
         m_localPlayerDungeonData = localPlayerCharacter.GetComponent<PlayerOffchainData>();
     }
 
-    public void SetLevelNumberAndName(string number, string name)
+    public void SetLevelNumberNameObjective(string number, string name, string objective)
     {
         m_levelNumber.text = number;
         m_levelName.text = name;
+        m_levelObjective.text = objective;
     }
 
     public void Hide()
