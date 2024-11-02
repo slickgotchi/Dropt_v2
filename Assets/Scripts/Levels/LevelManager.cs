@@ -207,14 +207,15 @@ public class LevelManager : NetworkBehaviour
 
         string number = m_depthCounter.ToString();
         string name = m_levels[CurrentLevelIndex.Value].name;
+        string objective = m_levels[CurrentLevelIndex.Value].gameObject.GetComponent<Level.NetworkLevel>().objective;
 
-        NumberAndNameLevelClientRpc(number, name);
+        NumberAndNameLevelClientRpc(number, name, objective);
     }
 
     [ClientRpc]
-    void NumberAndNameLevelClientRpc(string number, string name)
+    void NumberAndNameLevelClientRpc(string number, string name, string objective)
     {
-        PlayerHUDCanvas.Singleton.SetLevelNumberAndName(number, Dropt.Utils.String.ConvertToReadableString(name));
+        PlayerHUDCanvas.Singleton.SetLevelNumberNameObjective(number, Dropt.Utils.String.ConvertToReadableString(name), objective);
     }
 
     // 1. Receive GoToNextLevel message from other part of server
