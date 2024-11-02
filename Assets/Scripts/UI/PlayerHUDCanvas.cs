@@ -37,17 +37,12 @@ public class PlayerHUDCanvas : MonoBehaviour
     }
 
     [SerializeField] private GameObject m_container;
+
+    [Header("HP, AP & Special Cooldown")]
     [SerializeField] private Image m_hpImage;
     [SerializeField] private TextMeshProUGUI m_hpText;
     [SerializeField] private Image m_apImage;
     [SerializeField] private TextMeshProUGUI m_apText;
-
-    [SerializeField] private TextMeshProUGUI m_lhCooldownText;
-    [SerializeField] private TextMeshProUGUI m_rhCooldownText;
-
-    [SerializeField] private TextMeshProUGUI m_bombsText;
-    [SerializeField] private TextMeshProUGUI m_dustText;
-    [SerializeField] private TextMeshProUGUI m_ectoText;
 
     [SerializeField] private TextMeshProUGUI m_essenceText;
     [SerializeField] private Image m_essenceImage;
@@ -55,10 +50,22 @@ public class PlayerHUDCanvas : MonoBehaviour
     [SerializeField] private Image LHWearableImage;
     [SerializeField] private Image RHWearableImage;
 
+    [SerializeField] private TextMeshProUGUI m_lhCooldownText;
+    [SerializeField] private TextMeshProUGUI m_rhCooldownText;
+
+    [Header("Dungeon Collectibles")]
+    [SerializeField] private TextMeshProUGUI m_bombsText;
+    [SerializeField] private TextMeshProUGUI m_dustText;
+    [SerializeField] private TextMeshProUGUI m_ectoText;
     [SerializeField] private GameObject m_dungeonCollectibles;
 
+    [Header("Level Details")]
     [SerializeField] private TextMeshProUGUI m_levelNumber;
     [SerializeField] private TextMeshProUGUI m_levelName;
+    [SerializeField] private TextMeshProUGUI m_levelObjective;
+
+    [Header("Multiplayer Menu")]
+    [SerializeField] private GameObject m_multiplayerMenuNote;
 
     private PlayerCharacter m_localPlayerCharacter;
     private PlayerOffchainData m_localPlayerDungeonData;
@@ -75,10 +82,11 @@ public class PlayerHUDCanvas : MonoBehaviour
         m_localPlayerDungeonData = localPlayerCharacter.GetComponent<PlayerOffchainData>();
     }
 
-    public void SetLevelNumberAndName(string number, string name)
+    public void SetLevelNumberNameObjective(string number, string name, string objective)
     {
         m_levelNumber.text = number;
         m_levelName.text = name;
+        m_levelObjective.text = objective;
     }
 
     public void Hide()
@@ -101,6 +109,8 @@ public class PlayerHUDCanvas : MonoBehaviour
         }
 
         m_container.SetActive(true);
+
+        m_multiplayerMenuNote.SetActive(LevelManager.Instance.IsDegenapeVillage());
 
         UpdateStatBars();
         UpdateCooldowns();
@@ -147,20 +157,21 @@ public class PlayerHUDCanvas : MonoBehaviour
 
     void UpdateDust()
     {
-        var dust = LevelManager.Instance.IsDegenapeVillage() ? m_localPlayerDungeonData.dustBalance_offchain : m_localPlayerDungeonData.dustCount_dungeon;
+        var dust = LevelManager.Instance.IsDegenapeVillage() ? m_localPlayerDungeonData.dustBalance_offchain : m_localPlayerDungeonData.dustLiveCount_dungeon;
         m_dustText.text = dust.Value.ToString();
     }
 
     void UpdateBombs()
     {
-        var bombs = LevelManager.Instance.IsDegenapeVillage() ? m_localPlayerDungeonData.bombBalance_offchain : m_localPlayerDungeonData.bombCount_dungeon;
+        var bombs = LevelManager.Instance.IsDegenapeVillage() ? m_localPlayerDungeonData.bombBalance_offchain : m_localPlayerDungeonData.bombLiveCount_dungeon;
         m_bombsText.text = bombs.Value.ToString("F0");
     }
 
     void UpdateEcto()
     {
-        var ecto = LevelManager.Instance.IsDegenapeVillage() ? m_localPlayerDungeonData.ectoBalance_offchain : m_localPlayerDungeonData.ectoCount_dungeon;
-        m_ectoText.text = ecto.Value.ToString("F0");
+        m_ectoText.text = LevelManager.Instance.IsDegenapeVillage() ?
+            m_localPlayerDungeonData.ectoBalance_offchain.Value.ToString("F0") :
+            "(" + m_localPlayerDungeonData.ectoDebitCount_dungeon.Value + ") " + m_localPlayerDungeonData.ectoLiveCount_dungeon.Value;
     }
 
     void UpdateEssence()

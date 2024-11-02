@@ -114,8 +114,6 @@ namespace Interactables
                     return;
                 }
 
-                Debug.Log("Rarity: " + rarity);
-
                 // 1. get ref to all wearables by name enum
                 var rawItems = WearableManager.wearablesByNameEnum.Values.ToArray();
 
