@@ -13,6 +13,9 @@ public class PierceLance : PlayerAbility
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
+        //Debug.Log("On NETWORK SPAWN -> PierceLance");
         Animator = GetComponent<Animator>();
         m_collider = GetComponent<Collider2D>();
     }
@@ -31,7 +34,7 @@ public class PierceLance : PlayerAbility
         SetRotation(quaternion.identity);
         SetLocalPosition(PlayerAbilityCentreOffset);
 
-        PlayAnimation("PierceLance");
+        PlayAnimationWithDuration("PierceLance", ExecutionDuration);
 
         Player.GetComponent<PlayerGotchi>().SetVisible(true);
         Player.GetComponent<PlayerGotchi>().PlayAnimation("PlayerGotchi_PierceLance");
@@ -43,6 +46,6 @@ public class PierceLance : PlayerAbility
 
     public override void OnFinish()
     {
-        OneFrameCollisionDamageCheck(m_collider, Wearable.WeaponTypeEnum.Pierce);
+        OneFrameCollisionDamageCheck(m_collider, Wearable.WeaponTypeEnum.Pierce, DamageMultiplier);
     }
 }

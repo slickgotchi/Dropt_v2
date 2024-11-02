@@ -14,6 +14,8 @@ public class MagicBeam : PlayerAbility
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         m_collider = GetComponent<Collider2D>();
     }
 
@@ -26,7 +28,7 @@ public class MagicBeam : PlayerAbility
         SetLocalPosition(PlayerAbilityCentreOffset + ActivationInput.actionDirection * Projection);
 
         // determine hold damage multiplier
-        var alpha = math.min(HoldDuration / 3f, 1f);
+        var alpha = math.min(m_holdTimer / HoldChargeTime, 1f);
         var damageMultiplier = math.lerp(HoldStartDamageMultiplier, HoldFinishDamageMultiplier, alpha);
 
         // collision check (no RPC's are involved in this call)
@@ -34,7 +36,8 @@ public class MagicBeam : PlayerAbility
 
         // IMPORTANT use PlayAnimation which calls RPC's in the background that play the 
         // animation on remote clients
-        PlayAnimation("MagicBeam");
+        //PlayAnimation("MagicBeam");
+        PlayAnimationWithDuration("MagicBeam", ExecutionDuration);
     }
 
     public override void OnUpdate()

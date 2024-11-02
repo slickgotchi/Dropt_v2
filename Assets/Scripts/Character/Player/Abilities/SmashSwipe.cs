@@ -14,6 +14,8 @@ public class SmashSwipe : PlayerAbility
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         m_collider = GetComponent<Collider2D>();
     }
 
@@ -30,7 +32,8 @@ public class SmashSwipe : PlayerAbility
 
         // IMPORTANT use PlayAnimation which calls RPC's in the background that play the 
         // animation on remote clients
-        PlayAnimation("SmashSwipe");
+        //PlayAnimation("SmashSwipe");
+        PlayAnimationWithDuration("SmashSwipe", ExecutionDuration);
     }
 
     public override void OnUpdate()

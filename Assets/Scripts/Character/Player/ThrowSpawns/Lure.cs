@@ -12,6 +12,8 @@ public class Lure : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         if (IsServer)
         {
             GetComponent<NetworkCharacter>().HpMax.Value = Hp;

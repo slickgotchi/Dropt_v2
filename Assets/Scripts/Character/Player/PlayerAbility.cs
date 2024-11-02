@@ -2,7 +2,6 @@ using Dropt;
 using Nethereum.RPC.Shh.KeyPair;
 using System.Collections;
 using System.Collections.Generic;
-using Audio.Game;
 using Unity.Mathematics;
 using Unity.Netcode;
 using UnityEditor.Rendering;
@@ -15,7 +14,7 @@ using UnityEngine;
 
 public class PlayerAbility : NetworkBehaviour
 {
-    public enum AbilityType { Base, Hold, Special}
+    public enum AbilityType { Base, Hold, Special }
 
     //[Header("Base Ability Parameters")]
 
@@ -61,17 +60,23 @@ public class PlayerAbility : NetworkBehaviour
     [Tooltip("Slows player down during Hold period")]
     public float HoldSlowFactor = 1;
 
+    public float KnockbackDistance = 0f;
+    public float KnockbackStunDuration = 0f;
+
     [HideInInspector] public GameObject Player;
     [HideInInspector] public float SpecialCooldown;
 
-    public Vector3 PlayerAbilityCentreOffset = new Vector3(0,0.5f,0);
+    [Header("Ability Activation Audio")]
+    public AudioClip audioOnActivate;
+
+    public Vector3 PlayerAbilityCentreOffset = new Vector3(0, 0.5f, 0);
     protected bool IsActivated = false;
     protected StatePayload PlayerActivationState;
     protected InputPayload ActivationInput;
     protected Wearable.NameEnum ActivationWearableNameEnum;
     protected Wearable ActivationWearable;
 
-    protected float HoldDuration = 0;
+    protected float m_holdTimer = 0;
 
     protected Animator Animator;
 
@@ -96,12 +101,15 @@ public class PlayerAbility : NetworkBehaviour
         Animator = GetComponent<Animator>();
     }
 
+    protected Hand AbilityHand;
+
     public void Init(GameObject playerObject, Hand abilityHand)
     {
+        Player = playerObject;
+        AbilityHand = abilityHand;
         var playerEquipment = playerObject.GetComponent<PlayerEquipment>();
         var wearableNameEnum = (abilityHand == Hand.Left ? playerEquipment.LeftHand : playerEquipment.RightHand).Value;
         ActivationWearable = WearableManager.Instance.GetWearable(wearableNameEnum);
-        //ApCost = abilityType == AbilityType.Special ? ActivationWearable.SpecialAp : ApCost;
         SpecialCooldown = ActivationWearable.SpecialCooldown;
         ActivationWearableNameEnum = wearableNameEnum;
 
@@ -134,13 +142,53 @@ public class PlayerAbility : NetworkBehaviour
         Init(playerObject, abilityHand);
     }
 
+    private bool m_isHoldReady = true;
+    private bool m_isHolding = false;
+
+    public void HoldStart()
+    {
+        if (!m_isHoldReady) return;
+
+        m_isHolding = true;
+        m_holdTimer = 0;
+        OnHoldStart();
+        m_isHoldReady = false;
+
+    }
+
+    public void HoldFinish()
+    {
+        m_isHolding = false;
+        m_holdTimer = math.min(m_holdTimer, HoldChargeTime);
+        OnHoldFinish();
+        m_isHoldReady = true;
+    }
+
+    public virtual void OnHoldStart() { }
+    public virtual void OnHoldFinish() { }
+
+    private float m_cooldownExpiryTick = 0;
+
+    public bool IsCooldownFinished()
+    {
+        return m_cooldownExpiryTick < NetworkTimer_v2.Instance.TickCurrent;
+    }
+
+    public float GetCooldownRemaining()
+    {
+        var remainingTicks = m_cooldownExpiryTick - NetworkTimer_v2.Instance.TickCurrent;
+        if (remainingTicks <= 0) return 0;
+
+        return remainingTicks * NetworkTimer_v2.Instance.TickInterval;
+    }
+
     public bool Activate(GameObject playerObject, StatePayload state, InputPayload input, float holdDuration)
     {
         Player = playerObject;
         PlayerActivationState = state;
         ActivationInput = input;
 
-        HoldDuration = holdDuration;
+        m_holdTimer = math.min(m_holdTimer, HoldChargeTime);
 
         IsActivated = true;
         m_timer = ExecutionDuration;
@@ -150,6 +198,10 @@ public class PlayerAbility : NetworkBehaviour
         m_teleportLagTimer = 1 / playerObject.GetComponent<PlayerPrediction>().GetServerTickRate() * 2;
         m_isOnTeleportStartChecking = true;
 
+        // calc cooldown
+        var totalCooldownTicks = (int)((ExecutionDuration + CooldownDuration) * NetworkTimer_v2.Instance.TickRate);
+        m_cooldownExpiryTick = NetworkTimer_v2.Instance.TickCurrent + totalCooldownTicks;
+
         // deduct ap from the player
         if (IsServer)
         {
@@ -157,15 +209,20 @@ public class PlayerAbility : NetworkBehaviour
         }
 
         // hide the player relevant hand
-        if (input.abilityTriggered != PlayerAbilityEnum.Dash &&
-            input.abilityTriggered != PlayerAbilityEnum.Consume)
+        if (input.triggeredAbilityEnum != PlayerAbilityEnum.Dash &&
+            input.triggeredAbilityEnum != PlayerAbilityEnum.Consume)
         {
             Player.GetComponent<PlayerGotchi>().HideHand(input.abilityHand, ExecutionDuration);
         }
 
+        if (IsClient && audioOnActivate != null)
+        {
+            AudioManager.Instance.PlaySpatialSFX(audioOnActivate, Vector3.zero, true);
+        }
+
         if (Player != null) OnStart();
 
-        GameAudioManager.Instance.PlayerAbility(Player.GetComponent<NetworkCharacter>().NetworkObjectId, input.abilityTriggered, transform.position);
+        //GameAudioManager.Instance.PlayerAbility(Player.GetComponent<NetworkCharacter>().NetworkObjectId, input.triggeredAbilityEnum, transform.position);
         return true;
     }
 
@@ -178,12 +235,20 @@ public class PlayerAbility : NetworkBehaviour
             Quaternion additionalRotation = Quaternion.Euler(0, 0, m_attackAngleOffset);
             m_handAndWearableTransform.localRotation = currentRotation * additionalRotation;
         }
+
+        OnLateUpdate();
     }
 
-    private void Update()
+    // DO NOT override this in children without calling teh base function, use OnUpdate instead
+    protected virtual void Update()
     {
         m_timer -= Time.deltaTime;
         m_autoMoveTimer -= Time.deltaTime;
+
+        if (m_isHolding)
+        {
+            m_holdTimer += Time.deltaTime;
+        }
 
         if (Player == null) return;
 
@@ -199,7 +264,7 @@ public class PlayerAbility : NetworkBehaviour
             IsActivated = false;
             m_isFinished = true;
         }
-            
+
         if (!m_isFinished) OnUpdate();
 
 
@@ -214,6 +279,8 @@ public class PlayerAbility : NetworkBehaviour
     public virtual void OnStart() { }
 
     public virtual void OnUpdate() { }
+
+    public virtual void OnLateUpdate() { }
 
     public virtual void OnFinish() { }
 
@@ -239,13 +306,13 @@ public class PlayerAbility : NetworkBehaviour
         // Local Client or Server
         if (Player.GetComponent<NetworkObject>().IsLocalPlayer || IsServer)
         {
-            transform.rotation = rotation;  
+            transform.rotation = rotation;
         }
 
         // Server
         if (IsServer)
         {
-            SetRotationClientRpc(rotation); 
+            SetRotationClientRpc(rotation);
         }
     }
 
@@ -341,6 +408,11 @@ public class PlayerAbility : NetworkBehaviour
         }
     }
 
+    protected void PlayAnimationWithDuration(string animName, float duration)
+    {
+        Dropt.Utils.Anim.PlayAnimationWithDuration(Animator, animName, duration);
+    }
+
     [Rpc(SendTo.ClientsAndHost)]
     private void PlayAnimationClientRpc(string animName, float speed)
     {
@@ -378,23 +450,34 @@ public class PlayerAbility : NetworkBehaviour
 
     protected void OneFrameCollisionDamageCheck(Collider2D abilityCollider, Wearable.WeaponTypeEnum weaponType, float damageMultiplier = 1f)
     {
-        // sync colliders to current transform
-        Physics2D.SyncTransforms();
+        if (IsServer && !IsHost) PlayerAbility.RollbackEnemies(Player);
 
-        // do a collision check
+        Physics2D.SyncTransforms();
         List<Collider2D> enemyHitColliders = new List<Collider2D>();
         abilityCollider.OverlapCollider(GetContactFilter(new string[] { "EnemyHurt", "Destructible" }), enemyHitColliders);
         bool isLocalPlayer = Player.GetComponent<NetworkObject>().IsLocalPlayer;
         bool isCritical = false;
+
         foreach (var hit in enemyHitColliders)
         {
             if (hit.HasComponent<NetworkCharacter>())
             {
                 var playerCharacter = Player.GetComponent<NetworkCharacter>();
-                var damage = playerCharacter.GetAttackPower() * damageMultiplier * ActivationWearable.RarityMultiplier;
-                isCritical = playerCharacter.IsCriticalAttack();
-                damage = (int)(isCritical ? damage * playerCharacter.CriticalDamage.Value : damage);
-                hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical, Player);
+
+                if (ActivationWearable != null)
+                {
+                    var damage = playerCharacter.GetAttackPower() * damageMultiplier * ActivationWearable.RarityMultiplier;
+                    isCritical = playerCharacter.IsCriticalAttack();
+                    damage = (int)(isCritical ? damage * playerCharacter.CriticalDamage.Value : damage);
+                    hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical, Player);
+
+                    var enemyAI = hit.GetComponent<Dropt.EnemyAI>();
+                    if (enemyAI != null)
+                    {
+                        var knockbackDir = Dropt.Utils.Battle.GetVectorFromAtoBAttackCentres(playerCharacter.gameObject, hit.gameObject).normalized;
+                        enemyAI.Knockback(knockbackDir, KnockbackDistance, KnockbackStunDuration);
+                    }
+                }
             }
 
             if (hit.HasComponent<Destructible>())
@@ -403,7 +486,6 @@ public class PlayerAbility : NetworkBehaviour
                 destructible.TakeDamage(weaponType);
             }
         }
-
         // screen shake
         if (isLocalPlayer && enemyHitColliders.Count > 0)
         {
@@ -412,6 +494,72 @@ public class PlayerAbility : NetworkBehaviour
 
         // clear out colliders
         enemyHitColliders.Clear();
+
+
+        if (IsServer && !IsHost) PlayerAbility.UnrollEnemies();
+    }
+
+    public static void RollbackEnemies(GameObject Player)
+    {
+        // 0. determine lag based on our player
+        var playerPing = Player.GetComponent<PlayerPing>();
+        if (playerPing == null)
+        {
+            Debug.Log("No valid player still alive for projectile");
+            return;
+        }
+
+        // get round trip time
+        var rtt_s = (float)playerPing.RTT.Value / 1000;
+
+        // IMPORTANT: There was ALOT of finessing that went into this delay calc and
+        // it MIGHT only work with ticks at 15 ticks per second.
+        var delay_s = 1f * rtt_s + 0.29f;
+
+        // convert delay in seconds to delay in ticks
+        var delay_ticks = delay_s * NetworkTimer_v2.Instance.TickRate;
+
+        // grap the current tick + fraction
+        var currentTickAndFraction = NetworkTimer_v2.Instance.TickCurrent + NetworkTimer_v2.Instance.TickFraction;
+
+        // calc the target tick + fraction
+        var targetTickAndFraction = currentTickAndFraction - delay_ticks;
+
+        // 1. if we are on server we need to do lag compensation
+        var positionBuffers = FindObjectsByType<PositionBuffer>(FindObjectsSortMode.None);
+        foreach (var positionBuffer in positionBuffers)
+        {
+            // stash our enemies current position
+            positionBuffer.StashCurrentPosition();
+
+            // calc the new delay position
+            var delayPos = positionBuffer.GetPositionAtTickAndFraction(targetTickAndFraction);
+
+            // update to position lagTicks ago
+            positionBuffer.transform.position = delayPos;
+        }
+    }
+
+    public static void UnrollEnemies()
+    {
+        // reset positions to those that were stashed
+        var positionBuffers = FindObjectsByType<PositionBuffer>(FindObjectsSortMode.None);
+        foreach (var positionBuffer in positionBuffers)
+        {
+            // set position back to the stashed position
+            positionBuffer.transform.position = positionBuffer.GetStashPosition();
+        }
+    }
+
+    Vector3 GetAttackVectorFromAToB(GameObject a, GameObject b)
+    {
+        var aCentre = a.GetComponent<AttackCentre>();
+        var aCentrePos = aCentre == null ? a.transform.position : aCentre.transform.position;
+
+        var bCentre = b.GetComponent<AttackCentre>();
+        var bCentrePos = bCentre == null ? b.transform.position : bCentre.transform.position;
+
+        return (bCentrePos - aCentrePos).normalized;
     }
 
     public static Quaternion GetRotationFromDirection(Vector3 direction)

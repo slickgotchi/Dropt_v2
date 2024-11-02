@@ -66,14 +66,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6a425518b22835f449d132bcfbbbef37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  abilityType: 0
   ApCost: 0
+  DamageMultiplier: 1
   ExecutionDuration: 0.2
-  ExecutionSlowFactor: 0
-  CooldownDuration: 0
+  ExecutionSlowFactor: 0.5
+  CooldownDuration: 0.6
   CooldownSlowFactor: 1
-  TeleportDistance: 3.5
+  TeleportDistance: 4.5
   AutoMoveDistance: 0
   AutoMoveDuration: 0
-  isHoldAbility: 0
+  HoldChargeTime: 3
   HoldSlowFactor: 1
+  KnockbackDistance: 0
+  KnockbackStunDuration: 0
   Player: {fileID: 0}
+  SpecialCooldown: 0
+  audioOnActivate: {fileID: 8300000, guid: 2240f81aafc96cb4ca8cbba22d9de682, type: 3}
+  PlayerAbilityCentreOffset: {x: 0, y: 0.5, z: 0}

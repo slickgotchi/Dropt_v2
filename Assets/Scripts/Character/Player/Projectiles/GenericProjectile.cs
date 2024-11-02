@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Data;
 using Unity.Netcode;
 using UnityEngine;
+using Unity.Mathematics;
 
 public class GenericProjectile : NetworkBehaviour
 {
@@ -15,9 +16,15 @@ public class GenericProjectile : NetworkBehaviour
     [HideInInspector] public float CriticalDamage = 1.5f;
     [HideInInspector] public Wearable.WeaponTypeEnum WeaponType;
 
+    [HideInInspector] public Vector3 KnockbackDirection;
+    [HideInInspector] public float KnockbackDistance;
+    [HideInInspector] public float KnockbackStunDuration;
+
     [HideInInspector] public GameObject LocalPlayer;
 
     [HideInInspector] public PlayerAbility.NetworkRole Role = PlayerAbility.NetworkRole.LocalClient;
+
+    [HideInInspector] public GameObject VisualGameObject;
 
     private float m_timer = 0;
     private bool m_isSpawned = false;
@@ -39,7 +46,12 @@ public class GenericProjectile : NetworkBehaviour
         GameObject player,
         float damagePerHit,
         float criticalChance,
-        float criticalDamage
+        float criticalDamage,
+
+        // knockback
+        Vector3 knockbackDirection,
+        float knockbackDistance,
+        float knockbackStunDuration
         )
     {
         // server, local & remote
@@ -57,6 +69,11 @@ public class GenericProjectile : NetworkBehaviour
         DamagePerHit = damagePerHit;
         CriticalChance = criticalChance;
         CriticalDamage = criticalDamage;
+
+        // knockback
+        KnockbackDirection = knockbackDirection;
+        KnockbackDistance = knockbackDistance;
+        KnockbackStunDuration = knockbackStunDuration;
     }
 
     public void Fire()
@@ -80,17 +97,29 @@ public class GenericProjectile : NetworkBehaviour
 
         if (m_timer < 0)
         {
+            if (VisualGameObject != null) Destroy(VisualGameObject);
             gameObject.SetActive(false);
         }
 
         transform.position += Direction * m_speed * Time.deltaTime;
         transform.rotation = PlayerAbility.GetRotationFromDirection(Direction);
 
+        if (IsClient)
+        {
+            VisualGameObject.transform.position = transform.position;
+            VisualGameObject.transform.rotation = transform.rotation;
+        }
+
         if (Role != PlayerAbility.NetworkRole.RemoteClient) CollisionCheck();
     }
 
     public void CollisionCheck()
     {
+        if (IsServer && !IsHost) PlayerAbility.RollbackEnemies(LocalPlayer);
+
+        // resync transforms
+        Physics2D.SyncTransforms();
+
         // Use ColliderCast to perform continuous collision detection
         Vector2 castDirection = Direction.normalized;
         float castDistance = m_speed * Time.deltaTime;
@@ -109,6 +138,12 @@ public class GenericProjectile : NetworkBehaviour
                 var isCritical = PlayerAbility.IsCriticalAttack(CriticalChance);
                 damage = (int)(isCritical ? damage * CriticalDamage : damage);
                 hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical, LocalPlayer);
+
+                var enemyAI = hit.GetComponent<Dropt.EnemyAI>();
+                if (enemyAI != null)
+                {
+                    enemyAI.Knockback(KnockbackDirection, KnockbackDistance, KnockbackStunDuration);
+                }
             }
             else if (hit.HasComponent<Destructible>())
             {
@@ -122,10 +157,14 @@ public class GenericProjectile : NetworkBehaviour
                 LocalPlayer.GetComponent<PlayerCamera>().Shake();
             }
         }
+
+        if (IsServer && !IsHost) PlayerAbility.UnrollEnemies();
     }
 
     void Deactivate(Vector3 hitPosition)
     {
+        if (VisualGameObject != null) Destroy(VisualGameObject);
+
         VisualEffectsManager.Singleton.SpawnBulletExplosion(hitPosition);
         gameObject.SetActive(false);
 
@@ -134,6 +173,8 @@ public class GenericProjectile : NetworkBehaviour
             DeactivateClientRpc(hitPosition);
         }
     }
+
+
 
     [Rpc(SendTo.ClientsAndHost)]
     void DeactivateClientRpc(Vector3 hitPosition)
@@ -155,7 +196,7 @@ public class GenericProjectile : NetworkBehaviour
         projectile.SetActive(false);
     }
 
-    public static void TryAddProjectileOnClient(ref GameObject projectile, 
+    public static bool TryAddProjectileOnClient(ref GameObject projectile, 
         ref NetworkVariable<ulong> projectileId, NetworkManager networkManager)
     {
         if (projectile == null && projectileId.Value > 0)
@@ -163,5 +204,7 @@ public class GenericProjectile : NetworkBehaviour
             projectile = networkManager.SpawnManager.SpawnedObjects[projectileId.Value].gameObject;
             projectile.SetActive(false);
         }
+
+        return projectile != null;
     }
 }

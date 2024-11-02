@@ -1,4 +1,3 @@
-using Audio.Game;
 using Cinemachine;
 using GotchiHub;
 using Unity.Mathematics;
@@ -41,14 +40,20 @@ public class PlayerGotchi : NetworkBehaviour
     [Header("Effects")]
     [SerializeField] private ParticleSystem DustParticleSystem;
 
+    [Header("Audio")]
+    [SerializeField] AudioClip hitGroundAudio;
+
     private Animator animator;
     private PlayerPrediction m_playerPrediction;
 
     private bool m_isMoving;
 
     public bool IsDropSpawning { get; private set; }
-    private float k_dropSpawnDuration = 0.5f;
+    private float k_dropSpawnDuration = 0.9f;
     private float m_dropSpawnTimer = 0.1f;
+    private float k_hitGroundDuration = 0.5f;
+    private float m_hitGroundTimer = 0.1f;
+    private bool m_isHitGround = false;
 
     // facing spin variables
     public enum SpinDirection { AntiClockwise, Clockwise }
@@ -91,6 +96,7 @@ public class PlayerGotchi : NetworkBehaviour
         m_bodyRotationTimer -= Time.deltaTime;
 
         m_dropSpawnTimer -= Time.deltaTime;
+        m_hitGroundTimer -= Time.deltaTime;
 
         HandleGotchiAnim();
         HandleFacingFromSpinning();
@@ -102,12 +108,20 @@ public class PlayerGotchi : NetworkBehaviour
         {
             IsDropSpawning = false;
             GetComponent<Collider2D>().enabled = true;
+            m_playerPrediction.IsInputEnabled = true;
+        }
+
+        if (!m_isHitGround && m_hitGroundTimer <= 0)
+        {
+            m_isHitGround = true;
             GetComponent<PlayerCamera>().Shake(1.75f, 0.3f);
         }
     }
 
     private void LateUpdate()
     {
+        if (IsDropSpawning) return;
+
         if (m_bodyRotationTimer <= 0)
         {
             // use normal sprite lean to calc rotation
@@ -120,26 +134,31 @@ public class PlayerGotchi : NetworkBehaviour
         }
     }
 
-    public void DropSpawn(Vector3 newSpawnPoint)
+    public void PlayDropAnimation()
     {
         if (!IsServer) return;
 
-        PlayDropAnimationClientRpc(newSpawnPoint);
+        PlayDropAnimationClientRpc();
     }
 
     
 
     [Rpc(SendTo.ClientsAndHost)]
-    void PlayDropAnimationClientRpc(Vector3 spawnPoint)
+    void PlayDropAnimationClientRpc()
     {
         if (!IsLocalPlayer) return;
 
         IsDropSpawning = true;
         m_dropSpawnTimer = k_dropSpawnDuration;
+        m_hitGroundTimer = k_hitGroundDuration;
+        m_isHitGround = false;
+        m_playerPrediction.IsInputEnabled = false;
+
+        SetFacingFromDirection(new Vector3(0, -1f, 0), k_dropSpawnDuration, true);
 
         animator.Play("PlayerGotchi_DropSpawn");
 
-        GameAudioManager.Instance.FallNewLevel(spawnPoint);
+        AudioManager.Instance.PlaySpatialSFX(hitGroundAudio, Vector3.zero, true);
     }
 
     public void ResetIdleAnimation()
@@ -225,10 +244,6 @@ public class PlayerGotchi : NetworkBehaviour
 
     public void AnimEvent_EndDropSpawn()
     {
-        
-
-        // renable collider
-        
     }
 
     void HandleDustParticles()

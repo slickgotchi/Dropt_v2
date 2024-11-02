@@ -3,31 +3,23 @@ using UnityEngine;
 
 public sealed class PickupItem : NetworkBehaviour
 {
-    private readonly float distanceForMagnet = 0.3f;
-    public float speed = 5f;
-    private GameObject target;
+    private readonly float m_distanceForMagnet = 0.3f;
+    private const float m_speed = 15f;
+    private GameObject m_target;
 
     private void Update()
     {
-        if (target != null)
-        {
-            // Move towards the target
-            float step = speed * Time.deltaTime;
-            transform.position = Vector3.MoveTowards(transform.position, target.transform.position, step);
+        if (m_target == null) return;
 
-            if (IsServer)
-            {
-                if (GetDistanceTo(target) < distanceForMagnet)
-                {
-                    // Notify the player's magnet that the item has been collected
-                    PlayerPickupItemMagnet magnet = target.GetComponent<PlayerPickupItemMagnet>();
-                    if (magnet != null)
-                    {
-                        magnet.Collect(this);
-                    }
-                }
-            }
-        }
+        float step = m_speed * Time.deltaTime;
+        transform.position = Vector3.MoveTowards(transform.position, m_target.transform.position, step);
+
+        if (!IsServer) return;
+
+        if (GetDistanceTo(m_target) > m_distanceForMagnet) return;
+
+        PlayerPickupItemMagnet magnet = m_target.GetComponentInChildren<PlayerPickupItemMagnet>();
+        magnet?.Collect(this);
     }
 
     public override void OnNetworkSpawn()
@@ -38,13 +30,13 @@ public sealed class PickupItem : NetworkBehaviour
 
     public override void OnNetworkDespawn()
     {
-        base.OnNetworkDespawn();
         gameObject.SetActive(false);
+        base.OnNetworkDespawn();
     }
 
     private void OnDisable()
     {
-        target = null;
+        m_target = null;
     }
 
     private float GetDistanceTo(GameObject target)
@@ -54,18 +46,23 @@ public sealed class PickupItem : NetworkBehaviour
 
     public bool TryGoTo(GameObject target)
     {
-        if (this.target == null)
+        if (m_target == null)
         {
-            this.target = target;
+            m_target = target;
             return true;
         }
 
-        if (GetDistanceTo(target) > GetDistanceTo(this.target))
+        if (GetDistanceTo(target) > GetDistanceTo(m_target))
         {
             return false;
         }
 
-        this.target = target;
+        m_target = target;
         return true;
+    }
+
+    public bool AllowToPick()
+    {
+        return m_target == null;
     }
 }

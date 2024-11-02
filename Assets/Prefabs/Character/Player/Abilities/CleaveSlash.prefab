@@ -134,7 +134,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 496100501
+  GlobalObjectIdHash: 2363590445
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -208,12 +208,12 @@ PolygonCollider2D:
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: 0, y: 1.8}
+    - - {x: -0.49939787, y: 2.4220572}
       - {x: -0.75, y: 0}
-      - {x: 0, y: -1.8}
-      - {x: 1.5, y: -1.8}
-      - {x: 2.2, y: 0}
-      - {x: 1.5, y: 1.8}
+      - {x: -0.5169206, y: -2.4921477}
+      - {x: 2.2534773, y: -2.4571023}
+      - {x: 2.9447162, y: 0.008761287}
+      - {x: 2.0694883, y: 2.4220576}
   m_UseDelaunayMesh: 0
 --- !u!114 &-6166643874648367605
 MonoBehaviour:
@@ -239,8 +239,11 @@ MonoBehaviour:
   AutoMoveDuration: 0
   HoldChargeTime: 3
   HoldSlowFactor: 1
+  KnockbackDistance: 0.8
+  KnockbackStunDuration: 0.6
   Player: {fileID: 0}
   SpecialCooldown: 0
+  audioOnActivate: {fileID: 8300000, guid: fa6b48767eb203e4ca945d5d7997711b, type: 3}
   PlayerAbilityCentreOffset: {x: 0, y: 0.5, z: 0}
   Projection: 0.75
 --- !u!1 &4708556748347195212

@@ -6,7 +6,7 @@ using UnityEngine.UI;
 using Unity.Netcode;
 using System.ComponentModel;
 
-public class CoOpModeCanvas : MonoBehaviour
+public class CoOpModeCanvas : DroptCanvas
 {
     public GameObject AvailableGameListContent;
     public GameObject PrefabAvailableGameListItem;
@@ -18,7 +18,6 @@ public class CoOpModeCanvas : MonoBehaviour
 
     private TextMeshProUGUI m_copyButtonText;
 
-    public GameObject Container;
     public GameObject MenuCard;
 
     private float k_updateInterval = 2f;
@@ -31,10 +30,14 @@ public class CoOpModeCanvas : MonoBehaviour
         IsPublicToggle.onValueChanged.AddListener(HandleChange_IsPublicToggle);
 
         m_copyButtonText = CopyMyGameIdButton.GetComponentInChildren<TextMeshProUGUI>();
-        MenuCard.SetActive(false);
     }
 
-    private void Update()
+    private void Start()
+    {
+        HideCanvas();
+    }
+
+    protected override void Update()
     {
         m_updateTimer -= Time.deltaTime;
 
@@ -49,12 +52,17 @@ public class CoOpModeCanvas : MonoBehaviour
             m_copyButtonText.text = Bootstrap.Instance.GameId.ToString();
         }
 
-        if (Input.GetKeyDown(KeyCode.M))
+        if (Input.GetKeyDown(KeyCode.M) && LevelManager.Instance.IsDegenapeVillage())
         {
-            MenuCard.SetActive(!MenuCard.activeSelf);
+            if (IsActive())
+            {
+                HideCanvas();
+            }
+            else
+            {
+                ShowCanvas();
+            }
         }
-
-        Container.SetActive(LevelManager.Instance.DegenapeVillageLevel == LevelManager.Instance.CurrentLevelIndex.Value);
     }
 
     void HandleClick_CopyMyGameIdButton()
@@ -65,7 +73,7 @@ public class CoOpModeCanvas : MonoBehaviour
     void HandleClick_JoinPrivateButton()
     {
         //Debug.Log("CoOpModeCanvas.cs - Join private gameId: " + JoinPrivateInput.text);
-        Game.Instance.TryJoinGame(JoinPrivateInput.text);
+        //Game.Instance.TryJoinGame(JoinPrivateInput.text);
     }
 
     void HandleChange_IsPublicToggle(bool isOn)

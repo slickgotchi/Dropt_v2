@@ -87,21 +87,6 @@ public class PlayerAbilities : NetworkBehaviour
     [HideInInspector] public GameObject SplashBomb;
     private NetworkVariable<ulong> SplashBombId = new NetworkVariable<ulong>(0);
 
-    [Header("Consume")]
-    public GameObject consumePrefab;
-    [HideInInspector] public GameObject Consume;
-    private NetworkVariable<ulong> ConsumeId = new NetworkVariable<ulong>(0);
-
-    [Header("Aura")]
-    public GameObject auraPrefab;
-    [HideInInspector] public GameObject Aura;
-    private NetworkVariable<ulong> AuraId = new NetworkVariable<ulong>(0);
-
-    [Header("Throw")]
-    public GameObject throwPrefab;
-    [HideInInspector] public GameObject Throw;
-    private NetworkVariable<ulong> ThrowId = new NetworkVariable<ulong>(0);
-
     [Header("Shield")]
     public GameObject shieldBashPrefab;
     [HideInInspector] public GameObject ShieldBash;
@@ -167,11 +152,6 @@ public class PlayerAbilities : NetworkBehaviour
         CreateAbility(ref shieldBlock, shieldBlockPrefab, ShieldBlockId);
         CreateAbility(ref ShieldWall, shieldWallPrefab, ShieldWallId);
 
-        // consume, aura, throw
-        CreateAbility(ref Consume, consumePrefab, ConsumeId);
-        CreateAbility(ref Aura, auraPrefab, AuraId);
-        CreateAbility(ref Throw, throwPrefab, ThrowId);
-
         // unarmed
         CreateAbility(ref UnarmedPunch, unarmedPunchPrefab, UnarmedPunchId);
     }
@@ -213,15 +193,13 @@ public class PlayerAbilities : NetworkBehaviour
         DestroyAbility(ref SplashVolley);
         DestroyAbility(ref SplashBomb);
 
-        DestroyAbility(ref Consume);
-        DestroyAbility(ref Aura);
-        DestroyAbility(ref Throw);
-
         DestroyAbility(ref ShieldBash);
         DestroyAbility(ref shieldBlock);
         DestroyAbility(ref ShieldWall);
 
         DestroyAbility(ref UnarmedPunch);
+
+        base.OnNetworkDespawn();
     }
 
     void DestroyAbility(ref GameObject ability)
@@ -276,11 +254,6 @@ public class PlayerAbilities : NetworkBehaviour
             TryAddAbilityClientSide(ref SplashVolley, SplashVolleyId);
             TryAddAbilityClientSide(ref SplashBomb, SplashBombId);
 
-            // consume, aura, throw
-            TryAddAbilityClientSide(ref Consume, ConsumeId);
-            TryAddAbilityClientSide(ref Aura, AuraId);
-            TryAddAbilityClientSide(ref Throw, ThrowId);
-
             // shield
             TryAddAbilityClientSide(ref ShieldBash, ShieldBashId);
             TryAddAbilityClientSide(ref shieldBlock, ShieldBlockId);
@@ -328,11 +301,6 @@ public class PlayerAbilities : NetworkBehaviour
         if (abilityEnum == PlayerAbilityEnum.SplashVolley && SplashVolley != null) return SplashVolley.GetComponent<PlayerAbility>();
         if (abilityEnum == PlayerAbilityEnum.SplashBomb && SplashBomb != null) return SplashBomb.GetComponent<PlayerAbility>();
 
-        // consume, aura, throw
-        if (abilityEnum == PlayerAbilityEnum.Consume && Consume != null) return Consume.GetComponent<PlayerAbility>();
-        if (abilityEnum == PlayerAbilityEnum.Aura && Aura != null) return Aura.GetComponent<PlayerAbility>();
-        if (abilityEnum == PlayerAbilityEnum.Throw && Throw != null) return Throw.GetComponent<PlayerAbility>();
-
         // shield
         if (abilityEnum == PlayerAbilityEnum.ShieldBash && ShieldBash != null) return ShieldBash.GetComponent<PlayerAbility>();
         if (abilityEnum == PlayerAbilityEnum.ShieldBlock && shieldBlock != null) return shieldBlock.GetComponent<PlayerAbility>();
@@ -376,6 +344,7 @@ public class PlayerAbilities : NetworkBehaviour
         if (wearable.WeaponType == Wearable.WeaponTypeEnum.Ballistic) return PlayerAbilityEnum.BallisticSnipe;
         if (wearable.WeaponType == Wearable.WeaponTypeEnum.Magic) return PlayerAbilityEnum.MagicBeam;
         if (wearable.WeaponType == Wearable.WeaponTypeEnum.Splash) return PlayerAbilityEnum.SplashVolley;
+        if (wearable.WeaponType == Wearable.WeaponTypeEnum.Shield) return PlayerAbilityEnum.ShieldBlock;
 
         return PlayerAbilityEnum.Null;
     }

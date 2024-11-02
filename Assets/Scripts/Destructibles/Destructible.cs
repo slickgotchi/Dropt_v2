@@ -1,5 +1,4 @@
 using System;
-using Audio.Game;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -7,6 +6,8 @@ public class Destructible : NetworkBehaviour
 {
     public event Action DIE;
     public event Action PRE_DIE;
+
+    public AudioClip audioOnHit;
 
     public enum Type
     {
@@ -25,11 +26,25 @@ public class Destructible : NetworkBehaviour
         CurrentHp = new NetworkVariable<int>(Hp);
     }
 
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        // configure audio
+        if (type == Type.Crafted) audioOnHit = AudioLibrary.Instance.HitCrafted;
+        if (type == Type.Inorganic) audioOnHit = AudioLibrary.Instance.HitInorganic;
+        if (type == Type.Organic) audioOnHit = AudioLibrary.Instance.HitOrganic;
+    }
+
     public void TakeDamage(Wearable.WeaponTypeEnum weaponType)
     {
         var damage = CalculateDamageToDestructible(type, weaponType);
 
-        GameAudioManager.Instance.PlayHit(type, gameObject.transform.position);
+        // play some hit audio
+        AudioManager.Instance.PlaySpatialSFX(
+            audioOnHit,
+            gameObject.transform.position
+            );
 
         if (CurrentHp.Value <= damage)
         {
@@ -82,7 +97,7 @@ public class Destructible : NetworkBehaviour
             if (weaponType == Wearable.WeaponTypeEnum.Smash) damage = 1;
             if (weaponType == Wearable.WeaponTypeEnum.Pierce) damage = 2;
             if (weaponType == Wearable.WeaponTypeEnum.Unarmed) damage = 1;
-            if (weaponType == Wearable.WeaponTypeEnum.Ballistic) damage = 1;
+            if (weaponType == Wearable.WeaponTypeEnum.Ballistic) damage = 2;
             if (weaponType == Wearable.WeaponTypeEnum.Splash) damage = 3;
             if (weaponType == Wearable.WeaponTypeEnum.Magic) damage = 2;
             if (weaponType == Wearable.WeaponTypeEnum.Shield) damage = 2;
@@ -92,10 +107,10 @@ public class Destructible : NetworkBehaviour
         {
             if (weaponType == Wearable.WeaponTypeEnum.Cleave) damage = 2;
             if (weaponType == Wearable.WeaponTypeEnum.Smash) damage = 3;
-            if (weaponType == Wearable.WeaponTypeEnum.Pierce) damage = 1;
-            if (weaponType == Wearable.WeaponTypeEnum.Unarmed) damage = 1;
+            if (weaponType == Wearable.WeaponTypeEnum.Pierce) damage = 2;
+            if (weaponType == Wearable.WeaponTypeEnum.Unarmed) damage = 2;
             if (weaponType == Wearable.WeaponTypeEnum.Ballistic) damage = 2;
-            if (weaponType == Wearable.WeaponTypeEnum.Splash) damage = 1;
+            if (weaponType == Wearable.WeaponTypeEnum.Splash) damage = 2;
             if (weaponType == Wearable.WeaponTypeEnum.Magic) damage = 3;
             if (weaponType == Wearable.WeaponTypeEnum.Shield) damage = 2;
         }
@@ -107,8 +122,8 @@ public class Destructible : NetworkBehaviour
             if (weaponType == Wearable.WeaponTypeEnum.Pierce) damage = 3;
             if (weaponType == Wearable.WeaponTypeEnum.Unarmed) damage = 1;
             if (weaponType == Wearable.WeaponTypeEnum.Ballistic) damage = 3;
-            if (weaponType == Wearable.WeaponTypeEnum.Splash) damage = 2;
-            if (weaponType == Wearable.WeaponTypeEnum.Magic) damage = 1;
+            if (weaponType == Wearable.WeaponTypeEnum.Splash) damage = 1;
+            if (weaponType == Wearable.WeaponTypeEnum.Magic) damage = 2;
             if (weaponType == Wearable.WeaponTypeEnum.Shield) damage = 2;
         }
 

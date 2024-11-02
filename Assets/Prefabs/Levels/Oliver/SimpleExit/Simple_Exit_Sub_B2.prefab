@@ -104,6 +104,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68a437cd191db314f9e436ebc9a0cb26, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  levelMusic: {fileID: 0}
+  isEssenceDepleting: 1
 --- !u!156049354 &8472920957702935114
 Grid:
   m_ObjectHideFlags: 0
@@ -700,8 +702,10 @@ MonoBehaviour:
   spawnCondition: 1
   elapsedTime: 0
   destroyAllWithSpawnerId: 2
+  spawnTimeAfterDestroyAll: 0
   touchTriggerWithSpawnerId: -1
---- !u!1001 &2623453103424244017
+  spawnTimeAfterTrigger: 0
+--- !u!1001 &2667894942081863476
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -711,15 +715,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2012082865990180897, guid: a543e24c7481b8740930752e91dcb419, type: 3}
       propertyPath: m_Name
-      value: LeafShade_Marker
+      value: LeafShade_Marker (2)
       objectReference: {fileID: 0}
     - target: {fileID: 4541547650393796824, guid: a543e24c7481b8740930752e91dcb419, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1
+      value: -1.19
       objectReference: {fileID: 0}
     - target: {fileID: 4541547650393796824, guid: a543e24c7481b8740930752e91dcb419, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 15
+      value: 17.44
       objectReference: {fileID: 0}
     - target: {fileID: 4541547650393796824, guid: a543e24c7481b8740930752e91dcb419, type: 3}
       propertyPath: m_LocalPosition.z
@@ -759,25 +763,25 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 2012082865990180897, guid: a543e24c7481b8740930752e91dcb419, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 4807211546348057482}
+      addedObject: {fileID: 8805864730835550982}
   m_SourcePrefab: {fileID: 100100000, guid: a543e24c7481b8740930752e91dcb419, type: 3}
---- !u!4 &1976712123530934761 stripped
+--- !u!4 &1873662192161832940 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4541547650393796824, guid: a543e24c7481b8740930752e91dcb419, type: 3}
-  m_PrefabInstance: {fileID: 2623453103424244017}
+  m_PrefabInstance: {fileID: 2667894942081863476}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &4576846920630216976 stripped
+--- !u!1 &4533469940931850005 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2012082865990180897, guid: a543e24c7481b8740930752e91dcb419, type: 3}
-  m_PrefabInstance: {fileID: 2623453103424244017}
+  m_PrefabInstance: {fileID: 2667894942081863476}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &4807211546348057482
+--- !u!114 &8805864730835550982
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4576846920630216976}
+  m_GameObject: {fileID: 4533469940931850005}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 53d84f81f4d474f5a85c8dc0809c63ff, type: 3}
@@ -785,7 +789,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nillSpawnChance: 0
   spawnOptions:
-  - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 0fa50369c6fe97a45ab4ce801bc4ccbc, type: 3}
+  - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 2c8e41e39b307400b9febe89514c396c, type: 3}
     Chance: 1
   spawnerId: 2
   spawnedNetworkObject: {fileID: 0}
@@ -902,11 +906,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4541547650393796824, guid: a543e24c7481b8740930752e91dcb419, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -5
+      value: 1.12
       objectReference: {fileID: 0}
     - target: {fileID: 4541547650393796824, guid: a543e24c7481b8740930752e91dcb419, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 16
+      value: 14.6
       objectReference: {fileID: 0}
     - target: {fileID: 4541547650393796824, guid: a543e24c7481b8740930752e91dcb419, type: 3}
       propertyPath: m_LocalPosition.z
@@ -972,7 +976,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nillSpawnChance: 0
   spawnOptions:
-  - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 0fa50369c6fe97a45ab4ce801bc4ccbc, type: 3}
+  - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 2c8e41e39b307400b9febe89514c396c, type: 3}
     Chance: 1
   spawnerId: 2
   spawnedNetworkObject: {fileID: 0}
@@ -4446,7 +4450,7 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 235826225690993956, guid: 8b8ca1931c672e84f8ae88a48b88ccc8, type: 3}
   m_PrefabInstance: {fileID: 4375135967979103119}
   m_PrefabAsset: {fileID: 0}
---- !u!1001 &5035595614529880482
+--- !u!1001 &5055376957648339369
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -4456,15 +4460,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2012082865990180897, guid: a543e24c7481b8740930752e91dcb419, type: 3}
       propertyPath: m_Name
-      value: LeafShade_Marker
+      value: LeafShade_Marker (1)
       objectReference: {fileID: 0}
     - target: {fileID: 4541547650393796824, guid: a543e24c7481b8740930752e91dcb419, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -3
+      value: -5
       objectReference: {fileID: 0}
     - target: {fileID: 4541547650393796824, guid: a543e24c7481b8740930752e91dcb419, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 13
+      value: 16
       objectReference: {fileID: 0}
     - target: {fileID: 4541547650393796824, guid: a543e24c7481b8740930752e91dcb419, type: 3}
       propertyPath: m_LocalPosition.z
@@ -4504,20 +4508,20 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 2012082865990180897, guid: a543e24c7481b8740930752e91dcb419, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 3323584515972792696}
+      addedObject: {fileID: 8671181209879532687}
   m_SourcePrefab: {fileID: 100100000, guid: a543e24c7481b8740930752e91dcb419, type: 3}
---- !u!1 &6777457005166535043 stripped
+--- !u!1 &6756547581170262408 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2012082865990180897, guid: a543e24c7481b8740930752e91dcb419, type: 3}
-  m_PrefabInstance: {fileID: 5035595614529880482}
+  m_PrefabInstance: {fileID: 5055376957648339369}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &3323584515972792696
+--- !u!114 &8671181209879532687
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6777457005166535043}
+  m_GameObject: {fileID: 6756547581170262408}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 53d84f81f4d474f5a85c8dc0809c63ff, type: 3}
@@ -4525,14 +4529,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nillSpawnChance: 0
   spawnOptions:
-  - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 0fa50369c6fe97a45ab4ce801bc4ccbc, type: 3}
+  - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 2c8e41e39b307400b9febe89514c396c, type: 3}
     Chance: 1
   spawnerId: 2
   spawnedNetworkObject: {fileID: 0}
---- !u!4 &8855438126100443514 stripped
+--- !u!4 &8732091585676210545 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4541547650393796824, guid: a543e24c7481b8740930752e91dcb419, type: 3}
-  m_PrefabInstance: {fileID: 5035595614529880482}
+  m_PrefabInstance: {fileID: 5055376957648339369}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &7422399897936167601
 PrefabInstance:
@@ -4605,13 +4609,13 @@ PrefabInstance:
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 5047113907368822876, guid: 0d9d8209c3b20c948a7ea159aaf323e2, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 8855438126100443514}
-    - targetCorrespondingSourceObject: {fileID: 5047113907368822876, guid: 0d9d8209c3b20c948a7ea159aaf323e2, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1976712123530934761}
-    - targetCorrespondingSourceObject: {fileID: 5047113907368822876, guid: 0d9d8209c3b20c948a7ea159aaf323e2, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 950625749142078791}
+    - targetCorrespondingSourceObject: {fileID: 5047113907368822876, guid: 0d9d8209c3b20c948a7ea159aaf323e2, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8732091585676210545}
+    - targetCorrespondingSourceObject: {fileID: 5047113907368822876, guid: 0d9d8209c3b20c948a7ea159aaf323e2, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1873662192161832940}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0d9d8209c3b20c948a7ea159aaf323e2, type: 3}
 --- !u!4 &2381096033498598125 stripped

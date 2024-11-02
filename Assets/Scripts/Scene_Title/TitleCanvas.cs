@@ -4,7 +4,6 @@ using Assets.Plugins;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using Audio.Game;
 
 public class TitleCanvas : MonoBehaviour
 {
@@ -22,11 +21,13 @@ public class TitleCanvas : MonoBehaviour
         if (regionIndex >= 0)
         {
             regionDropdown.value = regionIndex;
+            SetRegion(regionIndex);
         }
 
         // play button listener
         playButton.onClick.AddListener(() =>
         {
+            LoadingCanvas.Instance.Animator.Play("LoadingCanvas_Blackout");
             SceneManager.LoadScene("Game");
         });
 
@@ -49,6 +50,11 @@ public class TitleCanvas : MonoBehaviour
     }
 
     private void Handle_DropdownChange(int index)
+    {
+        SetRegion(index);
+    }
+
+    void SetRegion(int index)
     {
         var selectedRegion = regionDropdown.options[index].text.ToUpper();
         switch (selectedRegion)

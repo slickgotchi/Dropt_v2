@@ -8,21 +8,22 @@ using Unity.Mathematics;
 public class EnemyController : NetworkBehaviour
 {
     [Header("Rendering Parameters")]
-    public SpriteRenderer SpriteToFlip;
+    [SerializeField] private List<SpriteRenderer> m_spritesToFlip;
     public enum Facing { Left, Right }
-    public Facing FacingDirection;
+    private Facing m_facingDirection;
+
+    private NavMeshAgent m_navMeshAgent;
 
     // private parameters for updating facing position
     private LocalVelocity m_localVelocity;
     private float m_facingTimer = 0f;
 
-    // AI parameters
-    private NavMeshAgent m_navMeshAgent;
-
     // spawn parameters
     [Header("Spawn Parameters")]
     [HideInInspector] public bool IsSpawning = true;
     public float SpawnDuration = 0f;
+
+    private NetworkVariable<Vector3> m_agentVelocity = new NetworkVariable<Vector3>();
 
     [HideInInspector] public bool IsArmed = false;
 
@@ -33,64 +34,86 @@ public class EnemyController : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        //Debug.Log("Spawn Enemy");
-        // Utility AI
+        base.OnNetworkSpawn();
 
-        // only add nav mesh agent on the server
-        if (IsServer || IsHost)
+        if (IsClient && !IsHost)
         {
-            // NavMeshAgent
-            m_navMeshAgent = gameObject.AddComponent<NavMeshAgent>();
+            Destroy(GetComponent<NavMeshAgent>());
+        }
+        else
+        {
+            m_navMeshAgent = GetComponent<NavMeshAgent>();
+            if (m_navMeshAgent == null) return;
+
             m_navMeshAgent.updateRotation = false;
             m_navMeshAgent.updateUpAxis = false;
             m_navMeshAgent.obstacleAvoidanceType = ObstacleAvoidanceType.NoObstacleAvoidance;
             m_navMeshAgent.enabled = true;
+        }
 
-            // register with the utility world
-        }
-        else
-        {
-            return;
-        }
     }
 
     public override void OnNetworkDespawn()
     {
-        //if (m_utilityAgentFacade != null) m_utilityAgentFacade.Destroy();
+        base.OnNetworkDespawn();
     }
 
     // Update is called once per frame
     void Update()
     {
         HandleFacing();
-
-        SpawnDuration -= Time.deltaTime;
-
-        if (SpawnDuration <= 0f)
-        {
-            IsSpawning = false;
-        }
     }
 
-    public void SetFacingDirection(Facing facingDirection, float facingTimer = 0.5f)
+    public void SetFacingFromDirection(Vector3 direction, float facingTimer)
+    {
+        // client or host
+        if (IsHost || IsServer)
+        {
+            SetFacingFromDirectionClientRpc(direction, facingTimer);
+        }    
+    }
+
+    [ClientRpc]
+    void SetFacingFromDirectionClientRpc(Vector3 direction, float facingTimer)
+    {
+        //SetFacingFromDirection(direction, facingTimer);
+        SetFacing(direction.x > 0 ? Facing.Right : Facing.Left, facingTimer);
+    }
+
+    public void SetFacing(Facing facingDirection, float facingTimer = 0.5f)
     {
         m_facingTimer = facingTimer;
-        FacingDirection = facingDirection;
+        m_facingDirection = facingDirection;
+        //SpriteToFlip.flipX = FacingDirection == Facing.Left ? true : false;
+        SetEnemySpritesFlip();
     }
 
     public void HandleFacing()
     {
-        if (SpriteToFlip == null) return;
+        if (m_spritesToFlip.Count == 0) return;
 
-        m_facingTimer -= Time.deltaTime;
-
-        if (m_facingTimer > 0f)
+        if (IsServer)
         {
-            SpriteToFlip.flipX = FacingDirection == Facing.Left;
+            m_agentVelocity.Value = m_navMeshAgent != null ? m_navMeshAgent.velocity : Vector3.zero;
         }
-        else if (m_localVelocity.IsMoving)
+
+        if (IsClient)
         {
-            SpriteToFlip.flipX = m_localVelocity.Value.x > 0 ? false : true;
+            if (math.abs(m_agentVelocity.Value.x) < 0.02f) return;
+
+            m_facingTimer -= Time.deltaTime;
+            if (m_facingTimer > 0f) return;
+
+            m_facingDirection = m_agentVelocity.Value.x < 0 ? Facing.Left : Facing.Right;
+            SetEnemySpritesFlip();
+        }
+    }
+
+    private void SetEnemySpritesFlip()
+    {
+        foreach (SpriteRenderer spriteRenderer in m_spritesToFlip)
+        {
+            spriteRenderer.flipX = m_facingDirection == Facing.Left;
         }
     }
 }

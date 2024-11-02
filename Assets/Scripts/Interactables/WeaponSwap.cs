@@ -3,19 +3,20 @@ using UnityEngine;
 
 public class WeaponSwap : Interactable
 {
-    public NetworkVariable<Wearable.NameEnum> SyncNameEnum;
+    public Wearable.NameEnum WeaponEnum;
+    [HideInInspector] public NetworkVariable<Wearable.NameEnum> SyncNameEnum;
     public SpriteRenderer SpriteRenderer;
 
     GameObject m_player;
 
-    public override void OnStartInteraction()
+    public override void OnTriggerStartInteraction()
     {
         WeaponSwapCanvas.Instance.Container.SetActive(true);
         UpdateCanvas();
         m_player = NetworkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId].gameObject;
     }
 
-    public override void OnUpdateInteraction()
+    public override void OnTriggerUpdateInteraction()
     {
         var wearableNameEnum = SyncNameEnum.Value;
 
@@ -48,7 +49,7 @@ public class WeaponSwap : Interactable
         SyncNameEnum.Value = ogEquipment;
     }
 
-    public override void OnFinishInteraction()
+    public override void OnTriggerFinishInteraction()
     {
         WeaponSwapCanvas.Instance.Container.SetActive(false);
     }
@@ -62,7 +63,9 @@ public class WeaponSwap : Interactable
     {
         base.OnNetworkSpawn();
 
-        Init(SyncNameEnum.Value);
+        Init(WeaponEnum);
+
+        SyncNameEnum.Value = WeaponEnum;
 
         SyncNameEnum.OnValueChanged += OnNetworkNameChanged;
     }

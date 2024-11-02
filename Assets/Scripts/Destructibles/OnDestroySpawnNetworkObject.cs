@@ -18,6 +18,8 @@ public class OnDestroySpawnNetworkObject : NetworkBehaviour
         var newSpawn = Instantiate(SpawnPrefab, transform);
         newSpawn.transform.position += Offset;
         newSpawn.GetComponent<NetworkObject>().Spawn();
+
+        base.OnNetworkDespawn();
     }
 
 }

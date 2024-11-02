@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Unity.Netcode;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class REKTCanvas : NetworkBehaviour
 {
@@ -12,10 +13,17 @@ public class REKTCanvas : NetworkBehaviour
     public GameObject Container;
     public Button DegenapeButton;
 
-    public enum TypeOfREKT { HP, Essence, InActive }
+    public enum TypeOfREKT { HP, Essence, InActive, Escaped }
     public TypeOfREKT Type = TypeOfREKT.HP;
 
-    public TextMeshProUGUI REKTReasonText;
+    public TextMeshProUGUI TitleText;
+    public TextMeshProUGUI ReasonText;
+
+    public Color EscapeTitleTextColor;
+    public Color EscapeReasonTextColor;
+    public Color REKTTitleTextColor;
+    public Color REKTReasonTextColor;
+
 
     private void Awake()
     {
@@ -31,37 +39,47 @@ public class REKTCanvas : NetworkBehaviour
         Type = type;
         Container.SetActive(true);
 
+        // set text colors
+        if (type == TypeOfREKT.Escaped)
+        {
+            TitleText.text = "ESCAPED";
+            TitleText.color = EscapeTitleTextColor;
+            ReasonText.color = EscapeReasonTextColor;
+        } else
+        {
+            TitleText.text = "REKT";
+            TitleText.color = REKTTitleTextColor;
+            ReasonText.color = REKTReasonTextColor;
+        }
+
         // display text based on how we game over'd
         if (type == TypeOfREKT.HP)
         {
-            REKTReasonText.text = "You ran out of HP... dungeons can be tough huh?";
+            ReasonText.text = "You ran out of HP... dungeons can be tough huh?";
         }
         else if (type == TypeOfREKT.Essence)
         {
-            REKTReasonText.text = "You ran out of Essence... maybe catch a lil essence once in a while?";
+            ReasonText.text = "You ran out of Essence... maybe catch a lil essence once in a while?";
         }
-        else
+        else if (type == TypeOfREKT.Escaped)
         {
-            REKTReasonText.text = "You have been inactive for longer than " + PlayerController.InactiveTimerDuration.ToString("F0") + "s so... got the boot!";
+            ReasonText.text = "You successfully escaped with your collected treasures. Maybe a little deeper next time?";
+        }
+        else if (type == TypeOfREKT.InActive)
+        {
+            ReasonText.text = "You have been inactive for longer than " + PlayerController.InactiveTimerDuration.ToString("F0") + "s so... got the boot!";
         }
 
-        // set button based on if tutorial is completed
-        if (Game.Instance.IsTutorialCompleted())
-        {
-            DegenapeButton.GetComponentInChildren<TextMeshProUGUI>().text = "Return to Degenape Village";
-        } else
-        {
-            DegenapeButton.GetComponentInChildren<TextMeshProUGUI>().text = "Return to Tutorial Level";
-        }
+        DegenapeButton.GetComponentInChildren<TextMeshProUGUI>().text = "Return to Degenape Village";
     }
 
     void HandleClickDegenapeButton()
     {
-        ProgressBarCanvas.Instance.ResetProgress();
-
-        Game.Instance.TryCreateGame();
-
         Container.SetActive(false);
-        
+
+        // reload the game scene
+        SceneManager.LoadScene("Game");
+
+        //Game.Instance.TryConnectClientOrHostGame();
     }
 }

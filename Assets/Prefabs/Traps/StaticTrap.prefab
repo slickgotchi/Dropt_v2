@@ -49,7 +49,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1008281488
+  GlobalObjectIdHash: 844420227
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -74,8 +74,8 @@ MonoBehaviour:
     m_InternalValue: 0
   MaxGroup:
     m_InternalValue: 0
-  m_cooldownDuration: 3
-  m_damage: 1
+  m_cooldownDuration: 0.75
+  m_damage: 10
   m_buffDamageAbility: {fileID: -1636451669494875570}
 --- !u!61 &7594667461773364436
 BoxCollider2D:
@@ -85,7 +85,6 @@ BoxCollider2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3924821971453843158}
   m_Enabled: 1
-  serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -109,9 +108,8 @@ BoxCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 1
   m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_UsedByComposite: 0
+  m_Offset: {x: 0.0045228004, y: 0.010553032}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -121,7 +119,8 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1.08, y: 1}
+  serializedVersion: 2
+  m_Size: {x: 0.70310557, y: 0.6291358}
   m_EdgeRadius: 0
 --- !u!114 &-1636451669494875570
 MonoBehaviour:
@@ -136,7 +135,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_buff: {fileID: 11400000, guid: 496ca1e2613c8ba4db4cf2f30adf8f8d, type: 2}
-  m_buffEffectDuration: 0.2
+  m_buffEffectDuration: 0
 --- !u!114 &-1712494121813666438
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -198,8 +197,6 @@ SpriteRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:

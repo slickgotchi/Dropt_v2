@@ -34,6 +34,12 @@ namespace Level.Traps
         [SerializeField] protected float m_damage;
         [SerializeField] protected BuffDamageAbility m_buffDamageAbility;
 
+        private struct PlayerAndDamageTime
+        {
+            public NetworkCharacter networkCharacter;
+            public float damageTime;
+        }
+
         private readonly HashSet<NetworkCharacter> m_players;
 
         //is available trap for attack
@@ -49,6 +55,8 @@ namespace Level.Traps
 
         private void OnTriggerEnter2D(Collider2D collision)
         {
+            if (!IsServer) return;
+
             var player = collision.gameObject.GetComponent<NetworkCharacter>();
 
             if (player == null)
@@ -59,6 +67,8 @@ namespace Level.Traps
 
         private void OnTriggerExit2D(Collider2D collision)
         {
+            if (!IsServer) return;
+
             var player = collision.gameObject.GetComponent<NetworkCharacter>();
 
             if (player == null)
@@ -88,21 +98,9 @@ namespace Level.Traps
             m_group.ResetCooldown(m_cooldownDuration);
 
             //cause damage
-
             foreach (var player in m_players)
             {
-                
-                if (IsServer)
-                {
-                    player.TakeDamage(m_damage, false, gameObject);
-                    m_buffDamageAbility?.Damage(player);
-                }
-                else
-                {
-                    var timeOffset = (null == m_buffDamageAbility)? 0 : m_buffDamageAbility.BuffEffectDuration;
-                    if (player == null || !player.HasComponent<PlayerStepSynchronization>()) return;
-                    player.GetComponent<PlayerStepSynchronization>().WaitUntilReceiveServerData(timeOffset);
-                }
+                if (IsServer) player.TakeDamage(m_damage, false, gameObject);
             }
         }
     }

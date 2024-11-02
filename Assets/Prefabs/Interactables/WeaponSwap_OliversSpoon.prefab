@@ -70,8 +70,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a20628b749bb82b4690ec3f9949d6afe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  interactableType: 0
+  PopupCanvasPrefab: {fileID: 0}
+  PopupCanvasOffset: {x: 0, y: 0, z: 0}
+  isDisablePlayerInputWhileActive: 0
   status: 0
   playerNetworkObjectId: 0
+  WeaponEnum: 185
   SyncNameEnum:
     m_InternalValue: 0
   SpriteRenderer: {fileID: 7678001194273218074}
@@ -83,7 +88,6 @@ CircleCollider2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 482474827107710498}
   m_Enabled: 1
-  serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -107,9 +111,9 @@ CircleCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 1
   m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
+  m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
+  serializedVersion: 2
   m_Radius: 0.75
 --- !u!114 &7430302761927159354
 MonoBehaviour:
@@ -172,8 +176,6 @@ SpriteRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -259,8 +261,6 @@ SpriteRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
