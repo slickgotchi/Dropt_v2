@@ -1,8 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Unity.Mathematics;
 
 public class PlayerHUDCanvas : MonoBehaviour
 {
@@ -38,40 +37,56 @@ public class PlayerHUDCanvas : MonoBehaviour
     }
 
     [SerializeField] private GameObject m_container;
-    [SerializeField] private Slider m_healthSlider;
-    [SerializeField] private TextMeshProUGUI m_healthText;
-    [SerializeField] private Slider m_abilitySlider;
-    [SerializeField] private TextMeshProUGUI m_abilityText;
 
-    [SerializeField] private TextMeshProUGUI m_lhCooldownText;
-    [SerializeField] private TextMeshProUGUI m_rhCooldownText;
-
-    [SerializeField] private TextMeshProUGUI m_gltrText;
-    [SerializeField] private TextMeshProUGUI m_cGhstText;
+    [Header("HP, AP & Special Cooldown")]
+    [SerializeField] private Image m_hpImage;
+    [SerializeField] private TextMeshProUGUI m_hpText;
+    [SerializeField] private Image m_apImage;
+    [SerializeField] private TextMeshProUGUI m_apText;
 
     [SerializeField] private TextMeshProUGUI m_essenceText;
+    [SerializeField] private Image m_essenceImage;
 
     [SerializeField] private Image LHWearableImage;
     [SerializeField] private Image RHWearableImage;
 
+    [SerializeField] private TextMeshProUGUI m_lhCooldownText;
+    [SerializeField] private TextMeshProUGUI m_rhCooldownText;
+
+    [Header("Dungeon Collectibles")]
+    [SerializeField] private TextMeshProUGUI m_bombsText;
+    [SerializeField] private TextMeshProUGUI m_dustText;
+    [SerializeField] private TextMeshProUGUI m_ectoText;
     [SerializeField] private GameObject m_dungeonCollectibles;
 
-    [SerializeField] private TMPro.TextMeshProUGUI m_levelNumber;
-    [SerializeField] private TMPro.TextMeshProUGUI m_levelName;
+    [Header("Level Details")]
+    [SerializeField] private TextMeshProUGUI m_levelNumber;
+    [SerializeField] private TextMeshProUGUI m_levelName;
+    [SerializeField] private TextMeshProUGUI m_levelObjective;
 
-    private NetworkCharacter m_localPlayerCharacter;
-    private PlayerDungeonData m_localPlayerDungeonData;
+    [Header("Multiplayer Menu")]
+    [SerializeField] private GameObject m_multiplayerMenuNote;
 
-    public void SetLocalPlayerCharacter(NetworkCharacter localPlayerCharacter)
+    private PlayerCharacter m_localPlayerCharacter;
+    private PlayerOffchainData m_localPlayerDungeonData;
+
+    [SerializeField] private Slider m_leftHandShieldBar;
+    [SerializeField] private Slider m_rightHandShieldBar;
+
+    [SerializeField] private PetMeterView m_PetMeterView;
+
+
+    public void SetLocalPlayerCharacter(PlayerCharacter localPlayerCharacter)
     {
         m_localPlayerCharacter = localPlayerCharacter;
-        m_localPlayerDungeonData = localPlayerCharacter.GetComponent<PlayerDungeonData>(); 
+        m_localPlayerDungeonData = localPlayerCharacter.GetComponent<PlayerOffchainData>();
     }
 
-    public void SetLevelNumberAndName(string number, string name)
+    public void SetLevelNumberNameObjective(string number, string name, string objective)
     {
         m_levelNumber.text = number;
         m_levelName.text = name;
+        m_levelObjective.text = objective;
     }
 
     public void Hide()
@@ -95,20 +110,17 @@ public class PlayerHUDCanvas : MonoBehaviour
 
         m_container.SetActive(true);
 
+        m_multiplayerMenuNote.SetActive(LevelManager.Instance.IsDegenapeVillage());
+
         UpdateStatBars();
         UpdateCooldowns();
-        UpdateGltr();
-        UpdateEssence();
-        UpdateCGHST();
-        UpdateAbilityIcons();
 
-        if (Screen.fullScreen)
-        {
-            m_dungeonCollectibles.GetComponent<RectTransform>().anchoredPosition = new Vector3(-10, 10, 0);
-        } else
-        {
-            m_dungeonCollectibles.GetComponent<RectTransform>().anchoredPosition = new Vector3(-10, 50, 0);
-        }
+        UpdateBombs();
+        UpdateDust();
+        UpdateEcto();
+
+        UpdateEssence();
+        UpdateAbilityIcons();
     }
 
     void UpdateStatBars()
@@ -117,19 +129,17 @@ public class PlayerHUDCanvas : MonoBehaviour
         var maxHp = m_localPlayerCharacter.HpMax.Value + m_localPlayerCharacter.HpBuffer.Value;
         var currHp = m_localPlayerCharacter.HpCurrent.Value;
 
-        m_healthSlider.maxValue = maxHp;
-        m_healthSlider.value = currHp;
+        m_hpImage.fillAmount = currHp / maxHp;
 
-        m_healthText.text = currHp.ToString("F0") + " / " + maxHp.ToString("F0");
+        m_hpText.text = currHp.ToString("F0") + " / " + maxHp.ToString("F0");
 
         // AP
         var maxAp = m_localPlayerCharacter.ApMax.Value + m_localPlayerCharacter.ApBuffer.Value;
         var currAp = m_localPlayerCharacter.ApCurrent.Value;
 
-        m_abilitySlider.maxValue = maxAp;
-        m_abilitySlider.value = currAp;
+        m_apImage.fillAmount = currAp / maxAp;
 
-        m_abilityText.text = currAp.ToString("F0") + " / " + maxAp.ToString("F0");
+        m_apText.text = currAp.ToString("F0") + " / " + maxAp.ToString("F0");
     }
 
     void UpdateCooldowns()
@@ -137,27 +147,38 @@ public class PlayerHUDCanvas : MonoBehaviour
         var lhRem = m_localPlayerCharacter.GetComponent<PlayerPrediction>().GetSpecialCooldownRemaining(Hand.Left);
         var rhRem = m_localPlayerCharacter.GetComponent<PlayerPrediction>().GetSpecialCooldownRemaining(Hand.Right);
 
+        // round up
+        lhRem = math.ceil(lhRem);
+        rhRem = math.ceil(rhRem);
+
         m_lhCooldownText.text = lhRem < 0.1f ? "" : lhRem.ToString("F0");
         m_rhCooldownText.text = rhRem < 0.1f ? "" : rhRem.ToString("F0");
     }
 
-    void UpdateGltr()
+    void UpdateDust()
     {
-        var gltrCount = m_localPlayerDungeonData.SpiritDust;
-        m_gltrText.text = gltrCount.Value.ToString();
+        var dust = LevelManager.Instance.IsDegenapeVillage() ? m_localPlayerDungeonData.dustBalance_offchain : m_localPlayerDungeonData.dustLiveCount_dungeon;
+        m_dustText.text = dust.Value.ToString();
     }
 
+    void UpdateBombs()
+    {
+        var bombs = LevelManager.Instance.IsDegenapeVillage() ? m_localPlayerDungeonData.bombBalance_offchain : m_localPlayerDungeonData.bombLiveCount_dungeon;
+        m_bombsText.text = bombs.Value.ToString("F0");
+    }
+
+    void UpdateEcto()
+    {
+        m_ectoText.text = LevelManager.Instance.IsDegenapeVillage() ?
+            m_localPlayerDungeonData.ectoBalance_offchain.Value.ToString("F0") :
+            "(" + m_localPlayerDungeonData.ectoDebitCount_dungeon.Value + ") " + m_localPlayerDungeonData.ectoLiveCount_dungeon.Value;
+    }
 
     void UpdateEssence()
     {
-        var essence = m_localPlayerDungeonData.Essence;
+        var essence = m_localPlayerCharacter.Essence;
         m_essenceText.text = essence.Value.ToString("F0");
-    }
-
-    void UpdateCGHST()
-    {
-        var cGhst = m_localPlayerDungeonData.cGHST;
-        m_cGhstText.text = cGhst.Value.ToString("F0");
+        m_essenceImage.fillAmount = essence.Value / 1000;
     }
 
     Wearable.NameEnum lhOld;
@@ -182,5 +203,44 @@ public class PlayerHUDCanvas : MonoBehaviour
             RHWearableImage.sprite = WeaponSpriteManager.Instance.GetSprite(rhEnum, PlayerGotchi.Facing.Front);
             rhOld = rhEnum;
         }
+    }
+
+    public void VisibleShieldBar(Hand hand, bool isVisible)
+    {
+        if (hand == Hand.Left)
+        {
+            m_leftHandShieldBar.gameObject.SetActive(isVisible);
+        }
+        else
+        {
+            m_rightHandShieldBar.gameObject.SetActive(isVisible);
+        }
+    }
+
+    public void SetShieldBarProgress(Hand hand, float progress)
+    {
+        if (hand == Hand.Left)
+        {
+            m_leftHandShieldBar.value = progress;
+        }
+        else
+        {
+            m_rightHandShieldBar.value = progress;
+        }
+    }
+
+    public void ActivatePetMeter(Sprite pet)
+    {
+        m_PetMeterView.Activate(pet);
+    }
+
+    public void DeactivatePetMeter()
+    {
+        m_PetMeterView.Deactivate();
+    }
+
+    public void SetPetMeterProgress(float progress)
+    {
+        m_PetMeterView.SetProgress(progress);
     }
 }

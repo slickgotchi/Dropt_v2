@@ -17,24 +17,24 @@ namespace Character.Player
 
         private void Update()
         {
-            if (!m_playerPrediction.IsInputDisabled)
-                return;
+            //if (m_playerPrediction.IsInputEnabled)
+            //    return;
 
-            var offset = m_playerPrediction.Timer.CurrentTick - m_waitingTick;
+            //var offset = m_playerPrediction.Timer.CurrentTick - m_waitingTick;
 
-            if (m_playerPrediction.LastServerState.tick >= m_waitingTick || offset - m_waitingTick >= m_MaxWaitingTimeInMs)
-            {
-                m_playerPrediction.IsInputDisabled = false;
-            }
+            //if (m_playerPrediction.LastServerState.tick >= m_waitingTick || offset - m_waitingTick >= m_MaxWaitingTimeInMs)
+            //{
+            //    m_playerPrediction.IsInputEnabled = true;
+            //}
         }
 
         public void WaitUntilReceiveServerData(float durationOffset)
         {
-            if (m_playerPrediction.IsInputDisabled)
-                return;
+            //if (!m_playerPrediction.IsInputEnabled)
+            //    return;
 
-            m_waitingTick = m_playerPrediction.Timer.CurrentTick + Mathf.CeilToInt(durationOffset / PlayerPrediction.k_serverTickRate);
-            m_playerPrediction.IsInputDisabled = true;
+            //m_waitingTick = m_playerPrediction.Timer.CurrentTick + Mathf.CeilToInt(durationOffset / PlayerPrediction.k_serverTickRate);
+            //m_playerPrediction.IsInputEnabled = false;
         }
     }
 }

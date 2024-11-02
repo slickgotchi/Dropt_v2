@@ -7,31 +7,40 @@ using GotchiHub;
 
 public class PlayerSVGs : NetworkBehaviour
 {
+    private int m_gotchiId = 0;
+
     private void Start()
     {
     }
 
     private void Update()
     {
-
     }
 
+    // this function called by PlayerController when id changes
     public void Init(int gotchiId)
     {
         if (!IsClient) return;
-        if (gotchiId <= 0) return;
 
         var newGotchiSvgs = GotchiDataManager.Instance.GetGotchiSvgsById(gotchiId);
-        if (newGotchiSvgs == null)
+        Debug.Log("newGotchiSvgs: " + newGotchiSvgs + " for gotchi id: " + gotchiId);
+        if (newGotchiSvgs != null)
         {
-            Debug.LogWarning("No gotchis svgs for id: " + gotchiId);
-        } else
-        {
-            SetBodySpriteFromDataManager(newGotchiSvgs);
+            SetBodySpritesFromSvgSet(newGotchiSvgs);
+            return;
         }
+
+        var offchainGotchiData = GotchiDataManager.Instance.GetOffchainGotchiDataById(gotchiId);
+        if (offchainGotchiData != null)
+        {
+            SetBodySpritesFromOffchainGotchiData(offchainGotchiData);
+            return;
+        }
+
+        Debug.LogWarning("No gotchis svgs or sprites for id: " + gotchiId);
     }
 
-    void SetBodySpriteFromDataManager(GotchiSvgSet gotchiSvgSet)
+    void SetBodySpritesFromSvgSet(GotchiSvgSet gotchiSvgSet)
     {
         if (gotchiSvgSet == null) return;
 
@@ -50,12 +59,6 @@ public class PlayerSVGs : NetworkBehaviour
 
         playerGotchi.BodyFaceRight.GetComponent<SpriteRenderer>().sprite = GetSpriteFromSvgString(gotchiSvgSet.Right);
         playerGotchi.BodyFaceRight.GetComponent<SpriteRenderer>().material = newMaterial;
-
-        //if (!m_isGotSvg)
-        //{
-        //    m_isGotSvg = true;
-        //    SaveSvgToFile(GotchiDataManager.Instance.stylingGame.CustomizeSVG(gotchiSvgSet.Left), "GotchiFront.svg");
-        //}
     }
 
     private Sprite GetSpriteFromSvgString(string svgString)
@@ -64,11 +67,21 @@ public class PlayerSVGs : NetworkBehaviour
         return CustomSvgLoader.CreateSvgSprite(GotchiDataManager.Instance.stylingGame.CustomizeSVG(svgString), new Vector2(0.5f, 0.15f));
     }
 
-    private void SaveSvgToFile(string svgContent, string fileName)
+    void SetBodySpritesFromOffchainGotchiData(PortalDefender.AavegotchiKit.DefaultGotchiData offchainGotchiData)
     {
-        string path = Path.Combine(Application.dataPath, "Builds", fileName);
-        Directory.CreateDirectory(Path.GetDirectoryName(path));
-        File.WriteAllText(path, svgContent);
-        Debug.Log($"SVG saved to {path}");
+        var newMaterial = GotchiDataManager.Instance.Material_Sprite_Unlit_Default;
+        var playerGotchi = GetComponent<PlayerGotchi>();
+
+        playerGotchi.BodyFaceFront.GetComponent<SpriteRenderer>().sprite = offchainGotchiData.spriteFront;
+        playerGotchi.BodyFaceFront.GetComponent<SpriteRenderer>().material = newMaterial;
+
+        playerGotchi.BodyFaceBack.GetComponent<SpriteRenderer>().sprite = offchainGotchiData.spriteBack;
+        playerGotchi.BodyFaceBack.GetComponent<SpriteRenderer>().material = newMaterial;
+
+        playerGotchi.BodyFaceLeft.GetComponent<SpriteRenderer>().sprite = offchainGotchiData.spriteLeft;
+        playerGotchi.BodyFaceLeft.GetComponent<SpriteRenderer>().material = newMaterial;
+
+        playerGotchi.BodyFaceRight.GetComponent<SpriteRenderer>().sprite = offchainGotchiData.spriteRight;
+        playerGotchi.BodyFaceRight.GetComponent<SpriteRenderer>().material = newMaterial;
     }
 }

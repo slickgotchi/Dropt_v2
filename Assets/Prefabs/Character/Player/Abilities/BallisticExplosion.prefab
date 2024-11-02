@@ -49,8 +49,6 @@ SpriteRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -146,7 +144,7 @@ MonoBehaviour:
   AutoObjectParentSync: 1
 --- !u!95 &8150119983424438167
 Animator:
-  serializedVersion: 7
+  serializedVersion: 5
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -160,7 +158,6 @@ Animator:
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
@@ -179,27 +176,40 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   abilityType: 2
-  ApCost: 0
-  DamageMultiplier: 1
+  ApCost: 60
+  DamageMultiplier: 2
   ExecutionDuration: 0.5
   ExecutionSlowFactor: 0.5
-  CooldownDuration: 0
+  CooldownDuration: 10
   CooldownSlowFactor: 1
   TeleportDistance: 0
   AutoMoveDistance: 0
   AutoMoveDuration: 0
   HoldChargeTime: 3
   HoldSlowFactor: 1
+  KnockbackDistance: 0
+  KnockbackStunDuration: 0
   Player: {fileID: 0}
   SpecialCooldown: 0
+  audioOnActivate: {fileID: 8300000, guid: fa6b48767eb203e4ca945d5d7997711b, type: 3}
   PlayerAbilityCentreOffset: {x: 0, y: 0.5, z: 0}
   Projection: 1
   Distance: 15
   Duration: 0.5
-  ExplosionRadius: 2
-  BulletPrefab: {fileID: 2544078778212307353, guid: 59494f737301c4ab3952dbb9e977c19d, type: 3}
-  ArrowPrefab: {fileID: 2544078778212307353, guid: dd316c056467f40faae5d4bebd986611, type: 3}
-  BasketballPrefab: {fileID: 2544078778212307353, guid: bc8d79c37cf2340aa8edb81656114aab, type: 3}
+  ExplosionRadius: 2.5
+  ExplosionDamageMultiplier: 0.8
+  ExplosionKnockbackDistance: 0.5
+  ExplosionKnockbackStunDuration: 0.5
+  ProjectilePrefab: {fileID: 2544078778212307353, guid: 5a5cb94da8a2c4fe4b5b99f15ef4ad05, type: 3}
+  ApplePrefab: {fileID: 2544078778212307353, guid: 2e5dac988ae7b4068a2f3fc022921a31, type: 3}
+  ArrowPrefab: {fileID: 2544078778212307353, guid: 6171b65097864a0428954e5128192b0c, type: 3}
+  BasketballPrefab: {fileID: 2544078778212307353, guid: 0606bf8814fd81a4f96a6b9263e89c1f, type: 3}
+  BulletPrefab: {fileID: 2544078778212307353, guid: 8c2687b056614ae47b7a8816e6ee2291, type: 3}
+  CorkPrefab: {fileID: 2544078778212307353, guid: e405aa12b675a48d48c6745522a4df51, type: 3}
+  DrankPrefab: {fileID: 2544078778212307353, guid: 42a4864def83a4d12b4c43275cd2662c, type: 3}
+  MilkPrefab: {fileID: 2544078778212307353, guid: 2c107249dd36f458b99f4b86ca2499b0, type: 3}
+  NailTrioPrefab: {fileID: 2544078778212307353, guid: 85465d2dc1f2340e0a233b9aecc46dfb, type: 3}
+  SeedPrefab: {fileID: 2544078778212307353, guid: 23212f9bc145b41cda6c199daf910557, type: 3}
 --- !u!1 &4708556748347195212
 GameObject:
   m_ObjectHideFlags: 0
@@ -282,8 +292,6 @@ SpriteRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -368,8 +376,6 @@ SpriteRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -454,8 +460,6 @@ SpriteRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:

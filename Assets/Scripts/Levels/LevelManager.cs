@@ -1,23 +1,17 @@
-using System.Collections;
 using System.Collections.Generic;
-using Audio.Game;
 using UnityEngine;
 using Unity.Netcode;
-using Unity.VisualScripting;
-using UnityEngine.AI;
 
 public class LevelManager : NetworkBehaviour
 {
     public static LevelManager Instance { get; private set; }
 
     // level tracking variables
-    [SerializeField] private List<GameObject> m_levels = new List<GameObject>();
-    public int TutorialStartLevel = 0;
-    public int DegenapeVillageLevel = 2;
-    public int DungeonStartLevel = 3;
+    public GameObject ApeVillageLevel;
+    private List<GameObject> m_levels = new List<GameObject>();
 
     private GameObject m_currentLevel;
-    [HideInInspector] public int m_currentLevelIndex = 0;
+    [HideInInspector] public int m_currentLevelIndex = -1;
 
     // variables to keep track of spawning levels
     [HideInInspector] public int LevelSpawningCount = 0;
@@ -31,65 +25,83 @@ public class LevelManager : NetworkBehaviour
 
     private List<NetworkObject> m_networkObjectSpawns = new List<NetworkObject>();
 
+    private float m_depthCounter = 0;
+
+    public Level.NetworkLevel GetCurrentNetworkLevel()
+    {
+        if (m_currentLevel == null) return null;
+        return m_currentLevel.GetComponent<Level.NetworkLevel>();
+    }
+
     public void AddToSpawnList(NetworkObject networkObject)
     {
         m_networkObjectSpawns.Add(networkObject);
     }
 
+    public void SetLevelList(List<GameObject> levels)
+    {
+        m_levels.Clear();
+        m_levels = levels;
+        m_currentLevelIndex = -1;
+    }
 
     private void Awake()
     {
         Instance = this;
         State = new NetworkVariable<TransitionState>(TransitionState.Null);
-    }
 
-    private void OnDestroy()
-    {
-        if (null != GameAudioManager.Instance)
+        if (IsServer)
         {
-            GameAudioManager.Instance.PLAY_SOUND -= OnPlaySound;
+            CurrentLevelIndex.Value = m_currentLevelIndex;
         }
     }
 
     // Start is called before the first frame update
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         if (!IsServer) return;
 
-        if (m_levels.Count <= 0)
-        {
-            Debug.Log("Error: No prefab levels added to the LevelManager!");
-            return;
-        }
-
-        if (Game.Instance.IsTutorialCompleted())
-        {
-            GoToDegenapeVillageLevel();
-        }
-        else
-        {
-            GoToTutorialLevel();
-        }
-
-
-        GameAudioManager.Instance.PLAY_SOUND += OnPlaySound;
-    }
-
-    public void GoToTutorialLevel()
-    {
-        CreateLevel(0);
+        GoToDegenapeVillageLevel();
     }
 
     public void GoToDegenapeVillageLevel()
     {
-        m_currentLevelIndex = DegenapeVillageLevel - 1;
+        // set ape village as level
+        var levels = new List<GameObject>();
+        levels.Add(ApeVillageLevel);
+        SetLevelList(levels);
+
+        // proceed to our new next level
         GoToNextLevel();
+
+        // set depth counter to 0
+        m_depthCounter = 0;
+
+
     }
 
-    private void DestroyCurrentLevel()
+    public bool IsDegenapeVillage()
     {
+        if (!IsSpawned) return false;
+        if (m_levels == null) return false;
+        if (m_levels.Count <= 0) return false;
+        if (CurrentLevelIndex == null) return false;
+        if (CurrentLevelIndex.Value < 0) return false;
+
+        return (m_levels[CurrentLevelIndex.Value] == ApeVillageLevel);
+    }
+
+    public void DestroyCurrentLevel()
+    {
+        if (!IsServer) return;
+
         // disable proximity manager
         ProximityManager.Instance.enabled = false;
+
+        // tag all spawns to die
+        LevelSpawnManager.Instance.TagAllCurrentLevelSpawnsForDead();
 
         // find everything to destroy
         var destroyObjects = new List<DestroyAtLevelChange>(FindObjectsByType<DestroyAtLevelChange>(FindObjectsInactive.Include, FindObjectsSortMode.None));
@@ -125,7 +137,7 @@ public class LevelManager : NetworkBehaviour
             }
 
             // destroy object
-            if (destroyObject.HasComponent<NetworkObject>())
+            if (destroyObject != null && destroyObject.HasComponent<NetworkObject>() && IsServer)
             {
                 if (destroyObject.GetComponent<NetworkObject>().IsSpawned)
                 {
@@ -174,13 +186,9 @@ public class LevelManager : NetworkBehaviour
             HandleState();
 
             CurrentLevelIndex.Value = m_currentLevelIndex;
-        }
 
-        if (IsClient)
-        {
             NumberAndNameLevel();
         }
-
     }
 
     private float k_numberAndLevelInterval = 0.5f;
@@ -188,13 +196,26 @@ public class LevelManager : NetworkBehaviour
 
     void NumberAndNameLevel()
     {
+        if (!IsServer) return;
+
         m_numberAndLevelTimer -= Time.deltaTime;
         if (m_numberAndLevelTimer > 0) return;
         m_numberAndLevelTimer = k_numberAndLevelInterval;
 
-        string number = CurrentLevelIndex.Value <= DegenapeVillageLevel ? "-" : (CurrentLevelIndex.Value - DegenapeVillageLevel).ToString();
+        if (m_levels == null || m_levels.Count <= 0) return;
+        if (m_currentLevelIndex < 0 || CurrentLevelIndex.Value < 0) return;
+
+        string number = m_depthCounter.ToString();
         string name = m_levels[CurrentLevelIndex.Value].name;
-        PlayerHUDCanvas.Singleton.SetLevelNumberAndName(number, Dropt.Utils.String.ConvertToReadableString(name));
+        string objective = m_levels[CurrentLevelIndex.Value].gameObject.GetComponent<Level.NetworkLevel>().objective;
+
+        NumberAndNameLevelClientRpc(number, name, objective);
+    }
+
+    [ClientRpc]
+    void NumberAndNameLevelClientRpc(string number, string name, string objective)
+    {
+        PlayerHUDCanvas.Singleton.SetLevelNumberNameObjective(number, Dropt.Utils.String.ConvertToReadableString(name), objective);
     }
 
     // 1. Receive GoToNextLevel message from other part of server
@@ -260,16 +281,19 @@ public class LevelManager : NetworkBehaviour
     {
         if (!IsServer) return;
 
+        // if we are on last level, return to degenape
+        if (m_currentLevelIndex >= m_levels.Count - 1)
+        {
+            var levels = new List<GameObject>();
+            levels.Add(ApeVillageLevel);
+            SetLevelList(levels);
+        }
+
         // destroy current level
         DestroyCurrentLevel();
 
         // get index for next level
         int nextLevelIndex = m_currentLevelIndex + 1;
-        if (nextLevelIndex >= m_levels.Count)
-        {
-            // return to the degenape village
-            nextLevelIndex = DegenapeVillageLevel;
-        }
 
         // create next level and update current level index
         CreateLevel(nextLevelIndex);
@@ -282,17 +306,8 @@ public class LevelManager : NetworkBehaviour
             lcb.IncrementLevelCount();
         }
 
-        // if our new level is degenape, tell client they can mark tutorial as complete
-        if (m_currentLevelIndex == DegenapeVillageLevel)
-        {
-            MarkTutorialCompletedClientRpc();
-        }
-    }
-
-    [Rpc(SendTo.ClientsAndHost)]
-    void MarkTutorialCompletedClientRpc()
-    {
-        Game.Instance.CompleteTutorial();
+        // increase depth counter
+        m_depthCounter++;
     }
 
     bool isHandleLevelLoadedNextFrame = false;
@@ -308,7 +323,14 @@ public class LevelManager : NetworkBehaviour
             isLevelLoaded = true;
 
             // Update nav mesh
-            NavigationSurfaceSingleton.Instance.Surface.UpdateNavMesh(NavigationSurfaceSingleton.Instance.Surface.navMeshData);
+            //NavigationSurfaceSingleton.Instance.Surface.UpdateNavMesh(NavigationSurfaceSingleton.Instance.Surface.navMeshData);
+            //NavigationSurfaceSingleton.Instance.Surface.BuildNavMesh();
+
+            var navMeshes = FindObjectsByType<NavMeshPlus.Components.NavMeshSurface>(FindObjectsSortMode.None);
+            foreach (var surface in navMeshes)
+            {
+                surface.BuildNavMesh();
+            }
 
             // Spawn everything in the spawn list
             for (int i = 0; i < m_networkObjectSpawns.Count; i++)
@@ -319,9 +341,20 @@ public class LevelManager : NetworkBehaviour
             }
             m_networkObjectSpawns.Clear();
 
+            // clear out old spawn points
+            if (IsHost)
+            {
+                var playerSpawns = new List<PlayerSpawnPoints>(m_currentLevel.GetComponentsInChildren<PlayerSpawnPoints>());
+                foreach (var playerSpawn in playerSpawns)
+                {
+                    Object.Destroy(playerSpawn.gameObject);
+                }
+            }
+
+            m_playerSpawnPoints.Clear();
+
             // drop spawn players
             var no_playerSpawnPoints = m_currentLevel.GetComponentsInChildren<PlayerSpawnPoints>();
-            m_playerSpawnPoints.Clear();
             int makeupCount = 3;
             if (no_playerSpawnPoints != null)
             {
@@ -332,7 +365,6 @@ public class LevelManager : NetworkBehaviour
                     {
                         m_playerSpawnPoints.Add(playerSpawnPoints.transform.GetChild(j).transform.position);
                         makeupCount--;
-                        //Debug.Log("add legit spawn point: " + playerSpawnPoints.transform.GetChild(j).transform.position);
                     }
                 }
             }
@@ -343,36 +375,18 @@ public class LevelManager : NetworkBehaviour
                 if (m_playerSpawnPoints.Count > 0)
                 {
                     m_playerSpawnPoints.Add(m_playerSpawnPoints[0]);
-                } else
+                }
+                else
                 {
                     m_playerSpawnPoints.Add(Vector3.zero);
                 }
-
             }
 
-            // set each player spawn position
+            // get all players to recheck their spawn position
             var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
             foreach (var player in players)
             {
-                var randIndex = UnityEngine.Random.Range(0, m_playerSpawnPoints.Count);
-                var spawnPoint = m_playerSpawnPoints[randIndex];
-                m_playerSpawnPoints.RemoveAt(randIndex);
-
-                player.GetComponent<PlayerPrediction>().SetPlayerPosition(spawnPoint);
-                player.GetComponent<PlayerGotchi>().DropSpawn(spawnPoint);
-            }
-
-            // destroy all spawn points
-            m_playerSpawnPoints.Clear();
-
-            // if is host we should delete spawn points
-            if (IsHost)
-            {
-                var playerSpawns = new List<PlayerSpawnPoints>(m_currentLevel.GetComponentsInChildren<PlayerSpawnPoints>());
-                foreach (var playerSpawn in playerSpawns)
-                {
-                    Object.Destroy(playerSpawn.gameObject);
-                }
+                player.IsLevelSpawnPositionSet = false;
             }
         }
 
@@ -383,6 +397,22 @@ public class LevelManager : NetworkBehaviour
             isHandleLevelLoadedNextFrame = true;
             isLevelLoaded = false;
         }
+    }
+
+    public bool IsPlayerSpawnPointsReady()
+    {
+        return m_playerSpawnPoints.Count > 0;
+    }
+
+    public Vector3? TryGetPlayerSpawnPoint()
+    {
+        if (m_playerSpawnPoints.Count <= 0) return null;
+
+        var randIndex = UnityEngine.Random.Range(0, m_playerSpawnPoints.Count);
+        var spawnPoint = m_playerSpawnPoints[randIndex];
+        m_playerSpawnPoints.RemoveAt(randIndex);
+
+        return spawnPoint;
     }
 
 
@@ -397,6 +427,5 @@ public class LevelManager : NetworkBehaviour
     [Rpc(SendTo.NotMe)]
     void PlaySoundClientRpc(string type, Vector3 position, ulong id)
     {
-        GameAudioManager.Instance.PlaySoundForMe(type, position);
     }
 }

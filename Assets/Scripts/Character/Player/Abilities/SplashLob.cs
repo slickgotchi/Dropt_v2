@@ -8,7 +8,7 @@ public class SplashLob : PlayerAbility
 {
     [Header("SplashLob Parameters")]
     public float Projection = 1.5f;
-    public float Distance = 8f;
+    public float MaxDistance = 8f;
     public float Duration = 1f;
     public float ExplosionRadius = 1f;
     public float LobHeight = 2f;
@@ -17,12 +17,16 @@ public class SplashLob : PlayerAbility
     [Header("Projectile Prefab")]
     public GameObject SplashProjectilePrefab;
 
+    private float m_distance = 8f;
+
     // variables for keeping track of the spawned projectile
     private GameObject m_splashProjectile;
     private NetworkVariable<ulong> m_splashProjectileId = new NetworkVariable<ulong>(0);
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         if (!IsServer) return;
 
         GenericProjectile.InitSpawnProjectileOnServer(ref m_splashProjectile, ref m_splashProjectileId, SplashProjectilePrefab);
@@ -34,13 +38,18 @@ public class SplashLob : PlayerAbility
         {
             if (IsServer) m_splashProjectile.GetComponent<NetworkObject>().Despawn();
         }
+
+        base.OnNetworkDespawn();
     }
 
-    private void Update()
+    protected override void Update()
     {
+        base.Update();
+
         if (IsClient)
         {
             GenericProjectile.TryAddProjectileOnClient(ref m_splashProjectile, ref m_splashProjectileId, NetworkManager);
+            
         }
     }
 
@@ -53,8 +62,11 @@ public class SplashLob : PlayerAbility
         // play animation
         PlayAnimation("SplashLob");
 
+        // adjust distance
+        m_distance = math.min(ActivationInput.actionDistance, MaxDistance);
+
         // activate projectile
-        ActivateProjectile(ActivationWearableNameEnum, ActivationInput.actionDirection, Distance, Duration,
+        ActivateProjectile(ActivationWearableNameEnum, ActivationInput.actionDirection, m_distance, Duration,
             Scale, ExplosionRadius);
     }
 
@@ -84,9 +96,11 @@ public class SplashLob : PlayerAbility
                 Wearable.WeaponTypeEnum.Splash, wearableNameEnum,
                 
                 Player,
-                playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier,
+                playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier * DamageMultiplier,
                 playerCharacter.CriticalChance.Value,
-                playerCharacter.CriticalDamage.Value);
+                playerCharacter.CriticalDamage.Value,
+                KnockbackDistance,
+                KnockbackStunDuration);
 
             // fire
             no_projectile.Fire();
@@ -124,16 +138,12 @@ public class SplashLob : PlayerAbility
                 Wearable.WeaponTypeEnum.Splash, wearableNameEnum,
                 
                 Player,
-                0, 0, 0);
+                0, 0, 0,
+                0, 0);
 
             // init
             no_projectile.Fire();
         }
-    }
-
-    public override void OnUpdate()
-    {
-
     }
 
     public override void OnFinish()

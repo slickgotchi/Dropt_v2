@@ -11,6 +11,9 @@ public class SunkenFloor : NetworkBehaviour
     public int NumberButtons = 2;
     public int spawnerId = -1;
 
+    public SunkenFloorType initType;
+    public SunkenFloorState initState;
+
     [Header("Emblems")]
     public SpriteRenderer RaisedEmblem;
     public SpriteRenderer SunkenEmblem;
@@ -32,8 +35,10 @@ public class SunkenFloor : NetworkBehaviour
     public Sprite GillsRaised;
 
     [Header("Access")]
-    [SerializeField] private Collider2D SunkenCollider;
-    [SerializeField] private Collider2D RaisedCollider;
+    [SerializeField] private GameObject SunkenCollider;
+    [SerializeField] private GameObject RaisedCollider;
+
+    private SunkenFloorState m_localSunkenFloorState = SunkenFloorState.Lowered;
 
     private Animator m_animator;
 
@@ -46,31 +51,44 @@ public class SunkenFloor : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        if (!IsServer) return;
+        base.OnNetworkSpawn();
 
-        SetTypeAndState(Type.Value, State.Value);
+        if (IsServer)
+        {
+            SetTypeAndState(initType, initState);
+        }
+
     }
 
     private void Update()
     {
         if (IsClient)
         {
+            // check if door is open
+            if (m_localSunkenFloorState == SunkenFloorState.Lowered &&
+                State.Value == SunkenFloorState.Raised)
+            {
+                m_animator.Play("SunkenFloor3x3_Raise");
+                m_localSunkenFloorState = State.Value;
+            }
+
             UpdateSprite();
-            UpdateColliders();
         }
+
+        UpdateColliders();
     }
 
     void UpdateColliders()
     {
-        SunkenCollider.gameObject.SetActive(State.Value == SunkenFloorState.Lowered);
-        RaisedCollider.gameObject.SetActive(State.Value == SunkenFloorState.Raised);
+        SunkenCollider.SetActive(State.Value == SunkenFloorState.Lowered);
+        RaisedCollider.SetActive(State.Value == SunkenFloorState.Raised);
     }
 
     public void Raise()
     {
-        m_animator.Play("SunkenFloor3x3_Raise");
+        if (!IsServer) return;
+
         State.Value = SunkenFloorState.Raised;
-        UpdateColliders();
     }
 
     public void SetTypeAndState(SunkenFloorType sunkenFloorType, SunkenFloorState floorState)

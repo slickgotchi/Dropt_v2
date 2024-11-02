@@ -17,6 +17,8 @@ public class MagicBlast : PlayerAbility
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         m_collider = GetComponent<Collider2D>();
 
         m_hitInterval = ExecutionDuration / (NumberHits - 1);
@@ -38,7 +40,8 @@ public class MagicBlast : PlayerAbility
 
         // IMPORTANT use PlayAnimation which calls RPC's in the background that play the 
         // animation on remote clients
-        PlayAnimation("MagicBlast");
+        //PlayAnimation("MagicBlast");
+        PlayAnimationWithDuration("MagicBlast", ExecutionDuration);
     }
 
     private void CollisionCheck()

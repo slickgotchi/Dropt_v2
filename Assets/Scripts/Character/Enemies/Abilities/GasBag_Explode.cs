@@ -7,48 +7,45 @@ using UnityEngine;
 public class GasBag_Explode : EnemyAbility
 {
     [Header("GasBag_Explode Parameters")]
-    public float ExplosionDuration = 1f;
-    public float ExplosionRadius = 3f;
+    //public float ExplosionRadius = 3f;
     public float PoisonDuration = 5f;
     public float PoisonDamagePerSecond = 4f;
 
     [SerializeField] private Collider2D Collider;
 
-    private float m_explosionTimer = 0;
+    bool m_isExploded = false;
 
-    private void Awake()
+    private float m_stackTimer = 0f;
+
+    private float m_durationTimer = 0f;
+
+    public override void OnActivate()
     {
+        if (Parent == null) return;
+        if (m_isExploded) return;
+
+        // set position
+        transform.position = Dropt.Utils.Battle.GetAttackCentrePosition(Parent);
+
+        m_isExploded = true;
+
+        m_stackTimer = 0.5f;
+        m_durationTimer = PoisonDuration;
     }
 
-    public override void OnTelegraphStart()
+    public override void OnUpdate(float dt)
     {
-    }
+        if (!m_isExploded) return;
+        base.OnUpdate(dt);
 
-    public override void OnExecutionStart()
-    {
-        //// reset explosion fade timer & set fade out duration
-        //m_explosionTimer = 0f;
-        //GetComponentInChildren<FadeOut>().duration = ExplosionDuration;
+        m_stackTimer -= dt;
 
-        //// set position of explosion and initial scale
-        //transform.position = Parent.transform.position + new Vector3(0, 0.6f, 0);
-
-        // resize explosion collider and check collisions
-        Collider.GetComponent<CircleCollider2D>().radius = ExplosionRadius;
-        HandleCollisions(Collider);
-
-        // destroy the parent object
-        if (Parent != null)
+        if (m_stackTimer < 0f)
         {
-            transform.parent = null;
-            Parent.GetComponent<NetworkObject>().Despawn();
+            HandleCollisions(Collider);
+            m_stackTimer = 0.5f;
         }
 
-        // do visual explosion
-        SpawnBasicCircleClientRpc(
-            transform.position,
-            Dropt.Utils.Color.HexToColor("#7a09fa", 0.5f),
-            ExplosionRadius);
     }
 
     private void HandleCollisions(Collider2D collider)
@@ -65,7 +62,7 @@ public class GasBag_Explode : EnemyAbility
             if (player.HasComponent<NetworkCharacter>())
             {
                 // apply a stack of poison
-                PoisonStack.ApplyPoisonStack(player.gameObject, 3, 10, 5);
+                PoisonStack.ApplyPoisonStack(player.gameObject, PoisonDamagePerSecond, PoisonDuration, 5);
             }
         }
 
@@ -73,13 +70,10 @@ public class GasBag_Explode : EnemyAbility
         playerHitColliders.Clear();
     }
 
-    public override void OnUpdate()
+    public override void OnDeactivate()
     {
-        m_explosionTimer += Time.deltaTime;
-        if (m_explosionTimer > ExplosionDuration)
-        {
-            if (IsServer) GetComponent<NetworkObject>().Despawn();
-            return;
-        }
+        base.OnDeactivate();
+        Parent.GetComponent<NetworkObject>().Despawn();
+        GetComponent<NetworkObject>().Despawn();
     }
 }

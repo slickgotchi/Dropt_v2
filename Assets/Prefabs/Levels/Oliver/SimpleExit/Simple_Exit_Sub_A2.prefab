@@ -49,8 +49,6 @@ SpriteRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -135,8 +133,6 @@ SpriteRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -469,6 +465,10 @@ PrefabInstance:
       value: ApeDoorButtons_Centre
       objectReference: {fileID: 0}
     - target: {fileID: 5682218950720887772, guid: a17b7c7983b3c134ca8d6daeccd00512, type: 3}
+      propertyPath: spawnerId
+      value: 3000
+      objectReference: {fileID: 0}
+    - target: {fileID: 5682218950720887772, guid: a17b7c7983b3c134ca8d6daeccd00512, type: 3}
       propertyPath: ApeDoorType
       value: 1
       objectReference: {fileID: 0}
@@ -477,7 +477,7 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5682218950720887772, guid: a17b7c7983b3c134ca8d6daeccd00512, type: 3}
-      propertyPath: 'ApeDoorSpawners.Array.data[0]'
+      propertyPath: ApeDoorSpawners.Array.data[0]
       value: 
       objectReference: {fileID: 2062763758380079111}
     - target: {fileID: 7332554235142877809, guid: a17b7c7983b3c134ca8d6daeccd00512, type: 3}

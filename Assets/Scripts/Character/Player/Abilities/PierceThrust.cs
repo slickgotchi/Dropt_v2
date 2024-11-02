@@ -12,6 +12,8 @@ public class PierceThrust : PlayerAbility
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         m_collider = GetComponent<Collider2D>();
     }
 
@@ -29,11 +31,12 @@ public class PierceThrust : PlayerAbility
         SetLocalPosition(PlayerAbilityCentreOffset + ActivationInput.actionDirection * Projection);
 
         // collision check (no RPC's are involved in this call)
-        OneFrameCollisionDamageCheck(m_collider, Wearable.WeaponTypeEnum.Pierce);
+        OneFrameCollisionDamageCheck(m_collider, Wearable.WeaponTypeEnum.Pierce, DamageMultiplier);
 
         // IMPORTANT use PlayAnimation which calls RPC's in the background that play the 
         // animation on remote clients
-        PlayAnimation("PierceThrust");
+        //PlayAnimation("PierceThrust");
+        PlayAnimationWithDuration("PierceThrust", ExecutionDuration);
     }
 
     public override void OnUpdate()

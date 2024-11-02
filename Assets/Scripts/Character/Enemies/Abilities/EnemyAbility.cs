@@ -6,12 +6,13 @@ using UnityEngine.Pool;
 public class EnemyAbility : NetworkBehaviour
 {
     [Header("Base EnemyAbility Parameters")]
-    public float TelegraphDuration = 1f;
+    //public float TelegraphDuration = 1f;
     public float ExecutionDuration = 1f;
-    public float CooldownDuration = 1f;
+    //public float CooldownDuration = 1f;
     [HideInInspector] public GameObject Parent;
     [HideInInspector] public GameObject Target;
     [HideInInspector] public Vector3 AttackDirection;
+    [HideInInspector] public Vector3 PositionToAttack;
 
     public bool isStartRotationAlignedWithParentDirection = false;
     public float axialOffsetWhenAlignedWithParentDirection = 0;
@@ -27,66 +28,66 @@ public class EnemyAbility : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
     }
 
-    public void Activate()
+    public void Activate(GameObject parent, GameObject target,
+        Vector3 attackDirection, float executionDuration, Vector3 positionToAttack)
     {
+        if (parent == null) return;
+        if (target == null) return;
+
+        Parent = parent;
+        Target = target;
+        AttackDirection = attackDirection.normalized;
+        ExecutionDuration = executionDuration;
+        PositionToAttack = positionToAttack;
+
+        OnActivate();
+        m_timer = ExecutionDuration;
         m_isActive = true;
-        m_timer = TelegraphDuration;
-        EnemyAbilityState = State.Telegraph;
-        if (IsServer) OnTelegraphStart();
+    }
+
+    public void Deactivate()
+    {
+        OnDeactivate();
+        m_isActive = false;
+
+        if (IsServer)
+        {
+            var networkObject = GetComponent<NetworkObject>();
+            if (networkObject != null && networkObject.IsSpawned) GetComponent<NetworkObject>().Despawn();
+        }
     }
 
     private void Update()
     {
         m_timer -= Time.deltaTime;
-
-        switch (EnemyAbilityState)
+        if (m_timer < 0 && m_isActive)
         {
-            case State.Telegraph:
-                if (m_timer <= 0)
-                {
-                    m_timer = ExecutionDuration;
-                    EnemyAbilityState = State.Execution;
-                    if (IsServer) OnExecutionStart();
-                }
-                break;
-            case State.Execution:
-                if (m_timer <= 0)
-                {
-                    m_timer = CooldownDuration;
-                    EnemyAbilityState = State.Cooldown;
-                    if (IsServer) OnCooldownStart();
-                }
-                break;
-            case State.Cooldown:
-                if (m_timer <= 0)
-                {
-                    m_timer = 0;
-                    EnemyAbilityState = State.None;
-                    if (IsServer) OnFinish();
-                    if (IsServer) GetComponent<NetworkObject>().Despawn();
-                    m_isActive = false;
-                }
-                break;
-            case State.None: break;
-            default: break;
+            Deactivate();
+        } else
+        {
+            OnUpdate(Time.deltaTime);
         }
-
-        if (m_isActive && IsServer) OnUpdate();
     }
 
-    public virtual void OnTelegraphStart() { }
-    public virtual void OnExecutionStart() { }
-    public virtual void OnCooldownStart() { }
-    public virtual void OnFinish() { }
-    public virtual void OnUpdate() { }
+    //public virtual void OnTelegraphStart() { }
+    //public virtual void OnExecutionStart() { }
+    //public virtual void OnCooldownStart() { }
+    //public virtual void OnFinish() { }
+    public virtual void OnUpdate(float dt) { }
+
+    public virtual void OnInit() { }
+    public virtual void OnActivate() { }
+    public virtual void OnDeactivate() { }
 
     [Rpc(SendTo.ClientsAndHost)]
     protected void SpawnBasicCircleClientRpc(Vector3 position, Color color, float explosionRadius)
     {
         VisualEffectsManager.Singleton.SpawnBasicCircle(position, color, explosionRadius);
     }
+
 
     public static void PlayerCollisionCheckAndDamage(Collider2D collider, float damage, 
         bool isCritical = false, GameObject damageDealer = null)

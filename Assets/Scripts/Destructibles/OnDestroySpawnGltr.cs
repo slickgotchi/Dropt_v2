@@ -13,5 +13,7 @@ public class OnDestroySpawnGltr : NetworkBehaviour
         if (!GetComponent<OnDestroySpawnGltr>().enabled) return;
 
         PickupItemManager.Instance.SpawnGltr(GltrValue, transform.position);
+
+        base.OnNetworkDespawn();
     }
 }

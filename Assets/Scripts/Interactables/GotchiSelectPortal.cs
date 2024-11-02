@@ -5,21 +5,9 @@ using GotchiHub;
 
 public class GotchiSelectPortal : Interactable
 {
-    public override void OnStartInteraction()
+    public override void OnPressOpenInteraction()
     {
-        ThirdwebCanvas.Instance.Container.SetActive(true);
-        GotchiSelectCanvas.Instance.SetVisible(true);
+        ThirdwebCanvas.Instance.ShowCanvas();
+        GotchiSelectCanvas.Instance.ShowCanvas();
     }
-
-    public override void OnUpdateInteraction()
-    {
-
-    }
-
-    public override void OnFinishInteraction()
-    {
-        ThirdwebCanvas.Instance.Container.SetActive(false);
-        GotchiSelectCanvas.Instance.SetVisible(false);
-    }
-
 }

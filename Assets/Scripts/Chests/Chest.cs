@@ -33,6 +33,8 @@ namespace Interactables
 
         private void OnDestructed()
         {
+            if (!IsServer) return;
+
             SpawnOrbsRpc();
 
             SpawnWearablesRpc();
@@ -68,7 +70,7 @@ namespace Interactables
             return itemsCount;
         }
 
-        [Rpc(SendTo.Server)]
+        //[Rpc(SendTo.Server)]
         private void SpawnOrbsRpc()
         {
             if (!IsServer)
@@ -93,7 +95,7 @@ namespace Interactables
             }
         }
 
-        [Rpc(SendTo.Server)]
+        //[Rpc(SendTo.Server)]
         private void SpawnWearablesRpc()
         {
             if (!IsServer)
@@ -112,21 +114,27 @@ namespace Interactables
                     return;
                 }
 
+                // 1. get ref to all wearables by name enum
                 var rawItems = WearableManager.wearablesByNameEnum.Values.ToArray();
 
-                var item = rawItems.FirstOrDefault(temp =>
-                    temp.Rarity == rarity && temp.WeaponType is not Wearable.WeaponTypeEnum.NA);
+                // 2. Filter items to get an array of all weapons of matching rarity
+                var matchItems = rawItems.Where(item => item.Rarity == rarity && item.WeaponType != Wearable.WeaponTypeEnum.NA).ToArray();
 
-                if (item == default)
+                // 3. Get a random item from the filtered array of matching items
+                if (matchItems.Length == 0)
                 {
+                    Debug.LogWarning("No items found matching the specified rarity.");
                     return;
                 }
+
+                // 4. Get a random item from our array
+                var item = matchItems[UnityEngine.Random.Range(0, matchItems.Length)];
 
                 var position = GetRandomPosition(transform.position, 1f);
 
                 var swap = Instantiate(m_prefab, position, Quaternion.identity);
 
-                swap.SyncNameEnum.Value = item.NameType;
+                swap.GetComponent<WeaponSwap>().WeaponEnum = item.NameType;
 
                 swap.NetworkObject.Spawn();
             }

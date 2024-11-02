@@ -4,10 +4,10 @@ using UnityEngine;
 using Unity.Netcode;
 
 // NetworkObjectSpawners
-public partial class NetworkLevel : NetworkBehaviour
-{
-    public void CreateNetworkObjectSpawners()
-    {
+//public partial class NetworkLevel : NetworkBehaviour
+//{
+//    public void CreateNetworkObjectSpawners()
+//    {
 
-    }
-}
+//    }
+//}

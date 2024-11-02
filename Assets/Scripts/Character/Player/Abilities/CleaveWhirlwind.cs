@@ -15,12 +15,13 @@ public class CleaveWhirlwind : PlayerAbility
     private float m_hitInterval;
     private float m_hitTimer;
     private int m_hitCounter;
-    
 
     private Collider2D m_collider;
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         m_collider = GetComponent<Collider2D>();
 
         m_hitInterval = ExecutionDuration / (NumberHits - 1);
@@ -31,7 +32,7 @@ public class CleaveWhirlwind : PlayerAbility
         // set transform to activation rotation/position and scale based on hold duration
         SetRotation(quaternion.identity);
         SetLocalPosition(PlayerAbilityCentreOffset);
-        var alpha = math.min(HoldDuration / HoldChargeTime, 1);
+        var alpha = math.min(m_holdTimer / HoldChargeTime, 1);
         SetScale(math.lerp(m_holdStartScale, m_holdFinishScale, alpha));
 
         m_hitCounter = NumberHits;
@@ -67,7 +68,7 @@ public class CleaveWhirlwind : PlayerAbility
 
     public override void OnFinish()
     {
-        HoldChargeTime = 0;
+        m_holdTimer = 0;
         while (m_hitCounter > 0)
         {
             CollisionCheck();

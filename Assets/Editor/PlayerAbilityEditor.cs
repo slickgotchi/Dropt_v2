@@ -19,7 +19,10 @@ public class PlayerAbilityEditor : Editor
     SerializedProperty teleportDistance;
     SerializedProperty autoMoveDistance;
     SerializedProperty autoMoveDuration;
+    SerializedProperty knockbackDistance;
+    SerializedProperty knockbackStunDuration;
     SerializedProperty playerAbilityCentreOffset;
+    SerializedProperty audioOnActivate;
 
     private void OnEnable()
     {
@@ -37,7 +40,10 @@ public class PlayerAbilityEditor : Editor
         teleportDistance = serializedObject.FindProperty("TeleportDistance");
         autoMoveDistance = serializedObject.FindProperty("AutoMoveDistance");
         autoMoveDuration = serializedObject.FindProperty("AutoMoveDuration");
+        knockbackDistance = serializedObject.FindProperty("KnockbackDistance");
+        knockbackStunDuration = serializedObject.FindProperty("KnockbackStunDuration");
         playerAbilityCentreOffset = serializedObject.FindProperty("PlayerAbilityCentreOffset");
+        audioOnActivate = serializedObject.FindProperty("audioOnActivate");
     }
 
     public override void OnInspectorGUI()
@@ -75,7 +81,7 @@ public class PlayerAbilityEditor : Editor
         // cooldown slow factor
         if (cooldownDuration.floatValue > 0)
         {
-            EditorGUILayout.PropertyField(cooldownSlowFactor, new GUIContent("Cooldown Slow Factor", "Slows player down during Cooldown"));
+            //EditorGUILayout.PropertyField(cooldownSlowFactor, new GUIContent("Cooldown Slow Factor", "Slows player down during Cooldown"));
         }
 
         // hold parameters
@@ -99,14 +105,24 @@ public class PlayerAbilityEditor : Editor
             EditorGUILayout.PropertyField(autoMoveDuration, new GUIContent("Auto Move Duration", "Time taken to move the AutoMoveDistance. Hard capped to AbilityDuration"));
         }
 
+        EditorGUILayout.LabelField("Knockback", EditorStyles.boldLabel);
+
+        // knock bakc
+        EditorGUILayout.PropertyField(knockbackDistance, new GUIContent("Knockback Distance", "Distance enemies are knocked back"));
+        EditorGUILayout.PropertyField(knockbackStunDuration, new GUIContent("Knockback Stun Duration", "Time an enemy is stunned after a knockback"));
+
         EditorGUILayout.LabelField("Ability Offset", EditorStyles.boldLabel);
 
         // player ability centre offset
         EditorGUILayout.PropertyField(playerAbilityCentreOffset, new GUIContent("Player Ability Centre Offset", "How far away from the players centre this ability activates at"));
 
+        // audio on activate
+        EditorGUILayout.PropertyField(audioOnActivate, new GUIContent("Audio On Activate", "Audio played when ability is activated"));
+
         // Draw the rest of the properties
         DrawPropertiesExcluding(serializedObject, "DamageMultiplier", "PlayerAbilityCentreOffset", "m_Script", "ApCost", "ExecutionDuration", "ExecutionSlowFactor", "abilityType",
-            "CooldownDuration", "CooldownSlowFactor", "isHoldAbility", "HoldSlowFactor", "HoldChargeTime", "TeleportDistance", "AutoMoveDistance", "AutoMoveDuration", "IsSpecialAbility");
+            "CooldownDuration", "CooldownSlowFactor", "isHoldAbility", "HoldSlowFactor", "HoldChargeTime", "TeleportDistance", "AutoMoveDistance", "AutoMoveDuration", "IsSpecialAbility",
+            "KnockbackDistance", "KnockbackStunDuration", "audioOnActivate");
 
         serializedObject.ApplyModifiedProperties();
     }

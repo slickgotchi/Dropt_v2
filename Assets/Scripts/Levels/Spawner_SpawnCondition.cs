@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Spawner_SpawnCondition : MonoBehaviour
@@ -14,8 +12,11 @@ public class Spawner_SpawnCondition : MonoBehaviour
     // DestroyedAllWithSpawnerId
     [SerializeField]
     public int destroyAllWithSpawnerId = -1;
+    public float spawnTimeAfterDestroyAll = 0f;
 
     // PlayerTouchTriggerWithSpawnerId
     [SerializeField]
+    [Tooltip("The ID of the SpawnTrigger that is linked to this spawner")]
     public int touchTriggerWithSpawnerId = -1;
+    public float spawnTimeAfterTrigger = 0f;
 }

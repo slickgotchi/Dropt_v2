@@ -31,7 +31,10 @@ public class OptionsMenuCanvas : MonoBehaviour
 
         _instance = this;
         DontDestroyOnLoad(gameObject);
+    }
 
+    private void Start()
+    {
         Setup();
     }
 
@@ -66,17 +69,15 @@ public class OptionsMenuCanvas : MonoBehaviour
     void Setup()
     {
         // Load saved settings or use default values
-        int defaultWidth = 1920;
-        int defaultHeight = 1080;
-        int savedWidth = PlayerPrefs.GetInt("ResolutionWidth", defaultWidth);
-        int savedHeight = PlayerPrefs.GetInt("ResolutionHeight", defaultHeight);
+        int savedWidth = PlayerPrefs.GetInt("ResolutionWidth", 1920);
+        int savedHeight = PlayerPrefs.GetInt("ResolutionHeight", 1080);
         bool savedFullscreen = PlayerPrefs.GetInt("FullscreenMode", 0) == 1;  // default to windowed mode if not set
 
         // Find the saved resolution in the predefined resolutions or use the default
         currentResolution = resolutions.FirstOrDefault(res => res.width == savedWidth && res.height == savedHeight);
         if (currentResolution.width == 0 && currentResolution.height == 0)
         {
-            currentResolution = new ResItem { width = defaultWidth, height = defaultHeight };  // Set to default if not found
+            currentResolution = new ResItem { width = savedWidth, height = savedHeight };  // Set to default if not found
         }
 
         // Populate and set the resolution dropdown
@@ -99,7 +100,7 @@ public class OptionsMenuCanvas : MonoBehaviour
         exitToTitleButton.onClick.AddListener(OnClickExitToTitleButton);
 
         // Check for player prefs for slider volume
-        CheckPlayerPrefs();
+        SetupAudioPrefs();
 
         musicVolumeSlider.onValueChanged.AddListener(OnMusicSliderChanged);
         sfxVolumeSlider.onValueChanged.AddListener(OnSfxSliderChanged);
@@ -110,14 +111,16 @@ public class OptionsMenuCanvas : MonoBehaviour
         Container.SetActive(true);
     }
 
-    private void CheckPlayerPrefs()
+    private void SetupAudioPrefs()
     {
         // Check and load volume settings from PlayerPrefs
         float musicVolume = PlayerPrefs.HasKey("musicVolume") ? PlayerPrefs.GetFloat("musicVolume") : 0.5f;
         musicVolumeSlider.value = musicVolume;
+        AudioManager.Instance.MasterMusicVolume = musicVolume;
 
         float sfxVolume = PlayerPrefs.HasKey("sfxVolume") ? PlayerPrefs.GetFloat("sfxVolume") : 0.5f;
         sfxVolumeSlider.value = sfxVolume;
+        AudioManager.Instance.MasterSFXVolume = sfxVolume;
     }
 
     void OnResolutionDropdownChanged(int selectedIndex)
@@ -131,7 +134,7 @@ public class OptionsMenuCanvas : MonoBehaviour
 
         PlayerPrefs.SetInt("ResolutionWidth", selectedResolution.width);
         PlayerPrefs.SetInt("ResolutionHeight", selectedResolution.height);
-        PlayerPrefs.Save();  // Save the preferences
+        PlayerPrefs.Save();  // Save the preference
 
         currentResolution = selectedResolution;
     }
@@ -152,11 +155,15 @@ public class OptionsMenuCanvas : MonoBehaviour
     void OnMusicSliderChanged(float value)
     {
         // Handle music volume changes here
+        AudioManager.Instance.MasterMusicVolume = value;
+        PlayerPrefs.SetFloat("musicVolume", value);
     }
 
     void OnSfxSliderChanged(float value)
     {
         // Handle sfx volume changes here
+        AudioManager.Instance.MasterSFXVolume = value;
+        PlayerPrefs.SetFloat("sfxVolume", value);
     }
 
     void Update()

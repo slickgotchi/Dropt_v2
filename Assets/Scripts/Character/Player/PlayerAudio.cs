@@ -1,5 +1,4 @@
-﻿using Audio.Game;
-using Unity.Netcode;
+﻿using Unity.Netcode;
 using UnityEngine;
 
 public sealed class PlayerAudio : NetworkBehaviour
@@ -8,21 +7,21 @@ public sealed class PlayerAudio : NetworkBehaviour
     {
         base.OnNetworkSpawn();
 
-        GameAudioManager.Instance.PLAY_SOUND += OnPlaySound;
+        //GameAudioManager.Instance.PLAY_SOUND += OnPlaySound;
 
         if (IsServer && !IsHost)
             return;
 
-        GameAudioManager.Instance.InitPlayer();
+        //GameAudioManager.Instance.InitPlayer();
     }
 
     private void OnDestroy()
     {
-        if (null == GameAudioManager.Instance)
-            return;
+        //if (null == GameAudioManager.Instance)
+        //    return;
 
-        GameAudioManager.Instance.PLAY_SOUND -= OnPlaySound;
-        GameAudioManager.Instance.DestroyPlayer();
+        //GameAudioManager.Instance.PLAY_SOUND -= OnPlaySound;
+        //GameAudioManager.Instance.DestroyPlayer();
     }
 
     private void OnPlaySound(string type, Vector3 position, ulong id)
@@ -39,6 +38,6 @@ public sealed class PlayerAudio : NetworkBehaviour
         if (IsServer)
             return;
 
-        GameAudioManager.Instance.PlaySoundForMe(type, position);
+        //GameAudioManager.Instance.PlaySoundForMe(type, position);
     }
 }

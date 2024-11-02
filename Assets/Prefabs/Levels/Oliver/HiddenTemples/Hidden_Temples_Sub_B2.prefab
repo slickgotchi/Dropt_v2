@@ -86,6 +86,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68a437cd191db314f9e436ebc9a0cb26, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  levelMusic: {fileID: 0}
+  isEssenceDepleting: 1
 --- !u!114 &1300973579359525966
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -529,8 +531,6 @@ TilemapRenderer:
   m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -5684,13 +5684,38 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 893308889480013930, guid: b75a6a9c278d2427b98fe498a2a45c85, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5759379743888511034}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 209134278401101317, guid: b75a6a9c278d2427b98fe498a2a45c85, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7529836832027959716}
   m_SourcePrefab: {fileID: 100100000, guid: b75a6a9c278d2427b98fe498a2a45c85, type: 3}
 --- !u!4 &4847058506866491651 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 893308889480013930, guid: b75a6a9c278d2427b98fe498a2a45c85, type: 3}
   m_PrefabInstance: {fileID: 5702012000779348329}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &5604557322937640812 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 209134278401101317, guid: b75a6a9c278d2427b98fe498a2a45c85, type: 3}
+  m_PrefabInstance: {fileID: 5702012000779348329}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &7529836832027959716
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5604557322937640812}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc2d1349f2b5d4172a38f28982df173d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SpawnOnDestroyPrefab: {fileID: 1249991746567512264, guid: 9250a285bcfa44e378c492d6b60e9be8, type: 3}
+  Offset: {x: 0, y: 0, z: 0}
+  SpawnChance: 0.1
+  MinNumberSpawns: 1
+  MaxNumberSpawns: 1
 --- !u!1001 &5902268466334832478
 PrefabInstance:
   m_ObjectHideFlags: 0

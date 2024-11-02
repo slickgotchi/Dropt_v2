@@ -134,7 +134,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3989861054
+  GlobalObjectIdHash: 910812031
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -229,18 +229,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   abilityType: 0
   ApCost: 0
-  DamageMultiplier: 1.5
+  DamageMultiplier: 1.25
   ExecutionDuration: 0.3
-  ExecutionSlowFactor: 0.2
-  CooldownDuration: 0.3
+  ExecutionSlowFactor: 0.3
+  CooldownDuration: 0.2
   CooldownSlowFactor: 0.7
   TeleportDistance: 0.3
   AutoMoveDistance: 0
   AutoMoveDuration: 0.1
   HoldChargeTime: 3
   HoldSlowFactor: 1
+  KnockbackDistance: 2
+  KnockbackStunDuration: 1.2
   Player: {fileID: 0}
   SpecialCooldown: 0
+  audioOnActivate: {fileID: 8300000, guid: fa6b48767eb203e4ca945d5d7997711b, type: 3}
   PlayerAbilityCentreOffset: {x: 0, y: 0.5, z: 0}
   Projection: 2
   SecondarySlashSpirte: {fileID: 8427722610341258290}

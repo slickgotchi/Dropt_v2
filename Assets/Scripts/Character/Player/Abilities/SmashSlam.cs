@@ -14,6 +14,8 @@ public class SmashSlam : PlayerAbility
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         m_collider = GetComponentInChildren<Collider2D>();
     }
 
@@ -31,7 +33,7 @@ public class SmashSlam : PlayerAbility
         PlayAnimation("SmashSlam");
         Player.GetComponent<PlayerGotchi>().PlayAnimation("PlayerGotchi_SmashSlam");
 
-        m_colliderTimer = 0.4f;
+        m_colliderTimer = ExecutionDuration * 0.9f; // we use this collider timer so the knockback occurs towards end of attack
         m_isCollisionChecked = false;
     }
 
@@ -47,6 +49,11 @@ public class SmashSlam : PlayerAbility
 
     public override void OnFinish()
     {
+        if (!m_isCollisionChecked)
+        {
+            OneFrameCollisionDamageCheck(m_collider, Wearable.WeaponTypeEnum.Smash, DamageMultiplier);
+            m_isCollisionChecked = true;
+        }
         Player.GetComponent<PlayerGotchi>().ResetIdleAnimation();
     }
 

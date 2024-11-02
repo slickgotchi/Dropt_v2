@@ -1,35 +1,89 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Unity.Mathematics;
 
 public class StatBarCanvas : MonoBehaviour
 {
     public Slider hpSlider;
     public Slider apSlider;
+    public Slider shieldSlider;
 
-    public NetworkCharacter character;
+    private NetworkCharacter m_character;
+
+    public Image hpBg;
+    public Image hpFill;
+    public Image apBg;
+    public Image apFill;
+    public Image shieldBg;
+    public Image shieldFill;
+
+    private float m_fadeTimer = 0;
+    private float m_fadeDuration = 2f;
+    private float m_fadeStartPoint = 2f * 0.3f;
+
+    private bool m_isDamaged = false;
 
     private void Awake()
     {
-        UpdateStatBars();
-    }
-
-    void UpdateStatBars()
-    {
-        hpSlider.maxValue = character.HpMax.Value;
-        hpSlider.value = character.HpCurrent.Value;
-        apSlider.maxValue = character.ApMax.Value;
-        apSlider.value = character.ApCurrent.Value;
-
-        if (character.ApMax.Value <= 0)
-        {
-            apSlider.gameObject.SetActive(false);
-        }
+        m_character = transform.parent.GetComponent<NetworkCharacter>();
     }
 
     private void Update()
     {
-        UpdateStatBars();
+        UpdateStatBarsShowIfBelow100();
+    }
+
+    private void UpdateStatBarsShowIfBelow100()
+    {
+        // update sliders
+        hpSlider.maxValue = m_character.HpMax.Value;
+        hpSlider.value = m_character.HpCurrent.Value;
+        apSlider.maxValue = m_character.ApMax.Value;
+        apSlider.value = m_character.ApCurrent.Value;
+        shieldSlider.maxValue = m_character.MaxEnemyShield.Value;
+        shieldSlider.value = m_character.EnemyShield.Value;
+
+        bool isShieldActive = m_character.EnemyShield.Value > 0;
+
+        shieldSlider.gameObject.SetActive(isShieldActive);
+        hpSlider.gameObject.SetActive(!isShieldActive);
+
+        // hide ap bar if char has no AP stat
+        if (m_character.ApMax.Value <= 0)
+        {
+            apSlider.gameObject.SetActive(false);
+        }
+
+        // show damage
+        if (m_isDamaged)
+        {
+            SetAlpha(1);
+        }
+        else
+        {
+            SetAlpha(0);
+            if (m_character.HpCurrent.Value - m_character.HpMax.Value < 0)
+            {
+                m_isDamaged = true;
+            }
+        }
+    }
+
+    private void SetAlpha(float alpha)
+    {
+        alpha = math.min(alpha, 1f);
+        alpha = math.max(0, alpha);
+
+        SetImageAlpha(hpBg, 0.7f * alpha);
+        SetImageAlpha(hpFill, alpha);
+        SetImageAlpha(apBg, 0.7f * alpha);
+        SetImageAlpha(apFill, alpha);
+    }
+
+    private void SetImageAlpha(Image image, float alpha)
+    {
+        Color color = image.color;
+        color.a = alpha;
+        image.color = color;
     }
 }

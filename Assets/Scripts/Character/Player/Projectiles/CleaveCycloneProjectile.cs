@@ -20,6 +20,9 @@ public class CleaveCycloneProjectile : NetworkBehaviour
     [HideInInspector] public float CriticalChance = 0.1f;
     [HideInInspector] public float CriticalDamage = 1.5f;
 
+    [HideInInspector] public float KnockbackDistance;
+    [HideInInspector] public float KnockbackStunDuration;
+
     [HideInInspector] public GameObject LocalPlayer;
 
     [HideInInspector] public PlayerAbility.NetworkRole Role = PlayerAbility.NetworkRole.LocalClient;
@@ -46,12 +49,17 @@ public class CleaveCycloneProjectile : NetworkBehaviour
         float duration,
         float scale,
         PlayerAbility.NetworkRole role,
+        int numberHits,
 
         // server & local only
         GameObject player,
         float damagePerHit,
         float criticalChance,
-        float criticalDamage
+        float criticalDamage,
+
+        // knockback
+        float knockbackDistance,
+        float knockbackStunDuration
         )
     {
         // server, local & remote
@@ -62,12 +70,20 @@ public class CleaveCycloneProjectile : NetworkBehaviour
         Duration = duration;
         Scale = scale;
         Role = role;
+        NumberHits = numberHits;
 
         // server & local only
         LocalPlayer = player;
         DamagePerHit = damagePerHit;
         CriticalChance = criticalChance;
         CriticalDamage = criticalDamage;
+
+        // knockback
+        KnockbackDistance = knockbackDistance;
+        KnockbackStunDuration = knockbackStunDuration;
+
+        // reset hit clear interval
+        m_hitClearInterval = Duration / NumberHits;
     }
 
     public void Fire()
@@ -99,7 +115,7 @@ public class CleaveCycloneProjectile : NetworkBehaviour
         m_hitClearInterval = Duration / NumberHits;
 
         // start decrementing NumberHits
-        NumberHits--;
+        //NumberHits--;
     }
 
     private void Update()
@@ -141,16 +157,17 @@ public class CleaveCycloneProjectile : NetworkBehaviour
         }
 
         m_hitClearTimer += Time.deltaTime;
-        if (m_hitClearTimer > m_hitClearInterval && NumberHits > 0)
+        if (m_hitClearTimer > m_hitClearInterval)
         {
-            m_hitClearTimer = 0;
+            m_hitClearTimer -= m_hitClearInterval;
             m_hitColliders.Clear();
-            NumberHits--;
         }
     }
 
     public void CollisionCheck()
     {
+        if (IsServer && !IsHost) PlayerAbility.RollbackEnemies(LocalPlayer);
+
         // each frame do our collision checks
         Physics2D.SyncTransforms();
 
@@ -175,6 +192,12 @@ public class CleaveCycloneProjectile : NetworkBehaviour
                     var isCritical = PlayerAbility.IsCriticalAttack(CriticalChance);
                     damage = (int)(isCritical ? damage * CriticalDamage : damage);
                     hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical, LocalPlayer);
+                    var knockbackDirection = (Dropt.Utils.Battle.GetAttackCentrePosition(hit.gameObject) - transform.position).normalized;
+                    var enemyAI = hit.GetComponent<Dropt.EnemyAI>();
+                    if (enemyAI != null)
+                    {
+                        enemyAI.Knockback(knockbackDirection, KnockbackDistance, KnockbackStunDuration);
+                    }
                 }
 
                 if (hit.HasComponent<Destructible>())
@@ -186,6 +209,8 @@ public class CleaveCycloneProjectile : NetworkBehaviour
         }
         // clear out colliders
         enemyHitColliders.Clear();
+
+        if (IsServer && !IsHost) PlayerAbility.UnrollEnemies();
     }
 }
 

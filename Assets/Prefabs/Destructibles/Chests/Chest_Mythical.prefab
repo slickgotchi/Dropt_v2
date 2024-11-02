@@ -49,8 +49,6 @@ SpriteRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -137,7 +135,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2402562444
+  GlobalObjectIdHash: 3743531541
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -170,7 +168,6 @@ BoxCollider2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1249991746567512264}
   m_Enabled: 1
-  serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -194,8 +191,7 @@ BoxCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
+  m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0.3}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
@@ -206,6 +202,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
+  serializedVersion: 2
   m_Size: {x: 1, y: 0.9}
   m_EdgeRadius: 0
 --- !u!114 &-4968126347511224490
@@ -235,7 +232,7 @@ MonoBehaviour:
       Chance: 16
     OrbsSpawnRange: 1
     ItemsDropCount: 1
-  m_prefab: {fileID: 387493114870382498, guid: a4a8e89e9ce38be40bc36db29c05f3c4, type: 3}
+  m_prefab: {fileID: 387493114870382498, guid: d3c017a4473544167abd604105b06dd6, type: 3}
   m_minCGHST: 5
   m_maxCGHST: 15
   m_minGltr: 100
@@ -252,8 +249,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 517a0e5d7276e564fadb7ae93628f0e9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  type: 1
-  Hp: 1
+  audioOnHit: {fileID: 0}
+  type: 2
+  Hp: 4
 --- !u!114 &-3081791487650900036
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -315,8 +313,6 @@ SpriteRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:

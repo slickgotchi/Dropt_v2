@@ -13,6 +13,9 @@ public class SplashProjectile : NetworkBehaviour
     [HideInInspector] public float LobHeight = 2f;
     [HideInInspector] public float Scale = 1f;
 
+    [HideInInspector] public float KnockbackDistance;
+    [HideInInspector] public float KnockbackStunDuration;
+
     [HideInInspector] public float DamagePerHit = 1f;
     [HideInInspector] public float CriticalChance = 0.1f;
     [HideInInspector] public float CriticalDamage = 1.5f;
@@ -25,6 +28,7 @@ public class SplashProjectile : NetworkBehaviour
     [HideInInspector] public PlayerAbility.NetworkRole Role = PlayerAbility.NetworkRole.LocalClient;
 
     public SpriteRenderer bodySpriteRenderer;
+    public SpriteRenderer shadowSpriteRenderer;
     public CircleCollider2D Collider;
 
     private float m_timer = 0;
@@ -49,7 +53,11 @@ public class SplashProjectile : NetworkBehaviour
         GameObject player,
         float damagePerHit,
         float criticalChance,
-        float criticalDamage
+        float criticalDamage,
+
+        // knockback
+        float knockbackDistance,
+        float knockbackStunDuration
         )
     {
         // server, local & remote
@@ -69,6 +77,10 @@ public class SplashProjectile : NetworkBehaviour
         DamagePerHit = damagePerHit;
         CriticalChance = criticalChance;
         CriticalDamage = criticalDamage;
+
+        // knockback
+        KnockbackDistance = knockbackDistance;
+        KnockbackStunDuration = knockbackStunDuration;
     }
 
     public void Fire()
@@ -94,6 +106,8 @@ public class SplashProjectile : NetworkBehaviour
         var wearable = WearableManager.Instance.GetWearable(WearableNameEnum);
         var wearablesSprite = WeaponSpriteManager.Instance.GetSprite(WearableNameEnum, wearable.AttackView);
         bodySpriteRenderer.sprite = wearablesSprite;
+        bodySpriteRenderer.enabled = true;
+        shadowSpriteRenderer.enabled = true;
     }
 
     private void Update()
@@ -108,6 +122,9 @@ public class SplashProjectile : NetworkBehaviour
             if (Role != PlayerAbility.NetworkRole.RemoteClient) CollisionCheck();
             gameObject.SetActive(false);
             VisualEffectsManager.Singleton.SpawnSplashExplosion(m_finalPosition, new Color(1, 0, 0, 0.5f), ExplosionRadius);
+
+            bodySpriteRenderer.enabled = false;
+            shadowSpriteRenderer.enabled = false;
         }
 
         transform.position += Direction * m_speed * Time.deltaTime;
@@ -115,7 +132,9 @@ public class SplashProjectile : NetworkBehaviour
 
     public void CollisionCheck()
     {
-        // sync colliders to current transform
+        if (IsServer && !IsHost) PlayerAbility.RollbackEnemies(LocalPlayer);
+
+        // resync transforms
         Physics2D.SyncTransforms();
 
         // do a collision check
@@ -128,6 +147,12 @@ public class SplashProjectile : NetworkBehaviour
                 var isCritical = PlayerAbility.IsCriticalAttack(CriticalChance);
                 var damage = (int)(isCritical ? DamagePerHit * CriticalDamage : DamagePerHit);
                 hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical);
+                var knockbackDirection = (Dropt.Utils.Battle.GetAttackCentrePosition(hit.gameObject) - transform.position).normalized;
+                var enemyAI = hit.GetComponent<Dropt.EnemyAI>();
+                if (enemyAI != null)
+                {
+                    enemyAI.Knockback(knockbackDirection, KnockbackDistance, KnockbackStunDuration);
+                }
             }
 
             if (hit.HasComponent<Destructible>())
@@ -149,6 +174,8 @@ public class SplashProjectile : NetworkBehaviour
 
         // clear out colliders
         enemyHitColliders.Clear();
+
+        if (IsServer && !IsHost) PlayerAbility.UnrollEnemies();
     }
 
     void Deactivate(Vector3 hitPosition)

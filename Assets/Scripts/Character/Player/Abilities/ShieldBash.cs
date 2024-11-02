@@ -12,6 +12,8 @@ public class ShieldBash : PlayerAbility
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         m_collider = GetComponent<Collider2D>();
     }
 
@@ -24,12 +26,12 @@ public class ShieldBash : PlayerAbility
         SetLocalPosition(PlayerAbilityCentreOffset + ActivationInput.actionDirection * Projection);
 
         // collision check (no RPC's are involved in this call)
-        OneFrameCollisionDamageCheck(m_collider, Wearable.WeaponTypeEnum.Shield);
+        OneFrameCollisionDamageCheck(m_collider, Wearable.WeaponTypeEnum.Shield, DamageMultiplier);
 
         // IMPORTANT use PlayAnimation which calls RPC's in the background that play the 
         // animation on remote clients
-        PlayAnimation("ShieldBash");
-
+        //PlayAnimation("ShieldBash");
+        PlayAnimationWithDuration("ShieldBash", ExecutionDuration);
 
     }
 
@@ -42,4 +44,5 @@ public class ShieldBash : PlayerAbility
     {
 
     }
+
 }

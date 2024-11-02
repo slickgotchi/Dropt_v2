@@ -12,6 +12,7 @@ public class ShieldWall : PlayerAbility
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
     }
 
     public override void OnStart()
