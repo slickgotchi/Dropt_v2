@@ -100,10 +100,12 @@ public class LeafShade_Charge : EnemyAbility
             // handle players
             if (playerController != null)
             {
-                var networkCharacter = playerController.GetComponent<NetworkCharacter>();
-                var damage = networkCharacter.GetAttackPower();
-                var isCritical = networkCharacter.IsCriticalAttack();
-                networkCharacter.TakeDamage(damage, isCritical);
+                var playerCharacter = playerController.GetComponent<NetworkCharacter>();
+                var enemyCharacter = Parent.GetComponent<EnemyCharacter>();
+                
+                var damage = enemyCharacter.GetAttackPower();
+                var isCritical = enemyCharacter.IsCriticalAttack();
+                playerCharacter.TakeDamage(damage, isCritical);
             }
 
             // handle destructibles
