@@ -21,13 +21,13 @@ public class ServerManagerAgentCanvas : MonoBehaviour
     async UniTask handleClick_GetEmptyButton()
     {
         var region = RegionDropdown.options[RegionDropdown.value].text;
-        await ServerManagerAgent.Instance.GetEmpty(region);
+        //await ServerManagerAgent.Instance.GetEmpty(region);
     }
 
     async UniTask handleClick_GetExistingButton()
     {
         string gameId = GameIdInput.text;
 
-        await ServerManagerAgent.Instance.GetExisting(gameId);
+        //await ServerManagerAgent.Instance.GetExisting(gameId);
     }
 }

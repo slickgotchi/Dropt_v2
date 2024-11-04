@@ -29,20 +29,20 @@ public class ServerManagerAgent : MonoBehaviour
     }
 
     // /joinempty
-    public async UniTask<GetEmpty_ResponseData> GetEmpty(string region)
+    public async UniTask<GetGame_ResponseData> GetGame(string gameId, string region)
     {
         try
         {
             // setup post data and post request
-            var getEmptyPostData = new GetEmpty_PostData { region = region };
+            var getEmptyPostData = new GetGame_PostData { gameId = gameId, region = region };
             string json = JsonUtility.ToJson(getEmptyPostData);
-            var responseString = await PostRequest(serverManagerUri + "/getempty", json);
+            var responseString = await PostRequest(serverManagerUri + "/getgame", json);
 
             // Check if the response is not null
             if (string.IsNullOrEmpty(responseString)) return null;
 
             // Parse the response string into the JoinEmpty_ResponseData struct
-            GetEmpty_ResponseData responseData = JsonUtility.FromJson<GetEmpty_ResponseData>(responseString);
+            GetGame_ResponseData responseData = JsonUtility.FromJson<GetGame_ResponseData>(responseString);
 
             // return response
             return responseData;
@@ -54,30 +54,30 @@ public class ServerManagerAgent : MonoBehaviour
         }
     }
 
-    // /joinexisting
-    public async UniTask<GetExisting_ResponseData> GetExisting(string gameId)
-    {
-        try
-        {
-            // setup join existing and post request
-            var getExistingPostData = new GetExisting_PostData { gameId = gameId };
-            string json = JsonUtility.ToJson(getExistingPostData);
-            var responseString = await PostRequest(serverManagerUri + "/getexisting", json);
+    //// /joinexisting
+    //public async UniTask<GetGame_ResponseData> GetExisting(string gameId)
+    //{
+    //    try
+    //    {
+    //        // setup join existing and post request
+    //        var getExistingPostData = new GetExisting_PostData { gameId = gameId };
+    //        string json = JsonUtility.ToJson(getExistingPostData);
+    //        var responseString = await PostRequest(serverManagerUri + "/getexisting", json);
 
-            // Check if the response is not null
-            if (string.IsNullOrEmpty(responseString)) return null;
+    //        // Check if the response is not null
+    //        if (string.IsNullOrEmpty(responseString)) return null;
 
-            // Parse the response string into the JoinEmpty_ResponseData struct
-            GetExisting_ResponseData responseData = JsonUtility.FromJson<GetExisting_ResponseData>(responseString);
+    //        // Parse the response string into the JoinEmpty_ResponseData struct
+    //        GetGame_ResponseData responseData = JsonUtility.FromJson<GetGame_ResponseData>(responseString);
 
-            return responseData;
-        }
-        catch (Exception e)
-        {
-            Debug.Log(e);
-            return null;
-        }
-    }
+    //        return responseData;
+    //    }
+    //    catch (Exception e)
+    //    {
+    //        Debug.Log(e);
+    //        return null;
+    //    }
+    //}
 
     public async UniTask<string> PostRequest(string url, string json)
     {
@@ -141,13 +141,14 @@ public class ServerManagerAgent : MonoBehaviour
     }
 
     [System.Serializable]
-    public class GetEmpty_PostData
+    public class GetGame_PostData
     {
+        public string gameId;
         public string region;
     }
 
     [System.Serializable]
-    public class GetEmpty_ResponseData
+    public class GetGame_ResponseData
     {
         public string gameId;
         public string ipAddress;
@@ -188,17 +189,7 @@ public class ServerManagerAgent : MonoBehaviour
         public string gameId;
     }
 
-    [System.Serializable]
-    public class GetExisting_ResponseData
-    {
-        public string gameId;
-        public string ipAddress;
-        public string gamePort;
-        public string commonName;
-        public string clientCA;
-        public int responseCode;
-        public string message;
-    }
+
 
     [System.Serializable]
     public class LeaveExisting_PostData

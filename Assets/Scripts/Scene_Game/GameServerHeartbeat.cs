@@ -80,6 +80,7 @@ public class GameServerHeartbeat : MonoBehaviour
             {
                 gameId = Bootstrap.Instance.GameId,
                 playerCount = m_playerCount,
+                isPublic = IsPublic,
                 nonce = nonce,
                 exp = DateTimeOffset.UtcNow.AddMinutes(5).ToUnixTimeSeconds() // Expiration time
             };
@@ -117,6 +118,7 @@ public class GameServerHeartbeat : MonoBehaviour
             {
                 gameId = Bootstrap.Instance.GameId,
                 playerCount = m_playerCount,
+                isPublic = IsPublic,
                 nonce = nonce,
                 token = token,
             };
@@ -176,6 +178,7 @@ public class GameServerHeartbeat : MonoBehaviour
     {
         public string gameId;
         public int playerCount;
+        public bool isPublic;
         public string nonce;
         public string token;
     }
