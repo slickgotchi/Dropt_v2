@@ -26,6 +26,7 @@ public class Game : MonoBehaviour
 
     // reconnecting to new game from gaeover
     private bool m_isTryConnectClientOrHostGame = false;
+    private string m_tryConnectGameId = "";
 
     private void Awake()
     {
@@ -59,7 +60,7 @@ public class Game : MonoBehaviour
             // high as it possible can and consume ALL of our remote servers resources.
             // NOTE: setting this value low (e.g. 15fps) will increase the ping and RTT
             // of our game. 60fps keeps it fairly low at 50-60ms ping on a local connection
-            Application.targetFrameRate = 30;
+            Application.targetFrameRate = 20;
             QualitySettings.vSyncCount = 0;
 
             ConnectServerGame();
@@ -71,7 +72,7 @@ public class Game : MonoBehaviour
         else if (Bootstrap.IsClient())
         {
             m_isTryConnectClientOrHostGame = true;
-            //ConnectClientGame();
+            m_tryConnectGameId = "";
         }
         // 5. Host instances
         else if (Bootstrap.IsHost())
@@ -120,7 +121,7 @@ public class Game : MonoBehaviour
                 m_isTryConnectClientOrHostGame = false;
                 if (Bootstrap.IsClient())
                 {
-                    ConnectClientGame();
+                    ConnectClientGame(m_tryConnectGameId);
                 }
                 else if (Bootstrap.IsHost())
                 {
@@ -130,23 +131,25 @@ public class Game : MonoBehaviour
         }
     }
 
-    public async UniTaskVoid ConnectClientGame()
+    public async UniTaskVoid ConnectClientGame(string gameId = "")
     {
         Debug.Log("ConnectClientGame()");
+
+        bool isGetEmptyGame = string.IsNullOrEmpty(gameId);
 
         m_transport.UseEncryption = (Bootstrap.Instance.UseServerManager || Bootstrap.IsRemoteConnection()) && !Bootstrap.IsHost();
 
         if (m_transport.UseEncryption)
         {
             // try find an empty game instance to join
-            var response = await ServerManagerAgent.Instance.GetEmpty(Bootstrap.GetRegionString());
+            var response = await ServerManagerAgent.Instance.GetGame(gameId, Bootstrap.GetRegionString());
             Debug.Log("response: " + response);
 
             // if no valid response, give error and go back to title
             if (response == null)
             {
                 ErrorDialogCanvas.Instance.Show("The Dropt server manager is not currently online, please try again later or check our Discord for updates.");
-                SceneManager.LoadScene("Title");
+                 if (isGetEmptyGame) SceneManager.LoadScene("Title");
                 return;
             }
 
@@ -154,7 +157,7 @@ public class Game : MonoBehaviour
             if (response.responseCode != 200)
             {
                 ErrorDialogCanvas.Instance.Show(response.message);
-                SceneManager.LoadScene("Title");
+                if (isGetEmptyGame) SceneManager.LoadScene("Title");
                 return;
             }
 
@@ -200,16 +203,15 @@ public class Game : MonoBehaviour
         NetworkManager.Singleton.StartHost();
     }
 
-    //public void TriggerGameOver(ulong playerNetworkObjectId, REKTCanvas.TypeOfREKT typeOfREKT, NetworkManager networkManager)
-    //{
-    //    var networkObject = networkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId];
-    //    if (networkObject == null) { Debug.LogWarning("Invalid playerNetworkObjectId in TriggerGameOver on server"); return; }
+    public async UniTaskVoid TryJoinGame(string gameId)
+    {
+        // first check existing is legit
 
-    //    var playerController = networkObject.GetComponent<PlayerController>();
-    //    if (playerController == null) { Debug.LogWarning("Invalid playerController in TriggerGameOver on server"); return; }
 
-    //    NetworkManager.Singleton.Shutdown();
-    //}
+        NetworkManager.Singleton.Shutdown();
+        m_isTryConnectClientOrHostGame = true;
+        m_tryConnectGameId = gameId;
+    }
 
     private void LoadCertificateFiles()
     {

@@ -98,7 +98,7 @@ public class CoOpModeCanvas : DroptCanvas
             {
                 // Instantiate new game item and add to the AvailableGameListContent
                 var availableGameListItem = Instantiate(PrefabAvailableGameListItem, AvailableGameListContent.transform).GetComponent<AvailableGameListItem>();
-                availableGameListItem.Init(game.gameId, game.numberPlayers);
+                availableGameListItem.Init(game.gameId, game.playerCount);
 
                 // Change join button if its ours
                 if (Bootstrap.Instance.GameId == game.gameId)

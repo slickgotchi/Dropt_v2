@@ -60,7 +60,7 @@ public class ConnectionApprovalHandler : MonoBehaviour
 
         // If response.Approved is false, you can provide a message that explains the reason why via ConnectionApprovalResponse.Reason
         // On the client-side, NetworkManager.DisconnectReason will be populated with this message via DisconnectReasonMessage
-        response.Reason = "Game at max player capacity of 3";
+        response.Reason = playerCount >= 3 ? "Game at max player capacity of 3" : "";
 
         // If additional approval steps are needed, set this to true until the additional steps are complete
         // once it transitions from true to false the connection approval response will be processed.
