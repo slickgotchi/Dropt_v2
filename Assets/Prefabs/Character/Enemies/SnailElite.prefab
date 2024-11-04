@@ -360,7 +360,7 @@ MonoBehaviour:
   FleeSpeedMultiplier: 5
   AggroRange: 9
   AlertRange: 10
-  AttackRange: 3.5
+  AttackRange: 2.5
   BreakAggroRange: 16
   MaxRoamRange: 8
   FleeRange: 0
@@ -370,7 +370,7 @@ MonoBehaviour:
   TelegraphDuration: 0.6
   AttackDuration: 0.3
   CooldownDuration: 2
-  TelegraphSelectTargetTimeRatio: 0.7
+  TelegraphSelectTargetTimeRatio: 0.9
   PrimaryAttack: {fileID: 3159421716010617349, guid: 92ca5efdc97856144bc1de4c9b4fed87, type: 3}
   SecondaryAttack: {fileID: 0}
   avoidanceRadius: 0.5
@@ -447,7 +447,7 @@ MonoBehaviour:
   baseHpMax: 120
   baseHpCurrent: 120
   baseHpBuffer: 0
-  baseAttackPower: 10
+  baseAttackPower: 18
   baseCriticalChance: 0.1
   baseApMax: 0
   baseApCurrent: 0
@@ -461,7 +461,7 @@ MonoBehaviour:
   baseApLeech: 0
   baseApRegen: 1
   baseKnockbackMutliplier: 1
-  baseStunMultiplier: 1
+  baseStunMultiplier: 0.6
   k_popupTextOffset: {x: 0, y: 1.5, z: 0}
   ReceiveDamageColor: {r: 1, g: 1, b: 1, a: 1}
   ReceiveDamageFontSize: 16
