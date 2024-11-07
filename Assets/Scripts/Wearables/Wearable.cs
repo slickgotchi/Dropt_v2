@@ -5,6 +5,7 @@ using UnityEngine;
 [System.Serializable]
 public partial class Wearable
 {
+    public Sprite SvgSprite;
     public enum SlotEnum { NA, Body, Face, Eyes, Head, Hand, Pet }
     public enum RarityEnum { NA, Common, Uncommon, Rare, Legendary, Mythical, Godlike }
     public enum WeaponTypeEnum { NA, Unarmed, Cleave, Smash, Pierce, Ballistic, Magic, Splash, Consume, Aura, Throw, Shield }
@@ -70,15 +71,18 @@ public partial class Wearable
         else return Dropt.Utils.Color.HexToColor("#ffffff");
     }
 
-    public UnityEngine.Color RarityColor {
-        get { return GetColorByRarity(Rarity);  }
+    public UnityEngine.Color RarityColor
+    {
+        get { return GetColorByRarity(Rarity); }
         set { }
     }
 }
 
 
-public partial class Wearable {
-    public enum NameEnum {
+public partial class Wearable
+{
+    public enum NameEnum
+    {
         _10GallonHat,
         _1337Laptop,
         _23Jersey,
@@ -101,6 +105,7 @@ public partial class Wearable {
         AllSeeingEyes,
         AlluringEyes,
         AlohaFlowers,
+        AncientBeard,
         AnimalSkins,
         ApeMask,
         AppleJuice,
@@ -195,6 +200,8 @@ public partial class Wearable {
         GoldNecklace,
         GotchiMug,
         GrannyGlasses,
+        GreaterKinshipPotion,
+        GreaterXPPotion,
         GuyFawkesMask,
         H4xx0rShirt,
         HaanzoKatana,
@@ -217,6 +224,7 @@ public partial class Wearable {
         KabutoHelmet,
         KawaiiMouth,
         Kimono,
+        KinshipPotion,
         L2Sign,
         Lasso,
         LeatherTunic,
@@ -262,7 +270,6 @@ public partial class Wearable {
         NailGun,
         Nimbus,
         NogaraArmor,
-        Null,
         OKexSign,
         OliversSpoon,
         Overalls,
@@ -377,12 +384,14 @@ public partial class Wearable {
         WizardVisor,
         WraanglerJeans,
         XibotMohawk,
+        XPPotion,
         YellowManbun,
         YoroiArmor,
 
         Unarmed,
         None,
         Nil,
+        Null
     }
 
 }

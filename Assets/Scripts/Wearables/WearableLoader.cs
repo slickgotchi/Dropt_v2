@@ -52,7 +52,7 @@ public class WearableLoader : MonoBehaviour
                 TertiaryBuff = (CharacterStat)System.Enum.Parse(typeof(CharacterStat), row[14]),
                 TertiaryBuffValue = ParseFloat(row[15]),
                 BaseDescription = row[16],
-//<<<<<<< HEAD
+                //<<<<<<< HEAD
                 AttackName = row[17],
                 AttackDescription = row[18],
                 HoldName = row[19],
@@ -62,20 +62,28 @@ public class WearableLoader : MonoBehaviour
                 EffectDuration = int.Parse(row[23]),
                 AttackView = (PlayerGotchi.Facing)System.Enum.Parse(typeof(PlayerGotchi.Facing), row[24]),
                 AttackAngle = float.Parse(row[25]),
-//=======
-//                AttackDescription = row[17],
-//                HoldDescription = row[18],
-//                SpecialDescription = row[19],
-//                EffectDuration = int.Parse(row[20]),
-//                AttackView = (PlayerGotchi.Facing)System.Enum.Parse(typeof(PlayerGotchi.Facing), row[21]),
-//                AttackAngle = ParseFloat(row[22]),
-//>>>>>>> 65f8b13b ([CHG] finalize chests logic)
+                //=======
+                //                AttackDescription = row[17],
+                //                HoldDescription = row[18],
+                //                SpecialDescription = row[19],
+                //                EffectDuration = int.Parse(row[20]),
+                //                AttackView = (PlayerGotchi.Facing)System.Enum.Parse(typeof(PlayerGotchi.Facing), row[21]),
+                //                AttackAngle = ParseFloat(row[22]),
+                //>>>>>>> 65f8b13b ([CHG] finalize chests logic)
             };
 
+            wearable.SvgSprite = LoadWearableSprite(wearable.NameType);
+            //Debug.Log("NAME -> " + wearable.SvgSprite?.name);
             WearableManager.Instance.AddWearable(wearable);
         }
 
         //Debug.Log(WearableManager.Instance.GetWearableCount() + " wearables loaded.");
+    }
+
+    private Sprite LoadWearableSprite(Wearable.NameEnum nameEnum)
+    {
+        SvgWearableSO svgWearableSO = Resources.Load<SvgWearableSO>($"SvgWearableSO/{nameEnum}");
+        return svgWearableSO.SvgSprite;
     }
 
     private static float ParseFloat(string value)
