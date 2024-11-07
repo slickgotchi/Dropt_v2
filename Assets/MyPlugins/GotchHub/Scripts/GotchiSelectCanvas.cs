@@ -76,6 +76,7 @@ namespace GotchiHub
         public TextMeshProUGUI LH_CritText;
         public TextMeshProUGUI LH_ApText;
         public SVGImage LH_OnchainSVGImage;
+        public Image LH_OffchainImage;
         public Outline LH_Outline;
 
         [Header("Wearable - Right Hand")]
@@ -86,6 +87,7 @@ namespace GotchiHub
         public TextMeshProUGUI RH_CritText;
         public TextMeshProUGUI RH_ApText;
         public SVGImage RH_OnchainSVGImage;
+        public Image RH_OffchainImage;
         public Outline RH_Outline;
 
         [Header("Wearable - Body")]
@@ -452,13 +454,14 @@ namespace GotchiHub
             SetWearableCard(faceId, id, Face_NameText, null, Face_HpText, Face_AtkText, Face_CritText, Face_ApText, Face_OnchainSVGImage, Face_Outline, Wearable.SlotEnum.Face);
             SetWearableCard(eyesId, id, Eyes_NameText, null, Eyes_HpText, Eyes_AtkText, Eyes_CritText, Eyes_ApText, Eyes_OnchainSVGImage, Eyes_Outline, Wearable.SlotEnum.Eyes);
             SetWearableCard(headId, id, Head_NameText, null, Head_HpText, Head_AtkText, Head_CritText, Head_ApText, Head_OnchainSVGImage, Head_Outline, Wearable.SlotEnum.Head);
-            SetWearableCard(rhId, id, RH_NameText, RH_SubtitleText, RH_HpText, RH_AtkText, RH_CritText, RH_ApText, RH_OnchainSVGImage, RH_Outline, Wearable.SlotEnum.Hand, false);
-            SetWearableCard(lhId, id, LH_NameText, LH_SubtitleText, LH_HpText, LH_AtkText, LH_CritText, LH_ApText, LH_OnchainSVGImage, LH_Outline, Wearable.SlotEnum.Hand, true);
+            SetWearableCard(rhId, id, RH_NameText, RH_SubtitleText, RH_HpText, RH_AtkText, RH_CritText, RH_ApText, RH_OnchainSVGImage, RH_Outline, Wearable.SlotEnum.Hand, false, RH_OffchainImage);
+            SetWearableCard(lhId, id, LH_NameText, LH_SubtitleText, LH_HpText, LH_AtkText, LH_CritText, LH_ApText, LH_OnchainSVGImage, LH_Outline, Wearable.SlotEnum.Hand, true, LH_OffchainImage);
             SetWearableCard(petId, id, Pet_NameText, null, Pet_HpText, Pet_AtkText, Pet_CritText, Pet_ApText, Pet_OnchainSVGImage, Pet_Outline, Wearable.SlotEnum.Pet);
         }
 
         public void SetWearableCard(int wearableId, int gotchiId, TextMeshProUGUI nameText, TextMeshProUGUI subtitleText,
-            TextMeshProUGUI hpText, TextMeshProUGUI atkText, TextMeshProUGUI critText, TextMeshProUGUI apText, SVGImage onchainSvgImage, Outline outline, Wearable.SlotEnum slot, bool isLeftIfWeapon = true)
+            TextMeshProUGUI hpText, TextMeshProUGUI atkText, TextMeshProUGUI critText, TextMeshProUGUI apText, SVGImage onchainSvgImage,
+            Outline outline, Wearable.SlotEnum slot, bool isLeftIfWeapon = true, Image offchainImage = null)
         {
             // set some text colorisations
             var activeTextColor = Dropt.Utils.Color.HexToColor("#ffffff");
@@ -475,6 +478,7 @@ namespace GotchiHub
                 wearable = WearableManager.Instance.GetWearable(1000); // this is the unarmed weapon
                 wearableId = 1000;
             }
+            Debug.Log("got wearable: " + wearable + ", id: " + wearableId);
 
             hp = DroptStatCalculator.GetDroptStatByWearableId(wearableId, TraitType.NRG);
             atk = DroptStatCalculator.GetDroptStatByWearableId(wearableId, TraitType.AGG);
@@ -499,7 +503,26 @@ namespace GotchiHub
             atkText.text = "+" + atk.ToString("F0") + " Attack";
             critText.text = "+" + (crit * 100).ToString("F1") + " Critical %";
             apText.text = "+" + ap.ToString("F0") + " Ability Pts";
-            //onchainSvgImage.sprite = WeaponSpriteManager.Instance.GetSprite(lhWearable.NameType, PlayerGotchi.Facing.Right);
+
+            if (offchainImage != null) offchainImage.gameObject.SetActive(false);
+            if (onchainSvgImage != null) onchainSvgImage.gameObject.SetActive(false);
+
+            if (wearable != null && wearableId != 0 && wearableId < 990)
+            {
+                wearable = WearableManager.Instance.GetWearable(wearable.NameType);
+                var svgSprite = wearable.SvgSprite;
+                if (svgSprite != null)
+                {
+                    onchainSvgImage.gameObject.SetActive(true);
+                    onchainSvgImage.sprite = wearable.SvgSprite;
+                }
+            }
+            else if ((wearableId == 0 || wearableId > 990) && isWeapon)
+            {
+                // set custom image instead of the svgs
+                offchainImage.gameObject.SetActive(true);
+                offchainImage.sprite = WeaponSpriteManager.Instance.GetSprite(wearable.NameType, wearable.AttackView);
+            }
 
             hpText.color = hp <= 0.1f ? inactiveTextColor : activeTextColor;
             atkText.color = atk <= 0.1f ? inactiveTextColor : activeTextColor;
