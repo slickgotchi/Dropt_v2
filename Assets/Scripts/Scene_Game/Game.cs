@@ -42,6 +42,30 @@ public class Game : MonoBehaviour
 
     private void Start()
     {
+        // check for web socket
+        var webSocketTransport = NetworkManager.Singleton.GetComponent<Netcode.Transports.WebSocket.WebSocketTransport>();
+        if (webSocketTransport != null)
+        {
+            if (Bootstrap.IsServer())
+            {
+                Application.targetFrameRate = 300;
+                NetworkManager.Singleton.StartServer();
+                Debug.Log("StartServer");
+            }
+            else if (Bootstrap.IsClient())
+            {
+                NetworkManager.Singleton.StartClient();
+                Debug.Log("StartClient");
+            }
+
+
+            return;
+        }
+
+
+
+
+
         // 1. Load certificate files
         LoadCertificateFiles();
 
