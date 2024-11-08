@@ -116,8 +116,8 @@ namespace Netcode.Transports.WebSocket
             }
 
             var protocol = SecureConnection ? "wss" : "ws";
-            //WebSocketClient = WebSocketClientFactory.Create($"{protocol}://{ConnectAddress}:{Port}{Path}");
-            WebSocketClient = WebSocketClientFactory.Create("wss://ping-test.playdropt.io:9000/netcode");
+            WebSocketClient = WebSocketClientFactory.Create($"{protocol}://{ConnectAddress}:{Port}{Path}");
+            //WebSocketClient = WebSocketClientFactory.Create("wss://ping-test.playdropt.io:9000/netcode");
             WebSocketClient.Connect();
 
             IsStarted = true;
@@ -135,7 +135,7 @@ namespace Netcode.Transports.WebSocket
             WebSocketServer = new WebSocketServer(Port, SecureConnection);
             WebSocketServer.AllowForwardedRequest = AllowForwardedRequest;
             WebSocketServer.AddWebSocketService<WebSocketServerConnectionBehavior>(Path);
-            if (!string.IsNullOrEmpty(pfxCertPath))
+            if (!string.IsNullOrEmpty(pfxCertPath) && SecureConnection)
             {
                 WebSocketServer.SslConfiguration.ServerCertificate =
                     new X509Certificate2(pfxCertPath, pfxCertPassword);
