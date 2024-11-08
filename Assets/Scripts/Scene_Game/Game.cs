@@ -20,9 +20,9 @@ public class Game : MonoBehaviour
 
     // certificate variables for WSS and encryption
     private string m_commonName = "web.playdropt.io";
-    private string m_clientCA;
-    private string m_serverCertificate;
-    private string m_serverPrivateKey;
+    //private string m_clientCA;
+    //private string m_serverCertificate;
+    //private string m_serverPrivateKey;
 
     // reconnecting to new game from gaeover
     private bool m_isTryConnectClientOrHostGame = false;
@@ -48,15 +48,31 @@ public class Game : MonoBehaviour
         {
             if (Bootstrap.IsServer())
             {
+                // set a reasonably high target frame rate to reduce latency
                 Application.targetFrameRate = 300;
-                NetworkManager.Singleton.StartServer();
-                Debug.Log("StartServer");
+
+                // connect server (call StartServer on NetworkManager)
+                ConnectServerGame(webSocketTransport);
+
+                // hide loading canvas
+                LoadingCanvas.Instance.gameObject.SetActive(false);
             }
             else if (Bootstrap.IsClient())
             {
-                NetworkManager.Singleton.StartClient();
-                Debug.Log("StartClient");
+                m_isTryConnectClientOrHostGame = true;
+                m_tryConnectGameId = "";
             }
+            else if (Bootstrap.IsHost())
+            {
+                ConnectHostGame();
+            }
+
+            //else if (Bootstrap.IsClient())
+            //{
+            //    webSocketTransport.ConnectAddress = Bootstrap.Instance.DomainName;
+            //    NetworkManager.Singleton.StartClient();
+            //    Debug.Log("StartClient");
+            //}
 
 
             return;
@@ -65,7 +81,7 @@ public class Game : MonoBehaviour
 
 
 
-
+        /*
         // 1. Load certificate files
         LoadCertificateFiles();
 
@@ -103,10 +119,25 @@ public class Game : MonoBehaviour
         {
             ConnectHostGame();
         }
+        */
 
         SetInputSystemEnabled(!Bootstrap.IsServer());
     }
 
+    private void ConnectServerGame(Netcode.Transports.WebSocket.WebSocketTransport webSocketTransport)
+    {
+        webSocketTransport.SecureConnection = (Bootstrap.Instance.UseServerManager || Bootstrap.IsRemoteConnection()) && !Bootstrap.IsHost();
+
+        // output the ip and gaem port we're using
+        Debug.Log(Bootstrap.Instance.IpAddress);
+        Debug.Log(Bootstrap.Instance.GamePort);
+
+        // set connection data and start server
+        NetworkManager.Singleton.StartServer();
+        Debug.Log("StartServer()");
+    }
+
+    /*
     private void ConnectServerGame()
     {
         Debug.Log("ConnectServerGame()");
@@ -133,7 +164,7 @@ public class Game : MonoBehaviour
         NetworkManager.Singleton.StartServer();
         Debug.Log("StartServer()");
     }
-
+    */
 
 
     public void Update()
@@ -155,6 +186,75 @@ public class Game : MonoBehaviour
         }
     }
 
+    public async UniTaskVoid ConnectClientGame(string gameId = "")
+    {
+        Debug.Log("ConnectClientGame()");
+
+        bool isGetEmptyGame = string.IsNullOrEmpty(gameId);
+
+        var webSocketTransport = NetworkManager.Singleton.GetComponent<Netcode.Transports.WebSocket.WebSocketTransport>();
+        if (webSocketTransport == null)
+        {
+            ErrorDialogCanvas.Instance.Show("WebSocketTransport not available.");
+            SceneManager.LoadScene("Title");
+            return;
+        }
+
+        webSocketTransport.SecureConnection = (Bootstrap.Instance.UseServerManager || Bootstrap.IsRemoteConnection()) && !Bootstrap.IsHost();
+
+        if (webSocketTransport.SecureConnection)
+        {
+            // try find an empty game instance to join
+            var response = await ServerManagerAgent.Instance.GetGame(gameId, Bootstrap.GetRegionString());
+            Debug.Log("response: " + response);
+
+            // if no valid response, give error and go back to title
+            if (response == null)
+            {
+                ErrorDialogCanvas.Instance.Show("The Dropt server manager is not currently online, please try again later or check our Discord for updates.");
+                if (isGetEmptyGame) SceneManager.LoadScene("Title");
+                return;
+            }
+
+            // check for non-succes
+            if (response.responseCode != 200)
+            {
+                ErrorDialogCanvas.Instance.Show(response.message);
+                if (isGetEmptyGame) SceneManager.LoadScene("Title");
+                return;
+            }
+
+            // set IP address and port
+            Bootstrap.Instance.IpAddress = response.ipAddress;
+            Bootstrap.Instance.GamePort = ushort.Parse(response.gamePort);
+            m_commonName = response.commonName;
+            webSocketTransport.ConnectAddress = m_commonName;
+            //m_clientCA = response.clientCA;
+
+            Debug.Log("CommonName: " + m_commonName);
+            //Debug.Log(m_clientCA);
+            //m_transport.SetClientSecrets(m_commonName, m_clientCA);
+        }
+
+        // output ip and port
+        Debug.Log(Bootstrap.Instance.IpAddress);
+        Debug.Log(Bootstrap.Instance.GamePort);
+
+        // set connection data and start
+        //m_transport.SetConnectionData(Bootstrap.Instance.IpAddress, Bootstrap.Instance.GamePort);
+        Debug.Log("StartClient()");
+
+        // start client
+        var success = NetworkManager.Singleton.StartClient();
+        if (!success)
+        {
+            ErrorDialogCanvas.Instance.Show("NetworkManager.Singleton.Start() client failed.");
+            SceneManager.LoadScene("Title");
+            return;
+        }
+    }
+
+    /*
     public async UniTaskVoid ConnectClientGame(string gameId = "")
     {
         Debug.Log("ConnectClientGame()");
@@ -213,7 +313,9 @@ public class Game : MonoBehaviour
             return;
         }
     }
+    */
 
+    /*
     public void ConnectHostGame()
     {
         Debug.Log("ConnectHostGame()");
@@ -224,6 +326,29 @@ public class Game : MonoBehaviour
         Bootstrap.Instance.IpAddress = "127.0.0.1";
         Bootstrap.Instance.GamePort = 9000;
         m_transport.SetConnectionData(Bootstrap.Instance.IpAddress, Bootstrap.Instance.GamePort, "0.0.0.0");
+        NetworkManager.Singleton.StartHost();
+    }
+    */
+
+    public void ConnectHostGame()
+    {
+        Debug.Log("ConnectHostGame()");
+
+        var webSocketTransport = NetworkManager.Singleton.GetComponent<Netcode.Transports.WebSocket.WebSocketTransport>();
+        if (webSocketTransport == null)
+        {
+            ErrorDialogCanvas.Instance.Show("WebSocketTransport not available.");
+            SceneManager.LoadScene("Title");
+            return;
+        }
+
+        webSocketTransport.SecureConnection = false;
+        webSocketTransport.ConnectAddress = "127.0.0.1";
+        webSocketTransport.Port = 9000;
+
+        // Additional logic for Host, if needed
+        Bootstrap.Instance.IpAddress = "127.0.0.1";
+        Bootstrap.Instance.GamePort = 9000;
         NetworkManager.Singleton.StartHost();
     }
 
@@ -237,25 +362,25 @@ public class Game : MonoBehaviour
         m_tryConnectGameId = gameId;
     }
 
-    private void LoadCertificateFiles()
-    {
-        if (!Bootstrap.IsServer()) return;
-        if (!Bootstrap.IsRemoteConnection()) return;
+    //private void LoadCertificateFiles()
+    //{
+    //    if (!Bootstrap.IsServer()) return;
+    //    if (!Bootstrap.IsRemoteConnection()) return;
 
-        try
-        {
-            m_serverCertificate = Environment.GetEnvironmentVariable("SERVER_CERTIFICATE");
-            m_serverPrivateKey = Environment.GetEnvironmentVariable("SERVER_PRIVATE_KEY");
+    //    try
+    //    {
+    //        m_serverCertificate = Environment.GetEnvironmentVariable("SERVER_CERTIFICATE");
+    //        m_serverPrivateKey = Environment.GetEnvironmentVariable("SERVER_PRIVATE_KEY");
 
-            Debug.Log("Certificates loaded successfully.");
-            Debug.Log("m_serverCertificate: " + m_serverCertificate);
-            Debug.Log("m_serverPrivateKey: " + m_serverPrivateKey);
-        }
-        catch (Exception e)
-        {
-            Debug.LogError($"Error loading certificates: {e.Message}");
-        }
-    }
+    //        Debug.Log("Certificates loaded successfully.");
+    //        Debug.Log("m_serverCertificate: " + m_serverCertificate);
+    //        Debug.Log("m_serverPrivateKey: " + m_serverPrivateKey);
+    //    }
+    //    catch (Exception e)
+    //    {
+    //        Debug.LogError($"Error loading certificates: {e.Message}");
+    //    }
+    //}
 
     private void SetInputSystemEnabled(bool isEnabled)
     {
