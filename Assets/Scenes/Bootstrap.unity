@@ -5352,7 +5352,7 @@ MonoBehaviour:
   Port: 9000
   SecureConnection: 1
   AllowForwardedRequest: 0
-  pfxCertPath: ./cert.pfx
+  pfxCertPath: usr/local/unity_server/cert.pfx
   pfxCertPassword: test
 --- !u!1 &1202603107
 GameObject:
@@ -8100,15 +8100,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   region: 0
   NetworkRole: 2
-  ConnectionType: 0
-  AutoBoot: 0
+  ConnectionType: 1
+  AutoBoot: 1
   AutoPlay: 0
-  UseServerManager: 0
+  UseServerManager: 1
   IpAddress: 139.59.251.126
   GamePort: 9000
   WorkerPort: 3000
   GameId: 
   HeartbeatSecret: 
+  DomainName: 
   TestBlockChainGotchiId: 0
   TestWalletAddress: 0xtest
   StartupButtons: {fileID: 349225739}
