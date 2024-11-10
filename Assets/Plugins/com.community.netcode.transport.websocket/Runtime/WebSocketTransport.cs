@@ -117,7 +117,6 @@ namespace Netcode.Transports.WebSocket
 
             var protocol = SecureConnection ? "wss" : "ws";
             WebSocketClient = WebSocketClientFactory.Create($"{protocol}://{ConnectAddress}:{Port}{Path}");
-            //WebSocketClient = WebSocketClientFactory.Create("wss://ping-test.playdropt.io:9000/netcode");
             WebSocketClient.Connect();
 
             IsStarted = true;

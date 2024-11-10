@@ -49,7 +49,7 @@ public class Game : MonoBehaviour
             if (Bootstrap.IsServer())
             {
                 // set a reasonably high target frame rate to reduce latency
-                Application.targetFrameRate = 300;
+                Application.targetFrameRate = 1200;
 
                 // connect server (call StartServer on NetworkManager)
                 ConnectServerGame(webSocketTransport);
@@ -66,14 +66,6 @@ public class Game : MonoBehaviour
             {
                 ConnectHostGame();
             }
-
-            //else if (Bootstrap.IsClient())
-            //{
-            //    webSocketTransport.ConnectAddress = Bootstrap.Instance.DomainName;
-            //    NetworkManager.Singleton.StartClient();
-            //    Debug.Log("StartClient");
-            //}
-
 
             return;
         }
@@ -205,6 +197,7 @@ public class Game : MonoBehaviour
         if (webSocketTransport.SecureConnection)
         {
             // try find an empty game instance to join
+            Debug.Log("Get game with id: " + gameId + " and region: " + Bootstrap.GetRegionString());
             var response = await ServerManagerAgent.Instance.GetGame(gameId, Bootstrap.GetRegionString());
             Debug.Log("response: " + response);
 

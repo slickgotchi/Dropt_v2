@@ -73,7 +73,7 @@ public class GameServerHeartbeat : MonoBehaviour
                 nonceBuilder.Append(b.ToString("x2"));
             }
             string nonce = nonceBuilder.ToString();
-            Debug.Log("Made a nonce: " + nonce);
+            //Debug.Log("Made a nonce: " + nonce);
 
             // 2. create payload
             var payload = new
@@ -111,7 +111,7 @@ public class GameServerHeartbeat : MonoBehaviour
 
             // 7. Create the final token
             string token = $"{unsignedToken}.{signature}";
-            Debug.Log("Made a token: " + token);
+            //Debug.Log("Made a token: " + token);
 
             // 8. Create HTTP request
             var instanceHeartbeatPostData = new InstanceHeartbeat_PostData
@@ -126,7 +126,7 @@ public class GameServerHeartbeat : MonoBehaviour
             var workerUri = "http://" + Bootstrap.Instance.IpAddress + ":" + Bootstrap.Instance.WorkerPort;
             var responseStr = await PostRequest(workerUri + "/instanceheartbeat", json);
 
-            Debug.Log("/instancehearbeat success");
+            //Debug.Log("/instancehearbeat success");
         }
         catch (Exception e)
         {
