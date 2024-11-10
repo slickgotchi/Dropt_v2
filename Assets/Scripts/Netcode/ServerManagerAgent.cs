@@ -8,7 +8,7 @@ public class ServerManagerAgent : MonoBehaviour
 {
     public static ServerManagerAgent Instance { get; private set; }
 
-    public string serverManagerUri = "https://dmanager.playdropt.io";
+    public string serverManagerUri = "https://manager.playdropt.io";
 
     private void Awake()
     {
@@ -25,7 +25,7 @@ public class ServerManagerAgent : MonoBehaviour
 
     private void Start()
     {
-        serverManagerUri = "https://dmanager.playdropt.io";
+        serverManagerUri = "https://manager.playdropt.io";
     }
 
     // /joinempty
@@ -37,6 +37,7 @@ public class ServerManagerAgent : MonoBehaviour
             var getEmptyPostData = new GetGame_PostData { gameId = gameId, region = region };
             string json = JsonUtility.ToJson(getEmptyPostData);
             var responseString = await PostRequest(serverManagerUri + "/getgame", json);
+            Debug.Log(responseString);
 
             // Check if the response is not null
             if (string.IsNullOrEmpty(responseString)) return null;
