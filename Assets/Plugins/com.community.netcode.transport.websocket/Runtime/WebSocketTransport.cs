@@ -117,6 +117,7 @@ namespace Netcode.Transports.WebSocket
 
             var protocol = SecureConnection ? "wss" : "ws";
             WebSocketClient = WebSocketClientFactory.Create($"{protocol}://{ConnectAddress}:{Port}{Path}");
+            Debug.Log($"{protocol}://{ConnectAddress}:{Port}{Path}");
             WebSocketClient.Connect();
 
             IsStarted = true;
