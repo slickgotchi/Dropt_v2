@@ -18,7 +18,7 @@ public class PlayerPing : NetworkBehaviour
     public float pingHigh;
     public float pingLow;
 
-    UnityTransport m_transport;
+    //UnityTransport m_transport;
 
     NetworkObject m_networkObject;
 
@@ -30,23 +30,29 @@ public class PlayerPing : NetworkBehaviour
 
         m_networkObject = GetComponent<NetworkObject>();
 
-        m_transport = (UnityTransport)NetworkManager.Singleton.NetworkConfig.NetworkTransport;
+        //m_transport = (UnityTransport)NetworkManager.Singleton.NetworkConfig.NetworkTransport;
     }
 
     private void Update()
     {
         if (IsServer)
         {
-            RTT.Value = m_transport.GetCurrentRtt(m_networkObject.OwnerClientId);
+            //RTT.Value = m_transport.GetCurrentRtt(m_networkObject.OwnerClientId);
         }
 
         if (IsClient)
         {
             TrackPing();
             DebugCanvas.Instance.SetPing((int)pingMedian);
+            SetRTTServerRpc((int)pingMedian);
         }
     }
 
+    [Rpc(SendTo.Server)]
+    void SetRTTServerRpc(int ping)
+    {
+        RTT.Value = (ulong)ping;
+    }
 
     void TrackPing()
     {
