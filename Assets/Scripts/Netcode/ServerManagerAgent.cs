@@ -55,31 +55,6 @@ public class ServerManagerAgent : MonoBehaviour
         }
     }
 
-    //// /joinexisting
-    //public async UniTask<GetGame_ResponseData> GetExisting(string gameId)
-    //{
-    //    try
-    //    {
-    //        // setup join existing and post request
-    //        var getExistingPostData = new GetExisting_PostData { gameId = gameId };
-    //        string json = JsonUtility.ToJson(getExistingPostData);
-    //        var responseString = await PostRequest(serverManagerUri + "/getexisting", json);
-
-    //        // Check if the response is not null
-    //        if (string.IsNullOrEmpty(responseString)) return null;
-
-    //        // Parse the response string into the JoinEmpty_ResponseData struct
-    //        GetGame_ResponseData responseData = JsonUtility.FromJson<GetGame_ResponseData>(responseString);
-
-    //        return responseData;
-    //    }
-    //    catch (Exception e)
-    //    {
-    //        Debug.Log(e);
-    //        return null;
-    //    }
-    //}
-
     public async UniTask<string> PostRequest(string url, string json)
     {
         using (UnityWebRequest request = new UnityWebRequest(url, "POST"))
