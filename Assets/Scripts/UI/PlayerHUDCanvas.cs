@@ -110,7 +110,7 @@ public class PlayerHUDCanvas : MonoBehaviour
 
         m_container.SetActive(true);
 
-        //m_multiplayerMenuNote.SetActive(LevelManager.Instance.IsDegenapeVillage());
+        m_multiplayerMenuNote.SetActive(LevelManager.Instance.IsDegenapeVillage());
         m_multiplayerMenuNote.SetActive(false);
 
         UpdateStatBars();

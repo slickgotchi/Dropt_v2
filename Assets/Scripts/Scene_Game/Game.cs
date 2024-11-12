@@ -28,13 +28,6 @@ public class Game : MonoBehaviour
         Instance = this;
     }
 
-    public void TryConnectClientGame()
-    {
-        if (m_isTryConnectClientGame) return;
-
-        m_isTryConnectClientGame = true;
-    }
-
     private void Start()
     {
         // check for web socket
@@ -54,11 +47,15 @@ public class Game : MonoBehaviour
             }
             else if (Bootstrap.IsClient())
             {
+                QualitySettings.vSyncCount = 1;
+
                 // connect to a client game (leave gameId param "" to signify we want an empty game)
                 ConnectClientGame();
             }
             else if (Bootstrap.IsHost())
             {
+                QualitySettings.vSyncCount = 1;
+
                 // connect to host
                 ConnectHostGame();
             }
@@ -94,20 +91,20 @@ public class Game : MonoBehaviour
     {
         Debug.Log("ConnectClientGame()");
 
+        bool isGetEmptyGame = string.IsNullOrEmpty(gameId);
+
+        if (m_webSocketTransport == null)
+        {
+            ErrorDialogCanvas.Instance.Show("WebSocketTransport not available.");
+            if (isGetEmptyGame) SceneManager.LoadScene("Title");
+            return;
+        }
+
+        m_webSocketTransport.SecureConnection = (Bootstrap.Instance.UseServerManager || Bootstrap.IsRemoteConnection()) && !Bootstrap.IsHost();
+
         // REMOTE
         if (Bootstrap.IsRemoteConnection())
         {
-            bool isGetEmptyGame = string.IsNullOrEmpty(gameId);
-
-            if (m_webSocketTransport == null)
-            {
-                ErrorDialogCanvas.Instance.Show("WebSocketTransport not available.");
-                if (isGetEmptyGame) SceneManager.LoadScene("Title");
-                return;
-            }
-
-            m_webSocketTransport.SecureConnection = (Bootstrap.Instance.UseServerManager || Bootstrap.IsRemoteConnection()) && !Bootstrap.IsHost();
-
             if (m_webSocketTransport.SecureConnection)
             {
                 // try find an empty game instance to join
@@ -138,14 +135,16 @@ public class Game : MonoBehaviour
                 m_webSocketTransport.ConnectAddress = response.commonName;
             }
 
-            m_isTryConnectClientGame = true;
 
             // if this was a join request we shut down the NetworkManager
             if (!isGetEmptyGame)
             {
                 NetworkManager.Singleton.Shutdown();
             }
-        } 
+        }
+
+        m_isTryConnectClientGame = true;
+
     }
 
     public void Connect()
