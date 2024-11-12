@@ -211,9 +211,10 @@ public partial class PlayerPrediction : NetworkBehaviour
             // update position
             transform.position = GetLocalPlayerInterpPosition();
         }
-        else if (IsClient)
+        else if (IsClient && !IsLocalPlayer)
         {
             transform.position = GetRemotePlayerInterpPosition();
+            //Debug.Log(NetworkTimer_v2.Instance.TickFraction + " " + transform.position);
         }
 
         // update debug circles if attached
@@ -228,6 +229,14 @@ public partial class PlayerPrediction : NetworkBehaviour
             rb.position = lastServerState.position;
         }
     }
+
+    //private void LateUpdate()
+    //{
+    //    if (IsClient && !IsLocalPlayer)
+    //    {
+    //        transform.position = GetRemotePlayerInterpPosition();
+    //    }
+    //}
 
     // NEW: We now let the NetworkTimer_v2 call the Tick function for us
     public void Tick()
@@ -677,7 +686,7 @@ public partial class PlayerPrediction : NetworkBehaviour
         var currentTick = NetworkTimer_v2.Instance.TickCurrent;
         var tickRate = NetworkTimer_v2.Instance.TickRate;
 
-        // append state to last server state array
+        // append state to last server state array, only store 2 seconds of tick data
         m_lastServerStateArray.Add(statePayload);
         if (m_lastServerStateArray.Count > tickRate * 2) m_lastServerStateArray.RemoveAt(0);
 
@@ -713,7 +722,10 @@ public partial class PlayerPrediction : NetworkBehaviour
         //return lastServerState.position;
         if (m_lastServerStateArray.Count < 5) return transform.position;
 
-        var targetTick = currentTick - m_remoteClientTickDelta - 3;
+        // sort the array in case ticks were received out of order
+        m_lastServerStateArray.Sort((state1, state2) => state1.tick.CompareTo(state2.tick));
+
+        var targetTick = currentTick - m_remoteClientTickDelta - 10;
 
         // find out where we are in last server state array
         int a = -1;
@@ -890,38 +902,4 @@ public partial class PlayerPrediction : NetworkBehaviour
         var dash = m_playerAbilities.GetAbility(PlayerAbilityEnum.Dash);
         return dash != null ? dash.IsCooldownFinished() : true;
     }
-
-    /*
-    bool IsAllAttackAbilitiesCooldownFinished()
-    {
-        var lhWearableEnum = m_playerEquipment.LeftHand.Value;
-        var rhWearableEnum = m_playerEquipment.RightHand.Value;
-
-        var lhAttackEnum = m_playerAbilities.GetAttackAbilityEnum(lhWearableEnum);
-        var rhAttackEnum = m_playerAbilities.GetAttackAbilityEnum(rhWearableEnum);
-
-        var lhHoldEnum = m_playerAbilities.GetHoldAbilityEnum(lhWearableEnum);
-        var rhHoldEnum = m_playerAbilities.GetHoldAbilityEnum(rhWearableEnum);
-
-        var lhSpecialEnum = m_playerAbilities.GetSpecialAbilityEnum(lhWearableEnum);
-        var rhSpecialEnum = m_playerAbilities.GetSpecialAbilityEnum(rhWearableEnum);
-
-        var lhAttack = m_playerAbilities.GetAbility(lhAttackEnum);
-        var rhAttack = m_playerAbilities.GetAbility(rhAttackEnum);
-
-        var lhHold = m_playerAbilities.GetAbility(lhHoldEnum);
-        var rhHold = m_playerAbilities.GetAbility(rhHoldEnum);
-
-        var lhSpecial = m_playerAbilities.GetAbility(lhSpecialEnum);
-        var rhSpecial = m_playerAbilities.GetAbility(rhSpecialEnum);
-
-        if (lhAttack == null || rhAttack == null ||
-            lhHold == null || rhHold == null ||
-            lhSpecial == null || rhSpecial == null) return true;
-
-        return lhAttack.IsCooldownFinished() && rhAttack.IsCooldownFinished() &&
-            lhHold.IsCooldownFinished() && rhHold.IsCooldownFinished() &&
-            lhSpecial.IsCooldownFinished() && rhSpecial.IsCooldownFinished();
-    }
-    */
 }

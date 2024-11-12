@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 using Unity.Netcode.Transports.UTP;
+using Netcode.Transports.WebSocket;
 
 public class PlayerPing : NetworkBehaviour
 {
@@ -19,39 +20,40 @@ public class PlayerPing : NetworkBehaviour
     public float pingLow;
 
     //UnityTransport m_transport;
+    WebSocketTransport m_webSocketTransport;
 
     NetworkObject m_networkObject;
 
     public NetworkVariable<ulong> RTT = new NetworkVariable<ulong>(0);
+
+    public NetworkVariable<int> serverFPS = new NetworkVariable<int>(0);
 
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
 
         m_networkObject = GetComponent<NetworkObject>();
+        m_webSocketTransport = NetworkManager.Singleton.GetComponent<WebSocketTransport>();
 
-        //m_transport = (UnityTransport)NetworkManager.Singleton.NetworkConfig.NetworkTransport;
     }
 
     private void Update()
     {
+        if (IsHost) return;
+
         if (IsServer)
         {
             //RTT.Value = m_transport.GetCurrentRtt(m_networkObject.OwnerClientId);
+            RTT.Value = m_webSocketTransport.GetCurrentRtt(m_networkObject.OwnerClientId);
+            serverFPS.Value = (int)(1 / Time.deltaTime);
         }
 
-        if (IsClient)
+        if (IsLocalPlayer)
         {
             TrackPing();
             DebugCanvas.Instance.SetPing((int)pingMedian);
-            SetRTTServerRpc((int)pingMedian);
+            DebugCanvas.Instance.SetServerFPS(((int)serverFPS.Value));
         }
-    }
-
-    [Rpc(SendTo.Server)]
-    void SetRTTServerRpc(int ping)
-    {
-        RTT.Value = (ulong)ping;
     }
 
     void TrackPing()
@@ -68,11 +70,15 @@ public class PlayerPing : NetworkBehaviour
     [Rpc(SendTo.Server)]
     void PingServerRpc(float clientTime)
     {
-        PingClientRpc(clientTime);
+        ulong clientId = Dropt.Utils.Network.GetClientIdFromPlayer(
+            NetworkManager.Singleton, m_networkObject);
+
+        // send ping response back to only the client for this player
+        PingClientRpc(clientTime, RpcTarget.Single(clientId, RpcTargetUse.Persistent));
     }
 
-    [Rpc(SendTo.ClientsAndHost)]
-    void PingClientRpc(float originalClientTime)
+    [Rpc(SendTo.SpecifiedInParams)]
+    void PingClientRpc(float originalClientTime, RpcParams rpcParams = default)
     {
         var deltaTime = (Time.time - originalClientTime) * 1000;
         m_pingBuffer.Add(deltaTime);

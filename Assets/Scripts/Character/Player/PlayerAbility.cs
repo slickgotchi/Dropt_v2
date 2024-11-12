@@ -420,27 +420,21 @@ public class PlayerAbility : NetworkBehaviour
         if (Player == null) return;
 
         // local player
-        if (Player.GetComponent<NetworkObject>().IsLocalPlayer)
+        if (Player.GetComponent<NetworkObject>().IsLocalPlayer || IsServer)
         {
             Dropt.Utils.Anim.PlayAnimationWithDuration(Animator, animName, duration);
         }
-        else
+        
+        if (IsServer)
         {
-            if (IsServer)
-            {
-                Debug.Log("Tell client to play animatino");
-                PlayAnimationWithDurationClientRpc(animName, duration, Player.GetComponent<NetworkObject>().NetworkObjectId);
-            }
+            PlayAnimationWithDurationClientRpc(animName, duration);
         }
     }
 
     [Rpc(SendTo.ClientsAndHost)]
-    private void PlayAnimationWithDurationClientRpc(string animName, float duration, ulong playerNetworkObjectId)
+    private void PlayAnimationWithDurationClientRpc(string animName, float duration)
     {
-        Debug.Log("a client received a message to play animation");
-        if (Player.GetComponent<NetworkObject>().NetworkObjectId == playerNetworkObjectId) return;
-
-        Debug.Log("a client followed through with playing an animation");
+        if (Player.GetComponent<NetworkObject>().IsLocalPlayer) return;
 
         Dropt.Utils.Anim.PlayAnimationWithDuration(Animator, animName, duration);
     }
