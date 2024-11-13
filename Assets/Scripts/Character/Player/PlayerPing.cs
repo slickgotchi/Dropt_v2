@@ -19,7 +19,7 @@ public class PlayerPing : NetworkBehaviour
     public float pingHigh;
     public float pingLow;
 
-    //UnityTransport m_transport;
+    UnityTransport m_unityTransport;
     WebSocketTransport m_webSocketTransport;
 
     NetworkObject m_networkObject;
@@ -34,6 +34,7 @@ public class PlayerPing : NetworkBehaviour
 
         m_networkObject = GetComponent<NetworkObject>();
         m_webSocketTransport = NetworkManager.Singleton.GetComponent<WebSocketTransport>();
+        m_unityTransport = NetworkManager.Singleton.GetComponent<UnityTransport>();
 
     }
 
@@ -43,8 +44,9 @@ public class PlayerPing : NetworkBehaviour
 
         if (IsServer)
         {
-            //RTT.Value = m_transport.GetCurrentRtt(m_networkObject.OwnerClientId);
-            RTT.Value = m_webSocketTransport.GetCurrentRtt(m_networkObject.OwnerClientId);
+            if (m_webSocketTransport != null) RTT.Value = m_webSocketTransport.GetCurrentRtt(m_networkObject.OwnerClientId);
+            if (m_unityTransport != null) RTT.Value = m_unityTransport.GetCurrentRtt(m_networkObject.OwnerClientId);
+            
             serverFPS.Value = (int)(1 / Time.deltaTime);
         }
 
