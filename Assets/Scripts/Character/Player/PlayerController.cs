@@ -206,8 +206,8 @@ public class PlayerController : NetworkBehaviour
         var framingTransposer = m_virtualCamera.GetCinemachineComponent<Cinemachine.CinemachineFramingTransposer>();
         Debug.Log("transposer: " + framingTransposer);
         float originalDamping = framingTransposer.m_XDamping; // Store original damping
-        framingTransposer.m_XDamping = 1;
-        framingTransposer.m_YDamping = 1;
+        framingTransposer.m_XDamping = 0;
+        framingTransposer.m_YDamping = 0;
         framingTransposer.m_ZDamping = 0;
 
         m_virtualCamera.OnTargetObjectWarped(m_cameraFollower.transform, delta);
@@ -234,8 +234,8 @@ public class PlayerController : NetworkBehaviour
 
             var framingTransposer = m_virtualCamera.GetCinemachineComponent<Cinemachine.CinemachineFramingTransposer>();
             float originalDamping = framingTransposer.m_XDamping; // Store original damping
-            framingTransposer.m_XDamping = 0;
-            framingTransposer.m_YDamping = 0;
+            framingTransposer.m_XDamping = 1;
+            framingTransposer.m_YDamping = 1;
             framingTransposer.m_ZDamping = 0;
         }
     }

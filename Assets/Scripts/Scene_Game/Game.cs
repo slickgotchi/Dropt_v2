@@ -20,6 +20,12 @@ public class Game : MonoBehaviour
     UnityTransport m_unityTransport = null;
     WebSocketTransport m_webSocketTransport = null;
 
+    // certs files for unity transport connections
+    private string m_certPem;
+    private string m_privkeyPem;
+    private string m_chainPem;
+    private string m_commonName;
+
     // reconnecting to new game from gaeover
     private bool m_isTryConnectClientGame = false;
 
@@ -32,7 +38,8 @@ public class Game : MonoBehaviour
     {
         // check for web socket
         m_webSocketTransport = NetworkManager.Singleton.GetComponent<WebSocketTransport>();
-        if (m_webSocketTransport != null)
+        m_unityTransport = NetworkManager.Singleton.GetComponent<UnityTransport>();
+        if (m_webSocketTransport != null || m_unityTransport != null)
         {
             if (Bootstrap.IsServer())
             {
@@ -59,9 +66,15 @@ public class Game : MonoBehaviour
                 // connect to host
                 ConnectHostGame();
             }
+
+            SetInputSystemEnabled(!Bootstrap.IsServer());
+
+        }
+        else
+        {
+            Debug.LogError("No transport available");
         }
 
-        SetInputSystemEnabled(!Bootstrap.IsServer());
     }
 
     public void Update()
@@ -75,12 +88,36 @@ public class Game : MonoBehaviour
 
     private void ConnectServerGame()
     {
-        if (m_webSocketTransport == null) return;
-        m_webSocketTransport.SecureConnection = (Bootstrap.Instance.UseServerManager || Bootstrap.IsRemoteConnection()) && !Bootstrap.IsHost();
+        bool isSecure = (Bootstrap.Instance.UseServerManager || Bootstrap.IsRemoteConnection()) && !Bootstrap.IsHost();
+
+        // WebSocketTransport
+        if (m_webSocketTransport != null)
+        {
+            m_webSocketTransport.SecureConnection = isSecure;
+        }
+
+        // UnityTransport
+        else if (m_unityTransport != null)
+        {
+            m_unityTransport.UseEncryption = isSecure;
+
+            if (isSecure)
+            {
+                m_certPem = File.ReadAllText("/usr/local/unity_server/cert.pem");
+                m_privkeyPem = File.ReadAllText("/usr/local/unity_server/privkey.pem");
+
+                m_unityTransport.SetServerSecrets(m_certPem, m_privkeyPem);
+            }
+
+            m_unityTransport.SetConnectionData(Bootstrap.Instance.IpAddress, Bootstrap.Instance.GamePort, "0.0.0.0");
+        }
 
         // output the ip and gaem port we're using
         Debug.Log(Bootstrap.Instance.IpAddress);
         Debug.Log(Bootstrap.Instance.GamePort);
+
+        Debug.Log(m_certPem);
+        Debug.Log(m_privkeyPem);
 
         // set connection data and start server
         NetworkManager.Singleton.StartServer();
@@ -92,20 +129,21 @@ public class Game : MonoBehaviour
         Debug.Log("ConnectClientGame()");
 
         bool isGetEmptyGame = string.IsNullOrEmpty(gameId);
+        bool isSecure = (Bootstrap.Instance.UseServerManager || Bootstrap.IsRemoteConnection()) && !Bootstrap.IsHost();
 
-        if (m_webSocketTransport == null)
+        if (m_webSocketTransport == null && m_unityTransport == null)
         {
-            ErrorDialogCanvas.Instance.Show("WebSocketTransport not available.");
+            ErrorDialogCanvas.Instance.Show("Transports not available.");
             if (isGetEmptyGame) SceneManager.LoadScene("Title");
             return;
         }
 
-        m_webSocketTransport.SecureConnection = (Bootstrap.Instance.UseServerManager || Bootstrap.IsRemoteConnection()) && !Bootstrap.IsHost();
-
-        // REMOTE
-        if (Bootstrap.IsRemoteConnection())
+        // WebSocketTransport
+        if (m_webSocketTransport != null)
         {
-            if (m_webSocketTransport.SecureConnection)
+            m_webSocketTransport.SecureConnection = isSecure;
+
+            if (isSecure)
             {
                 // try find an empty game instance to join
                 Debug.Log("Get game with id: " + gameId + " and region: " + Bootstrap.GetRegionString());
@@ -134,17 +172,55 @@ public class Game : MonoBehaviour
 
                 m_webSocketTransport.ConnectAddress = response.commonName;
             }
+        }
 
+        // UnityTransport
+        if (m_unityTransport != null)
+        {
+            m_unityTransport.UseEncryption = isSecure;
 
-            // if this was a join request we shut down the NetworkManager
-            if (!isGetEmptyGame)
+            if (isSecure)
             {
-                NetworkManager.Singleton.Shutdown();
+                // try find an empty game instance to join
+                Debug.Log("Get game with id: " + gameId + " and region: " + Bootstrap.GetRegionString());
+                var response = await ServerManagerAgent.Instance.GetGame(gameId, Bootstrap.GetRegionString());
+                Debug.Log("response: " + response);
+
+                // if no valid response, give error and go back to title
+                if (response == null)
+                {
+                    ErrorDialogCanvas.Instance.Show("The Dropt server manager is not currently online, please try again later or check our Discord for updates.");
+                    if (isGetEmptyGame) SceneManager.LoadScene("Title");
+                    return;
+                }
+
+                // check for non-succes
+                if (response.responseCode != 200)
+                {
+                    ErrorDialogCanvas.Instance.Show(response.message);
+                    if (isGetEmptyGame) SceneManager.LoadScene("Title");
+                    return;
+                }
+
+                // set IP address and port
+                Bootstrap.Instance.IpAddress = response.ipAddress;
+                Bootstrap.Instance.GamePort = ushort.Parse(response.gamePort);
+                m_chainPem = response.clientCA;
+                m_commonName = response.commonName;
+
+                m_unityTransport.SetClientSecrets(m_commonName, m_chainPem);
+                m_unityTransport.SetConnectionData(Bootstrap.Instance.IpAddress, Bootstrap.Instance.GamePort);
+                Debug.Log(m_commonName);
+                Debug.Log(m_chainPem);
             }
         }
 
-        m_isTryConnectClientGame = true;
+        if (!isGetEmptyGame)
+        {
+            NetworkManager.Singleton.Shutdown();
+        }
 
+        m_isTryConnectClientGame = true;
     }
 
     public void Connect()
@@ -153,8 +229,6 @@ public class Game : MonoBehaviour
         Debug.Log(Bootstrap.Instance.IpAddress);
         Debug.Log(Bootstrap.Instance.GamePort);
 
-        // set connection data and start
-        //m_transport.SetConnectionData(Bootstrap.Instance.IpAddress, Bootstrap.Instance.GamePort);
         Debug.Log("StartClient()");
 
         // start client
@@ -171,17 +245,27 @@ public class Game : MonoBehaviour
     {
         Debug.Log("ConnectHostGame()");
 
-        var webSocketTransport = NetworkManager.Singleton.GetComponent<WebSocketTransport>();
-        if (webSocketTransport == null)
+        if (m_webSocketTransport == null && m_unityTransport == null)
         {
             ErrorDialogCanvas.Instance.Show("WebSocketTransport not available.");
             SceneManager.LoadScene("Title");
             return;
         }
 
-        webSocketTransport.SecureConnection = false;
-        webSocketTransport.ConnectAddress = "127.0.0.1";
-        webSocketTransport.Port = 9000;
+        // WebSocketTranpsort
+        if (m_webSocketTransport != null)
+        {
+            m_webSocketTransport.SecureConnection = false;
+            m_webSocketTransport.ConnectAddress = "127.0.0.1";
+            m_webSocketTransport.Port = 9000;
+        }
+
+        // UnityTransport
+        if (m_unityTransport != null)
+        {
+            m_unityTransport.UseEncryption = false;
+            m_unityTransport.SetConnectionData("127.0.0.1", 9000);
+        }
 
         // Additional logic for Host, if needed
         Bootstrap.Instance.IpAddress = "127.0.0.1";
@@ -206,58 +290,3 @@ public class Game : MonoBehaviour
         }
     }
 }
-
-
-
-
-/*
-    public async UniTask<Boolean> TryConnectClientGame(string gameId = "")
-    {
-        if (m_webSocketTransport == null)
-        {
-            ErrorDialogCanvas.Instance.Show("WebSocketTransport not available.");
-            SceneManager.LoadScene("Title");
-            return false;
-        }
-
-        // REMOTE connections
-        if (Bootstrap.IsRemoteConnection())
-        {
-            bool isGetEmptyGame = string.IsNullOrEmpty(gameId);
-
-            m_webSocketTransport.SecureConnection = (Bootstrap.Instance.UseServerManager || Bootstrap.IsRemoteConnection()) && !Bootstrap.IsHost();
-
-            if (m_webSocketTransport.SecureConnection)
-            {
-                // try find an empty game instance to join
-                Debug.Log("Try get game with id: " + gameId + " and region: " + Bootstrap.GetRegionString());
-                var response = await ServerManagerAgent.Instance.GetGame(gameId, Bootstrap.GetRegionString());
-                Debug.Log("response: " + response);
-
-                // if no valid response, give error and go back to title
-                if (response == null)
-                {
-                    ErrorDialogCanvas.Instance.Show("The Dropt server manager is not currently online, please try again later or check our Discord for updates.");
-                    if (isGetEmptyGame) SceneManager.LoadScene("Title");
-                    return false;
-                }
-
-                // check for non-succes
-                if (response.responseCode != 200)
-                {
-                    ErrorDialogCanvas.Instance.Show(response.message);
-                    if (isGetEmptyGame) SceneManager.LoadScene("Title");
-                    return false;
-                }
-
-                // set IP address and port
-                Bootstrap.Instance.IpAddress = response.ipAddress;
-                Bootstrap.Instance.GamePort = ushort.Parse(response.gamePort);
-
-                m_webSocketTransport.ConnectAddress = response.commonName;
-            }
-        }
-
-        return true;
-    }
-    */
