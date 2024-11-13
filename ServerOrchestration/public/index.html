@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Server Status</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css">
+</head>
+<body>
+    <div class="ui container">
+        <h2 class="ui header">Game Server Status</h2>
+        <table class="ui celled table">
+            <thead>
+                <tr>
+                    <th>Game ID</th>
+                    <th>Region</th>
+                    <th>Worker IP Address</th>
+                    <th>Game Port</th>
+                    <th>Player Count</th>
+                    <th>First Player Joined</th>
+                    <th>Time Left (seconds)</th>
+                    <th>Worker CPU Usage (%)</th>
+                    <th>Is Public</th>
+                </tr>
+            </thead>
+            <tbody id="statusTableBody">
+                <!-- Status rows will be inserted here -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>async function fetchStatus() {
+            try {
+                const response = await fetch('https://manager.playdropt.io/getstatus');
+                const data = await response.json();
+                const tableBody = document.getElementById('statusTableBody');
+
+                tableBody.innerHTML = '';
+                data.availableGames.forEach(instance => {  // Access the `availableGames` array in the JSON
+                    const row = `<tr>
+                            <td>${instance.gameId}</td>
+                            <td>${instance.region}</td>
+                            <td>${instance.workerIpAddress}</td>
+                            <td>${instance.gamePort}</td>
+                            <td>${instance.playerCount}</td>
+                            <td>${instance.isFirstPlayerJoined}</td>
+                            <td>${instance.timeLeft}</td>
+                            <td>${instance.workerCpuUsage}</td>
+                            <td>${instance.isPublic}</td>
+                        </tr>`;
+                    tableBody.innerHTML += row;
+                });
+            } catch (error) {
+                console.error('Error fetching status:', error);
+            }
+        }
+
+        setInterval(fetchStatus, 5000); // Update status every 5 seconds
+        fetchStatus(); // Initial load</script>
+</body>
+</html>
