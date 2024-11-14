@@ -48,7 +48,7 @@ public class NetworkTimer_v2 : MonoBehaviour
 
         // check for tick time
         int loopBreakCount = 0;
-        while (m_timer >= TickInterval && loopBreakCount < 10)
+        while (m_timer > TickInterval && loopBreakCount < 10)
         {
             // update timer and tick
             m_timer -= TickInterval;
