@@ -2,6 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Unity.Mathematics;
+using DG.Tweening;
 
 public class PlayerHUDCanvas : MonoBehaviour
 {
@@ -70,10 +71,15 @@ public class PlayerHUDCanvas : MonoBehaviour
     private PlayerCharacter m_localPlayerCharacter;
     private PlayerOffchainData m_localPlayerDungeonData;
 
+    [Header("Shield Sliders and Pet Meter")]
     [SerializeField] private Slider m_leftHandShieldBar;
     [SerializeField] private Slider m_rightHandShieldBar;
-
     [SerializeField] private PetMeterView m_PetMeterView;
+
+    [Header("Interaction Text")]
+    [SerializeField] private CanvasGroup m_interactionCanvasGroup;
+    [SerializeField] private TextMeshProUGUI m_interactionText;
+
 
 
     public void SetLocalPlayerCharacter(PlayerCharacter localPlayerCharacter)
@@ -87,6 +93,19 @@ public class PlayerHUDCanvas : MonoBehaviour
         m_levelNumber.text = number;
         m_levelName.text = name;
         m_levelObjective.text = objective;
+    }
+
+    public void ShowInteractionPanel(string interactionText)
+    {
+        if (string.IsNullOrEmpty(interactionText)) return;
+
+        m_interactionText.text = interactionText;
+        m_interactionCanvasGroup.DOFade(1, 0.2f);
+    }
+
+    public void HideInteractionPanel()
+    {
+        m_interactionCanvasGroup.DOFade(0, 0.2f);
     }
 
     public void Hide()
