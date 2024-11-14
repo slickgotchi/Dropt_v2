@@ -204,7 +204,7 @@ public class PlayerController : NetworkBehaviour
 
         // Temporarily set damping to zero for instant teleport
         var framingTransposer = m_virtualCamera.GetCinemachineComponent<Cinemachine.CinemachineFramingTransposer>();
-        Debug.Log("transposer: " + framingTransposer);
+        //Debug.Log("transposer: " + framingTransposer);
         float originalDamping = framingTransposer.m_XDamping; // Store original damping
         framingTransposer.m_XDamping = 0;
         framingTransposer.m_YDamping = 0;
