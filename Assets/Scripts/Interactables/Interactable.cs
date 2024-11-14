@@ -18,14 +18,18 @@ public class Interactable : NetworkBehaviour
     }
 
     public InteractableType interactableType = InteractableType.Press;
-    public GameObject PopupCanvasPrefab;
-    public Vector3 PopupCanvasOffset;
+    //public GameObject PopupCanvasPrefab;
+    //public Vector3 PopupCanvasOffset;
     public bool isDisablePlayerInputWhileActive;
 
-    private GameObject m_popupCanvas;
+    //private GameObject m_popupCanvas;
     private Slider m_holdSlider;
     private Animator m_popupAnimator;
     private bool m_isPopupVisible = false;
+
+    protected bool m_isOpen = false;
+
+    public string InteractionText = "";
 
     [HideInInspector] public Status status;
     [HideInInspector] public ulong playerNetworkObjectId;
@@ -40,6 +44,7 @@ public class Interactable : NetworkBehaviour
     private PlayerPrediction m_localPlayerPrediction;
     private PlayerInput m_localPlayerInput;
     private InputAction m_interactAction;
+    private InputAction m_interactUIAction;
 
     // float to validate distance to interactable
     private float k_validateInteractionDistance = 3f;
@@ -53,7 +58,7 @@ public class Interactable : NetworkBehaviour
     public virtual void OnHoldFinishInteraction() { }
 
     public virtual void OnPressOpenInteraction() { }
-    //public virtual void OnPressCloseInteraction() { }
+    public virtual void OnPressCloseInteraction() { }
 
     private float k_pressInterval = 0.5f;
     private float m_pressTimer = 0.5f;
@@ -61,17 +66,6 @@ public class Interactable : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-
-        if (PopupCanvasPrefab != null && IsClient)
-        {
-            m_popupCanvas = Instantiate(PopupCanvasPrefab);
-            m_popupCanvas.transform.position = transform.position + PopupCanvasOffset;
-
-            m_holdSlider = m_popupCanvas.GetComponentInChildren<Slider>();
-            if (m_holdSlider != null) m_holdSlider.value = 0;
-
-            m_popupAnimator = m_popupCanvas.GetComponentInChildren<Animator>();
-        }
 
         m_holdTimer = -0.1f;
         m_holdCooldownTimer = 0f;
@@ -92,21 +86,47 @@ public class Interactable : NetworkBehaviour
 
     private void OnTriggerEnter2D(Collider2D collider)
     {
-        if (!IsClient) return;
-        if (!collider.HasComponent<CameraFollowerAndPlayerInteractor>()) return;
+        var cameraFollower = collider.GetComponent<CameraFollowerAndPlayerInteractor>();
+        if (cameraFollower == null) return;
+
+        var player = cameraFollower.Player;
+        if (player == null) return;
+
+        var playerNetworkObject = player.GetComponent<NetworkObject>();
+        if (playerNetworkObject == null || !playerNetworkObject.IsLocalPlayer) return;
+
         status = Status.Active;
-        playerNetworkObjectId = collider.GetComponent<CameraFollowerAndPlayerInteractor>()
-                .Player.GetComponent<NetworkObject>().NetworkObjectId;
+
         if (!IsServer)
         {
             SetPlayerNetworkObjectIdServerRpc(playerNetworkObjectId);
         }
         OnTriggerStartInteraction();
 
-        if (m_popupCanvas != null)
+        // display players press/hold canvas
+        var interactHoldCanvas = player.transform.Find("InteractHoldCanvas");
+        var interactPressCanvas = player.transform.Find("InteractPressCanvas");
+        var isLocalPlayer = player.GetComponent<NetworkObject>().IsLocalPlayer;
+
+        if (interactableType == InteractableType.Hold && interactHoldCanvas != null && isLocalPlayer)
         {
-            if (m_popupAnimator != null) m_popupAnimator.Play("Show");
+            m_popupAnimator = interactHoldCanvas.GetComponentInChildren<Animator>();
+            m_holdSlider = interactHoldCanvas.GetComponentInChildren<Slider>();
+            m_holdSlider.value = 0;
         }
+        else if (interactableType == InteractableType.Press && interactPressCanvas != null && isLocalPlayer)
+        {
+            m_popupAnimator = interactPressCanvas.GetComponentInChildren<Animator>();
+        }
+
+        if (m_popupAnimator == null)
+        {
+            Debug.LogError("A popup animator has not been assigned to an interactable");
+            return;
+        }
+
+        m_popupAnimator.Play("Show");
+        PlayerHUDCanvas.Singleton.ShowInteractionPanel(InteractionText);
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -114,8 +134,6 @@ public class Interactable : NetworkBehaviour
     {
         playerNetworkObjectId = playerObjectId;
     }
-
-    private bool m_isOpen = false;
 
     private void Update()
     {
@@ -129,15 +147,29 @@ public class Interactable : NetworkBehaviour
 
         if (interactableType == InteractableType.Press)
         {
-            if (m_interactAction.IsPressed() && m_pressTimer < 0
+            if ((m_interactAction.IsPressed() || m_interactUIAction.IsPressed()) && m_pressTimer < 0
                 && !PlayerInputMapSwitcher.Instance.IsSwitchTooRecent())
             {
                 m_pressTimer = k_pressInterval;
 
-                OnPressOpenInteraction();
-                if (m_popupAnimator != null) m_popupAnimator.Play("Hide");
+                if (!m_isOpen)
+                {
+                    OnPressOpenInteraction();
+                    if (m_popupAnimator != null) m_popupAnimator.Play("Hide");
+                    PlayerHUDCanvas.Singleton.HideInteractionPanel();
+                }
+                else
+                {
+                    OnPressCloseInteraction();
+                    if (m_popupAnimator != null) m_popupAnimator.Play("Show");
+                    PlayerHUDCanvas.Singleton.ShowInteractionPanel(InteractionText);
+                }
+
+                m_isOpen = !m_isOpen;
             }
         }
+
+
 
         else if (interactableType == InteractableType.Hold)
         {
@@ -170,9 +202,17 @@ public class Interactable : NetworkBehaviour
                 m_holdTimer = -0.1f;
 
                 if (m_popupAnimator != null) m_popupAnimator.Play("Hide");
+                PlayerHUDCanvas.Singleton.HideInteractionPanel();
             }
         }
 
+    }
+
+    public void ExternalCanvasClosed()
+    {
+        OnPressCloseInteraction();
+        if (m_popupAnimator != null) m_popupAnimator.Play("Show");
+        PlayerHUDCanvas.Singleton.ShowInteractionPanel(InteractionText);
     }
 
     protected void TryGetLocalPlayerPrediction()
@@ -187,40 +227,34 @@ public class Interactable : NetworkBehaviour
             {
                 m_localPlayerPrediction = playerPrediction;
                 m_localPlayerInput = playerPrediction.GetComponent<PlayerInput>();
-                m_interactAction = m_localPlayerInput.actions["Generic_Interact"];
+                m_interactAction = m_localPlayerInput.actions["InGame/Generic_Interact"];
+                m_interactUIAction = m_localPlayerInput.actions["InUI/Select"];
             }
         }
     }
 
     private void OnTriggerExit2D(Collider2D collider)
     {
-        if (!collider.HasComponent<CameraFollowerAndPlayerInteractor>()) return;
+        var cameraFollower = collider.GetComponent<CameraFollowerAndPlayerInteractor>();
+        if (cameraFollower == null) return;
+
+        var player = cameraFollower.Player;
+        if (player == null) return;
+
+        var playerNetworkObject = player.GetComponent<NetworkObject>();
+        if (playerNetworkObject == null || !playerNetworkObject.IsLocalPlayer) return;
 
         status = Status.Inactive;
 
         playerNetworkObjectId = 0;
 
+        m_isOpen = false;
+
         OnTriggerFinishInteraction();
 
-        if (m_popupCanvas != null)
-        {
-            if (m_popupAnimator != null) m_popupAnimator.Play("Hide");
-        }
+        if (m_popupAnimator != null) m_popupAnimator.Play("Hide");
+        PlayerHUDCanvas.Singleton.HideInteractionPanel();
     }
-
-    //public bool IsPlayerInRange(ulong playerNetworkObjectId)
-    //{
-    //    var player = NetworkManager.SpawnManager
-
-    //    var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
-    //    foreach (var player in players)
-    //    {
-    //        var dist = math.distance(transform.position, player.transform.position);
-    //        if (dist < k_validateInteractionDistance) return true;
-    //    }
-
-    //    return false;
-    //}
 
     public ulong GetLocalPlayerNetworkObjectId()
     {
