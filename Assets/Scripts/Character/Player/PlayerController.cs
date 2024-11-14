@@ -233,11 +233,10 @@ public class PlayerController : NetworkBehaviour
             m_isDoReset = false;
 
             var framingTransposer = m_virtualCamera.GetCinemachineComponent<Cinemachine.CinemachineFramingTransposer>();
-            Debug.Log("transposer: " + framingTransposer);
             float originalDamping = framingTransposer.m_XDamping; // Store original damping
             framingTransposer.m_XDamping = 1;
             framingTransposer.m_YDamping = 1;
-            framingTransposer.m_ZDamping = 1;
+            framingTransposer.m_ZDamping = 0;
         }
     }
 

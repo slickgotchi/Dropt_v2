@@ -233,7 +233,7 @@ namespace GotchiHub
         {
             // Unsubscribe from events
             VisitAavegotchiButton.onClick.RemoveListener(HandleOnClick_VisitAavegotchiButton);
-            m_gotchiDataManager.onFetchGotchiDataSuccess -= HandleOnFetchGotchiDataSuccess;
+            if (m_gotchiDataManager != null) m_gotchiDataManager.onFetchGotchiDataSuccess -= HandleOnFetchGotchiDataSuccess;
         }
 
         public override void OnShowCanvas()

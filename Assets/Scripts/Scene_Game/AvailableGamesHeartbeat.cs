@@ -12,7 +12,7 @@ public class AvailableGamesHeartbeat : MonoBehaviour
     private float k_heartbeatInterval = 2f;
     private float m_heartbeatTimer = 0f;
 
-    private string getGamesUri = "https://dmanager.playdropt.io/getstatus";
+    private string getGamesUri = "https://manager.playdropt.io/getstatus";
 
     public List<AvailableGame> AvailableGames = new List<AvailableGame>();
 
