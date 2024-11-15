@@ -61,7 +61,7 @@ public class CodeInjectorCanvas : DroptCanvas
     {
         CodeInjector.Instance.UpdateVariablesData();
         HideCanvas();
-        interactable.ExternalCanvasClosed();
+        if (interactable != null) interactable.ExternalCanvasClosed();
     }
 
     public void ClickOnReset()
