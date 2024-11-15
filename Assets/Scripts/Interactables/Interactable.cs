@@ -97,10 +97,12 @@ public class Interactable : NetworkBehaviour
 
         status = Status.Active;
 
-        if (!IsServer)
+        if (IsClient)
         {
+            playerNetworkObjectId = playerNetworkObject.NetworkObjectId;
             SetPlayerNetworkObjectIdServerRpc(playerNetworkObjectId);
         }
+
         OnTriggerStartInteraction();
 
         // display players press/hold canvas
