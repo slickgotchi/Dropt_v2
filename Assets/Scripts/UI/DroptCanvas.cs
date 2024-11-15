@@ -18,6 +18,7 @@ public class DroptCanvas : MonoBehaviour
     protected virtual void Update()
     {
         TryGetLocalPlayerInput();
+        OnUpdate();
     }
 
     public void ShowCanvas()
@@ -51,6 +52,7 @@ public class DroptCanvas : MonoBehaviour
 
     public virtual void OnShowCanvas() { }
     public virtual void OnHideCanvas() { }
+    public virtual void OnUpdate() { }
 
     protected void TryGetLocalPlayerInput()
     {
