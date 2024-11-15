@@ -39,16 +39,30 @@ public partial class Wearable
 
     public static float GetRarityMultiplier(RarityEnum rarity)
     {
+        //float multiplier = 1f;
+        //switch (rarity)
+        //{
+        //    case RarityEnum.NA: multiplier = 1.00f; break;
+        //    case RarityEnum.Common: multiplier = 1.15f; break;
+        //    case RarityEnum.Uncommon: multiplier = 1.36f; break;
+        //    case RarityEnum.Rare: multiplier = 1.64f; break;
+        //    case RarityEnum.Legendary: multiplier = 1.99f; break;
+        //    case RarityEnum.Mythical: multiplier = 2.43f; break;
+        //    case RarityEnum.Godlike: multiplier = 3.00f; break;
+        //    default: break;
+        //}
+        //return multiplier;
+
         float multiplier = 1f;
         switch (rarity)
         {
             case RarityEnum.NA: multiplier = 1.00f; break;
-            case RarityEnum.Common: multiplier = 1.15f; break;
-            case RarityEnum.Uncommon: multiplier = 1.36f; break;
-            case RarityEnum.Rare: multiplier = 1.64f; break;
-            case RarityEnum.Legendary: multiplier = 1.99f; break;
-            case RarityEnum.Mythical: multiplier = 2.43f; break;
-            case RarityEnum.Godlike: multiplier = 3.00f; break;
+            case RarityEnum.Common: multiplier = 1.08f; break;
+            case RarityEnum.Uncommon: multiplier = 1.18f; break;
+            case RarityEnum.Rare: multiplier = 1.32f; break;
+            case RarityEnum.Legendary: multiplier = 1.50f; break;
+            case RarityEnum.Mythical: multiplier = 1.72f; break;
+            case RarityEnum.Godlike: multiplier = 2.00f; break;
             default: break;
         }
         return multiplier;
