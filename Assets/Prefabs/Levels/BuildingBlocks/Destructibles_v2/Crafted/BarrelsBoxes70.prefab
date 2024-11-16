@@ -107,7 +107,7 @@ MonoBehaviour:
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 4e80c56d9192be347b263e81a6cb9588, type: 3}
     Chance: 0.8
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: cba84e96ba2fb464084b97bfa2b3cc99, type: 3}
-    Chance: 0.4
+    Chance: 0
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 72d0a5c4b96e9654dbad15c0692e6189, type: 3}
     Chance: 0.8
   - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 46523ce6f31b52340966873be83ac35a, type: 3}
@@ -129,4 +129,6 @@ MonoBehaviour:
   spawnCondition: 0
   elapsedTime: 0
   destroyAllWithSpawnerId: -1
+  spawnTimeAfterDestroyAll: 0
   touchTriggerWithSpawnerId: -1
+  spawnTimeAfterTrigger: 0
