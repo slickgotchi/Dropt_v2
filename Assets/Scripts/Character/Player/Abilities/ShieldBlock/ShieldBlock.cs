@@ -141,7 +141,7 @@ public class ShieldBlock : PlayerAbility
             return;
         }
 
-        PlayerHUDCanvas.Singleton.SetShieldBarProgress(hand, progress);
+        PlayerHUDCanvas.Instance.SetShieldBarProgress(hand, progress);
     }
 
     [ClientRpc]

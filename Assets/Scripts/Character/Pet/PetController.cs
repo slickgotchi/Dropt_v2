@@ -69,7 +69,7 @@ public class PetController : NetworkBehaviour
     {
         if (IsOwnerOfPet(id))
         {
-            PlayerHUDCanvas.Singleton.ActivatePetMeter(m_petView.m_downSprite);
+            PlayerHUDCanvas.Instance.ActivatePetMeter(m_petView.m_downSprite);
         }
     }
 
@@ -282,7 +282,7 @@ public class PetController : NetworkBehaviour
     {
         if (IsOwnerOfPet(id))
         {
-            PlayerHUDCanvas.Singleton.SetPetMeterProgress(progress);
+            PlayerHUDCanvas.Instance.SetPetMeterProgress(progress);
         }
     }
 

@@ -39,7 +39,7 @@ public class JoostInteractable : Interactable
         //Debug.Log(m_spriteRenderer.sprite);
     }
 
-    public override void OnTriggerStartInteraction()
+    public override void OnTriggerEnter2DInteraction()
     {
         JoostInteractionCanvas.Instance.Container.SetActive(true);
         JoostInteractionCanvas.Instance.Init(m_name, m_description, m_cost.ToString());
@@ -54,7 +54,7 @@ public class JoostInteractable : Interactable
         }
     }
 
-    public override void OnTriggerFinishInteraction()
+    public override void OnTriggerExit2DInteraction()
     {
         JoostInteractionCanvas.Instance.Container.SetActive(false);
     }

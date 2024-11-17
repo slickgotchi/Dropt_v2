@@ -1,17 +1,42 @@
+using UnityEngine;
+
 public class CodeInjectorLaptop : Interactable
 {
-    public override void OnPressOpenInteraction()
+    public override void OnNetworkSpawn()
     {
-        base.OnPressOpenInteraction();
-
-        CodeInjectorCanvas.Instance.interactable = GetComponent<Interactable>();
-        CodeInjectorCanvas.Instance.ShowCanvas();
+        base.OnNetworkSpawn();
     }
 
-    public override void OnPressCloseInteraction()
+    public override void OnInteractPress()
     {
-        base.OnPressCloseInteraction();
+        base.OnInteractPress();
 
-        CodeInjectorCanvas.Instance.HideCanvas();
+        // set our interactable
+        CodeInjectorCanvas.Instance.interactable = GetComponent<Interactable>();
+
+        if (CodeInjectorCanvas.Instance.isCanvasOpen)
+        {
+            CodeInjectorCanvas.Instance.HideCanvas();
+            PlayerHUDCanvas.Instance.ShowPlayerInteractionCanvii(interactionText, interactableType);
+        }
+        else
+        {
+            CodeInjectorCanvas.Instance.ShowCanvas();
+            PlayerHUDCanvas.Instance.HidePlayerInteractionCanvii(interactableType);
+        }
+    }
+
+    public override void OnTriggerEnter2DInteraction()
+    {
+        base.OnTriggerEnter2DInteraction();
+
+        PlayerHUDCanvas.Instance.ShowPlayerInteractionCanvii(interactionText, interactableType);
+    }
+
+    public override void OnTriggerExit2DInteraction()
+    {
+        base.OnTriggerExit2DInteraction();
+
+        PlayerHUDCanvas.Instance.HidePlayerInteractionCanvii(interactableType);
     }
 }

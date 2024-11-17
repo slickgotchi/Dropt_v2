@@ -2721,8 +2721,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1029858158078634610}
   - component: {fileID: 5182705293768602466}
-  - component: {fileID: 3628672298628451641}
-  - component: {fileID: 4907382468427885464}
   m_Layer: 5
   m_Name: Panel
   m_TagString: Untagged
@@ -2759,39 +2757,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4117963415177809090}
   m_CullTransparentMesh: 0
---- !u!225 &3628672298628451641
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4117963415177809090}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 1
-  m_BlocksRaycasts: 0
-  m_IgnoreParentGroups: 0
---- !u!95 &4907382468427885464
-Animator:
-  serializedVersion: 5
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4117963415177809090}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 62b8011547f389344ba48f87b2ada51c, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 2
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &4269225132579691908
 GameObject:
   m_ObjectHideFlags: 0
@@ -3197,6 +3162,7 @@ GameObject:
   - component: {fileID: 4380377416931223581}
   - component: {fileID: 4380377416931242279}
   - component: {fileID: 5450475273810601978}
+  - component: {fileID: 6640172091085676229}
   m_Layer: 5
   m_Name: InteractHoldCanvas
   m_TagString: Untagged
@@ -3352,6 +3318,18 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!225 &6640172091085676229
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4380377416942035907}
+  m_Enabled: 1
+  m_Alpha: 0
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!1 &4380377416942151195
 GameObject:
   m_ObjectHideFlags: 0
@@ -10135,8 +10113,6 @@ GameObject:
   m_Component:
   - component: {fileID: 5579192323546284959}
   - component: {fileID: 6355505551806347063}
-  - component: {fileID: 5175248002019524624}
-  - component: {fileID: 2093873503872612463}
   m_Layer: 5
   m_Name: Panel
   m_TagString: Untagged
@@ -10174,39 +10150,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7221573741266314456}
   m_CullTransparentMesh: 0
---- !u!225 &5175248002019524624
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7221573741266314456}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 1
-  m_BlocksRaycasts: 0
-  m_IgnoreParentGroups: 0
---- !u!95 &2093873503872612463
-Animator:
-  serializedVersion: 5
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7221573741266314456}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 62b8011547f389344ba48f87b2ada51c, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 2
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &7274103268871104239
 GameObject:
   m_ObjectHideFlags: 0
@@ -11295,6 +11238,7 @@ GameObject:
   - component: {fileID: 997490723954453093}
   - component: {fileID: 1716683545632946845}
   - component: {fileID: 5923889135953442729}
+  - component: {fileID: 1996666530408579706}
   m_Layer: 5
   m_Name: InteractPressCanvas
   m_TagString: Untagged
@@ -11450,6 +11394,18 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!225 &1996666530408579706
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8898404042219108311}
+  m_Enabled: 1
+  m_Alpha: 0
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!1 &9192806298503223172
 GameObject:
   m_ObjectHideFlags: 0

@@ -3,25 +3,36 @@ using System.Collections.Generic;
 using UnityEngine;
 using PixelCrushers.DialogueSystem.Wrappers;
 
-public class InteractableBarkNPC : InteractableNPC
+public class InteractableBarkNPC : Interactable
 {
-    public override void OnPressOpenInteraction()
-    {
-        base.OnPressOpenInteraction();
+    private bool m_isBarkOpen;
 
-        GetComponent<DialogueSystemTrigger>().Fire(transform);
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        m_isBarkOpen = false;
     }
 
-    public override void OnPressCloseInteraction()
+    public override void OnInteractPress()
     {
-        base.OnPressCloseInteraction();
+        base.OnInteractPress();
 
-        GetComponentInChildren<StandardBarkUI>().Hide();
+        if (m_isBarkOpen)
+        {
+            GetComponentInChildren<StandardBarkUI>().Hide();
+        }
+        else
+        {
+            GetComponent<DialogueSystemTrigger>().Fire(transform);
+        }
+
+        m_isBarkOpen = !m_isBarkOpen;
     }
 
-    public override void OnTriggerFinishInteraction()
+    public override void OnTriggerExit2DInteraction()
     {
-        base.OnTriggerFinishInteraction();
+        base.OnTriggerExit2DInteraction();
 
         GetComponentInChildren<StandardBarkUI>().Hide();
     }

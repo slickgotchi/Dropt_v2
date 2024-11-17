@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Unity.Netcode;
+using DG.Tweening;
 
 public class DroptCanvas : MonoBehaviour
 {
@@ -10,37 +11,42 @@ public class DroptCanvas : MonoBehaviour
 
     protected PlayerInput m_localPlayerInput;
 
+    public bool isCanvasOpen;
+
     private void Awake()
     {
-        HideCanvas();
+        InstaHideCanvas();
     }
 
     protected virtual void Update()
     {
         TryGetLocalPlayerInput();
         OnUpdate();
-
-        // check for Q input which closes canvases
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            HideCanvas();
-        }
     }
 
-    public void ShowCanvas()
+    public virtual void ShowCanvas()
     {
-        m_container.SetActive(true);
         m_canvasGroup.blocksRaycasts = true;
+        m_canvasGroup.DOFade(1, 0.2f);
         PlayerInputMapSwitcher.Instance.SwitchToInUI();
         OnShowCanvas();
+        isCanvasOpen = true;
     }
 
-    public void HideCanvas()
+    public void InstaHideCanvas()
+    {
+        m_canvasGroup.alpha = 0;
+        PlayerInputMapSwitcher.Instance.SwitchToInGame();
+        isCanvasOpen = false;
+    }
+
+    public virtual void HideCanvas()
     {
         OnHideCanvas();
-        m_container.SetActive(false);
         m_canvasGroup.blocksRaycasts = false;
+        m_canvasGroup.DOFade(0, 0.2f);
         PlayerInputMapSwitcher.Instance.SwitchToInGame();
+        isCanvasOpen = false;
     }
 
     public bool IsActive()

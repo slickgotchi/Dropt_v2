@@ -8,7 +8,7 @@ public class PlayerHUDCanvas : MonoBehaviour
 {
     private static PlayerHUDCanvas _singleton;
 
-    public static PlayerHUDCanvas Singleton
+    public static PlayerHUDCanvas Instance
     {
         get
         {
@@ -23,6 +23,8 @@ public class PlayerHUDCanvas : MonoBehaviour
             return _singleton;
         }
     }
+
+
 
     void Awake()
     {
@@ -77,15 +79,36 @@ public class PlayerHUDCanvas : MonoBehaviour
     [SerializeField] private PetMeterView m_PetMeterView;
 
     [Header("Interaction Text")]
-    [SerializeField] private CanvasGroup m_interactionCanvasGroup;
-    [SerializeField] private TextMeshProUGUI m_interactionText;
+    [SerializeField] private CanvasGroup m_interactionDescriptionCanvasGroup;
+    [SerializeField] private TextMeshProUGUI m_interactionDescriptionText;
 
-
+    // canvas groups for 
+    private CanvasGroup m_localPlayerInteractPressGroup;
+    private CanvasGroup m_localPlayerInteractHoldGroup;
+    private Slider m_localPlayerInteractHoldSlider;
 
     public void SetLocalPlayerCharacter(PlayerCharacter localPlayerCharacter)
     {
         m_localPlayerCharacter = localPlayerCharacter;
         m_localPlayerDungeonData = localPlayerCharacter.GetComponent<PlayerOffchainData>();
+
+        // setup the interact press/hold groups
+        m_localPlayerInteractPressGroup = localPlayerCharacter
+            .transform.Find("InteractPressCanvas").GetComponent<CanvasGroup>();
+
+        m_localPlayerInteractHoldGroup = localPlayerCharacter
+            .transform.Find("InteractHoldCanvas").GetComponent<CanvasGroup>();
+
+        m_localPlayerInteractHoldSlider = m_localPlayerInteractHoldGroup
+            .GetComponentInChildren<Slider>();
+    }
+
+    public void SetInteractHoldSliderValue(float value)
+    {
+        if (m_localPlayerInteractHoldSlider != null)
+        {
+            m_localPlayerInteractHoldSlider.value = value;
+        }
     }
 
     public void SetLevelNumberNameObjective(string number, string name, string objective)
@@ -95,17 +118,52 @@ public class PlayerHUDCanvas : MonoBehaviour
         m_levelObjective.text = objective;
     }
 
-    public void ShowInteractionPanel(string interactionText)
+    public void ShowPlayerInteractionCanvii(string interactionText,
+        Interactable.InteractableType interactableType)
     {
         if (string.IsNullOrEmpty(interactionText)) return;
 
-        m_interactionText.text = interactionText;
-        m_interactionCanvasGroup.DOFade(1, 0.2f);
+        m_interactionDescriptionText.text = interactionText;
+        m_interactionDescriptionCanvasGroup.DOFade(1, 0.2f);
+
+        if (m_localPlayerInteractPressGroup == null || m_localPlayerInteractHoldGroup == null)
+        {
+            Debug.LogWarning("No valid player press/hold groups");
+            return;
+        }
+
+        if (interactableType == Interactable.InteractableType.Press)
+        {
+            m_localPlayerInteractHoldGroup.alpha = 0f;
+            m_localPlayerInteractPressGroup.DOFade(1, 0.2f);
+        }
+        else
+        {
+            m_localPlayerInteractHoldGroup.DOFade(1, 0.2f);
+            m_localPlayerInteractPressGroup.alpha = 0;
+        }
     }
 
-    public void HideInteractionPanel()
+    public void HidePlayerInteractionCanvii(Interactable.InteractableType interactableType)
     {
-        m_interactionCanvasGroup.DOFade(0, 0.2f);
+        m_interactionDescriptionCanvasGroup.DOFade(0, 0.2f);
+
+        if (m_localPlayerInteractPressGroup == null || m_localPlayerInteractHoldGroup == null)
+        {
+            Debug.LogWarning("No valid player press/hold groups");
+            return;
+        }
+
+        if (interactableType == Interactable.InteractableType.Press)
+        {
+            m_localPlayerInteractHoldGroup.alpha = 0f;
+            m_localPlayerInteractPressGroup.DOFade(0, 0.2f);
+        }
+        else
+        {
+            m_localPlayerInteractPressGroup.alpha = 0;
+            m_localPlayerInteractHoldGroup.DOFade(0, 0.2f);
+        }
     }
 
     public void Hide()

@@ -147,7 +147,7 @@ public class PlayerController : NetworkBehaviour
             // setup player hud
             if (!m_isPlayerHUDInitialized && GetComponent<NetworkCharacter>() != null)
             {
-                PlayerHUDCanvas.Singleton.SetLocalPlayerCharacter(GetComponent<PlayerCharacter>());
+                PlayerHUDCanvas.Instance.SetLocalPlayerCharacter(GetComponent<PlayerCharacter>());
             }
 
             // Set camera to follow player

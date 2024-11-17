@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Unity.Mathematics;
 using UnityEngine.InputSystem;
+using PixelCrushers.DialogueSystem;
 
 public class Interactable : NetworkBehaviour
 {
@@ -18,18 +19,8 @@ public class Interactable : NetworkBehaviour
     }
 
     public InteractableType interactableType = InteractableType.Press;
-    //public GameObject PopupCanvasPrefab;
-    //public Vector3 PopupCanvasOffset;
     public bool isDisablePlayerInputWhileActive;
-
-    //private GameObject m_popupCanvas;
-    private Slider m_holdSlider;
-    private Animator m_popupAnimator;
-    private bool m_isPopupVisible = false;
-
-    protected bool m_isOpen = false;
-
-    public string InteractionText = "";
+    public string interactionText = "";
 
     [HideInInspector] public Status status;
     [HideInInspector] public ulong playerNetworkObjectId;
@@ -49,16 +40,15 @@ public class Interactable : NetworkBehaviour
     // float to validate distance to interactable
     private float k_validateInteractionDistance = 3f;
 
-    public virtual void OnTriggerStartInteraction() { }
+    public virtual void OnTriggerEnter2DInteraction() { }
     public virtual void OnTriggerUpdateInteraction() { }
-    public virtual void OnTriggerFinishInteraction() { }
+    public virtual void OnTriggerExit2DInteraction() { }
 
-    public virtual void OnHoldStartInteraction() { }
-    public virtual void OnHoldUpdateInteraction(float alpha) { }
-    public virtual void OnHoldFinishInteraction() { }
+    public virtual void OnInteractHoldStart() { }
+    public virtual void OnInteractHoldUpdate(float alpha) { }
+    public virtual void OnInteractHoldFinish() { }
 
-    public virtual void OnPressOpenInteraction() { }
-    public virtual void OnPressCloseInteraction() { }
+    public virtual void OnInteractPress() { }
 
     private float k_pressInterval = 0.5f;
     private float m_pressTimer = 0.5f;
@@ -103,32 +93,14 @@ public class Interactable : NetworkBehaviour
             SetPlayerNetworkObjectIdServerRpc(playerNetworkObjectId);
         }
 
-        OnTriggerStartInteraction();
+        OnTriggerEnter2DInteraction();
 
-        // display players press/hold canvas
-        var interactHoldCanvas = player.transform.Find("InteractHoldCanvas");
-        var interactPressCanvas = player.transform.Find("InteractPressCanvas");
+        // reset player hud hold slider
         var isLocalPlayer = player.GetComponent<NetworkObject>().IsLocalPlayer;
-
-        if (interactableType == InteractableType.Hold && interactHoldCanvas != null && isLocalPlayer)
+        if (interactableType == InteractableType.Hold && isLocalPlayer)
         {
-            m_popupAnimator = interactHoldCanvas.GetComponentInChildren<Animator>();
-            m_holdSlider = interactHoldCanvas.GetComponentInChildren<Slider>();
-            m_holdSlider.value = 0;
+            PlayerHUDCanvas.Instance.SetInteractHoldSliderValue(0);
         }
-        else if (interactableType == InteractableType.Press && interactPressCanvas != null && isLocalPlayer)
-        {
-            m_popupAnimator = interactPressCanvas.GetComponentInChildren<Animator>();
-        }
-
-        if (m_popupAnimator == null)
-        {
-            Debug.LogError("A popup animator has not been assigned to an interactable");
-            return;
-        }
-
-        m_popupAnimator.Play("Show");
-        PlayerHUDCanvas.Singleton.ShowInteractionPanel(InteractionText);
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -154,24 +126,9 @@ public class Interactable : NetworkBehaviour
             {
                 m_pressTimer = k_pressInterval;
 
-                if (!m_isOpen)
-                {
-                    OnPressOpenInteraction();
-                    if (m_popupAnimator != null) m_popupAnimator.Play("Hide");
-                    PlayerHUDCanvas.Singleton.HideInteractionPanel();
-                }
-                else
-                {
-                    OnPressCloseInteraction();
-                    if (m_popupAnimator != null) m_popupAnimator.Play("Show");
-                    PlayerHUDCanvas.Singleton.ShowInteractionPanel(InteractionText);
-                }
-
-                m_isOpen = !m_isOpen;
+                OnInteractPress();
             }
         }
-
-
 
         else if (interactableType == InteractableType.Hold)
         {
@@ -182,7 +139,7 @@ public class Interactable : NetworkBehaviour
             // check for first time
             if (m_holdCooldownTimer <= 0 && m_holdTimer <= 0)
             {
-                OnHoldStartInteraction();
+                OnInteractHoldStart();
             }
 
             // update if f is pressed
@@ -190,31 +147,22 @@ public class Interactable : NetworkBehaviour
             if (m_localPlayerPrediction.IsInteracting) m_holdTimer += Time.deltaTime;
             else m_holdTimer = 0f;
             var alpha = m_holdTimer / k_holdDuration;
-            OnHoldUpdateInteraction(alpha);
+            OnInteractHoldUpdate(alpha);
 
             // update sliderslider
-            if (m_holdSlider != null) m_holdSlider.value = m_holdTimer / k_holdDuration;
+            //if (m_holdSlider != null) m_holdSlider.value = m_holdTimer / k_holdDuration;
+            PlayerHUDCanvas.Instance.SetInteractHoldSliderValue(m_holdTimer / k_holdDuration);
 
             // check if hold complete
             if (m_holdTimer > k_holdDuration)
             {
                 m_holdCooldownTimer = k_holdCooldownDuration;
-                OnHoldFinishInteraction();
+                OnInteractHoldFinish();
 
                 m_holdTimer = -0.1f;
-
-                if (m_popupAnimator != null) m_popupAnimator.Play("Hide");
-                PlayerHUDCanvas.Singleton.HideInteractionPanel();
             }
         }
 
-    }
-
-    public void ExternalCanvasClosed()
-    {
-        OnPressCloseInteraction();
-        if (m_popupAnimator != null) m_popupAnimator.Play("Show");
-        PlayerHUDCanvas.Singleton.ShowInteractionPanel(InteractionText);
     }
 
     protected void TryGetLocalPlayerPrediction()
@@ -250,12 +198,7 @@ public class Interactable : NetworkBehaviour
 
         playerNetworkObjectId = 0;
 
-        m_isOpen = false;
-
-        OnTriggerFinishInteraction();
-
-        if (m_popupAnimator != null) m_popupAnimator.Play("Hide");
-        PlayerHUDCanvas.Singleton.HideInteractionPanel();
+        OnTriggerExit2DInteraction();
     }
 
     public ulong GetLocalPlayerNetworkObjectId()
