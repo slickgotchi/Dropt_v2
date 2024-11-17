@@ -11970,6 +11970,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   levelMusic: {fileID: 0}
   isEssenceDepleting: 1
+  objective: Find a hole to descend
 --- !u!114 &5186180774759570898
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -22645,7 +22646,7 @@ GameObject:
   - component: {fileID: 7132679766342115797}
   - component: {fileID: 7706608997733844458}
   m_Layer: 0
-  m_Name: 03_GLTR
+  m_Name: 03_Dust
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -22667,7 +22668,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -491.62, y: -278.09}
+  m_AnchoredPosition: {x: -491.38, y: -277.58}
   m_SizeDelta: {x: 300, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7132679766342115797
@@ -22698,7 +22699,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Geodes will drop GLTR orbs which track your score in dungeons.
+  m_text: Geodes and enemies will drop DUST which can be used later for player upgrades.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: ab305ece792064d47b813980fae95512, type: 2}
   m_sharedMaterial: {fileID: -8818544379179831580, guid: ab305ece792064d47b813980fae95512, type: 2}
@@ -22902,11 +22903,11 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 3683474903833617445}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -480.01, y: -298.58}
-  m_SizeDelta: {x: 300, y: 100}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 10.670013, y: 11.730011}
+  m_SizeDelta: {x: 655.5876, y: 100}
+  m_Pivot: {x: 0, y: 0}
 --- !u!222 &6342167419810104738
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -22935,7 +22936,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Hit SPACE to dash towards your cursor then use it to cross this water.
+  m_text: "Try dash across this water, hit:\n => SPACE to dash towards cursor or\n
+    => L to dash in movement direction."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: ab305ece792064d47b813980fae95512, type: 2}
   m_sharedMaterial: {fileID: -8818544379179831580, guid: ab305ece792064d47b813980fae95512, type: 2}
@@ -23104,8 +23106,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: This CRAFTED chest contains a weapon schematic. Break it open then equip
-    the weapon with a left or right mouse click.
+  m_text: This CRAFTED chest contains a weapon schematic. Break it open then press
+    F to equip it to your left or right hand.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: ab305ece792064d47b813980fae95512, type: 2}
   m_sharedMaterial: {fileID: -8818544379179831580, guid: ab305ece792064d47b813980fae95512, type: 2}
@@ -25300,8 +25302,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -493.04, y: -288.59}
-  m_SizeDelta: {x: 300, y: 100}
+  m_AnchoredPosition: {x: -494.49, y: -289.4}
+  m_SizeDelta: {x: 401.9546, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &123642773525059312
 CanvasRenderer:
@@ -25331,8 +25333,12 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: There's some INORGANIC geodes here. Use the left and right click to break
-    them with your base attack.
+  m_text: 'Break the INORGANIC geodes ahead with your base attacks:
+
+    => Left
+    click or J for left hand
+
+    => Right click or K for right hand.'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: ab305ece792064d47b813980fae95512, type: 2}
   m_sharedMaterial: {fileID: -8818544379179831580, guid: ab305ece792064d47b813980fae95512, type: 2}
@@ -48807,7 +48813,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8728812716572605501, guid: 4fedda7ea7c1d8a4fa28126bde0450bc, type: 3}
       propertyPath: m_AnimatedTiles.Array.data[16].second.m_AnimationSpeed
-      value: 3.0000002
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 8728812716572605501, guid: 4fedda7ea7c1d8a4fa28126bde0450bc, type: 3}
       propertyPath: m_AnimatedTiles.Array.data[17].second.m_AnimationSpeed
