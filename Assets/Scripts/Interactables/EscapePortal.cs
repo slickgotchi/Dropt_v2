@@ -10,7 +10,7 @@ public class EscapePortal : Interactable
     // to ensure players don't "escape" multiple times for more points
     private List<ulong> escapedNetworkObjectIds = new List<ulong>();
 
-    public override void OnHoldFinishInteraction()
+    public override void OnInteractHoldFinish()
     {
         // ask server if our interacting player can escape
         TryEscapeServerRpc(playerNetworkObjectId);

@@ -21,27 +21,12 @@ public class CodeInjectorCanvas : DroptCanvas
             Destroy(gameObject);
         }
 
-        HideCanvas();
+        InstaHideCanvas();
     }
 
-    private void Update()
+    public override void OnUpdate()
     {
-        base.Update();
-
-        if (IsInputActionSelectPressed())
-        {
-            ClickOnConfirm();
-        }
-    }
-
-    public override void OnShowCanvas()
-    {
-        
-    }
-
-    public override void OnHideCanvas()
-    {
-        
+        base.OnUpdate();
     }
 
     public void UpdateVariables()
@@ -60,8 +45,12 @@ public class CodeInjectorCanvas : DroptCanvas
     public void ClickOnConfirm()
     {
         CodeInjector.Instance.UpdateVariablesData();
-        HideCanvas();
-        if (interactable != null) interactable.ExternalCanvasClosed();
+        CodeInjectorCanvas.Instance.HideCanvas();
+        if (interactable != null)
+        {
+            PlayerHUDCanvas.Instance.ShowPlayerInteractionCanvii(interactable.interactionText,
+                interactable.interactableType);
+        }
     }
 
     public void ClickOnReset()

@@ -20,9 +20,9 @@ public class CGHSTDoor : Interactable
         m_costText.text = m_costToOpenTheDoor.ToString();
     }
 
-    public override void OnHoldFinishInteraction()
+    public override void OnInteractHoldFinish()
     {
-        base.OnHoldFinishInteraction();
+        base.OnInteractHoldFinish();
         TryToOpenTheDoorServerRpc();
     }
 

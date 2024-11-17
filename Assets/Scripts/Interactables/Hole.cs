@@ -7,7 +7,7 @@ public class Hole : Interactable
 {
     public List<GameObject> Levels = new List<GameObject>();
 
-    public override void OnHoldFinishInteraction()
+    public override void OnInteractHoldFinish()
     {
         TryGoToNextLevelServerRpc(playerNetworkObjectId);
     }

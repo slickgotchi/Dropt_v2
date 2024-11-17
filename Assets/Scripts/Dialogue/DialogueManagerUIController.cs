@@ -26,7 +26,7 @@ public class DialogueManagerUIController : MonoBehaviour
 
     public void HideOtherUI()
     {
-        var playerHudCanvas = PlayerHUDCanvas.Singleton;
+        var playerHudCanvas = PlayerHUDCanvas.Instance;
         if (playerHudCanvas != null)
         {
             playerHudCanvas.Hide();
@@ -35,7 +35,7 @@ public class DialogueManagerUIController : MonoBehaviour
 
     public void ShowOtherUI()
     {
-        var playerHudCanvas = PlayerHUDCanvas.Singleton;
+        var playerHudCanvas = PlayerHUDCanvas.Instance;
         if (playerHudCanvas != null)
         {
             playerHudCanvas.Show();

@@ -243,7 +243,7 @@ public class LevelManager : NetworkBehaviour
     [ClientRpc]
     void NumberAndNameLevelClientRpc(string number, string name, string objective)
     {
-        PlayerHUDCanvas.Singleton.SetLevelNumberNameObjective(number, Dropt.Utils.String.ConvertToReadableString(name), objective);
+        PlayerHUDCanvas.Instance.SetLevelNumberNameObjective(number, Dropt.Utils.String.ConvertToReadableString(name), objective);
     }
 
     // 1. Receive GoToNextLevel message from other part of server

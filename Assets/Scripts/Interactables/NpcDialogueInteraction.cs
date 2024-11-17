@@ -61,9 +61,9 @@ namespace Interactables
             }
         }
 
-        public override void OnTriggerStartInteraction()
+        public override void OnTriggerEnter2DInteraction()
         {
-            base.OnTriggerStartInteraction();
+            base.OnTriggerEnter2DInteraction();
             
             m_mover.Stop();
 
