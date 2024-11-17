@@ -19,6 +19,12 @@ public class DroptCanvas : MonoBehaviour
     {
         TryGetLocalPlayerInput();
         OnUpdate();
+
+        // check for Q input which closes canvases
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            HideCanvas();
+        }
     }
 
     public void ShowCanvas()
