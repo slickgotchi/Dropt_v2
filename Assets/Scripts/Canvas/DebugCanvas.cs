@@ -11,15 +11,18 @@ public class DebugCanvas : MonoBehaviour
 
     public GameObject Container;
 
-    public TextMeshProUGUI fpsText;
+    public TextMeshProUGUI localFpsText;
+    public TextMeshProUGUI serverFpsText;
     public TextMeshProUGUI pingText;
-    public TextMeshProUGUI playerCountText;
+    //public TextMeshProUGUI playerCountText;
 
     private float m_fpsSampleTimer = 0;
     private List<float> m_fpsList = new List<float>();
 
     private int m_ping = 0;
-    private List<int> m_pingList = new List<int>();
+    //private List<int> m_pingList = new List<int>();
+
+    private int m_serverFps = 0;
 
     private void Awake()
     {
@@ -33,6 +36,7 @@ public class DebugCanvas : MonoBehaviour
         UpdateFps();
 
         pingText.text = "Ping: " + m_ping.ToString();
+        serverFpsText.text = "Server FPS: " + m_serverFps.ToString();
 
         //playerCountText.text = "Players: " + NetworkStats.Instance.ConnectedPlayers.ToString();
 
@@ -44,12 +48,19 @@ public class DebugCanvas : MonoBehaviour
 
     public void SetPing(int ping)
     {
-        m_pingList.Add(ping);
-        if (m_pingList.Count > 20) m_pingList.RemoveAt(0);
-        var sum = 0;
-        foreach (var p in m_pingList) sum += p;
+        //m_pingList.Add(ping);
+        //if (m_pingList.Count > 20) m_pingList.RemoveAt(0);
+        //var sum = 0;
+        //foreach (var p in m_pingList) sum += p;
 
-        m_ping = sum / m_pingList.Count;
+        //m_ping = sum / m_pingList.Count;
+
+        m_ping = ping;
+    }
+
+    public void SetServerFPS(int serverFPS)
+    {
+        m_serverFps = serverFPS;
     }
 
     void UpdateFps()
@@ -63,7 +74,7 @@ public class DebugCanvas : MonoBehaviour
         m_fpsSampleTimer -= dt;
         if (m_fpsSampleTimer < 0)
         {
-            fpsText.text = "FPS: " + Mathf.Ceil(1 / sum).ToString();
+            localFpsText.text = "FPS: " + Mathf.Ceil(1 / sum).ToString();
             m_fpsSampleTimer += 0.5f;
         }
     }
