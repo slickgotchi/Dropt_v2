@@ -308,7 +308,7 @@ public class PlayerOffchainData : NetworkBehaviour
         if (!IsServer) return;
 
         var postDungeonEctoDelta = isEscaped ? ectoDebitCount_dungeon.Value - ectoDebitStartCount_dungeon.Value + ectoLiveCount_dungeon.Value : ectoDebitCount_dungeon.Value - ectoDungeonStartAmount_offchain.Value;
-        var postDungeonDustDelta = isEscaped ? dustLiveCount_dungeon.Value : 0;
+        var postDungeonDustDelta = isEscaped ? (int)(dustLiveCount_dungeon.Value * CodeInjector.Instance.GetOutputMultiplier()) : 0;
         var postDungeonBombDelta = bombLiveCount_dungeon.Value - bombStartCount_dungeon.Value;
 
         // log wallet deltas

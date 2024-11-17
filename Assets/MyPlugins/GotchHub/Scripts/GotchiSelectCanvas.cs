@@ -233,7 +233,7 @@ namespace GotchiHub
         {
             // Unsubscribe from events
             VisitAavegotchiButton.onClick.RemoveListener(HandleOnClick_VisitAavegotchiButton);
-            m_gotchiDataManager.onFetchGotchiDataSuccess -= HandleOnFetchGotchiDataSuccess;
+            if (m_gotchiDataManager != null) m_gotchiDataManager.onFetchGotchiDataSuccess -= HandleOnFetchGotchiDataSuccess;
         }
 
         public override void OnShowCanvas()
@@ -470,15 +470,22 @@ namespace GotchiHub
             // vars
             float hp, atk, crit, ap;
 
+            // check if weapon
+            var isWeapon = slot == Wearable.SlotEnum.Hand;
+
+            // check for a 0 werableId and convert to 1000 for unarmed
+            if (isWeapon && wearableId == 0) wearableId = 1000;
+
             // get wearable
             var wearable = WearableManager.Instance.GetWearable(wearableId);
-            var isWeapon = slot == Wearable.SlotEnum.Hand;
-            if (wearableId == 0 && isWeapon)
-            {
-                wearable = WearableManager.Instance.GetWearable(1000); // this is the unarmed weapon
-                wearableId = 1000;
-            }
-            Debug.Log("got wearable: " + wearable + ", id: " + wearableId);
+            //if (wearableId == 0 && isWeapon)
+            //{
+            //    Debug.Log("Setting wearable to unarmed");
+            //    wearable = WearableManager.Instance.GetWearable(1000); // this is the unarmed weapon
+            //    wearableId = 1000;
+            //    Debug.Log(wearable);
+            //}
+            //Debug.Log("got wearable: " + wearable + ", id: " + wearableId);
 
             hp = DroptStatCalculator.GetDroptStatByWearableId(wearableId, TraitType.NRG);
             atk = DroptStatCalculator.GetDroptStatByWearableId(wearableId, TraitType.AGG);
@@ -507,7 +514,8 @@ namespace GotchiHub
             if (offchainImage != null) offchainImage.gameObject.SetActive(false);
             if (onchainSvgImage != null) onchainSvgImage.gameObject.SetActive(false);
 
-            if (wearable != null && wearableId != 0 && wearableId < 990)
+            //if (wearable != null && wearableId != 0 && wearableId < 990)
+            if (!isWeapon && wearableId != 0)
             {
                 wearable = WearableManager.Instance.GetWearable(wearable.NameType);
                 var svgSprite = wearable.SvgSprite;
@@ -517,7 +525,8 @@ namespace GotchiHub
                     onchainSvgImage.sprite = wearable.SvgSprite;
                 }
             }
-            else if ((wearableId == 0 || wearableId > 990) && isWeapon)
+            //else if ((wearableId == 0 || wearableId > 990) && isWeapon)
+            else if (isWeapon)
             {
                 // set custom image instead of the svgs
                 offchainImage.gameObject.SetActive(true);
@@ -609,24 +618,6 @@ namespace GotchiHub
                 Destroy(child.gameObject);
             }
         }
-
-        //void ClearGotchiListChildren()
-        //{
-        //    // Create a list of children to destroy
-        //    List<GameObject> children = new List<GameObject>();
-        //    for (int i = 0; i < gotchiList.transform.childCount; i++)
-        //    {
-        //        children.Add(gotchiList.transform.GetChild(i).gameObject);
-        //    }
-
-        //    // Destroy all children
-        //    foreach (var child in children)
-        //    {
-        //        Destroy(child);
-        //    }
-
-        //    children.Clear();
-        //}
 
         public void ReorganizeList(ReorganizeMethod method)
         {

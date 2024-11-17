@@ -11,124 +11,117 @@ using System.IO;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.SceneManagement;
+using Netcode.Transports.WebSocket;
 
 public class Game : MonoBehaviour
 {
     public static Game Instance { get; private set; }
 
-    UnityTransport m_transport;
+    UnityTransport m_unityTransport = null;
+    WebSocketTransport m_webSocketTransport = null;
 
-    // certificate variables for WSS and encryption
-    private string m_commonName = "web.playdropt.io";
-    private string m_clientCA;
-    private string m_serverCertificate;
-    private string m_serverPrivateKey;
+    // certs files for unity transport connections
+    private string m_certPem;
+    private string m_privkeyPem;
+    private string m_chainPem;
+    private string m_commonName;
 
     // reconnecting to new game from gaeover
-    private bool m_isTryConnectClientOrHostGame = false;
-    private string m_tryConnectGameId = "";
+    private bool m_isTryConnectClientGame = false;
 
     private void Awake()
     {
         Instance = this;
     }
 
-    public void TryConnectClientOrHostGame()
-    {
-        if (m_isTryConnectClientOrHostGame) return;
-
-        m_isTryConnectClientOrHostGame = true;
-    }
-
     private void Start()
     {
-        // 1. Load certificate files
-        LoadCertificateFiles();
-
-        // 2. Ensure we have access to UnityTransport
-        m_transport = NetworkManager.Singleton?.NetworkConfig?.NetworkTransport as UnityTransport;
-        if (m_transport == null)
+        // check for web socket
+        m_webSocketTransport = NetworkManager.Singleton.GetComponent<WebSocketTransport>();
+        m_unityTransport = NetworkManager.Singleton.GetComponent<UnityTransport>();
+        if (m_webSocketTransport != null || m_unityTransport != null)
         {
-            Debug.Log("Could not get UnityTransport");
-            return;
+            if (Bootstrap.IsServer())
+            {
+                // set a reasonably high target frame rate to reduce latency
+                Application.targetFrameRate = Bootstrap.IsRemoteConnection() ? 1200 : 60;
+
+                // connect server (call StartServer on NetworkManager)
+                ConnectServerGame();
+
+                // hide loading canvas
+                LoadingCanvas.Instance.gameObject.SetActive(false);
+            }
+            else if (Bootstrap.IsClient())
+            {
+                QualitySettings.vSyncCount = 1;
+
+                // connect to a client game (leave gameId param "" to signify we want an empty game)
+                ConnectClientGame();
+            }
+            else if (Bootstrap.IsHost())
+            {
+                QualitySettings.vSyncCount = 1;
+
+                // connect to host
+                ConnectHostGame();
+            }
+
+            SetInputSystemEnabled(!Bootstrap.IsServer());
+
+        }
+        else
+        {
+            Debug.LogError("No transport available");
         }
 
-        // 3. Server instances
-        if (Bootstrap.IsServer())
-        {
-            // we limit frame rate for server because when deployed it will go as
-            // high as it possible can and consume ALL of our remote servers resources.
-            // NOTE: setting this value low (e.g. 15fps) will increase the ping and RTT
-            // of our game. 60fps keeps it fairly low at 50-60ms ping on a local connection
-            Application.targetFrameRate = 20;
-            QualitySettings.vSyncCount = 0;
+    }
 
-            ConnectServerGame();
-
-            // hide loading canvas
-            LoadingCanvas.Instance.gameObject.SetActive(false);
-        }
-        // 4. Client instances
-        else if (Bootstrap.IsClient())
+    public void Update()
+    {
+        if (m_isTryConnectClientGame && !NetworkManager.Singleton.ShutdownInProgress)
         {
-            m_isTryConnectClientOrHostGame = true;
-            m_tryConnectGameId = "";
+            m_isTryConnectClientGame = false;
+            Connect();
         }
-        // 5. Host instances
-        else if (Bootstrap.IsHost())
-        {
-            ConnectHostGame();
-        }
-
-        SetInputSystemEnabled(!Bootstrap.IsServer());
     }
 
     private void ConnectServerGame()
     {
-        Debug.Log("ConnectServerGame()");
+        bool isSecure = (Bootstrap.Instance.UseServerManager || Bootstrap.IsRemoteConnection()) && !Bootstrap.IsHost();
 
-        m_transport.UseEncryption = (Bootstrap.Instance.UseServerManager || Bootstrap.IsRemoteConnection()) && !Bootstrap.IsHost();
-
-        if (m_transport.UseEncryption)
+        // WebSocketTransport
+        if (m_webSocketTransport != null)
         {
-            // set connection data
-            if (m_transport.UseEncryption)
+            m_webSocketTransport.SecureConnection = isSecure;
+        }
+
+        // UnityTransport
+        else if (m_unityTransport != null)
+        {
+            m_unityTransport.UseEncryption = isSecure;
+
+            if (isSecure)
             {
-                Debug.Log(m_serverCertificate);
-                Debug.Log(m_serverPrivateKey);
-                m_transport.SetServerSecrets(m_serverCertificate, m_serverPrivateKey);
+                m_certPem = File.ReadAllText("/usr/local/unity_server/cert.pem");
+                m_privkeyPem = File.ReadAllText("/usr/local/unity_server/privkey.pem");
+
+                m_unityTransport.SetServerSecrets(m_certPem, m_privkeyPem);
             }
+
+            m_unityTransport.SetConnectionData(Bootstrap.Instance.IpAddress, Bootstrap.Instance.GamePort, "0.0.0.0");
         }
 
         // output the ip and gaem port we're using
         Debug.Log(Bootstrap.Instance.IpAddress);
         Debug.Log(Bootstrap.Instance.GamePort);
 
+        Debug.Log(m_certPem);
+        Debug.Log(m_privkeyPem);
+
         // set connection data and start server
-        m_transport.SetConnectionData(Bootstrap.Instance.IpAddress, Bootstrap.Instance.GamePort, "0.0.0.0");
         NetworkManager.Singleton.StartServer();
         Debug.Log("StartServer()");
-    }
-
-
-
-    public void Update()
-    {
-        if (m_isTryConnectClientOrHostGame)
-        {
-            if (!NetworkManager.Singleton.ShutdownInProgress)
-            {
-                m_isTryConnectClientOrHostGame = false;
-                if (Bootstrap.IsClient())
-                {
-                    ConnectClientGame(m_tryConnectGameId);
-                }
-                else if (Bootstrap.IsHost())
-                {
-                    ConnectHostGame();
-                }
-            }
-        }
     }
 
     public async UniTaskVoid ConnectClientGame(string gameId = "")
@@ -136,48 +129,106 @@ public class Game : MonoBehaviour
         Debug.Log("ConnectClientGame()");
 
         bool isGetEmptyGame = string.IsNullOrEmpty(gameId);
+        bool isSecure = (Bootstrap.Instance.UseServerManager || Bootstrap.IsRemoteConnection()) && !Bootstrap.IsHost();
 
-        m_transport.UseEncryption = (Bootstrap.Instance.UseServerManager || Bootstrap.IsRemoteConnection()) && !Bootstrap.IsHost();
-
-        if (m_transport.UseEncryption)
+        if (m_webSocketTransport == null && m_unityTransport == null)
         {
-            // try find an empty game instance to join
-            var response = await ServerManagerAgent.Instance.GetGame(gameId, Bootstrap.GetRegionString());
-            Debug.Log("response: " + response);
-
-            // if no valid response, give error and go back to title
-            if (response == null)
-            {
-                ErrorDialogCanvas.Instance.Show("The Dropt server manager is not currently online, please try again later or check our Discord for updates.");
-                 if (isGetEmptyGame) SceneManager.LoadScene("Title");
-                return;
-            }
-
-            // check for non-succes
-            if (response.responseCode != 200)
-            {
-                ErrorDialogCanvas.Instance.Show(response.message);
-                if (isGetEmptyGame) SceneManager.LoadScene("Title");
-                return;
-            }
-
-            // set IP address and port
-            Bootstrap.Instance.IpAddress = response.ipAddress;
-            Bootstrap.Instance.GamePort = ushort.Parse(response.gamePort);
-            m_commonName = response.commonName;
-            m_clientCA = response.clientCA;
-
-            Debug.Log(m_commonName);
-            Debug.Log(m_clientCA);
-            m_transport.SetClientSecrets(m_commonName, m_clientCA);
+            ErrorDialogCanvas.Instance.Show("Transports not available.");
+            if (isGetEmptyGame) SceneManager.LoadScene("Title");
+            return;
         }
 
+        // WebSocketTransport
+        if (m_webSocketTransport != null)
+        {
+            m_webSocketTransport.SecureConnection = isSecure;
+
+            if (isSecure)
+            {
+                // try find an empty game instance to join
+                Debug.Log("Get game with id: " + gameId + " and region: " + Bootstrap.GetRegionString());
+                var response = await ServerManagerAgent.Instance.GetGame(gameId, Bootstrap.GetRegionString());
+                Debug.Log("response: " + response);
+
+                // if no valid response, give error and go back to title
+                if (response == null)
+                {
+                    ErrorDialogCanvas.Instance.Show("The Dropt server manager is not currently online, please try again later or check our Discord for updates.");
+                    if (isGetEmptyGame) SceneManager.LoadScene("Title");
+                    return;
+                }
+
+                // check for non-succes
+                if (response.responseCode != 200)
+                {
+                    ErrorDialogCanvas.Instance.Show(response.message);
+                    if (isGetEmptyGame) SceneManager.LoadScene("Title");
+                    return;
+                }
+
+                // set IP address and port
+                Bootstrap.Instance.IpAddress = response.ipAddress;
+                Bootstrap.Instance.GamePort = ushort.Parse(response.gamePort);
+
+                m_webSocketTransport.ConnectAddress = response.commonName;
+            }
+        }
+
+        // UnityTransport
+        if (m_unityTransport != null)
+        {
+            m_unityTransport.UseEncryption = isSecure;
+
+            if (isSecure)
+            {
+                // try find an empty game instance to join
+                Debug.Log("Get game with id: " + gameId + " and region: " + Bootstrap.GetRegionString());
+                var response = await ServerManagerAgent.Instance.GetGame(gameId, Bootstrap.GetRegionString());
+                Debug.Log("response: " + response);
+
+                // if no valid response, give error and go back to title
+                if (response == null)
+                {
+                    ErrorDialogCanvas.Instance.Show("The Dropt server manager is not currently online, please try again later or check our Discord for updates.");
+                    if (isGetEmptyGame) SceneManager.LoadScene("Title");
+                    return;
+                }
+
+                // check for non-succes
+                if (response.responseCode != 200)
+                {
+                    ErrorDialogCanvas.Instance.Show(response.message);
+                    if (isGetEmptyGame) SceneManager.LoadScene("Title");
+                    return;
+                }
+
+                // set IP address and port
+                Bootstrap.Instance.IpAddress = response.ipAddress;
+                Bootstrap.Instance.GamePort = ushort.Parse(response.gamePort);
+                m_chainPem = response.clientCA;
+                m_commonName = response.commonName;
+
+                m_unityTransport.SetClientSecrets(m_commonName, m_chainPem);
+                m_unityTransport.SetConnectionData(Bootstrap.Instance.IpAddress, Bootstrap.Instance.GamePort);
+                Debug.Log(m_commonName);
+                Debug.Log(m_chainPem);
+            }
+        }
+
+        if (!isGetEmptyGame)
+        {
+            NetworkManager.Singleton.Shutdown();
+        }
+
+        m_isTryConnectClientGame = true;
+    }
+
+    public void Connect()
+    {
         // output ip and port
         Debug.Log(Bootstrap.Instance.IpAddress);
         Debug.Log(Bootstrap.Instance.GamePort);
 
-        // set connection data and start
-        m_transport.SetConnectionData(Bootstrap.Instance.IpAddress, Bootstrap.Instance.GamePort);
         Debug.Log("StartClient()");
 
         // start client
@@ -194,44 +245,35 @@ public class Game : MonoBehaviour
     {
         Debug.Log("ConnectHostGame()");
 
-        m_transport.UseEncryption = (Bootstrap.Instance.UseServerManager || Bootstrap.IsRemoteConnection()) && !Bootstrap.IsHost();
+        if (m_webSocketTransport == null && m_unityTransport == null)
+        {
+            ErrorDialogCanvas.Instance.Show("WebSocketTransport not available.");
+            SceneManager.LoadScene("Title");
+            return;
+        }
+
+        // WebSocketTranpsort
+        if (m_webSocketTransport != null)
+        {
+            m_webSocketTransport.SecureConnection = false;
+            m_webSocketTransport.ConnectAddress = "127.0.0.1";
+            m_webSocketTransport.Port = 9000;
+        }
+
+        // UnityTransport
+        if (m_unityTransport != null)
+        {
+            m_unityTransport.UseEncryption = false;
+            m_unityTransport.SetConnectionData("127.0.0.1", 9000);
+        }
 
         // Additional logic for Host, if needed
         Bootstrap.Instance.IpAddress = "127.0.0.1";
         Bootstrap.Instance.GamePort = 9000;
-        m_transport.SetConnectionData(Bootstrap.Instance.IpAddress, Bootstrap.Instance.GamePort, "0.0.0.0");
         NetworkManager.Singleton.StartHost();
     }
 
-    public async UniTaskVoid TryJoinGame(string gameId)
-    {
-        // first check existing is legit
-
-
-        NetworkManager.Singleton.Shutdown();
-        m_isTryConnectClientOrHostGame = true;
-        m_tryConnectGameId = gameId;
-    }
-
-    private void LoadCertificateFiles()
-    {
-        if (!Bootstrap.IsServer()) return;
-        if (!Bootstrap.IsRemoteConnection()) return;
-
-        try
-        {
-            m_serverCertificate = Environment.GetEnvironmentVariable("SERVER_CERTIFICATE");
-            m_serverPrivateKey = Environment.GetEnvironmentVariable("SERVER_PRIVATE_KEY");
-
-            Debug.Log("Certificates loaded successfully.");
-            Debug.Log("m_serverCertificate: " + m_serverCertificate);
-            Debug.Log("m_serverPrivateKey: " + m_serverPrivateKey);
-        }
-        catch (Exception e)
-        {
-            Debug.LogError($"Error loading certificates: {e.Message}");
-        }
-    }
+    
 
     private void SetInputSystemEnabled(bool isEnabled)
     {

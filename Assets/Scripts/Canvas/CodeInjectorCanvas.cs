@@ -8,6 +8,8 @@ public class CodeInjectorCanvas : DroptCanvas
     [SerializeField] private List<CodeInjectorVariableItem> m_variableItemList;
     [SerializeField] private OutputMultiplierItem m_outputMultiplierItem;
 
+    public Interactable interactable;
+
     private void Awake()
     {
         if (Instance == null)
@@ -34,12 +36,12 @@ public class CodeInjectorCanvas : DroptCanvas
 
     public override void OnShowCanvas()
     {
-        PlayerInputMapSwitcher.Instance.SwitchToInUI();
+        
     }
 
     public override void OnHideCanvas()
     {
-        PlayerInputMapSwitcher.Instance.SwitchToInGame();
+        
     }
 
     public void UpdateVariables()
@@ -59,6 +61,7 @@ public class CodeInjectorCanvas : DroptCanvas
     {
         CodeInjector.Instance.UpdateVariablesData();
         HideCanvas();
+        if (interactable != null) interactable.ExternalCanvasClosed();
     }
 
     public void ClickOnReset()
