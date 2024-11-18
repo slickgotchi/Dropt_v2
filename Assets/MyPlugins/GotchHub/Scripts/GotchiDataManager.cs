@@ -30,9 +30,11 @@ namespace GotchiHub
         [Header("Offchain & Default Gotchis")]
         public List<DefaultGotchiData> offchainGotchiData = new List<DefaultGotchiData>();
 
-        [HideInInspector] public List<GotchiData> localGotchiData = new List<GotchiData>();
-        [HideInInspector] public List<GotchiSvgSet> localGotchiSvgSets = new List<GotchiSvgSet>();
+        // these our local wallet gotchis
+        [HideInInspector] public List<GotchiData> localWalletGotchiData = new List<GotchiData>();
+        [HideInInspector] public List<GotchiSvgSet> localWalletGotchiSvgSets = new List<GotchiSvgSet>();
 
+        // these are other players we need to load to show remotely
         [HideInInspector] public List<GotchiData> remoteGotchiData = new List<GotchiData>();
         [HideInInspector] public List<GotchiSvgSet> remoteGotchiSvgSets = new List<GotchiSvgSet>();
 
@@ -42,6 +44,8 @@ namespace GotchiHub
         // Event declaration
         public event Action<int> onSelectedGotchi;
         public event Action onFetchGotchiDataSuccess;
+        public event Action onFetchedLocalWalletGotchiCount;
+        public event Action onFetchedWalletGotchiSVG;
 
         public enum DroptStat { Hp, AttackPower, CriticalChance, Ap, DoubleStrikeChance, CriticalDamage }
         public enum StatBreakdown { Total, Gotchi, Equipment }
@@ -62,16 +66,16 @@ namespace GotchiHub
 
         private void Start()
         {
-            localGotchiData.Clear();
-            localGotchiSvgSets.Clear();
+            localWalletGotchiData.Clear();
+            localWalletGotchiSvgSets.Clear();
             remoteGotchiSvgSets.Clear();
         }
 
         public bool SetSelectedGotchiById(int id)
         {
-            for (int i = 0; i < localGotchiData.Count; i++)
+            for (int i = 0; i < localWalletGotchiData.Count; i++)
             {
-                if (id == localGotchiData[i].id)
+                if (id == localWalletGotchiData[i].id)
                 {
                     m_selectedGotchiId = id;
                     onSelectedGotchi?.Invoke(m_selectedGotchiId); // Trigger event
@@ -106,12 +110,12 @@ namespace GotchiHub
             }
 
             // now check local
-            for (int i = 0; i < localGotchiData.Count; i++)
+            for (int i = 0; i < localWalletGotchiData.Count; i++)
             {
-                if (id == localGotchiData[i].id)
+                if (id == localWalletGotchiData[i].id)
                 {
-                    Debug.Log("found local gotchi match: " + localGotchiData[i]);
-                    return localGotchiData[i];
+                    Debug.Log("found local gotchi match: " + localWalletGotchiData[i]);
+                    return localWalletGotchiData[i];
                 }
             }
 
@@ -148,11 +152,11 @@ namespace GotchiHub
             }
 
             // now check local
-            for (int i = 0; i < localGotchiSvgSets.Count; i++)
+            for (int i = 0; i < localWalletGotchiSvgSets.Count; i++)
             {
-                if (id == localGotchiSvgSets[i].id)
+                if (id == localWalletGotchiSvgSets[i].id)
                 {
-                    return localGotchiSvgSets[i];
+                    return localWalletGotchiSvgSets[i];
                 }
             }
 
@@ -166,22 +170,23 @@ namespace GotchiHub
             try
             {
                 // clear all current data
-                localGotchiData.Clear();
-                localGotchiSvgSets.Clear();
+                localWalletGotchiData.Clear();
+                localWalletGotchiSvgSets.Clear();
 
                 // get wallet address
                 var walletAddress = await ThirdwebManager.Instance.SDK.Wallet.GetAddress();
                 walletAddress = walletAddress.ToLower();
 
-
                 // fetch gotchis with aavegotchi kit
                 var userAccount = await graphManager.GetUserAccount(walletAddress);
+
+                onFetchedLocalWalletGotchiCount?.Invoke();
 
                 // save base gotchi data
                 var gotchiIds = new List<string>();
                 foreach (var gotchi in userAccount.gotchisOwned)
                 {
-                    localGotchiData.Add(gotchi);
+                    localWalletGotchiData.Add(gotchi);
                     gotchiIds.Add(gotchi.id.ToString());
                 }
 
@@ -190,7 +195,7 @@ namespace GotchiHub
                 for (int i = 0; i < svgs.Count; i++)
                 {
                     var svgSet = svgs[i];
-                    localGotchiSvgSets.Add(new GotchiSvgSet
+                    localWalletGotchiSvgSets.Add(new GotchiSvgSet
                     {
                         id = int.Parse(gotchiIds[i]),
                         Front = svgSet.svg,
@@ -203,7 +208,7 @@ namespace GotchiHub
                 gotchiIds.Clear();
 
                 // default to highest brs gotchi
-                if (localGotchiData.Count > 0)
+                if (localWalletGotchiData.Count > 0)
                 {
                     SetSelectedGotchiById(GetGotchiIdByHighestBRS());
 
@@ -278,13 +283,13 @@ namespace GotchiHub
             int highestBrs = 0;
             int highestBrsId = -1;
 
-            for (int i = 0; i < localGotchiData.Count; i++)
+            for (int i = 0; i < localWalletGotchiData.Count; i++)
             {
-                var brs = DroptStatCalculator.GetBRS(localGotchiData[i].numericTraits);
+                var brs = DroptStatCalculator.GetBRS(localWalletGotchiData[i].numericTraits);
                 if (brs > highestBrs)
                 {
                     highestBrs = brs;
-                    highestBrsId = localGotchiData[i].id;
+                    highestBrsId = localWalletGotchiData[i].id;
                 }
             }
 

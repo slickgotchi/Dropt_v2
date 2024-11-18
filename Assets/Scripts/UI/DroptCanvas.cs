@@ -89,9 +89,9 @@ public class DroptCanvas : MonoBehaviour
         isCanvasOpen = false;
     }
 
-    public bool IsActive()
+    public bool IsCanvasOpen()
     {
-        return m_container.activeSelf;
+        return isCanvasOpen;
     }
 
     public bool IsInputActionSelectPressed()
