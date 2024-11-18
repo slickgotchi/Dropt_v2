@@ -50,6 +50,8 @@ public class Interactable : NetworkBehaviour
 
     public virtual void OnInteractPress() { }
 
+    public virtual void OnUpdate() { }
+
     private float k_pressInterval = 0.5f;
     private float m_pressTimer = 0.5f;
 
@@ -113,6 +115,8 @@ public class Interactable : NetworkBehaviour
     {
         TryGetLocalPlayerPrediction();
 
+        OnUpdate();
+
         m_pressTimer -= Time.deltaTime;
 
         if (status == Status.Inactive) return;
@@ -162,6 +166,7 @@ public class Interactable : NetworkBehaviour
                 m_holdTimer = -0.1f;
             }
         }
+
 
     }
 
