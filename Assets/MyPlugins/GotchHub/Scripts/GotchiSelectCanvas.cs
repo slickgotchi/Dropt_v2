@@ -19,8 +19,6 @@ namespace GotchiHub
 
         [Header("Child Object References")]
         public GameObject gotchiList;
-        //public SVGImage AvatarSvgImage;
-        //public GotchiStatsCard GotchiStatsCard;
 
         [Header("Menus")]
         public GameObject GotchiSelect_Menu;
@@ -268,11 +266,14 @@ namespace GotchiHub
         private float k_updateInterval = 0.3f;
         private float m_updateTimer = 0f;
 
-        protected async override void Update()
-        {
-            base.Update();
+        private bool m_isFetching = false;
 
-            if (!IsActive()) return;
+        public async override void OnUpdate()
+        {
+            base.OnUpdate();
+
+            if (!GotchiSelectCanvas.Instance.isCanvasOpen) return;
+            if (m_isFetching) return;
 
             m_updateTimer -= Time.deltaTime;
             if (m_updateTimer > 0) return;
@@ -300,11 +301,13 @@ namespace GotchiHub
                     ConnectButton.GetComponentInChildren<TextEllipsisInMiddle>().UpdateTextWithEllipsis();
 
                     // fetch new gotchis due to different address
+                    m_isFetching = true;
                     await m_gotchiDataManager.FetchWalletGotchiData();
+                    m_isFetching = false;
                 }
 
                 // show screen depending on gotchi count
-                var numGotchis = m_gotchiDataManager.localGotchiData.Count;
+                var numGotchis = m_gotchiDataManager.localWalletGotchiData.Count;
                 if (numGotchis <= 0)
                 {
                     SetMenuScreen(MenuScreen.NoGotchis);
@@ -315,7 +318,7 @@ namespace GotchiHub
             }
             catch (System.Exception e)
             {
-                Debug.Log(e);
+                //Debug.Log(e);
             }
         }
 
@@ -596,8 +599,8 @@ namespace GotchiHub
             }
 
             // 3. reate new instance of gotchi list item and set parent to gotchi list
-            var gotchiSvgs = m_gotchiDataManager.localGotchiSvgSets;
-            var gotchiData = m_gotchiDataManager.localGotchiData;
+            var gotchiSvgs = m_gotchiDataManager.localWalletGotchiSvgSets;
+            var gotchiData = m_gotchiDataManager.localWalletGotchiData;
             for (int i = 0; i < gotchiSvgs.Count; i++)
             {
                 var newGotchiSelectCard = Instantiate(gotchiSelectCard).GetComponent<GotchiSelectCard>();
