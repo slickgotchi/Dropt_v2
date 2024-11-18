@@ -8,18 +8,12 @@ public class CodeInjectorCanvas : DroptCanvas
     [SerializeField] private List<CodeInjectorVariableItem> m_variableItemList;
     [SerializeField] private OutputMultiplierItem m_outputMultiplierItem;
 
-    public Interactable interactable;
+    [HideInInspector] public Interactable interactable;
 
     private void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
 
         InstaHideCanvas();
     }

@@ -8,6 +8,8 @@ using System.ComponentModel;
 
 public class CoOpModeCanvas : DroptCanvas
 {
+    public static CoOpModeCanvas Instance { get; private set; }
+
     public GameObject AvailableGameListContent;
     public GameObject PrefabAvailableGameListItem;
 
@@ -25,6 +27,11 @@ public class CoOpModeCanvas : DroptCanvas
 
     private void Awake()
     {
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
+
+        InstaHideCanvas();
+
         CopyMyGameIdButton.onClick.AddListener(HandleClick_CopyMyGameIdButton);
         JoinPrivateButton.onClick.AddListener(HandleClick_JoinPrivateButton);
         IsPublicToggle.onValueChanged.AddListener(HandleChange_IsPublicToggle);
@@ -54,7 +61,7 @@ public class CoOpModeCanvas : DroptCanvas
 
         if (Input.GetKeyDown(KeyCode.M) && LevelManager.Instance.IsDegenapeVillage())
         {
-            if (IsActive())
+            if (CoOpModeCanvas.Instance.isCanvasOpen)
             {
                 HideCanvas();
             }

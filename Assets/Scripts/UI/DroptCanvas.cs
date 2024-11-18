@@ -7,14 +7,25 @@ public class DroptCanvas : MonoBehaviour
 {
     [Header("Hide/Show")]
     [SerializeField] private GameObject m_container;
-    [SerializeField] private CanvasGroup m_canvasGroup;
+    [SerializeField] private CanvasGroup m_backgroundCanvasGroup;
+    [SerializeField] private GameObject m_modal;
+    [SerializeField] private float m_modalOffscreenXPosition = -1000;
+    [SerializeField] private float m_modalOnscreenXPosition = 0;
+
+    private RectTransform m_modalRectTransform;
 
     protected PlayerInput m_localPlayerInput;
 
     public bool isCanvasOpen;
 
-    private void Awake()
+    private void Start()
     {
+        if (m_backgroundCanvasGroup != null)
+        {
+            m_backgroundCanvasGroup.blocksRaycasts = false;
+            m_backgroundCanvasGroup.alpha = 1;
+        }
+
         InstaHideCanvas();
     }
 
@@ -26,8 +37,17 @@ public class DroptCanvas : MonoBehaviour
 
     public virtual void ShowCanvas()
     {
-        m_canvasGroup.blocksRaycasts = true;
-        m_canvasGroup.DOFade(1, 0.2f);
+        if (m_modalRectTransform == null)
+        {
+            m_modalRectTransform = m_modal.GetComponent<RectTransform>();
+        }
+
+        if (m_backgroundCanvasGroup != null)
+        {
+            m_backgroundCanvasGroup.blocksRaycasts = true;
+            m_backgroundCanvasGroup.DOFade(1, 0.2f);
+        }
+        m_modalRectTransform.DOAnchorPosX(m_modalOnscreenXPosition, 0.2f);
         PlayerInputMapSwitcher.Instance.SwitchToInUI();
         OnShowCanvas();
         isCanvasOpen = true;
@@ -35,16 +55,36 @@ public class DroptCanvas : MonoBehaviour
 
     public void InstaHideCanvas()
     {
-        m_canvasGroup.alpha = 0;
+        if (m_modalRectTransform == null)
+        {
+            m_modalRectTransform = m_modal.GetComponent<RectTransform>();
+        }
+
+        if (m_backgroundCanvasGroup != null)
+        {
+            m_backgroundCanvasGroup.blocksRaycasts = false;
+            m_backgroundCanvasGroup.alpha = 0;
+        }
+        m_modalRectTransform.anchoredPosition =
+            new Vector2(m_modalOffscreenXPosition, m_modalRectTransform.anchoredPosition.y);
         PlayerInputMapSwitcher.Instance.SwitchToInGame();
         isCanvasOpen = false;
     }
 
     public virtual void HideCanvas()
     {
+        if (m_modalRectTransform == null)
+        {
+            m_modalRectTransform = m_modal.GetComponent<RectTransform>();
+        }
+
         OnHideCanvas();
-        m_canvasGroup.blocksRaycasts = false;
-        m_canvasGroup.DOFade(0, 0.2f);
+        if (m_backgroundCanvasGroup != null)
+        {
+            m_backgroundCanvasGroup.blocksRaycasts = false;
+            m_backgroundCanvasGroup.alpha = 0;
+        }
+        m_modalRectTransform.DOAnchorPosX(m_modalOffscreenXPosition, 0.2f);
         PlayerInputMapSwitcher.Instance.SwitchToInGame();
         isCanvasOpen = false;
     }
