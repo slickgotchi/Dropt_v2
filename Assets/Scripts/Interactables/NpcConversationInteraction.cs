@@ -36,15 +36,15 @@ namespace Interactables
             }
         }
 
-        private PlayerHUDCanvas PlayerHUD => PlayerHUDCanvas.Singleton;
+        private PlayerHUDCanvas PlayerHUD => PlayerHUDCanvas.Instance;
         private bool IsConversationActive => DialogueManager.isConversationActive;
         private PlayerPrediction PlayerPrediction => Player.GetComponent<PlayerPrediction>();
         protected virtual bool ShouldHideHUD { get; } = true;
         protected virtual bool ShouldStopPlayerMove { get; } = true;
 
-        public override void OnTriggerStartInteraction()
+        public override void OnTriggerEnter2DInteraction()
         {
-            base.OnTriggerStartInteraction();
+            base.OnTriggerEnter2DInteraction();
 
             if (IsConversationActive)
             {
@@ -67,7 +67,7 @@ namespace Interactables
                     return;
                 }
 
-                OnTriggerFinishInteraction();
+                OnTriggerExit2DInteraction();
                 StartConversation();
             }
         }
@@ -107,9 +107,9 @@ namespace Interactables
             }
         }
 
-        public override void OnTriggerFinishInteraction()
+        public override void OnTriggerExit2DInteraction()
         {
-            base.OnTriggerFinishInteraction();
+            base.OnTriggerExit2DInteraction();
 
             SetActiveTextBox(false);
 

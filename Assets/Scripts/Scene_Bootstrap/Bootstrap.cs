@@ -57,12 +57,14 @@ public class Bootstrap : MonoBehaviour
     public bool AutoBoot = false;
     public bool AutoPlay = false;
     public bool UseServerManager = false;
+    public bool ShowTutorialLevel = false;
 
     public string IpAddress = "178.128.22.77";
     public ushort GamePort = 9000;
     public ushort WorkerPort = 3000;
     public string GameId = "default";
     public string HeartbeatSecret = "";
+    public string DomainName = "";
 
     public int TestBlockChainGotchiId = 0;
 
@@ -100,6 +102,8 @@ public class Bootstrap : MonoBehaviour
             if (arg == "-ipaddress") IpAddress = param;
 
             if (arg == "-heartbeatsecret") HeartbeatSecret = param;
+
+            if (arg == "-domainname") DomainName = param; 
         }
     }
 

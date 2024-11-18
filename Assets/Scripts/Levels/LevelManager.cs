@@ -7,6 +7,7 @@ public class LevelManager : NetworkBehaviour
     public static LevelManager Instance { get; private set; }
 
     // level tracking variables
+    public List<GameObject> TutorialLevels = new List<GameObject>();
     public GameObject ApeVillageLevel;
     private List<GameObject> m_levels = new List<GameObject>();
 
@@ -63,7 +64,23 @@ public class LevelManager : NetworkBehaviour
 
         if (!IsServer) return;
 
-        GoToDegenapeVillageLevel();
+        // check if we need to do tutorial
+        var isTutorialComplete = PlayerPrefs.GetInt("IsTutorialComplete", 0);
+        if (isTutorialComplete == 0 && Bootstrap.Instance.ShowTutorialLevel)
+        {
+            GoToTutorialLevel();
+        }
+        else
+        {
+            GoToDegenapeVillageLevel();
+        }
+    }
+
+    public void GoToTutorialLevel()
+    {
+        SetLevelList(TutorialLevels);
+        GoToNextLevel();
+        m_depthCounter = -TutorialLevels.Count;
     }
 
     public void GoToDegenapeVillageLevel()
@@ -78,17 +95,28 @@ public class LevelManager : NetworkBehaviour
 
         // set depth counter to 0
         m_depthCounter = 0;
-
-
     }
 
     public bool IsDegenapeVillage()
     {
         if (!IsSpawned) return false;
-        if (m_levels == null) return false;
-        if (m_levels.Count <= 0) return false;
-        if (CurrentLevelIndex == null) return false;
-        if (CurrentLevelIndex.Value < 0) return false;
+
+        if (m_levels == null)
+        {
+            return true;
+        }
+        if (m_levels.Count <= 0)
+        {
+            return true;
+        }
+        if (CurrentLevelIndex == null)
+        {
+            return true;
+        }
+        if (CurrentLevelIndex.Value < 0)
+        {
+            return true;
+        }
 
         return (m_levels[CurrentLevelIndex.Value] == ApeVillageLevel);
     }
@@ -215,7 +243,7 @@ public class LevelManager : NetworkBehaviour
     [ClientRpc]
     void NumberAndNameLevelClientRpc(string number, string name, string objective)
     {
-        PlayerHUDCanvas.Singleton.SetLevelNumberNameObjective(number, Dropt.Utils.String.ConvertToReadableString(name), objective);
+        PlayerHUDCanvas.Instance.SetLevelNumberNameObjective(number, Dropt.Utils.String.ConvertToReadableString(name), objective);
     }
 
     // 1. Receive GoToNextLevel message from other part of server
@@ -416,16 +444,16 @@ public class LevelManager : NetworkBehaviour
     }
 
 
-    private void OnPlaySound(string type, Vector3 position, ulong id)
-    {
-        if (!IsServer || id != 0)
-            return;
+    //private void OnPlaySound(string type, Vector3 position, ulong id)
+    //{
+    //    if (!IsServer || id != 0)
+    //        return;
 
-        PlaySoundClientRpc(type, position, id);
-    }
+    //    PlaySoundClientRpc(type, position, id);
+    //}
 
-    [Rpc(SendTo.NotMe)]
-    void PlaySoundClientRpc(string type, Vector3 position, ulong id)
-    {
-    }
+    //[Rpc(SendTo.NotMe)]
+    //void PlaySoundClientRpc(string type, Vector3 position, ulong id)
+    //{
+    //}
 }

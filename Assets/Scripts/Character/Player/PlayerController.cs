@@ -147,7 +147,7 @@ public class PlayerController : NetworkBehaviour
             // setup player hud
             if (!m_isPlayerHUDInitialized && GetComponent<NetworkCharacter>() != null)
             {
-                PlayerHUDCanvas.Singleton.SetLocalPlayerCharacter(GetComponent<PlayerCharacter>());
+                PlayerHUDCanvas.Instance.SetLocalPlayerCharacter(GetComponent<PlayerCharacter>());
             }
 
             // Set camera to follow player
@@ -204,7 +204,7 @@ public class PlayerController : NetworkBehaviour
 
         // Temporarily set damping to zero for instant teleport
         var framingTransposer = m_virtualCamera.GetCinemachineComponent<Cinemachine.CinemachineFramingTransposer>();
-        Debug.Log("transposer: " + framingTransposer);
+        //Debug.Log("transposer: " + framingTransposer);
         float originalDamping = framingTransposer.m_XDamping; // Store original damping
         framingTransposer.m_XDamping = 0;
         framingTransposer.m_YDamping = 0;
@@ -233,11 +233,10 @@ public class PlayerController : NetworkBehaviour
             m_isDoReset = false;
 
             var framingTransposer = m_virtualCamera.GetCinemachineComponent<Cinemachine.CinemachineFramingTransposer>();
-            Debug.Log("transposer: " + framingTransposer);
             float originalDamping = framingTransposer.m_XDamping; // Store original damping
             framingTransposer.m_XDamping = 1;
             framingTransposer.m_YDamping = 1;
-            framingTransposer.m_ZDamping = 1;
+            framingTransposer.m_ZDamping = 0;
         }
     }
 
