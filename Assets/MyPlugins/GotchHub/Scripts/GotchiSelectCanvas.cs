@@ -12,6 +12,8 @@ namespace GotchiHub
     {
         public static GotchiSelectCanvas Instance { get; private set; }
 
+        [HideInInspector] public Interactable interactable;
+
         [Header("Prefabs")]
         public GameObject gotchiSelectCard;
 
@@ -163,8 +165,18 @@ namespace GotchiHub
         {
             Instance = this;
             VisitAavegotchiButton.onClick.AddListener(HandleOnClick_VisitAavegotchiButton);
-            ConfirmButton.onClick.AddListener(() => HideCanvas());
-            HideCanvas();
+            ConfirmButton.onClick.AddListener(ClickOnConfirm);
+            InstaHideCanvas();
+        }
+
+        public void ClickOnConfirm()
+        {
+            GotchiSelectCanvas.Instance.HideCanvas();
+            if (interactable != null)
+            {
+                PlayerHUDCanvas.Instance.ShowPlayerInteractionCanvii(interactable.interactionText,
+                    interactable.interactableType);
+            }
         }
 
         private void Start()
@@ -262,18 +274,9 @@ namespace GotchiHub
 
             if (!IsActive()) return;
 
-            if (IsInputActionSelectPressed())
-            {
-                ThirdwebCanvas.Instance.HideCanvas();
-                PlayerInputMapSwitcher.Instance.SwitchToInGame();
-                HideCanvas();
-                return;
-            }
-
             m_updateTimer -= Time.deltaTime;
             if (m_updateTimer > 0) return;
             m_updateTimer = k_updateInterval;
-
 
             try
             {

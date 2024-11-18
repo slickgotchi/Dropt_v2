@@ -33,16 +33,10 @@ public class WeaponSwapCanvas_v2 : DroptCanvas
 
     private void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
 
-        HideCanvas();
+        InstaHideCanvas();
     }
 
     public override void OnShowCanvas()
