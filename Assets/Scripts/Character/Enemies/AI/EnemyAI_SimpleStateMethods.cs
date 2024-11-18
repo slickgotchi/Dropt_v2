@@ -69,7 +69,6 @@ namespace Dropt
         // cooldown - don't move for first half, then do simple pursue
         protected void SimpleCooldownUpdate(float dt)
         {
-            Debug.Log(m_cooldownTimer + " " + CooldownDuration);
             if (m_cooldownTimer > 0.5 * CooldownDuration)
             {
                 m_navMeshAgent.isStopped = true;

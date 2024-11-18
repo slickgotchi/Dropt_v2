@@ -3,65 +3,97 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 using Unity.Netcode.Transports.UTP;
+using Netcode.Transports.WebSocket;
 
 public class PlayerPing : NetworkBehaviour
 {
-    //public float Ping = 0;
+    // ping tracking
+    private float m_pingInterval = 0.1f;
+    private float m_pingTimer = 0f;
+    private List<float> m_pingBuffer = new List<float>();
+    private int m_pingBufferSize = 100;
 
-    //float m_timer = 0;
+    public float pingLive;
+    public float pingMedian;
+    public float pingMean;
+    public float pingHigh;
+    public float pingLow;
 
-    UnityTransport m_transport;
+    UnityTransport m_unityTransport;
+    WebSocketTransport m_webSocketTransport;
 
     NetworkObject m_networkObject;
 
     public NetworkVariable<ulong> RTT = new NetworkVariable<ulong>(0);
+
+    public NetworkVariable<int> serverFPS = new NetworkVariable<int>(0);
 
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
 
         m_networkObject = GetComponent<NetworkObject>();
+        m_webSocketTransport = NetworkManager.Singleton.GetComponent<WebSocketTransport>();
+        m_unityTransport = NetworkManager.Singleton.GetComponent<UnityTransport>();
 
-        m_transport = (UnityTransport)NetworkManager.Singleton.NetworkConfig.NetworkTransport;
-
-        //if (IsLocalPlayer && !IsHost)
-        //{
-        //    PingServerRpc(m_timer);
-        //}
     }
 
     private void Update()
     {
-        //m_timer += Time.deltaTime;
+        if (IsHost) return;
 
         if (IsServer)
         {
-            RTT.Value = m_transport.GetCurrentRtt(m_networkObject.OwnerClientId);
+            if (m_webSocketTransport != null) RTT.Value = m_webSocketTransport.GetCurrentRtt(m_networkObject.OwnerClientId);
+            if (m_unityTransport != null) RTT.Value = m_unityTransport.GetCurrentRtt(m_networkObject.OwnerClientId);
+            
+            serverFPS.Value = (int)(1 / Time.deltaTime);
         }
 
-        if (IsClient)
+        if (IsLocalPlayer)
         {
-            DebugCanvas.Instance.SetPing((int)RTT.Value);
+            TrackPing();
+            DebugCanvas.Instance.SetPing((int)pingMedian);
+            DebugCanvas.Instance.SetServerFPS(((int)serverFPS.Value));
         }
     }
 
+    void TrackPing()
+    {
+        if (!IsClient) return;
 
-    //[Rpc(SendTo.Server)]
-    //void PingServerRpc(float prevTime)
-    //{
-    //    PingClientRpc(prevTime);
-    //}
+        m_pingTimer -= Time.deltaTime;
+        if (m_pingTimer > 0) return;
+        m_pingTimer = m_pingInterval;
 
-    //[Rpc(SendTo.ClientsAndHost)]
-    //void PingClientRpc(float prevTime)
-    //{
-    //    if (IsLocalPlayer)
-    //    {
-    //        float currTime = m_timer;
-    //        Ping = currTime - prevTime;
-    //        //DebugCanvas.Instance.SetPing((int)(Ping * 1000));
-    //        DebugCanvas.Instance.SetPing((int)RTT.Value * 2);
-    //        PingServerRpc(m_timer);
-    //    }
-    //}
+        PingServerRpc(Time.time);
+    }
+
+    [Rpc(SendTo.Server)]
+    void PingServerRpc(float clientTime)
+    {
+        ulong clientId = Dropt.Utils.Network.GetClientIdFromPlayer(
+            NetworkManager.Singleton, m_networkObject);
+
+        // send ping response back to only the client for this player
+        PingClientRpc(clientTime, RpcTarget.Single(clientId, RpcTargetUse.Persistent));
+    }
+
+    [Rpc(SendTo.SpecifiedInParams)]
+    void PingClientRpc(float originalClientTime, RpcParams rpcParams = default)
+    {
+        var deltaTime = (Time.time - originalClientTime) * 1000;
+        m_pingBuffer.Add(deltaTime);
+        if (m_pingBuffer.Count > m_pingBufferSize)
+        {
+            m_pingBuffer.RemoveAt(0);
+        }
+
+        pingLive = deltaTime;
+        pingMean = MathExtensions.CalculateMean(m_pingBuffer);
+        pingMedian = MathExtensions.CalculateMedian(m_pingBuffer);
+
+        if (pingLive < pingLow) pingLow = pingLive;
+        if (pingLive > pingHigh) pingHigh = pingLive;
+    }
 }

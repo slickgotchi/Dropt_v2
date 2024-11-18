@@ -220,7 +220,14 @@ public class PlayerAbility : NetworkBehaviour
             AudioManager.Instance.PlaySpatialSFX(audioOnActivate, Vector3.zero, true);
         }
 
-        if (Player != null) OnStart();
+        if (Player != null)
+        {
+            OnStart();
+        }
+        else
+        {
+            Debug.LogWarning("Player = null when calling ability Activate");
+        }
 
         //GameAudioManager.Instance.PlayerAbility(Player.GetComponent<NetworkCharacter>().NetworkObjectId, input.triggeredAbilityEnum, transform.position);
         return true;
@@ -410,6 +417,25 @@ public class PlayerAbility : NetworkBehaviour
 
     protected void PlayAnimationWithDuration(string animName, float duration)
     {
+        if (Player == null) return;
+
+        // local player
+        if (Player.GetComponent<NetworkObject>().IsLocalPlayer || IsServer)
+        {
+            Dropt.Utils.Anim.PlayAnimationWithDuration(Animator, animName, duration);
+        }
+        
+        if (IsServer)
+        {
+            PlayAnimationWithDurationClientRpc(animName, duration);
+        }
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    private void PlayAnimationWithDurationClientRpc(string animName, float duration)
+    {
+        if (Player.GetComponent<NetworkObject>().IsLocalPlayer) return;
+
         Dropt.Utils.Anim.PlayAnimationWithDuration(Animator, animName, duration);
     }
 

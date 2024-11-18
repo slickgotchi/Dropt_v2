@@ -8,6 +8,8 @@ using System.ComponentModel;
 
 public class CoOpModeCanvas : DroptCanvas
 {
+    public static CoOpModeCanvas Instance { get; private set; }
+
     public GameObject AvailableGameListContent;
     public GameObject PrefabAvailableGameListItem;
 
@@ -25,13 +27,20 @@ public class CoOpModeCanvas : DroptCanvas
 
     private void Awake()
     {
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
+
+        InstaHideCanvas();
+
         CopyMyGameIdButton.onClick.AddListener(HandleClick_CopyMyGameIdButton);
         JoinPrivateButton.onClick.AddListener(HandleClick_JoinPrivateButton);
         IsPublicToggle.onValueChanged.AddListener(HandleChange_IsPublicToggle);
 
         m_copyButtonText = CopyMyGameIdButton.GetComponentInChildren<TextMeshProUGUI>();
-        MenuCard.SetActive(false);
+    }
 
+    private void Start()
+    {
         HideCanvas();
     }
 
@@ -50,18 +59,16 @@ public class CoOpModeCanvas : DroptCanvas
             m_copyButtonText.text = Bootstrap.Instance.GameId.ToString();
         }
 
-        if (Input.GetKeyDown(KeyCode.M))
+        if (Input.GetKeyDown(KeyCode.M) && LevelManager.Instance.IsDegenapeVillage())
         {
-            //MenuCard.SetActive(!MenuCard.activeSelf);
-        }
-
-        if (LevelManager.Instance.IsDegenapeVillage())
-        {
-            ShowCanvas();
-        }
-        else
-        {
-            HideCanvas();
+            if (CoOpModeCanvas.Instance.isCanvasOpen)
+            {
+                HideCanvas();
+            }
+            else
+            {
+                ShowCanvas();
+            }
         }
     }
 
@@ -73,7 +80,7 @@ public class CoOpModeCanvas : DroptCanvas
     void HandleClick_JoinPrivateButton()
     {
         //Debug.Log("CoOpModeCanvas.cs - Join private gameId: " + JoinPrivateInput.text);
-        //Game.Instance.TryJoinGame(JoinPrivateInput.text);
+        Game.Instance.ConnectClientGame(JoinPrivateInput.text);
     }
 
     void HandleChange_IsPublicToggle(bool isOn)
@@ -98,7 +105,7 @@ public class CoOpModeCanvas : DroptCanvas
             {
                 // Instantiate new game item and add to the AvailableGameListContent
                 var availableGameListItem = Instantiate(PrefabAvailableGameListItem, AvailableGameListContent.transform).GetComponent<AvailableGameListItem>();
-                availableGameListItem.Init(game.gameId, game.numberPlayers);
+                availableGameListItem.Init(game.gameId, game.playerCount);
 
                 // Change join button if its ours
                 if (Bootstrap.Instance.GameId == game.gameId)

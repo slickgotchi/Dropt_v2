@@ -7,9 +7,23 @@ public class Hole : Interactable
 {
     public List<GameObject> Levels = new List<GameObject>();
 
-    public override void OnHoldFinishInteraction()
+    public override void OnInteractHoldFinish()
     {
         TryGoToNextLevelServerRpc(playerNetworkObjectId);
+    }
+
+    public override void OnTriggerEnter2DInteraction()
+    {
+        base.OnTriggerEnter2DInteraction();
+
+        PlayerHUDCanvas.Instance.ShowPlayerInteractionCanvii(interactionText, interactableType);
+    }
+
+    public override void OnTriggerExit2DInteraction()
+    {
+        base.OnTriggerExit2DInteraction();
+
+        PlayerHUDCanvas.Instance.HidePlayerInteractionCanvii(interactableType);
     }
 
     [Rpc(SendTo.Server)]

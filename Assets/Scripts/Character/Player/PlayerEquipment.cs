@@ -58,17 +58,6 @@ public class PlayerEquipment : NetworkBehaviour
 
         // pet updates
         UpdatePets();
-
-        //// if in degenape village, try setup any new gotchis that we get switched to
-        //if (IsLocalPlayer && LevelManager.Instance.IsDegenapeVillage())
-        //{
-        //    var gotchiId = GotchiDataManager.Instance.GetSelectedGotchiId();
-        //    if (gotchiId != m_gotchiId)
-        //    {
-        //        m_gotchiId = gotchiId;
-        //        Init(gotchiId);
-        //    }
-        //}
     }
 
     private void UpdateWeaponSprites()
@@ -103,7 +92,6 @@ public class PlayerEquipment : NetworkBehaviour
                     {
                         // we have a match, we need to despawn the old pet
                         petController.GetComponent<NetworkObject>().Despawn();
-                        Debug.Log("Despawn old pet: " + m_localPet);
                     }
                 }
 
@@ -305,8 +293,8 @@ public class PlayerEquipment : NetworkBehaviour
     {
         if (!IsLocalPlayer) return;
 
-        PlayerHUDCanvas.Singleton.SetShieldBarProgress(hand, progress);
-        PlayerHUDCanvas.Singleton.VisibleShieldBar(hand, true);
+        PlayerHUDCanvas.Instance.SetShieldBarProgress(hand, progress);
+        PlayerHUDCanvas.Instance.VisibleShieldBar(hand, true);
     }
 
     [ClientRpc]
@@ -314,7 +302,7 @@ public class PlayerEquipment : NetworkBehaviour
     {
         if (!IsLocalPlayer) return;
 
-        PlayerHUDCanvas.Singleton.VisibleShieldBar(hand, false);
+        PlayerHUDCanvas.Instance.VisibleShieldBar(hand, false);
     }
 
     public enum Slot

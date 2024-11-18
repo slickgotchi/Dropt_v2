@@ -20,9 +20,9 @@ public class CGHSTDoor : Interactable
         m_costText.text = m_costToOpenTheDoor.ToString();
     }
 
-    public override void OnHoldFinishInteraction()
+    public override void OnInteractHoldFinish()
     {
-        base.OnHoldFinishInteraction();
+        base.OnInteractHoldFinish();
         TryToOpenTheDoorServerRpc();
     }
 
@@ -31,14 +31,15 @@ public class CGHSTDoor : Interactable
     {
         PlayerController playerController = GetPlayerController();
         PlayerOffchainData playerDungeonData = playerController.GetComponent<PlayerOffchainData>();
-        int cGhst = playerDungeonData.ectoCount_dungeon.Value;
 
-        if (m_costToOpenTheDoor > cGhst)
+        bool isSuccess = playerDungeonData.TrySpendDungeonEcto(m_costToOpenTheDoor);
+
+        if (!isSuccess)
         {
             NotifyNotEnoughBalanceClientRpc();
             return;
         }
-        playerDungeonData.ectoCount_dungeon.Value -= m_costToOpenTheDoor;
+
         m_animator.Play("ApeDoor_Open");
         OpenDoorClientRpc();
     }

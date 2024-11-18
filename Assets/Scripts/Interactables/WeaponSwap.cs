@@ -7,36 +7,68 @@ public class WeaponSwap : Interactable
     [HideInInspector] public NetworkVariable<Wearable.NameEnum> SyncNameEnum;
     public SpriteRenderer SpriteRenderer;
 
-    GameObject m_player;
-
-    public override void OnTriggerStartInteraction()
+    public override void OnNetworkSpawn()
     {
-        WeaponSwapCanvas.Instance.Container.SetActive(true);
-        UpdateCanvas();
-        m_player = NetworkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId].gameObject;
+        base.OnNetworkSpawn();
+
+        Init(WeaponEnum);
+
+        SyncNameEnum.Value = WeaponEnum;
+
+        SyncNameEnum.OnValueChanged += OnNetworkNameChanged;
     }
 
-    public override void OnTriggerUpdateInteraction()
+    public override void OnInteractPress()
     {
-        var wearableNameEnum = SyncNameEnum.Value;
+        base.OnInteractPress();
 
-        if (Input.GetMouseButtonDown(0))
+        WeaponEnum = SyncNameEnum.Value;
+
+        if (WeaponSwapCanvas_v2.Instance.isCanvasOpen)
         {
-            var ogEquipment = m_player.GetComponent<PlayerEquipment>().LeftHand.Value;
+            WeaponSwapCanvas_v2.Instance.HideCanvas();
+            PlayerHUDCanvas.Instance.ShowPlayerInteractionCanvii(interactionText, interactableType);
+        }
+        else
+        {
+            WeaponSwapCanvas_v2.Instance.activeWeaponSwap = GetComponent<WeaponSwap>();
+            WeaponSwapCanvas_v2.Instance.newWeaponNameEnum = WeaponEnum;
+            WeaponSwapCanvas_v2.Instance.ShowCanvas();
+            PlayerHUDCanvas.Instance.HidePlayerInteractionCanvii(interactableType);
+        }
+    }
 
-            m_player.GetComponent<PlayerEquipment>()
+    public override void OnTriggerEnter2DInteraction()
+    {
+        base.OnTriggerEnter2DInteraction();
+
+        PlayerHUDCanvas.Instance.ShowPlayerInteractionCanvii(interactionText, interactableType);
+    }
+
+    public override void OnTriggerExit2DInteraction()
+    {
+        base.OnTriggerExit2DInteraction();
+
+        PlayerHUDCanvas.Instance.HidePlayerInteractionCanvii(interactableType);
+    }
+
+    public void SwapWeapon(Hand hand, Wearable.NameEnum wearableNameEnum, PlayerController localPlayer)
+    {
+        if (hand == Hand.Left)
+        {
+            var ogEquipment = localPlayer.GetComponent<PlayerEquipment>().LeftHand.Value;
+
+            localPlayer.GetComponent<PlayerEquipment>()
                 .SetEquipmentServerRpc(PlayerEquipment.Slot.LeftHand, wearableNameEnum);
 
             SetWearableNameRpc(ogEquipment);
-
-            return;
         }
 
-        if (Input.GetMouseButtonDown(1))
+        if (hand == Hand.Right)
         {
-            var ogEquipment = m_player.GetComponent<PlayerEquipment>().RightHand.Value;
+            var ogEquipment = localPlayer.GetComponent<PlayerEquipment>().RightHand.Value;
 
-            m_player.GetComponent<PlayerEquipment>()
+            localPlayer.GetComponent<PlayerEquipment>()
                 .SetEquipmentServerRpc(PlayerEquipment.Slot.RightHand, wearableNameEnum);
 
             SetWearableNameRpc(ogEquipment);
@@ -49,27 +81,6 @@ public class WeaponSwap : Interactable
         SyncNameEnum.Value = ogEquipment;
     }
 
-    public override void OnTriggerFinishInteraction()
-    {
-        WeaponSwapCanvas.Instance.Container.SetActive(false);
-    }
-
-    private void UpdateCanvas()
-    {
-        WeaponSwapCanvas.Instance.Init(SyncNameEnum.Value);
-    }
-
-    public override void OnNetworkSpawn()
-    {
-        base.OnNetworkSpawn();
-
-        Init(WeaponEnum);
-
-        SyncNameEnum.Value = WeaponEnum;
-
-        SyncNameEnum.OnValueChanged += OnNetworkNameChanged;
-    }
-
     private void OnNetworkNameChanged(Wearable.NameEnum prevValue, Wearable.NameEnum newValue)
     {
         Init(newValue);
@@ -79,6 +90,5 @@ public class WeaponSwap : Interactable
     {
         var sprite = WeaponSpriteManager.Instance.GetSprite(wearableNameEnum, PlayerGotchi.Facing.Right);
         SpriteRenderer.sprite = sprite;
-        UpdateCanvas();
     }
 }

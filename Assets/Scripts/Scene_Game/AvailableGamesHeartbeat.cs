@@ -12,37 +12,37 @@ public class AvailableGamesHeartbeat : MonoBehaviour
     private float k_heartbeatInterval = 2f;
     private float m_heartbeatTimer = 0f;
 
-    private string getGamesUri = "https://alphaserver.playdropt.io/getgames";
+    private string getGamesUri = "https://manager.playdropt.io/getstatus";
 
     public List<AvailableGame> AvailableGames = new List<AvailableGame>();
 
     private void Awake()
     {
-        //if (Instance != null && Instance != this)
-        //{
-        //    Destroy(gameObject);
-        //    return;
-        //}
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
 
-        //Instance = this;
+        Instance = this;
 
-        //if (Bootstrap.IsServer() || !Bootstrap.IsUseServerManager()) Destroy(gameObject);
+        if (Bootstrap.IsServer() || !Bootstrap.IsUseServerManager()) Destroy(gameObject);
     }
 
     private void Update()
     {
         ////if (!Game.Instance.IsConnected) return;
-        //if (!Bootstrap.IsClient()) return;
-        //if (Bootstrap.IsLocalConnection()) return;
-        //if (!Bootstrap.IsUseServerManager()) return;
+        if (!Bootstrap.IsClient()) return;
+        if (Bootstrap.IsLocalConnection()) return;
+        if (!Bootstrap.IsUseServerManager()) return;
 
-        //m_heartbeatTimer -= Time.deltaTime;
+        m_heartbeatTimer -= Time.deltaTime;
 
-        //if (m_heartbeatTimer <= 0)
-        //{
-        //    m_heartbeatTimer = k_heartbeatInterval;
-        //    GetGames();
-        //}
+        if (m_heartbeatTimer <= 0)
+        {
+            m_heartbeatTimer = k_heartbeatInterval;
+            GetGames();
+        }
 
         //if (Input.GetKeyDown(KeyCode.T))
         //{
@@ -62,7 +62,7 @@ public class AvailableGamesHeartbeat : MonoBehaviour
             var game = AvailableGames[i];
             if (game.gameId.ToUpper() == gameId.ToUpper())
             {
-                if (game.isServerReady) isReady = true;
+                if (game.isFirstPlayerJoined) isReady = true;
             }
         }
 
@@ -104,9 +104,14 @@ public class AvailableGamesHeartbeat : MonoBehaviour
             AvailableGames.Add(new AvailableGame
             {
                 gameId = game.gameId,
-                numberPlayers = game.numberPlayers,
+                region = game.region,
+                workerIpAddress = game.workerIpAddress,
+                gamePort = game.gamePort,
+                playerCount = game.playerCount,
+                isFirstPlayerJoined = game.isFirstPlayerJoined,
+                timeLeft = game.timeLeft,
+                workerCpuUsage = game.workerCpuUsage,
                 isPublic = game.isPublic,
-                isServerReady = game.isServerReady,
             });
         }
     }
@@ -121,8 +126,13 @@ public class AvailableGamesHeartbeat : MonoBehaviour
     public class AvailableGame
     {
         public string gameId;
-        public int numberPlayers;
+        public string region;
+        public string workerIpAddress;
+        public ulong gamePort;
+        public int playerCount;
+        public bool isFirstPlayerJoined;
+        public float timeLeft;
+        public float workerCpuUsage;
         public bool isPublic;
-        public bool isServerReady;
     }
 }
