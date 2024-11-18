@@ -89,7 +89,7 @@ namespace GotchiHub
                 }
             }
 
-            Debug.Log("Gotchi with id " + id + " does not exist in GotchiDataManager");
+            //Debug.Log("Gotchi with id " + id + " does not exist in GotchiDataManager");
             return false;
         }
 
@@ -116,7 +116,7 @@ namespace GotchiHub
             }
 
             // if got here we were passed invalid id
-            Debug.Log("Invalid id passed to GetGotchiDataById()");
+            //Debug.Log("Invalid id passed to GetGotchiDataById()");
             return null;
         }
 
@@ -132,7 +132,7 @@ namespace GotchiHub
             }
 
             // if got here we were passed invalid id
-            Debug.Log("Invalid id passed to GetOffchainGotchiDataById()");
+            //Debug.Log("Invalid id passed to GetOffchainGotchiDataById()");
             return null;
         }
 

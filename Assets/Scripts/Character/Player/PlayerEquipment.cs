@@ -293,8 +293,8 @@ public class PlayerEquipment : NetworkBehaviour
     {
         if (!IsLocalPlayer) return;
 
-        PlayerHUDCanvas.Singleton.SetShieldBarProgress(hand, progress);
-        PlayerHUDCanvas.Singleton.VisibleShieldBar(hand, true);
+        PlayerHUDCanvas.Instance.SetShieldBarProgress(hand, progress);
+        PlayerHUDCanvas.Instance.VisibleShieldBar(hand, true);
     }
 
     [ClientRpc]
@@ -302,7 +302,7 @@ public class PlayerEquipment : NetworkBehaviour
     {
         if (!IsLocalPlayer) return;
 
-        PlayerHUDCanvas.Singleton.VisibleShieldBar(hand, false);
+        PlayerHUDCanvas.Instance.VisibleShieldBar(hand, false);
     }
 
     public enum Slot

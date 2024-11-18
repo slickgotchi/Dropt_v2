@@ -7,7 +7,7 @@ public class NetworkPrefabsListEditor : EditorWindow
 {
     private NetworkPrefabsList networkPrefabsList;
 
-    [MenuItem("Tools/Network Prefabs List Updater")]
+    [MenuItem("Tools/Slick/Network Prefabs List Updater")]
     public static void ShowWindow()
     {
         GetWindow<NetworkPrefabsListEditor>("Network Prefabs List Updater");

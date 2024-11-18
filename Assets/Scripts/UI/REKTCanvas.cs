@@ -6,7 +6,7 @@ using Unity.Netcode;
 using TMPro;
 using UnityEngine.SceneManagement;
 
-public class REKTCanvas : NetworkBehaviour
+public class REKTCanvas : MonoBehaviour
 {
     public static REKTCanvas Instance { get; private set; }
 

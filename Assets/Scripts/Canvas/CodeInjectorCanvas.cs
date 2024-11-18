@@ -8,38 +8,19 @@ public class CodeInjectorCanvas : DroptCanvas
     [SerializeField] private List<CodeInjectorVariableItem> m_variableItemList;
     [SerializeField] private OutputMultiplierItem m_outputMultiplierItem;
 
+    [HideInInspector] public Interactable interactable;
+
     private void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
 
-        HideCanvas();
+        InstaHideCanvas();
     }
 
-    private void Update()
+    public override void OnUpdate()
     {
-        base.Update();
-
-        if (IsInputActionSelectPressed())
-        {
-            ClickOnConfirm();
-        }
-    }
-
-    public override void OnShowCanvas()
-    {
-        PlayerInputMapSwitcher.Instance.SwitchToInUI();
-    }
-
-    public override void OnHideCanvas()
-    {
-        PlayerInputMapSwitcher.Instance.SwitchToInGame();
+        base.OnUpdate();
     }
 
     public void UpdateVariables()
@@ -58,7 +39,12 @@ public class CodeInjectorCanvas : DroptCanvas
     public void ClickOnConfirm()
     {
         CodeInjector.Instance.UpdateVariablesData();
-        HideCanvas();
+        CodeInjectorCanvas.Instance.HideCanvas();
+        if (interactable != null)
+        {
+            PlayerHUDCanvas.Instance.ShowPlayerInteractionCanvii(interactable.interactionText,
+                interactable.interactableType);
+        }
     }
 
     public void ClickOnReset()

@@ -16,8 +16,8 @@ public class GameServerHeartbeat : MonoBehaviour
     public static GameServerHeartbeat Instance { get; private set; }
 
     private int m_playerCount = 0;
-    private float m_timer = 3.0f; // 3 seconds interval
-    private float k_heartbeatInterval = 5f;
+    private float m_heartbeatTimer = 0f; 
+    private float k_heartbeatInterval = 2f;
     public bool IsPublic = false;
 
     private void Awake()
@@ -38,12 +38,12 @@ public class GameServerHeartbeat : MonoBehaviour
     {
         if (!Bootstrap.IsUseServerManager()) return;
 
-        m_timer -= Time.deltaTime;
+        m_heartbeatTimer -= Time.deltaTime;
 
-        if (m_timer <= 0)
+        if (m_heartbeatTimer <= 0)
         {
             SendServerHeartbeat().Forget(); // Properly calling the async method
-            m_timer = k_heartbeatInterval; // Reset the timer
+            m_heartbeatTimer = k_heartbeatInterval; // Reset the timer
         }
     }
 
@@ -73,13 +73,14 @@ public class GameServerHeartbeat : MonoBehaviour
                 nonceBuilder.Append(b.ToString("x2"));
             }
             string nonce = nonceBuilder.ToString();
-            Debug.Log("Made a nonce: " + nonce);
+            //Debug.Log("Made a nonce: " + nonce);
 
             // 2. create payload
             var payload = new
             {
                 gameId = Bootstrap.Instance.GameId,
                 playerCount = m_playerCount,
+                isPublic = IsPublic,
                 nonce = nonce,
                 exp = DateTimeOffset.UtcNow.AddMinutes(5).ToUnixTimeSeconds() // Expiration time
             };
@@ -110,13 +111,14 @@ public class GameServerHeartbeat : MonoBehaviour
 
             // 7. Create the final token
             string token = $"{unsignedToken}.{signature}";
-            Debug.Log("Made a token: " + token);
+            //Debug.Log("Made a token: " + token);
 
             // 8. Create HTTP request
             var instanceHeartbeatPostData = new InstanceHeartbeat_PostData
             {
                 gameId = Bootstrap.Instance.GameId,
                 playerCount = m_playerCount,
+                isPublic = IsPublic,
                 nonce = nonce,
                 token = token,
             };
@@ -124,7 +126,7 @@ public class GameServerHeartbeat : MonoBehaviour
             var workerUri = "http://" + Bootstrap.Instance.IpAddress + ":" + Bootstrap.Instance.WorkerPort;
             var responseStr = await PostRequest(workerUri + "/instanceheartbeat", json);
 
-            Debug.Log("/instancehearbeat success");
+            //Debug.Log("/instancehearbeat success");
         }
         catch (Exception e)
         {
@@ -176,6 +178,7 @@ public class GameServerHeartbeat : MonoBehaviour
     {
         public string gameId;
         public int playerCount;
+        public bool isPublic;
         public string nonce;
         public string token;
     }
