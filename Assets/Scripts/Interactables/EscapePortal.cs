@@ -15,10 +15,7 @@ public class EscapePortal : Interactable
         // ask server if our interacting player can escape
         TryEscapeServerRpc(playerNetworkObjectId);
 
-        // we set tutorial complete to 1 (although not all escape portals need to do
-        // this, the tutorial ends with an escape portal so we do it in this code
-        // for simplicity)
-        PlayerPrefs.SetInt("IsTutorialComplete", 1);
+
     }
 
     public override void OnTriggerEnter2DInteraction()

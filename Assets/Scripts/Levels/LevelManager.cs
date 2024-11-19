@@ -73,6 +73,8 @@ public class LevelManager : NetworkBehaviour
         else
         {
             GoToDegenapeVillageLevel();
+
+
         }
     }
 
@@ -354,9 +356,21 @@ public class LevelManager : NetworkBehaviour
             //NavigationSurfaceSingleton.Instance.Surface.UpdateNavMesh(NavigationSurfaceSingleton.Instance.Surface.navMeshData);
             //NavigationSurfaceSingleton.Instance.Surface.BuildNavMesh();
 
+            // check if level uses render mesh or physics colliders
+            var networkLevel = m_levels[m_currentLevelIndex].GetComponent<Level.NetworkLevel>();
+
             var navMeshes = FindObjectsByType<NavMeshPlus.Components.NavMeshSurface>(FindObjectsSortMode.None);
             foreach (var surface in navMeshes)
             {
+                if (networkLevel.navmeshGeneration == Level.NetworkLevel.NavmeshGeneration.PhysicsColliders)
+                {
+                    surface.useGeometry = UnityEngine.AI.NavMeshCollectGeometry.PhysicsColliders;
+                }
+                else
+                {
+                    surface.useGeometry = UnityEngine.AI.NavMeshCollectGeometry.RenderMeshes;
+                }
+
                 surface.BuildNavMesh();
             }
 

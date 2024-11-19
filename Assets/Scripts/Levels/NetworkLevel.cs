@@ -12,6 +12,9 @@ namespace Level
         public bool isEssenceDepleting = true;
         public string objective = "Find a hole to descend";
 
+        public enum NavmeshGeneration { RenderMeshes, PhysicsColliders }
+        public NavmeshGeneration navmeshGeneration = NavmeshGeneration.PhysicsColliders;
+
         //private List<Vector3> m_availablePlayerSpawnPoints = new List<Vector3>();
         private List<SpawnerActivator> m_spawnerActivators = new List<SpawnerActivator>();
 
