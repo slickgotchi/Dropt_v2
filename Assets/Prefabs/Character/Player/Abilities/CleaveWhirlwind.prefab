@@ -134,7 +134,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3034662035
+  GlobalObjectIdHash: 3422771694
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -178,9 +178,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   abilityType: 1
   ApCost: 0
-  DamageMultiplier: 0.5
+  DamageMultiplier: 0.35
   ExecutionDuration: 1
-  ExecutionSlowFactor: 0.5
+  ExecutionSlowFactor: 1.3
   CooldownDuration: 0
   CooldownSlowFactor: 0.5
   TeleportDistance: 0
@@ -188,13 +188,15 @@ MonoBehaviour:
   AutoMoveDuration: 0
   HoldChargeTime: 2
   HoldSlowFactor: 0.3
+  KnockbackDistance: 0
+  KnockbackStunDuration: 0
   Player: {fileID: 0}
   SpecialCooldown: 0
   audioOnActivate: {fileID: 8300000, guid: e1d5c513c385d4533a4ebc378166d7cb, type: 3}
   PlayerAbilityCentreOffset: {x: 0, y: 0.5, z: 0}
-  NumberHits: 4
+  NumberHits: 8
   m_holdStartScale: 1
-  m_holdFinishScale: 3
+  m_holdFinishScale: 2
 --- !u!70 &270720640852587252
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
