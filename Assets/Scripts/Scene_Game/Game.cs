@@ -209,10 +209,11 @@ public class Game : MonoBehaviour
                 m_commonName = response.commonName;
 
                 m_unityTransport.SetClientSecrets(m_commonName, m_chainPem);
-                m_unityTransport.SetConnectionData(Bootstrap.Instance.IpAddress, Bootstrap.Instance.GamePort);
+
                 Debug.Log(m_commonName);
                 Debug.Log(m_chainPem);
             }
+            m_unityTransport.SetConnectionData(Bootstrap.Instance.IpAddress, Bootstrap.Instance.GamePort);
         }
 
         if (!isGetEmptyGame)
@@ -273,7 +274,7 @@ public class Game : MonoBehaviour
         NetworkManager.Singleton.StartHost();
     }
 
-    
+
 
     private void SetInputSystemEnabled(bool isEnabled)
     {
