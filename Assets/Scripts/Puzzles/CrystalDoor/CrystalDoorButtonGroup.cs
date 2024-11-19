@@ -9,4 +9,12 @@ public class CrystalDoorButtonGroup : NetworkBehaviour
     public int spawnerId = -1;
 
     [HideInInspector] public List<GameObject> CrystalDoors = new List<GameObject>();
+
+    private void Awake()
+    {
+        if (CrystalDoors.Count == 0)
+        {
+            Debug.LogWarning("CrystalDoorButtonGroup does not have a door assigned to it", this);
+        }
+    }
 }
