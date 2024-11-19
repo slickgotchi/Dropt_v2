@@ -15,6 +15,22 @@ namespace Level
                 CreateApeDoorButtons(buttonGroupSpawners[i]);
                 CreateApeDoors(buttonGroupSpawners[i]);
             }
+
+#if UNITY_EDITOR
+            List<GameObject> doors = new List<GameObject>();
+            foreach (var buttonGroupSpawner in buttonGroupSpawners)
+            {
+                foreach (var apeDoorSpawner in buttonGroupSpawner.ApeDoorSpawners)
+                {
+                    GameObject door = apeDoorSpawner.ApeDoorPrefab;
+                    if (doors.Contains(door))
+                    {
+                        Debug.LogWarning($"{door.name} is assign to multiple ape door spawner", apeDoorSpawner);
+                    }
+                    doors.Add(door);
+                }
+            }
+#endif
         }
 
         public void CreateSpawners_CrystalDoorsAndButtons()
@@ -25,6 +41,21 @@ namespace Level
                 CreateCrystalDoorButtons(buttonGroupSpawners[i]);
                 CreateCrystalDoors(buttonGroupSpawners[i]);
             }
+#if UNITY_EDITOR
+            List<GameObject> doors = new List<GameObject>();
+            foreach (var buttonGroupSpawner in buttonGroupSpawners)
+            {
+                foreach (var crystalDoorSpawner in buttonGroupSpawner.CrystalDoorSpawners)
+                {
+                    GameObject door = crystalDoorSpawner.GetRandomDoorPrefab();
+                    if (doors.Contains(door))
+                    {
+                        Debug.LogWarning($"{door.name} is assign to multiple crystal door spawner", crystalDoorSpawner);
+                    }
+                    doors.Add(door);
+                }
+            }
+#endif
         }
 
         private void CreateApeDoorButtons(ApeDoorButtonGroupSpawner buttonGroupSpawner)
@@ -110,10 +141,10 @@ namespace Level
         private void CreateCrystalDoors(CrystalDoorButtonGroupSpawner buttonGroupSpawner)
         {
             // iterate over all apedoor spawners
-            foreach (var apeDoorSpawner in buttonGroupSpawner.CrystalDoorSpawners)
+            foreach (var crystalDoorSpawner in buttonGroupSpawner.CrystalDoorSpawners)
             {
-                GameObject no_crystalDoor = Instantiate(apeDoorSpawner.GetRandomDoorPrefab());
-                no_crystalDoor.transform.position = apeDoorSpawner.transform.position;
+                GameObject no_crystalDoor = Instantiate(crystalDoorSpawner.GetRandomDoorPrefab());
+                no_crystalDoor.transform.position = crystalDoorSpawner.transform.position;
                 CrystalDoor crystalDoor = no_crystalDoor.GetComponent<CrystalDoor>();
                 crystalDoor.initType = buttonGroupSpawner.CrystalDoorType;
                 crystalDoor.initState = DoorState.Closed;
@@ -121,8 +152,9 @@ namespace Level
 
                 AddLevelSpawnComponent(no_crystalDoor,
                                        buttonGroupSpawner.spawnerId,
-                                       apeDoorSpawner.GetComponent<Spawner_SpawnCondition>());
+                                       crystalDoorSpawner.GetComponent<Spawner_SpawnCondition>());
             }
+
         }
     }
 }

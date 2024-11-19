@@ -14,4 +14,14 @@ public class CrystalDoorButtonGroupSpawner : MonoBehaviour
     [Header("Prefabs")]
     //public GameObject ApeDoorButtonGroupPrefab;
     public GameObject CrystalDoorButtonPrefab;
+
+#if UNITY_EDITOR
+    private void Awake()
+    {
+        if (CrystalDoorSpawners.Count == 0)
+        {
+            Debug.LogWarning("CrystalDoorSpawners Has Not Been Assign To Crystal Door Button Group Spawner", this);
+        }
+    }
+#endif
 }
