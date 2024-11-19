@@ -12,7 +12,7 @@ public class LevelManager : NetworkBehaviour
     private List<GameObject> m_levels = new List<GameObject>();
 
     private GameObject m_currentLevel;
-    [HideInInspector] public int m_currentLevelIndex = -1;
+    //[HideInInspector] public int m_currentLevelIndex = 0;
 
     // variables to keep track of spawning levels
     [HideInInspector] public int LevelSpawningCount = 0;
@@ -21,8 +21,8 @@ public class LevelManager : NetworkBehaviour
     // variable for player spawning
     private List<Vector3> m_playerSpawnPoints = new List<Vector3>();
 
-    public NetworkVariable<TransitionState> State;
-    public NetworkVariable<int> CurrentLevelIndex = new NetworkVariable<int>(0);
+    [HideInInspector] public NetworkVariable<TransitionState> State;
+    [HideInInspector] public NetworkVariable<int> CurrentLevelIndex = new NetworkVariable<int>(0);
 
     private List<NetworkObject> m_networkObjectSpawns = new List<NetworkObject>();
 
@@ -43,7 +43,7 @@ public class LevelManager : NetworkBehaviour
     {
         m_levels.Clear();
         m_levels = levels;
-        m_currentLevelIndex = -1;
+        m_currentLevelIndex = 0;
     }
 
     private void Awake()
@@ -51,10 +51,7 @@ public class LevelManager : NetworkBehaviour
         Instance = this;
         State = new NetworkVariable<TransitionState>(TransitionState.Null);
 
-        if (IsServer)
-        {
-            CurrentLevelIndex.Value = m_currentLevelIndex;
-        }
+
     }
 
     // Start is called before the first frame update
@@ -62,28 +59,38 @@ public class LevelManager : NetworkBehaviour
     {
         base.OnNetworkSpawn();
 
-        if (!IsServer) return;
+        m_currentLevelIndex = 0;
+        m_depthCounter = 0;
 
-        // check if we need to do tutorial
-        var isTutorialComplete = PlayerPrefs.GetInt("IsTutorialComplete", 0);
-        if (isTutorialComplete == 0 && Bootstrap.Instance.ShowTutorialLevel)
+        if (IsLocalPlayer)
         {
-            GoToTutorialLevel();
+            var isTutorialComplete = PlayerPrefs.GetInt("IsTutorialComplete", 0);
+            if (isTutorialComplete == 0 && Bootstrap.Instance.ShowTutorialLevel)
+            {
+                GoToTutorialLevelServerRpc();
+            }
+            else
+            {
+                GoToDegenapeVillageLevelServerRpc();
+            }
         }
-        else
+
+        if (IsServer)
         {
-            GoToDegenapeVillageLevel();
+            CurrentLevelIndex.Value = m_currentLevelIndex;
         }
     }
 
-    public void GoToTutorialLevel()
+    [Rpc(SendTo.Server)]
+    public void GoToTutorialLevelServerRpc()
     {
         SetLevelList(TutorialLevels);
         GoToNextLevel();
         m_depthCounter = -TutorialLevels.Count;
     }
 
-    public void GoToDegenapeVillageLevel()
+    [Rpc(SendTo.Server)]
+    public void GoToDegenapeVillageLevelServerRpc()
     {
         // set ape village as level
         var levels = new List<GameObject>();
@@ -92,6 +99,8 @@ public class LevelManager : NetworkBehaviour
 
         // proceed to our new next level
         GoToNextLevel();
+
+        m_depthCounter = 0;
     }
 
     public bool IsDegenapeVillage()
@@ -204,6 +213,7 @@ public class LevelManager : NetworkBehaviour
         m_currentLevel = Instantiate(m_levels[index]);
         m_currentLevel.GetComponent<NetworkObject>().Spawn();
         m_currentLevelIndex = index;
+        if (IsServer) CurrentLevelIndex.Value = index;
 
         if (IsDegenapeVillage())
         {
@@ -220,7 +230,7 @@ public class LevelManager : NetworkBehaviour
 
             HandleState();
 
-            CurrentLevelIndex.Value = m_currentLevelIndex;
+            //CurrentLevelIndex.Value = m_currentLevelIndex;
 
             NumberAndNameLevel();
         }
