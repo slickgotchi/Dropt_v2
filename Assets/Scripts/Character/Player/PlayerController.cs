@@ -65,6 +65,8 @@ public class PlayerController : NetworkBehaviour
             m_cameraFollower = GameObject.FindGameObjectWithTag("CameraFollower");
             m_cameraFollower.GetComponent<CameraFollowerAndPlayerInteractor>().Player = gameObject;
 
+            m_selectedGotchiId = 0;
+            m_localGotchiId = 0;
             int gotchiId = 0;
             if (PlayerPrefs.HasKey("GotchiId"))
             {
@@ -75,6 +77,8 @@ public class PlayerController : NetworkBehaviour
                 gotchiId = Bootstrap.Instance.TestBlockChainGotchiId;
             }
 
+            GotchiDataManager.Instance.SetSelectedGotchiById(gotchiId);
+
             var virtualCameraGameObject = GameObject.FindGameObjectWithTag("VirtualCamera");
             if (virtualCameraGameObject == null)
             {
@@ -84,7 +88,7 @@ public class PlayerController : NetworkBehaviour
 
             m_virtualCamera = virtualCameraGameObject.GetComponent<CinemachineVirtualCamera>();
 
-            SetNetworkGotchiIdServerRpc(gotchiId);
+            //SetNetworkGotchiIdServerRpc(gotchiId);
         }
         else
         {
@@ -276,6 +280,7 @@ public class PlayerController : NetworkBehaviour
             var isFetchSuccess = await GotchiDataManager.Instance.FetchGotchiById(gotchiId);
             if (isFetchSuccess)
             {
+                PlayerPrefs.SetInt("GotchiId", gotchiId);
                 GetComponent<PlayerSVGs>().Init(gotchiId);
                 GetComponent<PlayerEquipment>().Init(gotchiId);
                 GetComponent<PlayerCharacter>().Init(gotchiId);

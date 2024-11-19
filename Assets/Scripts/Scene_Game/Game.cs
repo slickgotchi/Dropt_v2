@@ -209,11 +209,13 @@ public class Game : MonoBehaviour
                 m_commonName = response.commonName;
 
                 m_unityTransport.SetClientSecrets(m_commonName, m_chainPem);
-                m_unityTransport.SetConnectionData(Bootstrap.Instance.IpAddress, Bootstrap.Instance.GamePort);
                 Debug.Log(m_commonName);
                 Debug.Log(m_chainPem);
             }
+
+            m_unityTransport.SetConnectionData(Bootstrap.Instance.IpAddress, Bootstrap.Instance.GamePort);
         }
+
 
         if (!isGetEmptyGame)
         {
@@ -229,7 +231,6 @@ public class Game : MonoBehaviour
         Debug.Log(Bootstrap.Instance.IpAddress);
         Debug.Log(Bootstrap.Instance.GamePort);
 
-        Debug.Log("StartClient()");
 
         // start client
         var success = NetworkManager.Singleton.StartClient();
@@ -239,6 +240,7 @@ public class Game : MonoBehaviour
             SceneManager.LoadScene("Title");
             return;
         }
+        Debug.Log("StartClient()");
     }
 
     public void ConnectHostGame()
