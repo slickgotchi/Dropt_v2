@@ -75,7 +75,15 @@ public abstract class DoorButton<T> : NetworkBehaviour where T : Enum
             if (btn.spawnerId != spawnerId) continue;
 
             matchingButtons.Add(btn);
-            isAllButtonsDown = btn.State.Value != ButtonState.Up;
+        }
+
+        foreach (var button in matchingButtons)
+        {
+            if (button.State.Value == ButtonState.Up)
+            {
+                isAllButtonsDown = false;
+                break;
+            }
         }
 
         Door<T>[] allDoors = GetAllOtherDoor();
