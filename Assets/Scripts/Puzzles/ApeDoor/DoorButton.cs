@@ -45,7 +45,7 @@ public abstract class DoorButton<T> : NetworkBehaviour where T : Enum
         State.Value = ButtonState.Down;
 
         // popup all other buttons
-        // PopupAllOtherButtons();
+        PopupAllOtherButtons();
 
         // try open door
         TryOpenDoor();
@@ -57,8 +57,15 @@ public abstract class DoorButton<T> : NetworkBehaviour where T : Enum
         for (int i = 0; i < allButtons.Length; i++)
         {
             DoorButton<T> button = allButtons[i];
-            if (button.State.Value == ButtonState.DownLocked) continue;
-            if (button.spawnerId == spawnerId) continue;
+            if (button.State.Value == ButtonState.DownLocked)
+            {
+                continue;
+            }
+
+            if (button.spawnerId == spawnerId)
+            {
+                continue;
+            }
 
             // pop up the button
             button.State.Value = ButtonState.Up;
@@ -75,15 +82,7 @@ public abstract class DoorButton<T> : NetworkBehaviour where T : Enum
             if (btn.spawnerId != spawnerId) continue;
 
             matchingButtons.Add(btn);
-        }
-
-        foreach (var button in matchingButtons)
-        {
-            if (button.State.Value == ButtonState.Up)
-            {
-                isAllButtonsDown = false;
-                break;
-            }
+            if (btn.State.Value == ButtonState.Up) isAllButtonsDown = false;
         }
 
         Door<T>[] allDoors = GetAllOtherDoor();
