@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Thirdweb;
 using TMPro;
+using Cysharp.Threading.Tasks;
 
 namespace GotchiHub
 {
@@ -19,8 +20,6 @@ namespace GotchiHub
 
         [Header("Child Object References")]
         public GameObject gotchiList;
-        //public SVGImage AvatarSvgImage;
-        //public GotchiStatsCard GotchiStatsCard;
 
         [Header("Menus")]
         public GameObject GotchiSelect_Menu;
@@ -200,6 +199,8 @@ namespace GotchiHub
 
             // sign up to onFetchData success function
             m_gotchiDataManager.onFetchGotchiDataSuccess += HandleOnFetchGotchiDataSuccess;
+            m_gotchiDataManager.onFetchedLocalWalletGotchiCount += HandleOnFetchedLocalWalletGotchiCount;
+            m_gotchiDataManager.onFetchedWalletGotchiSVG += HandleOnFetchedWalletGotchiSVG;
         }
 
         public void SetMenuScreen(MenuScreen menuScreen)
@@ -210,10 +211,7 @@ namespace GotchiHub
             {
                 case MenuScreen.NotConnected: GotchiSelect_NotConnected.SetActive(true); break;
                 case MenuScreen.Loading: GotchiSelect_Loading.SetActive(true); break;
-                case MenuScreen.Connected:
-                    GotchiSelect_Menu.SetActive(true);
-                    UpdateGHSTBalance();
-                    break;
+                case MenuScreen.Connected: GotchiSelect_Menu.SetActive(true); break;
                 case MenuScreen.NoGotchis: GotchiSelect_NoGotchis.SetActive(true); break;
                 default: break;
             }
@@ -262,17 +260,48 @@ namespace GotchiHub
 
         void HandleOnFetchGotchiDataSuccess()
         {
-            UpdateGotchiList();
+            //UpdateGotchiList();
+        }
+
+        private int m_totalGotchiCount = 0;
+        private int m_currentGotchiCount = 0;
+
+        async void HandleOnFetchedLocalWalletGotchiCount()
+        {
+            await UniTask.DelayFrame(1);
+
+            m_totalGotchiCount = GotchiDataManager.Instance.localWalletGotchiData.Count;
+            LoadingInfoText.text = $"Loading Gotchis: {m_currentGotchiCount} / {m_totalGotchiCount}";
+            Debug.Log("Gotchi user count: " + m_totalGotchiCount);
+        }
+
+        async void HandleOnFetchedWalletGotchiSVG()
+        {
+            await UniTask.DelayFrame(1);
+
+            m_currentGotchiCount = GotchiDataManager.Instance.localWalletGotchiSvgSets.Count;
+            LoadingInfoText.text = $"Loading Gotchis: {m_currentGotchiCount} / {m_totalGotchiCount}";
+            Debug.Log("Gotchi SVG count: " + m_currentGotchiCount);
+
+            if (m_currentGotchiCount >= m_totalGotchiCount)
+            {
+                UpdateGotchiList();
+            }
         }
 
         private float k_updateInterval = 0.3f;
         private float m_updateTimer = 0f;
 
-        protected async override void Update()
-        {
-            base.Update();
+        private bool m_isFetching = false;
 
-            if (!IsActive()) return;
+        public async override void OnUpdate()
+        {
+            base.OnUpdate();
+
+            if (!GotchiSelectCanvas.Instance.isCanvasOpen) return;
+            if (m_isFetching) return;
+
+            UpdateGHSTBalance();
 
             m_updateTimer -= Time.deltaTime;
             if (m_updateTimer > 0) return;
@@ -299,12 +328,16 @@ namespace GotchiHub
                     ConnectButton.GetComponentInChildren<Image>().color = Dropt.Utils.Color.HexToColor("#d3fc7e");
                     ConnectButton.GetComponentInChildren<TextEllipsisInMiddle>().UpdateTextWithEllipsis();
 
+                    SetMenuScreen(MenuScreen.Loading);
+
                     // fetch new gotchis due to different address
+                    m_isFetching = true;
                     await m_gotchiDataManager.FetchWalletGotchiData();
+                    m_isFetching = false;
                 }
 
                 // show screen depending on gotchi count
-                var numGotchis = m_gotchiDataManager.localGotchiData.Count;
+                var numGotchis = m_gotchiDataManager.localWalletGotchiData.Count;
                 if (numGotchis <= 0)
                 {
                     SetMenuScreen(MenuScreen.NoGotchis);
@@ -315,7 +348,7 @@ namespace GotchiHub
             }
             catch (System.Exception e)
             {
-                Debug.Log(e);
+                //Debug.Log(e);
             }
         }
 
@@ -481,14 +514,6 @@ namespace GotchiHub
 
             // get wearable
             var wearable = WearableManager.Instance.GetWearable(wearableId);
-            //if (wearableId == 0 && isWeapon)
-            //{
-            //    Debug.Log("Setting wearable to unarmed");
-            //    wearable = WearableManager.Instance.GetWearable(1000); // this is the unarmed weapon
-            //    wearableId = 1000;
-            //    Debug.Log(wearable);
-            //}
-            //Debug.Log("got wearable: " + wearable + ", id: " + wearableId);
 
             hp = DroptStatCalculator.GetDroptStatByWearableId(wearableId, TraitType.NRG);
             atk = DroptStatCalculator.GetDroptStatByWearableId(wearableId, TraitType.AGG);
@@ -596,8 +621,8 @@ namespace GotchiHub
             }
 
             // 3. reate new instance of gotchi list item and set parent to gotchi list
-            var gotchiSvgs = m_gotchiDataManager.localGotchiSvgSets;
-            var gotchiData = m_gotchiDataManager.localGotchiData;
+            var gotchiSvgs = m_gotchiDataManager.localWalletGotchiSvgSets;
+            var gotchiData = m_gotchiDataManager.localWalletGotchiData;
             for (int i = 0; i < gotchiSvgs.Count; i++)
             {
                 var newGotchiSelectCard = Instantiate(gotchiSelectCard).GetComponent<GotchiSelectCard>();
