@@ -7,15 +7,17 @@ public class WeaponSwap : Interactable
     [HideInInspector] public NetworkVariable<Wearable.NameEnum> SyncNameEnum;
     public SpriteRenderer SpriteRenderer;
 
+    private Wearable.NameEnum m_localWeaponName = Wearable.NameEnum._10GallonHat;
+
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
 
         Init(WeaponEnum);
 
-        SyncNameEnum.Value = WeaponEnum;
+        if (IsServer) SyncNameEnum.Value = WeaponEnum;
 
-        SyncNameEnum.OnValueChanged += OnNetworkNameChanged;
+        //SyncNameEnum.OnValueChanged += OnNetworkNameChanged;
     }
 
     public override void OnInteractPress()
@@ -81,10 +83,21 @@ public class WeaponSwap : Interactable
         SyncNameEnum.Value = ogEquipment;
     }
 
-    private void OnNetworkNameChanged(Wearable.NameEnum prevValue, Wearable.NameEnum newValue)
+    public override void OnUpdate()
     {
-        Init(newValue);
+        base.OnUpdate();
+
+        if (IsClient && m_localWeaponName != SyncNameEnum.Value)
+        {
+            m_localWeaponName = SyncNameEnum.Value;
+            Init(m_localWeaponName);
+        }
     }
+
+    //private void OnNetworkNameChanged(Wearable.NameEnum prevValue, Wearable.NameEnum newValue)
+    //{
+    //    Init(newValue);
+    //}
 
     private void Init(Wearable.NameEnum wearableNameEnum)
     {

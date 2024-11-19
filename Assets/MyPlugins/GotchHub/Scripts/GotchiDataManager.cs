@@ -104,7 +104,7 @@ namespace GotchiHub
             {
                 if (id == remoteGotchiData[i].id)
                 {
-                    Debug.Log("foudn remote gotchi match: " + remoteGotchiData[i]);
+                    //Debug.Log("foudn remote gotchi match: " + remoteGotchiData[i]);
                     return remoteGotchiData[i];
                 }
             }
@@ -114,7 +114,7 @@ namespace GotchiHub
             {
                 if (id == localWalletGotchiData[i].id)
                 {
-                    Debug.Log("found local gotchi match: " + localWalletGotchiData[i]);
+                    //Debug.Log("found local gotchi match: " + localWalletGotchiData[i]);
                     return localWalletGotchiData[i];
                 }
             }
@@ -161,7 +161,7 @@ namespace GotchiHub
             }
 
             // if got here we were passed invalid id
-            Debug.Log("Invalid id passed to GetGotchiSvgsById()");
+            //Debug.Log("Invalid id passed to GetGotchiSvgsById()");
             return null;
         }
 
@@ -179,8 +179,7 @@ namespace GotchiHub
 
                 // fetch gotchis with aavegotchi kit
                 var userAccount = await graphManager.GetUserAccount(walletAddress);
-
-                onFetchedLocalWalletGotchiCount?.Invoke();
+                Debug.Log("found user gotchis: " + userAccount.gotchisOwned.Length);
 
                 // save base gotchi data
                 var gotchiIds = new List<string>();
@@ -190,20 +189,42 @@ namespace GotchiHub
                     gotchiIds.Add(gotchi.id.ToString());
                 }
 
+                onFetchedLocalWalletGotchiCount?.Invoke();
+
+                await FetchGotchiSvgsParallel(userAccount);
+
+                // get svg one by one for a live update
+                //for (int i = 0; i < userAccount.gotchisOwned.Length; i++)
+                //{
+                //    var svg = await graphManager
+                //        .GetGotchiSvg(userAccount.gotchisOwned[i].ToString());
+
+                //    localWalletGotchiSvgSets.Add(new GotchiSvgSet
+                //    {
+                //        id = int.Parse(gotchiIds[i]),
+                //        Front = svg.svg,
+                //        Back = svg.back,
+                //        Left = svg.left,
+                //        Right = svg.right,
+                //    });
+
+                //    onFetchedWalletGotchiSVG?.Invoke();
+                //}
+
                 // get svgs
-                var svgs = await graphManager.GetGotchiSvgs(gotchiIds);
-                for (int i = 0; i < svgs.Count; i++)
-                {
-                    var svgSet = svgs[i];
-                    localWalletGotchiSvgSets.Add(new GotchiSvgSet
-                    {
-                        id = int.Parse(gotchiIds[i]),
-                        Front = svgSet.svg,
-                        Back = svgSet.back,
-                        Left = svgSet.left,
-                        Right = svgSet.right,
-                    });
-                }
+                //var svgs = await graphManager.GetGotchiSvgs(gotchiIds);
+                //for (int i = 0; i < svgs.Count; i++)
+                //{
+                //    var svgSet = svgs[i];
+                //    localWalletGotchiSvgSets.Add(new GotchiSvgSet
+                //    {
+                //        id = int.Parse(gotchiIds[i]),
+                //        Front = svgSet.svg,
+                //        Back = svgSet.back,
+                //        Left = svgSet.left,
+                //        Right = svgSet.right,
+                //    });
+                //}
 
                 gotchiIds.Clear();
 
@@ -222,8 +243,76 @@ namespace GotchiHub
             }
         }
 
+        public async UniTask FetchGotchiSvgsParallel(UserAccount userAccount)
+        {
+            try
+            {
+                List<UniTask> fetchTasks = new List<UniTask>();
+
+                for (int i = 0; i < userAccount.gotchisOwned.Length; i++)
+                {
+                    Debug.Log("Fetch Gotchi SVG: " + i);
+                    int index = i; // Capture the loop variable to use inside the async lambda
+
+                    var task = UniTask.Create(async () =>
+                    {
+                        // Check for potential null values
+                        if (userAccount.gotchisOwned[index] == null)
+                        {
+                            Debug.LogError($"Gotchi at index {index} is null.");
+                            return;
+                        }
+
+                        Debug.Log($"Gotchi ID: {userAccount.gotchisOwned[index].id}");
+                        if (userAccount.gotchisOwned[index].id == null)
+                        {
+                            Debug.LogError($"Gotchi ID at index {index} is null.");
+                            return;
+                        }
+
+                        var svg = await graphManager.GetGotchiSvg(userAccount.gotchisOwned[index].id.ToString());
+
+                        if (svg == null)
+                        {
+                            Debug.LogError($"SVG data for Gotchi ID {userAccount.gotchisOwned[index].id} is null.");
+                            return;
+                        }
+
+                        localWalletGotchiSvgSets.Add(new GotchiSvgSet
+                        {
+                            id = int.Parse(userAccount.gotchisOwned[index].id.ToString()),
+                            Front = svg.svg,
+                            Back = svg.back,
+                            Left = svg.left,
+                            Right = svg.right,
+                        });
+
+                        Debug.Log("onFetchedWalletGotchiSVG?.Invoke()");
+                        onFetchedWalletGotchiSVG?.Invoke();
+                    });
+
+                    fetchTasks.Add(task);
+                }
+
+                // Await all tasks to complete concurrently
+                await UniTask.WhenAll(fetchTasks);
+            }
+            catch (System.Exception err)
+            {
+                Debug.LogError(err.Message);
+            }
+        }
+
+
+
         public async UniTask<bool> FetchGotchiById(int id)
         {
+            // first check if already have that id
+            var checkGotchiData = GetGotchiDataById(id);
+            if (checkGotchiData != null)
+            {
+                return true;
+            }
 
             var gotchiData = await graphManager.GetGotchiData(id.ToString());
             if (gotchiData != null && gotchiData.id != 0)   // we need to check against id 0 here too because if we don't have the gotchidata we still seem to return a valid gotchiData object
