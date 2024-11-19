@@ -114,6 +114,10 @@ public class LevelManager : NetworkBehaviour
         {
             return true;
         }
+        if (m_levels[CurrentLevelIndex.Value] == null)
+        {
+            return true;
+        }
 
         return (m_levels[CurrentLevelIndex.Value] == ApeVillageLevel);
     }
@@ -312,16 +316,17 @@ public class LevelManager : NetworkBehaviour
     {
         if (!IsServer) return;
 
+        // destroy current level
+        DestroyCurrentLevel();
+
         // if we are on last level, return to degenape
         if (m_currentLevelIndex >= m_levels.Count - 1)
         {
+            Debug.Log("Return to Degenape village");
             var levels = new List<GameObject>();
             levels.Add(ApeVillageLevel);
             SetLevelList(levels);
         }
-
-        // destroy current level
-        DestroyCurrentLevel();
 
         // get index for next level
         int nextLevelIndex = m_currentLevelIndex + 1;
