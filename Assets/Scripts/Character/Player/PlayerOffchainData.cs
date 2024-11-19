@@ -69,11 +69,12 @@ public class PlayerOffchainData : NetworkBehaviour
 
     // isEnteredDungeon
     private bool m_isEnteredDungeon = false;
-    private bool m_isDegenapeVillage = true;
+    //private bool m_isDegenapeVillage = true;
 
     public override void OnNetworkSpawn()
     {
-        
+        m_walletAddress = null;
+        m_gotchiId = 0;
     }
 
     public override void OnNetworkDespawn()
@@ -177,6 +178,7 @@ public class PlayerOffchainData : NetworkBehaviour
                 Wallet_Data data = JsonUtility.FromJson<Wallet_Data>(responseStr);
                 ectoBalance_offchain.Value = data.ecto_balance;
                 bombBalance_offchain.Value = data.bomb_balance;
+                Debug.Log("Create new wallet entry in offchain database for " + walletAddress);
                 return;
             }
         }
@@ -201,7 +203,7 @@ public class PlayerOffchainData : NetworkBehaviour
         if (gotchiId != m_gotchiId)
         {
             m_gotchiId = gotchiId;
-            PlayerPrefs.SetInt("GotchiId", m_gotchiId);
+            //PlayerPrefs.SetInt("GotchiId", m_gotchiId);
             GetLatestOffchainGotchiDataServerRpc(m_gotchiId);
         }
     }
@@ -258,6 +260,7 @@ public class PlayerOffchainData : NetworkBehaviour
                 healSalveDungeonCharges_offchain.Value = data.heal_salve_dungeon_charges;
                 dustBalance_offchain.Value = data.dust_balance;
                 isEssenceInfused_offchain.Value = data.is_essence_infused;
+                Debug.Log("Created new database entry for gotchi: " + gotchiId);
                 return;
             }
         }
