@@ -1,19 +1,8 @@
 using UnityEngine;
 using Unity.Netcode;
-using NUnit.Framework;
-using System.Collections.Generic;
 
-public class ApeDoor : NetworkBehaviour
+public class ApeDoor : Door<ApeDoorType>
 {
-    [Header("State")]
-    public NetworkVariable<ApeDoorType> Type;
-    public NetworkVariable<DoorState> State;
-    public int NumberButtons = 2;
-    public int spawnerId = -1;
-
-    public ApeDoorType initType;
-    public DoorState initState;
-
     [Header("Emblems")]
     public SpriteRenderer LeftEmblem;
     public SpriteRenderer RightEmblem;
@@ -34,72 +23,27 @@ public class ApeDoor : NetworkBehaviour
     public Sprite SquareLeft;
     public Sprite SquareRight;
 
-    [Header("Access")]
-    [SerializeField] private Collider2D ClosedCollider;
-    [SerializeField] private Collider2D OpenCollider;
-
-    private DoorState m_localDoorState = DoorState.Closed;
-
     private Animator m_animator;
 
-    private void Awake()
+    public override void Awake()
     {
         m_animator = GetComponent<Animator>();
         Type = new NetworkVariable<ApeDoorType>(ApeDoorType.Crescent);
-        State = new NetworkVariable<DoorState>(DoorState.Closed);
+        base.Awake();
     }
 
-    public override void OnNetworkSpawn()
+    public override void Update()
     {
-        base.OnNetworkSpawn();
-
-        if (IsServer)
-        {
-            SetTypeAndState(initType, initState);
-        }
+        base.Update();
+        UpdateSprite();
     }
 
-    private void Update()
+    public override void OpenDoorAnimation()
     {
-        if (IsClient)
-        {
-            // check if door is open
-            if (m_localDoorState == DoorState.Closed && State.Value == DoorState.Open)
-            {
-                m_animator.Play("ApeDoor_Open");
-                m_localDoorState = State.Value;
-            }
-
-            UpdateSprite();
-        }
-
-        UpdateColliders();
+        m_animator.Play("ApeDoor_Open");
     }
 
-    void UpdateColliders()
-    {
-        ClosedCollider.gameObject.SetActive(State.Value == DoorState.Closed);
-        OpenCollider.gameObject.SetActive(State.Value == DoorState.Open);
-    }
-
-    public void Open()
-    {
-        if (!IsServer) return;
-
-        State.Value = DoorState.Open;
-    }
-
-    public void SetTypeAndState(ApeDoorType apeDoorType, DoorState doorState)
-    {
-        if (!IsServer) return;
-
-        Type.Value = apeDoorType;
-        State.Value = doorState;
-
-        UpdateColliders();
-    }
-
-    void UpdateSprite()
+    public void UpdateSprite()
     {
         if (!IsClient) return;
 
@@ -128,14 +72,4 @@ public class ApeDoor : NetworkBehaviour
             default: break;
         }
     }
-}
-
-public enum ApeDoorType
-{
-    Crescent, Triangle, Hexagon, Plus, Square,
-}
-
-public enum DoorState
-{
-    Open, Closed,
 }
