@@ -17,7 +17,7 @@ namespace GotchiHub
 
         public void UpdateStatsCard()
         {
-            if (GotchiDataManager.Instance.localGotchiData.Count <= 0) return;
+            if (GotchiDataManager.Instance.localWalletGotchiData.Count <= 0) return;
 
             var gotchiData = GotchiDataManager.Instance.GetGotchiDataById(GotchiDataManager.Instance.GetSelectedGotchiId());
             if (gotchiData == null) return;

@@ -92,9 +92,6 @@ public class LevelManager : NetworkBehaviour
 
         // proceed to our new next level
         GoToNextLevel();
-
-        // set depth counter to 0
-        m_depthCounter = 0;
     }
 
     public bool IsDegenapeVillage()
@@ -203,6 +200,12 @@ public class LevelManager : NetworkBehaviour
         m_currentLevel = Instantiate(m_levels[index]);
         m_currentLevel.GetComponent<NetworkObject>().Spawn();
         m_currentLevelIndex = index;
+
+        if (IsDegenapeVillage())
+        {
+            Debug.Log("Set depth counter to 0");
+            m_depthCounter = -1;
+        }
     }
 
     private void Update()
@@ -354,9 +357,21 @@ public class LevelManager : NetworkBehaviour
             //NavigationSurfaceSingleton.Instance.Surface.UpdateNavMesh(NavigationSurfaceSingleton.Instance.Surface.navMeshData);
             //NavigationSurfaceSingleton.Instance.Surface.BuildNavMesh();
 
+            // check if level uses render mesh or physics colliders
+            var networkLevel = m_levels[m_currentLevelIndex].GetComponent<Level.NetworkLevel>();
+
             var navMeshes = FindObjectsByType<NavMeshPlus.Components.NavMeshSurface>(FindObjectsSortMode.None);
             foreach (var surface in navMeshes)
             {
+                if (networkLevel.navmeshGeneration == Level.NetworkLevel.NavmeshGeneration.PhysicsColliders)
+                {
+                    surface.useGeometry = UnityEngine.AI.NavMeshCollectGeometry.PhysicsColliders;
+                }
+                else
+                {
+                    surface.useGeometry = UnityEngine.AI.NavMeshCollectGeometry.RenderMeshes;
+                }
+
                 surface.BuildNavMesh();
             }
 
@@ -442,18 +457,4 @@ public class LevelManager : NetworkBehaviour
 
         return spawnPoint;
     }
-
-
-    //private void OnPlaySound(string type, Vector3 position, ulong id)
-    //{
-    //    if (!IsServer || id != 0)
-    //        return;
-
-    //    PlaySoundClientRpc(type, position, id);
-    //}
-
-    //[Rpc(SendTo.NotMe)]
-    //void PlaySoundClientRpc(string type, Vector3 position, ulong id)
-    //{
-    //}
 }

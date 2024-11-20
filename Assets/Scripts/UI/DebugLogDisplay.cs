@@ -8,6 +8,8 @@ public class DebugLogDisplay : MonoBehaviour
     [SerializeField] private TextMeshProUGUI logText; // Reference to the TextMeshProUGUI component
     [SerializeField] private ScrollRect scrollRect; // Reference to the Scroll Rect component
 
+    private bool needsScrollUpdate = false; // Flag to indicate if the scroll needs updating
+
     private void Awake()
     {
         // Subscribe to the Application log message callback
@@ -26,6 +28,13 @@ public class DebugLogDisplay : MonoBehaviour
         {
             container.SetActive(!container.activeSelf);
         }
+
+        // Update the scroll position at the end of the frame if needed
+        if (needsScrollUpdate)
+        {
+            scrollRect.verticalNormalizedPosition = 0f;
+            needsScrollUpdate = false; // Reset the flag
+        }
     }
 
     private void HandleLog(string logString, string stackTrace, LogType type)
@@ -33,8 +42,7 @@ public class DebugLogDisplay : MonoBehaviour
         // Append the log message to the TextMeshProUGUI
         logText.text += $"{logString}\n";
 
-        // Scroll to the bottom
-        Canvas.ForceUpdateCanvases();
-        scrollRect.verticalNormalizedPosition = 0f;
+        // Set the flag to update the scroll in the next frame
+        needsScrollUpdate = true;
     }
 }

@@ -44,7 +44,7 @@ public class CoOpModeCanvas : DroptCanvas
         HideCanvas();
     }
 
-    protected override void Update()
+    public override void OnUpdate()
     {
         m_updateTimer -= Time.deltaTime;
 

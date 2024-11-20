@@ -64,7 +64,7 @@ public class GotchiSelectCard : MonoBehaviour
         var offchainGotchiData = GotchiDataManager.Instance.GetOffchainGotchiDataById(id);
         if (offchainGotchiData != null)
         {
-            Debug.Log("Setting offchain gotchi data");
+            //Debug.Log("Setting offchain gotchi data");
             OffchainImage.sprite = offchainGotchiData.spriteFront;
             OffchainImage.material = GotchiDataManager.Instance.Material_Sprite_Unlit_Default;
             m_nameText.text = offchainGotchiData.gotchiName;
