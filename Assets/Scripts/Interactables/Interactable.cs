@@ -105,7 +105,7 @@ public class Interactable : NetworkBehaviour
         }
     }
 
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server)]
     private void SetPlayerNetworkObjectIdServerRpc(ulong playerObjectId)
     {
         playerNetworkObjectId = playerObjectId;
@@ -113,8 +113,16 @@ public class Interactable : NetworkBehaviour
 
     private void Update()
     {
+        // this function just helps get the interact ui input actions
         TryGetLocalPlayerPrediction();
+        if (m_localPlayerPrediction == null) return;
 
+        // only run the below code if we are the local player and in client mode
+        if (!m_localPlayerPrediction.GetComponent<NetworkObject>().IsLocalPlayer || !IsClient) return;
+
+        // ALL BELOW CODE ONLY RUNS ON THE CLIENT OF THE LOCAL PLAYER
+
+        // trigger updates for children
         OnUpdate();
 
         m_pressTimer -= Time.deltaTime;
