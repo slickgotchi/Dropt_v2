@@ -41,7 +41,7 @@ public class PlayerOffchainData : NetworkBehaviour
     public NetworkVariable<bool> isEssenceInfused_offchain = new NetworkVariable<bool>(false);
 
     // dungeon (dungeon run data set at the start of a dungeon run)
-    public NetworkVariable<int> ectoDebitStartCount_dungeon = new NetworkVariable<int>(0);
+    public NetworkVariable<int> ectoDebitStartAmount_dungeon = new NetworkVariable<int>(0);
     public NetworkVariable<int> ectoDebitCount_dungeon = new NetworkVariable<int>(0);       // this is the ecto out of your offchain bank account you start with
     public NetworkVariable<int> ectoLiveCount_dungeon = new NetworkVariable<int>(0);        // this is the ecto that gets added to as you collect ecto, starts at 0
     public NetworkVariable<int> dustLiveCount_dungeon = new NetworkVariable<int>(0);
@@ -84,7 +84,10 @@ public class PlayerOffchainData : NetworkBehaviour
         // WARNING: we need a way to differentiate between full disconnects and temporary internet loss disconnect/reconnects
         if (IsServer)
         {
-            ExitDungeonCalculateBalances(false);
+            if (LevelManager.Instance.IsDungeon() || LevelManager.Instance.IsDungeonRest())
+            {
+                ExitDungeonCalculateBalances(false);
+            }
         }
     }
 
@@ -238,7 +241,6 @@ public class PlayerOffchainData : NetworkBehaviour
         if (gotchiId != m_gotchiId)
         {
             m_gotchiId = gotchiId;
-            //PlayerPrefs.SetInt("GotchiId", m_gotchiId);
             GetLatestOffchainGotchiDataServerRpc(m_gotchiId);
         }
     }
@@ -312,15 +314,23 @@ public class PlayerOffchainData : NetworkBehaviour
 
         if (!IsServer) return;
 
-        ectoDebitStartCount_dungeon.Value = math.min(ectoDungeonStartAmount_offchain.Value, ectoBalance_offchain.Value);
-        ectoDebitCount_dungeon.Value = ectoDebitStartCount_dungeon.Value;
+        // ecto calcs
+        ectoDebitStartAmount_dungeon.Value =
+            math.min(ectoDungeonStartAmount_offchain.Value, ectoBalance_offchain.Value);
+        ectoDebitCount_dungeon.Value = ectoDebitStartAmount_dungeon.Value;
         ectoLiveCount_dungeon.Value = 0;
 
+        Debug.Log($"ectoDebitStartCount: {ectoDebitStartAmount_dungeon.Value}");
+
+        // dust starts at 0 always
         dustLiveCount_dungeon.Value = 0;
 
-        bombStartCount_dungeon.Value = math.min(bombDungeonCapacity_offchain.Value, bombBalance_offchain.Value);
+        // bomb counts
+        bombStartCount_dungeon.Value =
+            math.min(bombDungeonCapacity_offchain.Value, bombBalance_offchain.Value);
         bombLiveCount_dungeon.Value = bombStartCount_dungeon.Value;
 
+        // heal charge to full
         healSalveChargeCount_dungeon.Value = healSalveDungeonCharges_offchain.Value;
     }
 
@@ -332,12 +342,14 @@ public class PlayerOffchainData : NetworkBehaviour
         if (!IsServer) return;
 
         var postDungeonEctoDelta = isEscaped ?
-            ectoDebitCount_dungeon.Value - ectoDebitStartCount_dungeon.Value + ectoLiveCount_dungeon.Value :
+            ectoDebitCount_dungeon.Value - ectoDebitStartAmount_dungeon.Value + ectoLiveCount_dungeon.Value :
             ectoDebitCount_dungeon.Value - ectoDungeonStartAmount_offchain.Value;
         var postDungeonDustDelta = isEscaped ?
             (int)(dustLiveCount_dungeon.Value * CodeInjector.Instance.GetOutputMultiplier()) :
             0;
         var postDungeonBombDelta = bombLiveCount_dungeon.Value - bombStartCount_dungeon.Value;
+
+        Debug.Log($"postDungeonEctoDelta: " + postDungeonEctoDelta);
 
         // log wallet deltas
         try
@@ -345,7 +357,7 @@ public class PlayerOffchainData : NetworkBehaviour
             await LogWalletDeltaDataServerRpcAsync(postDungeonEctoDelta, postDungeonBombDelta);
 
             // successfully logged deltas so zero all the balances
-            ectoDebitStartCount_dungeon.Value = 0;
+            ectoDebitStartAmount_dungeon.Value = 0;
             ectoDebitCount_dungeon.Value = 0;
             ectoLiveCount_dungeon.Value = 0;
             bombStartCount_dungeon.Value = 0;
@@ -463,16 +475,51 @@ public class PlayerOffchainData : NetworkBehaviour
         dustLiveCount_dungeon.Value += value;
     }
 
-    // Method to add value to ecto
-    public void AddDungeonEcto(int value)
+    // Method to add ecto
+    public bool AddEcto(int value)
     {
-        if (!IsServer) return;
+        if (!IsServer) return false;
+        if (value <= 0) return false;
 
         ectoLiveCount_dungeon.Value += value;
+
+        return true;
     }
 
     // Method to remove ecto
-    public bool TrySpendDungeonEcto(int value)
+    public async UniTask<bool> RemoveEcto(int value)
+    {
+        if (!IsServer) return false;
+        if (value <= 0) return false;
+
+        // if in village, deduct straight from database
+        if (LevelManager.Instance.IsDegenapeVillage())
+        {
+            // check if we have sufficent ecto balance
+            if (value <= ectoBalance_offchain.Value)
+            {
+                try
+                {
+                    await LogWalletDeltaDataServerRpcAsync(-value, 0);
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+        }
+        // if in dungeon, deduct from ecto live count
+        else
+        {
+            return TrySpendDungeonEcto(value);
+        }
+
+        return true;
+    }
+
+    // Method to remove ecto
+    private bool TrySpendDungeonEcto(int value)
     {
         if (!IsServer) return false;
 

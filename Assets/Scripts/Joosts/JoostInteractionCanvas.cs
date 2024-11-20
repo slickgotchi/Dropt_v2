@@ -13,12 +13,13 @@ public class JoostInteractionCanvas : MonoBehaviour
     public TextMeshProUGUI NameText;
     public TextMeshProUGUI DescriptionText;
     public TextMeshProUGUI CostText;
-
+    public TextMeshProUGUI PurchasedText;
 
     private void Awake()
     {
         Instance = this;
         Container.SetActive(false);
+        PurchasedText.gameObject.SetActive(false);
     }
 
     public void Init(string name, string description, string cost)

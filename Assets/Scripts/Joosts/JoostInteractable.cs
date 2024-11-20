@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using Cysharp.Threading.Tasks;
 
 public class JoostInteractable : Interactable
 {
@@ -36,36 +37,42 @@ public class JoostInteractable : Interactable
         BuffObject = joostData.buffObject;
 
         m_spriteRenderer.sprite = m_sprite;
-        //Debug.Log(m_spriteRenderer.sprite);
     }
 
     public override void OnTriggerEnter2DInteraction()
     {
+        base.OnTriggerEnter2DInteraction();
+
+        PlayerHUDCanvas.Instance.ShowPlayerInteractionCanvii(interactionText, interactableType);
         JoostInteractionCanvas.Instance.Container.SetActive(true);
         JoostInteractionCanvas.Instance.Init(m_name, m_description, m_cost.ToString());
     }
 
-    public override void OnTriggerUpdateInteraction()
-    {
-        if (Input.GetKeyDown(KeyCode.F))
-        {
-            Debug.Log("Try consume joost!");
-            TryAddJoostBuffServerRpc();
-        }
-    }
-
     public override void OnTriggerExit2DInteraction()
     {
+        base.OnTriggerExit2DInteraction();
+
+        PlayerHUDCanvas.Instance.HidePlayerInteractionCanvii(interactableType);
         JoostInteractionCanvas.Instance.Container.SetActive(false);
+    }
+
+    public override void OnInteractHoldFinish()
+    {
+        TryAddJoostBuffServerRpc();
     }
 
     [Rpc(SendTo.Server)]
     void TryAddJoostBuffServerRpc()
     {
+        TryAddJoostBufferServerRpcAsync();
+    }
+
+    private async UniTaskVoid TryAddJoostBufferServerRpcAsync()
+    {
         var playerController = GetPlayerController();
         var playerDungeonData = playerController.GetComponent<PlayerOffchainData>();
 
-        bool isSuccess = playerDungeonData.TrySpendDungeonEcto(m_cost);
+        bool isSuccess = await playerDungeonData.RemoveEcto(m_cost);
 
         // check we have enough cGHST
         if (!isSuccess) return;
@@ -74,6 +81,8 @@ public class JoostInteractable : Interactable
         var levelCountedBuff = levelCountedBuffObject.AddComponent<LevelCountedBuff>();
         bool isBuffAdded = levelCountedBuff.TryInit(BuffObject, playerController.GetComponent<NetworkCharacter>(), NumberLevels);
         if (!isBuffAdded) return;
+
+        Debug.Log("Applied buff");
     }
 
     private string AddSpacesToCamelCase(string text)

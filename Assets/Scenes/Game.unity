@@ -516,7 +516,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -40, y: -32}
+  m_SizeDelta: {x: -48, y: -32}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &63256059
 GameObject:
@@ -8511,7 +8511,7 @@ RectTransform:
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
   m_AnchoredPosition: {x: -40, y: 0}
-  m_SizeDelta: {x: 34, y: 34}
+  m_SizeDelta: {x: 32, y: 32}
   m_Pivot: {x: 1, y: 0}
 --- !u!114 &673338768
 MonoBehaviour:
@@ -14220,7 +14220,7 @@ GameObject:
   - component: {fileID: 947812555}
   - component: {fileID: 947812556}
   m_Layer: 5
-  m_Name: JoostInteractionCanvas_30
+  m_Name: JoostInteractionCanvas_31
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -14242,6 +14242,7 @@ MonoBehaviour:
   NameText: {fileID: 245909114}
   DescriptionText: {fileID: 459158099}
   CostText: {fileID: 1744070044}
+  PurchasedText: {fileID: 0}
 --- !u!114 &947812551
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14303,7 +14304,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 1369312413
-  m_SortingOrder: 30
+  m_SortingOrder: 31
   m_TargetDisplay: 0
 --- !u!224 &947812554
 RectTransform:
@@ -14783,7 +14784,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -16, y: -16}
+  m_AnchoredPosition: {x: -10, y: -10}
   m_SizeDelta: {x: 300, y: 180}
   m_Pivot: {x: 1, y: 1}
 --- !u!1 &987970761
@@ -17001,8 +17002,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 2.5, y: 0}
-  m_SizeDelta: {x: 5, y: 10}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1131296812
 MonoBehaviour:
@@ -18422,7 +18423,7 @@ GameObject:
   - component: {fileID: 1199214928}
   - component: {fileID: 1199214927}
   m_Layer: 5
-  m_Name: PressFText
+  m_Name: PurchasedText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -18467,7 +18468,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Press [ F ] to purchase
+  m_text: '[ Purchased ]'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: ab305ece792064d47b813980fae95512, type: 2}
   m_sharedMaterial: {fileID: -8818544379179831580, guid: ab305ece792064d47b813980fae95512, type: 2}
@@ -18476,8 +18477,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4294281715
+  m_fontColor: {r: 0.9529412, g: 0.5372549, b: 0.9607843, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -24638,7 +24639,7 @@ RectTransform:
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
   m_AnchoredPosition: {x: -0.000030517578, y: 0}
-  m_SizeDelta: {x: 40, y: 34}
+  m_SizeDelta: {x: 40, y: 32}
   m_Pivot: {x: 1, y: 0}
 --- !u!114 &1744070044
 MonoBehaviour:
@@ -24687,8 +24688,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 24
-  m_fontSizeBase: 24
+  m_fontSize: 18
+  m_fontSizeBase: 18
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -27163,7 +27164,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: ddc36e0c24e5fb6449315aa18b2b691e, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 0f3caacd638ed24459e2b714e1105535, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -34735,7 +34736,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 7726011939055877477}
   m_HandleRect: {fileID: 7893278136872487645}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -84193,8 +84194,8 @@ SceneRoots:
   - {fileID: 615761737}
   - {fileID: 844833471}
   - {fileID: 1578439151}
-  - {fileID: 947812554}
   - {fileID: 1958395813857542698}
+  - {fileID: 947812554}
   - {fileID: 5360735319557151951}
   - {fileID: 987970765}
   - {fileID: 2131860777}
