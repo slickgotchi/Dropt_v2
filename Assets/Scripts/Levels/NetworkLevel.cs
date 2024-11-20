@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Chest;
 using Level.Traps;
 using Unity.Netcode;
 using UnityEngine;
@@ -22,18 +21,17 @@ namespace Level
         {
             base.OnNetworkSpawn();
 
-            UnityEngine.Random.InitState(System.DateTime.Now.Millisecond);
+            Random.InitState(System.DateTime.Now.Millisecond);
 
             if (IsServer)
             {
-
                 // legacy spawn factories to be replaced one day
                 SubLevelFactory.CreateSubLevels(gameObject);
                 TrapsGroupSpawnerFactory.CreateTraps(gameObject);
 
-
                 // UPDATE: simplified "create" game logic
                 CreateSpawners_ApeDoorsAndButtons();
+                CreateSpawners_CrystalDoorsAndButtons();
                 CreateSpawners_SunkenFloorsAndButtons();
                 CreateSpawners_NetworkObject_v2();
                 CreateSpawners_SpawnOnDestroyGroup();
@@ -45,7 +43,6 @@ namespace Level
             if (IsClient)
             {
                 CleanupSpawnerObjects();
-
                 AudioManager.Instance.CrossfadeMusic(levelMusic == null ? AudioLibrary.Instance.UndergroundForest : levelMusic);
             }
         }
@@ -53,7 +50,6 @@ namespace Level
         public override void OnNetworkDespawn()
         {
             // Implement any necessary cleanup here
-
             base.OnNetworkDespawn();
         }
 
@@ -72,6 +68,8 @@ namespace Level
             // UPDATE: simplified cleanup
             DestroySpawnerObjects<ApeDoorSpawner>();
             DestroySpawnerObjects<ApeDoorButtonGroupSpawner>();
+            DestroySpawnerObjects<CrystalDoorSpawner>();
+            DestroySpawnerObjects<CrystalDoorButtonGroupSpawner>();
             DestroySpawnerObjects<SunkenFloorSpawner>();
             DestroySpawnerObjects<SunkenFloorButtonGroupSpawner>();
             DestroySpawnerObjects<NetworkObjectPrefabSpawner>();
@@ -88,10 +86,10 @@ namespace Level
 
         public void DestroySpawnerObjects<T>() where T : Component
         {
-            var spawnerObjects = new List<T>(GetComponentsInChildren<T>());
+            List<T> spawnerObjects = new List<T>(GetComponentsInChildren<T>());
             foreach (var spawnerObject in spawnerObjects)
             {
-                Object.Destroy(spawnerObject.gameObject);
+                Destroy(spawnerObject.gameObject);
             }
         }
 
@@ -99,9 +97,9 @@ namespace Level
         {
             while (parent.childCount > 0)
             {
-                var child = parent.GetChild(0);
+                Transform child = parent.GetChild(0);
                 child.parent = null;
-                Object.Destroy(child.gameObject);
+                Destroy(child.gameObject);
             }
         }
     }
