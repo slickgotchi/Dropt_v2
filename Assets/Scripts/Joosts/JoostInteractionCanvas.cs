@@ -22,10 +22,11 @@ public class JoostInteractionCanvas : MonoBehaviour
         PurchasedText.gameObject.SetActive(false);
     }
 
-    public void Init(string name, string description, string cost)
+    public void Init(string name, string description, string cost, bool isPurchased)
     {
         NameText.text = name;
         DescriptionText.text = description;
         CostText.text = cost;
+        PurchasedText.gameObject.SetActive(isPurchased);
     }
 }

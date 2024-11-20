@@ -43,9 +43,11 @@ public class JoostInteractable : Interactable
     {
         base.OnTriggerEnter2DInteraction();
 
+        // see if we already have the buff
+
         PlayerHUDCanvas.Instance.ShowPlayerInteractionCanvii(interactionText, interactableType);
         JoostInteractionCanvas.Instance.Container.SetActive(true);
-        JoostInteractionCanvas.Instance.Init(m_name, m_description, m_cost.ToString());
+        JoostInteractionCanvas.Instance.Init(m_name, m_description, m_cost.ToString(), false);
     }
 
     public override void OnTriggerExit2DInteraction()
@@ -58,18 +60,20 @@ public class JoostInteractable : Interactable
 
     public override void OnInteractHoldFinish()
     {
-        TryAddJoostBuffServerRpc();
+        TryAddJoostBuffServerRpc(localPlayerNetworkObjectId);
     }
 
     [Rpc(SendTo.Server)]
-    void TryAddJoostBuffServerRpc()
+    void TryAddJoostBuffServerRpc(ulong playerNetworkObjectId)
     {
-        TryAddJoostBufferServerRpcAsync();
+        TryAddJoostBufferServerRpcAsync(playerNetworkObjectId);
     }
 
-    private async UniTaskVoid TryAddJoostBufferServerRpcAsync()
+    private async UniTaskVoid TryAddJoostBufferServerRpcAsync(ulong playerNetworkObjectId)
     {
-        var playerController = GetPlayerController();
+        if (!IsServer) return;
+
+        var playerController = GetPlayerController(playerNetworkObjectId);
         var playerDungeonData = playerController.GetComponent<PlayerOffchainData>();
 
         bool isSuccess = await playerDungeonData.RemoveEcto(m_cost);

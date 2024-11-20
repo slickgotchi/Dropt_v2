@@ -24,7 +24,7 @@ public class EctoDoor : Interactable
     public override void OnInteractHoldFinish()
     {
         base.OnInteractHoldFinish();
-        TryOpenDoorServerRpc();
+        TryOpenDoorServerRpc(localPlayerNetworkObjectId);
     }
 
     public override void OnTriggerEnter2DInteraction()
@@ -42,21 +42,21 @@ public class EctoDoor : Interactable
     }
 
     [Rpc(SendTo.Server)]
-    private void TryOpenDoorServerRpc()
+    private void TryOpenDoorServerRpc(ulong playerNetworkObjectId)
     {
-        TryOpenDoorServerRpcAsync();
+        TryOpenDoorServerRpcAsync(playerNetworkObjectId);
     }
 
-    private async UniTaskVoid TryOpenDoorServerRpcAsync()
+    private async UniTaskVoid TryOpenDoorServerRpcAsync(ulong playerNetworkObjectId)
     {
-        PlayerController playerController = GetPlayerController();
+        var playerController = GetPlayerController(playerNetworkObjectId);
         if (playerController == null)
         {
             Debug.LogWarning("PlayerController not in range of EctoDoor");
             return;
         }
 
-        PlayerOffchainData playerDungeonData = playerController.GetComponent<PlayerOffchainData>();
+        var playerDungeonData = playerController.GetComponent<PlayerOffchainData>();
 
         bool isSuccess = await playerDungeonData.RemoveEcto(m_costToOpenTheDoor);
         if (!isSuccess)
@@ -83,7 +83,7 @@ public class EctoDoor : Interactable
     [Rpc(SendTo.ClientsAndHost)]
     private void NotifyNotEnoughBalanceClientRpc()
     {
-        if (!GetPlayerController().IsLocalPlayer)
+        if (!GetPlayerController(localPlayerNetworkObjectId).IsLocalPlayer)
         {
             return;
         }

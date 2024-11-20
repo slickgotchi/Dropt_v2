@@ -12,7 +12,7 @@ public class Interactable_FinishTutorial : Interactable
             // we set tutorial complete to 1 
             PlayerPrefs.SetInt("IsTutorialComplete", 1);
 
-            TryGoToDegeneapeVillageServerRpc(playerNetworkObjectId);
+            TryGoToDegeneapeVillageServerRpc(localPlayerNetworkObjectId);
         }
     }
 

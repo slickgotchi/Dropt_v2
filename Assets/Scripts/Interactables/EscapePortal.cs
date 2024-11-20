@@ -12,8 +12,8 @@ public class EscapePortal : Interactable
 
     public override void OnInteractHoldFinish()
     {
-        // ask server if our interacting player can escape
-        TryEscapeServerRpc(playerNetworkObjectId);
+        // ask server if our interacting local player can escape
+        TryEscapeServerRpc(localPlayerNetworkObjectId);
     }
 
     public override void OnTriggerEnter2DInteraction()
