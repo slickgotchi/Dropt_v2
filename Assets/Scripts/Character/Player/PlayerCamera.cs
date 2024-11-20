@@ -30,6 +30,9 @@ public class PlayerCamera : NetworkBehaviour
 
     public void Shake(float intensity = 1.5f, float time = 0.3f)
     {
+        // lets get rid of camera shake for now
+        return;
+
         if (!IsLocalPlayer || !IsSpawned) return;
 
         m_perlin.m_AmplitudeGain = intensity;

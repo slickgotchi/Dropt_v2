@@ -161,11 +161,11 @@ public class WeaponSwapCanvas_v2 : DroptCanvas
     {
         if (pos == NewWeaponPosition.Left)
         {
-            m_swapInfoText.text = "Press F to confirm swap out existing left hand weapon";
+            m_swapInfoText.text = "Press F to swap out existing left hand weapon";
         }
         else if (pos == NewWeaponPosition.Right)
         {
-            m_swapInfoText.text = "Press F to confirm swap out existing right hand weapon";
+            m_swapInfoText.text = "Press F to swap out existing right hand weapon";
         }
         else
         {

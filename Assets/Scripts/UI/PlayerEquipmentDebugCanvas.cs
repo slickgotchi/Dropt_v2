@@ -23,12 +23,15 @@ public class PlayerEquipmentDebugCanvas : DroptCanvas
 
     private void Awake()
     {
-        Instance = this;
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
+
+        InstaHideCanvas();
     }
 
     bool m_isInitialized = false;
 
-    private void Update()
+    public override void OnUpdate()
     {
         FindLatestPlayerEquipment();
         if (playerEquipment != null)
@@ -44,7 +47,7 @@ public class PlayerEquipmentDebugCanvas : DroptCanvas
 
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            if (IsActive())
+            if (PlayerEquipmentDebugCanvas.Instance.isCanvasOpen)
             {
                 HideCanvas();
             } else
