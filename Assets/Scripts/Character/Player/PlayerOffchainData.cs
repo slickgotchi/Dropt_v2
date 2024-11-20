@@ -69,12 +69,14 @@ public class PlayerOffchainData : NetworkBehaviour
 
     // isEnteredDungeon
     private bool m_isEnteredDungeon = false;
-    //private bool m_isDegenapeVillage = true;
+
+    private Level.NetworkLevel.LevelType m_currentLevelType;
 
     public override void OnNetworkSpawn()
     {
         m_walletAddress = null;
         m_gotchiId = 0;
+        m_currentLevelType = Level.NetworkLevel.LevelType.Null;
     }
 
     public override void OnNetworkDespawn()
@@ -97,7 +99,40 @@ public class PlayerOffchainData : NetworkBehaviour
 
         if (IsServer)
         {
-            CheckIsEnteredDungeon();
+            CheckCurrentLevelType_SERVER();
+        }
+    }
+
+    void CheckCurrentLevelType_SERVER()
+    {
+        if (!IsServer) return;
+
+        if (m_currentLevelType != LevelManager.Instance.GetCurrentLevelType())
+        {
+            var newLevelType = LevelManager.Instance.GetCurrentLevelType();
+
+            // perform once off code when moving from degenape to dungeon
+            if (newLevelType == Level.NetworkLevel.LevelType.Dungeon &&
+                m_currentLevelType == Level.NetworkLevel.LevelType.DegenapeVillage)
+            {
+                EnterDungeonCalculateBalances();
+            }
+
+            // perform once off code if we go from a dungeon or dungeonrest back to the village (via hole)
+            // THIS SHOULD ONLY HAPPEN DURING TESTING AND NOT IN ACTUAL GAMEPLAY
+            if (newLevelType == Level.NetworkLevel.LevelType.DegenapeVillage &&
+                m_currentLevelType == Level.NetworkLevel.LevelType.Dungeon)
+            {
+                ExitDungeonCalculateBalances(true);
+            }
+
+            if (newLevelType == Level.NetworkLevel.LevelType.DegenapeVillage &&
+                m_currentLevelType == Level.NetworkLevel.LevelType.DungeonRest)
+            {
+                ExitDungeonCalculateBalances(true);
+            }
+
+            m_currentLevelType = newLevelType;
         }
     }
 
@@ -270,20 +305,6 @@ public class PlayerOffchainData : NetworkBehaviour
         }
     }
 
-    void CheckIsEnteredDungeon()
-    {
-        if (!IsServer) return;
-
-        var isDegenapeVillage = LevelManager.Instance.IsDegenapeVillage();
-        if (isDegenapeVillage) m_isEnteredDungeon = false;
-
-        if (!m_isEnteredDungeon && !isDegenapeVillage)
-        {
-            EnterDungeonCalculateBalances();
-            m_isEnteredDungeon = true;
-        }
-    }
-
     // enter dungeon method that calculates balance
     public void EnterDungeonCalculateBalances()
     {
@@ -310,8 +331,12 @@ public class PlayerOffchainData : NetworkBehaviour
 
         if (!IsServer) return;
 
-        var postDungeonEctoDelta = isEscaped ? ectoDebitCount_dungeon.Value - ectoDebitStartCount_dungeon.Value + ectoLiveCount_dungeon.Value : ectoDebitCount_dungeon.Value - ectoDungeonStartAmount_offchain.Value;
-        var postDungeonDustDelta = isEscaped ? (int)(dustLiveCount_dungeon.Value * CodeInjector.Instance.GetOutputMultiplier()) : 0;
+        var postDungeonEctoDelta = isEscaped ?
+            ectoDebitCount_dungeon.Value - ectoDebitStartCount_dungeon.Value + ectoLiveCount_dungeon.Value :
+            ectoDebitCount_dungeon.Value - ectoDungeonStartAmount_offchain.Value;
+        var postDungeonDustDelta = isEscaped ?
+            (int)(dustLiveCount_dungeon.Value * CodeInjector.Instance.GetOutputMultiplier()) :
+            0;
         var postDungeonBombDelta = bombLiveCount_dungeon.Value - bombStartCount_dungeon.Value;
 
         // log wallet deltas
@@ -388,6 +413,8 @@ public class PlayerOffchainData : NetworkBehaviour
                 bomb_delta = bombDelta
             });
 
+            Debug.Log($"LogWalletDelta, ecto: {ectoDelta}, bomb: {bombDelta}");
+
             var responseStr = await Dropt.Utils.Http.PostRequest(dbUri + "/wallets/delta/" + m_walletAddress, json);
             if (!string.IsNullOrEmpty(responseStr))
             {
@@ -411,6 +438,8 @@ public class PlayerOffchainData : NetworkBehaviour
             {
                 dust_delta = dustDelta,
             });
+
+            Debug.Log($"LogGotchiDelta, dust: {dustDelta}");
 
             var responseStr = await Dropt.Utils.Http.PostRequest(dbUri + "/gotchis/delta/" + gotchiId, json);
             if (!string.IsNullOrEmpty(responseStr))

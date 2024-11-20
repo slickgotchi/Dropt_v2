@@ -36,6 +36,7 @@ public class Interactable_FinishTutorial : Interactable
         if (!IsValidInteraction(testPlayerNetworkObjectId)) return;
 
         // go to next level
-        LevelManager.Instance.GoToDegenapeVillageLevel();
+        LevelManager.Instance.GoToDegenapeVillageLevel_SERVER();
+
     }
 }
