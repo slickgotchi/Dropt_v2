@@ -9,7 +9,7 @@ public class Hole : Interactable
 
     public override void OnInteractHoldFinish()
     {
-        TryGoToNextLevelServerRpc(playerNetworkObjectId);
+        TryGoToNextLevelServerRpc(localPlayerNetworkObjectId);
     }
 
     public override void OnTriggerEnter2DInteraction()

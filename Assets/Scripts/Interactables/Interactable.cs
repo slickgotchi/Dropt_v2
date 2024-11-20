@@ -23,7 +23,8 @@ public class Interactable : NetworkBehaviour
     public string interactionText = "";
 
     [HideInInspector] public Status status;
-    [HideInInspector] public ulong playerNetworkObjectId;
+    //[HideInInspector] public ulong playerNetworkObjectId;
+    [HideInInspector] public ulong localPlayerNetworkObjectId;
 
     // hold timer variables
     private float k_holdDuration = 0.5f;
@@ -68,7 +69,7 @@ public class Interactable : NetworkBehaviour
         return NetworkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId].IsLocalPlayer;
     }
 
-    public PlayerController GetPlayerController()
+    public PlayerController GetPlayerController(ulong playerNetworkObjectId)
     {
         var playerObject = NetworkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId];
         if (playerObject == null) return null;
@@ -76,8 +77,11 @@ public class Interactable : NetworkBehaviour
         return playerObject.GetComponent<PlayerController>();
     }
 
+    // client only (and local player only) code
     private void OnTriggerEnter2D(Collider2D collider)
     {
+        if (!IsClient) return;
+
         var cameraFollower = collider.GetComponent<CameraFollowerAndPlayerInteractor>();
         if (cameraFollower == null) return;
 
@@ -89,11 +93,9 @@ public class Interactable : NetworkBehaviour
 
         status = Status.Active;
 
-        if (IsClient)
-        {
-            playerNetworkObjectId = playerNetworkObject.NetworkObjectId;
-            SetPlayerNetworkObjectIdServerRpc(playerNetworkObjectId);
-        }
+        localPlayerNetworkObjectId = playerNetworkObject.NetworkObjectId;
+        //playerNetworkObjectId = playerNetworkObject.NetworkObjectId;
+        //SetPlayerNetworkObjectIdServerRpc(playerNetworkObjectId);
 
         OnTriggerEnter2DInteraction();
 
@@ -105,11 +107,11 @@ public class Interactable : NetworkBehaviour
         }
     }
 
-    [Rpc(SendTo.Server)]
-    private void SetPlayerNetworkObjectIdServerRpc(ulong playerObjectId)
-    {
-        playerNetworkObjectId = playerObjectId;
-    }
+    //[Rpc(SendTo.Server)]
+    //private void SetPlayerNetworkObjectIdServerRpc(ulong playerObjectId)
+    //{
+    //    playerNetworkObjectId = playerObjectId;
+    //}
 
     private void Update()
     {
@@ -198,6 +200,8 @@ public class Interactable : NetworkBehaviour
 
     private void OnTriggerExit2D(Collider2D collider)
     {
+        if (!IsClient) return;
+
         var cameraFollower = collider.GetComponent<CameraFollowerAndPlayerInteractor>();
         if (cameraFollower == null) return;
 
@@ -209,7 +213,8 @@ public class Interactable : NetworkBehaviour
 
         status = Status.Inactive;
 
-        playerNetworkObjectId = 0;
+        localPlayerNetworkObjectId = 0;
+        //playerNetworkObjectId = 0;
 
         OnTriggerExit2DInteraction();
     }
