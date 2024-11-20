@@ -260,7 +260,6 @@ public class NetworkCharacter : NetworkBehaviour
 
             HpCurrent.Value -= (int)damage;
             if (HpCurrent.Value < 0) { HpCurrent.Value = 0; }
-            //var position = transform.position + popupTextOffset;
             DamagePopupTextClientRpc(damage, isCritical);
 
             if (HpCurrent.Value <= 0 && IsServer)

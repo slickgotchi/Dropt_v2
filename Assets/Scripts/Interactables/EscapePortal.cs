@@ -14,8 +14,6 @@ public class EscapePortal : Interactable
     {
         // ask server if our interacting player can escape
         TryEscapeServerRpc(playerNetworkObjectId);
-
-
     }
 
     public override void OnTriggerEnter2DInteraction()
