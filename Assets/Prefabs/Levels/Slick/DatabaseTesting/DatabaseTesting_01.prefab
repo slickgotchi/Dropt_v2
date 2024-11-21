@@ -15828,7 +15828,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2730146550279609176
 Transform:
   m_ObjectHideFlags: 0
@@ -15901,6 +15901,206 @@ MonoBehaviour:
   spawnOptions:
   - NetworkObjectPrefab: {fileID: 6042750255123410572, guid: 3434ab4754e6a8d4bb379d4d5e2819f2, type: 3}
     Chance: 1
+  spawnerId: -1
+  spawnedNetworkObject: {fileID: 0}
+--- !u!1 &2781126314152973979
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3995955551034060285}
+  - component: {fileID: 1694995372130793898}
+  m_Layer: 0
+  m_Name: Mangrove (2)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3995955551034060285
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2781126314152973979}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 12.56, y: -5.49, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6600672263791525728}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1694995372130793898
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2781126314152973979}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53d84f81f4d474f5a85c8dc0809c63ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  nillSpawnChance: 0
+  spawnOptions:
+  - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 7ef319fa4229bc145a88434fb096ad98, type: 3}
+    Chance: 0.3
+  - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 20b01dc5b39509a4bb5162c28cc4ca9b, type: 3}
+    Chance: 0.3
+  - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: c0a5188e3920f864bb42c973dba09b77, type: 3}
+    Chance: 0.3
+  spawnerId: -1
+  spawnedNetworkObject: {fileID: 0}
+--- !u!1 &2845426855090800478
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6600672263791525728}
+  m_Layer: 0
+  m_Name: MangrovesAndEnemies
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6600672263791525728
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2845426855090800478}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1006512525865258286}
+  - {fileID: 3107257423959245011}
+  - {fileID: 711814231741873616}
+  - {fileID: 3995955551034060285}
+  - {fileID: 3923123074308079851}
+  - {fileID: 8143866545250713984}
+  - {fileID: 523455775170174240}
+  m_Father: {fileID: 3904268535854215183}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &3229256799546947533
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 711814231741873616}
+  - component: {fileID: 1553040954952082214}
+  m_Layer: 0
+  m_Name: Mangrove (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &711814231741873616
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3229256799546947533}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 13.4, y: 1.04, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6600672263791525728}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1553040954952082214
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3229256799546947533}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53d84f81f4d474f5a85c8dc0809c63ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  nillSpawnChance: 0
+  spawnOptions:
+  - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 7ef319fa4229bc145a88434fb096ad98, type: 3}
+    Chance: 0.3
+  - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 20b01dc5b39509a4bb5162c28cc4ca9b, type: 3}
+    Chance: 0.3
+  - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: c0a5188e3920f864bb42c973dba09b77, type: 3}
+    Chance: 0.3
+  spawnerId: -1
+  spawnedNetworkObject: {fileID: 0}
+--- !u!1 &3556061949641963416
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8143866545250713984}
+  - component: {fileID: 8296473084752104027}
+  m_Layer: 0
+  m_Name: Mangrove (4)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8143866545250713984
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3556061949641963416}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 11.27, y: -7.04, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6600672263791525728}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8296473084752104027
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3556061949641963416}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53d84f81f4d474f5a85c8dc0809c63ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  nillSpawnChance: 0
+  spawnOptions:
+  - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 7ef319fa4229bc145a88434fb096ad98, type: 3}
+    Chance: 0.3
+  - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 20b01dc5b39509a4bb5162c28cc4ca9b, type: 3}
+    Chance: 0.3
+  - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: c0a5188e3920f864bb42c973dba09b77, type: 3}
+    Chance: 0.3
   spawnerId: -1
   spawnedNetworkObject: {fileID: 0}
 --- !u!1 &3696841735717523200
@@ -15987,6 +16187,60 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &3924185719508501009
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 523455775170174240}
+  - component: {fileID: 1502526174476526744}
+  m_Layer: 0
+  m_Name: Mangrove (5)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &523455775170174240
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3924185719508501009}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 6.35, y: -9.63, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6600672263791525728}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1502526174476526744
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3924185719508501009}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53d84f81f4d474f5a85c8dc0809c63ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  nillSpawnChance: 0
+  spawnOptions:
+  - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 7ef319fa4229bc145a88434fb096ad98, type: 3}
+    Chance: 0.3
+  - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 20b01dc5b39509a4bb5162c28cc4ca9b, type: 3}
+    Chance: 0.3
+  - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: c0a5188e3920f864bb42c973dba09b77, type: 3}
+    Chance: 0.3
+  spawnerId: -1
+  spawnedNetworkObject: {fileID: 0}
 --- !u!1 &3997369116777763319
 GameObject:
   m_ObjectHideFlags: 0
@@ -16080,6 +16334,7 @@ Transform:
   - {fileID: 8705947235592348483}
   - {fileID: 2250828976145122066}
   - {fileID: 6159375284322457328}
+  - {fileID: 6600672263791525728}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!156049354 &116290472561183211
@@ -16343,6 +16598,60 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &5564366240732741545
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3107257423959245011}
+  - component: {fileID: 951602738875695646}
+  m_Layer: 0
+  m_Name: Mangrove
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3107257423959245011
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5564366240732741545}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 7.25, y: -2.26, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6600672263791525728}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &951602738875695646
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5564366240732741545}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53d84f81f4d474f5a85c8dc0809c63ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  nillSpawnChance: 0
+  spawnOptions:
+  - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 7ef319fa4229bc145a88434fb096ad98, type: 3}
+    Chance: 0.3
+  - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 20b01dc5b39509a4bb5162c28cc4ca9b, type: 3}
+    Chance: 0.3
+  - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: c0a5188e3920f864bb42c973dba09b77, type: 3}
+    Chance: 0.3
+  spawnerId: -1
+  spawnedNetworkObject: {fileID: 0}
 --- !u!1 &7316891037939122536
 GameObject:
   m_ObjectHideFlags: 0
@@ -16478,6 +16787,60 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &8019413373850953896
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3923123074308079851}
+  - component: {fileID: 4349017909118275060}
+  m_Layer: 0
+  m_Name: Mangrove (3)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3923123074308079851
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8019413373850953896}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 7.84, y: 6.09, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6600672263791525728}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4349017909118275060
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8019413373850953896}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53d84f81f4d474f5a85c8dc0809c63ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  nillSpawnChance: 0
+  spawnOptions:
+  - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 7ef319fa4229bc145a88434fb096ad98, type: 3}
+    Chance: 0.3
+  - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 20b01dc5b39509a4bb5162c28cc4ca9b, type: 3}
+    Chance: 0.3
+  - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: c0a5188e3920f864bb42c973dba09b77, type: 3}
+    Chance: 0.3
+  spawnerId: -1
+  spawnedNetworkObject: {fileID: 0}
 --- !u!1 &8019966461758160845
 GameObject:
   m_ObjectHideFlags: 0
@@ -16562,6 +16925,56 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &8811430419209123048
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1006512525865258286}
+  - component: {fileID: 555514635897176372}
+  m_Layer: 0
+  m_Name: Enemy
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1006512525865258286
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8811430419209123048}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -12.06, y: -2.61, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6600672263791525728}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &555514635897176372
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8811430419209123048}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53d84f81f4d474f5a85c8dc0809c63ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  nillSpawnChance: 0
+  spawnOptions:
+  - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 0fa50369c6fe97a45ab4ce801bc4ccbc, type: 3}
+    Chance: 1
+  spawnerId: -1
+  spawnedNetworkObject: {fileID: 0}
 --- !u!1001 &303691222474951445
 PrefabInstance:
   m_ObjectHideFlags: 0

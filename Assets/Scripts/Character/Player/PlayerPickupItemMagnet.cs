@@ -44,6 +44,18 @@ public class PlayerPickupItemMagnet : NetworkBehaviour
             PlayerDungeonData.AddEcto(pickupItem.GetComponent<CGHSTOrb>().GetValue());
         }
 
+        if (pickupItem.gameObject.HasComponent<ApOrb>())
+        {
+            PlayerDungeonData.GetComponent<NetworkCharacter>().ApCurrent.Value +=
+                pickupItem.GetComponent<ApOrb>().GetValue();
+        }
+
+        if (pickupItem.gameObject.HasComponent<HpOrb>())
+        {
+            PlayerDungeonData.GetComponent<NetworkCharacter>().HpCurrent.Value +=
+                pickupItem.GetComponent<HpOrb>().GetValue();
+        }
+
         PickupItemManager.Instance.ReturnToPool(pickupItem);
     }
 }
