@@ -26,6 +26,8 @@ public sealed class PickupItemManager : NetworkBehaviour
 
     public GameObject GltrOrbPrefab;
     public GameObject CGHSTOrbPrefab;
+    public GameObject HpOrbPrefab;
+    public GameObject ApOrbPrefab;
 
     public void SpawnGltr(int value, Vector3 position)
     {
@@ -68,6 +70,20 @@ public sealed class PickupItemManager : NetworkBehaviour
         if (!IsServer) return;
 
         GenerateCGHSTOrb(Size.Small, position);
+    }
+
+    public void SpawnApOrb(Size size, Vector3 position)
+    {
+        if (!IsServer) return;
+
+        GenerateOrb<ApOrb>(ApOrbPrefab, size, position);
+    }
+
+    public void SpawnHpOrb(Size size, Vector3 position)
+    {
+        if (!IsServer) return;
+
+        GenerateOrb<HpOrb>(HpOrbPrefab, size, position);
     }
 
     private void GenerateGltrOrb(Size size, Vector3 position, float rand = 0.3f)
