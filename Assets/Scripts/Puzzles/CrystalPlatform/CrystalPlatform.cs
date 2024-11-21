@@ -29,6 +29,11 @@ public class CrystalPlatform : Platform<CrystalPlatformType>
     {
         base.Awake();
         Type = new NetworkVariable<CrystalPlatformType>(CrystalPlatformType.Triangle);
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
         UpdatePlatformSprite();
     }
 

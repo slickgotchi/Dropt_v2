@@ -15,7 +15,7 @@ namespace Level
         public NavmeshGeneration navmeshGeneration = NavmeshGeneration.PhysicsColliders;
 
         //private List<Vector3> m_availablePlayerSpawnPoints = new List<Vector3>();
-        private List<SpawnerActivator> m_spawnerActivators = new List<SpawnerActivator>();
+        private readonly List<SpawnerActivator> m_spawnerActivators = new List<SpawnerActivator>();
 
         public override void OnNetworkSpawn()
         {
