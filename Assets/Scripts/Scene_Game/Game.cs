@@ -209,6 +209,7 @@ public class Game : MonoBehaviour
                 m_commonName = response.commonName;
 
                 m_unityTransport.SetClientSecrets(m_commonName, m_chainPem);
+
                 Debug.Log(m_commonName);
                 Debug.Log(m_chainPem);
             }
@@ -275,7 +276,7 @@ public class Game : MonoBehaviour
         NetworkManager.Singleton.StartHost();
     }
 
-    
+
 
     private void SetInputSystemEnabled(bool isEnabled)
     {
