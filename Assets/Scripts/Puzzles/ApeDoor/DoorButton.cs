@@ -110,4 +110,10 @@ public abstract class DoorButton<T> : NetworkBehaviour where T : Enum
     public abstract DoorButton<T>[] GetAllOtherDoorButtons();
 
     public abstract Door<T>[] GetAllOtherDoor();
+
+    public override void OnNetworkDespawn()
+    {
+        base.OnNetworkDespawn();
+        State.OnValueChanged -= OnButtonStateChange;
+    }
 }
