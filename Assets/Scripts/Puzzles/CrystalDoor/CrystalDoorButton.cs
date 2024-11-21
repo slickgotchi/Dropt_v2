@@ -1,0 +1,64 @@
+using Unity.Netcode;
+using UnityEngine;
+
+public class CrystalDoorButton : DoorButton<CrystalDoorType>
+{
+    [SerializeField] private Sprite m_R_Up;
+    [SerializeField] private Sprite m_R_Down;
+
+    [SerializeField] private Sprite m_Ghost_Up;
+    [SerializeField] private Sprite m_Ghost_Down;
+
+    [SerializeField] private Sprite m_Snake_Up;
+    [SerializeField] private Sprite m_Snake_Down;
+
+    [SerializeField] private Sprite m_Cross_Up;
+    [SerializeField] private Sprite m_Cross_Down;
+
+    [SerializeField] private Sprite m_Moustache_Up;
+    [SerializeField] private Sprite m_Moustache_Down;
+
+    public override void Awake()
+    {
+        base.Awake();
+        Type = new NetworkVariable<CrystalDoorType>(CrystalDoorType.R);
+    }
+
+    public override Door<CrystalDoorType>[] GetAllOtherDoor()
+    {
+        return FindObjectsByType<CrystalDoor>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+    }
+
+    public override DoorButton<CrystalDoorType>[] GetAllOtherDoorButtons()
+    {
+        return FindObjectsByType<CrystalDoorButton>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+    }
+
+    public override void UpdateSprite()
+    {
+        if (State.Value == ButtonState.Up)
+        {
+            switch (Type.Value)
+            {
+                case CrystalDoorType.R: m_spriteRenderer.sprite = m_R_Up; break;
+                case CrystalDoorType.Ghost: m_spriteRenderer.sprite = m_Ghost_Up; break;
+                case CrystalDoorType.Snake: m_spriteRenderer.sprite = m_Snake_Up; break;
+                case CrystalDoorType.Cross: m_spriteRenderer.sprite = m_Cross_Up; break;
+                case CrystalDoorType.Moustache: m_spriteRenderer.sprite = m_Moustache_Up; break;
+                default: break;
+            }
+        }
+        else
+        {
+            switch (Type.Value)
+            {
+                case CrystalDoorType.R: m_spriteRenderer.sprite = m_R_Down; break;
+                case CrystalDoorType.Ghost: m_spriteRenderer.sprite = m_Ghost_Down; break;
+                case CrystalDoorType.Snake: m_spriteRenderer.sprite = m_Snake_Down; break;
+                case CrystalDoorType.Cross: m_spriteRenderer.sprite = m_Cross_Down; break;
+                case CrystalDoorType.Moustache: m_spriteRenderer.sprite = m_Moustache_Down; break;
+                default: break;
+            }
+        }
+    }
+}
