@@ -15,11 +15,15 @@ public class JoostInteractionCanvas : MonoBehaviour
     public TextMeshProUGUI CostText;
     public TextMeshProUGUI PurchasedText;
 
+    [SerializeField] private Color toPurchaseColor;
+    [SerializeField] private Color isPurchasedColor;
+
     private void Awake()
     {
         Instance = this;
         Container.SetActive(false);
-        PurchasedText.gameObject.SetActive(false);
+        PurchasedText.text = "Purchase?";
+        PurchasedText.color = toPurchaseColor;
     }
 
     public void Init(string name, string description, string cost, bool isPurchased)
@@ -27,6 +31,16 @@ public class JoostInteractionCanvas : MonoBehaviour
         NameText.text = name;
         DescriptionText.text = description;
         CostText.text = cost;
-        PurchasedText.gameObject.SetActive(isPurchased);
+
+        if (isPurchased)
+        {
+            PurchasedText.text = "[ Purchased ]";
+            PurchasedText.color = isPurchasedColor;
+        }
+        else
+        {
+            PurchasedText.text = "Purchase?";
+            PurchasedText.color = toPurchaseColor;
+        }
     }
 }
