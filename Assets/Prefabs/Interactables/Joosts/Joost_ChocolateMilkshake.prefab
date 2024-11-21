@@ -70,15 +70,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 743124b8ce7cf456da0f236f40783d02, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  interactableType: 0
-  PopupCanvasPrefab: {fileID: 0}
-  PopupCanvasOffset: {x: 0, y: 0, z: 0}
+  interactableType: 1
   isDisablePlayerInputWhileActive: 0
+  interactionText: Hold F to purchase and consume this Joost
   status: 0
-  playerNetworkObjectId: 0
+  localPlayerNetworkObjectId: 0
   type: 7
   m_spriteRenderer: {fileID: 361146906994616670}
-  NumberLevels: 3
+  NumberLevels: 999
 --- !u!61 &8101237667480174307
 BoxCollider2D:
   m_ObjectHideFlags: 0

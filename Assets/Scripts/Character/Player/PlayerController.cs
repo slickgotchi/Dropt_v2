@@ -303,7 +303,7 @@ public class PlayerController : NetworkBehaviour
     {
         if (!IsLocalPlayer) return;
 
-        LevelManager.TransitionState state = LevelManager.Instance.State.Value;
+        LevelManager.TransitionState state = LevelManager.Instance.transitionState.Value;
 
         if (state == LevelManager.TransitionState.Start ||
             state == LevelManager.TransitionState.ClientHeadsUp ||
@@ -354,7 +354,7 @@ public class PlayerController : NetworkBehaviour
     [Rpc(SendTo.Server)]
     void GoNextLevelServerRpc()
     {
-        LevelManager.Instance.GoToNextLevel();
+        LevelManager.Instance.StartTransitionToNextLevel_SERVER();
     }
 
     void HandleDegenapeHpAp()

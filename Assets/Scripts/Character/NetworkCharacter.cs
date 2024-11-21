@@ -33,6 +33,9 @@ public class NetworkCharacter : NetworkBehaviour
 
     private List<BuffObject> activeBuffObjects = new List<BuffObject>();
 
+    // list of buff names for client to use to do UI things client side
+    private List<string> activeBuffNames_CLIENT = new List<string>();
+
     //private Action<ulong> m_onDamageToEnemy;
 
     // NetworkVariables
@@ -260,7 +263,6 @@ public class NetworkCharacter : NetworkBehaviour
 
             HpCurrent.Value -= (int)damage;
             if (HpCurrent.Value < 0) { HpCurrent.Value = 0; }
-            //var position = transform.position + popupTextOffset;
             DamagePopupTextClientRpc(damage, isCritical);
 
             if (HpCurrent.Value <= 0 && IsServer)
@@ -368,6 +370,7 @@ public class NetworkCharacter : NetworkBehaviour
         {
             activeBuffObjects.Add(buffObject);
             RecalculateStats(); // Recalculate stats after adding a new buff
+            AddBuffObjectNameClientRpc(buffObject.name);
         }
     }
 
@@ -383,7 +386,31 @@ public class NetworkCharacter : NetworkBehaviour
         {
             activeBuffObjects.Remove(buffObject);
             RecalculateStats(); // Recalculate stats after removing a buff
+            RemoveBuffObjectNameClientRpc(buffObject.name);
         }
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    void AddBuffObjectNameClientRpc(string name)
+    {
+        if (!activeBuffNames_CLIENT.Contains(name))
+        {
+            activeBuffNames_CLIENT.Add(name);
+        }
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    void RemoveBuffObjectNameClientRpc(string name)
+    {
+        if (activeBuffNames_CLIENT.Contains(name))
+        {
+            activeBuffNames_CLIENT.Remove(name);
+        }
+    }
+
+    public bool HasBuffName(string name)
+    {
+        return activeBuffNames_CLIENT.Contains(name);
     }
 
     public void RecalculateStats()
