@@ -9,7 +9,7 @@ public class Hole : Interactable
 
     public override void OnInteractHoldFinish()
     {
-        TryGoToNextLevelServerRpc(playerNetworkObjectId);
+        TryGoToNextLevelServerRpc(localPlayerNetworkObjectId);
     }
 
     public override void OnTriggerEnter2DInteraction()
@@ -34,10 +34,10 @@ public class Hole : Interactable
         // see if this hole has a custom levels list
         if (Levels.Count > 0)
         {
-            LevelManager.Instance.SetLevelList(Levels);
+            LevelManager.Instance.SetLevelList_SERVER(Levels);
         }
 
         // go to next level
-        LevelManager.Instance.GoToNextLevel();
+        LevelManager.Instance.StartTransitionToNextLevel_SERVER();
     }
 }

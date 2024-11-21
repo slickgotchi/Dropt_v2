@@ -97,9 +97,9 @@ GameObject:
   - component: {fileID: 3387859537420111930}
   - component: {fileID: 3280724935253903593}
   - component: {fileID: 2429993280611058659}
-  - component: {fileID: -5269999287691293456}
   - component: {fileID: -8361506197459491974}
   - component: {fileID: -5891617160051444329}
+  - component: {fileID: -4135767827068143923}
   m_Layer: 12
   m_Name: Mangrove_HP
   m_TagString: Untagged
@@ -218,22 +218,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 517a0e5d7276e564fadb7ae93628f0e9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  audioOnHit: {fileID: 0}
   type: 0
   Hp: 4
---- !u!114 &-5269999287691293456
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1249991746567512264}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: abaab4b001b911a4fa768e8e61b4adf7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Offset: {x: 0, y: 0, z: 0}
-  SpawnPrefab: {fileID: 0}
 --- !u!114 &-8361506197459491974
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -261,6 +248,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09698abc2e8964808b00a54103ccdd21, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &-4135767827068143923
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04a2d8164c38b4f5897562fbea5940b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SmallHpChance: 0.8
+  BigHpChance: 0.2
+  SmallApChance: 0
+  BigApChance: 0
 --- !u!1 &6525230415705073668
 GameObject:
   m_ObjectHideFlags: 0

@@ -15,6 +15,7 @@ public class LevelCountedBuff : MonoBehaviour
         m_numberLevels = numLevels;
         m_networkCharacter = networkCharacter;
 
+        // bail out of this init if character already has this buff
         if (m_networkCharacter.HasBuffObject(buffObject))
         {
             Destroy(this.gameObject);
@@ -35,6 +36,14 @@ public class LevelCountedBuff : MonoBehaviour
         {
             m_networkCharacter.RemoveBuffObject(m_buffObject);
             Destroy(this.gameObject);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (m_networkCharacter != null && m_buffObject != null)
+        {
+            m_networkCharacter.RemoveBuffObject(m_buffObject);
         }
     }
 }

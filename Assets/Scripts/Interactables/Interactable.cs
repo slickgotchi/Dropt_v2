@@ -24,6 +24,8 @@ public class Interactable : NetworkBehaviour
 
     [HideInInspector] public Status status;
     [HideInInspector] public ulong playerNetworkObjectId;
+    protected ulong localPlayerNetworkObjectId;
+    protected PlayerController localPlayerController;
 
     // hold timer variables
     private float k_holdDuration = 0.5f;
@@ -36,6 +38,7 @@ public class Interactable : NetworkBehaviour
     private PlayerInput m_localPlayerInput;
     private InputAction m_interactAction;
     private InputAction m_interactUIAction;
+
 
     // float to validate distance to interactable
     private float k_validateInteractionDistance = 3f;
@@ -68,7 +71,7 @@ public class Interactable : NetworkBehaviour
         return NetworkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId].IsLocalPlayer;
     }
 
-    public PlayerController GetPlayerController()
+    public PlayerController GetPlayerController(ulong playerNetworkObjectId)
     {
         var playerObject = NetworkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId];
         if (playerObject == null) return null;
@@ -76,8 +79,11 @@ public class Interactable : NetworkBehaviour
         return playerObject.GetComponent<PlayerController>();
     }
 
+    // client only (and local player only) code
     private void OnTriggerEnter2D(Collider2D collider)
     {
+        if (!IsClient) return;
+
         var cameraFollower = collider.GetComponent<CameraFollowerAndPlayerInteractor>();
         if (cameraFollower == null) return;
 
@@ -89,32 +95,29 @@ public class Interactable : NetworkBehaviour
 
         status = Status.Active;
 
-        if (IsClient)
-        {
-            playerNetworkObjectId = playerNetworkObject.NetworkObjectId;
-            SetPlayerNetworkObjectIdServerRpc(playerNetworkObjectId);
-        }
+        localPlayerController = player.GetComponent<PlayerController>();
+        localPlayerNetworkObjectId = playerNetworkObject.NetworkObjectId;
 
         OnTriggerEnter2DInteraction();
 
         // reset player hud hold slider
-        var isLocalPlayer = player.GetComponent<NetworkObject>().IsLocalPlayer;
-        if (interactableType == InteractableType.Hold && isLocalPlayer)
+        if (interactableType == InteractableType.Hold)
         {
             PlayerHUDCanvas.Instance.SetInteractHoldSliderValue(0);
         }
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    private void SetPlayerNetworkObjectIdServerRpc(ulong playerObjectId)
-    {
-        playerNetworkObjectId = playerObjectId;
-    }
-
+    // Update only occurs for the LocalPlayer
     private void Update()
     {
+        // this function just helps get the interact ui input actions
         TryGetLocalPlayerPrediction();
+        if (m_localPlayerPrediction == null) return;
 
+        // only run the below code if we are the local player and in client mode
+        if (!m_localPlayerPrediction.GetComponent<NetworkObject>().IsLocalPlayer || !IsClient) return;
+
+        // trigger updates for children
         OnUpdate();
 
         m_pressTimer -= Time.deltaTime;
@@ -190,6 +193,8 @@ public class Interactable : NetworkBehaviour
 
     private void OnTriggerExit2D(Collider2D collider)
     {
+        if (!IsClient) return;
+
         var cameraFollower = collider.GetComponent<CameraFollowerAndPlayerInteractor>();
         if (cameraFollower == null) return;
 
@@ -201,7 +206,8 @@ public class Interactable : NetworkBehaviour
 
         status = Status.Inactive;
 
-        playerNetworkObjectId = 0;
+        localPlayerNetworkObjectId = 0;
+        //playerNetworkObjectId = 0;
 
         OnTriggerExit2DInteraction();
     }

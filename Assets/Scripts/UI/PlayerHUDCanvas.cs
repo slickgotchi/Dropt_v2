@@ -121,6 +121,17 @@ public class PlayerHUDCanvas : MonoBehaviour
     public void ShowPlayerInteractionCanvii(string interactionText,
         Interactable.InteractableType interactableType)
     {
+        if (interactableType == Interactable.InteractableType.Press)
+        {
+            m_localPlayerInteractHoldGroup.alpha = 0f;
+            m_localPlayerInteractPressGroup.DOFade(1, 0.2f);
+        }
+        else
+        {
+            m_localPlayerInteractHoldGroup.DOFade(1, 0.2f);
+            m_localPlayerInteractPressGroup.alpha = 0;
+        }
+
         if (string.IsNullOrEmpty(interactionText)) return;
 
         m_interactionDescriptionText.text = interactionText;
@@ -132,16 +143,7 @@ public class PlayerHUDCanvas : MonoBehaviour
             return;
         }
 
-        if (interactableType == Interactable.InteractableType.Press)
-        {
-            m_localPlayerInteractHoldGroup.alpha = 0f;
-            m_localPlayerInteractPressGroup.DOFade(1, 0.2f);
-        }
-        else
-        {
-            m_localPlayerInteractHoldGroup.DOFade(1, 0.2f);
-            m_localPlayerInteractPressGroup.alpha = 0;
-        }
+
     }
 
     public void HidePlayerInteractionCanvii(Interactable.InteractableType interactableType)

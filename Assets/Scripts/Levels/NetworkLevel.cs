@@ -7,6 +7,9 @@ namespace Level
 {
     public partial class NetworkLevel : NetworkBehaviour
     {
+        public enum LevelType { Null, Tutorial, DegenapeVillage, Dungeon, DungeonRest }
+        public LevelType levelType = LevelType.Dungeon;
+
         public AudioClip levelMusic;
         public bool isEssenceDepleting = true;
         public string objective = "Find a hole to descend";
@@ -15,7 +18,7 @@ namespace Level
         public NavmeshGeneration navmeshGeneration = NavmeshGeneration.PhysicsColliders;
 
         //private List<Vector3> m_availablePlayerSpawnPoints = new List<Vector3>();
-        private List<SpawnerActivator> m_spawnerActivators = new List<SpawnerActivator>();
+        private readonly List<SpawnerActivator> m_spawnerActivators = new List<SpawnerActivator>();
 
         public override void OnNetworkSpawn()
         {
@@ -33,6 +36,7 @@ namespace Level
                 CreateSpawners_ApeDoorsAndButtons();
                 CreateSpawners_CrystalDoorsAndButtons();
                 CreateSpawners_SunkenFloorsAndButtons();
+                CreateSpawners_CrystalPlatformAndButtons();
                 CreateSpawners_NetworkObject_v2();
                 CreateSpawners_SpawnOnDestroyGroup();
 
@@ -57,7 +61,7 @@ namespace Level
         {
             if (!IsServer) return;
 
-            foreach (var spawnerActivator in m_spawnerActivators)
+            foreach (SpawnerActivator spawnerActivator in m_spawnerActivators)
             {
                 spawnerActivator.Update(Time.deltaTime);
             }
@@ -70,6 +74,8 @@ namespace Level
             DestroySpawnerObjects<ApeDoorButtonGroupSpawner>();
             DestroySpawnerObjects<CrystalDoorSpawner>();
             DestroySpawnerObjects<CrystalDoorButtonGroupSpawner>();
+            DestroySpawnerObjects<CrystalPlatformSpawner>();
+            DestroySpawnerObjects<CrystalPlatformButtonGroupSpawner>();
             DestroySpawnerObjects<SunkenFloorSpawner>();
             DestroySpawnerObjects<SunkenFloorButtonGroupSpawner>();
             DestroySpawnerObjects<NetworkObjectPrefabSpawner>();
@@ -80,14 +86,16 @@ namespace Level
             DestroySpawnerObjects<TrapsGroupSpawner>();
 
             // destroy client side spawn points if not the host
-            if (!IsHost) DestroySpawnerObjects<PlayerSpawnPoints>();
-
+            if (!IsHost)
+            {
+                DestroySpawnerObjects<PlayerSpawnPoints>();
+            }
         }
 
         public void DestroySpawnerObjects<T>() where T : Component
         {
             List<T> spawnerObjects = new List<T>(GetComponentsInChildren<T>());
-            foreach (var spawnerObject in spawnerObjects)
+            foreach (T spawnerObject in spawnerObjects)
             {
                 Destroy(spawnerObject.gameObject);
             }
