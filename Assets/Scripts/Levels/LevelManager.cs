@@ -307,19 +307,27 @@ public class LevelManager : NetworkBehaviour
 
         // increment all LevelCountBuffs
         var levelCountBuffs = FindObjectsByType<LevelCountedBuff>(FindObjectsSortMode.None);
-        foreach (var lcb in levelCountBuffs)
-        {
-            lcb.IncrementLevelCount();
-        }
 
-        // increase depth counter if not new level is ape village
+        // do degenape/tutorial vs dungeon logic
         if (IsDegenapeVillage() || IsTutorial())
         {
             m_depthCounter_SERVER = 0;
+
+            // destroy all buffs
+            foreach (var lcb in levelCountBuffs)
+            {
+                Destroy(lcb.gameObject);
+            }
         }
         else
         {
             m_depthCounter_SERVER++;
+
+            // increment all buffs
+            foreach (var lcb in levelCountBuffs)
+            {
+                lcb.IncrementLevelCount();
+            }
         }
     }
 

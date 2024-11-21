@@ -14,7 +14,7 @@ public class JoostInteractable : Interactable
     private string m_name;
     private string m_description;
     private int m_cost;
-    [HideInInspector] BuffObject BuffObject;
+    private BuffObject m_buffObject;
 
     private void Start()
     {
@@ -34,7 +34,7 @@ public class JoostInteractable : Interactable
         m_name = AddSpacesToCamelCase(joostType.ToString());
         m_description = joostData.description;
         m_cost = joostData.cost;
-        BuffObject = joostData.buffObject;
+        m_buffObject = joostData.buffObject;
 
         m_spriteRenderer.sprite = m_sprite;
     }
@@ -43,24 +43,43 @@ public class JoostInteractable : Interactable
     {
         base.OnTriggerEnter2DInteraction();
 
-        // see if we already have the buff
-
-        PlayerHUDCanvas.Instance.ShowPlayerInteractionCanvii(interactionText, interactableType);
+        bool hasBuff = HasLocalPlayerGotBuff();
+        if (!hasBuff)
+        {
+            PlayerHUDCanvas.Instance.ShowPlayerInteractionCanvii(interactionText, interactableType);
+        }
         JoostInteractionCanvas.Instance.Container.SetActive(true);
-        JoostInteractionCanvas.Instance.Init(m_name, m_description, m_cost.ToString(), false);
+        JoostInteractionCanvas.Instance.Init(m_name, m_description, m_cost.ToString(), hasBuff);
+    }
+
+    bool HasLocalPlayerGotBuff()
+    {
+        // see if we already have the buff
+        var localPlayerNetworkCharacter = localPlayerController.GetComponent<NetworkCharacter>();
+        if (localPlayerNetworkCharacter == null) return false;
+
+        return localPlayerNetworkCharacter.HasBuffName(m_buffObject.name);
     }
 
     public override void OnTriggerExit2DInteraction()
     {
         base.OnTriggerExit2DInteraction();
 
-        PlayerHUDCanvas.Instance.HidePlayerInteractionCanvii(interactableType);
+        bool hasBuff = HasLocalPlayerGotBuff();
+        if (!hasBuff)
+        {
+            PlayerHUDCanvas.Instance.HidePlayerInteractionCanvii(interactableType);
+
+        }
+
         JoostInteractionCanvas.Instance.Container.SetActive(false);
     }
 
     public override void OnInteractHoldFinish()
     {
         TryAddJoostBuffServerRpc(localPlayerNetworkObjectId);
+        JoostInteractionCanvas.Instance.Init(m_name, m_description, m_cost.ToString(), true);
+        PlayerHUDCanvas.Instance.HidePlayerInteractionCanvii(interactableType);
     }
 
     [Rpc(SendTo.Server)]
@@ -76,17 +95,13 @@ public class JoostInteractable : Interactable
         var playerController = GetPlayerController(playerNetworkObjectId);
         var playerDungeonData = playerController.GetComponent<PlayerOffchainData>();
 
-        bool isSuccess = await playerDungeonData.RemoveEcto(m_cost);
-
-        // check we have enough cGHST
-        if (!isSuccess) return;
-
         var levelCountedBuffObject = new GameObject();
         var levelCountedBuff = levelCountedBuffObject.AddComponent<LevelCountedBuff>();
-        bool isBuffAdded = levelCountedBuff.TryInit(BuffObject, playerController.GetComponent<NetworkCharacter>(), NumberLevels);
+        bool isBuffAdded = levelCountedBuff.TryInit(m_buffObject, playerController.GetComponent<NetworkCharacter>(), NumberLevels);
         if (!isBuffAdded) return;
 
-        Debug.Log("Applied buff");
+        bool isSuccess = await playerDungeonData.RemoveEcto(m_cost);
+        if (!isSuccess) return;
     }
 
     private string AddSpacesToCamelCase(string text)

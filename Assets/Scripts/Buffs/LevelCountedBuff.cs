@@ -38,4 +38,12 @@ public class LevelCountedBuff : MonoBehaviour
             Destroy(this.gameObject);
         }
     }
+
+    private void OnDestroy()
+    {
+        if (m_networkCharacter != null && m_buffObject != null)
+        {
+            m_networkCharacter.RemoveBuffObject(m_buffObject);
+        }
+    }
 }

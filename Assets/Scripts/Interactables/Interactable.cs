@@ -23,8 +23,9 @@ public class Interactable : NetworkBehaviour
     public string interactionText = "";
 
     [HideInInspector] public Status status;
-    //[HideInInspector] public ulong playerNetworkObjectId;
-    [HideInInspector] public ulong localPlayerNetworkObjectId;
+    [HideInInspector] public ulong playerNetworkObjectId;
+    protected ulong localPlayerNetworkObjectId;
+    protected PlayerController localPlayerController;
 
     // hold timer variables
     private float k_holdDuration = 0.5f;
@@ -37,6 +38,7 @@ public class Interactable : NetworkBehaviour
     private PlayerInput m_localPlayerInput;
     private InputAction m_interactAction;
     private InputAction m_interactUIAction;
+
 
     // float to validate distance to interactable
     private float k_validateInteractionDistance = 3f;
@@ -93,26 +95,19 @@ public class Interactable : NetworkBehaviour
 
         status = Status.Active;
 
+        localPlayerController = player.GetComponent<PlayerController>();
         localPlayerNetworkObjectId = playerNetworkObject.NetworkObjectId;
-        //playerNetworkObjectId = playerNetworkObject.NetworkObjectId;
-        //SetPlayerNetworkObjectIdServerRpc(playerNetworkObjectId);
 
         OnTriggerEnter2DInteraction();
 
         // reset player hud hold slider
-        var isLocalPlayer = player.GetComponent<NetworkObject>().IsLocalPlayer;
-        if (interactableType == InteractableType.Hold && isLocalPlayer)
+        if (interactableType == InteractableType.Hold)
         {
             PlayerHUDCanvas.Instance.SetInteractHoldSliderValue(0);
         }
     }
 
-    //[Rpc(SendTo.Server)]
-    //private void SetPlayerNetworkObjectIdServerRpc(ulong playerObjectId)
-    //{
-    //    playerNetworkObjectId = playerObjectId;
-    //}
-
+    // Update only occurs for the LocalPlayer
     private void Update()
     {
         // this function just helps get the interact ui input actions
@@ -121,8 +116,6 @@ public class Interactable : NetworkBehaviour
 
         // only run the below code if we are the local player and in client mode
         if (!m_localPlayerPrediction.GetComponent<NetworkObject>().IsLocalPlayer || !IsClient) return;
-
-        // ALL BELOW CODE ONLY RUNS ON THE CLIENT OF THE LOCAL PLAYER
 
         // trigger updates for children
         OnUpdate();
