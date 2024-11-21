@@ -1,19 +1,8 @@
 using UnityEngine;
 using Unity.Netcode;
-using NUnit.Framework;
-using System.Collections.Generic;
 
-public class SunkenFloor : NetworkBehaviour
+public class SunkenFloor : Platform<SunkenFloorType>
 {
-    [Header("State")]
-    public NetworkVariable<SunkenFloorType> Type;
-    public NetworkVariable<SunkenFloorState> State;
-    public int NumberButtons = 2;
-    public int spawnerId = -1;
-
-    public SunkenFloorType initType;
-    public SunkenFloorState initState;
-
     [Header("Emblems")]
     public SpriteRenderer RaisedEmblem;
     public SpriteRenderer SunkenEmblem;
@@ -34,74 +23,27 @@ public class SunkenFloor : NetworkBehaviour
     public Sprite GillsSunken;
     public Sprite GillsRaised;
 
-    [Header("Access")]
-    [SerializeField] private GameObject SunkenCollider;
-    [SerializeField] private GameObject RaisedCollider;
-
-    private SunkenFloorState m_localSunkenFloorState = SunkenFloorState.Lowered;
-
     private Animator m_animator;
 
-    private void Awake()
+    public override void Awake()
     {
+        base.Awake();
         m_animator = GetComponent<Animator>();
         Type = new NetworkVariable<SunkenFloorType>(SunkenFloorType.Droplet);
-        State = new NetworkVariable<SunkenFloorState>(SunkenFloorState.Lowered);
     }
 
-    public override void OnNetworkSpawn()
+    public override void PlatformRaiseAnimation()
     {
-        base.OnNetworkSpawn();
-
-        if (IsServer)
-        {
-            SetTypeAndState(initType, initState);
-        }
-
+        m_animator.Play("SunkenFloor3x3_Raise");
     }
 
-    private void Update()
+    public override void Update()
     {
-        if (IsClient)
-        {
-            // check if door is open
-            if (m_localSunkenFloorState == SunkenFloorState.Lowered &&
-                State.Value == SunkenFloorState.Raised)
-            {
-                m_animator.Play("SunkenFloor3x3_Raise");
-                m_localSunkenFloorState = State.Value;
-            }
-
-            UpdateSprite();
-        }
-
-        UpdateColliders();
+        base.Update();
+        UpdateSprite();
     }
 
-    void UpdateColliders()
-    {
-        SunkenCollider.SetActive(State.Value == SunkenFloorState.Lowered);
-        RaisedCollider.SetActive(State.Value == SunkenFloorState.Raised);
-    }
-
-    public void Raise()
-    {
-        if (!IsServer) return;
-
-        State.Value = SunkenFloorState.Raised;
-    }
-
-    public void SetTypeAndState(SunkenFloorType sunkenFloorType, SunkenFloorState floorState)
-    {
-        if (!IsServer) return;
-
-        Type.Value = sunkenFloorType;
-        State.Value = floorState;
-
-        UpdateColliders();
-    }
-
-    void UpdateSprite()
+    private void UpdateSprite()
     {
         switch (Type.Value)
         {
@@ -128,14 +70,4 @@ public class SunkenFloor : NetworkBehaviour
             default: break;
         }
     }
-}
-
-public enum SunkenFloorType
-{
-    Droplet, Swirl, Shroom, Bananas, Gills,
-}
-
-public enum SunkenFloorState
-{
-    Lowered, Raised,
 }
