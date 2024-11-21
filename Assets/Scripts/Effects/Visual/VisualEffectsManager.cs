@@ -41,7 +41,7 @@ public class VisualEffectsManager : MonoBehaviour
         if (m_cloudExplosionPool.Count > 0)
         {
             instance = m_cloudExplosionPool.Dequeue();
-            instance?.SetActive(true);
+            if (instance != null) instance.SetActive(true);
         }
         else
         {
