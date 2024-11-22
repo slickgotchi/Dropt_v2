@@ -9,12 +9,21 @@ public class SmashWave : PlayerAbility
     [SerializeField] float Projection = 1f;
     [SerializeField] float m_holdStartKnockbackMultiplier = 0.1f;
     [SerializeField] float m_holdFinishKnockbackMultiplier = 1f;
+    [SerializeField] private float m_holdStartRadius = 2f;
+    [SerializeField] private float m_holdFinishRadius = 7f;
+
+    // these are what i scale
+    [Header("GameObjects to scale during attack")]
+    [SerializeField] private List<GameObject> scaleObjects = new List<GameObject>();
 
     private Collider2D m_collider;
     private List<Collider2D> m_hitColliders = new List<Collider2D>();
 
     float m_damageMultiplier = 1f;
     float m_knockbackMultiplier = 0.1f;
+
+    private AttackPathVisualizer m_attackPathVisualizer;
+
 
     public override void OnNetworkSpawn()
     {
@@ -31,6 +40,10 @@ public class SmashWave : PlayerAbility
         SetRotationToActionDirection();
         SetLocalPosition(PlayerAbilityCentreOffset + ActivationInput.actionDirection * Projection);
 
+        // calc new scale, the base animation has radius of 2.5, so scale 1 == radius 2.5
+        var targetRadius = math.lerp(m_holdStartRadius, m_holdFinishRadius, GetHoldPercentage());
+        SetSmashWaveScale(targetRadius / 2.5f);
+
         // IMPORTANT use PlayAnimation which calls RPC's in the background that play the 
         // animation on remote clients
         PlayAnimation("SmashWave");
@@ -38,13 +51,60 @@ public class SmashWave : PlayerAbility
         m_hitColliders.Clear();
 
         m_knockbackMultiplier = math.min(m_holdTimer / HoldChargeTime, 1f);
+        //CustomCollisionCheck();
         //m_damageMultiplier = math.lerp(m_holdStartKnockbackMultiplier, m_holdFinishKnockbackMultiplier, alpha);
-        
+
+        m_collisionTimer = 0;
+        m_isCollided = false;
     }
+
+    protected void SetSmashWaveScale(float scale)
+    {
+        // Local Client or Server
+        if (Player.GetComponent<NetworkObject>().IsLocalPlayer || IsServer)
+        {
+            foreach (var so in scaleObjects)
+            {
+                so.transform.localScale = new Vector3(scale, scale, 1);
+            }
+            //transform.localScale = new Vector3(scale, scale, 1);
+        }
+
+        // Server
+        if (IsServer)
+        {
+            SetSmashWaveScaleClientRpc(scale);
+        }
+    }
+
+
+    [Rpc(SendTo.ClientsAndHost)]
+    private void SetSmashWaveScaleClientRpc(float scale)
+    {
+        // Remote Client
+        if (!Player.GetComponent<NetworkObject>().IsLocalPlayer)
+        {
+            foreach (var so in scaleObjects)
+            {
+                so.transform.localScale = new Vector3(scale, scale, 1);
+            }
+            //transform.localScale = new Vector3(scale, scale, 1);
+        }
+    }
+
+    private bool m_isCollided = false;
+    private float m_collisionTimer = 0f;
 
     public override void OnUpdate()
     {
-        CustomCollisionCheck();
+        m_collisionTimer += Time.deltaTime;
+
+        // we check collision once halfway through execution
+        if (m_collisionTimer > 0.5f * ExecutionDuration && !m_isCollided)
+        {
+            CustomCollisionCheck();
+            m_isCollided = true;
+        }
     }
 
     public override void OnFinish()
@@ -53,10 +113,62 @@ public class SmashWave : PlayerAbility
 
     public override void OnHoldStart()
     {
+        base.OnHoldStart();
+
+        if (Player == null) return;
+
+        m_attackPathVisualizer = Player.GetComponentInChildren<AttackPathVisualizer>();
+        if (m_attackPathVisualizer == null) return;
+
+        m_attackPathVisualizer.SetMeshVisible(true);
+
+        m_attackPathVisualizer.useCircle = true;
+        m_attackPathVisualizer.innerRadius = 0f;
+        m_attackPathVisualizer.outerRadius = m_holdStartRadius;
+        m_attackPathVisualizer.angle = 90;
+
+        var playerPrediction = Player.GetComponent<PlayerPrediction>();
+        if (playerPrediction == null) return;
+
+        m_attackPathVisualizer.forwardDirection = playerPrediction.GetHoldActionDirection();
+    }
+
+    public override void OnHoldUpdate()
+    {
+        base.OnHoldUpdate();
+
+        if (Player == null) return;
+        if (m_attackPathVisualizer == null) return;
+
+        m_attackPathVisualizer.outerRadius = math.lerp(
+            m_holdStartRadius,
+            m_holdFinishRadius,
+            GetHoldPercentage());
+
+        var playerPrediction = Player.GetComponent<PlayerPrediction>();
+        if (playerPrediction == null) return;
+
+        m_attackPathVisualizer.forwardDirection = playerPrediction.GetHoldActionDirection();
+    }
+
+    public override void OnHoldCancel()
+    {
+        base.OnHoldCancel();
+
+        if (m_attackPathVisualizer == null) return;
+
+        m_attackPathVisualizer.SetMeshVisible(false);
+        m_attackPathVisualizer = null;
     }
 
     public override void OnHoldFinish()
     {
+        base.OnHoldFinish();
+
+        if (m_attackPathVisualizer == null) return;
+
+        m_attackPathVisualizer.SetMeshVisible(false);
+        m_attackPathVisualizer = null;
     }
 
     private void CustomCollisionCheck()

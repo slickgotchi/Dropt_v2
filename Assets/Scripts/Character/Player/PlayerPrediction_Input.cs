@@ -12,6 +12,8 @@ public partial class PlayerPrediction : NetworkBehaviour
     // for calculating mouse positions
     private Vector2 m_cursorScreenPosition;
 
+    private Vector2 m_holdActionDirection;
+
     // called every frame in the main PlayerPrediction.cs file Update()
     private void UpdateInput()
     {
@@ -35,6 +37,27 @@ public partial class PlayerPrediction : NetworkBehaviour
         {
             m_moveDirection = Vector3.zero;
         }
+
+        // recalc m_holdActionDirection
+        if (m_playerTargetingReticle.mode == PlayerTargetingReticle.Mode.KeyboardMouse)
+        {
+            var dir = (screenToWorldPosition - m_playerAttackCentre.transform.position).normalized;
+            m_holdActionDirection = new Vector2(dir.x, dir.y);
+        }
+        else if (m_playerTargetingReticle.mode == PlayerTargetingReticle.Mode.Gamepad)
+        {
+            var dir = (screenToWorldPosition - m_playerAttackCentre.transform.position).normalized;
+            m_holdActionDirection = new Vector2(dir.x, dir.y);
+        }
+        else if (m_playerTargetingReticle.mode == PlayerTargetingReticle.Mode.KeyboardOnly)
+        {
+            m_holdActionDirection = new Vector2(m_lastNonZeroMoveDirection.x, m_lastNonZeroMoveDirection.y);
+        }
+    }
+
+    public Vector2 GetHoldActionDirection()
+    {
+        return m_holdActionDirection;
     }
 
     // Generic_PlayerMove - this is not called as we sample movement from m_movementAction every frame
