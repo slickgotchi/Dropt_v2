@@ -19,12 +19,13 @@ namespace Dropt
 
         public override void OnSpawnStart()
         {
+            base.OnSpawnStart();
         }
 
         public override void OnTelegraphStart()
         {
         }
-        
+
         public override void OnRoamUpdate(float dt)
         {
             Patrol(dt);

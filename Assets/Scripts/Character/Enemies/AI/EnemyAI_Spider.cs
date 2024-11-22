@@ -1,9 +1,5 @@
-using Dropt;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
-using Unity.Mathematics;
 using Unity.Netcode;
 
 namespace Dropt
@@ -14,6 +10,7 @@ namespace Dropt
 
         [HideInInspector] public Vector3 SpawnDirection;
         [HideInInspector] public float SpawnDistance;
+        private SoundFX_Spider m_soundFX_Spider;
 
         private float m_localSpawnTimer = 0f;
 
@@ -23,6 +20,7 @@ namespace Dropt
         private void Awake()
         {
             m_animator = GetComponent<Animator>();
+            m_soundFX_Spider = GetComponent<SoundFX_Spider>();
         }
 
         public override void OnNetworkSpawn()
@@ -35,6 +33,7 @@ namespace Dropt
             m_interpDelay = IsHost ? 0 : 3 * 1 / (float)NetworkManager.Singleton.NetworkTickSystem.TickRate;
 
             m_animator.Play("Spider_Jump");
+            base.OnSpawnStart();
         }
 
         public override void OnSpawnUpdate(float dt)
@@ -95,14 +94,15 @@ namespace Dropt
             GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, AttackDuration);
 
             // jump anim
-            Invoke("PlayJumpAnimation", m_interpDelay);
+            Invoke(nameof(PlayJumpAnimation), m_interpDelay);
+            m_soundFX_Spider.PlayJumpAttackSound();
         }
 
         public override void OnAttackFinish()
         {
             base.OnAttackFinish();
 
-            Invoke("SpawnStompCircle", m_interpDelay);
+            Invoke(nameof(SpawnStompCircle), m_interpDelay);
         }
 
         public override void OnCooldownStart()

@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
@@ -15,7 +14,7 @@ public class EnemyController : NetworkBehaviour
     private NavMeshAgent m_navMeshAgent;
 
     // private parameters for updating facing position
-    private LocalVelocity m_localVelocity;
+    //private LocalVelocity m_localVelocity;
     private float m_facingTimer = 0f;
 
     // spawn parameters
@@ -27,10 +26,10 @@ public class EnemyController : NetworkBehaviour
 
     [HideInInspector] public bool IsArmed = false;
 
-    private void Awake()
-    {
-        m_localVelocity = GetComponent<LocalVelocity>();
-    }
+    //private void Awake()
+    //{
+    //    m_localVelocity = GetComponent<LocalVelocity>();
+    //}
 
     public override void OnNetworkSpawn()
     {
@@ -53,10 +52,10 @@ public class EnemyController : NetworkBehaviour
 
     }
 
-    public override void OnNetworkDespawn()
-    {
-        base.OnNetworkDespawn();
-    }
+    //public override void OnNetworkDespawn()
+    //{
+    //    base.OnNetworkDespawn();
+    //}
 
     // Update is called once per frame
     void Update()
@@ -70,7 +69,7 @@ public class EnemyController : NetworkBehaviour
         if (IsHost || IsServer)
         {
             SetFacingFromDirectionClientRpc(direction, facingTimer);
-        }    
+        }
     }
 
     [ClientRpc]

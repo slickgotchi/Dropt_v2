@@ -1,9 +1,5 @@
-using Dropt;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AI;
-using Unity.Mathematics;
 using Unity.Netcode;
 
 namespace Dropt
@@ -22,12 +18,13 @@ namespace Dropt
 
         public override void OnSpawnStart()
         {
+            base.OnSpawnStart();
         }
 
         public override void OnTelegraphStart()
         {
         }
-        
+
         public override void OnRoamUpdate(float dt)
         {
             SimpleRoamUpdate(dt);
@@ -51,8 +48,6 @@ namespace Dropt
         public override void OnFleeUpdate(float dt)
         {
             SimpleFleeUpdate(dt);
-
-
         }
 
         public override void OnAggroUpdate(float dt)

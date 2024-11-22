@@ -99,6 +99,7 @@ GameObject:
   - component: {fileID: 7743126408613523741}
   - component: {fileID: -6702119884770718294}
   - component: {fileID: 820083306360294532}
+  - component: {fileID: 2840734362788129664}
   m_Layer: 12
   m_Name: Chest_Uncommon
   m_TagString: Untagged
@@ -135,7 +136,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3512397265
+  GlobalObjectIdHash: 1035769739
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -253,6 +254,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 517a0e5d7276e564fadb7ae93628f0e9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  audioOnHit: {fileID: 0}
   type: 2
   Hp: 2
 --- !u!114 &820083306360294532
@@ -267,6 +269,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09698abc2e8964808b00a54103ccdd21, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &2840734362788129664
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5f8bfa0585f0481f86ac7d5539002f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_takeDamageSound:
+    AudioClip: {fileID: 0}
+    Volume: 0.5
+  m_dieSound:
+    AudioClip: {fileID: 0}
+    Volume: 0.5
 --- !u!1 &6525230415705073668
 GameObject:
   m_ObjectHideFlags: 0

@@ -107,6 +107,7 @@ GameObject:
   - component: {fileID: 1919057874353127386}
   - component: {fileID: -8582892363715254436}
   - component: {fileID: 2856512148995306821}
+  - component: {fileID: 936287773372816314}
   m_Layer: 15
   m_Name: GasBag
   m_TagString: Untagged
@@ -501,7 +502,35 @@ MonoBehaviour:
     m_InternalValue: 0
   EnemyShield:
     m_InternalValue: 0
-  OnHurtAudio: {fileID: 8300000, guid: 00338429dfad27d438bd1444b96d7e3a, type: 3}
+  MaxEnemyShield:
+    m_InternalValue: 0
+--- !u!114 &936287773372816314
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b659f6da0a924d1589cae2fdd981669, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_spawnSound:
+    AudioClip: {fileID: 0}
+    Volume: 0.5
+  m_takeDamageSound:
+    AudioClip: {fileID: 0}
+    Volume: 0.5
+  m_dieSound:
+    AudioClip: {fileID: 0}
+    Volume: 0.5
+  m_attackSound:
+    AudioClip: {fileID: 0}
+    Volume: 0.5
+  m_poisionCloudSound:
+    AudioClip: {fileID: 0}
+    Volume: 0.5
 --- !u!1 &1775476867899029955
 GameObject:
   m_ObjectHideFlags: 0
