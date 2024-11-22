@@ -7,11 +7,11 @@ public class AttackPathVisualizer : MonoBehaviour
     // Shared parameters for both shapes
     [Header("General")]
     [SerializeField] public bool useCircle = true; // Toggle between circle and rectangle
-    [SerializeField] private float borderThickness = 0.1f; // Thickness of the border
-    [SerializeField] private Color fillColor = Color.white; // Fill color
-    [SerializeField] private Color borderColor = new Color(1f, 0.5f, 0f); // Border color
+    [SerializeField] public float borderThickness = 0.1f; // Thickness of the border
+    [SerializeField] public Color fillColor = Color.white; // Fill color
+    [SerializeField] public Color borderColor = new Color(1f, 0.5f, 0f); // Border color
     [SerializeField] public Vector2 forwardDirection = Vector2.up; // Forward direction
-    [SerializeField] private PlayerPrediction playerPrediction;
+    [SerializeField] public PlayerPrediction playerPrediction;
 
     // Circle-specific parameters
     [Header("Circle Target Path Params")]
@@ -28,9 +28,9 @@ public class AttackPathVisualizer : MonoBehaviour
 
     // Cached references for optimization
     private MeshFilter fillMeshFilter;
-    private MeshRenderer fillMeshRenderer;
+    public MeshRenderer fillMeshRenderer;
     private MeshFilter borderMeshFilter;
-    private MeshRenderer borderMeshRenderer;
+    public MeshRenderer borderMeshRenderer;
 
     private void Awake()
     {
@@ -97,94 +97,117 @@ public class AttackPathVisualizer : MonoBehaviour
     // ** Circle Updating Methods **
     private void UpdateCircleFill()
     {
-        if (!fillMeshFilter.sharedMesh)
+        if (fillMeshFilter.sharedMesh == null)
             fillMeshFilter.sharedMesh = new Mesh();
         fillMeshFilter.sharedMesh.Clear();
-        fillMeshFilter.sharedMesh = GenerateSectorMesh(innerRadius, outerRadius, angle, segments);
+        fillMeshFilter.sharedMesh = GenerateSectorMesh(innerRadius, outerRadius, angle,
+            segments, forwardDirection, transform.parent.position);
     }
 
     private void UpdateCircleBorder()
     {
-        if (!borderMeshFilter.sharedMesh)
+        if (borderMeshFilter.sharedMesh == null)
             borderMeshFilter.sharedMesh = new Mesh();
         borderMeshFilter.sharedMesh.Clear();
-        borderMeshFilter.sharedMesh = GenerateSectorBorderMesh(innerRadius, outerRadius, angle, borderThickness, segments);
+        borderMeshFilter.sharedMesh = GenerateSectorBorderMesh(innerRadius, outerRadius, angle,
+            borderThickness, segments, forwardDirection, transform.parent.position);
     }
 
-    // ** Rectangle Updating Methods **
     private void UpdateRectangleFill()
     {
-        if (!fillMeshFilter.sharedMesh)
+        if (fillMeshFilter.sharedMesh == null)
             fillMeshFilter.sharedMesh = new Mesh();
         fillMeshFilter.sharedMesh.Clear();
-        fillMeshFilter.sharedMesh = GenerateRectangleMesh(innerStartPoint, outerFinishPoint, width, forwardDirection);
+        fillMeshFilter.sharedMesh = GenerateRectangleMesh(innerStartPoint, outerFinishPoint, width,
+            forwardDirection, transform.parent.position);
     }
 
     private void UpdateRectangleBorder()
     {
-        if (!borderMeshFilter.sharedMesh)
+        if (borderMeshFilter.sharedMesh == null)
             borderMeshFilter.sharedMesh = new Mesh();
         borderMeshFilter.sharedMesh.Clear();
-        borderMeshFilter.sharedMesh = GenerateRectangleBorderMesh(innerStartPoint, outerFinishPoint, width, forwardDirection, borderThickness);
+        borderMeshFilter.sharedMesh = GenerateRectangleBorderMesh(innerStartPoint, outerFinishPoint, width,
+            forwardDirection, transform.parent.position, borderThickness);
     }
 
-    // ** Rectangle Mesh Generation **
-    private Mesh GenerateRectangleMesh(float innerStart, float outerFinish, float width, Vector2 direction)
+    private Mesh GenerateRectangleMesh(float innerStart, float outerFinish, float width,
+        Vector2 worldDirection, Vector3 worldPosition)
     {
         Mesh mesh = new Mesh();
 
-        Vector2 normalizedDirection = direction.normalized;
-        Vector2 perpendicular = new Vector2(-normalizedDirection.y, normalizedDirection.x) * (width / 2f);
+        // Convert world position to local space relative to the parent
+        Vector3 localPosition = transform.InverseTransformPoint(worldPosition);
 
-        // Calculate rectangle vertices
-        Vector3[] vertices = new Vector3[4];
-        vertices[0] = (Vector3)(normalizedDirection * innerStart - perpendicular); // Bottom-left
-        vertices[1] = (Vector3)(normalizedDirection * innerStart + perpendicular); // Bottom-right
-        vertices[2] = (Vector3)(normalizedDirection * outerFinish + perpendicular); // Top-right
-        vertices[3] = (Vector3)(normalizedDirection * outerFinish - perpendicular); // Top-left
+        // Convert world direction to local space relative to the parent
+        Vector3 localDirection3D = transform.InverseTransformDirection(new Vector3(worldDirection.x, worldDirection.y, 0));
+        Vector2 localDirection = new Vector2(localDirection3D.x, localDirection3D.y).normalized;
 
-        // Define triangles
+        // Create perpendicular vector for width in local space
+        Vector2 perpendicular = new Vector2(-localDirection.y, localDirection.x) * (width / 2f);
+
+        // Calculate rectangle vertices in local space
+        Vector3[] localVertices = new Vector3[4];
+        localVertices[0] = localPosition + (Vector3)(localDirection * innerStart - perpendicular); // Bottom-left
+        localVertices[1] = localPosition + (Vector3)(localDirection * innerStart + perpendicular); // Bottom-right
+        localVertices[2] = localPosition + (Vector3)(localDirection * outerFinish + perpendicular); // Top-right
+        localVertices[3] = localPosition + (Vector3)(localDirection * outerFinish - perpendicular); // Top-left
+
+        // Define triangles for the mesh
         int[] triangles = { 0, 1, 2, 2, 3, 0 };
 
-        mesh.vertices = vertices;
+        // Assign vertices and triangles to the mesh
+        mesh.vertices = localVertices;
         mesh.triangles = triangles;
+
         mesh.RecalculateNormals();
 
         return mesh;
     }
 
-    private Mesh GenerateRectangleBorderMesh(float innerStart, float outerFinish, float width, Vector2 direction, float borderThickness)
+
+    private Mesh GenerateRectangleBorderMesh(float innerStart, float outerFinish, float width,
+        Vector2 worldDirection, Vector3 worldPosition, float borderThickness)
     {
         Mesh mesh = new Mesh();
 
+        // Convert world position to local space relative to the parent
+        Vector3 localPosition = transform.InverseTransformPoint(worldPosition);
+
+        // Convert world direction to local space relative to the parent
+        Vector3 localDirection3D = transform.InverseTransformDirection(new Vector3(worldDirection.x, worldDirection.y, 0));
+        Vector2 localDirection = new Vector2(localDirection3D.x, localDirection3D.y).normalized;
+
+        // Extend dimensions to account for the border
         float extendedInnerStart = innerStart - borderThickness;
         float extendedOuterFinish = outerFinish + borderThickness;
         float extendedWidth = width + borderThickness * 2;
 
-        Vector2 normalizedDirection = direction.normalized;
-        Vector2 perpendicular = new Vector2(-normalizedDirection.y, normalizedDirection.x);
+        // Create perpendicular vector for width in local space
+        Vector2 perpendicular = new Vector2(-localDirection.y, localDirection.x);
 
-        // Calculate border vertices
-        Vector3[] vertices = new Vector3[8];
-        vertices[0] = (Vector3)(normalizedDirection * extendedInnerStart - perpendicular * (extendedWidth / 2f)); // Bottom-left outer
-        vertices[1] = (Vector3)(normalizedDirection * extendedInnerStart + perpendicular * (extendedWidth / 2f)); // Bottom-right outer
-        vertices[2] = (Vector3)(normalizedDirection * innerStart + perpendicular * (width / 2f)); // Bottom-right inner
-        vertices[3] = (Vector3)(normalizedDirection * innerStart - perpendicular * (width / 2f)); // Bottom-left inner
+        // Calculate border vertices in local space
+        Vector3[] localVertices = new Vector3[8];
+        localVertices[0] = localPosition + (Vector3)(localDirection * extendedInnerStart - perpendicular * (extendedWidth / 2f)); // Bottom-left outer
+        localVertices[1] = localPosition + (Vector3)(localDirection * extendedInnerStart + perpendicular * (extendedWidth / 2f)); // Bottom-right outer
+        localVertices[2] = localPosition + (Vector3)(localDirection * innerStart + perpendicular * (width / 2f)); // Bottom-right inner
+        localVertices[3] = localPosition + (Vector3)(localDirection * innerStart - perpendicular * (width / 2f)); // Bottom-left inner
 
-        vertices[4] = (Vector3)(normalizedDirection * outerFinish - perpendicular * (width / 2f)); // Top-left inner
-        vertices[5] = (Vector3)(normalizedDirection * outerFinish + perpendicular * (width / 2f)); // Top-right inner
-        vertices[6] = (Vector3)(normalizedDirection * extendedOuterFinish + perpendicular * (extendedWidth / 2f)); // Top-right outer
-        vertices[7] = (Vector3)(normalizedDirection * extendedOuterFinish - perpendicular * (extendedWidth / 2f)); // Top-left outer
+        localVertices[4] = localPosition + (Vector3)(localDirection * outerFinish - perpendicular * (width / 2f)); // Top-left inner
+        localVertices[5] = localPosition + (Vector3)(localDirection * outerFinish + perpendicular * (width / 2f)); // Top-right inner
+        localVertices[6] = localPosition + (Vector3)(localDirection * extendedOuterFinish + perpendicular * (extendedWidth / 2f)); // Top-right outer
+        localVertices[7] = localPosition + (Vector3)(localDirection * extendedOuterFinish - perpendicular * (extendedWidth / 2f)); // Top-left outer
 
         // Define triangles for the border outline
         int[] triangles = {
-        0, 1, 2, 2, 3, 0, // Bottom border
-        1, 6, 5, 5, 2, 1, // Right border
-        6, 7, 4, 4, 5, 6, // Top border
-        7, 0, 3, 3, 4, 7  // Left border
-    };
+                0, 1, 2, 2, 3, 0, // Bottom border
+                1, 6, 5, 5, 2, 1, // Right border
+                6, 7, 4, 4, 5, 6, // Top border
+                7, 0, 3, 3, 4, 7  // Left border
+            };
 
-        mesh.vertices = vertices;
+        // Assign vertices and triangles to the mesh
+        mesh.vertices = localVertices;
         mesh.triangles = triangles;
 
         mesh.RecalculateNormals();
@@ -192,11 +215,16 @@ public class AttackPathVisualizer : MonoBehaviour
         return mesh;
     }
 
-
-
-    private Mesh GenerateSectorMesh(float innerRadius, float outerRadius, float angle, int segments)
+    private Mesh GenerateSectorMesh(float innerRadius, float outerRadius, float angle, int segments, Vector2 worldDirection, Vector3 worldPosition)
     {
         Mesh mesh = new Mesh();
+
+        // Convert world position to local space relative to the parent
+        Vector3 localPosition = transform.InverseTransformPoint(worldPosition);
+
+        // Convert world direction to local space relative to the parent
+        Vector3 localDirection3D = transform.InverseTransformDirection(new Vector3(worldDirection.x, worldDirection.y, 0));
+        Vector2 localDirection = new Vector2(localDirection3D.x, localDirection3D.y).normalized;
 
         int verticesCount = (segments + 1) * 2; // Inner and outer vertices for each segment
         Vector3[] vertices = new Vector3[verticesCount];
@@ -204,9 +232,8 @@ public class AttackPathVisualizer : MonoBehaviour
 
         float angleStep = angle / segments * Mathf.Deg2Rad;
 
-        // Adjust rotation to align forwardDirection with Unity's default trig direction (right)
-        Vector2 normalizedForward = forwardDirection.normalized;
-        float forwardAngle = Mathf.Atan2(normalizedForward.y, normalizedForward.x);
+        // Align the sector's angle with the local direction
+        float forwardAngle = Mathf.Atan2(localDirection.y, localDirection.x);
 
         for (int i = 0; i <= segments; i++)
         {
@@ -216,8 +243,8 @@ public class AttackPathVisualizer : MonoBehaviour
             Vector3 direction = new Vector3(Mathf.Cos(currentAngle), Mathf.Sin(currentAngle), 0);
 
             // Inner and outer vertices
-            vertices[i] = direction * innerRadius;
-            vertices[segments + 1 + i] = direction * outerRadius;
+            vertices[i] = localPosition + direction * innerRadius;
+            vertices[segments + 1 + i] = localPosition + direction * outerRadius;
 
             if (i < segments)
             {
@@ -248,9 +275,17 @@ public class AttackPathVisualizer : MonoBehaviour
     }
 
 
-    private Mesh GenerateSectorBorderMesh(float innerRadius, float outerRadius, float angle, float borderThickness, int segments)
+
+    private Mesh GenerateSectorBorderMesh(float innerRadius, float outerRadius, float angle, float borderThickness, int segments, Vector2 worldDirection, Vector3 worldPosition)
     {
         Mesh mesh = new Mesh();
+
+        // Convert world position to local space relative to the parent
+        Vector3 localPosition = transform.InverseTransformPoint(worldPosition);
+
+        // Convert world direction to local space relative to the parent
+        Vector3 localDirection3D = transform.InverseTransformDirection(new Vector3(worldDirection.x, worldDirection.y, 0));
+        Vector2 localDirection = new Vector2(localDirection3D.x, localDirection3D.y).normalized;
 
         float extendedInnerRadius = innerRadius - borderThickness;
         float extendedOuterRadius = outerRadius + borderThickness;
@@ -260,8 +295,8 @@ public class AttackPathVisualizer : MonoBehaviour
 
         float angleStep = angle / segments * Mathf.Deg2Rad;
 
-        Vector2 normalizedForward = forwardDirection.normalized;
-        float forwardAngle = Mathf.Atan2(normalizedForward.y, normalizedForward.x);
+        // Align the sector's angle with the local direction
+        float forwardAngle = Mathf.Atan2(localDirection.y, localDirection.x);
 
         for (int i = 0; i <= segments; i++)
         {
@@ -270,16 +305,16 @@ public class AttackPathVisualizer : MonoBehaviour
             Vector3 direction = new Vector3(Mathf.Cos(currentAngle), Mathf.Sin(currentAngle), 0);
 
             // Outer border vertices
-            vertices[i] = direction * extendedOuterRadius;
+            vertices[i] = localPosition + direction * extendedOuterRadius;
 
             // Outer circle vertices
-            vertices[segments + 1 + i] = direction * outerRadius;
+            vertices[segments + 1 + i] = localPosition + direction * outerRadius;
 
             // Inner circle vertices
-            vertices[(segments + 1) * 2 + i] = direction * innerRadius;
+            vertices[(segments + 1) * 2 + i] = localPosition + direction * innerRadius;
 
             // Inner border vertices
-            vertices[(segments + 1) * 3 + i] = direction * extendedInnerRadius;
+            vertices[(segments + 1) * 3 + i] = localPosition + direction * extendedInnerRadius;
 
             if (i < segments)
             {
@@ -312,6 +347,7 @@ public class AttackPathVisualizer : MonoBehaviour
 
         return mesh;
     }
+
 
 
 }
