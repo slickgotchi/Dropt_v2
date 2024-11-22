@@ -1,22 +1,24 @@
 using UnityEngine;
+using Unity.Netcode;
 
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class AttackPathVisualizer : MonoBehaviour
 {
     // Shared parameters for both shapes
     [Header("General")]
-    [SerializeField] private bool useCircle = true; // Toggle between circle and rectangle
+    [SerializeField] public bool useCircle = true; // Toggle between circle and rectangle
     [SerializeField] private float borderThickness = 0.1f; // Thickness of the border
     [SerializeField] private Color fillColor = Color.white; // Fill color
     [SerializeField] private Color borderColor = new Color(1f, 0.5f, 0f); // Border color
+    [SerializeField] public Vector2 forwardDirection = Vector2.up; // Forward direction
+    [SerializeField] private PlayerPrediction playerPrediction;
 
     // Circle-specific parameters
     [Header("Circle Target Path Params")]
-    [SerializeField] private float innerRadius = 0f; // Inner radius for donuts
-    [SerializeField] private float outerRadius = 2f; // Outer radius of the circle
-    [SerializeField] private int segments = 64; // Smoothness of the circle
-    [SerializeField] private float angle = 360f; // Angle of the sector (0-360)
-    [SerializeField] private Vector2 forwardDirection = Vector2.up; // Forward direction
+    [SerializeField] public float innerRadius = 0f; // Inner radius for donuts
+    [SerializeField] public float outerRadius = 2f; // Outer radius of the circle
+    [SerializeField] public int segments = 64; // Smoothness of the circle
+    [SerializeField] public float angle = 360f; // Angle of the sector (0-360)
 
     // Rectangle-specific parameters
     [Header("Rectangle Target Path Params")]
@@ -35,6 +37,11 @@ public class AttackPathVisualizer : MonoBehaviour
         InitializeMeshObjects();
     }
 
+    private void Start()
+    {
+        SetMeshVisible(false);
+    }
+
     private void Update()
     {
         if (useCircle)
@@ -47,6 +54,12 @@ public class AttackPathVisualizer : MonoBehaviour
             UpdateRectangleFill();
             UpdateRectangleBorder();
         }
+    }
+
+    public void SetMeshVisible(bool isVisible)
+    {
+        fillMeshFilter.gameObject.SetActive(isVisible);
+        borderMeshFilter.gameObject.SetActive(isVisible);
     }
 
     private void InitializeMeshObjects()
@@ -114,52 +127,6 @@ public class AttackPathVisualizer : MonoBehaviour
         borderMeshFilter.sharedMesh.Clear();
         borderMeshFilter.sharedMesh = GenerateRectangleBorderMesh(innerStartPoint, outerFinishPoint, width, forwardDirection, borderThickness);
     }
-
-    //// ** Circle Drawing Methods **
-    //private void DrawCircleFill()
-    //{
-    //    GameObject fillObject = CreateChildObject("CircleFill", fillColor, 2);
-    //    fillObject.GetComponent<MeshFilter>().mesh = GenerateSectorMesh(innerRadius, outerRadius, angle, segments);
-    //}
-
-    //private void DrawCircleBorder()
-    //{
-    //    GameObject borderObject = CreateChildObject("CircleBorder", borderColor, 3);
-    //    borderObject.GetComponent<MeshFilter>().mesh = GenerateSectorBorderMesh(innerRadius, outerRadius, angle, borderThickness, segments);
-    //}
-
-    //// ** Rectangle Drawing Methods **
-    //private void DrawRectangleFill()
-    //{
-    //    GameObject fillObject = CreateChildObject("RectangleFill", fillColor, 2);
-    //    fillObject.GetComponent<MeshFilter>().mesh = GenerateRectangleMesh(innerStartPoint, outerFinishPoint, width, forwardDirection);
-    //}
-
-    //private void DrawRectangleBorder()
-    //{
-    //    GameObject borderObject = CreateChildObject("RectangleBorder", borderColor, 3);
-    //    borderObject.GetComponent<MeshFilter>().mesh = GenerateRectangleBorderMesh(innerStartPoint, outerFinishPoint, width, forwardDirection, borderThickness);
-    //}
-
-    //// Helper function to create child objects for fill and border
-    //private GameObject CreateChildObject(string name, Color color, int sortingOrder)
-    //{
-    //    GameObject obj = new GameObject(name);
-    //    obj.transform.SetParent(transform);
-    //    obj.transform.localPosition = Vector3.zero;
-
-    //    var meshFilter = obj.AddComponent<MeshFilter>();
-    //    var meshRenderer = obj.AddComponent<MeshRenderer>();
-
-    //    Material material = new Material(Shader.Find("Sprites/Default"));
-    //    material.color = color;
-    //    meshRenderer.material = material;
-
-    //    meshRenderer.sortingLayerName = "Shadows";
-    //    meshRenderer.sortingOrder = sortingOrder;
-
-    //    return obj;
-    //}
 
     // ** Rectangle Mesh Generation **
     private Mesh GenerateRectangleMesh(float innerStart, float outerFinish, float width, Vector2 direction)

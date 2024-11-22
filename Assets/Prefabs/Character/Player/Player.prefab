@@ -850,7 +850,6 @@ Transform:
   - {fileID: 2346943555948467453}
   - {fileID: 4380377416953888011}
   - {fileID: 7564333498438163765}
-  - {fileID: 510660044204789661}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!50 &3292186484427281000
@@ -2844,12 +2843,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4297776232337004279}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 3968243587037172639}
+  m_Father: {fileID: 1683135891876237033}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &4650360690960026523
 MeshFilter:
@@ -2915,13 +2914,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   useCircle: 0
   borderThickness: 0.027777778
-  fillColor: {r: 0.91764706, g: 0.19607843, b: 0.23529412, a: 0.101960786}
-  borderColor: {r: 0.99215686, g: 0.8235294, b: 0.92941177, a: 0.9019608}
+  fillColor: {r: 0.91764706, g: 0.19607843, b: 0.23529412, a: 0.03137255}
+  borderColor: {r: 0.9607843, g: 0.33333334, b: 0.3647059, a: 0.2}
+  forwardDirection: {x: 0, y: 1}
+  playerPrediction: {fileID: -8059371171911978272}
   innerRadius: 2.5
   outerRadius: 4
-  segments: 16
-  angle: 45
-  forwardDirection: {x: 0, y: 1}
+  segments: 64
+  angle: 360
   innerStartPoint: 1
   outerFinishPoint: 5
   width: 2
@@ -9189,7 +9189,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 510660044204789661}
   m_Father: {fileID: 3968243587037172639}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &3457803871860198181

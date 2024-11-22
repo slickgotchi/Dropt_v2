@@ -230,14 +230,6 @@ public partial class PlayerPrediction : NetworkBehaviour
         }
     }
 
-    //private void LateUpdate()
-    //{
-    //    if (IsClient && !IsLocalPlayer)
-    //    {
-    //        transform.position = GetRemotePlayerInterpPosition();
-    //    }
-    //}
-
     // NEW: We now let the NetworkTimer_v2 call the Tick function for us
     public void Tick()
     {
