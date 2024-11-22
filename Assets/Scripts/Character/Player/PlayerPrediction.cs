@@ -100,6 +100,8 @@ public partial class PlayerPrediction : NetworkBehaviour
 
     private PlayerEquipment m_playerEquipment;
 
+    private PlayerAbilityEnum m_lastActivatedAbilityEnum;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -275,15 +277,19 @@ public partial class PlayerPrediction : NetworkBehaviour
         {
             // check AP only, we can't check against cooldown because we are commencing this attack within the starter attacks cooldown window
             bool isEnoughAp = m_networkCharacter.ApCurrent.Value >= holdStartTriggeredAbility.ApCost;
-            bool isBlockedByOthers = !IsAttackCooldownFinished(Hand.Left) || !IsAttackCooldownFinished(Hand.Right) ||
-                !IsHoldCooldownFinished(Hand.Left) || !IsHoldCooldownFinished(Hand.Right);
+            //bool isBlockedByOthers =
+            //    !IsAttackCooldownFinished(Hand.Left) ||
+            //    !IsAttackCooldownFinished(Hand.Right) ||
+            //    !IsHoldCooldownFinished(Hand.Left) ||
+            //    !IsHoldCooldownFinished(Hand.Right);
 
-            if (isEnoughAp && !isBlockedByOthers && !isHoldCancelled)
+            bool isPredecessorAbility = IsLastAttackAbilityHoldPredecessor(m_lastActivatedAbilityEnum, m_holdStartTriggeredAbilityEnum);
+
+            if (isEnoughAp && isPredecessorAbility && !isHoldCancelled)
             {
                 holdStartTriggeredAbility.Init(gameObject, m_abilityHand);
                 holdStartTriggeredAbility.HoldStart();
                 m_isHoldStartFlag = true;
-               
             }
             else
             {
@@ -339,6 +345,7 @@ public partial class PlayerPrediction : NetworkBehaviour
 
             // activate ability
             triggeredAbility.Activate(gameObject, statePayload, inputPayload, holdDuration);
+            m_lastActivatedAbilityEnum = m_triggeredAbilityEnum;
 
             // set slow down ticks
             m_slowFactor = triggeredAbility.ExecutionSlowFactor;
@@ -414,10 +421,15 @@ public partial class PlayerPrediction : NetworkBehaviour
             {
                 // check AP only, we can't check against cooldown because we are commencing this attack within the starter attacks cooldown window
                 bool isEnoughAp = m_networkCharacter.ApCurrent.Value >= holdStartTriggeredAbility.ApCost;
-                bool isBlockedByOthers = !IsAttackCooldownFinished(Hand.Left) || !IsAttackCooldownFinished(Hand.Right) ||
-                    !IsHoldCooldownFinished(Hand.Left) || !IsHoldCooldownFinished(Hand.Right);
+                //bool isBlockedByOthers =
+                //    !IsAttackCooldownFinished(Hand.Left) ||
+                //    !IsAttackCooldownFinished(Hand.Right) ||
+                //    !IsHoldCooldownFinished(Hand.Left) ||
+                //    !IsHoldCooldownFinished(Hand.Right);
 
-                if (isEnoughAp && !isBlockedByOthers && !isHoldCancelled)
+                bool isPredecessorAbility = IsLastAttackAbilityHoldPredecessor(m_lastActivatedAbilityEnum, inputPayload.holdStartTriggeredAbilityEnum);
+
+                if (isEnoughAp && isPredecessorAbility && !isHoldCancelled)
                 {
                     if (!IsHost) holdStartTriggeredAbility.Init(gameObject, inputPayload.abilityHand);
                     if (!IsHost) holdStartTriggeredAbility.HoldStart();
@@ -468,6 +480,7 @@ public partial class PlayerPrediction : NetworkBehaviour
 
                 // activate
                 if (!IsHost) triggeredAbility.Activate(gameObject, statePayload, inputPayload, holdDuration);
+                if (!IsHost) m_lastActivatedAbilityEnum = inputPayload.triggeredAbilityEnum;
 
                 if (!IsHost)
                 {
@@ -840,6 +853,22 @@ public partial class PlayerPrediction : NetworkBehaviour
     public float GetServerTickRate()
     {
         return NetworkTimer_v2.Instance.TickRate;
+    }
+
+    bool IsLastAttackAbilityHoldPredecessor(PlayerAbilityEnum lastAbility, PlayerAbilityEnum holdAbilityEnum)
+    {
+        switch (lastAbility)
+        {
+            case PlayerAbilityEnum.CleaveSlash: return holdAbilityEnum == PlayerAbilityEnum.CleaveWhirlwind;
+            case PlayerAbilityEnum.SmashSwipe: return holdAbilityEnum == PlayerAbilityEnum.SmashWave;
+            case PlayerAbilityEnum.PierceThrust: return holdAbilityEnum == PlayerAbilityEnum.PierceDrill;
+            case PlayerAbilityEnum.BallisticShot: return holdAbilityEnum == PlayerAbilityEnum.BallisticSnipe;
+            case PlayerAbilityEnum.MagicCast: return holdAbilityEnum == PlayerAbilityEnum.MagicBeam;
+            case PlayerAbilityEnum.SplashLob: return holdAbilityEnum == PlayerAbilityEnum.SplashVolley;
+            default: break;
+        }
+
+        return false;
     }
 
     bool IsAttackCooldownFinished(Hand hand)

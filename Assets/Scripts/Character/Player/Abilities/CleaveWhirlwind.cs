@@ -7,14 +7,16 @@ using System;
 public class CleaveWhirlwind : PlayerAbility
 {
     [Header("CleaveWhirlwind Parameters")]
-    [SerializeField] private float HitInterval = 0.5f;
-
+    [SerializeField] private float m_hitInterval = 0.25f;
     [SerializeField] private float m_holdStartRadius = 2f;
     [SerializeField] private float m_holdFinishRadius = 5f;
 
     private float m_hitTimer = 0f;
 
     private Collider2D m_collider;
+
+    private AttackPathVisualizer m_attackPathVisualizer;
+
 
     public override void OnNetworkSpawn()
     {
@@ -49,11 +51,10 @@ public class CleaveWhirlwind : PlayerAbility
         if (m_hitTimer <= 0)
         {
             OneFrameCollisionDamageCheck(m_collider, Wearable.WeaponTypeEnum.Cleave, DamageMultiplier);
-            m_hitTimer += HitInterval;
+            m_hitTimer += m_hitInterval;
         }
     }
 
-    private AttackPathVisualizer m_attackPathVisualizer;
 
     public override void OnHoldStart()
     {
