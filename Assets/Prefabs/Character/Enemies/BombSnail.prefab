@@ -109,6 +109,7 @@ GameObject:
   - component: {fileID: 7894955574090363429}
   - component: {fileID: -672225850276954026}
   - component: {fileID: 6423663201319280036}
+  - component: {fileID: 4457289357772804205}
   m_Layer: 15
   m_Name: BombSnail
   m_TagString: Untagged
@@ -519,7 +520,35 @@ MonoBehaviour:
     m_InternalValue: 0
   EnemyShield:
     m_InternalValue: 0
-  OnHurtAudio: {fileID: 8300000, guid: 00338429dfad27d438bd1444b96d7e3a, type: 3}
+  MaxEnemyShield:
+    m_InternalValue: 0
+--- !u!114 &4457289357772804205
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e8bd6b3227534a3288dceb111c81b0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_spawnSound:
+    AudioClip: {fileID: 8300000, guid: 0c0666b9cdeaf4979b1192a905b6cd85, type: 3}
+    Volume: 0.5
+  m_takeDamageSound:
+    AudioClip: {fileID: 8300000, guid: b7f60ec636fb24844ae39b1a219164f6, type: 3}
+    Volume: 0.5
+  m_dieSound:
+    AudioClip: {fileID: 8300000, guid: bc785bf636b6d407d98f907295fa8f3d, type: 3}
+    Volume: 0.5
+  m_igniteSound:
+    AudioClip: {fileID: 8300000, guid: df70f0a9a75a549d4a9dfb9840cbce32, type: 3}
+    Volume: 0.5
+  m_explodeSound:
+    AudioClip: {fileID: 8300000, guid: bfcdb0a92579b4f7c914c63001f003ab, type: 3}
+    Volume: 0.5
 --- !u!1 &3116345567214493271
 GameObject:
   m_ObjectHideFlags: 0

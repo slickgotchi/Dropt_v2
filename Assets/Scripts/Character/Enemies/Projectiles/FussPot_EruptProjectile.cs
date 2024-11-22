@@ -29,10 +29,12 @@ public class FussPot_EruptProjectile : NetworkBehaviour
 
     private Vector3 m_finalPosition = Vector3.zero;
 
+    private SoundFX_ProjectileHitGround m_soundFX_ProjectileHitGround;
 
     private void Awake()
     {
-        m_collider = GetComponentInChildren<Collider2D>();  
+        m_collider = GetComponentInChildren<Collider2D>();
+        m_soundFX_ProjectileHitGround = GetComponent<SoundFX_ProjectileHitGround>();
     }
 
     public override void OnNetworkDespawn()
@@ -40,6 +42,7 @@ public class FussPot_EruptProjectile : NetworkBehaviour
         if (IsClient)
         {
             VisualEffectsManager.Singleton.SpawnCloudExplosion(transform.position);
+            m_soundFX_ProjectileHitGround.Play();
         }
 
         base.OnNetworkDespawn();
@@ -48,8 +51,7 @@ public class FussPot_EruptProjectile : NetworkBehaviour
     public void Init(Vector3 position, Quaternion rotation, Vector3 direction, float distance, float duration, float damagePerHit,
         float criticalChance, float criticalDamage)
     {
-        transform.position = position;
-        transform.rotation = rotation;
+        transform.SetPositionAndRotation(position, rotation);
         Direction = direction.normalized;
         Distance = distance;
         Duration = duration;
@@ -93,7 +95,7 @@ public class FussPot_EruptProjectile : NetworkBehaviour
             gameObject.GetComponent<NetworkObject>().Despawn();
         }
 
-        transform.position += Direction * m_speed * Time.deltaTime;
+        transform.position += m_speed * Time.deltaTime * Direction;
 
         TargetMarker.transform.position = m_finalPosition;
 

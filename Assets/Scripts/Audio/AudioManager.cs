@@ -115,7 +115,7 @@ public class AudioManager : MonoBehaviour
             Debug.Log("Attempted to crossfade into the same track. Operation aborted.");
             return; // Early exit if the track is already playing
         }
-        
+
         // Fade out the current music track
         musicSource.DOFade(0f, crossfadeDuration).OnComplete(() =>
         {
@@ -140,7 +140,7 @@ public class AudioManager : MonoBehaviour
                 });
             }
         }
-        
+
     }
 
 
@@ -166,8 +166,14 @@ public class AudioManager : MonoBehaviour
     #region Sound Effects
 
     // Play a spatial sound effect with volume drop-off based on distance to the listener
-    public void PlaySpatialSFX(AudioClip clip, Vector3 position, bool ignoreAttenuation = false)
+    public void PlaySpatialSFX(AudioClip clip, Vector3 position, bool ignoreAttenuation = false, float volume = 1.0f)
     {
+        if (clip == null)
+        {
+            Debug.LogWarning("NULL AUDIO CLIP");
+            return;
+        }
+
         if (Bootstrap.IsServer()) return;
 
         // Check if the number of playing instances exceeds the max duplicates limit
@@ -191,6 +197,7 @@ public class AudioManager : MonoBehaviour
 
         sfxSource.clip = clip;
         sfxSource.outputAudioMixerGroup = sfxMixerGroup;
+        sfxSource.volume = volume;
 
         if (ignoreAttenuation)
         {

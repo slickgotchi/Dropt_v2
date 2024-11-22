@@ -10,8 +10,16 @@ namespace Dropt
         public float WaitForNonRootedPlayerRange = 4f;
         private Action<GameObject> m_onFudWispDespawn;
 
+        private SoundFX_FudWisp m_soundFX_FudWisp;
+
+        private void Awake()
+        {
+            m_soundFX_FudWisp = GetComponent<SoundFX_FudWisp>();
+        }
+
         public override void OnSpawnStart()
         {
+            base.OnSpawnStart();
         }
 
         public void AssignDespawnAction(Action<GameObject> onFudWispDespawn)
@@ -73,6 +81,7 @@ namespace Dropt
             // initialise the ability           
             ability.GetComponent<NetworkObject>().Spawn();
             enemyAbility.Activate(gameObject, NearestPlayer, Vector3.zero, AttackDuration, PositionToAttack);
+            m_soundFX_FudWisp.PlayExplodeSound();
         }
 
         protected void FudWisp_PursueUpdate(float dt)
@@ -101,7 +110,6 @@ namespace Dropt
 
         public override void OnNetworkDespawn()
         {
-
             m_onFudWispDespawn?.Invoke(gameObject);
             base.OnNetworkDespawn();
         }

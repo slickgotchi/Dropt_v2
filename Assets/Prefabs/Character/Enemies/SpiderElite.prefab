@@ -108,6 +108,7 @@ GameObject:
   - component: {fileID: 3785400363968830387}
   - component: {fileID: 805373810793937261}
   - component: {fileID: 7149727031122599847}
+  - component: {fileID: 107170196869283052}
   m_Layer: 15
   m_Name: SpiderElite
   m_TagString: Untagged
@@ -148,7 +149,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1549624854
+  GlobalObjectIdHash: 1573541417
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -507,7 +508,30 @@ MonoBehaviour:
     m_InternalValue: 0
   MaxEnemyShield:
     m_InternalValue: 0
-  OnHurtAudio: {fileID: 8300000, guid: 00338429dfad27d438bd1444b96d7e3a, type: 3}
+--- !u!114 &107170196869283052
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f9829c3349844f76a86efd73e1b45bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_spawnSound:
+    AudioClip: {fileID: 0}
+    Volume: 0.5
+  m_takeDamageSound:
+    AudioClip: {fileID: 0}
+    Volume: 0.5
+  m_dieSound:
+    AudioClip: {fileID: 0}
+    Volume: 0.5
+  m_jumpAttackSound:
+    AudioClip: {fileID: 0}
+    Volume: 0.5
 --- !u!1 &2736674369248915178
 GameObject:
   m_ObjectHideFlags: 0

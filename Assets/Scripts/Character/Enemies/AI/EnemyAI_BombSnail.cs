@@ -6,7 +6,6 @@ namespace Dropt
     public class EnemyAI_BombSnail : EnemyAI
     {
         private Animator m_animator;
-
         private NetworkVariable<bool> m_isTriggered = new NetworkVariable<bool>(false);
         private NetworkVariable<float> m_triggerTimer = new NetworkVariable<float>(3);
 
@@ -21,6 +20,7 @@ namespace Dropt
             {
                 m_animator.Play("BombSnail_Spawn");
             }
+            base.OnSpawnStart();
         }
 
         public override void OnTelegraphStart()
