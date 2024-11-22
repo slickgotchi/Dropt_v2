@@ -88,7 +88,6 @@ public class SmashWave : PlayerAbility
             {
                 so.transform.localScale = new Vector3(scale, scale, 1);
             }
-            //transform.localScale = new Vector3(scale, scale, 1);
         }
     }
 

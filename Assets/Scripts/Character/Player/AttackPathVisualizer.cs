@@ -22,9 +22,9 @@ public class AttackPathVisualizer : MonoBehaviour
 
     // Rectangle-specific parameters
     [Header("Rectangle Target Path Params")]
-    [SerializeField] private float innerStartPoint = 1f; // Distance from transform.position where the rectangle starts
-    [SerializeField] private float outerFinishPoint = 5f; // Distance where the rectangle ends
-    [SerializeField] private float width = 2f; // Width of the rectangle
+    [SerializeField] public float innerStartPoint = 1f; // Distance from transform.position where the rectangle starts
+    [SerializeField] public float outerFinishPoint = 5f; // Distance where the rectangle ends
+    [SerializeField] public float width = 2f; // Width of the rectangle
 
     // Cached references for optimization
     private MeshFilter fillMeshFilter;
