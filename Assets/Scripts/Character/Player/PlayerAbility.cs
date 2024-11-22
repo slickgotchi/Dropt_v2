@@ -95,6 +95,12 @@ public class PlayerAbility : NetworkBehaviour
     [HideInInspector]
     public enum NetworkRole { LocalClient, RemoteClient, Server }
 
+    //public virtual void OnActivate() { }
+
+    public virtual void OnHoldStart() { }
+    public virtual void OnHoldUpdate() { }
+    public virtual void OnHoldFinish() { }
+
     private void Awake()
     {
         AutoMoveDuration = math.min(AutoMoveDuration, ExecutionDuration);
@@ -164,8 +170,11 @@ public class PlayerAbility : NetworkBehaviour
         m_isHoldReady = true;
     }
 
-    public virtual void OnHoldStart() { }
-    public virtual void OnHoldFinish() { }
+    public float GetHoldPercentage()
+    {
+        var timer = math.min(m_holdTimer, HoldChargeTime);
+        return timer / HoldChargeTime;
+    }
 
     private float m_cooldownExpiryTick = 0;
 
@@ -184,6 +193,8 @@ public class PlayerAbility : NetworkBehaviour
 
     public bool Activate(GameObject playerObject, StatePayload state, InputPayload input, float holdDuration)
     {
+        //OnActivate();
+
         Player = playerObject;
         PlayerActivationState = state;
         ActivationInput = input;
@@ -251,6 +262,8 @@ public class PlayerAbility : NetworkBehaviour
     {
         m_timer -= Time.deltaTime;
         m_autoMoveTimer -= Time.deltaTime;
+
+        if (m_isHolding) OnHoldUpdate();
 
         if (m_isHolding)
         {
