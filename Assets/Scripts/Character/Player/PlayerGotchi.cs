@@ -14,6 +14,7 @@ public class PlayerGotchi : NetworkBehaviour
 
     [Header("Gotchi GameObject")]
     [SerializeField] GameObject m_gotchi;
+    [SerializeField] GameObject m_rotator;
     [SerializeField] GameObject m_shadow;
 
     [Header("Body GameObject and Side Views")]
@@ -47,6 +48,7 @@ public class PlayerGotchi : NetworkBehaviour
     private PlayerPrediction m_playerPrediction;
 
     private bool m_isMoving;
+    private bool m_isSideSpinning = false;
 
     public bool IsDropSpawning { get; private set; }
     private float k_dropSpawnDuration = 0.9f;
@@ -126,11 +128,19 @@ public class PlayerGotchi : NetworkBehaviour
         {
             // use normal sprite lean to calc rotation
             m_gotchi.transform.rotation = Quaternion.Euler(new Vector3(0, 0, CalculateSpriteLean()));
+
+            m_gotchi.transform.localPosition = new Vector3(0, 0f, 0);
+            m_rotator.transform.localPosition = new Vector3(0, 0f, 0);
+            m_isSideSpinning = false;
         }
         else
         {
             // keep using the preset rotation
             m_gotchi.transform.rotation = Quaternion.Euler(new Vector3(0, 0, m_bodyRotation));
+
+            m_gotchi.transform.localPosition = new Vector3(0, 0.5f, 0);
+            m_rotator.transform.localPosition = new Vector3(0, -0.5f, 0);
+            m_isSideSpinning = true;
         }
     }
 

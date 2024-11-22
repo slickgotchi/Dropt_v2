@@ -41,12 +41,12 @@ public partial class PlayerPrediction : NetworkBehaviour
         // recalc m_holdActionDirection
         if (m_playerTargetingReticle.mode == PlayerTargetingReticle.Mode.KeyboardMouse)
         {
-            var dir = (screenToWorldPosition - m_playerAttackCentre.transform.position).normalized;
+            var dir = (screenToWorldPosition - (GetLocalPlayerInterpPosition() + new Vector3(0, 0.5f, 0))).normalized;
             m_holdActionDirection = new Vector2(dir.x, dir.y);
         }
         else if (m_playerTargetingReticle.mode == PlayerTargetingReticle.Mode.Gamepad)
         {
-            var dir = (screenToWorldPosition - m_playerAttackCentre.transform.position).normalized;
+            var dir = (screenToWorldPosition - (GetLocalPlayerInterpPosition() + new Vector3(0, 0.5f, 0))).normalized;
             m_holdActionDirection = new Vector2(dir.x, dir.y);
         }
         else if (m_playerTargetingReticle.mode == PlayerTargetingReticle.Mode.KeyboardOnly)
