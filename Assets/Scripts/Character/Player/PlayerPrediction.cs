@@ -196,7 +196,6 @@ public partial class PlayerPrediction : NetworkBehaviour
 
         // timer stuff
         float dt = Time.deltaTime;
-        //timer.Update(dt);
         m_actionDirectionTimer -= dt;
 
         // update playerGotchi on the current move direction
@@ -214,7 +213,6 @@ public partial class PlayerPrediction : NetworkBehaviour
         else if (IsClient && !IsLocalPlayer)
         {
             transform.position = GetRemotePlayerInterpPosition();
-            //Debug.Log(NetworkTimer_v2.Instance.TickFraction + " " + transform.position);
         }
 
         // update debug circles if attached
@@ -249,24 +247,20 @@ public partial class PlayerPrediction : NetworkBehaviour
         var bufferIndex = currentTick % k_bufferSize;   // this just ensures we go back to index 0 when tick goes past buffer size
 
         // if ability not ready, we don't count as input this tick
+        bool isHoldCancelled = false;
         var triggeredAbility = m_playerAbilities.GetAbility(m_triggeredAbilityEnum);
         if (triggeredAbility != null)
         {
             // check ap and cooldown (we ignore cooldown for hold abilities)
             bool isApEnough = m_networkCharacter.ApCurrent.Value >= triggeredAbility.ApCost;
             bool isCooldownFinished = triggeredAbility.IsCooldownFinished();
-            bool isBlockedByOthers = false;
-
-            // check if blocked by others
-            if (m_triggeredAbilityEnum != PlayerAbilityEnum.Dash)
-            {
-                isBlockedByOthers = !IsAttackCooldownFinished(Hand.Left) || !IsAttackCooldownFinished(Hand.Right) ||
+            bool isBlockedByOthers = !IsAttackCooldownFinished(Hand.Left) || !IsAttackCooldownFinished(Hand.Right) ||
                     !IsHoldCooldownFinished(Hand.Left) || !IsHoldCooldownFinished(Hand.Right);
-            }
 
             if (isApEnough && isCooldownFinished && !isBlockedByOthers)
             {
                 triggeredAbility.Init(gameObject, m_abilityHand);
+                if (m_triggeredAbilityEnum == PlayerAbilityEnum.Dash) isHoldCancelled = true;
             }
             else
             {
@@ -281,7 +275,10 @@ public partial class PlayerPrediction : NetworkBehaviour
         {
             // check AP only, we can't check against cooldown because we are commencing this attack within the starter attacks cooldown window
             bool isEnoughAp = m_networkCharacter.ApCurrent.Value >= holdStartTriggeredAbility.ApCost;
-            if (isEnoughAp)
+            bool isBlockedByOthers = !IsAttackCooldownFinished(Hand.Left) || !IsAttackCooldownFinished(Hand.Right) ||
+                !IsHoldCooldownFinished(Hand.Left) || !IsHoldCooldownFinished(Hand.Right);
+
+            if (isEnoughAp && !isBlockedByOthers && !isHoldCancelled)
             {
                 holdStartTriggeredAbility.Init(gameObject, m_abilityHand);
                 holdStartTriggeredAbility.HoldStart();
@@ -290,8 +287,10 @@ public partial class PlayerPrediction : NetworkBehaviour
             }
             else
             {
+                holdStartTriggeredAbility.HoldCancel();
                 m_holdStartTriggeredAbilityEnum = PlayerAbilityEnum.Null;
                 holdStartTriggeredAbility = null;
+                m_holdState = HoldState.Inactive;
             }
         }
 
@@ -346,14 +345,20 @@ public partial class PlayerPrediction : NetworkBehaviour
             m_slowFactorStartTick = currentTick;
             m_slowFactorExpiryTick = currentTick + (int)math.ceil(triggeredAbility.ExecutionDuration * tickRate);
             m_cooldownSlowFactor = triggeredAbility.CooldownSlowFactor;
+
+            // CLIENT SIDE ONLY - set facing
+            m_playerGotchi.SetFacingFromDirection(m_actionDirection, triggeredAbility.ExecutionDuration, true);
+            SetFacingParametersServerRpc(m_actionDirection, triggeredAbility.ExecutionDuration, m_lastNonZeroMoveDirection);
+
+            //m_playerGotchi.SetFacingFromDirection(m_actionDirection, k_actionDirectionTime, true);
+            //SetFacingParametersServerRpc(m_actionDirection, k_actionDirectionTime, m_lastNonZeroMoveDirection);
+
         }
 
         // set facing
-        if (m_triggeredAbilityEnum != PlayerAbilityEnum.Null)
-        {
-            m_playerGotchi.SetFacingFromDirection(m_actionDirection, k_actionDirectionTime, true);
-            SetFacingParametersServerRpc(m_actionDirection, k_actionDirectionTime, m_lastNonZeroMoveDirection);
-        }
+        //if (m_triggeredAbilityEnum != PlayerAbilityEnum.Null)
+        //{
+        //     }
 
         // reset any triggers or booleans
         m_triggeredAbilityEnum = PlayerAbilityEnum.Null;
@@ -381,24 +386,21 @@ public partial class PlayerPrediction : NetworkBehaviour
             inputPayload = serverInputQueue.Dequeue();
 
             // 2. check if ability triggered
+            bool isHoldCancelled = false;
             var triggeredAbility = m_playerAbilities.GetAbility(inputPayload.triggeredAbilityEnum);
             if (triggeredAbility != null && !IsHost)
             {
                 // check ap and cooldown sufficient
                 bool isApEnough = m_networkCharacter.ApCurrent.Value >= triggeredAbility.ApCost;
                 bool isCooldownFinished = triggeredAbility.IsCooldownFinished();
-                bool isBlockedByOthers = false;
-
-                // check if blocked by others
-                if (inputPayload.triggeredAbilityEnum != PlayerAbilityEnum.Dash)
-                {
-                    isBlockedByOthers = !IsAttackCooldownFinished(Hand.Left) || !IsAttackCooldownFinished(Hand.Right) ||
+                bool isBlockedByOthers = !IsAttackCooldownFinished(Hand.Left) || !IsAttackCooldownFinished(Hand.Right) ||
                         !IsHoldCooldownFinished(Hand.Left) || !IsHoldCooldownFinished(Hand.Right);
-                }
 
                 if (isApEnough && isCooldownFinished && !isBlockedByOthers)
                 {
                     if (!IsHost) triggeredAbility.Init(gameObject, inputPayload.abilityHand);
+                    if (!IsHost && m_triggeredAbilityEnum == PlayerAbilityEnum.Dash) isHoldCancelled = true;
+
                 }
                 else
                 {
@@ -412,7 +414,10 @@ public partial class PlayerPrediction : NetworkBehaviour
             {
                 // check AP only, we can't check against cooldown because we are commencing this attack within the starter attacks cooldown window
                 bool isEnoughAp = m_networkCharacter.ApCurrent.Value >= holdStartTriggeredAbility.ApCost;
-                if (isEnoughAp)
+                bool isBlockedByOthers = !IsAttackCooldownFinished(Hand.Left) || !IsAttackCooldownFinished(Hand.Right) ||
+                    !IsHoldCooldownFinished(Hand.Left) || !IsHoldCooldownFinished(Hand.Right);
+
+                if (isEnoughAp && !isBlockedByOthers && !isHoldCancelled)
                 {
                     if (!IsHost) holdStartTriggeredAbility.Init(gameObject, inputPayload.abilityHand);
                     if (!IsHost) holdStartTriggeredAbility.HoldStart();
@@ -420,9 +425,11 @@ public partial class PlayerPrediction : NetworkBehaviour
                 }
                 else
                 {
+                    if (!IsHost) holdStartTriggeredAbility.HoldCancel();
                     inputPayload.isHoldStartFlag = false;
                     inputPayload.holdStartTriggeredAbilityEnum = PlayerAbilityEnum.Null;
                     holdStartTriggeredAbility = null;
+                    m_holdState = HoldState.Inactive;
                 }
             }
 

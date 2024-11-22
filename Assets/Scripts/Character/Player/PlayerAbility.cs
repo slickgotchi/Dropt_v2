@@ -99,6 +99,7 @@ public class PlayerAbility : NetworkBehaviour
 
     public virtual void OnHoldStart() { }
     public virtual void OnHoldUpdate() { }
+    public virtual void OnHoldCancel() { }
     public virtual void OnHoldFinish() { }
 
     private void Awake()
@@ -160,6 +161,14 @@ public class PlayerAbility : NetworkBehaviour
         OnHoldStart();
         m_isHoldReady = false;
 
+    }
+
+    public void HoldCancel()
+    {
+        m_isHolding = false;
+        m_holdTimer = 0;
+        OnHoldCancel();
+        m_isHoldReady = true;
     }
 
     public void HoldFinish()
