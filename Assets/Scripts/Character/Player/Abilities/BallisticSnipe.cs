@@ -9,6 +9,11 @@ public class BallisticSnipe : PlayerAbility
     public float Projection = 1.5f;
     public float Distance = 8f;
     public float Duration = 1f;
+    [SerializeField] private int m_holdStartTargets = 1;
+    [SerializeField] private int m_holdFinishTargets = 5;
+    [SerializeField]
+    private List<AttackPathVisualizer> m_snipeAttackPathVisualizers =
+        new List<AttackPathVisualizer>();
 
     [Header("Projectile Prefab")]
     public GameObject ProjectilePrefab;
@@ -30,6 +35,9 @@ public class BallisticSnipe : PlayerAbility
 
     private GameObject m_instantiatedVisualProjectile;
 
+    private AttackPathVisualizer m_attackPathVisualizer;
+
+
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
@@ -41,13 +49,11 @@ public class BallisticSnipe : PlayerAbility
 
     public override void OnNetworkDespawn()
     {
-
         if (!IsServer) return;
 
         if (m_projectile != null) m_projectile.GetComponent<NetworkObject>().Despawn();
 
         base.OnNetworkDespawn();
-
     }
 
     protected override void Update()
@@ -76,6 +82,123 @@ public class BallisticSnipe : PlayerAbility
         ActivateProjectile(ActivationWearableNameEnum, ActivationInput.actionDirection, Distance, Duration, holdScale);
 
     }
+
+    public override void OnHoldStart()
+    {
+        base.OnHoldStart();
+
+        if (Player == null) return;
+
+        // we use the players attack visualizer to set our snipers visualisers color etc.
+        m_attackPathVisualizer = Player.GetComponentInChildren<AttackPathVisualizer>();
+        if (m_attackPathVisualizer == null) return;
+
+        foreach (var sapv in m_snipeAttackPathVisualizers)
+        {
+            sapv.borderThickness = m_attackPathVisualizer.borderThickness;
+            sapv.fillMeshRenderer.material = m_attackPathVisualizer.fillMeshRenderer.material;
+            sapv.borderMeshRenderer.material = m_attackPathVisualizer.borderMeshRenderer.material;
+            sapv.useCircle = false;
+            sapv.width = 0.3f;
+            sapv.SetMeshVisible(false);
+        }
+    }
+
+    public override void OnHoldUpdate()
+    {
+        base.OnHoldUpdate();
+
+        if (Player == null) return;
+        
+        // 1. calc number of targets we can lock on to based on hold percentage
+        int numTargetsAllowed = (int)math.ceil(math.lerp(
+            (float)m_holdStartTargets-1,
+            (float)m_holdFinishTargets,
+            GetHoldPercentage()));
+
+        // 2. find number of targets in range
+        var attackCentre = Player.GetComponentInChildren<AttackCentre>();
+        var attackCentrePos = attackCentre.transform.position;
+        //Debug.Log("attackCentre: " + attackCentrePos);
+        var targets = FindClosestTargets(attackCentre.transform.position,
+            numTargetsAllowed, Projection + Distance);
+
+        // 3. set all attack paths invisible
+        foreach (var sapv in m_snipeAttackPathVisualizers) sapv.SetMeshVisible(false);
+
+        // 4. draw a attack path to each target
+        for (int i = 0; i < targets.Count; i++)
+        {
+            var sapv = m_snipeAttackPathVisualizers[i];
+            sapv.SetMeshVisible(true);
+            var targetPos = targets[i].transform.position + new Vector3(0, 0.5f, 0);
+            //Debug.Log("targetPos: " + targetPos);
+
+            var dir = (targetPos - attackCentrePos).normalized;
+            //Debug.Log("dir: " + dir);
+            sapv.forwardDirection = new Vector2(dir.x, dir.y);
+            sapv.innerStartPoint = 1f;
+            sapv.outerFinishPoint = math.distance(targetPos, attackCentrePos);
+        }
+        
+    }
+
+    public override void OnHoldCancel()
+    {
+        base.OnHoldCancel();
+
+        foreach (var sapv in m_snipeAttackPathVisualizers) sapv.SetMeshVisible(false);
+    }
+
+    public override void OnHoldFinish()
+    {
+        base.OnHoldFinish();
+
+        foreach (var sapv in m_snipeAttackPathVisualizers) sapv.SetMeshVisible(false);
+    }
+
+    public List<GameObject> FindClosestTargets(Vector3 position, int numberTargets, float maxRange)
+    {
+        // Find all GameObjects with EnemyCharacter or Destructible
+        EnemyCharacter[] enemies = FindObjectsOfType<EnemyCharacter>();
+        Destructible[] destructibles = FindObjectsOfType<Destructible>();
+
+        // Create a list to store all potential targets within range
+        List<GameObject> potentialTargets = new List<GameObject>();
+
+        // Add GameObjects to the potential targets list if within maxRange
+        foreach (var enemy in enemies)
+        {
+            if (Vector3.Distance(position, enemy.transform.position) <= maxRange)
+            {
+                potentialTargets.Add(enemy.gameObject);
+            }
+        }
+
+        foreach (var destructible in destructibles)
+        {
+            if (Vector3.Distance(position, destructible.transform.position) <= maxRange)
+            {
+                potentialTargets.Add(destructible.gameObject);
+            }
+        }
+
+        // Sort the potential targets by distance to the specified position
+        potentialTargets.Sort((a, b) =>
+        {
+            float distA = Vector3.Distance(position, a.transform.position);
+            float distB = Vector3.Distance(position, b.transform.position);
+            return distA.CompareTo(distB);
+        });
+
+        // Ensure the final list only contains as many targets as are available
+        int countToReturn = Mathf.Min(numberTargets, potentialTargets.Count);
+
+        // If fewer targets exist than requested, only the available ones are returned
+        return potentialTargets.GetRange(0, countToReturn);
+    }
+
+
 
     GameObject InstantiateProjectile(Wearable.NameEnum activationWearable)
     {
