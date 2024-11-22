@@ -59,7 +59,11 @@ public class CleaveWhirlwind : PlayerAbility
     {
         base.OnHoldStart();
 
+        if (Player == null) return;
+
         m_attackPathVisualizer = Player.GetComponentInChildren<AttackPathVisualizer>();
+        if (m_attackPathVisualizer == null) return;
+
         m_attackPathVisualizer.SetMeshVisible(true);
 
         m_attackPathVisualizer.useCircle = true;
@@ -72,15 +76,29 @@ public class CleaveWhirlwind : PlayerAbility
     {
         base.OnHoldUpdate();
 
+        if (m_attackPathVisualizer == null) return;
+
         m_attackPathVisualizer.outerRadius = math.lerp(
             m_holdStartRadius,
             m_holdFinishRadius,
             GetHoldPercentage());
     }
 
+    public override void OnHoldCancel()
+    {
+        base.OnHoldCancel();
+
+        if (m_attackPathVisualizer == null) return;
+
+        m_attackPathVisualizer.SetMeshVisible(false);
+        m_attackPathVisualizer = null;
+    }
+
     public override void OnHoldFinish()
     {
         base.OnHoldFinish();
+
+        if (m_attackPathVisualizer == null) return;
 
         m_attackPathVisualizer.SetMeshVisible(false);
         m_attackPathVisualizer = null;
