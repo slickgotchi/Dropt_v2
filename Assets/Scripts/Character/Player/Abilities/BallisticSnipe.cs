@@ -31,6 +31,8 @@ public class BallisticSnipe : PlayerAbility
 
     private AttackPathVisualizer m_attackPathVisualizer;
 
+    private AttackCentre m_attackCentre;
+
     // all the ballistic projectiles
     private List<GameObject> m_networkProjectiles
         = new List<GameObject>(new GameObject[5]);
@@ -104,6 +106,11 @@ public class BallisticSnipe : PlayerAbility
     {
         base.Update();
 
+        if (m_attackCentre == null && Player != null)
+        {
+            m_attackCentre = Player.GetComponentInChildren<AttackCentre>();
+        }
+
         if (IsClient)
         {
             for (int i = 0; i < 5; i++)
@@ -149,7 +156,7 @@ public class BallisticSnipe : PlayerAbility
             sapv.fillMeshRenderer.material = m_attackPathVisualizer.fillMeshRenderer.material;
             sapv.borderMeshRenderer.material = m_attackPathVisualizer.borderMeshRenderer.material;
             sapv.useCircle = false;
-            sapv.width = 0.3f;
+            sapv.width = 0.1f;
             sapv.SetMeshVisible(false);
         }
     }
@@ -161,7 +168,7 @@ public class BallisticSnipe : PlayerAbility
     {
         base.OnHoldUpdate();
 
-        if (Player == null) return;
+        if (Player == null || m_attackCentre == null) return;
         
         // 1. calc number of targets we can lock on to based on hold percentage
         int numTargetsAllowed = (int)math.ceil(math.lerp(
@@ -170,30 +177,28 @@ public class BallisticSnipe : PlayerAbility
             GetHoldPercentage()));
 
         // 2. find number of targets in range
-        var attackCentre = Player.GetComponentInChildren<AttackCentre>();
-        var attackCentrePos = attackCentre.transform.position;
-        //Debug.Log("attackCentre: " + attackCentrePos);
-        var targets = FindClosestTargets(attackCentre.transform.position,
+        var attackCentrePos = m_attackCentre.transform.position;
+        m_targets = FindClosestTargets(attackCentrePos,
             numTargetsAllowed, Projection + Distance);
-        m_targets = targets;
 
-        // 3. set all attack paths invisible
-        foreach (var sapv in m_snipeAttackPathVisualizers) sapv.SetMeshVisible(false);
-
-        // 4. draw a attack path to each target
-        for (int i = 0; i < targets.Count; i++)
+        if (IsClient)
         {
-            var sapv = m_snipeAttackPathVisualizers[i];
-            sapv.SetMeshVisible(true);
-            var targetPos = targets[i].transform.position + new Vector3(0, 0.5f, 0);
-            //Debug.Log("targetPos: " + targetPos);
+            // 3. set all attack paths invisible
+            foreach (var sapv in m_snipeAttackPathVisualizers) sapv.SetMeshVisible(false);
 
-            var dir = (targetPos - attackCentrePos).normalized;
-            m_directions[i] = dir;
-            //Debug.Log("dir: " + dir);
-            sapv.forwardDirection = new Vector2(dir.x, dir.y);
-            sapv.innerStartPoint = 1f;
-            sapv.outerFinishPoint = math.distance(targetPos, attackCentrePos);
+            // 4. draw a attack path to each target
+            for (int i = 0; i < m_targets.Count; i++)
+            {
+                var sapv = m_snipeAttackPathVisualizers[i];
+                sapv.SetMeshVisible(true);
+                var targetPos = m_targets[i].transform.position + new Vector3(0, 0.5f, 0);
+
+                var dir = (targetPos - attackCentrePos).normalized;
+                m_directions[i] = dir;
+                sapv.forwardDirection = new Vector2(dir.x, dir.y);
+                sapv.innerStartPoint = 1f;
+                sapv.outerFinishPoint = math.distance(targetPos, attackCentrePos);
+            }
         }
         
     }
@@ -210,6 +215,17 @@ public class BallisticSnipe : PlayerAbility
         base.OnHoldFinish();
 
         foreach (var sapv in m_snipeAttackPathVisualizers) sapv.SetMeshVisible(false);
+
+        if (Player == null) return;
+        var playerPrediction = Player.GetComponent<PlayerPrediction>();
+        if (playerPrediction == null) return;
+
+        var dir = playerPrediction.GetHoldActionDirection();
+        var startAngle = GetAngleFromDirection(dir);
+
+        // do a gotchi spin
+        Player.GetComponent<PlayerGotchi>().PlayFacingSpin(1, 0.4f,
+            PlayerGotchi.SpinDirection.AntiClockwise, startAngle);
     }
 
     public List<GameObject> FindClosestTargets(Vector3 position, int numberTargets, float maxRange)

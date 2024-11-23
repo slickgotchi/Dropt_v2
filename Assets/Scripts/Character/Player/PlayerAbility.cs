@@ -108,6 +108,13 @@ public class PlayerAbility : NetworkBehaviour
         Animator = GetComponent<Animator>();
     }
 
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        
+    }
+
     protected Hand AbilityHand;
 
     public void Init(GameObject playerObject, Hand abilityHand)
