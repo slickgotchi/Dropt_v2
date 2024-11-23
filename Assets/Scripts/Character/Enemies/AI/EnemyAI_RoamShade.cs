@@ -1,20 +1,17 @@
-using Dropt;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AI;
 using Unity.Mathematics;
-using Unity.Netcode;
 
 namespace Dropt
 {
     public class EnemyAI_RoamShade : EnemyAI
     {
         private Animator m_animator;
+        private SoundFX_Shade m_soundFX_Shade;
 
         private void Awake()
         {
             m_animator = GetComponent<Animator>();
+            m_soundFX_Shade = GetComponent<SoundFX_Shade>();
         }
 
         public override void OnSpawnStart()
@@ -24,6 +21,7 @@ namespace Dropt
 
         public override void OnTelegraphStart()
         {
+            m_soundFX_Shade.PlayChargeSound();
         }
 
         public override void OnRoamUpdate(float dt)
@@ -38,6 +36,7 @@ namespace Dropt
 
         public override void OnAttackStart()
         {
+            m_soundFX_Shade.PlayAttackSound();
         }
 
         public override void OnCooldownStart()
