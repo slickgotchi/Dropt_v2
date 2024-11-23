@@ -29,8 +29,6 @@ public class SplashVolley : PlayerAbility
     private NetworkVariable<ulong> m_splashProjectileId_3 = new NetworkVariable<ulong>();
     private NetworkVariable<ulong> m_splashProjectileId_4 = new NetworkVariable<ulong>();
 
-    //private List<NetworkVariable<ulong>> m_splashProjectileIds = new List<NetworkVariable<ulong>>();
-    //private NetworkList<ulong> m_splashProjectileIds = new NetworkList<ulong>();
     private List<ScheduledProjectile> m_scheduledProjectiles = new List<ScheduledProjectile>();
 
     ref NetworkVariable<ulong> GetSplashProjectileId(int index)

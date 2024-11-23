@@ -9,8 +9,8 @@ public class BallisticSnipe : PlayerAbility
     public float Projection = 1.5f;
     public float Distance = 8f;
     public float Duration = 1f;
-    [SerializeField] private int m_holdStartTargets = 1;
-    [SerializeField] private int m_holdFinishTargets = 5;
+    private int m_holdStartTargets = 1;
+    private int m_holdFinishTargets = 5;
     [SerializeField]
     private List<AttackPathVisualizer> m_snipeAttackPathVisualizers =
         new List<AttackPathVisualizer>();
@@ -29,31 +29,75 @@ public class BallisticSnipe : PlayerAbility
     public GameObject NailTrioPrefab;
     public GameObject SeedPrefab;
 
-    // variables for keeping track of the spawned projectile
-    private GameObject m_projectile;
-    private NetworkVariable<ulong> m_projectileId = new NetworkVariable<ulong>(0);
-
-    private GameObject m_instantiatedVisualProjectile;
-
     private AttackPathVisualizer m_attackPathVisualizer;
 
+    // all the ballistic projectiles
+    private List<GameObject> m_networkProjectiles
+        = new List<GameObject>(new GameObject[5]);
+
+    private NetworkVariable<ulong> m_networkProjectileId_0 = new NetworkVariable<ulong>();
+    private NetworkVariable<ulong> m_networkProjectileId_1 = new NetworkVariable<ulong>();
+    private NetworkVariable<ulong> m_networkProjectileId_2 = new NetworkVariable<ulong>();
+    private NetworkVariable<ulong> m_networkProjectileId_3 = new NetworkVariable<ulong>();
+    private NetworkVariable<ulong> m_networkProjectileId_4 = new NetworkVariable<ulong>();
+
+    private List<GameObject> m_visualProjectiles
+        = new List<GameObject>(new GameObject[5]);
+
+    ref NetworkVariable<ulong> GetNetworkProjectileId(int index)
+    {
+        if (index == 0) return ref m_networkProjectileId_0;
+        else if (index == 1) return ref m_networkProjectileId_1;
+        else if (index == 2) return ref m_networkProjectileId_2;
+        else if (index == 3) return ref m_networkProjectileId_3;
+        else return ref m_networkProjectileId_4;
+    }
+
+    void InitNetworkProjectile(int index, GameObject prefab)
+    {
+        var projectile = Instantiate(prefab);
+        projectile.GetComponent<NetworkObject>().Spawn();
+        projectile.SetActive(false);
+        m_networkProjectiles[index] = projectile;
+
+        GetNetworkProjectileId(index).Value = projectile.GetComponent<NetworkObject>().NetworkObjectId;
+    }
 
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
 
-        if (!IsServer) return;
-
-        GenericProjectile.InitSpawnProjectileOnServer(ref m_projectile, ref m_projectileId, ProjectilePrefab);
+        if (IsServer)
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                InitNetworkProjectile(i, ProjectilePrefab);
+            }
+        }
     }
 
     public override void OnNetworkDespawn()
     {
-        if (!IsServer) return;
-
-        if (m_projectile != null) m_projectile.GetComponent<NetworkObject>().Despawn();
+        if (IsServer)
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                m_networkProjectiles[i].GetComponent<NetworkObject>().Despawn();
+            }
+        }
 
         base.OnNetworkDespawn();
+    }
+
+    void TryAddProjectileOnClient(int index)
+    {
+        var projectileId = GetNetworkProjectileId(index).Value;
+        if (m_networkProjectiles[index] == null && projectileId > 0)
+        {
+            var projectile = NetworkManager.SpawnManager.SpawnedObjects[projectileId].gameObject;
+            projectile.SetActive(false);
+            m_networkProjectiles[index] = projectile;
+        }
     }
 
     protected override void Update()
@@ -62,8 +106,10 @@ public class BallisticSnipe : PlayerAbility
 
         if (IsClient)
         {
-            // ensure remote clients associate projectiles with local projectile variables
-            GenericProjectile.TryAddProjectileOnClient(ref m_projectile, ref m_projectileId, NetworkManager);
+            for (int i = 0; i < 5; i++)
+            {
+                TryAddProjectileOnClient(i);
+            }
         }
     }
 
@@ -78,8 +124,12 @@ public class BallisticSnipe : PlayerAbility
         //PlayAnimation("BallisticShot");
         PlayAnimationWithDuration("BallisticShot", ExecutionDuration);
 
-        // activate projectile
-        ActivateProjectile(ActivationWearableNameEnum, ActivationInput.actionDirection, Distance, Duration, holdScale);
+        // activate projectiles
+        for (int i = 0; i < m_targets.Count; i++)
+        {
+            ActivateProjectile(i, ActivationWearableNameEnum, m_directions[i],
+                Distance, Duration, holdScale);
+        }
 
     }
 
@@ -104,6 +154,9 @@ public class BallisticSnipe : PlayerAbility
         }
     }
 
+    private List<Vector3> m_directions = new List<Vector3>(new Vector3[5]);
+    private List<GameObject> m_targets = new List<GameObject>();
+
     public override void OnHoldUpdate()
     {
         base.OnHoldUpdate();
@@ -122,6 +175,7 @@ public class BallisticSnipe : PlayerAbility
         //Debug.Log("attackCentre: " + attackCentrePos);
         var targets = FindClosestTargets(attackCentre.transform.position,
             numTargetsAllowed, Projection + Distance);
+        m_targets = targets;
 
         // 3. set all attack paths invisible
         foreach (var sapv in m_snipeAttackPathVisualizers) sapv.SetMeshVisible(false);
@@ -135,6 +189,7 @@ public class BallisticSnipe : PlayerAbility
             //Debug.Log("targetPos: " + targetPos);
 
             var dir = (targetPos - attackCentrePos).normalized;
+            m_directions[i] = dir;
             //Debug.Log("dir: " + dir);
             sapv.forwardDirection = new Vector2(dir.x, dir.y);
             sapv.innerStartPoint = 1f;
@@ -200,7 +255,7 @@ public class BallisticSnipe : PlayerAbility
 
 
 
-    GameObject InstantiateProjectile(Wearable.NameEnum activationWearable)
+    GameObject InstantiateVisualProjectile(Wearable.NameEnum activationWearable)
     {
         switch (activationWearable)
         {
@@ -218,26 +273,26 @@ public class BallisticSnipe : PlayerAbility
         }
     }
 
-    void ActivateProjectile(Wearable.NameEnum activationWearable, Vector3 direction, float distance, float duration, 
+    void ActivateProjectile(int i, Wearable.NameEnum activationWearable, Vector3 direction, float distance, float duration, 
         float scale)
     {
-        var no_projectile = m_projectile.GetComponent<GenericProjectile>();
+        var no_projectile = m_networkProjectiles[i].GetComponent<GenericProjectile>();
         var no_projectileId = no_projectile.GetComponent<NetworkObject>().NetworkObjectId;
         var playerCharacter = Player.GetComponent<NetworkCharacter>();
         var startPosition =
                 Player.GetComponent<PlayerPrediction>().GetInterpPositionAtTick(ActivationInput.tick)
                 + new Vector3(0, 0.5f, 0)
-                + ActivationInput.actionDirection * Projection;
+                + direction * Projection;
 
         // Local Client & Server
         if (Player.GetComponent<NetworkObject>().IsLocalPlayer || IsServer)
         {
             if (IsClient)
             {
-                m_instantiatedVisualProjectile = InstantiateProjectile(activationWearable);
-                m_instantiatedVisualProjectile.transform.position = startPosition;
+                m_visualProjectiles[i] = InstantiateVisualProjectile(activationWearable);
+                m_visualProjectiles[i].transform.position = startPosition;
                 if (no_projectile.VisualGameObject != null) Destroy(no_projectile.VisualGameObject);
-                no_projectile.VisualGameObject = m_instantiatedVisualProjectile;
+                no_projectile.VisualGameObject = m_visualProjectiles[i];
             }
 
             // init
@@ -247,7 +302,7 @@ public class BallisticSnipe : PlayerAbility
                 playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier * DamageMultiplier,
                 playerCharacter.CriticalChance.Value,
                 playerCharacter.CriticalDamage.Value,
-                ActivationInput.actionDirection,
+                direction,
                 KnockbackDistance,
                 KnockbackStunDuration);
 
@@ -259,14 +314,14 @@ public class BallisticSnipe : PlayerAbility
         if (IsServer)
         {
             ulong playerId = Player.GetComponent<NetworkObject>().NetworkObjectId;
-            ActivateProjectileClientRpc(activationWearable, startPosition,
+            ActivateProjectileClientRpc(i, activationWearable, startPosition,
                 direction, distance, duration, scale,
                 playerId, no_projectileId);
         }
     }
 
     [Rpc(SendTo.ClientsAndHost)]
-    void ActivateProjectileClientRpc(Wearable.NameEnum activationWearable, Vector3 startPosition, Vector3 direction, float distance, float duration, 
+    void ActivateProjectileClientRpc(int i, Wearable.NameEnum activationWearable, Vector3 startPosition, Vector3 direction, float distance, float duration, 
         float scale, ulong playerNetworkObjectId, ulong projectileNetworkObjectId)
     {
         // Remote Client
@@ -279,10 +334,10 @@ public class BallisticSnipe : PlayerAbility
             var no_projectile = NetworkManager.SpawnManager.SpawnedObjects[projectileNetworkObjectId].
                 GetComponent<GenericProjectile>();
 
-            m_instantiatedVisualProjectile = InstantiateProjectile(activationWearable);
-            m_instantiatedVisualProjectile.transform.position = startPosition;
+            m_visualProjectiles[i] = InstantiateVisualProjectile(activationWearable);
+            m_visualProjectiles[i].transform.position = startPosition;
             if (no_projectile.VisualGameObject != null) Destroy(no_projectile.VisualGameObject);
-            no_projectile.VisualGameObject = m_instantiatedVisualProjectile;
+            no_projectile.VisualGameObject = m_visualProjectiles[i];
 
             // init
             no_projectile.Init(startPosition, direction, distance, duration, scale,
