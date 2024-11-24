@@ -109,6 +109,7 @@ GameObject:
   - component: {fileID: 7894955574090363429}
   - component: {fileID: -672225850276954026}
   - component: {fileID: 6423663201319280036}
+  - component: {fileID: -8187234640236072845}
   m_Layer: 15
   m_Name: BombSnail
   m_TagString: Untagged
@@ -172,7 +173,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 4221514460
+  GlobalObjectIdHash: 2500555884
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -519,7 +520,22 @@ MonoBehaviour:
     m_InternalValue: 0
   EnemyShield:
     m_InternalValue: 0
+  MaxEnemyShield:
+    m_InternalValue: 0
   OnHurtAudio: {fileID: 8300000, guid: 00338429dfad27d438bd1444b96d7e3a, type: 3}
+--- !u!114 &-8187234640236072845
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05cf5af599c3cdd46b6d20f6f347a318, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GltrValue: 6
 --- !u!1 &3116345567214493271
 GameObject:
   m_ObjectHideFlags: 0
