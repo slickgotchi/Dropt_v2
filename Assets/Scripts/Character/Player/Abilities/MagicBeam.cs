@@ -69,6 +69,9 @@ public class MagicBeam : PlayerAbility
         // animation on remote clients
         //PlayAnimation("MagicBeam");
         */
+
+        SetRotationToActionDirection();
+
         PlayAnimationWithDuration("MagicCast", ExecutionDuration);
 
         // show visual electricity effect
@@ -104,6 +107,38 @@ public class MagicBeam : PlayerAbility
                 // rotate it
                 var rotation = PlayerAbility.GetRotationFromDirection(finish - start);
                 electricEffect.transform.rotation = rotation;
+            }
+        }
+
+        // deal damage to all targets if server
+        if (IsServer)
+        {
+            var playerCharacter = Player.GetComponent<NetworkCharacter>();
+
+            for (int i = 0; i < m_targets.Count; i++)
+            {
+                var damage = playerCharacter.GetAttackPower() * DamageMultiplier * ActivationWearable.RarityMultiplier;
+                bool isCritical = playerCharacter.IsCriticalAttack();
+                damage = (int)(isCritical ? damage * playerCharacter.CriticalDamage.Value : damage);
+
+                var networkCharacter = m_targets[i].GetComponent<NetworkCharacter>();
+                var destructible = m_targets[i].GetComponent<Destructible>();
+
+                if (networkCharacter != null)
+                {
+                    networkCharacter.TakeDamage(damage, isCritical, Player);
+
+                    var enemyAI = networkCharacter.GetComponent<Dropt.EnemyAI>();
+                    if (enemyAI != null)
+                    {
+                        enemyAI.Knockback(Vector3.zero, KnockbackDistance, KnockbackStunDuration);
+                    }
+                }
+
+                if (destructible != null)
+                {
+                    destructible.TakeDamage(Wearable.WeaponTypeEnum.Magic);
+                }
             }
         }
     }
