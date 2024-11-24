@@ -29,9 +29,9 @@ public class SplashVolley : PlayerAbility
     private NetworkVariable<ulong> m_splashProjectileId_3 = new NetworkVariable<ulong>();
     private NetworkVariable<ulong> m_splashProjectileId_4 = new NetworkVariable<ulong>();
 
-    //private List<NetworkVariable<ulong>> m_splashProjectileIds = new List<NetworkVariable<ulong>>();
-    //private NetworkList<ulong> m_splashProjectileIds = new NetworkList<ulong>();
     private List<ScheduledProjectile> m_scheduledProjectiles = new List<ScheduledProjectile>();
+
+    private AttackPathVisualizer m_attackPathVisualizer;
 
     ref NetworkVariable<ulong> GetSplashProjectileId(int index)
     {
@@ -195,8 +195,8 @@ public class SplashVolley : PlayerAbility
         {
             var position =
                 Player.GetComponent<PlayerPrediction>().GetInterpPositionAtTick(ActivationInput.tick)
-                + new Vector3(0, 0.5f, 0)
-                + ActivationInput.actionDirection * Projection;
+                + new Vector3(0, 0.5f, 0);
+                //+ ActivationInput.actionDirection * Projection;
 
             no_projectile.Init(
                 position, direction, distance, duration, scale,
@@ -256,6 +256,86 @@ public class SplashVolley : PlayerAbility
     public override void OnFinish()
     {
         // Custom finish logic if needed
+    }
+
+    public override void OnHoldStart()
+    {
+        base.OnHoldStart();
+
+        if (Player == null) return;
+
+        m_attackPathVisualizer = Player.GetComponentInChildren<AttackPathVisualizer>();
+        if (m_attackPathVisualizer == null) return;
+
+        m_attackPathVisualizer.SetMeshVisible(true);
+
+        m_attackPathVisualizer.useCircle = true;
+        m_attackPathVisualizer.angle = 90;
+
+        int numTargetsAllowed = 1;
+
+        var playerPrediction = Player.GetComponent<PlayerPrediction>();
+        if (playerPrediction == null) return;
+
+        var holdDistance = playerPrediction.GetHoldDistanceFromPlayerAttackCentre();
+        holdDistance = holdDistance > MaxDistance ? MaxDistance : holdDistance;
+        var outerRadius = holdDistance + ExplosionRadius;
+        m_attackPathVisualizer.outerRadius = outerRadius;
+
+        var innerRadius = outerRadius - 2 * ExplosionRadius;
+        m_attackPathVisualizer.innerRadius = innerRadius < 0 ? 0 : innerRadius;
+
+        var angleDegrees = math.degrees(math.atan(ExplosionRadius / holdDistance));
+        m_attackPathVisualizer.angle = numTargetsAllowed * angleDegrees;
+
+        m_attackPathVisualizer.forwardDirection = playerPrediction.GetHoldActionDirection();
+    }
+
+    public override void OnHoldUpdate()
+    {
+        base.OnHoldUpdate();
+
+        if (Player == null) return;
+        if (m_attackPathVisualizer == null) return;
+
+        int numTargetsAllowed = (int)math.ceil(math.lerp(0, 5,
+            GetHoldPercentage()));
+
+        var playerPrediction = Player.GetComponent<PlayerPrediction>();
+        if (playerPrediction == null) return;
+
+        var holdDistance = playerPrediction.GetHoldDistanceFromPlayerAttackCentre();
+        holdDistance = holdDistance > MaxDistance ? MaxDistance : holdDistance;
+        var outerRadius = holdDistance + ExplosionRadius;
+        m_attackPathVisualizer.outerRadius = outerRadius;
+
+        var innerRadius = outerRadius - 2 * ExplosionRadius;
+        m_attackPathVisualizer.innerRadius = innerRadius < 0 ? 0 : innerRadius;
+
+        var angleDegrees = math.degrees(math.atan(ExplosionRadius / holdDistance));
+        m_attackPathVisualizer.angle = numTargetsAllowed * angleDegrees;
+
+        m_attackPathVisualizer.forwardDirection = playerPrediction.GetHoldActionDirection();
+    }
+
+    public override void OnHoldCancel()
+    {
+        base.OnHoldCancel();
+
+        if (m_attackPathVisualizer == null) return;
+
+        m_attackPathVisualizer.SetMeshVisible(false);
+        m_attackPathVisualizer = null;
+    }
+
+    public override void OnHoldFinish()
+    {
+        base.OnHoldFinish();
+
+        if (m_attackPathVisualizer == null) return;
+
+        m_attackPathVisualizer.SetMeshVisible(false);
+        m_attackPathVisualizer = null;
     }
 
     private class ScheduledProjectile

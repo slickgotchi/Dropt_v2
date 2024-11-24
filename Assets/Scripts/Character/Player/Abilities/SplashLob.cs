@@ -57,16 +57,20 @@ public class SplashLob : PlayerAbility
     {
         // set rotatin/local position
         SetRotationToActionDirection();
-        SetLocalPosition(PlayerAbilityCentreOffset + ActivationInput.actionDirection * Projection);
+        //SetLocalPosition(PlayerAbilityCentreOffset +
+        //    ActivationInput.actionDirection * Projection);
+        SetLocalPosition(PlayerAbilityCentreOffset);
 
         // play animation
         PlayAnimation("SplashLob");
 
         // adjust distance
         m_distance = math.min(ActivationInput.actionDistance, MaxDistance);
+        //m_distance = Player.GetComponent<PlayerPrediction>().GetHoldDistanceFromPlayerAttackCentre();
 
         // activate projectile
-        ActivateProjectile(ActivationWearableNameEnum, ActivationInput.actionDirection, m_distance, Duration,
+        ActivateProjectile(ActivationWearableNameEnum,
+            ActivationInput.actionDirection, m_distance, Duration,
             Scale, ExplosionRadius);
     }
 
@@ -84,8 +88,8 @@ public class SplashLob : PlayerAbility
         var playerCharacter = Player.GetComponent<NetworkCharacter>();
         var startPosition =
                 Player.GetComponent<PlayerPrediction>().GetInterpPositionAtTick(ActivationInput.tick)
-                + new Vector3(0, 0.5f, 0)
-                + ActivationInput.actionDirection * Projection;
+                + new Vector3(0, 0.5f, 0);
+                //+ ActivationInput.actionDirection * Projection;
 
         // Local Client & Server
         if (Player.GetComponent<NetworkObject>().IsLocalPlayer || IsServer)
