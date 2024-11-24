@@ -385,7 +385,6 @@ public class PlayerAbilities : NetworkBehaviour
         }
         ability = Instantiate(prefab);
         ability.GetComponent<NetworkObject>().Spawn();
-        //var attackCentre = GetComponentInChildren<AttackCentre>();
         ability.GetComponent<NetworkObject>().TrySetParent(gameObject, false);
         ability.transform.localPosition = new Vector3(0, 0.5f, 0);
         ability.transform.rotation = Quaternion.identity;

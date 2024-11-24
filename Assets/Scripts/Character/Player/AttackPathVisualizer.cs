@@ -26,6 +26,10 @@ public class AttackPathVisualizer : MonoBehaviour
     [SerializeField] public float outerFinishPoint = 5f; // Distance where the rectangle ends
     [SerializeField] public float width = 2f; // Width of the rectangle
 
+    // functions to use in code
+    [HideInInspector] public bool useParentPositionAsStart = true;
+    [HideInInspector] public Vector3 customStartPosition;
+
     // Cached references for optimization
     private MeshFilter fillMeshFilter;
     public MeshRenderer fillMeshRenderer;
@@ -101,7 +105,8 @@ public class AttackPathVisualizer : MonoBehaviour
             fillMeshFilter.sharedMesh = new Mesh();
         fillMeshFilter.sharedMesh.Clear();
         fillMeshFilter.sharedMesh = GenerateSectorMesh(innerRadius, outerRadius, angle,
-            segments, forwardDirection, transform.parent.position);
+            segments, forwardDirection,
+            useParentPositionAsStart ? transform.parent.position : customStartPosition);
     }
 
     private void UpdateCircleBorder()
@@ -110,7 +115,8 @@ public class AttackPathVisualizer : MonoBehaviour
             borderMeshFilter.sharedMesh = new Mesh();
         borderMeshFilter.sharedMesh.Clear();
         borderMeshFilter.sharedMesh = GenerateSectorBorderMesh(innerRadius, outerRadius, angle,
-            borderThickness, segments, forwardDirection, transform.parent.position);
+            borderThickness, segments, forwardDirection,
+            useParentPositionAsStart ? transform.parent.position : customStartPosition);
     }
 
     private void UpdateRectangleFill()
@@ -119,7 +125,8 @@ public class AttackPathVisualizer : MonoBehaviour
             fillMeshFilter.sharedMesh = new Mesh();
         fillMeshFilter.sharedMesh.Clear();
         fillMeshFilter.sharedMesh = GenerateRectangleMesh(innerStartPoint, outerFinishPoint, width,
-            forwardDirection, transform.parent.position);
+            forwardDirection,
+            useParentPositionAsStart ? transform.parent.position : customStartPosition);
     }
 
     private void UpdateRectangleBorder()
@@ -128,7 +135,9 @@ public class AttackPathVisualizer : MonoBehaviour
             borderMeshFilter.sharedMesh = new Mesh();
         borderMeshFilter.sharedMesh.Clear();
         borderMeshFilter.sharedMesh = GenerateRectangleBorderMesh(innerStartPoint, outerFinishPoint, width,
-            forwardDirection, transform.parent.position, borderThickness);
+            forwardDirection,
+            useParentPositionAsStart ? transform.parent.position : customStartPosition,
+            borderThickness);
     }
 
     private Mesh GenerateRectangleMesh(float innerStart, float outerFinish, float width,

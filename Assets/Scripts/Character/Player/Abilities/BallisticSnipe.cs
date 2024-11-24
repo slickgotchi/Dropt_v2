@@ -17,6 +17,7 @@ public class BallisticSnipe : PlayerAbility
 
     [Header("Projectile Prefab")]
     public GameObject ProjectilePrefab;
+    
 
     [Header("Visual Projectile Prefab")]
     public GameObject ApplePrefab;
@@ -29,9 +30,13 @@ public class BallisticSnipe : PlayerAbility
     public GameObject NailTrioPrefab;
     public GameObject SeedPrefab;
 
+
+    // we want a ref to the player og visualizer for the colors
     private AttackPathVisualizer m_attackPathVisualizer;
 
     private AttackCentre m_attackCentre;
+    private List<Vector3> m_attackDirections = new List<Vector3>(new Vector3[5]);
+    private List<GameObject> m_targets = new List<GameObject>();
 
     // all the ballistic projectiles
     private List<GameObject> m_networkProjectiles
@@ -134,7 +139,7 @@ public class BallisticSnipe : PlayerAbility
         // activate projectiles
         for (int i = 0; i < m_targets.Count; i++)
         {
-            ActivateProjectile(i, ActivationWearableNameEnum, m_directions[i],
+            ActivateProjectile(i, ActivationWearableNameEnum, m_attackDirections[i],
                 Distance, Duration, holdScale);
         }
 
@@ -161,8 +166,7 @@ public class BallisticSnipe : PlayerAbility
         }
     }
 
-    private List<Vector3> m_directions = new List<Vector3>(new Vector3[5]);
-    private List<GameObject> m_targets = new List<GameObject>();
+
 
     public override void OnHoldUpdate()
     {
@@ -194,7 +198,7 @@ public class BallisticSnipe : PlayerAbility
                 var targetPos = m_targets[i].transform.position + new Vector3(0, 0.5f, 0);
 
                 var dir = (targetPos - attackCentrePos).normalized;
-                m_directions[i] = dir;
+                m_attackDirections[i] = dir;
                 sapv.forwardDirection = new Vector2(dir.x, dir.y);
                 sapv.innerStartPoint = 1f;
                 sapv.outerFinishPoint = math.distance(targetPos, attackCentrePos);
