@@ -104,13 +104,18 @@ public class GenericProjectile : NetworkBehaviour
         transform.position += Direction * m_speed * Time.deltaTime;
         transform.rotation = PlayerAbility.GetRotationFromDirection(Direction);
 
+
+
+        if (Role != PlayerAbility.NetworkRole.RemoteClient) CollisionCheck();
+    }
+
+    private void LateUpdate()
+    {
         if (IsClient)
         {
             VisualGameObject.transform.position = transform.position;
             VisualGameObject.transform.rotation = transform.rotation;
         }
-
-        if (Role != PlayerAbility.NetworkRole.RemoteClient) CollisionCheck();
     }
 
     public void CollisionCheck()

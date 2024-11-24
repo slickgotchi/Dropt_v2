@@ -96,7 +96,7 @@ GameObject:
   - component: {fileID: -6693017499447722929}
   - component: {fileID: 7869199515037794274}
   - component: {fileID: -8266031071247152078}
-  - component: {fileID: 270720640852587252}
+  - component: {fileID: 5126934356829113377}
   m_Layer: 8
   m_Name: CleaveWhirlwind
   m_TagString: Untagged
@@ -134,7 +134,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3034662035
+  GlobalObjectIdHash: 3422771694
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -179,24 +179,26 @@ MonoBehaviour:
   abilityType: 1
   ApCost: 0
   DamageMultiplier: 0.5
-  ExecutionDuration: 1
+  ExecutionDuration: 2
   ExecutionSlowFactor: 0.5
   CooldownDuration: 0
   CooldownSlowFactor: 0.5
   TeleportDistance: 0
   AutoMoveDistance: 0
   AutoMoveDuration: 0
-  HoldChargeTime: 2
+  HoldChargeTime: 1.5
   HoldSlowFactor: 0.3
+  KnockbackDistance: 0
+  KnockbackStunDuration: 0
   Player: {fileID: 0}
   SpecialCooldown: 0
   audioOnActivate: {fileID: 8300000, guid: e1d5c513c385d4533a4ebc378166d7cb, type: 3}
   PlayerAbilityCentreOffset: {x: 0, y: 0.5, z: 0}
-  NumberHits: 4
-  m_holdStartScale: 1
-  m_holdFinishScale: 3
---- !u!70 &270720640852587252
-CapsuleCollider2D:
+  m_hitInterval: 0.25
+  m_holdStartRadius: 2
+  m_holdFinishRadius: 5
+--- !u!58 &5126934356829113377
+CircleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -224,12 +226,12 @@ CapsuleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
-  m_Size: {x: 3.5, y: 3.5}
-  m_Direction: 1
+  serializedVersion: 2
+  m_Radius: 1.75
 --- !u!1 &4708556748347195212
 GameObject:
   m_ObjectHideFlags: 0

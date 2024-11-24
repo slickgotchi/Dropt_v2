@@ -7,24 +7,22 @@ using System;
 public class CleaveWhirlwind : PlayerAbility
 {
     [Header("CleaveWhirlwind Parameters")]
-    [SerializeField] private int NumberHits = 3;
+    [SerializeField] private float m_hitInterval = 0.25f;
+    [SerializeField] private float m_holdStartRadius = 2f;
+    [SerializeField] private float m_holdFinishRadius = 5f;
 
-    public float m_holdStartScale = 1f;
-    public float m_holdFinishScale = 2f;
-
-    private float m_hitInterval;
-    private float m_hitTimer;
-    private int m_hitCounter;
+    private float m_hitTimer = 0f;
 
     private Collider2D m_collider;
+
+    private AttackPathVisualizer m_attackPathVisualizer;
+
 
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
 
         m_collider = GetComponent<Collider2D>();
-
-        m_hitInterval = ExecutionDuration / (NumberHits - 1);
     }
 
     public override void OnStart()
@@ -32,49 +30,83 @@ public class CleaveWhirlwind : PlayerAbility
         // set transform to activation rotation/position and scale based on hold duration
         SetRotation(quaternion.identity);
         SetLocalPosition(PlayerAbilityCentreOffset);
-        var alpha = math.min(m_holdTimer / HoldChargeTime, 1);
-        SetScale(math.lerp(m_holdStartScale, m_holdFinishScale, alpha));
 
-        m_hitCounter = NumberHits;
-        m_hitTimer = m_hitInterval;
+        // the base whirlwind anim sprite has 1.75 radius. So scale 1 == radius 1.75
+        // thus to calc scale we go
+        var targetRadius = math.lerp(m_holdStartRadius, m_holdFinishRadius, GetHoldPercentage());
+        SetScale(targetRadius / 1.75f);
 
-        CollisionCheck();
-        m_hitCounter--;
+        OneFrameCollisionDamageCheck(m_collider, Wearable.WeaponTypeEnum.Cleave, DamageMultiplier);
 
         PlayAnimation("CleaveWhirlwind");
 
         Player.GetComponent<PlayerGotchi>().PlayFacingSpin(3, ExecutionDuration / 3,
             PlayerGotchi.SpinDirection.AntiClockwise, 0);
-
     }
-
-    private void CollisionCheck()
-    {
-        OneFrameCollisionDamageCheck(m_collider, Wearable.WeaponTypeEnum.Cleave, DamageMultiplier);
-    }
-
 
     public override void OnUpdate()
     {
         // update hit timer and if need to do another collision, do it
         m_hitTimer -= Time.deltaTime;
-        if (m_hitCounter > 0 && m_hitTimer <= 0)
+        if (m_hitTimer <= 0)
         {
-            CollisionCheck();
-            m_hitTimer = m_hitInterval;
-            m_hitCounter--;
+            OneFrameCollisionDamageCheck(m_collider, Wearable.WeaponTypeEnum.Cleave, DamageMultiplier);
+            m_hitTimer += m_hitInterval;
         }
+    }
+
+
+    public override void OnHoldStart()
+    {
+        base.OnHoldStart();
+
+        if (Player == null) return;
+
+        m_attackPathVisualizer = Player.GetComponentInChildren<AttackPathVisualizer>();
+        if (m_attackPathVisualizer == null) return;
+
+        m_attackPathVisualizer.SetMeshVisible(true);
+
+        m_attackPathVisualizer.useCircle = true;
+        m_attackPathVisualizer.innerRadius = 0f;
+        m_attackPathVisualizer.outerRadius = m_holdStartRadius;
+        m_attackPathVisualizer.angle = 360;
+    }
+
+    public override void OnHoldUpdate()
+    {
+        base.OnHoldUpdate();
+
+        if (m_attackPathVisualizer == null) return;
+
+        m_attackPathVisualizer.outerRadius = math.lerp(
+            m_holdStartRadius,
+            m_holdFinishRadius,
+            GetHoldPercentage());
+    }
+
+    public override void OnHoldCancel()
+    {
+        base.OnHoldCancel();
+
+        if (m_attackPathVisualizer == null) return;
+
+        m_attackPathVisualizer.SetMeshVisible(false);
+        m_attackPathVisualizer = null;
+    }
+
+    public override void OnHoldFinish()
+    {
+        base.OnHoldFinish();
+
+        if (m_attackPathVisualizer == null) return;
+
+        m_attackPathVisualizer.SetMeshVisible(false);
+        m_attackPathVisualizer = null;
     }
 
     public override void OnFinish()
     {
-        m_holdTimer = 0;
-        while (m_hitCounter > 0)
-        {
-            CollisionCheck();
-            m_hitCounter--;
-        }
-
         PlayAnimation("CleaveDefault");
     }
 }

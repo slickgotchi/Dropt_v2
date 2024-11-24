@@ -12,24 +12,25 @@ public class HoldBarCanvas : MonoBehaviour
 
     private void Awake()
     {
-        UpdateStatBars();
+        holdBar.SetActive(false);
+        //UpdateStatBars();
     }
 
     void UpdateStatBars()
     {
-        var holdPercentage = playerPrediction.GetHoldPercentage();
-        if (holdPercentage <= 0 || !playerPrediction.GetComponent<NetworkObject>().IsLocalPlayer)
-        {
-            holdBar.SetActive(false);
-        } else
-        {
-            holdBar.SetActive(true);
-            holdSlider.value = holdPercentage;
-        }
+        //var holdPercentage = playerPrediction.GetHoldPercentage();
+        //if (holdPercentage <= 0 || !playerPrediction.GetComponent<NetworkObject>().IsLocalPlayer)
+        //{
+        //    holdBar.SetActive(false);
+        //} else
+        //{
+        //    holdBar.SetActive(true);
+        //    holdSlider.value = holdPercentage;
+        //}
     }
 
     private void Update()
     {
-        UpdateStatBars();
+        //UpdateStatBars();
     }
 }
