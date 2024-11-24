@@ -51,25 +51,6 @@ public class MagicBeam : PlayerAbility
 
     public override void OnStart()
     {
-        /*
-        // set local rotation/position.
-        // IMPORTANT SetRotation(), SetRotationToActionDirection() and SetLocalPosition() must be used as
-        // they call RPC's that sync remote clients
-        SetRotationToActionDirection();
-        SetLocalPosition(PlayerAbilityCentreOffset + ActivationInput.actionDirection * Projection);
-
-        // determine hold damage multiplier
-        var alpha = math.min(m_holdTimer / HoldChargeTime, 1f);
-        var damageMultiplier = math.lerp(HoldStartDamageMultiplier, HoldFinishDamageMultiplier, alpha);
-
-        // collision check (no RPC's are involved in this call)
-        OneFrameCollisionDamageCheck(m_collider, Wearable.WeaponTypeEnum.Magic, damageMultiplier);
-
-        // IMPORTANT use PlayAnimation which calls RPC's in the background that play the 
-        // animation on remote clients
-        //PlayAnimation("MagicBeam");
-        */
-
         SetRotationToActionDirection();
 
         PlayAnimationWithDuration("MagicCast", ExecutionDuration);
@@ -111,7 +92,7 @@ public class MagicBeam : PlayerAbility
         }
 
         // deal damage to all targets if server
-        if (IsServer)
+        //if (IsServer)
         {
             var playerCharacter = Player.GetComponent<NetworkCharacter>();
 

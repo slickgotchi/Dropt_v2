@@ -91,6 +91,8 @@ public partial class PlayerPrediction : NetworkBehaviour
 
     private PlayerController m_playerController;
 
+    private AttackCentre m_attackCentre;
+
     private PlayerInput m_playerInput;
     private InputAction m_movementAction;  // Reference to the "Movement" action
 
@@ -115,6 +117,8 @@ public partial class PlayerPrediction : NetworkBehaviour
         m_playerAttackCentre = GetComponentInChildren<AttackCentre>();
         m_playerTargetingReticle = GetComponent<PlayerTargetingReticle>();
         m_playerEquipment = GetComponent<PlayerEquipment>();
+
+        m_attackCentre = GetComponentInChildren<AttackCentre>();
     }
 
     public override void OnNetworkSpawn()

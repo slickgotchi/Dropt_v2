@@ -81,8 +81,8 @@ public class SplashBomb : PlayerAbility
         var playerCharacter = Player.GetComponent<NetworkCharacter>();
         var startPosition =
                 Player.GetComponent<PlayerPrediction>().GetInterpPositionAtTick(ActivationInput.tick)
-                + new Vector3(0, 0.5f, 0)
-                + ActivationInput.actionDirection * Projection;
+                + new Vector3(0, 0.5f, 0);
+                //+ ActivationInput.actionDirection * Projection;
 
         // Local Client & Server
         if (Player.GetComponent<NetworkObject>().IsLocalPlayer || IsServer)

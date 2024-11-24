@@ -14,6 +14,8 @@ public partial class PlayerPrediction : NetworkBehaviour
 
     private Vector2 m_holdActionDirection;
 
+    private Vector3 m_screenToWorldPosition;
+
     // called every frame in the main PlayerPrediction.cs file Update()
     private void UpdateInput()
     {
@@ -21,9 +23,9 @@ public partial class PlayerPrediction : NetworkBehaviour
         m_cursorScreenPosition = Input.mousePosition;
 
         // Convert screen position to world position
-        Vector3 screenToWorldPosition = Camera.main.ScreenToWorldPoint(
+        m_screenToWorldPosition = Camera.main.ScreenToWorldPoint(
             new Vector3(m_cursorScreenPosition.x, m_cursorScreenPosition.y, Camera.main.transform.position.z));
-
+        m_screenToWorldPosition.z = 0;
         // Since it's a 2D game, we set the Z coordinate to 0
         //m_cursorWorldPosition = new Vector3(screenToWorldPosition.x, screenToWorldPosition.y, 0);
 
@@ -41,12 +43,12 @@ public partial class PlayerPrediction : NetworkBehaviour
         // recalc m_holdActionDirection
         if (m_playerTargetingReticle.mode == PlayerTargetingReticle.Mode.KeyboardMouse)
         {
-            var dir = (screenToWorldPosition - (GetLocalPlayerInterpPosition() + new Vector3(0, 0.5f, 0))).normalized;
+            var dir = (m_screenToWorldPosition - (GetLocalPlayerInterpPosition() + new Vector3(0, 0.5f, 0))).normalized;
             m_holdActionDirection = new Vector2(dir.x, dir.y);
         }
         else if (m_playerTargetingReticle.mode == PlayerTargetingReticle.Mode.Gamepad)
         {
-            var dir = (screenToWorldPosition - (GetLocalPlayerInterpPosition() + new Vector3(0, 0.5f, 0))).normalized;
+            var dir = (m_screenToWorldPosition - (GetLocalPlayerInterpPosition() + new Vector3(0, 0.5f, 0))).normalized;
             m_holdActionDirection = new Vector2(dir.x, dir.y);
         }
         else if (m_playerTargetingReticle.mode == PlayerTargetingReticle.Mode.KeyboardOnly)
@@ -58,6 +60,12 @@ public partial class PlayerPrediction : NetworkBehaviour
     public Vector2 GetHoldActionDirection()
     {
         return m_holdActionDirection;
+    }
+
+    public float GetHoldDistanceFromPlayerAttackCentre()
+    {
+        var attackCentrePos = m_attackCentre.transform.position;
+        return math.distance(attackCentrePos, m_screenToWorldPosition);
     }
 
     // Generic_PlayerMove - this is not called as we sample movement from m_movementAction every frame
