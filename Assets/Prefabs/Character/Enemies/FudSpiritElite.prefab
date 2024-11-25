@@ -106,6 +106,7 @@ GameObject:
   - component: {fileID: 3366124766312783620}
   - component: {fileID: 2360442186738725799}
   - component: {fileID: 1309339053655439348}
+  - component: {fileID: 1120433630635841283}
   m_Layer: 15
   m_Name: FudSpiritElite
   m_TagString: Untagged
@@ -168,7 +169,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 680163484
+  GlobalObjectIdHash: 566730335
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -463,7 +464,36 @@ MonoBehaviour:
     m_InternalValue: 0
   MaxEnemyShield:
     m_InternalValue: 0
-  OnHurtAudio: {fileID: 8300000, guid: 00338429dfad27d438bd1444b96d7e3a, type: 3}
+--- !u!114 &1120433630635841283
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd40c2059264d4b65ad185f175111507, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_spawnSound:
+    AudioClip: {fileID: 8300000, guid: 9f62e17d7d6dc4e3fab4d60083804562, type: 3}
+    Volume: 0.5
+  m_takeDamageSound:
+    AudioClip: {fileID: 8300000, guid: 51695818421b740408a95fa714ffcc5b, type: 3}
+    Volume: 0.5
+  m_dieSound:
+    AudioClip: {fileID: 8300000, guid: 75cdac989f4714208b072fb2dca0c333, type: 3}
+    Volume: 0.5
+  m_fadeinSound:
+    AudioClip: {fileID: 8300000, guid: ffeb3e7109fc34d989e67d3a021d0e69, type: 3}
+    Volume: 0.5
+  m_fadeoutSound:
+    AudioClip: {fileID: 8300000, guid: d21b7c687fd3b41768b0e2e3f52e3434, type: 3}
+    Volume: 0.5
+  m_shootSound:
+    AudioClip: {fileID: 8300000, guid: 05faf101cdd0b4a029c5747a21ae7b70, type: 3}
+    Volume: 0.5
 --- !u!1 &2682488299147284056
 GameObject:
   m_ObjectHideFlags: 0

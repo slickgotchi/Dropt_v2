@@ -810,6 +810,7 @@ GameObject:
   - component: {fileID: 3353798826812701960}
   - component: {fileID: 1149752790437833971}
   - component: {fileID: 9139733696831883361}
+  - component: {fileID: 7897468605786725820}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -1414,7 +1415,6 @@ MonoBehaviour:
     m_InternalValue: 0
   MaxEnemyShield:
     m_InternalValue: 0
-  OnHurtAudio: {fileID: 0}
   baseEssence: 1000
   baseInfusedEssenceBonus: 250
   Essence:
@@ -1470,6 +1470,24 @@ MonoBehaviour:
   enemyLayer:
     serializedVersion: 2
     m_Bits: 32768
+--- !u!114 &7897468605786725820
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1519051571170098037}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72e5ac4bee2f54772afc3ce4e7881c98, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_takeDamageSmallSound:
+    AudioClip: {fileID: 8300000, guid: 9fbe79e4b3d9a43f3a6ad0f027094bdd, type: 3}
+    Volume: 0.5
+  m_takeDamageBigSound:
+    AudioClip: {fileID: 8300000, guid: d56629ae5059a4a0cb4f09a1224f1ec4, type: 3}
+    Volume: 0.5
 --- !u!1 &1722710475381033325
 GameObject:
   m_ObjectHideFlags: 0

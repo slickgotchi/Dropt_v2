@@ -105,6 +105,7 @@ GameObject:
   - component: {fileID: 8093977338910563227}
   - component: {fileID: 5854955577029035370}
   - component: {fileID: 8923665926597921988}
+  - component: {fileID: 4015415111730639373}
   m_Layer: 15
   m_Name: FudWispRoamer
   m_TagString: Untagged
@@ -453,7 +454,30 @@ MonoBehaviour:
     m_InternalValue: 0
   MaxEnemyShield:
     m_InternalValue: 0
-  OnHurtAudio: {fileID: 8300000, guid: 00338429dfad27d438bd1444b96d7e3a, type: 3}
+--- !u!114 &4015415111730639373
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d08b8cac104dd4a3da5aa9b78c64f526, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_spawnSound:
+    AudioClip: {fileID: 8300000, guid: d21b7c687fd3b41768b0e2e3f52e3434, type: 3}
+    Volume: 0.5
+  m_takeDamageSound:
+    AudioClip: {fileID: 8300000, guid: 2240f81aafc96cb4ca8cbba22d9de682, type: 3}
+    Volume: 0.5
+  m_dieSound:
+    AudioClip: {fileID: 8300000, guid: 51695818421b740408a95fa714ffcc5b, type: 3}
+    Volume: 0.5
+  m_explodeSound:
+    AudioClip: {fileID: 8300000, guid: 03aab015152254e2fb81453b71900f86, type: 3}
+    Volume: 0.5
 --- !u!1 &3619491196239520171
 GameObject:
   m_ObjectHideFlags: 0

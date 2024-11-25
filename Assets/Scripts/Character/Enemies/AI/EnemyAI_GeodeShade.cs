@@ -6,9 +6,12 @@ namespace Dropt
     {
         private Animator m_animator;
 
+        private SoundFX_Shade m_soundFX_Shade;
+
         private void Awake()
         {
             m_animator = GetComponent<Animator>();
+            m_soundFX_Shade = GetComponent<SoundFX_Shade>();
         }
 
         public override void OnSpawnStart()
@@ -19,6 +22,7 @@ namespace Dropt
                                                      "GeodeShade_Spawn",
                                                      SpawnDuration);
             }
+            base.OnSpawnStart();
         }
 
         public override void OnTelegraphStart()
@@ -30,6 +34,7 @@ namespace Dropt
                                                      "GeodeShade_Anticipation",
                                                      TelegraphDuration);
             }
+            m_soundFX_Shade.PlayChargeSound();
         }
 
         public override void OnRoamStart()
@@ -64,6 +69,7 @@ namespace Dropt
         {
             SimpleAttackStart();
             GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, 0.1f);
+            m_soundFX_Shade.PlayAttackSound();
             if (IsServer)
             {
                 Utils.Anim.Play(m_animator, "GeodeShade_Attack");

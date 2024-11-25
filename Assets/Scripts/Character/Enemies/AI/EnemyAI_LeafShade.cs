@@ -5,15 +5,18 @@ namespace Dropt
     public class EnemyAI_LeafShade : EnemyAI
     {
         private Animator m_animator;
+        private SoundFX_Shade m_soundFX_Shade;
 
         private void Awake()
         {
             m_animator = GetComponent<Animator>();
+            m_soundFX_Shade = GetComponent<SoundFX_Shade>();
         }
 
         public override void OnSpawnStart()
         {
             Utils.Anim.PlayAnimationWithDuration(m_animator, "LeafShade_Spawn", SpawnDuration);
+            base.OnSpawnStart();
         }
 
         public override void OnTelegraphStart()
@@ -24,6 +27,7 @@ namespace Dropt
                 Utils.Anim.PlayAnimationWithDuration(m_animator, "LeafShade_Anticipation", TelegraphDuration);
             }
             GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, 0.1f);
+            m_soundFX_Shade.PlayChargeSound();
         }
 
         public override void OnRoamStart()
@@ -61,6 +65,7 @@ namespace Dropt
                 Utils.Anim.Play(m_animator, "LeafShade_Attack");
             }
             SimpleAttackStart();
+            m_soundFX_Shade.PlayAttackSound();
             GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, 0.1f);
         }
 

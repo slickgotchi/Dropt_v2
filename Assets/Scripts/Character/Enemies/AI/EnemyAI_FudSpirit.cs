@@ -20,10 +20,13 @@ namespace Dropt
         [SerializeField] private float m_fadeinDuration;
         [SerializeField] private float m_fadeoutDuration;
 
+        private SoundFX_FudSpirit m_soundFX_FudSpirit;
+
         private void Awake()
         {
             m_animator = GetComponent<Animator>();
             m_enemyController = GetComponent<EnemyController>();
+            m_soundFX_FudSpirit = GetComponent<SoundFX_FudSpirit>();
         }
 
         public override void OnNetworkSpawn()
@@ -34,17 +37,17 @@ namespace Dropt
 
         public override void OnSpawnStart()
         {
-            base.OnSpawnStart();
             if (IsServer)
             {
                 Utils.Anim.PlayAnimationWithDuration(m_animator, "FudSpirit_Fadein", SpawnDuration);
             }
+            m_soundFX_FudSpirit.PlayFadeInSound();
+            base.OnSpawnStart();
         }
 
         public override void OnAggroStart()
         {
             base.OnAggroStart();
-
             ChangeState(State.Telegraph);
         }
 
@@ -57,6 +60,7 @@ namespace Dropt
             m_invisibleTimer = InvisibleDuration + m_fadeoutDuration;
             m_isInvisibleUsed = false;
             Utils.Anim.PlayAnimationWithDuration(m_animator, "FudSpirit_Fadeout", m_fadeoutDuration);
+            m_soundFX_FudSpirit.PlayFadeOutSound();
             Invoke(nameof(DisableSpritesAndCollidersAndTeleportToNewPosition), m_fadeoutDuration);
         }
 
@@ -83,6 +87,7 @@ namespace Dropt
                 SetSpritesAndCollidersEnabled(true);
                 m_enemyController.SetFacingFromDirection(AttackDirection, AttackDuration);
                 Utils.Anim.PlayAnimationWithDuration(m_animator, "FudSpirit_Fadein", m_fadeoutDuration);
+                m_soundFX_FudSpirit.PlayFadeInSound();
             }
         }
 
@@ -92,6 +97,7 @@ namespace Dropt
             if (!IsServer) return;
             m_enemyController.SetFacingFromDirection(AttackDirection, AttackDuration);
             Utils.Anim.Play(m_animator, "FudSpirit_Shot");
+            m_soundFX_FudSpirit.PlayShootSound();
             SimpleAttackStart();
         }
 
