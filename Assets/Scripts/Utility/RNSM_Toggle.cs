@@ -8,9 +8,9 @@ public class RNSM_Toggle : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha4))
-        {
-            Container.SetActive(!Container.activeSelf);
-        }
+        //if (Input.GetKeyDown(KeyCode.Alpha4))
+        //{
+        //    Container.SetActive(!Container.activeSelf);
+        //}
     }
 }

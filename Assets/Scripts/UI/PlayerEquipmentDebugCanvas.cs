@@ -45,7 +45,7 @@ public class PlayerEquipmentDebugCanvas : DroptCanvas
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.Alpha1))
+        if (Input.GetKeyDown(KeyCode.Alpha0))
         {
             if (PlayerEquipmentDebugCanvas.Instance.isCanvasOpen)
             {
@@ -124,17 +124,20 @@ public class PlayerEquipmentDebugCanvas : DroptCanvas
     {
         var options = WearableManager.Instance.wearablesByNameEnum.Values
             .Where(w => w.Slot == slot)
+            .OrderBy(w => w.Rarity == Wearable.RarityEnum.NA ? int.MaxValue : (int)w.Rarity) // Sort by rarity, move NA to the end
             .Select(w => w.NameType.ToString())
             .ToList();
 
         dropdown.ClearOptions();
         dropdown.AddOptions(options);
     }
+
 
     private void InitializeDropdown(TMP_Dropdown dropdown, Wearable.SlotEnum slot, Wearable.WeaponTypeEnum weaponType)
     {
         var options = WearableManager.Instance.wearablesByNameEnum.Values
             .Where(w => w.Slot == slot && w.WeaponType == weaponType)
+            .OrderBy(w => w.Rarity == Wearable.RarityEnum.NA ? int.MaxValue : (int)w.Rarity) // Sort by rarity, move NA to the end
             .Select(w => w.NameType.ToString())
             .ToList();
 
@@ -142,9 +145,24 @@ public class PlayerEquipmentDebugCanvas : DroptCanvas
         dropdown.AddOptions(options);
     }
 
+
     private void InitializeWeaponTypeDropdown(TMP_Dropdown dropdown)
     {
-        var options = System.Enum.GetNames(typeof(Wearable.WeaponTypeEnum)).ToList();
+        var excludedTypes = new[]
+        {
+        Wearable.WeaponTypeEnum.Aura,
+        Wearable.WeaponTypeEnum.Consume,
+        Wearable.WeaponTypeEnum.Throw,
+        Wearable.WeaponTypeEnum.NA
+    };
+
+        var options = System.Enum.GetValues(typeof(Wearable.WeaponTypeEnum))
+            .Cast<Wearable.WeaponTypeEnum>()
+            .Where(w => !excludedTypes.Contains(w)) // Exclude specified types
+            .OrderBy(w => w.ToString()) // Sort alphabetically
+            .Select(w => w.ToString())
+            .ToList();
+
         dropdown.ClearOptions();
         dropdown.AddOptions(options);
     }

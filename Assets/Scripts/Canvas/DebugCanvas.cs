@@ -40,10 +40,10 @@ public class DebugCanvas : MonoBehaviour
 
         //playerCountText.text = "Players: " + NetworkStats.Instance.ConnectedPlayers.ToString();
 
-        if (Input.GetKeyDown(KeyCode.Alpha3))
-        {
-            Container.SetActive(!Container.activeSelf);
-        }
+        //if (Input.GetKeyDown(KeyCode.Alpha3))
+        //{
+        //    Container.SetActive(!Container.activeSelf);
+        //}
     }
 
     public void SetPing(int ping)
