@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 
@@ -13,14 +11,21 @@ public class SpiderPodController : NetworkBehaviour
 
     private bool m_isBurst = false;
 
-    // Start is called before the first frame update
-    void Start()
+    private SoundFX_SpiderPod m_soundFX_SpiderPod;
+
+    private void Start()
     {
         GetComponent<Animator>().Play("SpiderPod_Idle");
     }
 
-    // Update is called once per frame
-    void Update()
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+        m_soundFX_SpiderPod = GetComponent<SoundFX_SpiderPod>();
+        m_soundFX_SpiderPod.PlaySpawnSound();
+    }
+
+    private void Update()
     {
         if (!IsServer) return;
 
@@ -36,7 +41,7 @@ public class SpiderPodController : NetworkBehaviour
                 {
                     isBurstTime = true;
                 }
-             }
+            }
 
             if (isBurstTime)
             {
@@ -46,11 +51,11 @@ public class SpiderPodController : NetworkBehaviour
         }
     }
 
-    void Burst()
+    private void Burst()
     {
         GetComponent<Animator>().Play("SpiderPod_Burst");
-
-        float startAngle = UnityEngine.Random.Range(0, 360.0f);
+        PlayBurstSoundClientRpc();
+        float startAngle = Random.Range(0, 360.0f);
         float deltaAngle = 360 / NumberSpiders;
         for (int i = 0; i < NumberSpiders; i++)
         {
@@ -66,5 +71,17 @@ public class SpiderPodController : NetworkBehaviour
             // USE THE DEFERRED SPAWNER INSTEAD
             DeferredSpawner.SpawnNextFrame(spider.GetComponent<NetworkObject>());
         }
+    }
+
+    [ClientRpc]
+    private void PlayBurstSoundClientRpc()
+    {
+        m_soundFX_SpiderPod.PlayBurstSound();
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        base.OnNetworkDespawn();
+        m_soundFX_SpiderPod.PlayDieSound();
     }
 }

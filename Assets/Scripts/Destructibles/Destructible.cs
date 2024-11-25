@@ -7,7 +7,7 @@ public class Destructible : NetworkBehaviour
     public event Action DIE;
     public event Action PRE_DIE;
 
-    public AudioClip audioOnHit;
+    //public AudioClip audioOnHit;
 
     public enum Type
     {
@@ -21,30 +21,34 @@ public class Destructible : NetworkBehaviour
 
     private NetworkVariable<int> CurrentHp;
 
-    void Awake()
+    private SoundFX_Destructible m_soundFX_Destructible;
+
+    private void Awake()
     {
         CurrentHp = new NetworkVariable<int>(Hp);
+        m_soundFX_Destructible = GetComponent<SoundFX_Destructible>();
     }
 
-    public override void OnNetworkSpawn()
-    {
-        base.OnNetworkSpawn();
+    //public override void OnNetworkSpawn()
+    //{
+    //base.OnNetworkSpawn();
 
-        // configure audio
-        if (type == Type.Crafted) audioOnHit = AudioLibrary.Instance.HitCrafted;
-        if (type == Type.Inorganic) audioOnHit = AudioLibrary.Instance.HitInorganic;
-        if (type == Type.Organic) audioOnHit = AudioLibrary.Instance.HitOrganic;
-    }
+    // configure audio
+    //if (type == Type.Crafted) audioOnHit = AudioLibrary.Instance.HitCrafted;
+    //if (type == Type.Inorganic) audioOnHit = AudioLibrary.Instance.HitInorganic;
+    //if (type == Type.Organic) audioOnHit = AudioLibrary.Instance.HitOrganic;
+    //}
 
     public void TakeDamage(Wearable.WeaponTypeEnum weaponType)
     {
         var damage = CalculateDamageToDestructible(type, weaponType);
 
         // play some hit audio
-        AudioManager.Instance.PlaySpatialSFX(
-            audioOnHit,
-            gameObject.transform.position
-            );
+        //AudioManager.Instance.PlaySpatialSFX(
+        //    audioOnHit,
+        //    gameObject.transform.position
+        //    );
+        m_soundFX_Destructible.PlayTakeDamageSound();
 
         if (CurrentHp.Value <= damage)
         {
@@ -62,8 +66,8 @@ public class Destructible : NetworkBehaviour
             }
         }
 
-        var damageWobble = GetComponent<DamageWobble>();
-        if (damageWobble != null) damageWobble.Play();
+        DamageWobble damageWobble = GetComponent<DamageWobble>();
+        damageWobble?.Play();
     }
 
     public void TakeDamage(int damage)
@@ -71,14 +75,14 @@ public class Destructible : NetworkBehaviour
         if (IsServer)
         {
             CurrentHp.Value -= damage;
-            if (CurrentHp.Value <= 0)
+            if (IsServer && CurrentHp.Value <= 0)
             {
-                if (IsServer) GetComponent<NetworkObject>().Despawn();
+                GetComponent<NetworkObject>().Despawn();
             }
         }
 
-        var damageWobble = GetComponent<DamageWobble>();
-        if (damageWobble != null) damageWobble.Play();
+        DamageWobble damageWobble = GetComponent<DamageWobble>();
+        damageWobble?.Play();
 
         if (CurrentHp.Value <= damage)
         {
@@ -86,7 +90,7 @@ public class Destructible : NetworkBehaviour
         }
     }
 
-    int CalculateDamageToDestructible(Type destructibleType, Wearable.WeaponTypeEnum weaponType)
+    private int CalculateDamageToDestructible(Type destructibleType, Wearable.WeaponTypeEnum weaponType)
     {
         int damage = 1;
 
@@ -128,5 +132,11 @@ public class Destructible : NetworkBehaviour
         }
 
         return damage;
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        base.OnNetworkDespawn();
+        m_soundFX_Destructible.PlayDieSound();
     }
 }

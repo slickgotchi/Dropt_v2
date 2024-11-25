@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.AI;
@@ -63,6 +61,7 @@ namespace Dropt
         [HideInInspector] public NavMeshAgent m_navMeshAgent;
         protected Unity.Netcode.Components.NetworkTransform m_networkTransform;
 
+        private SoundFX_Enemy m_soundFX_Enemy;
 
         [HideInInspector] public Vector3 AttackDirection;
         [HideInInspector] public Vector3 PositionToAttack;
@@ -98,13 +97,13 @@ namespace Dropt
         {
             base.OnNetworkSpawn();
 
+            m_soundFX_Enemy = GetComponent<SoundFX_Enemy>();
             networkCharacter = GetComponent<NetworkCharacter>();
             m_navMeshAgent = GetComponent<NavMeshAgent>();
             m_networkTransform = GetComponent<Unity.Netcode.Components.NetworkTransform>();
 
             // Find the closest point on the NavMesh
-            Vector3 navMeshPosition;
-            if (FindClosestNavMeshPosition(transform.position, out navMeshPosition))
+            if (FindClosestNavMeshPosition(transform.position, out Vector3 navMeshPosition))
             {
                 transform.position = navMeshPosition;
             }
@@ -115,7 +114,11 @@ namespace Dropt
 
             RoamAnchorPoint = transform.position;
             m_spawnTimer = SpawnDuration;
-            if (IsServer) state.Value = State.Spawn;
+            if (IsServer)
+            {
+                state.Value = State.Spawn;
+            }
+
             OnSpawnStart();
 
             // set debug visibility
@@ -181,7 +184,11 @@ namespace Dropt
 
         public virtual void OnNullUpdate(float dt) { }
 
-        public virtual void OnSpawnStart() { }
+        public virtual void OnSpawnStart()
+        {
+            m_soundFX_Enemy?.PlaySpawnSound();
+        }
+
         public virtual void OnSpawnUpdate(float dt) { }
         public virtual void OnSpawnFinish() { }
 
@@ -231,7 +238,19 @@ namespace Dropt
             {
                 m_isDead = true;
                 OnDeath(position);
+                OnDeathClientRPC();
             }
+        }
+
+        [ClientRpc]
+        private void OnDeathClientRPC()
+        {
+            m_soundFX_Enemy.PlayDieSound();
+        }
+
+        public void EnemyTakeDamage()
+        {
+            m_soundFX_Enemy.PlayTakeDamageSound();
         }
 
         void HandleNull(float dt)
@@ -239,7 +258,7 @@ namespace Dropt
             OnNullUpdate(dt);
         }
 
-        void HandleSpawning(float dt)
+        private void HandleSpawning(float dt)
         {
             m_spawnTimer -= dt;
             if (m_spawnTimer < 0)
@@ -253,7 +272,7 @@ namespace Dropt
             OnSpawnUpdate(dt);
         }
 
-        void HandleRoam(float dt)
+        private void HandleRoam(float dt)
         {
             if (NearestPlayerDistance < FleeRange)
             {

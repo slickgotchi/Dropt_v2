@@ -1,7 +1,6 @@
 using UnityEngine;
 using TMPro;
 using Unity.Netcode;
-using Unity.Mathematics;
 using System.Threading.Tasks;
 
 public class BombSnail_Detonator : NetworkBehaviour
@@ -13,6 +12,13 @@ public class BombSnail_Detonator : NetworkBehaviour
     private NetworkVariable<int> m_detonationTimer = new NetworkVariable<int>(0);
 
     private Dropt.EnemyAI m_enemyAI;
+
+    private SoundFX_BombSnail m_soundFX_BombSnail;
+
+    private void Awake()
+    {
+        m_soundFX_BombSnail = GetComponent<SoundFX_BombSnail>();
+    }
 
     public override void OnNetworkSpawn()
     {
@@ -49,7 +55,7 @@ public class BombSnail_Detonator : NetworkBehaviour
         Animator animator = GetComponent<Animator>();
 
         animator.Play("BombSnail_LongFuse");
-
+        PlayIgniteSoundClientRpc();
         while (m_detonationTimer.Value != 0 && m_enemyAI.state.Value == Dropt.EnemyAI.State.Aggro)
         {
             await Task.Delay(1000);
@@ -59,5 +65,24 @@ public class BombSnail_Detonator : NetworkBehaviour
                 animator.Play("BombSnail_ShortFuse");
             }
         }
+        //PlayExplodeSoundClientRpc();
+    }
+
+    [ClientRpc]
+    private void PlayIgniteSoundClientRpc()
+    {
+        m_soundFX_BombSnail.PlayIgniteSound();
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        base.OnNetworkDespawn();
+        PlayExplodeSoundClientRpc();
+    }
+
+    [ClientRpc]
+    private void PlayExplodeSoundClientRpc()
+    {
+        m_soundFX_BombSnail.PlayExplodeSound();
     }
 }

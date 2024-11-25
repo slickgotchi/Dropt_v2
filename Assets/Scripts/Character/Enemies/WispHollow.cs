@@ -16,6 +16,8 @@ public class WispHollow : NetworkBehaviour
 
     private List<GameObject> m_instancedWisps = new List<GameObject>();
 
+    private SoundFX_WispHollow m_soundFX_WispHollow;
+
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
@@ -25,8 +27,10 @@ public class WispHollow : NetworkBehaviour
         }
 
         m_animator = GetComponent<Animator>();
+        m_soundFX_WispHollow = GetComponent<SoundFX_WispHollow>();
         m_animator.Play("WispHollow_Spawn");
         m_spawnTimer = WispSpawnInterval;
+        m_soundFX_WispHollow.PlaySpawnSound();
     }
 
     private void Update()
@@ -65,5 +69,11 @@ public class WispHollow : NetworkBehaviour
     private void OnFudWispDespawn(GameObject fudWisp)
     {
         m_liveWisps.Remove(fudWisp);
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        base.OnNetworkDespawn();
+        m_soundFX_WispHollow.PlayDieSound();
     }
 }
