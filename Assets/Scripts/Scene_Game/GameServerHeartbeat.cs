@@ -126,7 +126,7 @@ public class GameServerHeartbeat : MonoBehaviour
             var workerUri = "http://" + Bootstrap.Instance.IpAddress + ":" + Bootstrap.Instance.WorkerPort;
             var responseStr = await PostRequest(workerUri + "/instanceheartbeat", json);
 
-            //Debug.Log("/instancehearbeat success");
+            Debug.Log($"/instancehearbeat success, gameId: {payload.gameId}, playerCount: {m_playerCount}, isPublic: {IsPublic}");
         }
         catch (Exception e)
         {
