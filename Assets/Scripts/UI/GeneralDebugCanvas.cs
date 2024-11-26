@@ -9,7 +9,7 @@ public class GeneralDebugCanvas : DroptCanvas
     public Toggle fpsToggle;
     public Toggle characterStatsToggle;
     public Toggle enemyAIToggle;
-    public Toggle consoleLogToggle;
+    //public Toggle consoleLogToggle;
 
     private void Awake()
     {
@@ -34,11 +34,11 @@ public class GeneralDebugCanvas : DroptCanvas
             SetEnemyStateVisible(enemyAIToggle.isOn);
         }
 
-        if (consoleLogToggle != null)
-        {
-            consoleLogToggle.onValueChanged.AddListener(SetConsoleLogVisible);
-            SetConsoleLogVisible(consoleLogToggle.isOn);
-        }
+        //if (consoleLogToggle != null)
+        //{
+        //    consoleLogToggle.onValueChanged.AddListener(SetConsoleLogVisible);
+        //    SetConsoleLogVisible(consoleLogToggle.isOn);
+        //}
     }
 
     public override void OnUpdate()
@@ -87,8 +87,8 @@ public class GeneralDebugCanvas : DroptCanvas
         }
     }
 
-    private void SetConsoleLogVisible(bool visible)
-    {
-        DebugLogDisplay.Instance.container.SetActive(visible);
-    }
+    //private void SetConsoleLogVisible(bool visible)
+    //{
+    //    DebugLogDisplay.Instance.container.SetActive(visible);
+    //}
 }
