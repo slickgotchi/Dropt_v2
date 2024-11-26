@@ -869,6 +869,7 @@ public partial class PlayerPrediction : NetworkBehaviour
             case PlayerAbilityEnum.BallisticShot: return holdAbilityEnum == PlayerAbilityEnum.BallisticSnipe;
             case PlayerAbilityEnum.MagicCast: return holdAbilityEnum == PlayerAbilityEnum.MagicBeam;
             case PlayerAbilityEnum.SplashLob: return holdAbilityEnum == PlayerAbilityEnum.SplashVolley;
+            case PlayerAbilityEnum.ShieldBash: return holdAbilityEnum == PlayerAbilityEnum.ShieldBlock;
             default: break;
         }
 
