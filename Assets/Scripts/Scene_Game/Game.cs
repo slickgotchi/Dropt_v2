@@ -248,11 +248,11 @@ uYkQ4omYCTX5ohy+knMjdOmdH9c7SpqEWBDC86fiNex+O0XOMEZSa8DA
             }
 
             // TEMP
-            m_unityTransport.UseEncryption = true;
-            m_unityTransport.SetClientSecrets(test_commonName, test_chainPem);
+            //m_unityTransport.UseEncryption = true;
+            //m_unityTransport.SetClientSecrets(test_commonName, test_chainPem);
 
-            Bootstrap.Instance.IpAddress = "128.199.172.231";
-            Bootstrap.Instance.GamePort = 9000;
+            //Bootstrap.Instance.IpAddress = "128.199.172.231";
+            //Bootstrap.Instance.GamePort = 9000;
 
             // END TEMP
 
