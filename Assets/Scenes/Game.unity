@@ -5202,7 +5202,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 5, y: -0.000059799502}
+  m_AnchoredPosition: {x: 5, y: 0.0001963193}
   m_SizeDelta: {x: -10, y: 300}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &340773159
@@ -8728,6 +8728,8 @@ GameObject:
   - component: {fileID: 615761738}
   - component: {fileID: 615761740}
   - component: {fileID: 615761741}
+  - component: {fileID: 615761743}
+  - component: {fileID: 615761742}
   m_Layer: 5
   m_Name: REKTCanvas_50
   m_TagString: Untagged
@@ -8863,6 +8865,44 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f19ec7e7041c4e818c7a1820846a568, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &615761742
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 615761733}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.9607843, g: 0.33333334, b: 0.3647059, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &615761743
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 615761733}
+  m_CullTransparentMesh: 1
 --- !u!1 &620151868
 GameObject:
   m_ObjectHideFlags: 0
@@ -22369,7 +22409,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 2257309}
   m_Direction: 2
   m_Value: 0
-  m_Size: 1
+  m_Size: 0.99994797
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -37931,7 +37971,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 7726011939055877477}
   m_HandleRect: {fileID: 7893278136872487645}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -60198,7 +60238,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 5981013179072031083}
   m_Direction: 2
   m_Value: 1.000001
-  m_Size: 0.83875936
+  m_Size: 0.8387594
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
