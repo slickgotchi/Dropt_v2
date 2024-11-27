@@ -37,15 +37,18 @@ public class PlayerOffchainData : NetworkBehaviour
     // gotchi (offchain data)
     public NetworkVariable<int> ectoDungeonStartAmount_offchain = new NetworkVariable<int>(0);
     public NetworkVariable<int> bombDungeonCapacity_offchain = new NetworkVariable<int>(0);
-    public NetworkVariable<int> healSalveDungeonCharges_offchain = new NetworkVariable<int>(0);
+    public NetworkVariable<int> healSalveDungeonCharges_offchain = new NetworkVariable<int>(3);
     public NetworkVariable<bool> isEssenceInfused_offchain = new NetworkVariable<bool>(false);
 
     // dungeon (dungeon run data set at the start of a dungeon run)
     public NetworkVariable<int> ectoDebitStartAmount_dungeon = new NetworkVariable<int>(0);
     public NetworkVariable<int> ectoDebitCount_dungeon = new NetworkVariable<int>(0);       // this is the ecto out of your offchain bank account you start with
     public NetworkVariable<int> ectoLiveCount_dungeon = new NetworkVariable<int>(0);        // this is the ecto that gets added to as you collect ecto, starts at 0
+
+
+
     public NetworkVariable<int> dustLiveCount_dungeon = new NetworkVariable<int>(0);
-    public NetworkVariable<int> bombStartCount_dungeon = new NetworkVariable<int>(0);
+    public NetworkVariable<int> bombStartCount_dungeon = new NetworkVariable<int>(3);
     public NetworkVariable<int> bombLiveCount_dungeon = new NetworkVariable<int>(0);
     public NetworkVariable<int> healSalveChargeCount_dungeon = new NetworkVariable<int>(0);
 
@@ -72,11 +75,15 @@ public class PlayerOffchainData : NetworkBehaviour
 
     private Level.NetworkLevel.LevelType m_currentLevelType;
 
+
+
     public override void OnNetworkSpawn()
     {
         m_walletAddress = null;
         m_gotchiId = 0;
         m_currentLevelType = Level.NetworkLevel.LevelType.Null;
+        healSalveChargeCount_dungeon.Value = healSalveDungeonCharges_offchain.Value;
+        bombLiveCount_dungeon.Value = bombStartCount_dungeon.Value;
     }
 
     public override void OnNetworkDespawn()
@@ -234,7 +241,7 @@ public class PlayerOffchainData : NetworkBehaviour
 
         // only check for gotchi updates if in degenape village
         if (!LevelManager.Instance.IsDegenapeVillage()) return;
-       
+
         // get gotchi
         var gotchiId = GotchiDataManager.Instance.GetSelectedGotchiId();
         if (gotchiId != m_gotchiId)
@@ -362,7 +369,8 @@ public class PlayerOffchainData : NetworkBehaviour
             bombStartCount_dungeon.Value = 0;
             bombLiveCount_dungeon.Value = 0;
 
-        } catch
+        }
+        catch
         {
             Debug.LogWarning("Could not log post-dungeon wallet delta data, is server running?");
         }
@@ -373,7 +381,8 @@ public class PlayerOffchainData : NetworkBehaviour
             await LogGotchiDeltaDataServerRpcAsync(GetComponent<PlayerController>().NetworkGotchiId.Value, postDungeonDustDelta);
 
             dustLiveCount_dungeon.Value = 0;
-        } catch
+        }
+        catch
         {
             Debug.LogWarning("Could not log post-dungeon gotchi delta data, is server running?");
         }
@@ -500,7 +509,8 @@ public class PlayerOffchainData : NetworkBehaviour
         {
             ectoLiveCount_dungeon.Value = 0;
             ectoDebitCount_dungeon.Value += debitDelta;
-        } else
+        }
+        else
         {
             ectoLiveCount_dungeon.Value -= value;
         }
@@ -555,5 +565,20 @@ public class PlayerOffchainData : NetworkBehaviour
     public class GotchiDelta_Data
     {
         public int dust_delta;
+    }
+
+    public void UseHealSalveItem()
+    {
+        healSalveChargeCount_dungeon.Value--;
+    }
+
+    public bool IsBombAvailable()
+    {
+        return bombLiveCount_dungeon.Value > 0;
+    }
+
+    public void UseBombItem()
+    {
+        bombLiveCount_dungeon.Value--;
     }
 }

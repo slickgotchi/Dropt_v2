@@ -291,5 +291,13 @@ public class PlayerCharacter : NetworkCharacter
         return buffObject;
     }
 
+    public void ResetHp()
+    {
+        HpCurrent.Value = HpMax.Value;
+    }
 
+    public bool IsHpFullyCharged()
+    {
+        return HpCurrent.Value == HpMax.Value;
+    }
 }

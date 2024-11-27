@@ -24,21 +24,6 @@ public class PlayerHUDCanvas : MonoBehaviour
         }
     }
 
-
-
-    void Awake()
-    {
-        if (_singleton == null)
-        {
-            _singleton = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else if (_singleton != this)
-        {
-            Destroy(gameObject);
-        }
-    }
-
     [SerializeField] private GameObject m_container;
 
     [Header("HP, AP & Special Cooldown")]
@@ -86,6 +71,22 @@ public class PlayerHUDCanvas : MonoBehaviour
     private CanvasGroup m_localPlayerInteractPressGroup;
     private CanvasGroup m_localPlayerInteractHoldGroup;
     private Slider m_localPlayerInteractHoldSlider;
+
+    [SerializeField] private Image m_healSlaveUpImage;
+    [SerializeField] private TextMeshProUGUI m_healSlaveChargeText;
+
+    private void Awake()
+    {
+        if (_singleton == null)
+        {
+            _singleton = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else if (_singleton != this)
+        {
+            Destroy(gameObject);
+        }
+    }
 
     public void SetLocalPlayerCharacter(PlayerCharacter localPlayerCharacter)
     {
@@ -142,8 +143,6 @@ public class PlayerHUDCanvas : MonoBehaviour
             Debug.LogWarning("No valid player press/hold groups");
             return;
         }
-
-
     }
 
     public void HidePlayerInteractionCanvii(Interactable.InteractableType interactableType)
@@ -179,7 +178,7 @@ public class PlayerHUDCanvas : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
         if (m_localPlayerCharacter == null)
         {
@@ -188,21 +187,18 @@ public class PlayerHUDCanvas : MonoBehaviour
         }
 
         m_container.SetActive(true);
-
         m_multiplayerMenuNote.SetActive(LevelManager.Instance.IsDegenapeVillage());
 
         UpdateStatBars();
         UpdateCooldowns();
-
         UpdateBombs();
         UpdateDust();
         UpdateEcto();
-
         UpdateEssence();
         UpdateAbilityIcons();
     }
 
-    void UpdateStatBars()
+    private void UpdateStatBars()
     {
         // HP
         var maxHp = m_localPlayerCharacter.HpMax.Value + m_localPlayerCharacter.HpBuffer.Value;
@@ -221,7 +217,7 @@ public class PlayerHUDCanvas : MonoBehaviour
         m_apText.text = currAp.ToString("F0") + " / " + maxAp.ToString("F0");
     }
 
-    void UpdateCooldowns()
+    private void UpdateCooldowns()
     {
         var lhRem = m_localPlayerCharacter.GetComponent<PlayerPrediction>().GetSpecialCooldownRemaining(Hand.Left);
         var rhRem = m_localPlayerCharacter.GetComponent<PlayerPrediction>().GetSpecialCooldownRemaining(Hand.Right);
@@ -234,42 +230,42 @@ public class PlayerHUDCanvas : MonoBehaviour
         m_rhCooldownText.text = rhRem < 0.1f ? "" : rhRem.ToString("F0");
     }
 
-    void UpdateDust()
+    private void UpdateDust()
     {
         var dust = LevelManager.Instance.IsDegenapeVillage() ? m_localPlayerDungeonData.dustBalance_offchain : m_localPlayerDungeonData.dustLiveCount_dungeon;
         m_dustText.text = dust.Value.ToString();
     }
 
-    void UpdateBombs()
+    private void UpdateBombs()
     {
         var bombs = LevelManager.Instance.IsDegenapeVillage() ? m_localPlayerDungeonData.bombBalance_offchain : m_localPlayerDungeonData.bombLiveCount_dungeon;
         m_bombsText.text = bombs.Value.ToString("F0");
     }
 
-    void UpdateEcto()
+    private void UpdateEcto()
     {
         m_ectoText.text = LevelManager.Instance.IsDegenapeVillage() ?
             m_localPlayerDungeonData.ectoBalance_offchain.Value.ToString("F0") :
             "(" + m_localPlayerDungeonData.ectoDebitCount_dungeon.Value + ") " + m_localPlayerDungeonData.ectoLiveCount_dungeon.Value;
     }
 
-    void UpdateEssence()
+    private void UpdateEssence()
     {
         var essence = m_localPlayerCharacter.Essence;
         m_essenceText.text = essence.Value.ToString("F0");
         m_essenceImage.fillAmount = essence.Value / 1000;
     }
 
-    Wearable.NameEnum lhOld;
-    Wearable.NameEnum rhOld;
+    private Wearable.NameEnum lhOld;
+    private Wearable.NameEnum rhOld;
 
-    void UpdateAbilityIcons()
+    private void UpdateAbilityIcons()
     {
-        var equipment = m_localPlayerCharacter.GetComponent<PlayerEquipment>();
+        PlayerEquipment equipment = m_localPlayerCharacter.GetComponent<PlayerEquipment>();
         if (equipment == null) return;
 
-        var lhEnum = equipment.LeftHand.Value;
-        var rhEnum = equipment.RightHand.Value;
+        Wearable.NameEnum lhEnum = equipment.LeftHand.Value;
+        Wearable.NameEnum rhEnum = equipment.RightHand.Value;
 
         if (lhEnum != lhOld)
         {
@@ -321,5 +317,12 @@ public class PlayerHUDCanvas : MonoBehaviour
     public void SetPetMeterProgress(float progress)
     {
         m_PetMeterView.SetProgress(progress);
+    }
+
+    public void UpdateHealSlaveUpItem(int currentCharge, int maxCharge)
+    {
+        m_healSlaveChargeText.text = currentCharge.ToString();
+        float fillAmount = currentCharge / (float)maxCharge;
+        m_healSlaveUpImage.fillAmount = fillAmount;
     }
 }
