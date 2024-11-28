@@ -82,8 +82,8 @@ public class PlayerOffchainData : NetworkBehaviour
         m_walletAddress = null;
         m_gotchiId = 0;
         m_currentLevelType = Level.NetworkLevel.LevelType.Null;
-        healSalveChargeCount_dungeon.Value = healSalveDungeonCharges_offchain.Value;
-        bombLiveCount_dungeon.Value = bombStartCount_dungeon.Value;
+        //healSalveChargeCount_dungeon.Value = healSalveDungeonCharges_offchain.Value;
+        //bombLiveCount_dungeon.Value = bombStartCount_dungeon.Value;
     }
 
     public override void OnNetworkDespawn()
@@ -332,8 +332,10 @@ public class PlayerOffchainData : NetworkBehaviour
         dustLiveCount_dungeon.Value = 0;
 
         // bomb counts
-        bombStartCount_dungeon.Value =
-            math.min(bombDungeonCapacity_offchain.Value, bombBalance_offchain.Value);
+        //bombStartCount_dungeon.Value =
+        //    math.min(bombDungeonCapacity_offchain.Value, bombBalance_offchain.Value);
+        Debug.Log("bombStartCount_dungeon -> " + bombStartCount_dungeon.Value);
+        bombStartCount_dungeon.Value = 3;
         bombLiveCount_dungeon.Value = bombStartCount_dungeon.Value;
 
         // heal charge to full
