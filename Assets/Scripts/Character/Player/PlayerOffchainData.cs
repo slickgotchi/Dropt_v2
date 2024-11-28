@@ -97,7 +97,6 @@ public class PlayerOffchainData : NetworkBehaviour
         {
             CheckWalletAddressChanged();
             CheckGotchiIdChanged();
-            UpdateDebugTopUps();
         }
 
         if (IsServer)
@@ -378,41 +377,6 @@ public class PlayerOffchainData : NetworkBehaviour
         {
             Debug.LogWarning("Could not log post-dungeon gotchi delta data, is server running?");
         }
-    }
-
-    private void UpdateDebugTopUps()
-    {
-        if (!IsLocalPlayer) return;
-
-        // ecto top up
-        if (Input.GetKeyDown(KeyCode.Alpha7))
-        {
-            DebugTopUpWalletDataServerRpc(3, 0);
-        }
-
-        // dust top up
-        if (Input.GetKeyDown(KeyCode.Alpha8))
-        {
-            DebugTopUpGotchiDataServerRpc(GetComponent<PlayerController>().NetworkGotchiId.Value, 10);
-        }
-
-        // bomb top up
-        if (Input.GetKeyDown(KeyCode.Alpha9))
-        {
-            DebugTopUpWalletDataServerRpc(0, 1);
-        }
-    }
-
-    [Rpc(SendTo.Server)]
-    void DebugTopUpWalletDataServerRpc(int ectoDelta, int bombDelta)
-    {
-        LogWalletDeltaDataServerRpcAsync(ectoDelta, bombDelta);
-    }
-
-    [Rpc(SendTo.Server)]
-    void DebugTopUpGotchiDataServerRpc(int gotchiId, int dustDelta)
-    {
-        LogGotchiDeltaDataServerRpcAsync(gotchiId, dustDelta);
     }
 
     async UniTask LogWalletDeltaDataServerRpcAsync(int ectoDelta, int bombDelta)

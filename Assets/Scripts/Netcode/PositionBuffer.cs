@@ -1,7 +1,5 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Dropt;
 using Unity.Mathematics;
 
 // stores a position every tick
@@ -18,10 +16,6 @@ public class PositionBuffer : MonoBehaviour
     private List<PositionState> m_positionStates = new List<PositionState>();
 
     private Vector3 m_stashPosition;
-
-    private void Start()
-    {
-    }
 
     private void Update()
     {

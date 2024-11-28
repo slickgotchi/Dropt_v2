@@ -242,9 +242,8 @@ public partial class PlayerPrediction : NetworkBehaviour
     }
 
     // 2. Create an input payload on this tick
-    void HandleClientTick()
+    private void HandleClientTick()
     {
-        // do this only for local players
         if (!IsLocalPlayer) return;
 
         // store current tick and buffer index
@@ -257,12 +256,10 @@ public partial class PlayerPrediction : NetworkBehaviour
         var triggeredAbility = m_playerAbilities.GetAbility(m_triggeredAbilityEnum);
         if (triggeredAbility != null)
         {
-            // check ap and cooldown (we ignore cooldown for hold abilities)
             bool isApEnough = m_networkCharacter.ApCurrent.Value >= triggeredAbility.ApCost;
             bool isCooldownFinished = triggeredAbility.IsCooldownFinished();
             bool isBlockedByOthers = !IsAttackCooldownFinished(Hand.Left) || !IsAttackCooldownFinished(Hand.Right) ||
                     !IsHoldCooldownFinished(Hand.Left) || !IsHoldCooldownFinished(Hand.Right);
-
             if (isApEnough && isCooldownFinished && !isBlockedByOthers)
             {
                 triggeredAbility.Init(gameObject, m_abilityHand);
@@ -279,16 +276,10 @@ public partial class PlayerPrediction : NetworkBehaviour
         var holdStartTriggeredAbility = m_playerAbilities.GetAbility(m_holdStartTriggeredAbilityEnum);
         if (holdStartTriggeredAbility != null)
         {
-            // check AP only, we can't check against cooldown because we are commencing this attack within the starter attacks cooldown window
             bool isEnoughAp = m_networkCharacter.ApCurrent.Value >= holdStartTriggeredAbility.ApCost;
-            //bool isBlockedByOthers =
-            //    !IsAttackCooldownFinished(Hand.Left) ||
-            //    !IsAttackCooldownFinished(Hand.Right) ||
-            //    !IsHoldCooldownFinished(Hand.Left) ||
-            //    !IsHoldCooldownFinished(Hand.Right);
-
             bool isPredecessorAbility = IsLastAttackAbilityHoldPredecessor(m_lastActivatedAbilityEnum, m_holdStartTriggeredAbilityEnum);
 
+            //Debug.Log($"isEnoughAp - {isEnoughAp}  isPredecessorAbility - {isPredecessorAbility}  !isHoldCancelled - { !isHoldCancelled }");
             if (isEnoughAp && isPredecessorAbility && !isHoldCancelled)
             {
                 holdStartTriggeredAbility.Init(gameObject, m_abilityHand);
@@ -339,18 +330,21 @@ public partial class PlayerPrediction : NetworkBehaviour
         clientStateBuffer.Add(statePayload, bufferIndex);
 
         // activate ability if it was not null
+        //Debug.Log($"{triggeredAbility != null} - {m_triggeredAbilityEnum != PlayerAbilityEnum.Null}");
         if (triggeredAbility != null && m_triggeredAbilityEnum != PlayerAbilityEnum.Null)
         {
             // calc any hold duration
             var holdDuration = (m_holdFinishTick - m_holdStartTick) / tickRate;
 
             // call HoldFinish() if this is a hold ability
-            if (triggeredAbility.abilityType == PlayerAbility.AbilityType.Hold) triggeredAbility.HoldFinish();
+            if (triggeredAbility.abilityType == PlayerAbility.AbilityType.Hold)
+            {
+                triggeredAbility.HoldFinish();
+            }
 
             // activate ability
             triggeredAbility.Activate(gameObject, statePayload, inputPayload, holdDuration);
             m_lastActivatedAbilityEnum = m_triggeredAbilityEnum;
-
             // set slow down ticks
             m_slowFactor = triggeredAbility.ExecutionSlowFactor;
             m_slowFactorStartTick = currentTick;
@@ -437,6 +431,9 @@ public partial class PlayerPrediction : NetworkBehaviour
                 {
                     if (!IsHost) holdStartTriggeredAbility.Init(gameObject, inputPayload.abilityHand);
                     if (!IsHost) holdStartTriggeredAbility.HoldStart();
+
+                    //if (IsClient) holdStartTriggeredAbility.Init(gameObject, inputPayload.abilityHand);
+                    //if (IsClient) holdStartTriggeredAbility.HoldStart();
                     inputPayload.isHoldStartFlag = true;
                 }
                 else
@@ -600,8 +597,7 @@ public partial class PlayerPrediction : NetworkBehaviour
         else
         {
             // generate velocity from char speed, move dir any potential abilities that slow down speed
-            rb.velocity = input.moveDirection * m_networkCharacter.MoveSpeed.Value *
-                GetInputSlowFactor(input, isServerCalling);
+            rb.velocity = GetInputSlowFactor(input, isServerCalling) * m_networkCharacter.MoveSpeed.Value * input.moveDirection;
 
             // check for automove
             if (input.tick < m_autoMoveExpiryTick)
@@ -825,7 +821,7 @@ public partial class PlayerPrediction : NetworkBehaviour
         }
     }
 
-    void IfDashInputDrawShadow(StatePayload start, StatePayload finish)
+    private void IfDashInputDrawShadow(StatePayload start, StatePayload finish)
     {
         var ability = m_playerAbilities.GetAbility(finish.abilityTriggered);
         if (ability != null && ability.TeleportDistance > 0.1f)
@@ -859,7 +855,7 @@ public partial class PlayerPrediction : NetworkBehaviour
         return NetworkTimer_v2.Instance.TickRate;
     }
 
-    bool IsLastAttackAbilityHoldPredecessor(PlayerAbilityEnum lastAbility, PlayerAbilityEnum holdAbilityEnum)
+    private bool IsLastAttackAbilityHoldPredecessor(PlayerAbilityEnum lastAbility, PlayerAbilityEnum holdAbilityEnum)
     {
         switch (lastAbility)
         {
@@ -869,69 +865,71 @@ public partial class PlayerPrediction : NetworkBehaviour
             case PlayerAbilityEnum.BallisticShot: return holdAbilityEnum == PlayerAbilityEnum.BallisticSnipe;
             case PlayerAbilityEnum.MagicCast: return holdAbilityEnum == PlayerAbilityEnum.MagicBeam;
             case PlayerAbilityEnum.SplashLob: return holdAbilityEnum == PlayerAbilityEnum.SplashVolley;
+            case PlayerAbilityEnum.ShieldBash: return holdAbilityEnum == PlayerAbilityEnum.ShieldBlock;
             default: break;
         }
 
         return false;
     }
 
-    bool IsAttackCooldownFinished(Hand hand)
+    private bool IsAttackCooldownFinished(Hand hand)
     {
         if (hand == Hand.Left)
         {
             var lhWearableEnum = m_playerEquipment.LeftHand.Value;
             var lhAttackEnum = m_playerAbilities.GetAttackAbilityEnum(lhWearableEnum);
             var lhAttack = m_playerAbilities.GetAbility(lhAttackEnum);
-            return lhAttack != null ? lhAttack.IsCooldownFinished() : true;
+            return lhAttack == null || lhAttack.IsCooldownFinished();
 
-        } else
+        }
+        else
         {
             var rhWearableEnum = m_playerEquipment.RightHand.Value;
             var rhAttackEnum = m_playerAbilities.GetAttackAbilityEnum(rhWearableEnum);
             var rhAttack = m_playerAbilities.GetAbility(rhAttackEnum);
-            return rhAttack != null ? rhAttack.IsCooldownFinished() : true;
+            return rhAttack == null || rhAttack.IsCooldownFinished();
         }
     }
 
-    bool IsHoldCooldownFinished(Hand hand)
+    private bool IsHoldCooldownFinished(Hand hand)
     {
         if (hand == Hand.Left)
         {
             var lhWearableEnum = m_playerEquipment.LeftHand.Value;
             var lhHoldEnum = m_playerAbilities.GetHoldAbilityEnum(lhWearableEnum);
             var lhHold = m_playerAbilities.GetAbility(lhHoldEnum);
-            return lhHold != null ? lhHold.IsCooldownFinished() : true;
+            return lhHold == null || lhHold.IsCooldownFinished();
         }
         else
         {
             var rhWearableEnum = m_playerEquipment.RightHand.Value;
             var rhHoldEnum = m_playerAbilities.GetHoldAbilityEnum(rhWearableEnum);
             var rhHold = m_playerAbilities.GetAbility(rhHoldEnum);
-            return rhHold != null ? rhHold.IsCooldownFinished() : true;
+            return rhHold == null || rhHold.IsCooldownFinished();
         }
     }
 
-    bool IsSpecialCooldownFinished(Hand hand)
+    private bool IsSpecialCooldownFinished(Hand hand)
     {
         if (hand == Hand.Left)
         {
             var lhWearableEnum = m_playerEquipment.LeftHand.Value;
             var lhSpecialEnum = m_playerAbilities.GetSpecialAbilityEnum(lhWearableEnum);
             var lhSpecial = m_playerAbilities.GetAbility(lhSpecialEnum);
-            return lhSpecial != null ? lhSpecial.IsCooldownFinished() : true;
+            return lhSpecial == null || lhSpecial.IsCooldownFinished();
         }
         else
         {
             var rhWearableEnum = m_playerEquipment.RightHand.Value;
             var rhSpecialEnum = m_playerAbilities.GetSpecialAbilityEnum(rhWearableEnum);
             var rhSpecial = m_playerAbilities.GetAbility(rhSpecialEnum);
-            return rhSpecial != null ? rhSpecial.IsCooldownFinished() : true;
+            return rhSpecial == null || rhSpecial.IsCooldownFinished();
         }
     }
 
-    bool IsDashCooldownFinished()
+    private bool IsDashCooldownFinished()
     {
         var dash = m_playerAbilities.GetAbility(PlayerAbilityEnum.Dash);
-        return dash != null ? dash.IsCooldownFinished() : true;
+        return dash == null || dash.IsCooldownFinished();
     }
 }

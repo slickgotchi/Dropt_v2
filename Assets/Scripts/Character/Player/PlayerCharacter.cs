@@ -1,7 +1,5 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Unity.Mathematics;
 using Unity.Netcode;
 
 public class PlayerCharacter : NetworkCharacter
@@ -20,6 +18,8 @@ public class PlayerCharacter : NetworkCharacter
     public BuffObject leftHandBuffObject;
     public BuffObject petBuffObject;
 
+    private SoundFX_Player m_soundFX_Player;
+
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
@@ -28,6 +28,7 @@ public class PlayerCharacter : NetworkCharacter
         {
             Essence.Value = baseEssence;
         }
+        m_soundFX_Player = GetComponent<SoundFX_Player>();
     }
 
     protected override void Update()
@@ -43,7 +44,8 @@ public class PlayerCharacter : NetworkCharacter
                 {
                     Essence.Value = baseEssence + (playerOffchainData.isEssenceInfused_offchain.Value ? baseInfusedEssenceBonus : 0);
                 }
-            } else
+            }
+            else
             {
                 Essence.Value -= Time.deltaTime;
             }
@@ -60,6 +62,20 @@ public class PlayerCharacter : NetworkCharacter
     {
         InitGotchiStats(gotchiId);
         InitWearableBuffs(gotchiId);
+    }
+
+    public override void TakeDamage(float damage, bool isCritical, GameObject damageDealer = null)
+    {
+        base.TakeDamage(damage, isCritical, damageDealer);
+
+        if (isCritical)
+        {
+            m_soundFX_Player?.PlayTakeDamageBigSound();
+        }
+        else
+        {
+            m_soundFX_Player?.PlayTakeDamageSmallSound();
+        }
     }
 
     private void InitGotchiStats(int gotchiId)
@@ -102,7 +118,6 @@ public class PlayerCharacter : NetworkCharacter
         baseHpBuffer = 0;
 
         baseAttackPower = attack;
-
         baseCriticalChance = critChance;
 
         baseApMax = ap;
@@ -219,15 +234,14 @@ public class PlayerCharacter : NetworkCharacter
         }
     }
 
-    BuffObject CreateBuffObjectFromWearableId(int wearableId)
+    private BuffObject CreateBuffObjectFromWearableId(int wearableId)
     {
         BuffObject buffObject = ScriptableObject.CreateInstance<BuffObject>();
-        var wearable = WearableManager.Instance.GetWearable(wearableId);
+        Wearable wearable = WearableManager.Instance.GetWearable(wearableId);
         if (wearable == null)
         {
             return buffObject;
         }
-
 
         // Ensure the buffs list is initialized
         if (buffObject.buffs == null)
@@ -249,7 +263,6 @@ public class PlayerCharacter : NetworkCharacter
             BuffStat = CharacterStat.HpMax,
             Value = hp
         });
-
 
         // attack buff
         buffObject.buffs.Add(new Buff
@@ -278,5 +291,5 @@ public class PlayerCharacter : NetworkCharacter
         return buffObject;
     }
 
-    
+
 }

@@ -28,6 +28,8 @@ public class ShieldBlock : PlayerAbility
     private Hand m_blockingHand;
     private bool m_isOwnner;
 
+    private ShieldBlockEffect _shieldBlockEffect;
+
     private void OnTransformParentChanged()
     {
         Transform parent = transform.parent;
@@ -35,6 +37,7 @@ public class ShieldBlock : PlayerAbility
 
         m_shieldBarCanvas = parent.GetComponentInChildren<ShieldBarCanvas>();
         m_isOwnner = parent.GetComponent<NetworkObject>().IsOwner;
+        _shieldBlockEffect = parent.GetComponentInChildren<ShieldBlockEffect>();
     }
 
     public void Initialize(Hand hand, Wearable.RarityEnum rarityEnum)
@@ -69,34 +72,26 @@ public class ShieldBlock : PlayerAbility
 
     public override void OnHoldStart()
     {
-        HoldStartServerRpc(AbilityHand);
-    }
-
-    [ServerRpc(RequireOwnership = false)]
-    private void HoldStartServerRpc(Hand hand)
-    {
+        //HoldStartServerRpc(AbilityHand);
+        if (!IsServer) return;
         if (m_isBlocking) return;
 
         ShieldBarCanvasSetVisibleClientRpc(true);
 
-        if (!IsActive(hand)) return;
-        ShieldBlockStateMachine shieldBlockStateMachine = m_shieldDatas[hand].ShieldBlockStateMachine;
+        if (!IsActive(AbilityHand)) return;
+        ShieldBlockStateMachine shieldBlockStateMachine = m_shieldDatas[AbilityHand].ShieldBlockStateMachine;
         shieldBlockStateMachine.ChangeState(shieldBlockStateMachine.InUseState);
-        float progress = GetHpRatio(hand);
-        SetPlayerHudShieldProgressClientRpc(hand, progress);
+        float progress = GetHpRatio(AbilityHand);
+        SetPlayerHudShieldProgressClientRpc(AbilityHand, progress);
     }
 
     public override void OnHoldFinish()
     {
-        HoldFinishServerRpc(AbilityHand);
-    }
-
-    [ServerRpc(RequireOwnership = false)]
-    private void HoldFinishServerRpc(Hand hand)
-    {
+        //HoldFinishServerRpc(AbilityHand);
+        if (!IsServer) return;
         if (m_isBlocking)
         {
-            if (hand == m_blockingHand)
+            if (AbilityHand == m_blockingHand)
             {
                 ShieldBarCanvasSetVisibleClientRpc(false);
             }
@@ -142,39 +137,20 @@ public class ShieldBlock : PlayerAbility
         }
 
         PlayerHUDCanvas.Instance.SetShieldBarProgress(hand, progress);
+        _shieldBlockEffect?.UpdateEffect(progress);
     }
 
     [ClientRpc]
     public void ShieldBarCanvasSetVisibleClientRpc(bool visible)
     {
         ShieldBarCanvasSetVisible(visible);
+        _shieldBlockEffect.SetVisible(visible);
     }
 
     public void ShieldBarCanvasSetVisible(bool visible)
     {
         m_shieldBarCanvas?.SetVisible(visible);
     }
-
-    /*
-    public override void OnUpdate()
-    {
-        if (!IsServer)
-        {
-            return;
-        }
-
-        foreach (KeyValuePair<Hand, ShieldData> data in m_shieldDatas)
-        {
-            data.Value.ShieldBlockStateMachine?.Update();
-        }
-
-        if (m_isBlocking)
-        {
-            float progress = GetHpRatio(m_blockingHand);
-            SetShieldBarCanvasProgressClientRpc(progress);
-        }
-    }
-    */
 
     protected override void Update()
     {
