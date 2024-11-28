@@ -68,7 +68,7 @@ public class PlayerItems : NetworkBehaviour
 
     private bool IsInDungeons()
     {
-        return LevelManager.Instance.IsDegenapeVillage();
+        return !LevelManager.Instance.IsDegenapeVillage();
     }
 
     #region HealSalve Item
@@ -76,8 +76,18 @@ public class PlayerItems : NetworkBehaviour
     [ServerRpc]
     private void UseHealSalveItemServerRpc()
     {
-        if (!IsInDungeons()) return;
-        if (!IsHealSalveChargeAvailable()) return;
+        if (!IsInDungeons())
+        {
+            WarningClientRpc("Heal Salve Can Only Be Used In Dungeons");
+            return;
+        }
+
+        if (!IsHealSalveChargeAvailable())
+        {
+            WarningClientRpc("You Dont Have Heal Items.");
+            return;
+        }
+
         PlayerCharacter playerCharacter = GetComponent<PlayerCharacter>();
         if (playerCharacter.IsHpFullyCharged()) return;
         playerCharacter.ResetHp();
@@ -115,8 +125,18 @@ public class PlayerItems : NetworkBehaviour
     [ServerRpc]
     private void UseBombItemServerRpc()
     {
-        if (!IsInDungeons()) return;
-        if (!IsBombAvailable()) return;
+        if (!IsInDungeons())
+        {
+            WarningClientRpc("Bomb Item Can Only Be Used In Dungeons");
+            return;
+        }
+
+        if (!IsBombAvailable())
+        {
+            WarningClientRpc("You Dont Have Bomb Items.");
+            return;
+        }
+
         m_playerOffchainData.UseBombItem();
         PlaceBomb();
     }
@@ -150,5 +170,12 @@ public class PlayerItems : NetworkBehaviour
         m_useItem2.Disable();
         m_useItem3.Disable();
         m_useItem4.Disable();
+    }
+
+    [ClientRpc]
+    private void WarningClientRpc(string message)
+    {
+        if (!IsLocalPlayer) return;
+        NotifyCanvas.Instance.SetVisible(message);
     }
 }
