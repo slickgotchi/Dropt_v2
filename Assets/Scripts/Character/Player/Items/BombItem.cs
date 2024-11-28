@@ -1,6 +1,7 @@
 using UnityEngine;
 using Unity.Netcode;
 using Cysharp.Threading.Tasks;
+using DG.Tweening;
 
 public class BombItem : NetworkBehaviour
 {
@@ -10,9 +11,10 @@ public class BombItem : NetworkBehaviour
     [SerializeField] private GameObject m_explosionEffect;
     [SerializeField] private LayerMask m_destructibleLayer;
     [SerializeField] private GameObject m_body;
-    [SerializeField] private bool m_showBombRadius = true;
-    private LineRenderer lineRenderer;
+    [SerializeField] private LineRenderer m_lineRenderer;
     public int segments = 100;
+
+    private readonly float m_fadeDuration = 0.5f;
 
     public override async void OnNetworkSpawn()
     {
@@ -21,6 +23,8 @@ public class BombItem : NetworkBehaviour
         UpdateTimerText(m_timer.Value);
         m_timer.OnValueChanged += OnTimerValueChanged;
         InitializeBombRadius();
+        DrawCircleShape();
+        FadeOutBombRadius();
 
         if (IsServer)
         {
@@ -35,13 +39,18 @@ public class BombItem : NetworkBehaviour
 
     private void InitializeBombRadius()
     {
-        if (!m_showBombRadius) return;
+        m_lineRenderer.positionCount = segments + 1; // Add one to close the circle
+        m_lineRenderer.loop = true; // Close the circle
+        m_lineRenderer.useWorldSpace = false;
+    }
 
-        lineRenderer = GetComponent<LineRenderer>();
-        lineRenderer.positionCount = segments + 1; // Add one to close the circle
-        lineRenderer.loop = true; // Close the circle
-        lineRenderer.useWorldSpace = false;
-        DrawCircleShape();
+    private void FadeOutBombRadius()
+    {
+        Material material = m_lineRenderer.materials[0];
+        material.DOFade(0, m_fadeDuration);
+        Color currentColor = material.GetColor("_Color"); // Get the current color
+        Color targetColor = new Color(currentColor.r, currentColor.g, currentColor.b, 0f);
+        _ = material.DOColor(targetColor, "_Color", m_fadeDuration);
     }
 
     private void DrawCircleShape()
@@ -53,7 +62,7 @@ public class BombItem : NetworkBehaviour
             points[i] = new Vector3(Mathf.Cos(angle) * m_radius, Mathf.Sin(angle) * m_radius, 0f);
         }
         points[segments] = points[0]; // Close the loop
-        lineRenderer.SetPositions(points);
+        m_lineRenderer.SetPositions(points);
     }
 
     private void OnTimerValueChanged(int previousValue, int newValue)

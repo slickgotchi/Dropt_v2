@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 using Thirdweb;
@@ -44,9 +42,6 @@ public class PlayerOffchainData : NetworkBehaviour
     public NetworkVariable<int> ectoDebitStartAmount_dungeon = new NetworkVariable<int>(0);
     public NetworkVariable<int> ectoDebitCount_dungeon = new NetworkVariable<int>(0);       // this is the ecto out of your offchain bank account you start with
     public NetworkVariable<int> ectoLiveCount_dungeon = new NetworkVariable<int>(0);        // this is the ecto that gets added to as you collect ecto, starts at 0
-
-
-
     public NetworkVariable<int> dustLiveCount_dungeon = new NetworkVariable<int>(0);
     public NetworkVariable<int> bombStartCount_dungeon = new NetworkVariable<int>(3);
     public NetworkVariable<int> bombLiveCount_dungeon = new NetworkVariable<int>(0);
@@ -75,15 +70,11 @@ public class PlayerOffchainData : NetworkBehaviour
 
     private Level.NetworkLevel.LevelType m_currentLevelType;
 
-
-
     public override void OnNetworkSpawn()
     {
         m_walletAddress = null;
         m_gotchiId = 0;
         m_currentLevelType = Level.NetworkLevel.LevelType.Null;
-        //healSalveChargeCount_dungeon.Value = healSalveDungeonCharges_offchain.Value;
-        //bombLiveCount_dungeon.Value = bombStartCount_dungeon.Value;
     }
 
     public override void OnNetworkDespawn()
@@ -332,10 +323,9 @@ public class PlayerOffchainData : NetworkBehaviour
         dustLiveCount_dungeon.Value = 0;
 
         // bomb counts
-        //bombStartCount_dungeon.Value =
-        //    math.min(bombDungeonCapacity_offchain.Value, bombBalance_offchain.Value);
+        bombStartCount_dungeon.Value =
+            math.min(bombDungeonCapacity_offchain.Value, bombBalance_offchain.Value);
         Debug.Log("bombStartCount_dungeon -> " + bombStartCount_dungeon.Value);
-        bombStartCount_dungeon.Value = 3;
         bombLiveCount_dungeon.Value = bombStartCount_dungeon.Value;
 
         // heal charge to full
@@ -370,7 +360,6 @@ public class PlayerOffchainData : NetworkBehaviour
             ectoLiveCount_dungeon.Value = 0;
             bombStartCount_dungeon.Value = 0;
             bombLiveCount_dungeon.Value = 0;
-
         }
         catch
         {
@@ -381,7 +370,6 @@ public class PlayerOffchainData : NetworkBehaviour
         try
         {
             await LogGotchiDeltaDataServerRpcAsync(GetComponent<PlayerController>().NetworkGotchiId.Value, postDungeonDustDelta);
-
             dustLiveCount_dungeon.Value = 0;
         }
         catch
