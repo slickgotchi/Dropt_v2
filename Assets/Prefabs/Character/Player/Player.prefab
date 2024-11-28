@@ -810,6 +810,7 @@ GameObject:
   - component: {fileID: 3353798826812701960}
   - component: {fileID: 1149752790437833971}
   - component: {fileID: 9139733696831883361}
+  - component: {fileID: 5951588708723122493}
   - component: {fileID: 7897468605786725820}
   m_Layer: 6
   m_Name: Player
@@ -1266,13 +1267,13 @@ MonoBehaviour:
   dustBalance_offchain:
     m_InternalValue: 0
   bombBalance_offchain:
-    m_InternalValue: 0
+    m_InternalValue: 3
   ectoDungeonStartAmount_offchain:
     m_InternalValue: 0
   bombDungeonCapacity_offchain:
-    m_InternalValue: 0
+    m_InternalValue: 3
   healSalveDungeonCharges_offchain:
-    m_InternalValue: 0
+    m_InternalValue: 3
   isEssenceInfused_offchain:
     m_InternalValue: 0
   ectoDebitStartAmount_dungeon:
@@ -1284,7 +1285,7 @@ MonoBehaviour:
   dustLiveCount_dungeon:
     m_InternalValue: 0
   bombStartCount_dungeon:
-    m_InternalValue: 0
+    m_InternalValue: 3
   bombLiveCount_dungeon:
     m_InternalValue: 0
   healSalveChargeCount_dungeon:
@@ -1471,6 +1472,20 @@ MonoBehaviour:
   enemyLayer:
     serializedVersion: 2
     m_Bits: 32768
+--- !u!114 &5951588708723122493
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1519051571170098037}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7710ad8b6c254162b3cc441467aaf06, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_healSlaveEffect: {fileID: 5879443292268764709, guid: 690be56a7ce75554dbc7a58c528018a0, type: 3}
+  m_bombObject: {fileID: 8131423919289326383, guid: 3ac3ed65ed24848d586a29e7ab9ce2e6, type: 3}
 --- !u!114 &7897468605786725820
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1488,6 +1503,9 @@ MonoBehaviour:
     Volume: 0.5
   m_takeDamageBigSound:
     AudioClip: {fileID: 8300000, guid: d56629ae5059a4a0cb4f09a1224f1ec4, type: 3}
+    Volume: 0.5
+  m_healSound:
+    AudioClip: {fileID: 8300000, guid: 4733629464f604b58bf084af094b1237, type: 3}
     Volume: 0.5
 --- !u!1 &1722710475381033325
 GameObject:

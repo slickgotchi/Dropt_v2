@@ -39,15 +39,14 @@ public class Destructible : NetworkBehaviour
     //if (type == Type.Organic) audioOnHit = AudioLibrary.Instance.HitOrganic;
     //}
 
+    public void Explode()
+    {
+        TakeDamage(CurrentHp.Value);
+    }
+
     public void TakeDamage(Wearable.WeaponTypeEnum weaponType)
     {
         var damage = CalculateDamageToDestructible(type, weaponType);
-
-        // play some hit audio
-        //AudioManager.Instance.PlaySpatialSFX(
-        //    audioOnHit,
-        //    gameObject.transform.position
-        //    );
         m_soundFX_Destructible.PlayTakeDamageSound();
 
         if (CurrentHp.Value <= damage)
