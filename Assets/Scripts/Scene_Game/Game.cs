@@ -117,6 +117,27 @@ uYkQ4omYCTX5ohy+knMjdOmdH9c7SpqEWBDC86fiNex+O0XOMEZSa8DA
             m_isTryConnectClientGame = false;
             Connect();
         }
+
+        if (Bootstrap.IsServer())
+        {
+            GetObjectCounts();
+        }
+    }
+
+    private float m_noTimer = 0f;
+
+    void GetObjectCounts()
+    {
+        m_noTimer -= Time.deltaTime;
+
+        if (m_noTimer < 0)
+        {
+            m_noTimer = 1f;
+
+            var networkObjects = FindObjectsByType<NetworkObject>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            var gameObjects = FindObjectsByType<GameObject>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            Debug.Log($"GameObjects: {gameObjects.Length}, Network Objects: {networkObjects.Length}");
+        }
     }
 
     private void ConnectServerGame()
@@ -247,11 +268,11 @@ uYkQ4omYCTX5ohy+knMjdOmdH9c7SpqEWBDC86fiNex+O0XOMEZSa8DA
                 Debug.Log(m_chainPem);
             }
 
-            // TEMP
+            // TEMP: USED FOR CONNECTING TO A DIRECT INSTANCE REMOTELY
             //m_unityTransport.UseEncryption = true;
             //m_unityTransport.SetClientSecrets(test_commonName, test_chainPem);
 
-            //Bootstrap.Instance.IpAddress = "128.199.172.231";
+            //Bootstrap.Instance.IpAddress = "192.241.141.211";
             //Bootstrap.Instance.GamePort = 9000;
 
             // END TEMP
@@ -267,6 +288,8 @@ uYkQ4omYCTX5ohy+knMjdOmdH9c7SpqEWBDC86fiNex+O0XOMEZSa8DA
 
         m_isTryConnectClientGame = true;
     }
+
+
 
     public void Connect()
     {

@@ -1,5 +1,6 @@
 using UnityEngine;
 using Unity.Netcode;
+using System.Collections.Generic;
 
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class AttackPathVisualizer : MonoBehaviour
@@ -46,8 +47,27 @@ public class AttackPathVisualizer : MonoBehaviour
         SetMeshVisible(false);
     }
 
+    private void OnDestroy()
+    {
+        if (fillMeshFilter != null && fillMeshFilter.sharedMesh != null)
+        {
+            Destroy(fillMeshFilter.sharedMesh);
+        }
+
+        if (borderMeshFilter != null && borderMeshFilter.sharedMesh != null)
+        {
+            Destroy(borderMeshFilter.sharedMesh);
+        }
+
+        if (fillMeshFilter != null) Destroy(fillMeshFilter.gameObject);
+
+        if (borderMeshFilter != null) Destroy(borderMeshFilter.gameObject);
+    }
+
     private void Update()
     {
+        if (Bootstrap.IsServer()) return;
+
         if (useCircle)
         {
             UpdateCircleFill();
@@ -91,60 +111,61 @@ public class AttackPathVisualizer : MonoBehaviour
         borderMeshRenderer.sortingOrder = 3;
     }
 
+    private static Dictionary<Color, Material> materialCache = new Dictionary<Color, Material>();
+
     private static Material CreateSharedMaterial(Color color)
     {
-        Material material = new Material(Shader.Find("Sprites/Default"));
-        material.color = color;
+        if (!materialCache.TryGetValue(color, out Material material))
+        {
+            material = new Material(Shader.Find("Sprites/Default"));
+            material.color = color;
+            materialCache[color] = material;
+        }
         return material;
     }
 
     // ** Circle Updating Methods **
     private void UpdateCircleFill()
     {
-        if (fillMeshFilter.sharedMesh == null)
-            fillMeshFilter.sharedMesh = new Mesh();
+        if (fillMeshFilter.sharedMesh == null) fillMeshFilter.sharedMesh = new Mesh();
         fillMeshFilter.sharedMesh.Clear();
-        fillMeshFilter.sharedMesh = GenerateSectorMesh(innerRadius, outerRadius, angle,
+        GenerateSectorMesh(fillMeshFilter.sharedMesh,
+            innerRadius, outerRadius, angle,
             segments, forwardDirection,
             useParentPositionAsStart ? transform.parent.position : customStartPosition);
     }
 
     private void UpdateCircleBorder()
     {
-        if (borderMeshFilter.sharedMesh == null)
-            borderMeshFilter.sharedMesh = new Mesh();
+        if (borderMeshFilter.sharedMesh == null) borderMeshFilter.sharedMesh = new Mesh();
         borderMeshFilter.sharedMesh.Clear();
-        borderMeshFilter.sharedMesh = GenerateSectorBorderMesh(innerRadius, outerRadius, angle,
+        GenerateSectorBorderMesh(borderMeshFilter.sharedMesh, innerRadius, outerRadius, angle,
             borderThickness, segments, forwardDirection,
             useParentPositionAsStart ? transform.parent.position : customStartPosition);
     }
 
     private void UpdateRectangleFill()
     {
-        if (fillMeshFilter.sharedMesh == null)
-            fillMeshFilter.sharedMesh = new Mesh();
+        if (fillMeshFilter.sharedMesh == null) fillMeshFilter.sharedMesh = new Mesh();
         fillMeshFilter.sharedMesh.Clear();
-        fillMeshFilter.sharedMesh = GenerateRectangleMesh(innerStartPoint, outerFinishPoint, width,
+        GenerateRectangleMesh(fillMeshFilter.sharedMesh, innerStartPoint, outerFinishPoint, width,
             forwardDirection,
             useParentPositionAsStart ? transform.parent.position : customStartPosition);
     }
 
     private void UpdateRectangleBorder()
     {
-        if (borderMeshFilter.sharedMesh == null)
-            borderMeshFilter.sharedMesh = new Mesh();
+        if (borderMeshFilter.sharedMesh == null) borderMeshFilter.sharedMesh = new Mesh();
         borderMeshFilter.sharedMesh.Clear();
-        borderMeshFilter.sharedMesh = GenerateRectangleBorderMesh(innerStartPoint, outerFinishPoint, width,
+        GenerateRectangleBorderMesh(borderMeshFilter.sharedMesh, innerStartPoint, outerFinishPoint, width,
             forwardDirection,
             useParentPositionAsStart ? transform.parent.position : customStartPosition,
             borderThickness);
     }
 
-    private Mesh GenerateRectangleMesh(float innerStart, float outerFinish, float width,
+    private void GenerateRectangleMesh(Mesh mesh, float innerStart, float outerFinish, float width,
         Vector2 worldDirection, Vector3 worldPosition)
     {
-        Mesh mesh = new Mesh();
-
         // Convert world position to local space relative to the parent
         Vector3 localPosition = transform.InverseTransformPoint(worldPosition);
 
@@ -170,16 +191,12 @@ public class AttackPathVisualizer : MonoBehaviour
         mesh.triangles = triangles;
 
         mesh.RecalculateNormals();
-
-        return mesh;
     }
 
 
-    private Mesh GenerateRectangleBorderMesh(float innerStart, float outerFinish, float width,
+    private void GenerateRectangleBorderMesh(Mesh mesh, float innerStart, float outerFinish, float width,
         Vector2 worldDirection, Vector3 worldPosition, float borderThickness)
     {
-        Mesh mesh = new Mesh();
-
         // Convert world position to local space relative to the parent
         Vector3 localPosition = transform.InverseTransformPoint(worldPosition);
 
@@ -220,14 +237,10 @@ public class AttackPathVisualizer : MonoBehaviour
         mesh.triangles = triangles;
 
         mesh.RecalculateNormals();
-
-        return mesh;
     }
 
-    private Mesh GenerateSectorMesh(float innerRadius, float outerRadius, float angle, int segments, Vector2 worldDirection, Vector3 worldPosition)
+    private void GenerateSectorMesh(Mesh mesh, float innerRadius, float outerRadius, float angle, int segments, Vector2 worldDirection, Vector3 worldPosition)
     {
-        Mesh mesh = new Mesh();
-
         // Convert world position to local space relative to the parent
         Vector3 localPosition = transform.InverseTransformPoint(worldPosition);
 
@@ -279,16 +292,12 @@ public class AttackPathVisualizer : MonoBehaviour
         mesh.triangles = triangles;
 
         mesh.RecalculateNormals();
-
-        return mesh;
     }
 
 
 
-    private Mesh GenerateSectorBorderMesh(float innerRadius, float outerRadius, float angle, float borderThickness, int segments, Vector2 worldDirection, Vector3 worldPosition)
+    private void GenerateSectorBorderMesh(Mesh mesh, float innerRadius, float outerRadius, float angle, float borderThickness, int segments, Vector2 worldDirection, Vector3 worldPosition)
     {
-        Mesh mesh = new Mesh();
-
         // Convert world position to local space relative to the parent
         Vector3 localPosition = transform.InverseTransformPoint(worldPosition);
 
@@ -353,10 +362,5 @@ public class AttackPathVisualizer : MonoBehaviour
         mesh.triangles = triangles;
 
         mesh.RecalculateNormals();
-
-        return mesh;
     }
-
-
-
 }

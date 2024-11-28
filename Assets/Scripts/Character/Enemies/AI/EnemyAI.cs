@@ -496,7 +496,7 @@ namespace Dropt
                 m_clientPredictedState = State.PredictionToAuthorativeSmoothing;
                 m_smoothingTimer = 0f;
                 m_predictedStunFinishPosition = transform.position;
-                m_networkTransform.enabled = true;
+                if (m_networkTransform != null) m_networkTransform.enabled = true;
                 return;
             }
         }
