@@ -10,15 +10,18 @@ namespace Dropt
 
         private Animator m_animator;
         private EnemyController m_enemyController;
+        private SoundFX_Fusspot m_soundFX_Fusspot;
 
         private void Awake()
         {
             m_animator = GetComponent<Animator>();
             m_enemyController = GetComponent<EnemyController>();
+            m_soundFX_Fusspot = GetComponent<SoundFX_Fusspot>();
         }
 
         public override void OnSpawnStart()
         {
+            base.OnSpawnStart();
         }
 
         public override void OnRoamStart()
@@ -41,6 +44,7 @@ namespace Dropt
             // set our facing direction
             m_enemyController.SetFacingFromDirection(AttackDirection, TelegraphDuration);
             Utils.Anim.PlayAnimationWithDuration(m_animator, "Fusspot_Anticipation", TelegraphDuration);
+            m_soundFX_Fusspot.PlayChargeSound();
         }
 
         public override void OnTelegraphFinish()
@@ -59,6 +63,7 @@ namespace Dropt
         {
             SimpleFussPotAttack();
             Utils.Anim.PlayAnimationWithDuration(m_animator, "Fusspot_Fire", AttackDuration);
+            m_soundFX_Fusspot.PlayAttackSound();
             m_enemyController.SetFacingFromDirection(AttackDirection, AttackDuration);
         }
 

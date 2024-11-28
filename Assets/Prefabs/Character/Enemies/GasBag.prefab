@@ -107,7 +107,7 @@ GameObject:
   - component: {fileID: 1919057874353127386}
   - component: {fileID: -8582892363715254436}
   - component: {fileID: 2856512148995306821}
-  - component: {fileID: -1423582830146924016}
+  - component: {fileID: 936287773372816314}
   m_Layer: 15
   m_Name: GasBag
   m_TagString: Untagged
@@ -174,7 +174,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 4139050077
+  GlobalObjectIdHash: 882358288
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -504,8 +504,7 @@ MonoBehaviour:
     m_InternalValue: 0
   MaxEnemyShield:
     m_InternalValue: 0
-  OnHurtAudio: {fileID: 8300000, guid: 00338429dfad27d438bd1444b96d7e3a, type: 3}
---- !u!114 &-1423582830146924016
+--- !u!114 &936287773372816314
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -514,10 +513,24 @@ MonoBehaviour:
   m_GameObject: {fileID: 1249991746567512264}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 05cf5af599c3cdd46b6d20f6f347a318, type: 3}
+  m_Script: {fileID: 11500000, guid: 2b659f6da0a924d1589cae2fdd981669, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GltrValue: 5
+  m_spawnSound:
+    AudioClip: {fileID: 8300000, guid: 396de3e107dcb4a53ac230f55b0d1237, type: 3}
+    Volume: 0.5
+  m_takeDamageSound:
+    AudioClip: {fileID: 8300000, guid: 00338429dfad27d438bd1444b96d7e3a, type: 3}
+    Volume: 0.5
+  m_dieSound:
+    AudioClip: {fileID: 8300000, guid: ea30715d50822463c99849184e138129, type: 3}
+    Volume: 0.5
+  m_attackSound:
+    AudioClip: {fileID: 8300000, guid: b25169323941944cfa831956212834d7, type: 3}
+    Volume: 0.5
+  m_poisionCloudSound:
+    AudioClip: {fileID: 8300000, guid: 56c0153118f654db0835b79921f9f873, type: 3}
+    Volume: 0.5
 --- !u!1 &1775476867899029955
 GameObject:
   m_ObjectHideFlags: 0

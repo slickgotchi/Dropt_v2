@@ -34,7 +34,7 @@ public class EnemyAIManager : MonoBehaviour
     private void Update()
     {
         // check for enemydebugcanvas ai toggles
-        HandleToggleDebugCanvases();
+        //HandleToggleDebugCanvases();
 
         // do update timer checks
         m_updateTimer -= Time.deltaTime;
@@ -74,17 +74,17 @@ public class EnemyAIManager : MonoBehaviour
     }
 
     public bool IsDebugVisible = false;
-    void HandleToggleDebugCanvases()
-    {
-        if (Input.GetKeyDown(KeyCode.Alpha4))
-        {
-            IsDebugVisible = !IsDebugVisible;
+    //void HandleToggleDebugCanvases()
+    //{
+    //    if (Input.GetKeyDown(KeyCode.Alpha4))
+    //    {
+    //        IsDebugVisible = !IsDebugVisible;
 
-            var debugCanvases = FindObjectsByType<EnemyAI_DebugCanvas>(FindObjectsSortMode.None);
-            foreach (var dc in debugCanvases)
-            {
-                dc.Container.SetActive(IsDebugVisible);
-            }
-        }
-    }
+    //        var debugCanvases = FindObjectsByType<EnemyAI_DebugCanvas>(FindObjectsSortMode.None);
+    //        foreach (var dc in debugCanvases)
+    //        {
+    //            dc.Container.SetActive(IsDebugVisible);
+    //        }
+    //    }
+    //}
 }

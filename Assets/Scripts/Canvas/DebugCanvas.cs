@@ -14,7 +14,8 @@ public class DebugCanvas : MonoBehaviour
     public TextMeshProUGUI localFpsText;
     public TextMeshProUGUI serverFpsText;
     public TextMeshProUGUI pingText;
-    //public TextMeshProUGUI playerCountText;
+    public TextMeshProUGUI networkObjectCountText;
+    public TextMeshProUGUI gameObjectCountText;
 
     private float m_fpsSampleTimer = 0;
     private List<float> m_fpsList = new List<float>();
@@ -38,12 +39,7 @@ public class DebugCanvas : MonoBehaviour
         pingText.text = "Ping: " + m_ping.ToString();
         serverFpsText.text = "Server FPS: " + m_serverFps.ToString();
 
-        //playerCountText.text = "Players: " + NetworkStats.Instance.ConnectedPlayers.ToString();
-
-        if (Input.GetKeyDown(KeyCode.Alpha3))
-        {
-            Container.SetActive(!Container.activeSelf);
-        }
+        UpdateNetworkObjects();
     }
 
     public void SetPing(int ping)
@@ -76,6 +72,24 @@ public class DebugCanvas : MonoBehaviour
         {
             localFpsText.text = "FPS: " + Mathf.Ceil(1 / sum).ToString();
             m_fpsSampleTimer += 0.5f;
+        }
+    }
+
+    private float m_noTimer = 0f;
+
+    void UpdateNetworkObjects()
+    {
+        m_noTimer -= Time.deltaTime;
+
+        if (m_noTimer < 0)
+        {
+            m_noTimer = 1f;
+
+            var networkObjects = FindObjectsByType<NetworkObject>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            networkObjectCountText.text = "NetworkObjects: " + networkObjects.Length.ToString("F0");
+
+            var gameObjects = FindObjectsByType<GameObject>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            gameObjectCountText.text = "GameObjects: " + gameObjects.Length.ToString("F0");
         }
     }
 

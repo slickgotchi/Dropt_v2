@@ -101,6 +101,7 @@ GameObject:
   - component: {fileID: -8160916402869435180}
   - component: {fileID: -2947274318234710277}
   - component: {fileID: 6037413169356437118}
+  - component: {fileID: 1995309774424567299}
   m_Layer: 12
   m_Name: MineCart_Tools
   m_TagString: Untagged
@@ -137,7 +138,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1194494056
+  GlobalObjectIdHash: 841237272
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -219,7 +220,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 517a0e5d7276e564fadb7ae93628f0e9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  audioOnHit: {fileID: 0}
   type: 2
   Hp: 6
 --- !u!114 &1520580521923272572
@@ -276,6 +276,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   GltrValue: 30
+--- !u!114 &1995309774424567299
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5f8bfa0585f0481f86ac7d5539002f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_takeDamageSound:
+    AudioClip: {fileID: 8300000, guid: 9466db4483a894d05a1a619b24fdadc2, type: 3}
+    Volume: 0.5
+  m_dieSound:
+    AudioClip: {fileID: 8300000, guid: 03aab015152254e2fb81453b71900f86, type: 3}
+    Volume: 0.5
 --- !u!1 &6525230415705073668
 GameObject:
   m_ObjectHideFlags: 0

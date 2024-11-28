@@ -4,7 +4,9 @@ using UnityEngine.UI;
 
 public class DebugLogDisplay : MonoBehaviour
 {
-    [SerializeField] private GameObject container;
+    public static DebugLogDisplay Instance { get; private set; }
+
+    [SerializeField] public GameObject container;
     [SerializeField] private TextMeshProUGUI logText; // Reference to the TextMeshProUGUI component
     [SerializeField] private ScrollRect scrollRect; // Reference to the Scroll Rect component
 
@@ -12,6 +14,8 @@ public class DebugLogDisplay : MonoBehaviour
 
     private void Awake()
     {
+        Instance = this;
+
         // Subscribe to the Application log message callback
         Application.logMessageReceived += HandleLog;
     }
@@ -24,10 +28,10 @@ public class DebugLogDisplay : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha9))
-        {
-            container.SetActive(!container.activeSelf);
-        }
+        //if (Input.GetKeyDown(KeyCode.Alpha9))
+        //{
+        //    container.SetActive(!container.activeSelf);
+        //}
 
         // Update the scroll position at the end of the frame if needed
         if (needsScrollUpdate)

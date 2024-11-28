@@ -5,10 +5,12 @@ namespace Dropt
     public class EnemyAI_Snail : EnemyAI
     {
         private Animator m_animator;
+        private SoundFX_Snail m_soundFX_Snail;
 
         private void Awake()
         {
             m_animator = GetComponent<Animator>();
+            m_soundFX_Snail = GetComponent<SoundFX_Snail>();
         }
 
         public override void OnSpawnStart()
@@ -17,6 +19,7 @@ namespace Dropt
             {
                 Utils.Anim.PlayAnimationWithDuration(m_animator, "Snail_Spawn", SpawnDuration);
             }
+            base.OnSpawnStart();
         }
 
         public override void OnTelegraphStart()
@@ -69,6 +72,7 @@ namespace Dropt
                 Utils.Anim.PlayAnimationWithDuration(m_animator, "Snail_Attack", AttackDuration);
             }
             SimpleAttackStart();
+            m_soundFX_Snail.PlayAttackSound();
             // set facing
             GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, AttackDuration);
         }

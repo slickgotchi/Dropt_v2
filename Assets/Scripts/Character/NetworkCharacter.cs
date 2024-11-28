@@ -60,9 +60,6 @@ public class NetworkCharacter : NetworkBehaviour
     [HideInInspector] public NetworkVariable<float> EnemyShield = new NetworkVariable<float>(0);
     [HideInInspector] public NetworkVariable<float> MaxEnemyShield = new NetworkVariable<float>(0);
 
-
-    public AudioClip OnHurtAudio;
-
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
@@ -71,11 +68,6 @@ public class NetworkCharacter : NetworkBehaviour
         {
             // baseize default values on the server
             InitializeStats();
-        }
-
-        if (OnHurtAudio == null)
-        {
-            OnHurtAudio = AudioLibrary.Instance.EnemyHurt;
         }
     }
 
@@ -138,9 +130,6 @@ public class NetworkCharacter : NetworkBehaviour
                 // do sprite flash
                 var spriteFlash = GetComponentInChildren<SpriteFlash>();
                 if (spriteFlash != null) spriteFlash.DamageFlash();
-
-                // play damage audio
-                AudioManager.Instance.PlaySpatialSFX(OnHurtAudio, transform.position);
             }
         }
 
@@ -169,7 +158,7 @@ public class NetworkCharacter : NetworkBehaviour
             // check for death
             if (HpCurrent.Value <= 0 && enemyController != null)
             {
-                var enemyAI = gameObject.GetComponent<Dropt.EnemyAI>();
+                Dropt.EnemyAI enemyAI = gameObject.GetComponent<Dropt.EnemyAI>();
                 if (enemyAI != null)
                 {
                     // the AI class will handle despawning (and some children may not imeediately despawn)
@@ -184,10 +173,10 @@ public class NetworkCharacter : NetworkBehaviour
             // do ap leech
             if (damageDealerNOID > 0)
             {
-                var damageDealer = NetworkManager.SpawnManager.SpawnedObjects[damageDealerNOID];
+                NetworkObject damageDealer = NetworkManager.SpawnManager.SpawnedObjects[damageDealerNOID];
                 if (damageDealer != null)
                 {
-                    var nc_damageDealer = damageDealer.GetComponent<NetworkCharacter>();
+                    NetworkCharacter nc_damageDealer = damageDealer.GetComponent<NetworkCharacter>();
                     if (nc_damageDealer != null)
                     {
                         nc_damageDealer.ApCurrent.Value += (int)(damage * nc_damageDealer.ApLeech.Value);
@@ -217,11 +206,8 @@ public class NetworkCharacter : NetworkBehaviour
             if (localPlayerNOID != damageDealerNOID)
             {
                 // do sprite flash
-                var spriteFlash = GetComponentInChildren<SpriteFlash>();
+                SpriteFlash spriteFlash = GetComponentInChildren<SpriteFlash>();
                 if (spriteFlash != null) spriteFlash.DamageFlash();
-
-                // play damage audio
-                AudioManager.Instance.PlaySpatialSFX(OnHurtAudio, transform.position);
             }
         }
     }

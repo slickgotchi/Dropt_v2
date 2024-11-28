@@ -21,21 +21,24 @@ namespace Dropt
         [SerializeField] private GameObject m_greenCloud;
         [SerializeField] private GameObject m_purpleCloud;
 
-        private bool m_isExploded = false;
+        private SoundFX_Gasbag m_soundFX_Gasbag;
 
+        private bool m_isExploded = false;
+        private bool m_isAttackSoundPlaying = false;
         private void Awake()
         {
             m_animator = GetComponent<Animator>();
+            m_soundFX_Gasbag = GetComponent<SoundFX_Gasbag>();
         }
 
         public override void OnSpawnStart()
         {
-            base.OnSpawnStart();
             if (IsServer)
             {
                 Utils.Anim.PlayAnimationWithDuration(m_animator, "GasBag_Spawn", SpawnDuration);
                 AttackDuration += PoisonCloudDuration;
             }
+            base.OnSpawnStart();
         }
 
         // override OnDeath so we do not get the default DeSpawn
@@ -123,6 +126,7 @@ namespace Dropt
         {
             HideHpBar();
             m_greenCloud.SetActive(true);
+            m_soundFX_Gasbag.PlayPoisionCloudSound();
         }
 
         private void GenerateEnemyAbility()
@@ -162,6 +166,7 @@ namespace Dropt
             OnTouchPoisonCollider.OverlapCollider(PlayerAbility.GetContactFilter(new string[] { "PlayerHurt" }), playerHitColliders);
             if (playerHitColliders.Count == 0)
             {
+                m_isAttackSoundPlaying = false;
                 if (IsServer)
                 {
                     Utils.Anim.Play(m_animator, "GasBag_Roam");
@@ -177,6 +182,11 @@ namespace Dropt
                     if (IsServer)
                     {
                         Utils.Anim.Play(m_animator, "GasBag_Attack");
+                    }
+                    if (!m_isAttackSoundPlaying)
+                    {
+                        m_isAttackSoundPlaying = true;
+                        m_soundFX_Gasbag.PlayAttackSound();
                     }
                     player.GetComponent<NetworkCharacter>().TakeDamage(OnTouchPoisonDamage, false);
                 }

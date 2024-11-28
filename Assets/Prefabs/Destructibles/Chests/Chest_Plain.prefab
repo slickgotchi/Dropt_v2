@@ -99,6 +99,7 @@ GameObject:
   - component: {fileID: 8884444706589369324}
   - component: {fileID: 903031024525977019}
   - component: {fileID: -3567172718050873069}
+  - component: {fileID: 7603670355896346531}
   m_Layer: 12
   m_Name: Chest_Plain
   m_TagString: Untagged
@@ -265,6 +266,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09698abc2e8964808b00a54103ccdd21, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &7603670355896346531
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5f8bfa0585f0481f86ac7d5539002f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_takeDamageSound:
+    AudioClip: {fileID: 8300000, guid: 9466db4483a894d05a1a619b24fdadc2, type: 3}
+    Volume: 0.5
+  m_dieSound:
+    AudioClip: {fileID: 8300000, guid: 03aab015152254e2fb81453b71900f86, type: 3}
+    Volume: 0.5
 --- !u!1 &6525230415705073668
 GameObject:
   m_ObjectHideFlags: 0
