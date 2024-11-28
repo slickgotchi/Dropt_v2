@@ -218,30 +218,20 @@ public class NetworkCharacter : NetworkBehaviour
         var playerController = GetComponent<PlayerController>();
         if (playerController == null) return;
 
-        damage = ApplyShieldToDamage(damage);
-        if (damage <= 0)
-        {
-            return;
-        }
-
-        // CLIENT or HOST
-        if (IsClient)
-        {
-            // do sprite flash
-            var spriteFlash = GetComponentInChildren<SpriteFlash>();
-            if (spriteFlash != null) spriteFlash.DamageFlash();
-
-            // do local only effects
-            if (gameObject.GetComponent<NetworkObject>().IsLocalPlayer)
-            {
-                BloodBorderCanvas.Instance.DoBlood();
-                gameObject.GetComponent<PlayerCamera>().Shake(1.5f, 0.3f);
-            }
-        }
-
         // SERVER or HOST
         if (IsServer)
         {
+            if (playerController.IsInvulnerable)
+            {
+                return;
+            }
+
+            damage = ApplyShieldToDamage(damage);
+            if (damage <= 0)
+            {
+                return;
+            }
+
             if (!IsHost)
             {
                 HandlePlayerTakeDamageClientRpc(damage, isCritical, damageDealerNOID);
@@ -251,13 +241,10 @@ public class NetworkCharacter : NetworkBehaviour
             if (HpCurrent.Value < 0) { HpCurrent.Value = 0; }
             DamagePopupTextClientRpc(damage, isCritical);
 
-            if (HpCurrent.Value <= 0 && IsServer)
+            if (HpCurrent.Value <= 0)
             {
                 HpCurrent.Value = 0;
-                if (playerController != null)
-                {
-                    GetComponent<PlayerController>().KillPlayer(REKTCanvas.TypeOfREKT.HP);
-                }
+                playerController.KillPlayer(REKTCanvas.TypeOfREKT.HP);
             }
 
             // do ap leech
@@ -272,6 +259,21 @@ public class NetworkCharacter : NetworkBehaviour
                         nc_damageDealer.ApCurrent.Value += (int)(damage * nc_damageDealer.ApLeech.Value);
                     }
                 }
+            }
+        }
+
+        // CLIENT or HOST
+        if (IsClient)
+        {
+            // do sprite flash
+            var spriteFlash = GetComponentInChildren<SpriteFlash>();
+            if (spriteFlash != null) spriteFlash.DamageFlash();
+
+            // do local only effects
+            if (gameObject.GetComponent<NetworkObject>().IsLocalPlayer)
+            {
+                BloodBorderCanvas.Instance.DoBlood();
+                gameObject.GetComponent<PlayerCamera>().Shake(1.5f, 0.3f);
             }
         }
     }

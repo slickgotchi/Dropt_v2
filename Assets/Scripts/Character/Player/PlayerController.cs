@@ -1,23 +1,16 @@
 using Cinemachine;
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using GotchiHub;
 using Cysharp.Threading.Tasks;
-using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.UI;
 
 public class PlayerController : NetworkBehaviour
 {
     [SerializeField] TextMeshProUGUI m_positionText;
 
     public GameObject ScreenBlockers;
-
     private GameObject m_cameraFollower;
-
 
     private bool m_isPlayerHUDInitialized = false;
 
@@ -27,6 +20,8 @@ public class PlayerController : NetworkBehaviour
     public static float InactiveTimerDuration = 2 * 60;
 
     public bool IsDead = false;
+
+    public bool IsInvulnerable { get; private set; }
 
     private float m_inactiveTimer = InactiveTimerDuration;
 
@@ -115,8 +110,26 @@ public class PlayerController : NetworkBehaviour
         TriggerGameOverClientRpc(GetComponent<NetworkObject>().NetworkObjectId, typeOfREKT);
     }
 
+    public void StartInvulnerability(float duration)
+    {
+        StartInvulnerabilityServerRpc(duration);
+    }
+
+    [ServerRpc]
+    private void StartInvulnerabilityServerRpc(float duration)
+    {
+        CancelInvoke();
+        IsInvulnerable = true;
+        Invoke(nameof(StopInvulnerability), duration);
+    }
+
+    private void StopInvulnerability()
+    {
+        IsInvulnerable = false;
+    }
+
     [Rpc(SendTo.ClientsAndHost)]
-    void TriggerGameOverClientRpc(ulong playerNetworkObjectId, REKTCanvas.TypeOfREKT typeOfREKT)
+    private void TriggerGameOverClientRpc(ulong playerNetworkObjectId, REKTCanvas.TypeOfREKT typeOfREKT)
     {
         //ensure we only trigger this for the relevant player
         var player = NetworkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId];
@@ -143,7 +156,7 @@ public class PlayerController : NetworkBehaviour
             {
                 // update position text
                 var pos = transform.position;
-                m_positionText.text = $"({pos.x.ToString("F2")}, {pos.y.ToString("F2")})";
+                m_positionText.text = $"({pos.x:F2}, {pos.y:F2})";
             }
 
             HandleLevelTransition();
@@ -199,7 +212,7 @@ public class PlayerController : NetworkBehaviour
     }
 
     [Rpc(SendTo.ClientsAndHost)]
-    void SetCameraPositionClientRpc(Vector3 position, ulong networkObjectId)
+    private void SetCameraPositionClientRpc(Vector3 position, ulong networkObjectId)
     {
         if (GetComponent<NetworkObject>().NetworkObjectId != networkObjectId) return;
 
@@ -207,7 +220,7 @@ public class PlayerController : NetworkBehaviour
         m_cameraFollower.transform.position = position;
 
         // Temporarily set damping to zero for instant teleport
-        var framingTransposer = m_virtualCamera.GetCinemachineComponent<Cinemachine.CinemachineFramingTransposer>();
+        var framingTransposer = m_virtualCamera.GetCinemachineComponent<CinemachineFramingTransposer>();
         //Debug.Log("transposer: " + framingTransposer);
         float originalDamping = framingTransposer.m_XDamping; // Store original damping
         framingTransposer.m_XDamping = 0;
@@ -236,7 +249,7 @@ public class PlayerController : NetworkBehaviour
         {
             m_isDoReset = false;
 
-            var framingTransposer = m_virtualCamera.GetCinemachineComponent<Cinemachine.CinemachineFramingTransposer>();
+            var framingTransposer = m_virtualCamera.GetCinemachineComponent<CinemachineFramingTransposer>();
             float originalDamping = framingTransposer.m_XDamping; // Store original damping
             framingTransposer.m_XDamping = 1;
             framingTransposer.m_YDamping = 1;
@@ -244,7 +257,7 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
-    void HandleLocalGotchiIdChanges()
+    private void HandleLocalGotchiIdChanges()
     {
         if (!IsLocalPlayer) return;
 
@@ -260,14 +273,14 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
-    void HandleRemoteGotchiIdChanges()
+    private void HandleRemoteGotchiIdChanges()
     {
         if (!IsClient) return;
 
         if (NetworkGotchiId.Value != m_localGotchiId)
         {
             m_localGotchiId = NetworkGotchiId.Value;
-            SetupGotchi(m_localGotchiId);
+            _ = SetupGotchi(m_localGotchiId);
         }
     }
 
@@ -294,12 +307,12 @@ public class PlayerController : NetworkBehaviour
 
 
     // parameters for handle loading canvas
-    bool shouldBeBlackedOut = true;
-    bool isBlackedOut = true;
-    bool isFirstLoad = true;
+    private bool shouldBeBlackedOut = true;
+    private bool isBlackedOut = true;
+    private bool isFirstLoad = true;
 
     // handle loading canvas
-    void HandleLevelTransition()
+    private void HandleLevelTransition()
     {
         if (!IsLocalPlayer) return;
 
@@ -343,7 +356,7 @@ public class PlayerController : NetworkBehaviour
     }
 
     // cheat to go to next level
-    void HandleNextLevelCheat()
+    private void HandleNextLevelCheat()
     {
         //if (Input.GetKeyDown(KeyCode.N))
         //{
@@ -352,12 +365,12 @@ public class PlayerController : NetworkBehaviour
     }
 
     [Rpc(SendTo.Server)]
-    void GoNextLevelServerRpc()
+    private void GoNextLevelServerRpc()
     {
         LevelManager.Instance.StartTransitionToNextLevel_SERVER();
     }
 
-    void HandleDegenapeHpAp()
+    private void HandleDegenapeHpAp()
     {
         if (!IsServer) return;
 
@@ -371,7 +384,7 @@ public class PlayerController : NetworkBehaviour
     private bool m_isActiveInput = false;
     private float m_isActiveInputTimer = 0f;
 
-    void CheckForPlayerInput()
+    private void CheckForPlayerInput()
     {
         m_isActiveInputTimer -= Time.deltaTime;
 
@@ -408,7 +421,7 @@ public class PlayerController : NetworkBehaviour
     }
 
     // need this so that a player that is not playing gets booted off the server
-    void HandleInactivePlayer()
+    private void HandleInactivePlayer()
     {
         if (!IsServer) return;
 
