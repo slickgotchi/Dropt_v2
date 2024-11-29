@@ -1,8 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using Unity.Netcode;
 using TMPro;
 using UnityEngine.SceneManagement;
 
@@ -24,6 +21,11 @@ public class REKTCanvas : MonoBehaviour
     public Color REKTTitleTextColor;
     public Color REKTReasonTextColor;
 
+    [SerializeField] private TextMeshProUGUI m_BankEctoDeltaText;
+    [SerializeField] private TextMeshProUGUI m_GotchiDustCollectedText;
+    [SerializeField] private TextMeshProUGUI m_BombsUsedText;
+    [SerializeField] private TextMeshProUGUI m_EnemiesSlainText;
+    [SerializeField] private TextMeshProUGUI m_DestructiblesSmashedText;
 
     private void Awake()
     {
@@ -45,7 +47,8 @@ public class REKTCanvas : MonoBehaviour
             TitleText.text = "ESCAPED";
             TitleText.color = EscapeTitleTextColor;
             ReasonText.color = EscapeReasonTextColor;
-        } else
+        }
+        else
         {
             TitleText.text = "REKT";
             TitleText.color = REKTTitleTextColor;
@@ -71,15 +74,53 @@ public class REKTCanvas : MonoBehaviour
         }
 
         DegenapeButton.GetComponentInChildren<TextMeshProUGUI>().text = "Return to Degenape Village";
+        InitializePlayerinfo();
     }
 
-    void HandleClickDegenapeButton()
+    private void HandleClickDegenapeButton()
     {
         Container.SetActive(false);
-
-        // reload the game scene
         SceneManager.LoadScene("Game");
+    }
 
-        //Game.Instance.TryConnectClientOrHostGame();
+    private void InitializePlayerinfo()
+    {
+        GameObject player = GetLocalPlayer();
+        if (player == null)
+        {
+            Debug.Log("No local player found");
+            return;
+        }
+
+        PlayerOffchainData playerOffchainData = player.GetComponent<PlayerOffchainData>();
+
+        int ectoDelta = playerOffchainData.GetEctoDeltaValue();
+        m_BankEctoDeltaText.text = ectoDelta.ToString();
+        m_BankEctoDeltaText.color = ectoDelta < 0 ? new Color32(245, 85, 93, 255) : new Color32(153, 230, 95, 255);
+
+        int dustDelta = playerOffchainData.GetDustDeltaValue();
+        m_GotchiDustCollectedText.text = dustDelta.ToString();
+        m_GotchiDustCollectedText.color = dustDelta < 0 ? new Color32(245, 85, 93, 255) : new Color32(153, 230, 95, 255);
+
+        int bombDelta = playerOffchainData.GetBombDeltaValue();
+        m_BombsUsedText.text = bombDelta.ToString();
+
+        PlayerController playerController = player.GetComponent<PlayerController>();
+
+        m_EnemiesSlainText.text = playerController.GetTotalKilledEnemies().ToString();
+        m_DestructiblesSmashedText.text = playerController.GetTotalDestroyedDestructibles().ToString();
+    }
+
+    private GameObject GetLocalPlayer()
+    {
+        PlayerController[] playerControllers = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+        foreach (PlayerController playerController in playerControllers)
+        {
+            if (playerController.IsLocalPlayer)
+            {
+                return playerController.gameObject;
+            }
+        }
+        return null;
     }
 }

@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using Unity.Mathematics;
+using Unity.Netcode;
 
 public class PierceDrill : PlayerAbility
 {
@@ -201,7 +202,7 @@ public class PierceDrill : PlayerAbility
             if (hit.HasComponent<Destructible>())
             {
                 var destructible = hit.GetComponent<Destructible>();
-                destructible.TakeDamage(Wearable.WeaponTypeEnum.Pierce);
+                destructible.TakeDamage(Wearable.WeaponTypeEnum.Pierce, Player.GetComponent<NetworkObject>().NetworkObjectId);
             }
         }
     }

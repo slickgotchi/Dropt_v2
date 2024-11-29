@@ -149,6 +149,7 @@ public class PlayerItems : NetworkBehaviour
     private void PlaceBomb()
     {
         GameObject bombItem = Instantiate(m_bombObject, transform.position, Quaternion.identity);
+        bombItem.GetComponent<BombItem>().OwnerId = GetComponent<NetworkObject>().NetworkObjectId;
         NetworkObject networkObject = bombItem.GetComponent<NetworkObject>();
         networkObject.Spawn();
     }

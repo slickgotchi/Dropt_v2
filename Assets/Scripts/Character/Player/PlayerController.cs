@@ -42,6 +42,9 @@ public class PlayerController : NetworkBehaviour
 
     private Vector3 m_spawnPoint;
 
+    private NetworkVariable<int> m_totalKilledEnemies = new NetworkVariable<int>(0);
+    private NetworkVariable<int> m_totalDestroyedDestructibles = new NetworkVariable<int>(0);
+
     private void Awake()
     {
         m_networkCharacter = GetComponent<NetworkCharacter>();
@@ -440,5 +443,25 @@ public class PlayerController : NetworkBehaviour
         if (!IsServer) return;
 
         m_inactiveTimer = InactiveTimerDuration;
+    }
+
+    public void KillEnemy()
+    {
+        m_totalKilledEnemies.Value++;
+    }
+
+    public int GetTotalKilledEnemies()
+    {
+        return m_totalKilledEnemies.Value;
+    }
+
+    public void DestroyDestructible()
+    {
+        m_totalDestroyedDestructibles.Value++;
+    }
+
+    public int GetTotalDestroyedDestructibles()
+    {
+        return m_totalDestroyedDestructibles.Value;
     }
 }
