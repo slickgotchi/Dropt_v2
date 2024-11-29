@@ -149,6 +149,10 @@ public class PlayerOffchainData : NetworkBehaviour
         // try get latest wallet address
         try
         {
+            // check if wallet is connected
+            var isConnected = await ThirdwebManager.Instance.SDK.Wallet.IsConnected();
+            if (!isConnected) return;
+
             // get all latest data if address changed
             var connectedWalletAddress = await ThirdwebManager.Instance.SDK.Wallet.GetAddress();
             if (connectedWalletAddress != m_walletAddress && connectedWalletAddress != null)

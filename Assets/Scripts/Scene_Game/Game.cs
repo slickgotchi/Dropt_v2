@@ -26,7 +26,7 @@ public class Game : MonoBehaviour
 
     // reconnecting to new game from gaeover
     private bool m_isTryConnectClientGame = false;
-
+    /*
     private string test_chainPem = @"
 -----BEGIN CERTIFICATE-----
 MIIFBjCCAu6gAwIBAgIRAIp9PhPWLzDvI4a9KQdrNPgwDQYJKoZIhvcNAQELBQAw
@@ -59,6 +59,7 @@ uYkQ4omYCTX5ohy+knMjdOmdH9c7SpqEWBDC86fiNex+O0XOMEZSa8DA
 -----END CERTIFICATE-----";
 
     private string test_commonName = "worker-0001.playdropt.io";
+    */
 
     private void Awake()
     {
@@ -220,6 +221,8 @@ uYkQ4omYCTX5ohy+knMjdOmdH9c7SpqEWBDC86fiNex+O0XOMEZSa8DA
 
                 m_unityTransport.SetClientSecrets(m_commonName, m_chainPem);
 
+                Debug.Log(Bootstrap.Instance.IpAddress);
+                Debug.Log(Bootstrap.Instance.GamePort);
                 Debug.Log(m_commonName);
                 Debug.Log(m_chainPem);
             }
@@ -236,6 +239,7 @@ uYkQ4omYCTX5ohy+knMjdOmdH9c7SpqEWBDC86fiNex+O0XOMEZSa8DA
             m_unityTransport.SetConnectionData(Bootstrap.Instance.IpAddress, Bootstrap.Instance.GamePort);
         }
 
+        Debug.Log($"Connect to IP: {Bootstrap.Instance.IpAddress}, Port: {Bootstrap.Instance.GamePort}");
 
         if (!isGetEmptyGame)
         {
@@ -250,7 +254,6 @@ uYkQ4omYCTX5ohy+knMjdOmdH9c7SpqEWBDC86fiNex+O0XOMEZSa8DA
     public void Connect()
     {
         // output ip and port
-        Debug.Log($"Connect to IP: {Bootstrap.Instance.IpAddress}, Port: {Bootstrap.Instance.GamePort}");
 
         // start client
         var success = NetworkManager.Singleton.StartClient();
