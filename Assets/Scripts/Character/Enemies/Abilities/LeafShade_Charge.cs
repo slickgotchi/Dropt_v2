@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
@@ -102,7 +101,7 @@ public class LeafShade_Charge : EnemyAbility
             {
                 var playerCharacter = playerController.GetComponent<NetworkCharacter>();
                 var enemyCharacter = Parent.GetComponent<EnemyCharacter>();
-                
+
                 var damage = enemyCharacter.GetAttackPower();
                 var isCritical = enemyCharacter.IsCriticalAttack();
                 playerCharacter.TakeDamage(damage, isCritical);
@@ -111,7 +110,7 @@ public class LeafShade_Charge : EnemyAbility
             // handle destructibles
             if (destructible != null)
             {
-                destructible.TakeDamage(1000);
+                destructible.TakeDamage(1000, Parent.GetComponent<NetworkObject>().NetworkObjectId);
             }
         }
 

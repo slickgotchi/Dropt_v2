@@ -118,7 +118,7 @@ public class MagicBeam : PlayerAbility
 
                 if (destructible != null)
                 {
-                    destructible.TakeDamage(Wearable.WeaponTypeEnum.Magic);
+                    destructible.TakeDamage(Wearable.WeaponTypeEnum.Magic, Player.GetComponent<NetworkObject>().NetworkObjectId);
                 }
             }
         }
@@ -193,7 +193,7 @@ public class MagicBeam : PlayerAbility
                 }
                 else
                 {
-                    start = m_targets[i-1].transform.position + new Vector3(0, 0.5f, 0);
+                    start = m_targets[i - 1].transform.position + new Vector3(0, 0.5f, 0);
                     finish = m_targets[i].transform.position + new Vector3(0, 0.5f, 0);
                 }
 

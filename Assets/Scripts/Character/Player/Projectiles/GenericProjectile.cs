@@ -153,7 +153,7 @@ public class GenericProjectile : NetworkBehaviour
             else if (hit.HasComponent<Destructible>())
             {
                 var destructible = hit.GetComponent<Destructible>();
-                destructible.TakeDamage(WeaponType);
+                destructible.TakeDamage(WeaponType, LocalPlayer.GetComponent<NetworkObject>().NetworkObjectId);
             }
             Deactivate(hitInfo.point);
 
@@ -201,7 +201,7 @@ public class GenericProjectile : NetworkBehaviour
         projectile.SetActive(false);
     }
 
-    public static bool TryAddProjectileOnClient(ref GameObject projectile, 
+    public static bool TryAddProjectileOnClient(ref GameObject projectile,
         ref NetworkVariable<ulong> projectileId, NetworkManager networkManager)
     {
         if (projectile == null && projectileId.Value > 0)

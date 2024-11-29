@@ -47,6 +47,9 @@ public class PlayerOffchainData : NetworkBehaviour
     public NetworkVariable<int> bombLiveCount_dungeon = new NetworkVariable<int>(0);
     public NetworkVariable<int> healSalveChargeCount_dungeon = new NetworkVariable<int>(0);
 
+    private NetworkVariable<int> m_postDungeonEctoDelta = new NetworkVariable<int>(0);
+    private NetworkVariable<int> m_postDungeonDustDelta = new NetworkVariable<int>(0);
+    private NetworkVariable<int> m_postDungeonBombDelta = new NetworkVariable<int>(0);
     // if player dies
     //      ectoBankDelta = ectoDebitCount_dungeon - ectoDungeonStartMount_offchain
     // if player escapes
@@ -64,9 +67,6 @@ public class PlayerOffchainData : NetworkBehaviour
     private int m_gotchiId = 0;
     private float k_gotchiIdUpdateInterval = 1f;
     private float m_gotchiIdUpdateTimer = 0f;
-
-    // isEnteredDungeon
-    private bool m_isEnteredDungeon = false;
 
     private Level.NetworkLevel.LevelType m_currentLevelType;
 
@@ -93,7 +93,7 @@ public class PlayerOffchainData : NetworkBehaviour
     {
         if (IsLocalPlayer)
         {
-            CheckWalletAddressChanged();
+            _ = CheckWalletAddressChanged();
             CheckGotchiIdChanged();
         }
 
@@ -103,7 +103,7 @@ public class PlayerOffchainData : NetworkBehaviour
         }
     }
 
-    void CheckCurrentLevelType_SERVER()
+    private void CheckCurrentLevelType_SERVER()
     {
         if (!IsServer) return;
 
@@ -171,12 +171,12 @@ public class PlayerOffchainData : NetworkBehaviour
     }
 
     [Rpc(SendTo.Server)]
-    void GetLatestOffchainWalletDataServerRpc(string walletAddress)
+    private void GetLatestOffchainWalletDataServerRpc(string walletAddress)
     {
-        GetLatestOffchainWalletDataServerRpcAsync(walletAddress);
+        _ = GetLatestOffchainWalletDataServerRpcAsync(walletAddress);
     }
 
-    async UniTaskVoid GetLatestOffchainWalletDataServerRpcAsync(string walletAddress)
+    private async UniTaskVoid GetLatestOffchainWalletDataServerRpcAsync(string walletAddress)
     {
         // save the current wallet address for this player
         m_walletAddress = walletAddress;
@@ -245,10 +245,10 @@ public class PlayerOffchainData : NetworkBehaviour
     [Rpc(SendTo.Server)]
     private void GetLatestOffchainGotchiDataServerRpc(int gotchiId)
     {
-        GetLatestOffchainGotchiDataServerRpcAsync(gotchiId);
+        _ = GetLatestOffchainGotchiDataServerRpcAsync(gotchiId);
     }
 
-    async UniTask GetLatestOffchainGotchiDataServerRpcAsync(int gotchiId)
+    private async UniTask GetLatestOffchainGotchiDataServerRpcAsync(int gotchiId)
     {
         // save gotchi id to server m_gotchiId
         m_gotchiId = gotchiId;
@@ -256,10 +256,10 @@ public class PlayerOffchainData : NetworkBehaviour
         // try get data
         try
         {
-            var responseStr = await Dropt.Utils.Http.GetRequest(dbUri + "/gotchis/" + gotchiId.ToString());
+            string responseStr = await Dropt.Utils.Http.GetRequest(dbUri + "/gotchis/" + gotchiId.ToString());
             if (!string.IsNullOrEmpty(responseStr))
             {
-                var data = JsonUtility.FromJson<Gotchi_Data>(responseStr);
+                Gotchi_Data data = JsonUtility.FromJson<Gotchi_Data>(responseStr);
                 ectoDungeonStartAmount_offchain.Value = data.ecto_dungeon_start_amount;
                 bombDungeonCapacity_offchain.Value = data.bomb_dungeon_capacity;
                 healSalveDungeonCharges_offchain.Value = data.heal_salve_dungeon_charges;
@@ -339,20 +339,20 @@ public class PlayerOffchainData : NetworkBehaviour
 
         if (!IsServer) return;
 
-        var postDungeonEctoDelta = isEscaped ?
+        m_postDungeonEctoDelta.Value = isEscaped ?
             ectoDebitCount_dungeon.Value - ectoDebitStartAmount_dungeon.Value + ectoLiveCount_dungeon.Value :
             ectoDebitCount_dungeon.Value - ectoDungeonStartAmount_offchain.Value;
-        var postDungeonDustDelta = isEscaped ?
+        m_postDungeonDustDelta.Value = isEscaped ?
             (int)(dustLiveCount_dungeon.Value * CodeInjector.Instance.GetOutputMultiplier()) :
             0;
-        var postDungeonBombDelta = bombLiveCount_dungeon.Value - bombStartCount_dungeon.Value;
+        m_postDungeonBombDelta.Value = bombLiveCount_dungeon.Value - bombStartCount_dungeon.Value;
 
-        Debug.Log($"postDungeonEctoDelta: " + postDungeonEctoDelta);
+        Debug.Log($"postDungeonEctoDelta: " + m_postDungeonEctoDelta);
 
         // log wallet deltas
         try
         {
-            await LogWalletDeltaDataServerRpcAsync(postDungeonEctoDelta, postDungeonBombDelta);
+            await LogWalletDeltaDataServerRpcAsync(m_postDungeonEctoDelta.Value, m_postDungeonBombDelta.Value);
 
             // successfully logged deltas so zero all the balances
             ectoDebitStartAmount_dungeon.Value = 0;
@@ -369,7 +369,7 @@ public class PlayerOffchainData : NetworkBehaviour
         // log gotchi deltas
         try
         {
-            await LogGotchiDeltaDataServerRpcAsync(GetComponent<PlayerController>().NetworkGotchiId.Value, postDungeonDustDelta);
+            await LogGotchiDeltaDataServerRpcAsync(GetComponent<PlayerController>().NetworkGotchiId.Value, m_postDungeonDustDelta.Value);
             dustLiveCount_dungeon.Value = 0;
         }
         catch
@@ -378,7 +378,7 @@ public class PlayerOffchainData : NetworkBehaviour
         }
     }
 
-    async UniTask LogWalletDeltaDataServerRpcAsync(int ectoDelta, int bombDelta)
+    private async UniTask LogWalletDeltaDataServerRpcAsync(int ectoDelta, int bombDelta)
     {
         try
         {
@@ -405,7 +405,7 @@ public class PlayerOffchainData : NetworkBehaviour
         }
     }
 
-    async UniTask LogGotchiDeltaDataServerRpcAsync(int gotchiId, int dustDelta)
+    private async UniTask LogGotchiDeltaDataServerRpcAsync(int gotchiId, int dustDelta)
     {
         try
         {
@@ -517,7 +517,7 @@ public class PlayerOffchainData : NetworkBehaviour
     }
 
     [ClientRpc]
-    void PopupEssenceTextClientRpc(float value, ulong networkObjectId)
+    private void PopupEssenceTextClientRpc(float value, ulong networkObjectId)
     {
         var player = NetworkManager.SpawnManager.SpawnedObjects[networkObjectId];
         if (player == null) return;
@@ -570,5 +570,20 @@ public class PlayerOffchainData : NetworkBehaviour
     public void UseBombItem()
     {
         bombLiveCount_dungeon.Value--;
+    }
+
+    public int GetEctoDeltaValue()
+    {
+        return m_postDungeonEctoDelta.Value;
+    }
+
+    public int GetDustDeltaValue()
+    {
+        return m_postDungeonDustDelta.Value;
+    }
+
+    public int GetBombDeltaValue()
+    {
+        return m_postDungeonBombDelta.Value;
     }
 }

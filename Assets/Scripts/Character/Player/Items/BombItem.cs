@@ -13,7 +13,7 @@ public class BombItem : NetworkBehaviour
     [SerializeField] private GameObject m_body;
     [SerializeField] private LineRenderer m_lineRenderer;
     public int segments = 100;
-
+    public ulong OwnerId;
     private readonly float m_fadeDuration = 0.5f;
 
     public override async void OnNetworkSpawn()
@@ -109,7 +109,7 @@ public class BombItem : NetworkBehaviour
         foreach (Collider2D destructibleObject in destructibleObjects)
         {
             Destructible destructible = destructibleObject.GetComponent<Destructible>();
-            destructible.Explode();
+            destructible.Explode(OwnerId);
         }
     }
 }
