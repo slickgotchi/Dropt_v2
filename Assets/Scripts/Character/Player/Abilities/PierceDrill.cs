@@ -1,8 +1,6 @@
 using UnityEngine;
-using Unity.Netcode;
 using System.Collections.Generic;
 using Unity.Mathematics;
-using System;
 
 public class PierceDrill : PlayerAbility
 {
@@ -48,11 +46,14 @@ public class PierceDrill : PlayerAbility
             GetHoldPercentage());
         m_speed = m_targetDistance / AutoMoveDuration;
 
-        Player.GetComponent<PlayerGotchi>().PlayFacingSpin(2, AutoMoveDuration / 2,
+        PlayerGotchi playerGotchi = Player.GetComponent<PlayerGotchi>();
+        playerGotchi.PlayFacingSpin(2, AutoMoveDuration / 2,
             PlayerGotchi.SpinDirection.AntiClockwise, 0);
 
-        Player.GetComponent<PlayerGotchi>().SetGotchiRotation(
+        playerGotchi.SetGotchiRotation(
             GetAngleFromDirection(ActivationInput.actionDirection) - 90, AutoMoveDuration);
+
+        Player.GetComponent<PlayerController>().StartInvulnerability(ExecutionDuration);
 
         m_hitTransforms.Clear();
     }
