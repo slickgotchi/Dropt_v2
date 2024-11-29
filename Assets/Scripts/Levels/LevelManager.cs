@@ -22,6 +22,8 @@ public class LevelManager : NetworkBehaviour
     private List<GameObject> m_levels = new List<GameObject>();
     private GameObject m_currentLevel;
     private int m_currentLevelIndex_SERVER = -1;
+    public NetworkVariable<Level.NetworkLevel.LevelType> m_currentLevelType =
+        new NetworkVariable<Level.NetworkLevel.LevelType>(Level.NetworkLevel.LevelType.Null);
 
     // var for numbering/naming levels
     private float k_numberAndLevelInterval = 0.5f;
@@ -221,6 +223,7 @@ public class LevelManager : NetworkBehaviour
         m_currentLevel = Instantiate(m_levels[index]);
         m_currentLevel.GetComponent<NetworkObject>().Spawn();
         m_currentLevelIndex_SERVER = index;
+        m_currentLevelType.Value = m_currentLevel.GetComponent<Level.NetworkLevel>().levelType;
     }
 
     private void Update()
@@ -465,31 +468,26 @@ public class LevelManager : NetworkBehaviour
     // utility functions for determining where we are
     public Level.NetworkLevel.LevelType GetCurrentLevelType()
     {
-        if (m_currentLevel == null) return Level.NetworkLevel.LevelType.Null;
-
-        var currentNetworkLevel = m_currentLevel.GetComponent<Level.NetworkLevel>();
-        if (currentNetworkLevel == null) return Level.NetworkLevel.LevelType.Null;
-
-        return currentNetworkLevel.levelType;
+        return m_currentLevelType.Value;
     }
 
     public bool IsTutorial()
     {
-        return GetCurrentLevelType() == Level.NetworkLevel.LevelType.Tutorial;
+        return m_currentLevelType.Value == Level.NetworkLevel.LevelType.Tutorial;
     }
 
     public bool IsDegenapeVillage()
     {
-        return GetCurrentLevelType() == Level.NetworkLevel.LevelType.DegenapeVillage;
+        return m_currentLevelType.Value == Level.NetworkLevel.LevelType.DegenapeVillage;
     }
 
     public bool IsDungeon()
     {
-        return GetCurrentLevelType() == Level.NetworkLevel.LevelType.Dungeon;
+        return m_currentLevelType.Value == Level.NetworkLevel.LevelType.Dungeon;
     }
 
     public bool IsDungeonRest()
     {
-        return GetCurrentLevelType() == Level.NetworkLevel.LevelType.DungeonRest;
+        return m_currentLevelType.Value == Level.NetworkLevel.LevelType.DungeonRest;
     }
 }
