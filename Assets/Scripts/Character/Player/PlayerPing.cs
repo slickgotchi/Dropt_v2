@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 using Unity.Netcode.Transports.UTP;
-using Netcode.Transports.WebSocket;
 
 public class PlayerPing : NetworkBehaviour
 {
@@ -20,7 +19,6 @@ public class PlayerPing : NetworkBehaviour
     public float pingLow;
 
     UnityTransport m_unityTransport;
-    WebSocketTransport m_webSocketTransport;
 
     NetworkObject m_networkObject;
 
@@ -33,7 +31,6 @@ public class PlayerPing : NetworkBehaviour
         base.OnNetworkSpawn();
 
         m_networkObject = GetComponent<NetworkObject>();
-        m_webSocketTransport = NetworkManager.Singleton.GetComponent<WebSocketTransport>();
         m_unityTransport = NetworkManager.Singleton.GetComponent<UnityTransport>();
 
     }
@@ -44,7 +41,6 @@ public class PlayerPing : NetworkBehaviour
 
         if (IsServer)
         {
-            if (m_webSocketTransport != null) RTT.Value = m_webSocketTransport.GetCurrentRtt(m_networkObject.OwnerClientId);
             if (m_unityTransport != null) RTT.Value = m_unityTransport.GetCurrentRtt(m_networkObject.OwnerClientId);
             
             serverFPS.Value = (int)(1 / Time.deltaTime);
