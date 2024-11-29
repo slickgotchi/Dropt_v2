@@ -9,6 +9,7 @@ using System.Security.Cryptography;
 using Newtonsoft.Json; // For handling JSON
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.IO;
 
 
 public class GameServerHeartbeat : MonoBehaviour
@@ -49,96 +50,72 @@ public class GameServerHeartbeat : MonoBehaviour
 
     private async UniTaskVoid SendServerHeartbeat()
     {
-        // player count
         m_playerCount = FindObjectsByType<PlayerController>(FindObjectsSortMode.None).Length;
 
         string HEARTBEAT_SECRET = Bootstrap.Instance.HeartbeatSecret;
         if (string.IsNullOrEmpty(HEARTBEAT_SECRET))
         {
-            Debug.LogError("Ensure there is a .env file with a HEARTBEAT_SECRET in the same folder as the .x86_64");
+            Debug.LogError("Ensure there is a .env file with a HEARTBEAT_ENCRYPTION_SECRET in the same folder as the .x86_64");
             return;
         }
 
         try
         {
-            // 1. generate nonce
-            byte[] nonceBytes = new byte[16];
-            using (var rng = new RNGCryptoServiceProvider())
-            {
-                rng.GetBytes(nonceBytes);
-            }
-            StringBuilder nonceBuilder = new StringBuilder();
-            foreach (byte b in nonceBytes)
-            {
-                nonceBuilder.Append(b.ToString("x2"));
-            }
-            string nonce = nonceBuilder.ToString();
-            //Debug.Log("Made a nonce: " + nonce);
-
-            // 2. create payload
+            // Create the payload
             var payload = new
             {
                 gameId = Bootstrap.Instance.GameId,
                 playerCount = m_playerCount,
-                isPublic = IsPublic,
-                nonce = nonce,
-                exp = DateTimeOffset.UtcNow.AddMinutes(5).ToUnixTimeSeconds() // Expiration time
+                isPublic = IsPublic
             };
+            string jsonPayload = JsonConvert.SerializeObject(payload);
 
-            // 3. Serialize payload to JSON
-            string payloadJson = JsonConvert.SerializeObject(payload);
-            string payloadBase64 = ToUrlSafeBase64String(Encoding.UTF8.GetBytes(payloadJson));
+            // Encrypt the payload
+            string encryptedPayload = EncryptPayload(jsonPayload, HEARTBEAT_SECRET);
 
-            // 4. Create JWT header
-            var header = new
-            {
-                alg = "HS256",
-                typ = "JWT"
-            };
-            string headerJson = JsonConvert.SerializeObject(header);
-            string headerBase64 = ToUrlSafeBase64String(Encoding.UTF8.GetBytes(headerJson));
-
-            // 5. Create the unsigned token
-            string unsignedToken = $"{headerBase64}.{payloadBase64}";
-
-            // 6. Sign the token
-            string signature;
-            using (HMACSHA256 hmac = new HMACSHA256(Encoding.UTF8.GetBytes(HEARTBEAT_SECRET)))
-            {
-                byte[] signatureBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(unsignedToken));
-                signature = ToUrlSafeBase64String(signatureBytes);
-            }
-
-            // 7. Create the final token
-            string token = $"{unsignedToken}.{signature}";
-            //Debug.Log("Made a token: " + token);
-
-            // 8. Create HTTP request
-            var instanceHeartbeatPostData = new InstanceHeartbeat_PostData
-            {
-                gameId = Bootstrap.Instance.GameId,
-                playerCount = m_playerCount,
-                isPublic = IsPublic,
-                nonce = nonce,
-                token = token,
-            };
-            string json = JsonUtility.ToJson(instanceHeartbeatPostData);
+            // Send the encrypted payload to worker.js
+            var postData = new PostData { encryptedPayload = encryptedPayload };
+            string json = JsonConvert.SerializeObject(postData);
             var workerUri = "http://" + Bootstrap.Instance.IpAddress + ":" + Bootstrap.Instance.WorkerPort;
-            var responseStr = await PostRequest(workerUri + "/instanceheartbeat", json);
+            var responseStr = await PostRequest(workerUri + "/gameheartbeat", json);
 
-            Debug.Log($"/instancehearbeat success, gameId: {payload.gameId}, playerCount: {m_playerCount}, isPublic: {IsPublic}");
+            Debug.Log($"/gameheartbeat success, gameId: {payload.gameId}, playerCount: {m_playerCount}, isPublic: {IsPublic}");
         }
         catch (Exception e)
         {
-            Debug.LogWarning("Error sending hearbeat: " + e.Message);
+            Debug.LogWarning("Error sending heartbeat: " + e.Message);
         }
     }
 
-    private string ToUrlSafeBase64String(byte[] bytes)
+
+    private string EncryptPayload(string jsonPayload, string secret)
     {
-        string base64 = Convert.ToBase64String(bytes);
-        return base64.Replace("+", "-").Replace("/", "_").TrimEnd('=');
+        using (Aes aes = Aes.Create())
+        {
+            aes.Key = SHA256.Create().ComputeHash(Encoding.UTF8.GetBytes(secret));
+            aes.GenerateIV();
+
+            ICryptoTransform encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
+            using (MemoryStream ms = new MemoryStream())
+            {
+                ms.Write(aes.IV, 0, aes.IV.Length); // Prepend IV to the ciphertext
+                using (CryptoStream cs = new CryptoStream(ms, encryptor, CryptoStreamMode.Write))
+                using (StreamWriter sw = new StreamWriter(cs))
+                {
+                    sw.Write(jsonPayload);
+                }
+
+                return Convert.ToBase64String(ms.ToArray());
+            }
+        }
     }
+
+
+    //private string ToUrlSafeBase64String(byte[] bytes)
+    //{
+    //    string base64 = Convert.ToBase64String(bytes);
+    //    return base64.Replace("+", "-").Replace("/", "_").TrimEnd('=');
+    //}
 
     private async UniTask<string> PostRequest(string url, string json)
     {
@@ -174,12 +151,17 @@ public class GameServerHeartbeat : MonoBehaviour
     }
 
     [Serializable]
-    struct InstanceHeartbeat_PostData
+    struct PostData
     {
-        public string gameId;
-        public int playerCount;
-        public bool isPublic;
-        public string nonce;
-        public string token;
+        public string encryptedPayload;
     }
+
+
+    //[Serializable]
+    //struct InstanceHeartbeat_PostData
+    //{
+    //    public string gameId;
+    //    public int playerCount;
+    //    public bool isPublic;
+    //}
 }
