@@ -2,7 +2,7 @@ using PortalDefender.AavegotchiKit;
 using PortalDefender.AavegotchiKit.GraphQL;
 using System;
 using System.Collections.Generic;
-using Thirdweb;
+using Thirdweb.Unity;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 using PortalDefender.AavegotchiKit;
@@ -169,12 +169,25 @@ namespace GotchiHub
         {
             try
             {
+                
                 // clear all current data
                 localWalletGotchiData.Clear();
                 localWalletGotchiSvgSets.Clear();
 
+                // get wallet
+                var wallet = ThirdwebManager.Instance.GetActiveWallet();
+                if (wallet == null)
+                {
+                    return;
+                }
+
                 // get wallet address
-                var walletAddress = await ThirdwebManager.Instance.SDK.Wallet.GetAddress();
+                var walletAddress = await wallet.GetAddress();
+                if (walletAddress == null)
+                {
+                    return;
+                }
+
                 walletAddress = walletAddress.ToLower();
 
                 // fetch gotchis with aavegotchi kit
@@ -193,39 +206,6 @@ namespace GotchiHub
 
                 await FetchGotchiSvgsParallel(userAccount);
 
-                // get svg one by one for a live update
-                //for (int i = 0; i < userAccount.gotchisOwned.Length; i++)
-                //{
-                //    var svg = await graphManager
-                //        .GetGotchiSvg(userAccount.gotchisOwned[i].ToString());
-
-                //    localWalletGotchiSvgSets.Add(new GotchiSvgSet
-                //    {
-                //        id = int.Parse(gotchiIds[i]),
-                //        Front = svg.svg,
-                //        Back = svg.back,
-                //        Left = svg.left,
-                //        Right = svg.right,
-                //    });
-
-                //    onFetchedWalletGotchiSVG?.Invoke();
-                //}
-
-                // get svgs
-                //var svgs = await graphManager.GetGotchiSvgs(gotchiIds);
-                //for (int i = 0; i < svgs.Count; i++)
-                //{
-                //    var svgSet = svgs[i];
-                //    localWalletGotchiSvgSets.Add(new GotchiSvgSet
-                //    {
-                //        id = int.Parse(gotchiIds[i]),
-                //        Front = svgSet.svg,
-                //        Back = svgSet.back,
-                //        Left = svgSet.left,
-                //        Right = svgSet.right,
-                //    });
-                //}
-
                 gotchiIds.Clear();
 
                 // default to highest brs gotchi
@@ -235,6 +215,7 @@ namespace GotchiHub
 
                     onFetchGotchiDataSuccess?.Invoke();
                 }
+                
 
             }
             catch (Exception ex)
