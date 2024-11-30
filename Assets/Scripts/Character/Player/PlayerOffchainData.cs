@@ -1,9 +1,10 @@
 using Unity.Netcode;
 using UnityEngine;
-using Thirdweb;
+using Thirdweb.Unity;
 using GotchiHub;
 using Cysharp.Threading.Tasks;
 using Unity.Mathematics;
+
 
 // ecto bank logic
 // - ecto_balance_offchain is the total ecto you have when in the village
@@ -149,18 +150,23 @@ public class PlayerOffchainData : NetworkBehaviour
         // try get latest wallet address
         try
         {
+            // get wallet
+            var wallet = ThirdwebManager.Instance.GetActiveWallet();
+            if (wallet == null) return;
+
             // check if wallet is connected
-            var isConnected = await ThirdwebManager.Instance.SDK.Wallet.IsConnected();
+            var isConnected = await wallet.IsConnected();
             if (!isConnected) return;
 
             // get all latest data if address changed
-            var connectedWalletAddress = await ThirdwebManager.Instance.SDK.Wallet.GetAddress();
+            var connectedWalletAddress = await wallet.GetAddress();
             if (connectedWalletAddress != m_walletAddress && connectedWalletAddress != null)
             {
                 m_walletAddress = connectedWalletAddress;
                 PlayerPrefs.SetString("WalletAddress", m_walletAddress);
                 GetLatestOffchainWalletDataServerRpc(m_walletAddress);
             }
+            
         }
         catch
         {

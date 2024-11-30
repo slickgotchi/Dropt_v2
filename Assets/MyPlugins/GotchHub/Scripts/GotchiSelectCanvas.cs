@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using Thirdweb;
 using TMPro;
 using Cysharp.Threading.Tasks;
+using Thirdweb.Unity;
 
 namespace GotchiHub
 {
@@ -165,6 +166,7 @@ namespace GotchiHub
             Instance = this;
             VisitAavegotchiButton.onClick.AddListener(HandleOnClick_VisitAavegotchiButton);
             ConfirmButton.onClick.AddListener(ClickOnConfirm);
+            ConnectButton.onClick.AddListener(ClickOnConnect);
             InstaHideCanvas();
         }
 
@@ -176,6 +178,13 @@ namespace GotchiHub
                 PlayerHUDCanvas.Instance.ShowPlayerInteractionCanvii(interactable.interactionText,
                     interactable.interactableType);
             }
+        }
+
+        public void ClickOnConnect()
+        {
+            var walletOptions = new WalletOptions(provider: WalletProvider.WalletConnectWallet, chainId: 137);
+
+            ThirdwebManager.Instance.ConnectWallet(walletOptions);
         }
 
         private void Start()
@@ -229,9 +238,12 @@ namespace GotchiHub
 
             try
             {
+                var wallet = ThirdwebManager.Instance.GetActiveWallet();
+                if (wallet == null) return;
+
                 // get ghst balance
-                var bal = await ThirdwebManager.Instance.SDK.Wallet.GetBalance(polygonGHSTAddress);
-                ghstBalance.text = (float.Parse(bal.value) / 1e18).ToString("F2");
+                var bal = await wallet.GetBalance(137, polygonGHSTAddress);
+                ghstBalance.text = ((float)bal / 1e18).ToString("F2");
             }
             catch (System.Exception e)
             {
@@ -309,17 +321,24 @@ namespace GotchiHub
 
             try
             {
+                // get current wallet
+                var wallet = ThirdwebManager.Instance.GetActiveWallet();
+                if (wallet == null)
+                {
+                    SetMenuScreen(MenuScreen.NotConnected);
+                    return;
+                }
+                
                 // connection check
-                var isConnected = await ThirdwebManager.Instance.SDK.Wallet.IsConnected();
+                var isConnected = await wallet.IsConnected();
                 if (!isConnected)
                 {
                     SetMenuScreen(MenuScreen.NotConnected);
                     return;
                 }
 
-
                 // address check
-                var address = await ThirdwebManager.Instance.SDK.Wallet.GetAddress();
+                var address = await wallet.GetAddress();
                 if (address != m_walletAddress)
                 {
                     m_walletAddress = address;
@@ -345,6 +364,7 @@ namespace GotchiHub
                 {
                     SetMenuScreen(MenuScreen.Connected);
                 }
+                
             }
             catch (System.Exception e)
             {
