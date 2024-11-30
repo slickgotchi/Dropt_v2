@@ -1,5 +1,5 @@
 using Cysharp.Threading.Tasks;
-using Nethereum.Unity.Rpc;
+//using Nethereum.Unity.Rpc;
 using PortalDefender.AavegotchiKit.Utils;
 using SimpleGraphQL;
 using System.Collections.Generic;

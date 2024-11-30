@@ -1,5 +1,5 @@
 using Aavegotchi.AavegotchiDiamond.Service;
-using Nethereum.Unity.Rpc;
+//using Nethereum.Unity.Rpc;
 using Nethereum.Web3;
 using PortalDefender.AavegotchiKit.Utils;
 using System;
@@ -23,8 +23,9 @@ namespace PortalDefender.AavegotchiKit.Blockchain
 
         private IWeb3 web3_ = null;
 
-        public IWeb3 web3 => 
-            web3_ ??= new Web3(new UnityWebRequestRpcTaskClient(new Uri(rpcUrl)));
+        public IWeb3 web3 =>
+            //web3_ ??= new Web3(new UnityWebRequestRpcTaskClient(new Uri(rpcUrl)));
+            web3_ ??= new Web3(rpcUrl);
 
         private AavegotchiDiamondService aavegotchiDiamond_ = null;
 
