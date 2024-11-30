@@ -1,6 +1,7 @@
 using Aavegotchi.AavegotchiDiamond.ContractDefinition;
 using Aavegotchi.AavegotchiDiamond.Service;
-using Nethereum.Unity.Rpc;
+//using Nethereum.Unity.Rpc;
+//using Nethereum.RPC;
 using Nethereum.Web3;
 using PortalDefender.AavegotchiKit.Blockchain;
 using System.Collections.Generic;
@@ -45,7 +46,9 @@ namespace PortalDefender.AavegotchiKit
         [ContextMenu("Fetch")]
         public async void Refresh()
         {
-            IWeb3 web3 = new Web3(new UnityWebRequestRpcTaskClient(new System.Uri(Web3Provider.DefaultPolygonRPC)));
+            //IWeb3 web3 = new Web3(new UnityWebRequestRpcTaskClient(new System.Uri(Web3Provider.DefaultPolygonRPC)));
+            IWeb3 web3 = new Web3(Web3Provider.DefaultPolygonRPC);
+
             var service = new AavegotchiDiamondService(web3, Web3Provider.DefaultAavegotchiDiamondAddress);
 
             var request = new GetAavegotchiSideSvgsFunction { TokenId = gotchiId_ };
