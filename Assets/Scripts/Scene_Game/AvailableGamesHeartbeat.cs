@@ -9,7 +9,7 @@ public class AvailableGamesHeartbeat : MonoBehaviour
 {
     public static AvailableGamesHeartbeat Instance { get; private set; }
 
-    private float k_heartbeatInterval = 2f;
+    private float k_heartbeatInterval = 3f;
     private float m_heartbeatTimer = 0f;
 
     private string getGamesUri = "https://manager.playdropt.io/getstatus";
@@ -43,15 +43,6 @@ public class AvailableGamesHeartbeat : MonoBehaviour
             m_heartbeatTimer = k_heartbeatInterval;
             GetGames();
         }
-
-        //if (Input.GetKeyDown(KeyCode.T))
-        //{
-        //    for (int i = 0; i < AvailableGames.Count; i++)
-        //    {
-        //        var ag = AvailableGames[i];
-        //        Debug.Log("Available gameId: " + ag.gameId + ", isServerReady: " + ag.isServerReady + ", isPublic: " + ag.isPublic);
-        //    }
-        //}
     }
 
     public bool IsServerReady(string gameId)
@@ -71,27 +62,34 @@ public class AvailableGamesHeartbeat : MonoBehaviour
 
     async UniTaskVoid GetGames()
     {
-        using (UnityWebRequest webRequest = UnityWebRequest.Get(getGamesUri))
+        try
         {
-            await webRequest.SendWebRequest().ToUniTask();
-
-            switch (webRequest.result)
+            using (UnityWebRequest webRequest = UnityWebRequest.Get(getGamesUri))
             {
-                case UnityWebRequest.Result.ConnectionError:
-                    Debug.Log("ConnectionError: Is the ServerManager running and has the correct uri been used?");
-                    break;
-                case UnityWebRequest.Result.DataProcessingError:
-                    Debug.Log("DataProcessingError: ");
-                    break;
-                case UnityWebRequest.Result.ProtocolError:
-                    //Debug.Log("ProtocolError");
-                    break;
-                case UnityWebRequest.Result.Success:
-                    string jsonResponse = webRequest.downloadHandler.text;
-                    GetGamesResponseData responseData = JsonUtility.FromJson<GetGamesResponseData>(jsonResponse);
-                    HandleGetGamesResponse(responseData);
-                    break;
+                await webRequest.SendWebRequest().ToUniTask();
+
+                switch (webRequest.result)
+                {
+                    case UnityWebRequest.Result.ConnectionError:
+                        Debug.Log("ConnectionError: Is the ServerManager running and has the correct uri been used?");
+                        break;
+                    case UnityWebRequest.Result.DataProcessingError:
+                        Debug.Log("DataProcessingError: ");
+                        break;
+                    case UnityWebRequest.Result.ProtocolError:
+                        Debug.Log("ProtocolError");
+                        break;
+                    case UnityWebRequest.Result.Success:
+                        string jsonResponse = webRequest.downloadHandler.text;
+                        GetGamesResponseData responseData = JsonUtility.FromJson<GetGamesResponseData>(jsonResponse);
+                        HandleGetGamesResponse(responseData);
+                        break;
+                }
             }
+        }
+        catch (System.Exception)
+        {
+            // do nothing
         }
     }
 
