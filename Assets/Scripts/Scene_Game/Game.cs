@@ -76,9 +76,16 @@ uYkQ4omYCTX5ohy+knMjdOmdH9c7SpqEWBDC86fiNex+O0XOMEZSa8DA
             {
                 // set a reasonably high target frame rate to reduce latency
                 Application.targetFrameRate = Bootstrap.IsRemoteConnection() ? 1200 : 60;
+                QualitySettings.vSyncCount = 0;
 
                 // connect server (call StartServer on NetworkManager)
                 ConnectServerGame();
+
+                // enable profiling
+                if (Bootstrap.IsRemoteConnection())
+                {
+                    UnityEngine.Profiling.Profiler.enabled = true;
+                }
 
                 // hide loading canvas
                 LoadingCanvas.Instance.gameObject.SetActive(false);
@@ -153,6 +160,8 @@ uYkQ4omYCTX5ohy+knMjdOmdH9c7SpqEWBDC86fiNex+O0XOMEZSa8DA
                 m_privkeyPem = File.ReadAllText("/usr/local/unity_server/privkey.pem");
 
                 m_unityTransport.SetServerSecrets(m_certPem, m_privkeyPem);
+
+
             }
 
             m_unityTransport.SetConnectionData(Bootstrap.Instance.IpAddress, Bootstrap.Instance.GamePort, "0.0.0.0");

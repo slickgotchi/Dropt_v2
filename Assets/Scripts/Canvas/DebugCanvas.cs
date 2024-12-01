@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
+using System.Reflection;
 
 public class DebugCanvas : MonoBehaviour
 {
@@ -16,6 +17,7 @@ public class DebugCanvas : MonoBehaviour
     public TextMeshProUGUI pingText;
     public TextMeshProUGUI networkObjectCountText;
     public TextMeshProUGUI gameObjectCountText;
+    public TextMeshProUGUI networkVariableCountText;
 
     private float m_fpsSampleTimer = 0;
     private List<float> m_fpsList = new List<float>();
@@ -44,14 +46,8 @@ public class DebugCanvas : MonoBehaviour
 
     public void SetPing(int ping)
     {
-        //m_pingList.Add(ping);
-        //if (m_pingList.Count > 20) m_pingList.RemoveAt(0);
-        //var sum = 0;
-        //foreach (var p in m_pingList) sum += p;
-
-        //m_ping = sum / m_pingList.Count;
-
         m_ping = ping;
+
     }
 
     public void SetServerFPS(int serverFPS)
@@ -90,7 +86,34 @@ public class DebugCanvas : MonoBehaviour
 
             var gameObjects = FindObjectsByType<GameObject>(FindObjectsInactive.Include, FindObjectsSortMode.None);
             gameObjectCountText.text = "GameObjects: " + gameObjects.Length.ToString("F0");
+
+            var networkVariables = GetAllNetworkVariables();
+            networkVariableCountText.text = "Network Variables: " + networkVariables.Count.ToString("F0");
+
         }
     }
 
+
+    List<object> GetAllNetworkVariables()
+    {
+        List<object> networkVariables = new List<object>();
+
+        foreach (var networkBehaviour in FindObjectsOfType<NetworkBehaviour>(true))
+        {
+            var fields = networkBehaviour.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+            foreach (var field in fields)
+            {
+                if (field.FieldType.IsGenericType && field.FieldType.GetGenericTypeDefinition() == typeof(NetworkVariable<>))
+                {
+                    var value = field.GetValue(networkBehaviour);
+                    if (value != null)
+                    {
+                        networkVariables.Add(value);
+                    }
+                }
+            }
+        }
+
+        return networkVariables;
+    }
 }

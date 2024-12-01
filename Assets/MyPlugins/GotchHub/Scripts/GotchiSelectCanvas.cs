@@ -182,7 +182,13 @@ namespace GotchiHub
 
         public void ClickOnConnect()
         {
-            var walletOptions = new WalletOptions(provider: WalletProvider.WalletConnectWallet, chainId: 137);
+            var newProvider = WalletProvider.WalletConnectWallet;
+
+            if (Application.platform == RuntimePlatform.WebGLPlayer)
+            {
+                newProvider = WalletProvider.MetaMaskWallet;
+            }
+            var walletOptions = new WalletOptions(provider: newProvider, chainId: 137);
 
             ThirdwebManager.Instance.ConnectWallet(walletOptions);
         }
