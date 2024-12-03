@@ -10,6 +10,7 @@ using Newtonsoft.Json; // For handling JSON
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.IO;
+using Unity.Mathematics;
 
 
 public class GameServerHeartbeat : MonoBehaviour
@@ -61,11 +62,14 @@ public class GameServerHeartbeat : MonoBehaviour
 
         try
         {
+            var playerCount = Game.Instance.IsClientReconnecting() ?
+                math.max(m_playerCount, 1) : m_playerCount;
+
             // Create the payload
             var payload = new
             {
                 gameId = Bootstrap.Instance.GameId,
-                playerCount = m_playerCount,
+                playerCount = playerCount,
                 isPublic = IsPublic
             };
             string jsonPayload = JsonConvert.SerializeObject(payload);
@@ -79,7 +83,7 @@ public class GameServerHeartbeat : MonoBehaviour
             var workerUri = "http://" + Bootstrap.Instance.IpAddress + ":" + Bootstrap.Instance.WorkerPort;
             var responseStr = await PostRequest(workerUri + "/gameheartbeat", json);
 
-            Debug.Log($"/gameheartbeat success, gameId: {payload.gameId}, playerCount: {m_playerCount}, isPublic: {IsPublic}");
+            //Debug.Log($"/gameheartbeat success, gameId: {payload.gameId}, playerCount: {m_playerCount}, isPublic: {IsPublic}");
         }
         catch (Exception e)
         {
@@ -109,13 +113,6 @@ public class GameServerHeartbeat : MonoBehaviour
             }
         }
     }
-
-
-    //private string ToUrlSafeBase64String(byte[] bytes)
-    //{
-    //    string base64 = Convert.ToBase64String(bytes);
-    //    return base64.Replace("+", "-").Replace("/", "_").TrimEnd('=');
-    //}
 
     private async UniTask<string> PostRequest(string url, string json)
     {
@@ -155,13 +152,4 @@ public class GameServerHeartbeat : MonoBehaviour
     {
         public string encryptedPayload;
     }
-
-
-    //[Serializable]
-    //struct InstanceHeartbeat_PostData
-    //{
-    //    public string gameId;
-    //    public int playerCount;
-    //    public bool isPublic;
-    //}
 }
