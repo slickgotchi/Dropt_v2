@@ -12,9 +12,9 @@ using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.SceneManagement;
 
-public class Game : MonoBehaviour
+public class PreGame : MonoBehaviour
 {
-    public static Game Instance { get; private set; }
+    public static PreGame Instance { get; private set; }
 
     UnityTransport m_unityTransport = null;
 
@@ -30,14 +30,21 @@ public class Game : MonoBehaviour
     // store current game Id
     private string m_currentGameId = "";
 
+    // for handling reconnections
     public bool isReconnecting = true;
-
     public float reconnectTimer = 30f;
     public bool isReconnectTimerActive = false;
 
     private void Awake()
     {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
     private void Start()
@@ -48,24 +55,18 @@ public class Game : MonoBehaviour
         m_unityTransport = NetworkManager.Singleton.GetComponent<UnityTransport>();
         if (m_unityTransport != null)
         {
-
             if (Bootstrap.IsServer())
             {
                 // set a reasonably high target frame rate to reduce latency
                 Application.targetFrameRate = Bootstrap.IsRemoteConnection() ? 1200 : 60;
                 QualitySettings.vSyncCount = 0;
 
-                // connect server (call StartServer on NetworkManager)
-                ConnectServerGame();
-
-                // enable profiling
-                if (Bootstrap.IsRemoteConnection())
-                {
-                    UnityEngine.Profiling.Profiler.enabled = true;
-                }
-
                 // hide loading canvas
                 LoadingCanvas.Instance.gameObject.SetActive(false);
+
+                // connect server
+                ConnectServerGame();
+
             }
             else if (Bootstrap.IsClient())
             {
@@ -146,9 +147,8 @@ public class Game : MonoBehaviour
         Debug.Log("privkey.pem");
         Debug.Log(m_privkeyPem);
 
-        // set connection data and start server
-        NetworkManager.Singleton.StartServer();
-        Debug.Log("StartServer()");
+        // connect
+        Connect();
     }
 
     public async UniTaskVoid ConnectClientGame(string gameId = "")
@@ -245,15 +245,37 @@ public class Game : MonoBehaviour
 
     public void Connect()
     {
-        // start client
-        var success = NetworkManager.Singleton.StartClient();
+        var success = true;
+
+        if (Bootstrap.IsClient())
+        {
+            success = NetworkManager.Singleton.StartClient();
+            Debug.Log("StartClient()");
+        }
+        else if (Bootstrap.IsServer())
+        {
+            success = NetworkManager.Singleton.StartServer();
+            Debug.Log("StartServer()");
+        }
+        else if (Bootstrap.IsHost())
+        {
+            success = NetworkManager.Singleton.StartHost();
+            Debug.Log("StartHost()");
+        }
+
+        // check for errors
         if (!success)
         {
-            ErrorDialogCanvas.Instance.Show("NetworkManager.Singleton.Start() client failed.");
+            ErrorDialogCanvas.Instance.Show("NetworkManager.Singleton.StartXXXX() failed.");
             SceneManager.LoadScene("Title");
             return;
         }
-        Debug.Log("StartClient()");
+
+        // if we got here we can safely transition to game scene
+        if (Bootstrap.IsServer() || Bootstrap.IsHost())
+        {
+            NetworkManager.Singleton.SceneManager.LoadScene("Game", LoadSceneMode.Single);
+        }
     }
 
     public void ReconnectClientGame()
@@ -298,7 +320,9 @@ public class Game : MonoBehaviour
         // Additional logic for Host, if needed
         Bootstrap.Instance.IpAddress = "127.0.0.1";
         Bootstrap.Instance.GamePort = 9000;
-        NetworkManager.Singleton.StartHost();
+
+        // connect
+        Connect();
     }
 
 

@@ -74,12 +74,12 @@ public class ConnectionApprovalHandler : MonoBehaviour
         if (Bootstrap.IsClient())
         {
             Debug.Log("Client was disconnected");
-            //Game.Instance.ReconnectClientGame();
+            //PreGame.Instance.ReconnectClientGame();
         }
 
         if (Bootstrap.IsServer())
         {
-            //Game.Instance.StartClientReconnectionTimer();
+            //PreGame.Instance.StartClientReconnectionTimer();
         }
 
         //if (!m_NetworkManager.IsServer && m_NetworkManager.DisconnectReason != string.Empty)

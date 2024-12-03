@@ -23,7 +23,7 @@ public class PlayerSVGs : NetworkBehaviour
         if (!IsClient) return;
 
         var newGotchiSvgs = GotchiDataManager.Instance.GetGotchiSvgsById(gotchiId);
-        Debug.Log("newGotchiSvgs: " + newGotchiSvgs + " for gotchi id: " + gotchiId);
+        //Debug.Log("newGotchiSvgs: " + newGotchiSvgs + " for gotchi id: " + gotchiId);
         if (newGotchiSvgs != null)
         {
             SetBodySpritesFromSvgSet(newGotchiSvgs);

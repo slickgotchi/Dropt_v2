@@ -62,7 +62,7 @@ public class GameServerHeartbeat : MonoBehaviour
 
         try
         {
-            var playerCount = Game.Instance.IsClientReconnecting() ?
+            var playerCount = PreGame.Instance.IsClientReconnecting() ?
                 math.max(m_playerCount, 1) : m_playerCount;
 
             // Create the payload

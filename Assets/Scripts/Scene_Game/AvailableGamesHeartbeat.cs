@@ -31,7 +31,6 @@ public class AvailableGamesHeartbeat : MonoBehaviour
 
     private void Update()
     {
-        ////if (!Game.Instance.IsConnected) return;
         if (!Bootstrap.IsClient()) return;
         if (Bootstrap.IsLocalConnection()) return;
         if (!Bootstrap.IsUseServerManager()) return;

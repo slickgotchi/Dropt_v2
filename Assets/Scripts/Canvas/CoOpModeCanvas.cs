@@ -80,12 +80,11 @@ public class CoOpModeCanvas : DroptCanvas
     void HandleClick_JoinPrivateButton()
     {
         //Debug.Log("CoOpModeCanvas.cs - Join private gameId: " + JoinPrivateInput.text);
-        Game.Instance.ConnectClientGame(JoinPrivateInput.text);
+        PreGame.Instance.ConnectClientGame(JoinPrivateInput.text);
     }
 
     void HandleChange_IsPublicToggle(bool isOn)
     {
-        //Debug.Log("Game.Instance.SetIsPublic to " + isOn);
         NetworkMessenger.Instance.SetGameIsPublic(isOn);
     }
 

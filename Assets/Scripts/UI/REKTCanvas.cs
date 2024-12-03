@@ -77,9 +77,10 @@ public class REKTCanvas : MonoBehaviour
     {
         Container.SetActive(false);
 
-        // reload the game scene
+        // reload the game scene (we need to destroy it to call Start() again)
+        //Destroy(PreGame.Instance.gameObject);
         SceneManager.LoadScene("Game");
 
-        //Game.Instance.TryConnectClientOrHostGame();
+        //PreGame.Instance.TryConnectClientOrHostGame();
     }
 }

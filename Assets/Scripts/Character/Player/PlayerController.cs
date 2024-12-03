@@ -54,12 +54,11 @@ public class PlayerController : NetworkBehaviour
     {
         base.OnNetworkSpawn();
 
+        Debug.Log("Player spawned");
+
         // local player
         if (IsLocalPlayer)
         {
-            m_cameraFollower = GameObject.FindGameObjectWithTag("CameraFollower");
-            m_cameraFollower.GetComponent<CameraFollowerAndPlayerInteractor>().Player = gameObject;
-
             m_selectedGotchiId = 0;
             m_localGotchiId = 0;
             int gotchiId = 0;
@@ -82,10 +81,10 @@ public class PlayerController : NetworkBehaviour
             }
 
             m_virtualCamera = virtualCameraGameObject.GetComponent<CinemachineVirtualCamera>();
-
-            //SetNetworkGotchiIdServerRpc(gotchiId);
         }
-        else
+
+
+        if (!IsLocalPlayer)
         {
             ScreenBlockers.SetActive(false);
         }
@@ -94,6 +93,78 @@ public class PlayerController : NetworkBehaviour
     public override void OnNetworkDespawn()
     {
         base.OnNetworkDespawn();
+    }
+
+    private void Update()
+    {
+        if (IsLocalPlayer)
+        {
+            if (m_positionText != null)
+            {
+                // update position text
+                var pos = transform.position;
+                m_positionText.text = $"({pos.x:F2}, {pos.y:F2})";
+            }
+
+            HandleLevelTransition();
+
+            // setup player hud
+            if (!m_isPlayerHUDInitialized && GetComponent<NetworkCharacter>() != null)
+            {
+                PlayerHUDCanvas.Instance.SetLocalPlayerCharacter(GetComponent<PlayerCharacter>());
+            }
+
+            // Set camera to follow player (if it exists)
+            if (m_cameraFollower == null)
+            {
+                m_cameraFollower = GameObject.FindGameObjectWithTag("CameraFollower");
+                if (m_cameraFollower != null)
+                {
+                    m_cameraFollower.GetComponent<CameraFollowerAndPlayerInteractor>().Player = gameObject;
+                }
+            }
+            else
+            {
+                m_cameraFollower.transform.position = m_playerPrediction.GetLocalPlayerInterpPosition() + new Vector3(0, 0.5f, 0f);
+            }
+
+
+            HandleNextLevelCheat();
+
+            // check for player input to ensure we stay active
+            CheckForPlayerInput();
+        }
+
+        // Handle level spawning on the server
+        if (IsServer && !IsLevelSpawnPositionSet)
+        {
+            var pos = LevelManager.Instance.TryGetPlayerSpawnPoint();
+            if (pos != null)
+            {
+                var spawnPoint = (Vector3)pos;
+                GetComponent<PlayerPrediction>().SetPlayerPosition(spawnPoint);
+
+                // Position the camera follower directly at the spawn point
+                SetCameraPositionClientRpc(spawnPoint + new Vector3(0, 0.5f, 0), GetComponent<NetworkObject>().NetworkObjectId);
+
+                // Call DropSpawn to perform any additional logic
+                GetComponent<PlayerGotchi>().PlayDropAnimation();
+
+                // Mark the spawn position as set
+                IsLevelSpawnPositionSet = true;
+                m_spawnPoint = spawnPoint;
+            }
+        }
+
+        HandleDegenapeHpAp();
+        HandleInactivePlayer();
+
+        // handle gotchi changes
+        HandleLocalGotchiIdChanges();
+        HandleRemoteGotchiIdChanges();
+
+        // keep the hold bar in position (webgl it is weirdly in wrong position);
+        if (m_holdBarCanvas != null) m_holdBarCanvas.transform.localPosition = new Vector3(0, 2, 0);
     }
 
     [Rpc(SendTo.Server)]
@@ -148,73 +219,13 @@ public class PlayerController : NetworkBehaviour
         if (!IsServer) return;
     }
 
-    private void Update()
-    {
-        if (IsLocalPlayer)
-        {
-            if (m_positionText != null)
-            {
-                // update position text
-                var pos = transform.position;
-                m_positionText.text = $"({pos.x:F2}, {pos.y:F2})";
-            }
-
-            HandleLevelTransition();
-
-            // setup player hud
-            if (!m_isPlayerHUDInitialized && GetComponent<NetworkCharacter>() != null)
-            {
-                PlayerHUDCanvas.Instance.SetLocalPlayerCharacter(GetComponent<PlayerCharacter>());
-            }
-
-            // Set camera to follow player
-            if (m_cameraFollower != null)
-            {
-                m_cameraFollower.transform.position = m_playerPrediction.GetLocalPlayerInterpPosition() + new Vector3(0, 0.5f, 0f);
-            }
-
-            HandleNextLevelCheat();
-
-            // check for player input to ensure we stay active
-            CheckForPlayerInput();
-        }
-
-        // Handle level spawning on the server
-        if (IsServer && !IsLevelSpawnPositionSet)
-        {
-            var pos = LevelManager.Instance.TryGetPlayerSpawnPoint();
-            if (pos != null)
-            {
-                var spawnPoint = (Vector3)pos;
-                GetComponent<PlayerPrediction>().SetPlayerPosition(spawnPoint);
-
-                // Position the camera follower directly at the spawn point
-                SetCameraPositionClientRpc(spawnPoint + new Vector3(0, 0.5f, 0), GetComponent<NetworkObject>().NetworkObjectId);
-
-                // Call DropSpawn to perform any additional logic
-                GetComponent<PlayerGotchi>().PlayDropAnimation();
-
-                // Mark the spawn position as set
-                IsLevelSpawnPositionSet = true;
-                m_spawnPoint = spawnPoint;
-            }
-        }
-
-        HandleDegenapeHpAp();
-        HandleInactivePlayer();
-
-        // handle gotchi changes
-        HandleLocalGotchiIdChanges();
-        HandleRemoteGotchiIdChanges();
-
-        // keep the hold bar in position (webgl it is weirdly in wrong position);
-        if (m_holdBarCanvas != null) m_holdBarCanvas.transform.localPosition = new Vector3(0, 2, 0);
-    }
+    
 
     [Rpc(SendTo.ClientsAndHost)]
     private void SetCameraPositionClientRpc(Vector3 position, ulong networkObjectId)
     {
         if (GetComponent<NetworkObject>().NetworkObjectId != networkObjectId) return;
+        if (m_cameraFollower == null) return;
 
         var delta = position - m_cameraFollower.transform.position;
         m_cameraFollower.transform.position = position;
@@ -228,11 +239,6 @@ public class PlayerController : NetworkBehaviour
         framingTransposer.m_ZDamping = 0;
 
         m_virtualCamera.OnTargetObjectWarped(m_cameraFollower.transform, delta);
-
-        // Restore original damping settings
-        //framingTransposer.m_XDamping = originalDamping;
-        //framingTransposer.m_YDamping = originalDamping;
-        //framingTransposer.m_ZDamping = originalDamping;
 
         m_isDoReset = true;
         m_resetTimer = 1f;
@@ -315,6 +321,7 @@ public class PlayerController : NetworkBehaviour
     private void HandleLevelTransition()
     {
         if (!IsLocalPlayer) return;
+        if (LevelManager.Instance == null) return;
 
         LevelManager.TransitionState state = LevelManager.Instance.transitionState.Value;
 

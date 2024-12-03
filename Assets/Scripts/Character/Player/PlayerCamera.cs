@@ -17,6 +17,8 @@ public class PlayerCamera : NetworkBehaviour
     {
         base.OnNetworkSpawn();
 
+        return;
+
         var virtualCameraGameObject = GameObject.FindGameObjectWithTag("VirtualCamera");
         if (virtualCameraGameObject == null)
         {
@@ -44,6 +46,8 @@ public class PlayerCamera : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
+        return;
+
         if (!IsLocalPlayer || !IsSpawned) return;
 
         m_shakeTimer_s -= Time.deltaTime;
