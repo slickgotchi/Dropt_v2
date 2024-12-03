@@ -35,16 +35,7 @@ public class Game : MonoBehaviour
     public float reconnectTimer = 30f;
     public bool isReconnectTimerActive = false;
 
-    public void StartClientReconnectionTimer()
-    {
-        isReconnectTimerActive = true;
-        reconnectTimer = 30f;
-    }
 
-    public bool IsClientReconnecting()
-    {
-        return isReconnectTimerActive && reconnectTimer > 0;
-    }
 
     private void Awake()
     {
@@ -142,25 +133,23 @@ public class Game : MonoBehaviour
 
     private void ConnectServerGame()
     {
-        bool isSecure = (Bootstrap.Instance.UseServerManager || Bootstrap.IsRemoteConnection()) && !Bootstrap.IsHost();
-
-        // UnityTransport
-        if (m_unityTransport != null)
+        if (m_unityTransport == null)
         {
-            m_unityTransport.UseEncryption = isSecure;
-
-            if (isSecure)
-            {
-                m_certPem = File.ReadAllText("/usr/local/unity_server/cert.pem");
-                m_privkeyPem = File.ReadAllText("/usr/local/unity_server/privkey.pem");
-
-                m_unityTransport.SetServerSecrets(m_certPem, m_privkeyPem);
-
-
-            }
-
-            m_unityTransport.SetConnectionData(Bootstrap.Instance.IpAddress, Bootstrap.Instance.GamePort, "0.0.0.0");
+            Debug.LogError("Unity Transport does not exist or is misconfigured!");
+            return;
         }
+
+        // do encryption
+        if (m_unityTransport.UseEncryption)
+        {
+            m_certPem = File.ReadAllText("/usr/local/unity_server/cert.pem");
+            m_privkeyPem = File.ReadAllText("/usr/local/unity_server/privkey.pem");
+
+            m_unityTransport.SetServerSecrets(m_certPem, m_privkeyPem);
+        }
+
+        // set connection data
+        m_unityTransport.SetConnectionData(Bootstrap.Instance.IpAddress, Bootstrap.Instance.GamePort, "0.0.0.0");
 
         // output the ip and gaem port we're using
         Debug.Log($"Connect to IP: {Bootstrap.Instance.IpAddress}, Port: {Bootstrap.Instance.GamePort}");
@@ -180,7 +169,6 @@ public class Game : MonoBehaviour
         Debug.Log("ConnectClientGame()");
 
         bool isGetEmptyGame = string.IsNullOrEmpty(gameId);
-        bool isSecure = (Bootstrap.Instance.UseServerManager || Bootstrap.IsRemoteConnection()) && !Bootstrap.IsHost();
 
         if (m_unityTransport == null)
         {
@@ -192,14 +180,12 @@ public class Game : MonoBehaviour
         // UnityTransport
         if (m_unityTransport != null)
         {
-            m_unityTransport.UseEncryption = isSecure;
-
-            if (isSecure)
+            if (Bootstrap.IsUseServerManager())
             {
+                Debug.Log("Managed Remote Client - Use ServerManager to locate a game");
                 // try find an empty game instance to join
                 Debug.Log("Get game with id: " + gameId + " and region: " + Bootstrap.GetRegionString());
                 var response = await ServerManagerAgent.Instance.GetGame(gameId, Bootstrap.GetRegionString());
-                Debug.Log("response: " + response);
 
                 // if no valid response, give error and go back to title
                 if (response == null)
@@ -222,25 +208,40 @@ public class Game : MonoBehaviour
                 Bootstrap.Instance.GamePort = ushort.Parse(response.gamePort);
                 m_chainPem = response.clientCA;
                 m_commonName = response.commonName;
-
-                m_unityTransport.SetClientSecrets(m_commonName, m_chainPem);
-
-                Debug.Log(Bootstrap.Instance.IpAddress);
-                Debug.Log(Bootstrap.Instance.GamePort);
-                Debug.Log(m_commonName);
-                Debug.Log(m_chainPem);
+            }
+            else
+            {
+                // REMOTE CONNECTION
+                if (Bootstrap.IsRemoteConnection())
+                {
+                    Debug.Log("Direct Remote Client - Establish direct remote connection");
+                    m_chainPem = m_testGameServerChainPem;
+                    m_commonName = m_testGameServerCommonName;
+                }
+                // LOCAL CONNECTION
+                else
+                {
+                    Debug.Log("Local Client - Establish local environment connection");
+                    Bootstrap.Instance.IpAddress = "127.0.0.1";
+                    Bootstrap.Instance.GamePort = 9000;
+                }
             }
 
-            // TEMP: USED FOR CONNECTING TO A DIRECT INSTANCE REMOTELY
-            //m_unityTransport.UseEncryption = true;
-            //m_unityTransport.SetClientSecrets(test_commonName, test_chainPem);
+            // set secrets for encrypted connections
+            if (m_unityTransport.UseEncryption)
+            {
+                m_unityTransport.SetClientSecrets(m_commonName, m_chainPem);
 
-            //Bootstrap.Instance.IpAddress = "192.241.141.211";
-            //Bootstrap.Instance.GamePort = 9000;
+            }
 
-            // END TEMP
-
+            // set connection data
             m_unityTransport.SetConnectionData(Bootstrap.Instance.IpAddress, Bootstrap.Instance.GamePort);
+
+            // output some info
+            Debug.Log(Bootstrap.Instance.IpAddress);
+            Debug.Log(Bootstrap.Instance.GamePort);
+            Debug.Log(m_commonName);
+            Debug.Log(m_chainPem);
         }
 
         Debug.Log($"Connect to IP: {Bootstrap.Instance.IpAddress}, Port: {Bootstrap.Instance.GamePort}");
@@ -274,6 +275,19 @@ public class Game : MonoBehaviour
 
         Debug.Log("ReconnectClientGame");
         ConnectClientGame(m_currentGameId);
+    }
+
+    public void StartClientReconnectionTimer()
+    {
+        if (!Bootstrap.IsServer()) return;
+
+        isReconnectTimerActive = true;
+        reconnectTimer = 30f;
+    }
+
+    public bool IsClientReconnecting()
+    {
+        return isReconnectTimerActive && reconnectTimer > 0;
     }
 
     public void ConnectHostGame()
@@ -316,4 +330,38 @@ public class Game : MonoBehaviour
             playerInput.enabled = isEnabled;
         }
     }
+
+    private string m_testGameServerCommonName = "worker-0001.playdropt.io";
+
+    private string m_testGameServerChainPem = @"
+-----BEGIN CERTIFICATE-----
+MIIFBjCCAu6gAwIBAgIRAIp9PhPWLzDvI4a9KQdrNPgwDQYJKoZIhvcNAQELBQAw
+TzELMAkGA1UEBhMCVVMxKTAnBgNVBAoTIEludGVybmV0IFNlY3VyaXR5IFJlc2Vh
+cmNoIEdyb3VwMRUwEwYDVQQDEwxJU1JHIFJvb3QgWDEwHhcNMjQwMzEzMDAwMDAw
+WhcNMjcwMzEyMjM1OTU5WjAzMQswCQYDVQQGEwJVUzEWMBQGA1UEChMNTGV0J3Mg
+RW5jcnlwdDEMMAoGA1UEAxMDUjExMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIB
+CgKCAQEAuoe8XBsAOcvKCs3UZxD5ATylTqVhyybKUvsVAbe5KPUoHu0nsyQYOWcJ
+DAjs4DqwO3cOvfPlOVRBDE6uQdaZdN5R2+97/1i9qLcT9t4x1fJyyXJqC4N0lZxG
+AGQUmfOx2SLZzaiSqhwmej/+71gFewiVgdtxD4774zEJuwm+UE1fj5F2PVqdnoPy
+6cRms+EGZkNIGIBloDcYmpuEMpexsr3E+BUAnSeI++JjF5ZsmydnS8TbKF5pwnnw
+SVzgJFDhxLyhBax7QG0AtMJBP6dYuC/FXJuluwme8f7rsIU5/agK70XEeOtlKsLP
+Xzze41xNG/cLJyuqC0J3U095ah2H2QIDAQABo4H4MIH1MA4GA1UdDwEB/wQEAwIB
+hjAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwEwEgYDVR0TAQH/BAgwBgEB
+/wIBADAdBgNVHQ4EFgQUxc9GpOr0w8B6bJXELbBeki8m47kwHwYDVR0jBBgwFoAU
+ebRZ5nu25eQBc4AIiMgaWPbpm24wMgYIKwYBBQUHAQEEJjAkMCIGCCsGAQUFBzAC
+hhZodHRwOi8veDEuaS5sZW5jci5vcmcvMBMGA1UdIAQMMAowCAYGZ4EMAQIBMCcG
+A1UdHwQgMB4wHKAaoBiGFmh0dHA6Ly94MS5jLmxlbmNyLm9yZy8wDQYJKoZIhvcN
+AQELBQADggIBAE7iiV0KAxyQOND1H/lxXPjDj7I3iHpvsCUf7b632IYGjukJhM1y
+v4Hz/MrPU0jtvfZpQtSlET41yBOykh0FX+ou1Nj4ScOt9ZmWnO8m2OG0JAtIIE38
+01S0qcYhyOE2G/93ZCkXufBL713qzXnQv5C/viOykNpKqUgxdKlEC+Hi9i2DcaR1
+e9KUwQUZRhy5j/PEdEglKg3l9dtD4tuTm7kZtB8v32oOjzHTYw+7KdzdZiw/sBtn
+UfhBPORNuay4pJxmY/WrhSMdzFO2q3Gu3MUBcdo27goYKjL9CTF8j/Zz55yctUoV
+aneCWs/ajUX+HypkBTA+c8LGDLnWO2NKq0YD/pnARkAnYGPfUDoHR9gVSp/qRx+Z
+WghiDLZsMwhN1zjtSC0uBWiugF3vTNzYIEFfaPG7Ws3jDrAMMYebQ95JQ+HIBD/R
+PBuHRTBpqKlyDnkSHDHYPiNX3adPoPAcgdF3H2/W0rmoswMWgTlLn1Wu0mrks7/q
+pdWfS6PJ1jty80r2VKsM/Dj3YIDfbjXKdaFU5C+8bhfJGqU3taKauuz0wHVGT3eo
+6FlWkWYtbt4pgdamlwVeZEW+LM7qZEJEsMNPrfC03APKmZsJgpWCDWOKZvkZcvjV
+uYkQ4omYCTX5ohy+knMjdOmdH9c7SpqEWBDC86fiNex+O0XOMEZSa8DA
+-----END CERTIFICATE-----
+";
 }

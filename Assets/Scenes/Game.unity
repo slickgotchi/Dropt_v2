@@ -5203,7 +5203,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 5, y: 0.0007451938}
+  m_AnchoredPosition: {x: 5, y: 0.000982854}
   m_SizeDelta: {x: -10, y: 300}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &340773159
@@ -5278,7 +5278,7 @@ MonoBehaviour:
   TutorialLevels:
   - {fileID: 2552284618184233016, guid: 8a0e05cfdff1917489ba4ea5ee502ac1, type: 3}
   - {fileID: 8575087351279563166, guid: 1c46c4daf9d53e54ca65597006bcf5b9, type: 3}
-  ApeVillageLevel: {fileID: 6013081601958011756, guid: 2a76efc870a494856af356c0231945d6, type: 3}
+  ApeVillageLevel: {fileID: 4017412747892297407, guid: 0b7b233a57cb94846bbf8f3684467501, type: 3}
   m_currentLevelType:
     m_InternalValue: 0
   LevelSpawningCount: 0
@@ -20330,6 +20330,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 505ffc0df896c5f4c94f15d5212b5daa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isReconnecting: 1
+  reconnectTimer: 30
+  isReconnectTimerActive: 0
 --- !u!1 &1193327136
 GameObject:
   m_ObjectHideFlags: 0
@@ -36414,7 +36417,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 7726011939055877477}
   m_HandleRect: {fileID: 7893278136872487645}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
