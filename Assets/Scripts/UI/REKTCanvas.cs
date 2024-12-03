@@ -100,13 +100,11 @@ public class REKTCanvas : MonoBehaviour
 
         int dustDelta = playerOffchainData.GetDustDeltaValue();
         m_GotchiDustCollectedText.text = dustDelta.ToString();
-        m_GotchiDustCollectedText.color = dustDelta < 0 ? new Color32(245, 85, 93, 255) : new Color32(153, 230, 95, 255);
 
         int bombDelta = playerOffchainData.GetBombDeltaValue();
         m_BombsUsedText.text = bombDelta.ToString();
 
         PlayerController playerController = player.GetComponent<PlayerController>();
-
         m_EnemiesSlainText.text = playerController.GetTotalKilledEnemies().ToString();
         m_DestructiblesSmashedText.text = playerController.GetTotalDestroyedDestructibles().ToString();
     }
