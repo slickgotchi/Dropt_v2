@@ -61,6 +61,8 @@ public class LevelManager : NetworkBehaviour
     {
         base.OnNetworkSpawn();
 
+        Debug.Log("LevelManager spawned");
+
         // reset server vars
         if (IsServer)
         {
@@ -72,13 +74,16 @@ public class LevelManager : NetworkBehaviour
         // if new client, check if we've done the tutorial
         if (IsClient)
         {
+
             var isTutorialComplete = PlayerPrefs.GetInt("IsTutorialComplete", 0);
             if (isTutorialComplete == 0 && Bootstrap.Instance.ShowTutorialLevel)
             {
+                Debug.Log("Try spawn Tutorial level");
                 TryGoToTutorialLevelServerRpc();
             }
             else
             {
+                Debug.Log("Try spawn Degenape Village level");
                 TryGoToDegenapeVillageLevelServerRpc();
             }
         }

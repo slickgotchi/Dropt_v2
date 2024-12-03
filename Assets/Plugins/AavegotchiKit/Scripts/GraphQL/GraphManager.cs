@@ -43,7 +43,7 @@ namespace PortalDefender.AavegotchiKit.GraphQL
             try
             {
                 coreGraphClient = new GraphQLClient(coreGraphConfig);
-                Debug.Log("Successfully created coreGraphClient: " + coreGraphClient);
+                //Debug.Log("Successfully created coreGraphClient: " + coreGraphClient);
             }
             catch (System.Exception ex)
             {
@@ -53,7 +53,7 @@ namespace PortalDefender.AavegotchiKit.GraphQL
             try
             {
                 svgGraphClient = new GraphQLClient(svgGraphConfig);
-                Debug.Log("Successfully created svgGraphClient: " + svgGraphClient);
+                //Debug.Log("Successfully created svgGraphClient: " + svgGraphClient);
             }
             catch (System.Exception ex)
             {

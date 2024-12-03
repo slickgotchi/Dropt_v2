@@ -128,7 +128,7 @@ public class PlayerCharacter : NetworkCharacter
 
         baseCriticalDamage = critDamage;
 
-        Debug.Log("Setting player stats, hp: " + hp + ", atk: " + attack + ", crit: " + critChance + ", ap: " + ap + ", doubleStrike: " + doubleStrikeChance + ", critDmg: " + critDamage);
+        //Debug.Log("Setting player stats, hp: " + hp + ", atk: " + attack + ", crit: " + critChance + ", ap: " + ap + ", doubleStrike: " + doubleStrikeChance + ", critDmg: " + critDamage);
 
         RecalculateStats();
     }

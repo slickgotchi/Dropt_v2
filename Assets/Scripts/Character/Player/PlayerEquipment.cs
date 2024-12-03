@@ -46,7 +46,7 @@ public class PlayerEquipment : NetworkBehaviour
     // this function called by PlayerController when gotchi changes
     public void Init(int gotchiId)
     {
-        Debug.Log("PlayerEquipment init for: " + gotchiId);
+        //Debug.Log("PlayerEquipment init for: " + gotchiId);
         SetPlayerWeaponsByGotchiId(gotchiId);
         SetPlayerPetByGotchiId(gotchiId);
     }

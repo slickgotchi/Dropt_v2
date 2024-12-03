@@ -36,7 +36,7 @@ namespace PortalDefender.AavegotchiKit.GraphQL
         {
             Query query = graphClient.FindQuery("GetGotchiInfo");
 
-            Debug.Log($"Getting gotchi {gotchiId_}");
+            //Debug.Log($"Getting gotchi {gotchiId_}");
 
             var resultJSON = await graphClient.Send(
                 query.ToRequest(new Dictionary<string, object> {
@@ -45,7 +45,7 @@ namespace PortalDefender.AavegotchiKit.GraphQL
                 .AsUniTask()
                 .AttachExternalCancellation(cancellationToken);
 
-            Debug.Log(resultJSON);
+            //Debug.Log(resultJSON);
 
             result_ = JsonUtility.FromJson<Result>(resultJSON);
 
