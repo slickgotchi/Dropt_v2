@@ -69,9 +69,21 @@ public class ConnectionApprovalHandler : MonoBehaviour
 
     private void OnClientDisconnectCallback(ulong obj)
     {
-        if (!m_NetworkManager.IsServer && m_NetworkManager.DisconnectReason != string.Empty)
+        // default behaviour is to try reconnect client game
+        // NOTE: this function internally checks for voluntary disconnects
+        if (Bootstrap.IsClient())
         {
-            Debug.Log($"Approval Declined Reason: {m_NetworkManager.DisconnectReason}");
+            Game.Instance.ReconnectClientGame();
         }
+
+        if (Bootstrap.IsServer())
+        {
+            Game.Instance.StartClientReconnectionTimer();
+        }
+
+        //if (!m_NetworkManager.IsServer && m_NetworkManager.DisconnectReason != string.Empty)
+        //{
+        //    Debug.Log($"Approval Declined Reason: {m_NetworkManager.DisconnectReason}");
+        //}
     }
 }
