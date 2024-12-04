@@ -163,7 +163,15 @@ namespace GotchiHub
 
         private void Awake()
         {
+            // Singleton pattern to ensure only one instance of the AudioManager exists
+            if (Instance != null && Instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
             Instance = this;
+
             VisitAavegotchiButton.onClick.AddListener(HandleOnClick_VisitAavegotchiButton);
             ConfirmButton.onClick.AddListener(ClickOnConfirm);
             ConnectButton.onClick.AddListener(ClickOnConnect);
@@ -342,6 +350,8 @@ namespace GotchiHub
 
             try
             {
+                if (ThirdwebManager.Instance == null) return;
+
                 // get current wallet
                 var wallet = ThirdwebManager.Instance.GetActiveWallet();
                 if (wallet == null)

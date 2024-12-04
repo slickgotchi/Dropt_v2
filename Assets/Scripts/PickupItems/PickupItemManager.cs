@@ -12,8 +12,16 @@ public sealed class PickupItemManager : NetworkBehaviour
 
     private void Awake()
     {
-        m_prefabByInstanceMap = new Dictionary<GameObject, GameObject>();
+        // Singleton pattern to ensure only one instance of the AudioManager exists
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         Instance = this;
+
+        m_prefabByInstanceMap = new Dictionary<GameObject, GameObject>();
     }
 
     public enum Size
@@ -114,7 +122,7 @@ public sealed class PickupItemManager : NetworkBehaviour
 
     private NetworkObject GetFromPool(GameObject prefab, Vector3 randPosition)
     {
-        return NetworkObjectPool.Singleton
+        return NetworkObjectPool.Instance
             .GetNetworkObject(prefab, randPosition, Quaternion.identity);
     }
 
@@ -136,7 +144,7 @@ public sealed class PickupItemManager : NetworkBehaviour
             networkObj.gameObject.SetActive(false);
             networkObj.Despawn(false);
 
-            NetworkObjectPool.Singleton.ReturnNetworkObject(networkObj, prefab);
+            NetworkObjectPool.Instance.ReturnNetworkObject(networkObj, prefab);
             m_prefabByInstanceMap.Remove(item.gameObject);
         }
     }

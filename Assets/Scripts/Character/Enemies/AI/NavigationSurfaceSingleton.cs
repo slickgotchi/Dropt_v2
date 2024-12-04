@@ -11,7 +11,15 @@ public class NavigationSurfaceSingleton : MonoBehaviour
 
     private void Awake()
     {
-        Instance = this; 
+        // Singleton pattern to ensure only one instance of the AudioManager exists
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+
         Surface = GetComponent<NavMeshSurface>();
     }
 

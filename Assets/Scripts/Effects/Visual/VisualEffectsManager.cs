@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class VisualEffectsManager : MonoBehaviour
 {
-    public static VisualEffectsManager Singleton { get; private set; }
+    public static VisualEffectsManager Instance { get; private set; }
 
     [SerializeField] private GameObject cloudExplosionPrefab;
     [SerializeField] private GameObject bulletExplosionPrefab;
@@ -23,15 +23,14 @@ public class VisualEffectsManager : MonoBehaviour
 
     private void Awake()
     {
-        if (Singleton == null)
-        {
-            Singleton = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else if (Singleton != this)
+        // Singleton pattern to ensure only one instance of the AudioManager exists
+        if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
+            return;
         }
+
+        Instance = this;
     }
 
     public GameObject SpawnCloudExplosion(Vector3 position)

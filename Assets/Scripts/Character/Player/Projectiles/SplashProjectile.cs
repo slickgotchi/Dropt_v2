@@ -121,7 +121,7 @@ public class SplashProjectile : NetworkBehaviour
             transform.position = m_finalPosition;
             if (Role != PlayerAbility.NetworkRole.RemoteClient) CollisionCheck();
             gameObject.SetActive(false);
-            VisualEffectsManager.Singleton.SpawnSplashExplosion(m_finalPosition, new Color(1, 0, 0, 0.5f), ExplosionRadius);
+            VisualEffectsManager.Instance.SpawnSplashExplosion(m_finalPosition, new Color(1, 0, 0, 0.5f), ExplosionRadius);
 
             bodySpriteRenderer.enabled = false;
             shadowSpriteRenderer.enabled = false;
@@ -180,7 +180,7 @@ public class SplashProjectile : NetworkBehaviour
 
     void Deactivate(Vector3 hitPosition)
     {
-        VisualEffectsManager.Singleton.SpawnBulletExplosion(hitPosition);
+        VisualEffectsManager.Instance.SpawnBulletExplosion(hitPosition);
         gameObject.SetActive(false);
 
         if (Role == PlayerAbility.NetworkRole.Server)
@@ -194,7 +194,7 @@ public class SplashProjectile : NetworkBehaviour
     {
         if (Role == PlayerAbility.NetworkRole.RemoteClient)
         {
-            VisualEffectsManager.Singleton.SpawnBulletExplosion(hitPosition);
+            VisualEffectsManager.Instance.SpawnBulletExplosion(hitPosition);
             gameObject.SetActive(false);
         }
     }

@@ -12,7 +12,7 @@ public class AttackCentre : NetworkBehaviour
     private void SpawnEffectClientRpc()
     {
         Vector3 attackEffectPosition = GetRandomPosition(transform.position, 0.3f);
-        GameObject effect = VisualEffectsManager.Singleton.SpawnPetAttackEffect(attackEffectPosition);
+        GameObject effect = VisualEffectsManager.Instance.SpawnPetAttackEffect(attackEffectPosition);
         effect.transform.SetParent(transform);
     }
 

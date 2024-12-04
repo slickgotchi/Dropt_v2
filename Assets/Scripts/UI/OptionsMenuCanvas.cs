@@ -6,30 +6,20 @@ using UnityEngine.UI;
 
 public class OptionsMenuCanvas : MonoBehaviour
 {
-    private static OptionsMenuCanvas _instance;
-    public static OptionsMenuCanvas Instance
-    {
-        get
-        {
-            if (_instance == null)
-            {
-                _instance = FindAnyObjectByType<OptionsMenuCanvas>() ?? new GameObject("OptionsMenuCanvas").AddComponent<OptionsMenuCanvas>();
-            }
-            return _instance;
-        }
-    }
+    public static OptionsMenuCanvas Instance { get; private set; }
 
     void Awake()
     {
         Container.SetActive(false);
 
-        if (_instance != null && _instance != this)
+        // Singleton pattern to ensure only one instance of the AudioManager exists
+        if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
             return;
         }
 
-        _instance = this;
+        Instance = this;
         DontDestroyOnLoad(gameObject);
     }
 

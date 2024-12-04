@@ -14,15 +14,14 @@ public class EnemyAIManager : MonoBehaviour
 
     private void Awake()
     {
-        // Ensure this is the only instance
-        if (Instance == null)
+        // Singleton pattern to ensure only one instance of the AudioManager exists
+        if (Instance != null && Instance != this)
         {
-            Instance = this;
+            Destroy(gameObject);
+            return;
         }
-        else
-        {
-            Destroy(gameObject); // Prevent multiple instances
-        }
+
+        Instance = this;
     }
 
     private void OnDestroy()

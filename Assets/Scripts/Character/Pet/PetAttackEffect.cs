@@ -16,6 +16,6 @@ public class PetAttackEffect : MonoBehaviour
     private void Despawn()
     {
         gameObject.SetActive(false);
-        VisualEffectsManager.Singleton.ReturnToPool(gameObject);
+        VisualEffectsManager.Instance.ReturnToPool(gameObject);
     }
 }

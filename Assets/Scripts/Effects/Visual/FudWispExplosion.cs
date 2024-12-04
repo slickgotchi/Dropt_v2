@@ -25,6 +25,6 @@ public class FudWispExplosion : MonoBehaviour
 
     private void ReturnToPool()
     {
-        VisualEffectsManager.Singleton.ReturnToPool(gameObject);
+        VisualEffectsManager.Instance.ReturnToPool(gameObject);
     }
 }

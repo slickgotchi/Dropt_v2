@@ -175,7 +175,7 @@ public class BallisticExplosionProjectile : NetworkBehaviour
                 LocalPlayer.GetComponent<PlayerCamera>().Shake();
 
                 // visual effect
-                VisualEffectsManager.Singleton.SpawnSplashExplosion(hitInfo.point, new Color(1, 0, 0, 0.5f), ExplosionRadius);
+                VisualEffectsManager.Instance.SpawnSplashExplosion(hitInfo.point, new Color(1, 0, 0, 0.5f), ExplosionRadius);
             }
 
             Explode(hitInfo.point);
@@ -189,7 +189,7 @@ public class BallisticExplosionProjectile : NetworkBehaviour
         if (LocalPlayer != null)
         {
             // visual effect
-            VisualEffectsManager.Singleton.SpawnSplashExplosion(position, new Color(1, 0, 0, 0.5f), ExplosionRadius);
+            VisualEffectsManager.Instance.SpawnSplashExplosion(position, new Color(1, 0, 0, 0.5f), ExplosionRadius);
         }
 
         // do explosion collision check
@@ -246,7 +246,7 @@ public class BallisticExplosionProjectile : NetworkBehaviour
     void Deactivate(Vector3 hitPosition)
     {
         if (VisualGameObject != null) Destroy(VisualGameObject);
-        VisualEffectsManager.Singleton.SpawnBulletExplosion(hitPosition);
+        VisualEffectsManager.Instance.SpawnBulletExplosion(hitPosition);
         gameObject.SetActive(false);
 
         if (Role == PlayerAbility.NetworkRole.Server)
@@ -260,7 +260,7 @@ public class BallisticExplosionProjectile : NetworkBehaviour
     {
         if (Role == PlayerAbility.NetworkRole.RemoteClient)
         {
-            VisualEffectsManager.Singleton.SpawnBulletExplosion(hitPosition);
+            VisualEffectsManager.Instance.SpawnBulletExplosion(hitPosition);
             gameObject.SetActive(false);
         }
     }

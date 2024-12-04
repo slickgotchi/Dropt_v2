@@ -24,6 +24,13 @@ public class GameServerHeartbeat : MonoBehaviour
 
     private void Awake()
     {
+        // Singleton pattern to ensure only one instance of the AudioManager exists
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         Instance = this;
     }
 
@@ -62,7 +69,7 @@ public class GameServerHeartbeat : MonoBehaviour
 
         try
         {
-            var playerCount = PreGame.Instance.IsClientReconnecting() ?
+            var playerCount = Game.Instance.IsClientReconnecting() ?
                 math.max(m_playerCount, 1) : m_playerCount;
 
             // Create the payload

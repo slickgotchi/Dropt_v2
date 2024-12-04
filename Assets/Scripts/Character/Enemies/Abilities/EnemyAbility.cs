@@ -85,7 +85,7 @@ public class EnemyAbility : NetworkBehaviour
     [Rpc(SendTo.ClientsAndHost)]
     protected void SpawnBasicCircleClientRpc(Vector3 position, Color color, float explosionRadius)
     {
-        VisualEffectsManager.Singleton.SpawnBasicCircle(position, color, explosionRadius);
+        VisualEffectsManager.Instance.SpawnBasicCircle(position, color, explosionRadius);
     }
 
 

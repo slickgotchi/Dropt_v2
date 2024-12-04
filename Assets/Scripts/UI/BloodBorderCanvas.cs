@@ -20,15 +20,14 @@ public class BloodBorderCanvas : MonoBehaviour
 
     private void Awake()
     {
-        // Ensure there's only one instance of this object (singleton pattern)
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else
+        // Singleton pattern to ensure only one instance of the AudioManager exists
+        if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
+            return;
         }
+
+        Instance = this;
 
         SetImageAlpha(0f);
 

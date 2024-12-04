@@ -30,13 +30,22 @@ public class Game : MonoBehaviour
     // store current game Id
     private string m_currentGameId = "";
 
-    public bool isReconnecting = true;
+    [HideInInspector] public bool isReconnecting = true;
 
     public float reconnectTimer = 30f;
-    public bool isReconnectTimerActive = false;
+    [HideInInspector] public bool isReconnectTimerActive = false;
+
+    //public List<GameObject> afterConnectSpawnPrefabs_SERVER = new List<GameObject>();
 
     private void Awake()
     {
+        // Singleton pattern to ensure only one instance of the AudioManager exists
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         Instance = this;
     }
 
@@ -55,17 +64,11 @@ public class Game : MonoBehaviour
                 Application.targetFrameRate = Bootstrap.IsRemoteConnection() ? 1200 : 60;
                 QualitySettings.vSyncCount = 0;
 
-                // connect server (call StartServer on NetworkManager)
-                ConnectServerGame();
-
-                // enable profiling
-                if (Bootstrap.IsRemoteConnection())
-                {
-                    UnityEngine.Profiling.Profiler.enabled = true;
-                }
-
                 // hide loading canvas
                 LoadingCanvas.Instance.gameObject.SetActive(false);
+
+                // connect
+                ConnectServerGame();
             }
             else if (Bootstrap.IsClient())
             {
@@ -97,7 +100,7 @@ public class Game : MonoBehaviour
         if (m_isTryConnectClientGame && !NetworkManager.Singleton.ShutdownInProgress)
         {
             m_isTryConnectClientGame = false;
-            Connect();
+            TryConnect();
         }
 
         if (Bootstrap.IsServer())
@@ -115,8 +118,6 @@ public class Game : MonoBehaviour
     }
 
     private float m_noTimer = 0f;
-
-
 
     private void ConnectServerGame()
     {
@@ -146,10 +147,19 @@ public class Game : MonoBehaviour
         Debug.Log("privkey.pem");
         Debug.Log(m_privkeyPem);
 
-        // set connection data and start server
-        NetworkManager.Singleton.StartServer();
-        Debug.Log("StartServer()");
+        // connect
+        TryConnect();
+        //SpawnAfterConnectSpawnPrefabs();
     }
+
+    //private void SpawnAfterConnectSpawnPrefabs()
+    //{
+    //    foreach (var spawn in afterConnectSpawnPrefabs_SERVER)
+    //    {
+    //        var no_spawn = Instantiate(spawn);
+    //        no_spawn.GetComponent<NetworkObject>().Spawn();
+    //    }
+    //}
 
     public async UniTaskVoid ConnectClientGame(string gameId = "")
     {
@@ -243,17 +253,27 @@ public class Game : MonoBehaviour
     }
 
 
-    public void Connect()
+    public bool TryConnect()
     {
-        // start client
-        var success = NetworkManager.Singleton.StartClient();
-        if (!success)
+        var success = true;
+
+        if (Bootstrap.IsClient())
         {
-            ErrorDialogCanvas.Instance.Show("NetworkManager.Singleton.Start() client failed.");
-            SceneManager.LoadScene("Title");
-            return;
+            success = NetworkManager.Singleton.StartClient();
+            Debug.Log("StartClient()");
         }
-        Debug.Log("StartClient()");
+        else if (Bootstrap.IsServer())
+        {
+            success = NetworkManager.Singleton.StartServer();
+            Debug.Log("StartServer()");
+        }
+        else if (Bootstrap.IsHost())
+        {
+            success = NetworkManager.Singleton.StartHost();
+            Debug.Log("StartHost()");
+        }
+
+        return success;
     }
 
     public void ReconnectClientGame()
@@ -298,10 +318,11 @@ public class Game : MonoBehaviour
         // Additional logic for Host, if needed
         Bootstrap.Instance.IpAddress = "127.0.0.1";
         Bootstrap.Instance.GamePort = 9000;
-        NetworkManager.Singleton.StartHost();
+
+        // connect
+        TryConnect();
+        //SpawnAfterConnectSpawnPrefabs();
     }
-
-
 
     private void SetInputSystemEnabled(bool isEnabled)
     {

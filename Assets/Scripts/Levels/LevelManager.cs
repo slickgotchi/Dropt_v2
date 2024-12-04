@@ -22,7 +22,7 @@ public class LevelManager : NetworkBehaviour
     private List<GameObject> m_levels = new List<GameObject>();
     private GameObject m_currentLevel;
     private int m_currentLevelIndex_SERVER = -1;
-    public NetworkVariable<Level.NetworkLevel.LevelType> m_currentLevelType =
+    [HideInInspector] public NetworkVariable<Level.NetworkLevel.LevelType> m_currentLevelType =
         new NetworkVariable<Level.NetworkLevel.LevelType>(Level.NetworkLevel.LevelType.Null);
 
     // var for numbering/naming levels
@@ -52,7 +52,15 @@ public class LevelManager : NetworkBehaviour
 
     private void Awake()
     {
+        // Singleton pattern to ensure only one instance of the AudioManager exists
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         Instance = this;
+
         transitionState = new NetworkVariable<TransitionState>(TransitionState.Null);
     }
 

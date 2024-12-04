@@ -24,6 +24,6 @@ public class SplashExplosion : MonoBehaviour
 
     private void ReturnToPool()
     {
-        VisualEffectsManager.Singleton.ReturnToPool(gameObject);
+        VisualEffectsManager.Instance.ReturnToPool(gameObject);
     }
 }

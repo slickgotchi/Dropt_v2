@@ -25,6 +25,6 @@ public class CloudExplosion : MonoBehaviour
     private void ReturnToPool()
     {
         transform.localScale = Vector3.one;
-        VisualEffectsManager.Singleton.ReturnToPool(gameObject);
+        VisualEffectsManager.Instance.ReturnToPool(gameObject);
     }
 }

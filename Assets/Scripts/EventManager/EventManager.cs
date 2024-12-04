@@ -15,35 +15,18 @@ public class EventManager : NetworkBehaviour
 
     private void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            m_eventDictionary = new Dictionary<string, Action>();
-            m_eventDictionaryWithParams = new Dictionary<string, Action<object>>();
-            DontDestroyOnLoad(gameObject);
-        }
-        else
+        // Singleton pattern to ensure only one instance of the AudioManager exists
+        if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
+            return;
         }
-    }
 
-    //public override void OnNetworkSpawn()
-    //{
-    //    base.OnNetworkSpawn();
-    //    // Ensure there's only one instance of EventManager
-    //    if (Instance == null)
-    //    {
-    //        Instance = this;
-    //        m_eventDictionary = new Dictionary<string, Action>();
-    //        m_eventDictionaryWithParams = new Dictionary<string, Action<object>>();
-    //        DontDestroyOnLoad(gameObject);
-    //    }
-    //    else
-    //    {
-    //        Destroy(gameObject);
-    //    }
-    //}
+        Instance = this;
+
+        m_eventDictionary = new Dictionary<string, Action>();
+        m_eventDictionaryWithParams = new Dictionary<string, Action<object>>();
+    }
 
     #region Event without parameters
 
