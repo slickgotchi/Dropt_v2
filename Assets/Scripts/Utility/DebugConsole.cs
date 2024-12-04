@@ -15,7 +15,7 @@ public class DebugConsole : MonoBehaviour, IDragHandler
     public Color warningColor = Color.yellow; // Color of the warning log text
     public Color errorColor = Color.red; // Color of the error/exception log text
 
-    private static DebugConsole instance;
+    private static DebugConsole Instance;
 
     private GameObject consoleUI;
     private Text consoleText;
@@ -29,18 +29,19 @@ public class DebugConsole : MonoBehaviour, IDragHandler
 
     private void Awake()
     {
-        if (instance == null)
-        {
-            instance = this;
-            DontDestroyOnLoad(gameObject);
-            isVisible = startVisible;
-            CreateConsoleUI();
-            Application.logMessageReceived += HandleLog;
-        }
-        else
+        // Singleton pattern to ensure only one instance of the AudioManager exists
+        if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
+            return;
         }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+
+        isVisible = startVisible;
+        CreateConsoleUI();
+        Application.logMessageReceived += HandleLog;
     }
 
     private void Start()
@@ -64,7 +65,6 @@ public class DebugConsole : MonoBehaviour, IDragHandler
     {
         // Create console UI container
         consoleUI = new GameObject("DebugConsole");
-        DontDestroyOnLoad(consoleUI); // Ensure console UI survives through scene changes
         Canvas canvas = consoleUI.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
         CanvasScaler canvasScaler = consoleUI.AddComponent<CanvasScaler>();

@@ -150,6 +150,8 @@ public class PlayerOffchainData : NetworkBehaviour
         // try get latest wallet address
         try
         {
+            if (ThirdwebManager.Instance == null) return;
+
             // get wallet
             var wallet = ThirdwebManager.Instance.GetActiveWallet();
             if (wallet == null) return;

@@ -9,7 +9,7 @@ namespace Core.Pool
 {
     public class NetworkObjectPool : NetworkBehaviour
     {
-        public static NetworkObjectPool Singleton { get; private set; }
+        public static NetworkObjectPool Instance { get; private set; }
 
         [SerializeField] List<PoolConfigObject> PooledPrefabsList;
 
@@ -20,14 +20,14 @@ namespace Core.Pool
 
         public void Awake()
         {
-            if (Singleton != null && Singleton != this)
+            // Singleton pattern to ensure only one instance of the AudioManager exists
+            if (Instance != null && Instance != this)
             {
                 Destroy(gameObject);
+                return;
             }
-            else
-            {
-                Singleton = this;
-            }
+
+            Instance = this;
         }
 
         public override void OnNetworkSpawn()

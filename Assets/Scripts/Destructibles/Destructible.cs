@@ -51,7 +51,7 @@ public class Destructible : NetworkBehaviour
 
         if (CurrentHp.Value <= damage)
         {
-            VisualEffectsManager.Singleton.SpawnCloudExplosion(transform.position + new Vector3(0, 0.5f, 0));
+            VisualEffectsManager.Instance.SpawnCloudExplosion(transform.position + new Vector3(0, 0.5f, 0));
         }
 
         if (IsServer)
@@ -85,7 +85,7 @@ public class Destructible : NetworkBehaviour
 
         if (CurrentHp.Value <= damage)
         {
-            VisualEffectsManager.Singleton.SpawnCloudExplosion(transform.position + new Vector3(0, 0.5f, 0));
+            VisualEffectsManager.Instance.SpawnCloudExplosion(transform.position + new Vector3(0, 0.5f, 0));
         }
     }
 

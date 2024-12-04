@@ -16,6 +16,6 @@ public class BulletExplosion : MonoBehaviour
 
     private void ReturnToPool()
     {
-        VisualEffectsManager.Singleton.ReturnToPool(gameObject);
+        VisualEffectsManager.Instance.ReturnToPool(gameObject);
     }
 }

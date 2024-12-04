@@ -170,7 +170,7 @@ public class GenericProjectile : NetworkBehaviour
     {
         if (VisualGameObject != null) Destroy(VisualGameObject);
 
-        VisualEffectsManager.Singleton.SpawnBulletExplosion(hitPosition);
+        VisualEffectsManager.Instance.SpawnBulletExplosion(hitPosition);
         gameObject.SetActive(false);
 
         if (Role == PlayerAbility.NetworkRole.Server)
@@ -186,7 +186,7 @@ public class GenericProjectile : NetworkBehaviour
     {
         if (Role == PlayerAbility.NetworkRole.RemoteClient)
         {
-            VisualEffectsManager.Singleton.SpawnBulletExplosion(hitPosition);
+            VisualEffectsManager.Instance.SpawnBulletExplosion(hitPosition);
             gameObject.SetActive(false);
         }
     }

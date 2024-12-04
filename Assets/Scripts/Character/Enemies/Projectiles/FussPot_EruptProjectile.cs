@@ -41,7 +41,7 @@ public class FussPot_EruptProjectile : NetworkBehaviour
     {
         if (IsClient)
         {
-            VisualEffectsManager.Singleton.SpawnCloudExplosion(transform.position);
+            VisualEffectsManager.Instance.SpawnCloudExplosion(transform.position);
             m_soundFX_ProjectileHitGround.Play();
         }
 

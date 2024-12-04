@@ -27,8 +27,14 @@ public class CoOpModeCanvas : DroptCanvas
 
     private void Awake()
     {
-        if (Instance == null) Instance = this;
-        else Destroy(gameObject);
+        // Singleton pattern to ensure only one instance of the AudioManager exists
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
 
         InstaHideCanvas();
 
@@ -80,7 +86,7 @@ public class CoOpModeCanvas : DroptCanvas
     void HandleClick_JoinPrivateButton()
     {
         //Debug.Log("CoOpModeCanvas.cs - Join private gameId: " + JoinPrivateInput.text);
-        PreGame.Instance.ConnectClientGame(JoinPrivateInput.text);
+        Game.Instance.ConnectClientGame(JoinPrivateInput.text);
     }
 
     void HandleChange_IsPublicToggle(bool isOn)

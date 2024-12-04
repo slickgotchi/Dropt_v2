@@ -24,16 +24,16 @@ public class WeaponSpriteManager : MonoBehaviour
 
     private void Awake()
     {
+        // Singleton pattern to ensure only one instance of the AudioManager exists
         if (_instance != null && _instance != this)
         {
-            Destroy(this.gameObject);
+            Destroy(gameObject);
+            return;
         }
-        else
-        {
-            _instance = this;
-            DontDestroyOnLoad(this.gameObject);
-            LoadAllWearableSprites();
-        }
+
+        _instance = this;
+        DontDestroyOnLoad(gameObject);
+        LoadAllWearableSprites();
     }
 
 

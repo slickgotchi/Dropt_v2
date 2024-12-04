@@ -6,23 +6,8 @@ using DG.Tweening;
 
 public class PlayerHUDCanvas : MonoBehaviour
 {
-    private static PlayerHUDCanvas _singleton;
 
-    public static PlayerHUDCanvas Instance
-    {
-        get
-        {
-            if (_singleton == null)
-            {
-                _singleton = FindFirstObjectByType<PlayerHUDCanvas>();
-                if (_singleton == null)
-                {
-                    Debug.LogError("There needs to be one active PlayerHUDCanvas script on a GameObject in your scene.");
-                }
-            }
-            return _singleton;
-        }
-    }
+    public static PlayerHUDCanvas Instance { get; private set; }
 
     [SerializeField] private GameObject m_container;
 
@@ -77,15 +62,14 @@ public class PlayerHUDCanvas : MonoBehaviour
 
     private void Awake()
     {
-        if (_singleton == null)
-        {
-            _singleton = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else if (_singleton != this)
+        // Singleton pattern to ensure only one instance of the AudioManager exists
+        if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
+            return;
         }
+
+        Instance = this;
     }
 
     public void SetLocalPlayerCharacter(PlayerCharacter localPlayerCharacter)

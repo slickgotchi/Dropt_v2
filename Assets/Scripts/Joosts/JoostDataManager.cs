@@ -9,14 +9,14 @@ public class JoostDataManager : MonoBehaviour
 
     private void Awake()
     {
+        // Singleton pattern to ensure only one instance of the AudioManager exists
         if (Instance != null && Instance != this)
         {
-            Destroy(this.gameObject);
+            Destroy(gameObject);
             return;
         }
 
         Instance = this;
-        DontDestroyOnLoad(this.gameObject);
 
         LoadJoostData();
     }

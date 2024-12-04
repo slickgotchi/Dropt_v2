@@ -322,7 +322,7 @@ public class PetController : NetworkBehaviour
     [ClientRpc]
     public void CloudExplosionClientRpc()
     {
-        GameObject cloud = VisualEffectsManager.Singleton.SpawnCloudExplosion(transform.position);
+        GameObject cloud = VisualEffectsManager.Instance.SpawnCloudExplosion(transform.position);
         cloud.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
     }
 

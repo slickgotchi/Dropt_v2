@@ -8,24 +8,24 @@ public class ServerManagerAgent : MonoBehaviour
 {
     public static ServerManagerAgent Instance { get; private set; }
 
-    public string serverManagerUri = "https://manager.playdropt.io";
+    private string m_serverManagerUri = "https://manager.playdropt.io";
 
     private void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
+        // Singleton pattern to ensure only one instance of the AudioManager exists
+        if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
+            return;
         }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
     private void Start()
     {
-        serverManagerUri = "https://manager.playdropt.io";
+        m_serverManagerUri = "https://manager.playdropt.io";
     }
 
     // /joinempty
@@ -36,7 +36,7 @@ public class ServerManagerAgent : MonoBehaviour
             // setup post data and post request
             var getEmptyPostData = new GetGame_PostData { gameId = gameId, region = region };
             string json = JsonUtility.ToJson(getEmptyPostData);
-            var responseString = await PostRequest(serverManagerUri + "/getgame", json);
+            var responseString = await PostRequest(m_serverManagerUri + "/getgame", json);
             Debug.Log(responseString);
 
             // Check if the response is not null

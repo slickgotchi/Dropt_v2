@@ -9,15 +9,14 @@ public class AudioLibrary : MonoBehaviour
     private void Awake()
     {
         // Singleton pattern to ensure only one instance of the AudioManager exists
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject); // Keep AudioManager persistent across scenes
-        }
-        else
+        if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
+            return;
         }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
     [Header("Music")]
