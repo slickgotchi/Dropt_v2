@@ -4,12 +4,17 @@ using Assets.Plugins;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using DG.Tweening;
 
 public class TitleCanvas : MonoBehaviour
 {
     [SerializeField] private Button playButton;
     [SerializeField] private Button optionsButton;
     [SerializeField] private TMPro.TMP_Dropdown regionDropdown;
+    [SerializeField] private CanvasGroup m_fadeOutCanvasGroup;
+    [SerializeField] private float m_fadeOutDuration = 1f;
+
+    private Tweener m_fadeTween;
 
     private const string ServerRegionKey = "ServerRegion";
 
@@ -47,6 +52,12 @@ public class TitleCanvas : MonoBehaviour
         }
 
         regionDropdown.onValueChanged.AddListener(Handle_DropdownChange);
+
+        if (m_fadeOutCanvasGroup != null)
+        {
+            m_fadeOutCanvasGroup.alpha = 1;
+            m_fadeTween = m_fadeOutCanvasGroup.DOFade(0, m_fadeOutDuration).SetEase(Ease.InOutQuad);
+        }
     }
 
     private void Handle_DropdownChange(int index)
@@ -73,5 +84,13 @@ public class TitleCanvas : MonoBehaviour
         }
 
         PlayerPrefs.SetString(ServerRegionKey, selectedRegion.ToUpper());
+    }
+
+    private void OnDestroy()
+    {
+        if (m_fadeTween != null && m_fadeTween.IsActive())
+        {
+            m_fadeTween.Kill();
+        }
     }
 }

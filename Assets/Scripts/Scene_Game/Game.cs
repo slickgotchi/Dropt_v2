@@ -35,6 +35,8 @@ public class Game : MonoBehaviour
     public float reconnectTimer = 30f;
     [HideInInspector] public bool isReconnectTimerActive = false;
 
+    public bool isServerReady = false;
+
     //public List<GameObject> afterConnectSpawnPrefabs_SERVER = new List<GameObject>();
 
     private void Awake()
@@ -266,6 +268,7 @@ public class Game : MonoBehaviour
         {
             success = NetworkManager.Singleton.StartServer();
             Debug.Log("StartServer()");
+            isServerReady = true;
         }
         else if (Bootstrap.IsHost())
         {
