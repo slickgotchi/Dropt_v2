@@ -5,8 +5,10 @@ using UnityEngine;
 public class LoadingCanvas : MonoBehaviour
 {
     public static LoadingCanvas Instance { get; private set; }
+    
+    [SerializeField] private TMPro.TextMeshProUGUI m_droppingText;
 
-    public Animator Animator;
+    [SerializeField] private Animator m_animator;
 
     private void Awake()
     {
@@ -19,7 +21,20 @@ public class LoadingCanvas : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
+    }
 
-        Animator = GetComponent<Animator>();
+    public void InstaBlack()
+    {
+        m_animator.Play("LoadingCanvas_Default");
+    }
+
+    public void WipeIn()
+    {
+        m_animator.Play("LoadingCanvas_WipeIn");
+    }
+
+    public void WipeOut()
+    {
+        m_animator.Play("LoadingCanvas_WipeOut");
     }
 }

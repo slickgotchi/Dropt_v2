@@ -22,6 +22,8 @@ public class GameServerHeartbeat : MonoBehaviour
     private float k_heartbeatInterval = 2f;
     public bool IsPublic = false;
 
+    private bool m_isFirstPlayerJoined = false;
+
     private void Awake()
     {
         // Singleton pattern to ensure only one instance of the AudioManager exists
@@ -32,6 +34,8 @@ public class GameServerHeartbeat : MonoBehaviour
         }
 
         Instance = this;
+
+        m_isFirstPlayerJoined = false;
     }
 
     private void Start()
@@ -60,6 +64,11 @@ public class GameServerHeartbeat : MonoBehaviour
     {
         m_playerCount = FindObjectsByType<PlayerController>(FindObjectsSortMode.None).Length;
 
+        if (m_playerCount > 0)
+        {
+            m_isFirstPlayerJoined = true;
+        }
+
         string HEARTBEAT_SECRET = Bootstrap.Instance.HeartbeatSecret;
         if (string.IsNullOrEmpty(HEARTBEAT_SECRET))
         {
@@ -72,13 +81,18 @@ public class GameServerHeartbeat : MonoBehaviour
             var playerCount = Game.Instance.IsClientReconnecting() ?
                 math.max(m_playerCount, 1) : m_playerCount;
 
+            // determine the status of our server
+            string status = Game.Instance.isServerReady ? "ready" : "starting";
+            if (m_isFirstPlayerJoined && m_playerCount <= 0) status = "destroying";
+            if (m_playerCount >= 3) status = "full";
+
             // Create the payload
             var payload = new
             {
                 gameId = Bootstrap.Instance.GameId,
                 playerCount = playerCount,
                 isPublic = IsPublic,
-                isReady = Game.Instance.isServerReady,
+                status = status,
             };
             string jsonPayload = JsonConvert.SerializeObject(payload);
 

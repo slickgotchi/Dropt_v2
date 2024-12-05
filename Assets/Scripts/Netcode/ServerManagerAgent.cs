@@ -83,6 +83,7 @@ public class ServerManagerAgent : MonoBehaviour
             catch (Exception e)
             {
                 Debug.LogWarning($"Exception: {e.Message}");
+                ErrorDialogCanvas.Instance.Show(e.Message);
                 return null; // Return null in case of exception
             }
         }
