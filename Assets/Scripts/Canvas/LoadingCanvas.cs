@@ -10,6 +10,9 @@ public class LoadingCanvas : MonoBehaviour
 
     [SerializeField] private Animator m_animator;
 
+    private enum LoadingCanvasState { Clear, BlackedOut, WipedIn, WipedOut }
+    private LoadingCanvasState m_loadingCanvasState = LoadingCanvasState.Clear;
+
     private void Awake()
     {
         // Singleton pattern to ensure only one instance of the AudioManager exists
@@ -25,16 +28,41 @@ public class LoadingCanvas : MonoBehaviour
 
     public void InstaBlack()
     {
-        m_animator.Play("LoadingCanvas_Default");
+        m_animator.Play("LoadingCanvas_InstaBlack");
+
+        m_loadingCanvasState = LoadingCanvasState.BlackedOut;
+    }
+
+    public void InstaClear()
+    {
+        m_animator.Play("LoadingCanvas_InstaClear");
+
+        m_loadingCanvasState = LoadingCanvasState.Clear;
     }
 
     public void WipeIn()
     {
-        m_animator.Play("LoadingCanvas_WipeIn");
+        if (m_loadingCanvasState == LoadingCanvasState.Clear
+            || m_loadingCanvasState == LoadingCanvasState.WipedOut)
+        {
+            m_animator.Play("LoadingCanvas_WipeIn");
+            m_loadingCanvasState = LoadingCanvasState.WipedIn;
+            Debug.Log("Wipe In");
+        }
+
     }
 
     public void WipeOut()
     {
-        m_animator.Play("LoadingCanvas_WipeOut");
+        if (m_loadingCanvasState == LoadingCanvasState.BlackedOut
+            || m_loadingCanvasState == LoadingCanvasState.WipedIn)
+        {
+            m_animator.Play("LoadingCanvas_WipeOut");
+
+            m_loadingCanvasState = LoadingCanvasState.WipedOut;
+
+            Debug.Log("Wipe Out");
+        }
+
     }
 }
