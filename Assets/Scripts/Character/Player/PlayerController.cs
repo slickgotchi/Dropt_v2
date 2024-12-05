@@ -313,52 +313,35 @@ public class PlayerController : NetworkBehaviour
 
 
     // parameters for handle loading canvas
-    private bool shouldBeBlackedOut = true;
-    private bool isBlackedOut = true;
+    //private bool shouldBeBlackedOut = true;
+    //private bool isBlackedOut = true;
     private bool isFirstLoad = true;
+
+    private enum LoadingCanvasState { Null, BlackOut, WipeIn, WipeOut }
+    private LoadingCanvasState loadingCanvasState = LoadingCanvasState.Null;
 
     // handle loading canvas
     private void HandleLevelTransition()
     {
         if (!IsLocalPlayer) return;
         if (LevelManager.Instance == null) return;
+        
 
         LevelManager.TransitionState state = LevelManager.Instance.transitionState.Value;
 
         if (state == LevelManager.TransitionState.Start ||
             state == LevelManager.TransitionState.ClientHeadsUp ||
-            state == LevelManager.TransitionState.GoToNext)
+            state == LevelManager.TransitionState.GoToNext ||
+            state == LevelManager.TransitionState.ClientHeadsDown)
         {
-            shouldBeBlackedOut = true;
+            LoadingCanvas.Instance.WipeIn();
 
             // disable player input
             GetComponent<PlayerPrediction>().IsInputEnabled = false;
         }
-
-        if (state == LevelManager.TransitionState.ClientHeadsDown ||
-            state == LevelManager.TransitionState.End ||
-            state == LevelManager.TransitionState.Null)
-        {
-            shouldBeBlackedOut = false;
-        }
-
-        if (shouldBeBlackedOut && isFirstLoad)
-        {
-            LoadingCanvas.Instance.InstaBlack();
-        }
-
-        if (shouldBeBlackedOut && !isBlackedOut && !isFirstLoad)
-        {
-            LoadingCanvas.Instance.WipeIn();
-            isBlackedOut = true;
-        }
-
-        if (!shouldBeBlackedOut && isBlackedOut)
+        else if (state == LevelManager.TransitionState.End)
         {
             LoadingCanvas.Instance.WipeOut();
-            REKTCanvas.Instance.Container.SetActive(false);
-            isBlackedOut = false;
-            isFirstLoad = false;
         }
     }
 

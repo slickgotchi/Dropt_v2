@@ -41,10 +41,10 @@ public class LevelManager : NetworkBehaviour
     public enum TransitionState { Null, Start, ClientHeadsUp, GoToNext, ClientHeadsDown, End }
     [HideInInspector] public NetworkVariable<TransitionState> transitionState;
 
-    private float m_headsUpDuration = 1f;
+    private float m_headsUpDuration = 0.5f;
     private float m_headsUpTimer = 0;
 
-    private float m_headsDownDuration = 1f;
+    private float m_headsDownDuration = 0.5f;
     private float m_headsDownTimer = 0;
 
     // this is for doing first spawn of level manager
@@ -286,7 +286,7 @@ public class LevelManager : NetworkBehaviour
                 break;
             case TransitionState.End:
 
-                transitionState.Value = TransitionState.Null;
+                //transitionState.Value = TransitionState.Null;
                 break;
             default:
                 break;
