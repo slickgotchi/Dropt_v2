@@ -77,7 +77,8 @@ public class GameServerHeartbeat : MonoBehaviour
             {
                 gameId = Bootstrap.Instance.GameId,
                 playerCount = playerCount,
-                isPublic = IsPublic
+                isPublic = IsPublic,
+                isReady = Game.Instance.isServerReady,
             };
             string jsonPayload = JsonConvert.SerializeObject(payload);
 
