@@ -344,18 +344,18 @@ public class PlayerController : NetworkBehaviour
 
         if (shouldBeBlackedOut && isFirstLoad)
         {
-            LoadingCanvas.Instance.Animator.Play("LoadingCanvas_Default");
+            LoadingCanvas.Instance.InstaBlack();
         }
 
         if (shouldBeBlackedOut && !isBlackedOut && !isFirstLoad)
         {
-            LoadingCanvas.Instance.Animator.Play("LoadingCanvas_WipeIn");
+            LoadingCanvas.Instance.WipeIn();
             isBlackedOut = true;
         }
 
         if (!shouldBeBlackedOut && isBlackedOut)
         {
-            LoadingCanvas.Instance.Animator.Play("LoadingCanvas_WipeOut");
+            LoadingCanvas.Instance.WipeOut();
             REKTCanvas.Instance.Container.SetActive(false);
             isBlackedOut = false;
             isFirstLoad = false;
