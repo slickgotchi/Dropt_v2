@@ -168,7 +168,7 @@ public class PlayerOffchainData : NetworkBehaviour
                 PlayerPrefs.SetString("WalletAddress", m_walletAddress);
                 GetLatestOffchainWalletDataServerRpc(m_walletAddress);
             }
-            
+
         }
         catch
         {
@@ -491,6 +491,11 @@ public class PlayerOffchainData : NetworkBehaviour
         }
 
         return true;
+    }
+
+    public bool DoWeHaveEctoGraterThanOrEqualTo(int value)
+    {
+        return value >= ectoBalance_offchain.Value;
     }
 
     // Method to remove ecto
