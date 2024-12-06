@@ -77,6 +77,7 @@ public class LevelManager : NetworkBehaviour
             m_isSpawnedFirstLevel = false;
             m_currentLevelIndex_SERVER = -1;
             m_depthCounter_SERVER = 0;
+            transitionState.Value = TransitionState.Null;
         }
 
         // if new client, check if we've done the tutorial

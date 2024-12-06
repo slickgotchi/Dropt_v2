@@ -97,6 +97,7 @@ public class PlayerController : NetworkBehaviour
     public override void OnNetworkDespawn()
     {
         base.OnNetworkDespawn();
+
     }
 
     private void Update()

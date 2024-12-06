@@ -26,17 +26,23 @@ public class LoadingCanvas : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Alpha0))
+        {
+            InstaClear();
+        }
+    }
+
     public void InstaBlack()
     {
         m_animator.Play("LoadingCanvas_InstaBlack");
-
         m_loadingCanvasState = LoadingCanvasState.BlackedOut;
     }
 
     public void InstaClear()
     {
         m_animator.Play("LoadingCanvas_InstaClear");
-
         m_loadingCanvasState = LoadingCanvasState.Clear;
     }
 
@@ -46,9 +52,7 @@ public class LoadingCanvas : MonoBehaviour
         {
             m_animator.Play("LoadingCanvas_WipeIn");
             m_loadingCanvasState = LoadingCanvasState.BlackedOut;
-            Debug.Log("Wipe In");
         }
-
     }
 
     public void WipeOut()
@@ -56,10 +60,7 @@ public class LoadingCanvas : MonoBehaviour
         if (m_loadingCanvasState == LoadingCanvasState.BlackedOut)
         {
             m_animator.Play("LoadingCanvas_WipeOut");
-
             m_loadingCanvasState = LoadingCanvasState.Clear;
-
-            Debug.Log("Wipe Out");
         }
 
     }

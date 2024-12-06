@@ -364,9 +364,6 @@ namespace GotchiHub
                 {
                     m_walletAddress = address;
 
-                    // connect to new wallet
-                    ConnectWallet();
-
                     // clear old list
                     ClearGotchiListChildren();
 
@@ -675,7 +672,7 @@ namespace GotchiHub
             var gotchiData = m_gotchiDataManager.localWalletGotchiData;
 
             // limit gotchi data to 20
-            for (int i = 0; i < math.min(gotchiSvgs.Count, 20); i++)
+            for (int i = 0; i < gotchiSvgs.Count; i++)
             {
                 var newGotchiSelectCard = Instantiate(gotchiSelectCard).GetComponent<GotchiSelectCard>();
                 if (newGotchiSelectCard != null)
