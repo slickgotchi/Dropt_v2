@@ -203,7 +203,7 @@ public class CleaveCycloneProjectile : NetworkBehaviour
                 if (hit.HasComponent<Destructible>())
                 {
                     var destructible = hit.GetComponent<Destructible>();
-                    destructible.TakeDamage(Wearable.WeaponTypeEnum.Cleave);
+                    destructible.TakeDamage(Wearable.WeaponTypeEnum.Cleave, LocalPlayer.GetComponent<NetworkObject>().NetworkObjectId);
                 }
             }
         }

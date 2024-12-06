@@ -39,12 +39,12 @@ public class Destructible : NetworkBehaviour
     //if (type == Type.Organic) audioOnHit = AudioLibrary.Instance.HitOrganic;
     //}
 
-    public void Explode()
+    public void Explode(ulong damageDealerId)
     {
-        TakeDamage(CurrentHp.Value);
+        TakeDamage(CurrentHp.Value, damageDealerId);
     }
 
-    public void TakeDamage(Wearable.WeaponTypeEnum weaponType)
+    public void TakeDamage(Wearable.WeaponTypeEnum weaponType, ulong damageDealerId)
     {
         var damage = CalculateDamageToDestructible(type, weaponType);
         m_soundFX_Destructible.PlayTakeDamageSound();
@@ -60,6 +60,7 @@ public class Destructible : NetworkBehaviour
             if (CurrentHp.Value <= 0)
             {
                 PRE_DIE?.Invoke();
+                NotifyPlayerToDestroyDestructible(damageDealerId);
                 GetComponent<NetworkObject>().Despawn();
                 DIE?.Invoke();
             }
@@ -69,13 +70,14 @@ public class Destructible : NetworkBehaviour
         damageWobble?.Play();
     }
 
-    public void TakeDamage(int damage)
+    public void TakeDamage(int damage, ulong damageDealerId)
     {
         if (IsServer)
         {
             CurrentHp.Value -= damage;
             if (IsServer && CurrentHp.Value <= 0)
             {
+                NotifyPlayerToDestroyDestructible(damageDealerId);
                 GetComponent<NetworkObject>().Despawn();
             }
         }
@@ -137,5 +139,12 @@ public class Destructible : NetworkBehaviour
     {
         base.OnNetworkDespawn();
         m_soundFX_Destructible.PlayDieSound();
+    }
+
+    private void NotifyPlayerToDestroyDestructible(ulong id)
+    {
+        NetworkObject networkObject = NetworkManager.SpawnManager.SpawnedObjects[id];
+        PlayerController playerController = networkObject.GetComponent<PlayerController>();
+        playerController?.DestroyDestructible();
     }
 }
