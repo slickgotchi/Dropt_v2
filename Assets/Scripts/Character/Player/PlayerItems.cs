@@ -90,7 +90,7 @@ public class PlayerItems : NetworkBehaviour
 
         PlayerCharacter playerCharacter = GetComponent<PlayerCharacter>();
         if (playerCharacter.IsHpFullyCharged()) return;
-        playerCharacter.ResetHp();
+        playerCharacter.RecoverHealthByPercentageOfTotalHp(40);
         m_playerOffchainData.UseHealSalveItem();
         UpdateHealSalveItemClientRpc(m_playerOffchainData.healSalveChargeCount_dungeon.Value,
                                      m_playerOffchainData.healSalveDungeonCharges_offchain.Value);
