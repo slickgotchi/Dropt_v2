@@ -66,7 +66,8 @@ public class GotchiSelectCard : MonoBehaviour
         {
             //Debug.Log("Setting offchain gotchi data");
             OffchainImage.sprite = offchainGotchiData.spriteFront;
-            OffchainImage.material = GotchiDataManager.Instance.Material_Sprite_Unlit_Default;
+            //OffchainImage.material = GotchiDataManager.Instance.Material_Sprite_Unlit_Default;
+            OffchainImage.material = null;
             m_nameText.text = offchainGotchiData.gotchiName;
             BRS = DroptStatCalculator.GetBRS(offchainGotchiData.numericTraits);
             OnchainSvgImage.enabled = false;
