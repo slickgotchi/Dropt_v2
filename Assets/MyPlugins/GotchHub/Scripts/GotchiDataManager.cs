@@ -27,10 +27,11 @@ namespace GotchiHub
         public GotchiSvgStyling stylingGame;
         public GotchiSvgStyling stylingUI;
 
+        // these are default gotchis free players can use
         [Header("Offchain & Default Gotchis")]
         public List<DefaultGotchiData> offchainGotchiData = new List<DefaultGotchiData>();
 
-        // these our local wallet gotchis
+        // these our local players wallet gotchis
         [HideInInspector] public List<GotchiData> localWalletGotchiData = new List<GotchiData>();
         [HideInInspector] public List<GotchiSvgSet> localWalletGotchiSvgSets = new List<GotchiSvgSet>();
 
@@ -43,12 +44,20 @@ namespace GotchiHub
 
         // Event declaration
         public event Action<int> onSelectedGotchi;
-        public event Action onFetchGotchiDataSuccess;
-        public event Action onFetchedLocalWalletGotchiCount;
+        public event Action onFetchAllGotchiDataAndSvgs;
+        public event Action onFetchedLocalWalletGotchiData;
         public event Action onFetchedWalletGotchiSVG;
 
         public enum DroptStat { Hp, AttackPower, CriticalChance, Ap, DoubleStrikeChance, CriticalDamage }
         public enum StatBreakdown { Total, Gotchi, Equipment }
+
+        public enum ReorganizeMethod
+        {
+            BRSLowToHigh,
+            BRSHighToLow,
+            IdLowToHigh,
+            IdHighToLow
+        }
 
         private void Awake()
         {
@@ -64,8 +73,14 @@ namespace GotchiHub
 
         private void Start()
         {
+            ClearGotchiDataAndSvgs();
+        }
+
+        private void ClearGotchiDataAndSvgs()
+        {
             localWalletGotchiData.Clear();
             localWalletGotchiSvgSets.Clear();
+            remoteGotchiData.Clear();
             remoteGotchiSvgSets.Clear();
         }
 
@@ -167,10 +182,8 @@ namespace GotchiHub
         {
             try
             {
-                
                 // clear all current data
-                localWalletGotchiData.Clear();
-                localWalletGotchiSvgSets.Clear();
+                ClearGotchiDataAndSvgs();
 
                 // get wallet
                 var wallet = ThirdwebManager.Instance.GetActiveWallet();
@@ -190,28 +203,30 @@ namespace GotchiHub
 
                 // fetch gotchis with aavegotchi kit
                 var userAccount = await graphManager.GetUserAccount(walletAddress);
-                Debug.Log("found user gotchis: " + userAccount.gotchisOwned.Length);
 
                 // save base gotchi data
-                var gotchiIds = new List<string>();
+                //var gotchiIds = new List<string>();
                 foreach (var gotchi in userAccount.gotchisOwned)
                 {
                     localWalletGotchiData.Add(gotchi);
-                    gotchiIds.Add(gotchi.id.ToString());
+                    //gotchiIds.Add(gotchi.id.ToString());
                 }
 
-                onFetchedLocalWalletGotchiCount?.Invoke();
+                // lets reorder the data to go from highest brs to lowest
+                ReorganizeLocalWalletGotchis(ReorganizeMethod.BRSHighToLow);
+
+                onFetchedLocalWalletGotchiData?.Invoke();
 
                 await FetchGotchiSvgsParallel(userAccount);
 
-                gotchiIds.Clear();
+                //gotchiIds.Clear();
 
                 // default to highest brs gotchi
                 if (localWalletGotchiData.Count > 0)
                 {
                     SetSelectedGotchiById(GetGotchiIdByHighestBRS());
 
-                    onFetchGotchiDataSuccess?.Invoke();
+                    onFetchAllGotchiDataAndSvgs?.Invoke();
                 }
                 
 
@@ -363,7 +378,37 @@ namespace GotchiHub
 
             return highestBrsId;
         }
+
+
+        public void ReorganizeLocalWalletGotchis(ReorganizeMethod method)
+        {
+            // Sort the list based on the selected method
+            switch (method)
+            {
+                case ReorganizeMethod.BRSLowToHigh:
+                    localWalletGotchiData.Sort((item1, item2) =>
+                        DroptStatCalculator.GetBRS(item1.numericTraits).CompareTo(DroptStatCalculator.GetBRS(item2.numericTraits)));
+                    break;
+
+                case ReorganizeMethod.BRSHighToLow:
+                    localWalletGotchiData.Sort((item1, item2) =>
+                        DroptStatCalculator.GetBRS(item2.numericTraits).CompareTo(DroptStatCalculator.GetBRS(item1.numericTraits)));
+                    break;
+
+                case ReorganizeMethod.IdLowToHigh:
+                    localWalletGotchiData.Sort((item1, item2) =>
+                        item1.id.CompareTo(item2.id));
+                    break;
+
+                case ReorganizeMethod.IdHighToLow:
+                    localWalletGotchiData.Sort((item1, item2) =>
+                        item2.id.CompareTo(item1.id));
+                    break;
+            }
+        }
     }
+
+    
 
     public class GotchiSvgSet
     {

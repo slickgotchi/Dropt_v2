@@ -7,6 +7,7 @@ using Thirdweb;
 using TMPro;
 using Cysharp.Threading.Tasks;
 using Thirdweb.Unity;
+using Unity.Mathematics;
 
 namespace GotchiHub
 {
@@ -236,8 +237,8 @@ namespace GotchiHub
             ClearGotchiListChildren();
 
             // sign up to onFetchData success function
-            m_gotchiDataManager.onFetchGotchiDataSuccess += HandleOnFetchGotchiDataSuccess;
-            m_gotchiDataManager.onFetchedLocalWalletGotchiCount += HandleOnFetchedLocalWalletGotchiCount;
+            m_gotchiDataManager.onFetchAllGotchiDataAndSvgs += HandleOnFetchAllGotchiDataAndSvgs;
+            m_gotchiDataManager.onFetchedLocalWalletGotchiData += HandleOnFetchedLocalWalletGotchiCount;
             m_gotchiDataManager.onFetchedWalletGotchiSVG += HandleOnFetchedWalletGotchiSVG;
         }
 
@@ -284,7 +285,7 @@ namespace GotchiHub
         {
             // Unsubscribe from events
             VisitAavegotchiButton.onClick.RemoveListener(HandleOnClick_VisitAavegotchiButton);
-            if (m_gotchiDataManager != null) m_gotchiDataManager.onFetchGotchiDataSuccess -= HandleOnFetchGotchiDataSuccess;
+            if (m_gotchiDataManager != null) m_gotchiDataManager.onFetchAllGotchiDataAndSvgs -= HandleOnFetchAllGotchiDataAndSvgs;
         }
 
         public override void OnShowCanvas()
@@ -299,35 +300,24 @@ namespace GotchiHub
 
         }
 
-        void HandleOnFetchGotchiDataSuccess()
+        void HandleOnFetchAllGotchiDataAndSvgs()
         {
-            //UpdateGotchiList();
+            UpdateGotchiList();
         }
 
-        private int m_totalGotchiCount = 0;
-        private int m_currentGotchiCount = 0;
 
         async void HandleOnFetchedLocalWalletGotchiCount()
         {
             await UniTask.DelayFrame(1);
 
-            m_totalGotchiCount = GotchiDataManager.Instance.localWalletGotchiData.Count;
-            LoadingInfoText.text = $"Loading Gotchis: {m_currentGotchiCount} / {m_totalGotchiCount}";
-            Debug.Log("Gotchi user count: " + m_totalGotchiCount);
+            LoadingInfoText.text = $"Loading Gotchis: {GotchiDataManager.Instance.localWalletGotchiSvgSets.Count} / {GotchiDataManager.Instance.localWalletGotchiData.Count}";
         }
 
         async void HandleOnFetchedWalletGotchiSVG()
         {
             await UniTask.DelayFrame(1);
 
-            m_currentGotchiCount = GotchiDataManager.Instance.localWalletGotchiSvgSets.Count;
-            LoadingInfoText.text = $"Loading Gotchis: {m_currentGotchiCount} / {m_totalGotchiCount}";
-            Debug.Log("Gotchi SVG count: " + m_currentGotchiCount);
-
-            if (m_currentGotchiCount >= m_totalGotchiCount)
-            {
-                UpdateGotchiList();
-            }
+            LoadingInfoText.text = $"Loading Gotchis: {GotchiDataManager.Instance.localWalletGotchiSvgSets.Count} / {GotchiDataManager.Instance.localWalletGotchiData.Count}";
         }
 
         private float k_updateInterval = 0.3f;
@@ -374,6 +364,12 @@ namespace GotchiHub
                 {
                     m_walletAddress = address;
 
+                    // connect to new wallet
+                    ConnectWallet();
+
+                    // clear old list
+                    ClearGotchiListChildren();
+
                     ConnectButton.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = address;
                     ConnectButton.GetComponentInChildren<Image>().color = Dropt.Utils.Color.HexToColor("#d3fc7e");
                     ConnectButton.GetComponentInChildren<TextEllipsisInMiddle>().UpdateTextWithEllipsis();
@@ -381,9 +377,12 @@ namespace GotchiHub
                     SetMenuScreen(MenuScreen.Loading);
 
                     // fetch new gotchis due to different address
+                    Debug.Log("Wallet address changed, fetch new wallet gotchi data");
                     m_isFetching = true;
                     await m_gotchiDataManager.FetchWalletGotchiData();
                     m_isFetching = false;
+
+                    Debug.Log("New wallet data fetched");
                 }
 
                 // show screen depending on gotchi count
@@ -674,7 +673,9 @@ namespace GotchiHub
             // 3. reate new instance of gotchi list item and set parent to gotchi list
             var gotchiSvgs = m_gotchiDataManager.localWalletGotchiSvgSets;
             var gotchiData = m_gotchiDataManager.localWalletGotchiData;
-            for (int i = 0; i < gotchiSvgs.Count; i++)
+
+            // limit gotchi data to 20
+            for (int i = 0; i < math.min(gotchiSvgs.Count, 20); i++)
             {
                 var newGotchiSelectCard = Instantiate(gotchiSelectCard).GetComponent<GotchiSelectCard>();
                 if (newGotchiSelectCard != null)
