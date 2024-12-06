@@ -101,13 +101,15 @@ public class NetworkCharacter : NetworkBehaviour
         // reduce damage
         damage *= (1 - DamageReduction.Value);
 
-        HandleEnemyTakeDamage(damage, isCritical, damageDealer != null ? damageDealer.GetComponent<NetworkObject>().NetworkObjectId : 0);
+        HandleEnemyTakeDamage(damage, isCritical, damageDealer);
         HandlePlayerTakeDamage(damage, isCritical, damageDealer != null ? damageDealer.GetComponent<NetworkObject>().NetworkObjectId : 0);
     }
 
     // ENEMY
-    public void HandleEnemyTakeDamage(float damage, bool isCritical, ulong damageDealerNOID = 0)
+    public void HandleEnemyTakeDamage(float damage, bool isCritical, GameObject damageDealer = null)
     {
+        ulong damageDealerNOID = damageDealer != null ? damageDealer.GetComponent<NetworkObject>().NetworkObjectId : 0;
+
         var enemyController = GetComponent<EnemyController>();
         if (enemyController == null) return;
 
@@ -119,6 +121,7 @@ public class NetworkCharacter : NetworkBehaviour
             if (player.GetComponent<NetworkObject>().IsLocalPlayer)
             {
                 localPlayerNOID = player.GetComponent<NetworkObject>().NetworkObjectId;
+                break;
             }
         }
 
@@ -159,6 +162,8 @@ public class NetworkCharacter : NetworkBehaviour
             if (HpCurrent.Value <= 0 && enemyController != null)
             {
                 Dropt.EnemyAI enemyAI = gameObject.GetComponent<Dropt.EnemyAI>();
+                PlayerController playerController = damageDealer.GetComponent<PlayerController>();
+                playerController?.KillEnemy();
                 if (enemyAI != null)
                 {
                     // the AI class will handle despawning (and some children may not imeediately despawn)
@@ -173,10 +178,10 @@ public class NetworkCharacter : NetworkBehaviour
             // do ap leech
             if (damageDealerNOID > 0)
             {
-                NetworkObject damageDealer = NetworkManager.SpawnManager.SpawnedObjects[damageDealerNOID];
-                if (damageDealer != null)
+                NetworkObject damageDealerNetworkObject = damageDealer.GetComponent<NetworkObject>();
+                if (damageDealerNetworkObject != null)
                 {
-                    NetworkCharacter nc_damageDealer = damageDealer.GetComponent<NetworkCharacter>();
+                    NetworkCharacter nc_damageDealer = damageDealerNetworkObject.GetComponent<NetworkCharacter>();
                     if (nc_damageDealer != null)
                     {
                         nc_damageDealer.ApCurrent.Value += (int)(damage * nc_damageDealer.ApLeech.Value);
@@ -207,7 +212,7 @@ public class NetworkCharacter : NetworkBehaviour
             {
                 // do sprite flash
                 SpriteFlash spriteFlash = GetComponentInChildren<SpriteFlash>();
-                if (spriteFlash != null) spriteFlash.DamageFlash();
+                spriteFlash?.DamageFlash();
             }
         }
     }
@@ -266,8 +271,8 @@ public class NetworkCharacter : NetworkBehaviour
         if (IsClient)
         {
             // do sprite flash
-            var spriteFlash = GetComponentInChildren<SpriteFlash>();
-            if (spriteFlash != null) spriteFlash.DamageFlash();
+            SpriteFlash spriteFlash = GetComponentInChildren<SpriteFlash>();
+            spriteFlash?.DamageFlash();
 
             // do local only effects
             if (gameObject.GetComponent<NetworkObject>().IsLocalPlayer)
@@ -334,11 +339,8 @@ public class NetworkCharacter : NetworkBehaviour
         StunMultiplier.Value = baseStunMultiplier;
 
         // check for and apply dynamic HP
-        var dynamicHp = GetComponent<DynamicHP>();
-        if (dynamicHp != null)
-        {
-            dynamicHp.ApplyDynamicHp();
-        }
+        DynamicHP dynamicHp = GetComponent<DynamicHP>();
+        dynamicHp?.ApplyDynamicHp();
     }
 
     public bool HasBuffObject(BuffObject buffObject)
@@ -379,7 +381,7 @@ public class NetworkCharacter : NetworkBehaviour
     }
 
     [Rpc(SendTo.ClientsAndHost)]
-    void AddBuffObjectNameClientRpc(string name)
+    private void AddBuffObjectNameClientRpc(string name)
     {
         if (!activeBuffNames_CLIENT.Contains(name))
         {
@@ -388,7 +390,7 @@ public class NetworkCharacter : NetworkBehaviour
     }
 
     [Rpc(SendTo.ClientsAndHost)]
-    void RemoveBuffObjectNameClientRpc(string name)
+    private void RemoveBuffObjectNameClientRpc(string name)
     {
         if (activeBuffNames_CLIENT.Contains(name))
         {
@@ -411,7 +413,6 @@ public class NetworkCharacter : NetworkBehaviour
 
         var hpRatio = HpCurrent.Value / HpMax.Value;
         var apRatio = ApCurrent.Value / ApMax.Value;
-
 
         Dictionary<CharacterStat, float> baseStats = new Dictionary<CharacterStat, float>
         {

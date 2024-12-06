@@ -172,17 +172,16 @@ public class SmashWave : PlayerAbility
 
     private void CustomCollisionCheck()
     {
-        if (IsServer && !IsHost) PlayerAbility.RollbackEnemies(Player);
+        if (IsServer && !IsHost) RollbackEnemies(Player);
 
         // resync transforms
         Physics2D.SyncTransforms();
 
         // do a collision check
         List<Collider2D> enemyHitColliders = new List<Collider2D>();
-        m_collider.OverlapCollider(PlayerAbility.GetContactFilter(new string[] { "EnemyHurt", "Destructible" }), enemyHitColliders);
-        foreach (var hit in enemyHitColliders)
+        m_collider.OverlapCollider(GetContactFilter(new string[] { "EnemyHurt", "Destructible" }), enemyHitColliders);
+        foreach (Collider2D hit in enemyHitColliders)
         {
-
             bool isAlreadyHit = false;
             foreach (var hitCheck in m_hitColliders)
             {
@@ -213,13 +212,13 @@ public class SmashWave : PlayerAbility
                 if (hit.HasComponent<Destructible>())
                 {
                     var destructible = hit.GetComponent<Destructible>();
-                    destructible.TakeDamage(Wearable.WeaponTypeEnum.Smash);
+                    destructible.TakeDamage(Wearable.WeaponTypeEnum.Smash, Player.GetComponent<NetworkObject>().NetworkObjectId);
                 }
             }
         }
         // clear out colliders
         enemyHitColliders.Clear();
 
-        if (IsServer && !IsHost) PlayerAbility.UnrollEnemies();
+        if (IsServer && !IsHost) UnrollEnemies();
     }
 }

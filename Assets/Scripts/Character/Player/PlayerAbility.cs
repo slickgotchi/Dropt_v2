@@ -112,7 +112,7 @@ public class PlayerAbility : NetworkBehaviour
     {
         base.OnNetworkSpawn();
 
-        
+
     }
 
     protected Hand AbilityHand;
@@ -453,7 +453,7 @@ public class PlayerAbility : NetworkBehaviour
         {
             Dropt.Utils.Anim.PlayAnimationWithDuration(Animator, animName, duration);
         }
-        
+
         if (IsServer)
         {
             PlayAnimationWithDurationClientRpc(animName, duration);
@@ -538,7 +538,7 @@ public class PlayerAbility : NetworkBehaviour
             if (hit.HasComponent<Destructible>())
             {
                 var destructible = hit.GetComponent<Destructible>();
-                destructible.TakeDamage(weaponType);
+                destructible.TakeDamage(weaponType, Player.GetComponent<NetworkObject>().NetworkObjectId);
             }
         }
         // screen shake

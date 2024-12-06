@@ -158,7 +158,7 @@ public class SplashProjectile : NetworkBehaviour
             if (hit.HasComponent<Destructible>())
             {
                 var destructible = hit.GetComponent<Destructible>();
-                destructible.TakeDamage(WeaponType);
+                destructible.TakeDamage(WeaponType, LocalPlayer.GetComponent<NetworkObject>().NetworkObjectId);
             }
         }
 

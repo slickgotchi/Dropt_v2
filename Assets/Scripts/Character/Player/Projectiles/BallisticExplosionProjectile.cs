@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Data;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -166,7 +165,7 @@ public class BallisticExplosionProjectile : NetworkBehaviour
             else if (hit.HasComponent<Destructible>())
             {
                 var destructible = hit.GetComponent<Destructible>();
-                destructible.TakeDamage(WeaponType);
+                destructible.TakeDamage(WeaponType, LocalPlayer.GetComponent<NetworkObject>().NetworkObjectId);
             }
             Deactivate(hitInfo.point);
 
@@ -225,7 +224,7 @@ public class BallisticExplosionProjectile : NetworkBehaviour
             if (hit.HasComponent<Destructible>())
             {
                 var destructible = hit.GetComponent<Destructible>();
-                destructible.TakeDamage(WeaponType);
+                destructible.TakeDamage(WeaponType, LocalPlayer.GetComponent<NetworkObject>().NetworkObjectId);
             }
         }
 
