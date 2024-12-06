@@ -42,6 +42,8 @@ public class PlayerController : NetworkBehaviour
 
     private Vector3 m_spawnPoint;
 
+    //private bool isFirstLoadingCanvas = true;
+
     private void Awake()
     {
         m_networkCharacter = GetComponent<NetworkCharacter>();
@@ -55,6 +57,8 @@ public class PlayerController : NetworkBehaviour
         base.OnNetworkSpawn();
 
         Debug.Log("Player spawned");
+
+        //isFirstLoadingCanvas = true;
 
         // local player
         if (IsLocalPlayer)
@@ -315,7 +319,7 @@ public class PlayerController : NetworkBehaviour
     // parameters for handle loading canvas
     //private bool shouldBeBlackedOut = true;
     //private bool isBlackedOut = true;
-    private bool isFirstLoad = true;
+
 
     private enum LoadingCanvasState { Null, BlackOut, WipeIn, WipeOut }
     private LoadingCanvasState loadingCanvasState = LoadingCanvasState.Null;

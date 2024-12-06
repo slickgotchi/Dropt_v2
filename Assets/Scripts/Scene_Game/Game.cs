@@ -60,6 +60,13 @@ public class Game : MonoBehaviour
         if (m_unityTransport != null)
         {
 
+            if (Bootstrap.IsLocalConnection())
+            {
+                Bootstrap.Instance.IpAddress = "127.0.0.1";
+                Bootstrap.Instance.GamePort = 9000;
+                m_unityTransport.UseEncryption = false;
+            }
+
             if (Bootstrap.IsServer())
             {
                 // set a reasonably high target frame rate to reduce latency
@@ -151,17 +158,7 @@ public class Game : MonoBehaviour
 
         // connect
         TryConnect();
-        //SpawnAfterConnectSpawnPrefabs();
     }
-
-    //private void SpawnAfterConnectSpawnPrefabs()
-    //{
-    //    foreach (var spawn in afterConnectSpawnPrefabs_SERVER)
-    //    {
-    //        var no_spawn = Instantiate(spawn);
-    //        no_spawn.GetComponent<NetworkObject>().Spawn();
-    //    }
-    //}
 
     public async UniTaskVoid ConnectClientGame(string gameId = "")
     {
@@ -189,7 +186,7 @@ public class Game : MonoBehaviour
                 // if no valid response, give error and go back to title
                 if (response == null)
                 {
-                    ErrorDialogCanvas.Instance.Show("The Dropt server manager is not currently online, please try again later or check our Discord for updates.");
+                    ErrorDialogCanvas.Instance.Show("The Dropt server manager is either full or not online, you can check https//manager.playdropt.io to see available instances.");
                     if (isGetEmptyGame) SceneManager.LoadScene("Title");
                     return;
                 }

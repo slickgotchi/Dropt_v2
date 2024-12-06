@@ -10,7 +10,7 @@ public class LoadingCanvas : MonoBehaviour
 
     [SerializeField] private Animator m_animator;
 
-    private enum LoadingCanvasState { Clear, BlackedOut, WipedIn, WipedOut }
+    private enum LoadingCanvasState { Clear, BlackedOut }
     private LoadingCanvasState m_loadingCanvasState = LoadingCanvasState.Clear;
 
     private void Awake()
@@ -42,11 +42,10 @@ public class LoadingCanvas : MonoBehaviour
 
     public void WipeIn()
     {
-        if (m_loadingCanvasState == LoadingCanvasState.Clear
-            || m_loadingCanvasState == LoadingCanvasState.WipedOut)
+        if (m_loadingCanvasState == LoadingCanvasState.Clear)
         {
             m_animator.Play("LoadingCanvas_WipeIn");
-            m_loadingCanvasState = LoadingCanvasState.WipedIn;
+            m_loadingCanvasState = LoadingCanvasState.BlackedOut;
             Debug.Log("Wipe In");
         }
 
@@ -54,12 +53,11 @@ public class LoadingCanvas : MonoBehaviour
 
     public void WipeOut()
     {
-        if (m_loadingCanvasState == LoadingCanvasState.BlackedOut
-            || m_loadingCanvasState == LoadingCanvasState.WipedIn)
+        if (m_loadingCanvasState == LoadingCanvasState.BlackedOut)
         {
             m_animator.Play("LoadingCanvas_WipeOut");
 
-            m_loadingCanvasState = LoadingCanvasState.WipedOut;
+            m_loadingCanvasState = LoadingCanvasState.Clear;
 
             Debug.Log("Wipe Out");
         }
