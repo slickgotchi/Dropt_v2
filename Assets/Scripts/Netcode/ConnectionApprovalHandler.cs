@@ -71,16 +71,16 @@ public class ConnectionApprovalHandler : MonoBehaviour
     {
         // default behaviour is to try reconnect client game
         // NOTE: this function internally checks for voluntary disconnects
-        if (Bootstrap.IsClient())
-        {
-            Debug.Log("Client was disconnected");
-            //PreGame.Instance.ReconnectClientGame();
-        }
+        //if (Bootstrap.IsClient())
+        //{
+        //    Debug.Log("Client was disconnected");
+        //    //PreGame.Instance.ReconnectClientGame();
+        //}
 
-        if (Bootstrap.IsServer())
-        {
-            //PreGame.Instance.StartClientReconnectionTimer();
-        }
+        //if (Bootstrap.IsServer())
+        //{
+        //    //PreGame.Instance.StartClientReconnectionTimer();
+        //}
 
         //if (!m_NetworkManager.IsServer && m_NetworkManager.DisconnectReason != string.Empty)
         //{

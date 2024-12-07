@@ -1007,6 +1007,10 @@ MonoBehaviour:
   IsLevelSpawnPositionSet: 0
   NetworkGotchiId:
     m_InternalValue: 69420
+  m_totalKilledEnemies:
+    m_InternalValue: 0
+  m_totalDestroyedDestructibles:
+    m_InternalValue: 0
 --- !u!114 &3992886838419682707
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1144,9 +1148,9 @@ MonoBehaviour:
     m_InternalValue: 0
   Pet:
     m_InternalValue: 0
-  leftHandStarterWeapon: 120
-  rightHandStarterWeapon: 7
-  starterPet: 301
+  leftHandStarterWeapon: 42
+  rightHandStarterWeapon: 71
+  starterPet: 95
 --- !u!114 &2488828689398098102
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1230,6 +1234,7 @@ MonoBehaviour:
     m_InternalValue: 0
   serverFPS:
     m_InternalValue: 0
+  elapsedTimeSinceLastPing: 0
 --- !u!114 &3592093351719058109
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1499,10 +1504,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_takeDamageSmallSound:
-    AudioClip: {fileID: 8300000, guid: 9fbe79e4b3d9a43f3a6ad0f027094bdd, type: 3}
+    AudioClip: {fileID: 0}
     Volume: 0.5
   m_takeDamageBigSound:
-    AudioClip: {fileID: 8300000, guid: d56629ae5059a4a0cb4f09a1224f1ec4, type: 3}
+    AudioClip: {fileID: 8300000, guid: 5734cd5fbc8704ac3a623fc15e0e7bc2, type: 3}
     Volume: 0.5
   m_healSound:
     AudioClip: {fileID: 8300000, guid: 4733629464f604b58bf084af094b1237, type: 3}
@@ -2962,7 +2967,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: b01b12b74738044ffac4f0353a1c3053, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -3013,6 +3018,8 @@ MonoBehaviour:
   customStartPosition: {x: 0, y: 0, z: 0}
   fillMeshRenderer: {fileID: 0}
   borderMeshRenderer: {fileID: 0}
+  attackPathMaterial_Fill: {fileID: 2100000, guid: b01b12b74738044ffac4f0353a1c3053, type: 2}
+  attackPathMaterial_Border: {fileID: 2100000, guid: 90a3f92af3d3843079a22817c9cb5dc1, type: 2}
 --- !u!1 &4370127385049485845
 GameObject:
   m_ObjectHideFlags: 0

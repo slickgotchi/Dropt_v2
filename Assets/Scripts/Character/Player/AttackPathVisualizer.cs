@@ -33,9 +33,12 @@ public class AttackPathVisualizer : MonoBehaviour
 
     // Cached references for optimization
     private MeshFilter fillMeshFilter;
-    public MeshRenderer fillMeshRenderer;
+    [HideInInspector] public MeshRenderer fillMeshRenderer;
     private MeshFilter borderMeshFilter;
-    public MeshRenderer borderMeshRenderer;
+    [HideInInspector] public MeshRenderer borderMeshRenderer;
+
+    [SerializeField] private Material attackPathMaterial_Fill;
+    [SerializeField] private Material attackPathMaterial_Border;
 
     private void Awake()
     {
@@ -95,9 +98,10 @@ public class AttackPathVisualizer : MonoBehaviour
 
         fillMeshFilter = fillObject.AddComponent<MeshFilter>();
         fillMeshRenderer = fillObject.AddComponent<MeshRenderer>();
-        fillMeshRenderer.material = CreateSharedMaterial(fillColor);
-        fillMeshRenderer.sortingLayerName = "Shadows";
-        fillMeshRenderer.sortingOrder = 2;
+        //fillMeshRenderer.material = CreateSharedMaterial(fillColor);
+        fillMeshRenderer.material = attackPathMaterial_Fill;
+        fillMeshRenderer.sortingLayerName = "OnGround";
+        fillMeshRenderer.sortingOrder = 8;
 
         // Border object
         var borderObject = new GameObject("Border");
@@ -106,9 +110,10 @@ public class AttackPathVisualizer : MonoBehaviour
 
         borderMeshFilter = borderObject.AddComponent<MeshFilter>();
         borderMeshRenderer = borderObject.AddComponent<MeshRenderer>();
-        borderMeshRenderer.material = CreateSharedMaterial(borderColor);
-        borderMeshRenderer.sortingLayerName = "Shadows";
-        borderMeshRenderer.sortingOrder = 3;
+        //borderMeshRenderer.material = CreateSharedMaterial(borderColor);
+        borderMeshRenderer.material = attackPathMaterial_Border;
+        borderMeshRenderer.sortingLayerName = "OnGround";
+        borderMeshRenderer.sortingOrder = 9;
     }
 
     private static Dictionary<Color, Material> materialCache = new Dictionary<Color, Material>();

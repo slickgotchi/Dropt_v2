@@ -17,17 +17,17 @@ public class PlayerController : NetworkBehaviour
     private NetworkCharacter m_networkCharacter;
     private PlayerPrediction m_playerPrediction;
 
-    public static float InactiveTimerDuration = 5 * 60;
+    [HideInInspector] public static float InactiveTimerDuration = 5 * 60;
 
-    public bool IsDead = false;
+    [HideInInspector] public bool IsDead = false;
 
-    public bool IsInvulnerable { get; private set; }
+    [HideInInspector] public bool IsInvulnerable { get; private set; }
 
     private float m_inactiveTimer = InactiveTimerDuration;
 
     private HoldBarCanvas m_holdBarCanvas;
 
-    public bool IsLevelSpawnPositionSet = false;
+    [HideInInspector] public bool IsLevelSpawnPositionSet = false;
 
     private AttackCentre m_playerAttackCentre;
 
@@ -36,14 +36,13 @@ public class PlayerController : NetworkBehaviour
 
     // variables for tracking current gotchi
     private int m_localGotchiId = 0;
-    public NetworkVariable<int> NetworkGotchiId = new NetworkVariable<int>(69420);
+    [HideInInspector] public NetworkVariable<int> NetworkGotchiId = new NetworkVariable<int>(69420);
+    [HideInInspector] public NetworkVariable<int> m_totalKilledEnemies = new NetworkVariable<int>(0);
+    [HideInInspector] public NetworkVariable<int> m_totalDestroyedDestructibles = new NetworkVariable<int>(0);
 
     private CinemachineVirtualCamera m_virtualCamera;
 
     private Vector3 m_spawnPoint;
-
-    private NetworkVariable<int> m_totalKilledEnemies = new NetworkVariable<int>(0);
-    private NetworkVariable<int> m_totalDestroyedDestructibles = new NetworkVariable<int>(0);
 
     private void Awake()
     {
@@ -172,7 +171,7 @@ public class PlayerController : NetworkBehaviour
     }
 
     [Rpc(SendTo.Server)]
-    private void SetNetworkGotchiIdServerRpc(int gotchiId)
+    public void SetNetworkGotchiIdServerRpc(int gotchiId)
     {
         NetworkGotchiId.Value = gotchiId;
     }
@@ -346,6 +345,10 @@ public class PlayerController : NetworkBehaviour
         else if (state == LevelManager.TransitionState.End)
         {
             LoadingCanvas.Instance.WipeOut();
+        }
+        else
+        {
+            LoadingCanvas.Instance.InstaClear();
         }
     }
 
