@@ -90,19 +90,19 @@ public class PlayerItems : NetworkBehaviour
 
         PlayerCharacter playerCharacter = GetComponent<PlayerCharacter>();
         if (playerCharacter.IsHpFullyCharged()) return;
-        playerCharacter.ResetHp();
+        playerCharacter.RecoverHealthByPercentageOfTotalHp(40);
         m_playerOffchainData.UseHealSalveItem();
-        UpdateHealSalveItemClientRpc(m_playerOffchainData.healSalveChargeCount_dungeon.Value,
-                                     m_playerOffchainData.healSalveDungeonCharges_offchain.Value);
+        //UpdateHealSalveItemClientRpc(m_playerOffchainData.healSalveChargeCount_dungeon.Value,
+        //                             m_playerOffchainData.healSalveDungeonCharges_offchain.Value);
         GenerateHealSalveEffectClientRpc();
     }
 
-    [ClientRpc]
-    private void UpdateHealSalveItemClientRpc(int currentHealCharge, int maxHealCharge)
-    {
-        if (!IsLocalPlayer) return;
-        PlayerHUDCanvas.Instance.UpdateHealSlaveUpItem(currentHealCharge, maxHealCharge);
-    }
+    //[ClientRpc]
+    //private void UpdateHealSalveItemClientRpc(int currentHealCharge, int maxHealCharge)
+    //{
+    //    if (!IsLocalPlayer) return;
+    //    PlayerHUDCanvas.Instance.UpdateHealSlaveUpItem(currentHealCharge, maxHealCharge);
+    //}
 
     private bool IsHealSalveChargeAvailable()
     {

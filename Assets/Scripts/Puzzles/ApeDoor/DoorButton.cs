@@ -23,24 +23,25 @@ public abstract class DoorButton<T> : NetworkBehaviour where T : Enum
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-
-        if (!IsServer) return;
-
-        Type.Value = initType;
         UpdateSprite();
         State.OnValueChanged += OnButtonStateChange;
+
+        if (!IsServer) return;
+        Type.Value = initType;
     }
 
     private void OnButtonStateChange(ButtonState previousValue, ButtonState newValue)
     {
         UpdateSprite();
+        Debug.Log("BUTTON STATE CHANGE");
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (!IsServer) return;
-        if (State.Value != ButtonState.Up) return;
 
+        if (State.Value != ButtonState.Up) return;
+        Debug.Log("BUTTON STATE UP");
         // update button state
         State.Value = ButtonState.Down;
 

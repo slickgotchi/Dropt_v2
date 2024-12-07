@@ -101,6 +101,8 @@ public class PlayerOffchainData : NetworkBehaviour
         if (IsServer)
         {
             CheckCurrentLevelType_SERVER();
+
+
         }
     }
 
@@ -154,11 +156,19 @@ public class PlayerOffchainData : NetworkBehaviour
 
             // get wallet
             var wallet = ThirdwebManager.Instance.GetActiveWallet();
-            if (wallet == null) return;
+            if (wallet == null)
+            {
+                TryGetOffchainTestData();
+                return;
+            }
 
             // check if wallet is connected
             var isConnected = await wallet.IsConnected();
-            if (!isConnected) return;
+            if (!isConnected)
+            {
+                TryGetOffchainTestData();
+                return;
+            }
 
             // get all latest data if address changed
             var connectedWalletAddress = await wallet.GetAddress();
@@ -168,17 +178,21 @@ public class PlayerOffchainData : NetworkBehaviour
                 PlayerPrefs.SetString("WalletAddress", m_walletAddress);
                 GetLatestOffchainWalletDataServerRpc(m_walletAddress);
             }
-            
+
         }
         catch
         {
-            // if we are in host mode, use the test wallet address
-            if (IsHost && m_walletAddress != Bootstrap.Instance.TestWalletAddress)
-            {
-                m_walletAddress = Bootstrap.Instance.TestWalletAddress;
-                PlayerPrefs.SetString("WalletAddress", m_walletAddress);
-                GetLatestOffchainWalletDataServerRpc(m_walletAddress);
-            }
+            TryGetOffchainTestData();
+        }
+    }
+
+    private void TryGetOffchainTestData()
+    {
+        if ((IsHost || Bootstrap.IsLocalConnection()) && m_walletAddress != Bootstrap.Instance.TestWalletAddress)
+        {
+            m_walletAddress = Bootstrap.Instance.TestWalletAddress;
+            PlayerPrefs.SetString("WalletAddress", m_walletAddress);
+            GetLatestOffchainWalletDataServerRpc(m_walletAddress);
         }
     }
 
@@ -342,6 +356,7 @@ public class PlayerOffchainData : NetworkBehaviour
 
         // heal charge to full
         healSalveChargeCount_dungeon.Value = healSalveDungeonCharges_offchain.Value;
+
     }
 
     // exit dungeon calculates new balances and updates the database
@@ -491,6 +506,11 @@ public class PlayerOffchainData : NetworkBehaviour
         }
 
         return true;
+    }
+
+    public bool DoWeHaveEctoGraterThanOrEqualTo(int value)
+    {
+        return value >= ectoBalance_offchain.Value;
     }
 
     // Method to remove ecto

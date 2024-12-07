@@ -12,12 +12,12 @@ public class EctoDoor : Interactable
     [SerializeField] private BoxCollider2D m_rightOpenCollider;
     [SerializeField] private BoxCollider2D m_closeCollider;
 
-    private Animator m_animator;
+    private IDoorAnimation m_doorAnimation;
 
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-        m_animator = GetComponent<Animator>();
+        m_doorAnimation = GetComponent<IDoorAnimation>();
         m_costText.text = m_costToOpenTheDoor.ToString();
     }
 
@@ -29,48 +29,81 @@ public class EctoDoor : Interactable
 
     public override void OnTriggerEnter2DInteraction()
     {
+        Debug.Log("TRIGGER ENTER");
         base.OnTriggerEnter2DInteraction();
-
-        PlayerHUDCanvas.Instance.ShowPlayerInteractionCanvii(interactionText, interactableType);
+        //if (IsServer)
+        //{
+        //    PlayerOffchainData playerDungeonData = localPlayerController.GetComponent<PlayerOffchainData>();
+        //    if (playerDungeonData.DoWeHaveEctoGraterThanOrEqualTo(m_costToOpenTheDoor))
+        //    {
+        //        NotifyMessageClientRpc("You do not have enough Ecto to use this door");
+        //    }
+        //    else
+        //    {
+        //        NotifyMessageClientRpc("Hold F to use Ecto to open this door");
+        //    }
+        //}
+        PlayerOffchainData playerDungeonData = localPlayerController.GetComponent<PlayerOffchainData>();
+        if (playerDungeonData.DoWeHaveEctoGraterThanOrEqualTo(m_costToOpenTheDoor))
+        {
+            //NotifyMessageClientRpc("You do not have enough Ecto to use this door");
+            PlayerHUDCanvas.Instance.ShowPlayerInteractionCanvii("You do not have enough Ecto to use this door",
+                                                                 interactableType);
+        }
+        else
+        {
+            //NotifyMessageClientRpc("Hold F to use Ecto to open this door");
+            PlayerHUDCanvas.Instance.ShowPlayerInteractionCanvii("Hold F to use Ecto to open this door",
+                                                                 interactableType);
+        }
+        //PlayerHUDCanvas.Instance.ShowPlayerInteractionCanvii(message, interactableType);
     }
 
     public override void OnTriggerExit2DInteraction()
     {
         base.OnTriggerExit2DInteraction();
-
         PlayerHUDCanvas.Instance.HidePlayerInteractionCanvii(interactableType);
     }
 
     [Rpc(SendTo.Server)]
     private void TryOpenDoorServerRpc(ulong playerNetworkObjectId)
     {
-        TryOpenDoorServerRpcAsync(playerNetworkObjectId);
+        _ = TryOpenDoorAsync(playerNetworkObjectId);
     }
 
-    private async UniTaskVoid TryOpenDoorServerRpcAsync(ulong playerNetworkObjectId)
+    private async UniTaskVoid TryOpenDoorAsync(ulong playerNetworkObjectId)
     {
-        var playerController = GetPlayerController(playerNetworkObjectId);
+        PlayerController playerController = GetPlayerController(playerNetworkObjectId);
         if (playerController == null)
         {
             Debug.LogWarning("PlayerController not in range of EctoDoor");
             return;
         }
 
-        var playerDungeonData = playerController.GetComponent<PlayerOffchainData>();
-
+        PlayerOffchainData playerDungeonData = playerController.GetComponent<PlayerOffchainData>();
         bool isSuccess = await playerDungeonData.RemoveEcto(m_costToOpenTheDoor);
         if (!isSuccess)
         {
-            NotifyNotEnoughBalanceClientRpc();
+            //NotifyNotEnoughBalanceClientRpc();
             return;
         }
 
-        m_animator.Play("ApeDoor_Open");
+        m_doorAnimation.OpenDoor();
+        if (IsServer && !IsHost)
+        {
+            OpenDoor();
+        }
         OpenDoorClientRpc();
     }
 
-    [Rpc(SendTo.ClientsAndHost)]
+    [ClientRpc]
     private void OpenDoorClientRpc()
+    {
+        Debug.Log("OpenDoorClientRpc =======> ");
+        OpenDoor();
+    }
+
+    private void OpenDoor()
     {
         m_costText.gameObject.SetActive(false);
         m_costIcon.SetActive(false);
@@ -78,15 +111,5 @@ public class EctoDoor : Interactable
         m_closeCollider.enabled = false;
         m_leftOpenCollider.enabled = true;
         m_rightOpenCollider.enabled = true;
-    }
-
-    [Rpc(SendTo.ClientsAndHost)]
-    private void NotifyNotEnoughBalanceClientRpc()
-    {
-        if (!GetPlayerController(localPlayerNetworkObjectId).IsLocalPlayer)
-        {
-            return;
-        }
-        NotifyCanvas.Instance.SetVisible($"You do not have enough Ecto to open this door");
     }
 }
