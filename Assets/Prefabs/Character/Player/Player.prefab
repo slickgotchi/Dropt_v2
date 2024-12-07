@@ -812,7 +812,6 @@ GameObject:
   - component: {fileID: 9139733696831883361}
   - component: {fileID: 5951588708723122493}
   - component: {fileID: 7897468605786725820}
-  - component: {fileID: 3388532131468408310}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -1235,6 +1234,7 @@ MonoBehaviour:
     m_InternalValue: 0
   serverFPS:
     m_InternalValue: 0
+  elapsedTimeSinceLastPing: 0
 --- !u!114 &3592093351719058109
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1512,18 +1512,6 @@ MonoBehaviour:
   m_healSound:
     AudioClip: {fileID: 8300000, guid: 4733629464f604b58bf084af094b1237, type: 3}
     Volume: 0.5
---- !u!114 &3388532131468408310
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1519051571170098037}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 390ca87ac92d5493e9b73d7bbabe9534, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1722710475381033325
 GameObject:
   m_ObjectHideFlags: 0
