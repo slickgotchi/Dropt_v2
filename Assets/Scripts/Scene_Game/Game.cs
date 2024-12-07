@@ -284,12 +284,12 @@ public class Game : MonoBehaviour
         ConnectClientGame(m_currentGameId);
     }
 
-    public void StartClientReconnectionTimer()
+    public void StartClientReconnectionTimer(float duration = 30f)
     {
         if (!Bootstrap.IsServer()) return;
 
         isReconnectTimerActive = true;
-        reconnectTimer = 30f;
+        reconnectTimer = duration;
     }
 
     public bool IsClientReconnecting()

@@ -26,6 +26,8 @@ public class PlayerPing : NetworkBehaviour
 
     public NetworkVariable<int> serverFPS = new NetworkVariable<int>(0);
 
+    public float elapsedTimeSinceLastPing = 0;
+
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
@@ -52,6 +54,8 @@ public class PlayerPing : NetworkBehaviour
             DebugCanvas.Instance.SetPing((int)pingMedian);
             DebugCanvas.Instance.SetServerFPS(((int)serverFPS.Value));
         }
+
+        elapsedTimeSinceLastPing += Time.deltaTime;
     }
 
     void TrackPing()
@@ -91,5 +95,7 @@ public class PlayerPing : NetworkBehaviour
 
         if (pingLive < pingLow) pingLow = pingLive;
         if (pingLive > pingHigh) pingHigh = pingLive;
+
+        elapsedTimeSinceLastPing = 0;
     }
 }
