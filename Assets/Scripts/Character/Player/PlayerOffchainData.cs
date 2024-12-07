@@ -154,11 +154,19 @@ public class PlayerOffchainData : NetworkBehaviour
 
             // get wallet
             var wallet = ThirdwebManager.Instance.GetActiveWallet();
-            if (wallet == null) return;
+            if (wallet == null)
+            {
+                TryGetOffchainTestData();
+                return;
+            }
 
             // check if wallet is connected
             var isConnected = await wallet.IsConnected();
-            if (!isConnected) return;
+            if (!isConnected)
+            {
+                TryGetOffchainTestData();
+                return;
+            }
 
             // get all latest data if address changed
             var connectedWalletAddress = await wallet.GetAddress();
@@ -172,13 +180,17 @@ public class PlayerOffchainData : NetworkBehaviour
         }
         catch
         {
-            // if we are in host mode, use the test wallet address
-            if (IsHost && m_walletAddress != Bootstrap.Instance.TestWalletAddress)
-            {
-                m_walletAddress = Bootstrap.Instance.TestWalletAddress;
-                PlayerPrefs.SetString("WalletAddress", m_walletAddress);
-                GetLatestOffchainWalletDataServerRpc(m_walletAddress);
-            }
+            TryGetOffchainTestData();
+        }
+    }
+
+    private void TryGetOffchainTestData()
+    {
+        if ((IsHost || Bootstrap.IsLocalConnection()) && m_walletAddress != Bootstrap.Instance.TestWalletAddress)
+        {
+            m_walletAddress = Bootstrap.Instance.TestWalletAddress;
+            PlayerPrefs.SetString("WalletAddress", m_walletAddress);
+            GetLatestOffchainWalletDataServerRpc(m_walletAddress);
         }
     }
 
