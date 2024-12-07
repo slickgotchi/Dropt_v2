@@ -42,8 +42,11 @@ public class LoadingCanvas : MonoBehaviour
 
     public void InstaClear()
     {
-        m_animator.Play("LoadingCanvas_InstaClear");
-        m_loadingCanvasState = LoadingCanvasState.Clear;
+        if (m_loadingCanvasState != LoadingCanvasState.Clear)
+        {
+            m_animator.Play("LoadingCanvas_InstaClear");
+            m_loadingCanvasState = LoadingCanvasState.Clear;
+        }
     }
 
     public void WipeIn()
