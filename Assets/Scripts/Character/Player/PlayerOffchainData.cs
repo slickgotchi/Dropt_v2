@@ -101,6 +101,8 @@ public class PlayerOffchainData : NetworkBehaviour
         if (IsServer)
         {
             CheckCurrentLevelType_SERVER();
+
+
         }
     }
 
@@ -354,6 +356,7 @@ public class PlayerOffchainData : NetworkBehaviour
 
         // heal charge to full
         healSalveChargeCount_dungeon.Value = healSalveDungeonCharges_offchain.Value;
+
     }
 
     // exit dungeon calculates new balances and updates the database
