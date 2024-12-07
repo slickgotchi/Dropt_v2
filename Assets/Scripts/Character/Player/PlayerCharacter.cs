@@ -291,9 +291,13 @@ public class PlayerCharacter : NetworkCharacter
         return buffObject;
     }
 
-    public void ResetHp()
+    public void RecoverHealthByPercentageOfTotalHp(float percentage)
     {
-        HpCurrent.Value = HpMax.Value;
+        HpCurrent.Value += HpMax.Value * percentage / 100;
+        if (HpCurrent.Value > HpMax.Value)
+        {
+            HpCurrent.Value = HpMax.Value;
+        }
     }
 
     public bool IsHpFullyCharged()

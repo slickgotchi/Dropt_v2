@@ -1,9 +1,7 @@
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.UI;
 using Unity.Mathematics;
 using UnityEngine.InputSystem;
-using PixelCrushers.DialogueSystem;
 
 public class Interactable : NetworkBehaviour
 {
@@ -132,7 +130,6 @@ public class Interactable : NetworkBehaviour
                 && !PlayerInputMapSwitcher.Instance.IsSwitchTooRecent())
             {
                 m_pressTimer = k_pressInterval;
-
                 OnInteractPress();
             }
         }
@@ -153,7 +150,7 @@ public class Interactable : NetworkBehaviour
             //if (Input.GetKey(KeyCode.F)) m_holdTimer += Time.deltaTime;
             if (m_localPlayerPrediction.IsInteracting) m_holdTimer += Time.deltaTime;
             else m_holdTimer = 0f;
-            var alpha = m_holdTimer / k_holdDuration;
+            float alpha = m_holdTimer / k_holdDuration;
             OnInteractHoldUpdate(alpha);
 
             // update sliderslider
@@ -165,12 +162,9 @@ public class Interactable : NetworkBehaviour
             {
                 m_holdCooldownTimer = k_holdCooldownDuration;
                 OnInteractHoldFinish();
-
                 m_holdTimer = -0.1f;
             }
         }
-
-
     }
 
     protected void TryGetLocalPlayerPrediction()
