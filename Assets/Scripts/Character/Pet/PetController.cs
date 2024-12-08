@@ -21,6 +21,8 @@ public class PetController : NetworkBehaviour
 
     private ulong m_ownerObjectId;
 
+    private NetworkVariable<Vector3> m_petPosition = new NetworkVariable<Vector3>(Vector3.zero);
+
     public void ResetSummonDuration()
     {
         m_petMeter.ResetSummonDuration();
@@ -31,22 +33,26 @@ public class PetController : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-
         m_petView = GetComponent<PetView>();
-
+        m_transform = transform;
         if (!IsServer)
         {
+            m_petPosition.OnValueChanged += OnPetPositionChange;
             return;
         }
-
+        m_petPosition.Value = transform.position;
         InitializeNavmeshAgent();
         m_petMeter = GetComponent<PetMeter>();
-        m_transform = transform;
         m_petOwner = NetworkManager.SpawnManager.SpawnedObjects[m_ownerObjectId].transform;
         m_enemyDetactor = m_petOwner.GetComponent<EnemyDetactor>();
         m_petStateMachine = new PetStateMachine(this);
         m_petStateMachine.ChangeState(m_petStateMachine.PetFollowOwnerState);
         ActivatePetMeterViewClientRpc(m_ownerObjectId);
+    }
+
+    private void OnPetPositionChange(Vector3 previousValue, Vector3 newValue)
+    {
+        m_transform.position = newValue;
     }
 
     public bool IsSummonDurationOver()
@@ -114,6 +120,7 @@ public class PetController : NetworkBehaviour
             return;
         }
         m_petStateMachine.Update();
+        m_petPosition.Value = m_transform.position;
     }
 
     public void FollowOwner()
