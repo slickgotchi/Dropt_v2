@@ -498,4 +498,13 @@ public class NetworkCharacter : NetworkBehaviour
         // Optionally, you can log the final stats for debugging
         //Debug.Log("Player Stats Updated");
     }
+
+    public void AddHp(int amount)
+    {
+        HpCurrent.Value += amount;
+        if (HpCurrent.Value > HpMax.Value)
+        {
+            HpCurrent.Value = HpMax.Value;
+        }
+    }
 }

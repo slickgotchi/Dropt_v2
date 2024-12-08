@@ -1,7 +1,5 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
 
 public enum FadeType
 {
@@ -77,16 +75,5 @@ public class PopupTextManager : MonoBehaviour
     {
         popupTextCanvas.gameObject.SetActive(false);
         textPool.Enqueue(popupTextCanvas);
-    }
-
-    private void Update()
-    {
-        //if (Input.GetKeyDown(KeyCode.T))
-        //{
-        //    Vector3 screenCenter = new Vector3(Screen.width / 2, Screen.height / 2, 0);
-        //    Vector3 worldPosition = Camera.main.ScreenToWorldPoint(screenCenter);
-        //    worldPosition.z = 0; // Make sure it stays in the 2D plane
-        //    PopupText("100", worldPosition, 24, Color.red, 1f, 4f); // Example with randomization and polynomial factor of 4
-        //}
     }
 }

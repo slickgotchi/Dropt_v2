@@ -29,34 +29,18 @@ public class EctoDoor : Interactable
 
     public override void OnTriggerEnter2DInteraction()
     {
-        Debug.Log("TRIGGER ENTER");
         base.OnTriggerEnter2DInteraction();
-        //if (IsServer)
-        //{
-        //    PlayerOffchainData playerDungeonData = localPlayerController.GetComponent<PlayerOffchainData>();
-        //    if (playerDungeonData.DoWeHaveEctoGraterThanOrEqualTo(m_costToOpenTheDoor))
-        //    {
-        //        NotifyMessageClientRpc("You do not have enough Ecto to use this door");
-        //    }
-        //    else
-        //    {
-        //        NotifyMessageClientRpc("Hold F to use Ecto to open this door");
-        //    }
-        //}
         PlayerOffchainData playerDungeonData = localPlayerController.GetComponent<PlayerOffchainData>();
         if (playerDungeonData.DoWeHaveEctoGraterThanOrEqualTo(m_costToOpenTheDoor))
         {
-            //NotifyMessageClientRpc("You do not have enough Ecto to use this door");
             PlayerHUDCanvas.Instance.ShowPlayerInteractionCanvii("You do not have enough Ecto to use this door",
                                                                  interactableType);
         }
         else
         {
-            //NotifyMessageClientRpc("Hold F to use Ecto to open this door");
             PlayerHUDCanvas.Instance.ShowPlayerInteractionCanvii("Hold F to use Ecto to open this door",
                                                                  interactableType);
         }
-        //PlayerHUDCanvas.Instance.ShowPlayerInteractionCanvii(message, interactableType);
     }
 
     public override void OnTriggerExit2DInteraction()
