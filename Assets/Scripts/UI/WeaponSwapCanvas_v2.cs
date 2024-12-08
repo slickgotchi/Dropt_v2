@@ -33,7 +33,7 @@ public class WeaponSwapCanvas_v2 : DroptCanvas
 
     private void Awake()
     {
-        // Singleton pattern to ensure only one instance of the AudioManager exists
+        // Singleton pattern 
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
