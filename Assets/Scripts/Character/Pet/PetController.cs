@@ -21,12 +21,7 @@ public class PetController : NetworkBehaviour
 
     private ulong m_ownerObjectId;
 
-    private NetworkVariable<Vector3> m_petPosition = new NetworkVariable<Vector3>(Vector3.zero);
-
-    public void ResetSummonDuration()
-    {
-        m_petMeter.ResetSummonDuration();
-    }
+    private readonly NetworkVariable<Vector3> m_petPosition = new(Vector3.zero);
 
     private float m_damageMultiplier;
 
@@ -35,7 +30,7 @@ public class PetController : NetworkBehaviour
         base.OnNetworkSpawn();
         m_petView = GetComponent<PetView>();
         m_transform = transform;
-        if (!IsServer)
+        if (!IsServer && !IsHost)
         {
             m_petPosition.OnValueChanged += OnPetPositionChange;
             return;
@@ -60,7 +55,7 @@ public class PetController : NetworkBehaviour
         return m_petMeter.IsSummonDurationOver();
     }
 
-    internal void DrainSummonDuration()
+    public void DrainSummonDuration()
     {
         m_petMeter.DrainSummonDuration();
     }
@@ -353,6 +348,11 @@ public class PetController : NetworkBehaviour
     public float GetSummonDuration()
     {
         return m_petMeter.summonDuration;
+    }
+
+    public void ResetSummonDuration()
+    {
+        m_petMeter.ResetSummonDuration();
     }
 
     public void ApplyDamageToEnemy(Transform enemyTransform)

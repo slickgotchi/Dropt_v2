@@ -10,7 +10,7 @@ public class PlayerPickupItemMagnet : NetworkBehaviour
     public PlayerOffchainData PlayerDungeonData;
     private PickupItem m_currentPickupItem;
 
-    void Start()
+    private void Start()
     {
         // Create and configure the magnet collider
         //magnetCollider = gameObject.AddComponent<CircleCollider2D>();
@@ -18,7 +18,7 @@ public class PlayerPickupItemMagnet : NetworkBehaviour
         ((CircleCollider2D)magnetCollider).radius = Radius;
     }
 
-    void OnTriggerEnter2D(Collider2D other)
+    private void OnTriggerEnter2D(Collider2D other)
     {
         m_currentPickupItem = other.GetComponent<PickupItem>();
 
@@ -52,10 +52,39 @@ public class PlayerPickupItemMagnet : NetworkBehaviour
 
         if (pickupItem.gameObject.HasComponent<HpOrb>())
         {
-            PlayerDungeonData.GetComponent<NetworkCharacter>().HpCurrent.Value +=
-                pickupItem.GetComponent<HpOrb>().GetValue();
+            NetworkCharacter networkCharacter = PlayerDungeonData.GetComponent<NetworkCharacter>();
+            networkCharacter.AddHp(pickupItem.GetComponent<HpOrb>().GetValue());
+        }
+
+        if (pickupItem.gameObject.HasComponent<HpCannister>())
+        {
+            PlayerCharacter networkCharacter = PlayerDungeonData.GetComponent<PlayerCharacter>();
+            int amount = pickupItem.GetComponent<HpCannister>().GetValue();
+            networkCharacter.AddHp(amount);
+            networkCharacter.SpawnHpCannistaerEffect();
+            PopupTextClientRpc(amount);
+        }
+
+        if (pickupItem.gameObject.HasComponent<EssenceCannister>())
+        {
+            PlayerCharacter networkCharacter = PlayerDungeonData.GetComponent<PlayerCharacter>();
+            int amount = pickupItem.GetComponent<EssenceCannister>().GetValue();
+            networkCharacter.AddEssenceValue(amount);
+            networkCharacter.SpawnEssenceCannisterEffect();
+            PopupTextClientRpc(amount);
         }
 
         PickupItemManager.Instance.ReturnToPool(pickupItem);
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    private void PopupTextClientRpc(float amount)
+    {
+        PopupTextManager.Instance.PopupText(
+            $"+{amount:F0}",
+            transform.position + new Vector3(0, 1.5f, 0),
+            16,
+            new Color32(153, 230, 95, 255),
+            0.2f);
     }
 }
