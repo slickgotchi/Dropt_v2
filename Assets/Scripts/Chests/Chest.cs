@@ -86,17 +86,13 @@ namespace Interactables
 
             var gltrPosition = GetRandomPosition(center, OrbsSpawnRange);
             var CGHSTPosition = GetRandomPosition(center, OrbsSpawnRange);
-            var essencePosition = GetRandomPosition(center, OrbsSpawnRange);
-            var hpPosition = GetRandomPosition(center, OrbsSpawnRange);
+
             OrbsFactory.SpawnGltr(actualGltr, gltrPosition);
 
             for (int i = 0; i < actualCGHST; i++)
             {
                 OrbsFactory.SpawnSmallCGHST(CGHSTPosition);
             }
-
-            OrbsFactory.SpawnHpCannister(hpPosition);
-            OrbsFactory.SpawnEssenceCannister(essencePosition);
         }
 
         //[Rpc(SendTo.Server)]
