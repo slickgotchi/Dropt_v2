@@ -39,7 +39,7 @@ namespace Interactables
 
             SpawnWearablesRpc();
         }
-        
+
         private Vector3 GetRandomPosition(Vector3 center, float radius)
         {
             var random = new Random();
@@ -55,7 +55,7 @@ namespace Interactables
         {
             return random.NextDouble() * (maximum - minimum) + minimum;
         }
-        
+
         private int CalculateAdditionalSpectrals()
         {
             var playersCount = NetworkManager.ConnectedClients.Count;

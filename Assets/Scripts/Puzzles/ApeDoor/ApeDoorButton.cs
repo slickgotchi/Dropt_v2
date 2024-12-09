@@ -1,5 +1,4 @@
 using UnityEngine;
-using Unity.Netcode;
 
 public class ApeDoorButton : DoorButton<ApeDoorType>
 {
@@ -19,11 +18,11 @@ public class ApeDoorButton : DoorButton<ApeDoorType>
     public Sprite SquareUp;
     public Sprite SquareDown;
 
-    public override void Awake()
-    {
-        base.Awake();
-        Type = new NetworkVariable<ApeDoorType>(ApeDoorType.Crescent);
-    }
+    //public override void Awake()
+    //{
+    //    base.Awake();
+    //    //Type = new NetworkVariable<ApeDoorType>(ApeDoorType.Crescent);
+    //}
 
     public override Door<ApeDoorType>[] GetAllOtherDoor()
     {
@@ -37,6 +36,7 @@ public class ApeDoorButton : DoorButton<ApeDoorType>
 
     public override void UpdateSprite()
     {
+        Debug.Log("TYPE->" + Type.Value);
         if (State.Value == ButtonState.Up)
         {
             switch (Type.Value)

@@ -222,8 +222,6 @@ public class PlayerController : NetworkBehaviour
         if (!IsServer) return;
     }
 
-    
-
     [Rpc(SendTo.ClientsAndHost)]
     private void SetCameraPositionClientRpc(Vector3 position, ulong networkObjectId)
     {
@@ -328,7 +326,7 @@ public class PlayerController : NetworkBehaviour
     {
         if (!IsLocalPlayer) return;
         if (LevelManager.Instance == null) return;
-        
+
 
         LevelManager.TransitionState state = LevelManager.Instance.transitionState.Value;
 

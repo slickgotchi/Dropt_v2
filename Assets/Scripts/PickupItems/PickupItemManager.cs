@@ -34,6 +34,8 @@ public sealed class PickupItemManager : NetworkBehaviour
 
     public GameObject GltrOrbPrefab;
     public GameObject CGHSTOrbPrefab;
+    public GameObject HpCannister;
+    public GameObject EssenceCannister;
     public GameObject HpOrbPrefab;
     public GameObject ApOrbPrefab;
 
@@ -69,29 +71,37 @@ public sealed class PickupItemManager : NetworkBehaviour
     public void SpawnBigCGHST(Vector3 position)
     {
         if (!IsServer) return;
-
         GenerateCGHSTOrb(Size.Large, position);
     }
 
     public void SpawnSmallCGHST(Vector3 position)
     {
         if (!IsServer) return;
-
         GenerateCGHSTOrb(Size.Small, position);
     }
 
     public void SpawnApOrb(Size size, Vector3 position)
     {
         if (!IsServer) return;
-
         GenerateOrb<ApOrb>(ApOrbPrefab, size, position);
     }
 
     public void SpawnHpOrb(Size size, Vector3 position)
     {
         if (!IsServer) return;
-
         GenerateOrb<HpOrb>(HpOrbPrefab, size, position);
+    }
+
+    public void SpawnHpCannister(Vector3 position)
+    {
+        if (!IsServer) return;
+        GenerateCannister(HpCannister, position);
+    }
+
+    public void SpawnEssenceCannister(Vector3 position)
+    {
+        if (!IsServer) return;
+        GenerateCannister(EssenceCannister, position);
     }
 
     private void GenerateGltrOrb(Size size, Vector3 position, float rand = 0.3f)
@@ -118,6 +128,22 @@ public sealed class PickupItemManager : NetworkBehaviour
 
         m_prefabByInstanceMap.Add(orb.gameObject, prefab);
         return orb;
+    }
+
+    private void GenerateCannister(GameObject prefab, Vector3 position, float rand = 0.3f)
+    {
+        var deltaX = Random.Range(-rand, rand);
+        var deltaY = Random.Range(-rand, rand);
+        var randPosition = position + new Vector3(deltaX, deltaY, 0);
+
+        var networkObj = GetFromPool(prefab, randPosition);
+
+        if (!networkObj.IsSpawned)
+        {
+            networkObj.Spawn();
+        }
+
+        m_prefabByInstanceMap.Add(networkObj.gameObject, prefab);
     }
 
     private NetworkObject GetFromPool(GameObject prefab, Vector3 randPosition)
