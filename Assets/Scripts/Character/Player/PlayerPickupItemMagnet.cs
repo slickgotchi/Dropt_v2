@@ -58,20 +58,28 @@ public class PlayerPickupItemMagnet : NetworkBehaviour
 
         if (pickupItem.gameObject.HasComponent<HpCannister>())
         {
+            Debug.Log("HpCannister");
             PlayerCharacter networkCharacter = PlayerDungeonData.GetComponent<PlayerCharacter>();
             int amount = pickupItem.GetComponent<HpCannister>().GetValue();
             networkCharacter.AddHp(amount);
             networkCharacter.SpawnHpCannistaerEffect();
             PopupTextClientRpc(amount);
+            NetworkObject networkObj = pickupItem.GetComponent<NetworkObject>();
+            networkObj.Despawn();
+            return;
         }
 
         if (pickupItem.gameObject.HasComponent<EssenceCannister>())
         {
+            Debug.Log("EssenceCannister");
             PlayerCharacter networkCharacter = PlayerDungeonData.GetComponent<PlayerCharacter>();
             int amount = pickupItem.GetComponent<EssenceCannister>().GetValue();
             networkCharacter.AddEssenceValue(amount);
             networkCharacter.SpawnEssenceCannisterEffect();
             PopupTextClientRpc(amount);
+            NetworkObject networkObj = pickupItem.GetComponent<NetworkObject>();
+            networkObj.Despawn();
+            return;
         }
 
         PickupItemManager.Instance.ReturnToPool(pickupItem);
