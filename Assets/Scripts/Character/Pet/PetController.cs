@@ -47,7 +47,10 @@ public class PetController : NetworkBehaviour
 
     private void OnPetPositionChange(Vector3 previousValue, Vector3 newValue)
     {
-        m_transform.position = newValue;
+        if (Vector3.Distance(m_transform.position, newValue) > 4.0f)
+        {
+            m_transform.position = newValue;
+        }
     }
 
     public bool IsSummonDurationOver()
@@ -110,12 +113,14 @@ public class PetController : NetworkBehaviour
 
     private void Update()
     {
-        if (!IsServer)
+        if (IsServer)
         {
+            m_petStateMachine.Update();
+            m_petPosition.Value = m_transform.position;
             return;
         }
-        m_petStateMachine.Update();
-        m_petPosition.Value = m_transform.position;
+
+        m_transform.position = Vector3.Lerp(m_transform.position, m_petPosition.Value, m_petSettings.Speed * Time.deltaTime);
     }
 
     public void FollowOwner()
