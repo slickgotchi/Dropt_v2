@@ -18,11 +18,6 @@ namespace Dropt
 
         private Animator m_animator;
 
-        //private void Start()
-        //{
-        //    GetComponent<Animator>().Play("SpiderPod_Idle");
-        //}
-
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
@@ -38,7 +33,6 @@ namespace Dropt
 
         private async void PlaySpawnAnimation()
         {
-            //Debug.Log("Play SPAWN ANIMATIOn");
             await UniTask.Delay(800);
             Utils.Anim.PlayAnimationWithDuration(m_animator, "SpiderPod_Spawn", SpawnDuration);
             await UniTask.Delay(1000);
@@ -52,11 +46,11 @@ namespace Dropt
             // check if time to burst pod
             if (!m_isBurst)
             {
-                var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+                PlayerController[] players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
                 bool isBurstTime = false;
-                foreach (var player in players)
+                foreach (PlayerController player in players)
                 {
-                    var dist = (player.transform.position - transform.position).magnitude;
+                    float dist = (player.transform.position - transform.position).magnitude;
                     if (dist < BurstRange)
                     {
                         isBurstTime = true;
@@ -73,19 +67,19 @@ namespace Dropt
 
         private async void Burst()
         {
-            //GetComponent<Animator>().Play("SpiderPod_Burst");
             Utils.Anim.Play(m_animator, "SpiderPod_Burst");
             PlayBurstSoundClientRpc();
             float startAngle = Random.Range(0, 360.0f);
             float deltaAngle = 360 / NumberSpiders;
             for (int i = 0; i < NumberSpiders; i++)
             {
-                var dir = PlayerAbility.GetDirectionFromAngle(startAngle + deltaAngle * i);
-                var spider = Instantiate(SpiderPrefab);
+                Vector3 dir = PlayerAbility.GetDirectionFromAngle(startAngle + deltaAngle * i);
+                GameObject spider = Instantiate(SpiderPrefab);
                 spider.transform.position = transform.position + new Vector3(0f, 1f, 0f);
-                spider.GetComponent<EnemyAI_Spider>().SpawnDuration = SpawnDuration;
-                spider.GetComponent<EnemyAI_Spider>().SpawnDirection = dir.normalized;
-                spider.GetComponent<EnemyAI_Spider>().SpawnDistance = SpawnDistance;
+                EnemyAI_Spider enemyAI_Spider = spider.GetComponent<EnemyAI_Spider>();
+                enemyAI_Spider.SpawnDuration = SpawnDuration;
+                enemyAI_Spider.SpawnDirection = dir.normalized;
+                enemyAI_Spider.SpawnDistance = SpawnDistance;
                 spider.SetActive(false);
 
                 // DO NOT SPAWN DIRECTLY AFTER INSTANTIATING, UNITY NEEDS A FRAME TO ALLOW THE NAVMESH TO GET PICKED UP BY NEW SPIDERS
@@ -100,12 +94,6 @@ namespace Dropt
         private void PlayBurstSoundClientRpc()
         {
             m_soundFX_SpiderPod.PlayBurstSound();
-        }
-
-        public override void OnNetworkDespawn()
-        {
-            base.OnNetworkDespawn();
-            m_soundFX_SpiderPod.PlayDieSound();
         }
     }
 }

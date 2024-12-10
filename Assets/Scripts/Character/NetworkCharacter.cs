@@ -171,6 +171,7 @@ public class NetworkCharacter : NetworkBehaviour
                 }
                 else
                 {
+                    PlayEnemyDieSoundClientRpc();
                     gameObject.GetComponent<NetworkObject>().Despawn();
                 }
             }
@@ -190,6 +191,14 @@ public class NetworkCharacter : NetworkBehaviour
             }
         }
     }
+
+    [ClientRpc]
+    public void PlayEnemyDieSoundClientRpc()
+    {
+        PlayEnemyDieSound();
+    }
+
+    public virtual void PlayEnemyDieSound() { }
 
     [ClientRpc]
     private void HandleEnemyTakeDamageClientRpc(float damage, bool isCritical, ulong damageDealerNOID = 0)

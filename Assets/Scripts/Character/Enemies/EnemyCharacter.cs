@@ -29,6 +29,16 @@ public class EnemyCharacter : NetworkCharacter
     public override void TakeDamage(float damage, bool isCritical, GameObject damageDealer = null)
     {
         base.TakeDamage(damage, isCritical, damageDealer);
-        m_soundFX_Enemy?.PlayTakeDamageSound();
+        if (HpCurrent.Value > 0)
+        {
+            m_soundFX_Enemy?.PlayTakeDamageSound();
+            return;
+        }
+    }
+
+    public override void PlayEnemyDieSound()
+    {
+        base.PlayEnemyDieSound();
+        m_soundFX_Enemy.PlayDieSound();
     }
 }
