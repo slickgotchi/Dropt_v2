@@ -132,7 +132,10 @@ public class NetworkCharacter : NetworkBehaviour
             {
                 // do sprite flash
                 var spriteFlash = GetComponentInChildren<SpriteFlash>();
-                if (spriteFlash != null) spriteFlash.DamageFlash();
+                if (spriteFlash != null)
+                {
+                    spriteFlash.DamageFlash();
+                }
             }
         }
 
