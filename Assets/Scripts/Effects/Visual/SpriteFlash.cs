@@ -45,11 +45,11 @@ public class SpriteFlash : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.G))
-        {
-            DamageFlash();
-            Debug.Log("DamageFlash");
-        }
+        //if (Input.GetKeyDown(KeyCode.G))
+        //{
+        //    DamageFlash();
+        //    Debug.Log("DamageFlash");
+        //}
 
         if (!m_isPlaying) return;
 
