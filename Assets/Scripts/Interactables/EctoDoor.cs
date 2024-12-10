@@ -83,7 +83,6 @@ public class EctoDoor : Interactable
     [ClientRpc]
     private void OpenDoorClientRpc()
     {
-        Debug.Log("OpenDoorClientRpc =======> ");
         OpenDoor();
     }
 

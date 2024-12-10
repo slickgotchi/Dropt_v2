@@ -101,8 +101,6 @@ public class PlayerOffchainData : NetworkBehaviour
         if (IsServer)
         {
             CheckCurrentLevelType_SERVER();
-
-
         }
     }
 
@@ -110,33 +108,37 @@ public class PlayerOffchainData : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        if (m_currentLevelType != LevelManager.Instance.GetCurrentLevelType())
+        var newLevelType = LevelManager.Instance.GetCurrentLevelType();
+
+        if (m_currentLevelType == newLevelType) return;
+
+        // perform once off code when moving from degenape to dungeon
+        if (newLevelType == Level.NetworkLevel.LevelType.Dungeon &&
+            m_currentLevelType == Level.NetworkLevel.LevelType.DegenapeVillage)
         {
-            var newLevelType = LevelManager.Instance.GetCurrentLevelType();
-
-            // perform once off code when moving from degenape to dungeon
-            if (newLevelType == Level.NetworkLevel.LevelType.Dungeon &&
-                m_currentLevelType == Level.NetworkLevel.LevelType.DegenapeVillage)
-            {
-                EnterDungeonCalculateBalances();
-            }
-
-            // perform once off code if we go from a dungeon or dungeonrest back to the village (via hole)
-            // THIS SHOULD ONLY HAPPEN DURING TESTING AND NOT IN ACTUAL GAMEPLAY
-            if (newLevelType == Level.NetworkLevel.LevelType.DegenapeVillage &&
-                m_currentLevelType == Level.NetworkLevel.LevelType.Dungeon)
-            {
-                ExitDungeonCalculateBalances(true);
-            }
-
-            if (newLevelType == Level.NetworkLevel.LevelType.DegenapeVillage &&
-                m_currentLevelType == Level.NetworkLevel.LevelType.DungeonRest)
-            {
-                ExitDungeonCalculateBalances(true);
-            }
-
-            m_currentLevelType = newLevelType;
+            EnterDungeonCalculateBalances();
+            StartDungeonTimer();
         }
+
+        // perform once off code if we go from a dungeon or dungeonrest back to the village (via hole)
+        // THIS SHOULD ONLY HAPPEN DURING TESTING AND NOT IN ACTUAL GAMEPLAY
+        if (newLevelType == Level.NetworkLevel.LevelType.DegenapeVillage &&
+            m_currentLevelType == Level.NetworkLevel.LevelType.Dungeon)
+        {
+            ExitDungeonCalculateBalances(true);
+            StopDungeonTimer();
+            ResetTimer();
+        }
+
+        if (newLevelType == Level.NetworkLevel.LevelType.DegenapeVillage &&
+            m_currentLevelType == Level.NetworkLevel.LevelType.DungeonRest)
+        {
+            ExitDungeonCalculateBalances(true);
+            StopDungeonTimer();
+            ResetTimer();
+        }
+
+        m_currentLevelType = newLevelType;
     }
 
     private async UniTaskVoid CheckWalletAddressChanged()
@@ -546,6 +548,24 @@ public class PlayerOffchainData : NetworkBehaviour
 
         GetComponent<PlayerCharacter>().Essence.Value += value;
         PopupEssenceTextClientRpc(value, GetComponent<NetworkObject>().NetworkObjectId);
+    }
+
+    private void StartDungeonTimer()
+    {
+        PlayerDungeonTime playerDungeonTime = GetComponent<PlayerDungeonTime>();
+        playerDungeonTime.StartTimer();
+    }
+
+    private void StopDungeonTimer()
+    {
+        PlayerDungeonTime playerDungeonTime = GetComponent<PlayerDungeonTime>();
+        playerDungeonTime.StopTimer();
+    }
+
+    private void ResetTimer()
+    {
+        PlayerDungeonTime playerDungeonTime = GetComponent<PlayerDungeonTime>();
+        playerDungeonTime.ResetTimer();
     }
 
     [ClientRpc]

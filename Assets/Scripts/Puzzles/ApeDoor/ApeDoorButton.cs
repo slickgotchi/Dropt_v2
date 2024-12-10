@@ -36,7 +36,6 @@ public class ApeDoorButton : DoorButton<ApeDoorType>
 
     public override void UpdateSprite()
     {
-        Debug.Log("TYPE->" + Type.Value);
         if (State.Value == ButtonState.Up)
         {
             switch (Type.Value)

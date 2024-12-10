@@ -8,10 +8,12 @@ namespace Dropt
         private Animator m_animator;
         private NetworkVariable<bool> m_isTriggered = new NetworkVariable<bool>(false);
         private NetworkVariable<float> m_triggerTimer = new NetworkVariable<float>(3);
+        private SoundFX_BombSnail m_soundFX_BombSnail;
 
         private void Awake()
         {
             m_animator = GetComponent<Animator>();
+            m_soundFX_BombSnail = GetComponent<SoundFX_BombSnail>();
         }
 
         public override void OnSpawnStart()
@@ -47,10 +49,17 @@ namespace Dropt
 
         public override void OnAttackStart()
         {
-            //Debug.Log("ATTACK START");
+            PlayExplodeSoundClientRpc();
             SimpleAttackStart();
             // set facing
             GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, AttackDuration);
+
+        }
+
+        [ClientRpc]
+        private void PlayExplodeSoundClientRpc()
+        {
+            m_soundFX_BombSnail.PlayExplodeSound();
         }
 
         public override void OnCooldownStart()
