@@ -281,6 +281,11 @@ namespace GotchiHub
             }
         }
 
+        public string GetConnectedWallet()
+        {
+            return m_walletAddress;
+        }
+
         private void OnDestroy()
         {
             // Unsubscribe from events

@@ -56,6 +56,8 @@ public class PlayerOffchainData : NetworkBehaviour
     // if player escapes
     //      ectoBankDelta = ectoDebitCount_dungeon - ectoDungeonStartMount_offchain + ectoLiveCount_dungeon
 
+    public string dungeonFormation = "solo";
+
     // uri for accessing database
     private string dbUri = "https://db.playdropt.io";
 
@@ -81,13 +83,13 @@ public class PlayerOffchainData : NetworkBehaviour
     public override void OnNetworkDespawn()
     {
         // WARNING: we need a way to differentiate between full disconnects and temporary internet loss disconnect/reconnects
-        if (IsServer)
-        {
-            if (LevelManager.Instance.IsDungeon() || LevelManager.Instance.IsDungeonRest())
-            {
-                ExitDungeonCalculateBalances(false);
-            }
-        }
+        //if (IsServer)
+        //{
+        //    if (LevelManager.Instance.IsDungeon() || LevelManager.Instance.IsDungeonRest())
+        //    {
+        //        ExitDungeonCalculateBalances(false);
+        //    }
+        //}
     }
 
     private void Update()
@@ -119,6 +121,14 @@ public class PlayerOffchainData : NetworkBehaviour
                 m_currentLevelType == Level.NetworkLevel.LevelType.DegenapeVillage)
             {
                 EnterDungeonCalculateBalances();
+
+                // determine dungeon formation
+                var players = FindObjectsByType<PlayerController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+                if (players.Length == 3) dungeonFormation = "trio";
+                else if (players.Length == 2) dungeonFormation = "duo";
+                else if (players.Length == 1) dungeonFormation = "solo";
+                else dungeonFormation = "illegal: " + players.Length.ToString();
+
             }
 
             // perform once off code if we go from a dungeon or dungeonrest back to the village (via hole)
