@@ -113,21 +113,22 @@ public class NetworkCharacter : NetworkBehaviour
         var enemyController = GetComponent<EnemyController>();
         if (enemyController == null) return;
 
-        // get the local player
-        ulong localPlayerNOID = 0;
-        PlayerController[] players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
-        foreach (var player in players)
-        {
-            if (player.GetComponent<NetworkObject>().IsLocalPlayer)
-            {
-                localPlayerNOID = player.GetComponent<NetworkObject>().NetworkObjectId;
-                break;
-            }
-        }
-
         // LOCAL PLAYER
         if (IsClient)
         {
+            // get the local player
+            ulong localPlayerNOID = 0;
+            //PlayerController[] players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+            foreach (var player in Game.Instance.players)
+            {
+                var playerNetworkObject = player.GetComponent<NetworkObject>();
+                if (playerNetworkObject != null && playerNetworkObject.IsLocalPlayer)
+                {
+                    localPlayerNOID = playerNetworkObject.NetworkObjectId;
+                    break;
+                }
+            }
+
             if (localPlayerNOID == damageDealerNOID)
             {
                 // do sprite flash
@@ -156,7 +157,6 @@ public class NetworkCharacter : NetworkBehaviour
             // deplete hp
             HpCurrent.Value -= (int)damage;
             if (HpCurrent.Value < 0) { HpCurrent.Value = 0; }
-            //var position = transform.position + popupTextOffset;
 
             // show damage text
             DamagePopupTextClientRpc(damage, isCritical);
@@ -164,22 +164,29 @@ public class NetworkCharacter : NetworkBehaviour
             // check for death
             if (HpCurrent.Value <= 0 && enemyController != null)
             {
-                Dropt.EnemyAI enemyAI = gameObject.GetComponent<Dropt.EnemyAI>();
-                PlayerController playerController = damageDealer.GetComponent<PlayerController>();
-                playerController?.KillEnemy();
+                // update the players kill count
+                if (damageDealer != null)
+                {
+                    PlayerController playerController = damageDealer.GetComponent<PlayerController>();
+                    if (playerController != null) playerController.KillEnemy();
+                }
+
+                // despawn this character
+                Dropt.EnemyAI enemyAI = GetComponent<Dropt.EnemyAI>();
                 if (enemyAI != null)
                 {
                     // the AI class will handle despawning (and some children may not imeediately despawn)
-                    enemyAI.Death(transform.position);
+                    enemyAI.Death(enemyAI.GetKnockbackPosition());
                 }
                 else
                 {
-                    gameObject.GetComponent<NetworkObject>().Despawn();
+                    var networkObject = GetComponent<NetworkObject>();
+                    if (networkObject != null) networkObject.Despawn();
                 }
             }
 
             // do ap leech
-            if (damageDealerNOID > 0)
+            if (damageDealer != null && damageDealerNOID > 0)
             {
                 NetworkObject damageDealerNetworkObject = damageDealer.GetComponent<NetworkObject>();
                 if (damageDealerNetworkObject != null)

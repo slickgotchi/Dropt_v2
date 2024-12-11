@@ -37,6 +37,7 @@ public class BallisticSnipe : PlayerAbility
     private AttackCentre m_attackCentre;
     private List<Vector3> m_attackDirections = new List<Vector3>(new Vector3[5]);
     private List<GameObject> m_targets = new List<GameObject>();
+    private int m_numTargetsAllowed = 0;
 
     // all the ballistic projectiles
     private List<GameObject> m_networkProjectiles
@@ -48,8 +49,8 @@ public class BallisticSnipe : PlayerAbility
     private NetworkVariable<ulong> m_networkProjectileId_3 = new NetworkVariable<ulong>();
     private NetworkVariable<ulong> m_networkProjectileId_4 = new NetworkVariable<ulong>();
 
-    private List<GameObject> m_visualProjectiles
-        = new List<GameObject>(new GameObject[5]);
+    private List<GameObject> m_visualProjectiles =
+        new List<GameObject>(new GameObject[5]);
 
     ref NetworkVariable<ulong> GetNetworkProjectileId(int index)
     {
@@ -185,6 +186,13 @@ public class BallisticSnipe : PlayerAbility
         m_targets = FindClosestTargets(attackCentrePos,
             numTargetsAllowed, Projection + Distance);
 
+        // 3. get attack directions
+        for (int i = 0; i < m_targets.Count; i++)
+        {
+            var targetPos = m_targets[i].transform.position + new Vector3(0, 0.5f, 0);
+            m_attackDirections[i] = (targetPos - attackCentrePos).normalized;
+        }
+
         if (IsClient)
         {
             // 3. set all attack paths invisible
@@ -195,11 +203,11 @@ public class BallisticSnipe : PlayerAbility
             {
                 var sapv = m_snipeAttackPathVisualizers[i];
                 sapv.SetMeshVisible(true);
-                var targetPos = m_targets[i].transform.position + new Vector3(0, 0.5f, 0);
 
-                var dir = (targetPos - attackCentrePos).normalized;
-                m_attackDirections[i] = dir;
+                var dir = m_attackDirections[i];
                 sapv.forwardDirection = new Vector2(dir.x, dir.y);
+
+                var targetPos = m_targets[i].transform.position + new Vector3(0, 0.5f, 0);
                 sapv.innerStartPoint = 1f;
                 sapv.outerFinishPoint = math.distance(targetPos, attackCentrePos);
             }

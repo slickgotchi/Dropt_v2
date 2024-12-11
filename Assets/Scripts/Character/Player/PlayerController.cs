@@ -59,7 +59,7 @@ public class PlayerController : NetworkBehaviour
     {
         base.OnNetworkSpawn();
 
-        Debug.Log("Player spawned");
+        //Debug.Log("Player spawned");
 
         // local player
         if (IsLocalPlayer)
@@ -452,6 +452,7 @@ public class PlayerController : NetworkBehaviour
     public void KillEnemy()
     {
         m_totalKilledEnemies.Value++;
+        Debug.Log("Kill count: " + m_totalKilledEnemies);
     }
 
     public int GetTotalKilledEnemies()
