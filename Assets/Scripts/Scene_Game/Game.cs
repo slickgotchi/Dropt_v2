@@ -129,6 +129,11 @@ public class Game : MonoBehaviour
             }
         }
 
+        if (Bootstrap.IsClient())
+        {
+            // update game id
+            Bootstrap.Instance.GameId = m_currentGameId;
+        }
     }
 
     private float m_noTimer = 0f;

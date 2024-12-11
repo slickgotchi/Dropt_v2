@@ -52,8 +52,12 @@ public class EscapePortal : Interactable
         // add id to escaped ids
         escapedNetworkObjectIds.Add(playerNetworkObjectId);
 
-        // update leaderboard data (only other places this is called is PlayerController.cs KillPlayer())
-        GetComponent<PlayerLeaderboardLogger>().LogEndOfDungeonResults(true);
+        // try update leaderboard
+        var playerLeaderboardLogger = playerNetworkObject.GetComponent<PlayerLeaderboardLogger>();
+        if (playerLeaderboardLogger != null)
+        {
+            playerLeaderboardLogger.LogEndOfDungeonResults(true);
+        }
 
         // confirm with client they can escape
         EscapeConfirmedClientRpc(playerNetworkObjectId);
