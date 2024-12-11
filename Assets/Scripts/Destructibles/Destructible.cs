@@ -47,11 +47,13 @@ public class Destructible : NetworkBehaviour
     public void TakeDamage(Wearable.WeaponTypeEnum weaponType, ulong damageDealerId)
     {
         var damage = CalculateDamageToDestructible(type, weaponType);
-        m_soundFX_Destructible.PlayTakeDamageSound();
-
         if (CurrentHp.Value <= damage)
         {
             VisualEffectsManager.Instance.SpawnCloudExplosion(transform.position + new Vector3(0, 0.5f, 0));
+        }
+        else
+        {
+            m_soundFX_Destructible.PlayTakeDamageSound();
         }
 
         if (IsServer)
