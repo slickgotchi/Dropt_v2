@@ -25,7 +25,9 @@ public class GasBag_Explode : EnemyAbility
         if (m_isExploded) return;
 
         // set position
-        transform.position = Dropt.Utils.Battle.GetAttackCentrePosition(Parent);
+        //transform.position = Dropt.Utils.Battle.GetAttackCentrePosition(Parent);
+        transform.position = Parent.GetComponent<Dropt.EnemyAI>().GetKnockbackPosition() + new Vector3(0, 0.5f, 0);
+        Debug.Log("OnActivate position: " + transform.position);
 
         m_isExploded = true;
 

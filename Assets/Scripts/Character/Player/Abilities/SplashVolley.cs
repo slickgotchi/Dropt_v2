@@ -29,7 +29,8 @@ public class SplashVolley : PlayerAbility
     private NetworkVariable<ulong> m_splashProjectileId_3 = new NetworkVariable<ulong>();
     private NetworkVariable<ulong> m_splashProjectileId_4 = new NetworkVariable<ulong>();
 
-    private List<ScheduledProjectile> m_scheduledProjectiles = new List<ScheduledProjectile>();
+    private List<ScheduledProjectile> m_scheduledProjectiles =
+        new List<ScheduledProjectile>();
 
     private AttackPathVisualizer m_attackPathVisualizer;
 

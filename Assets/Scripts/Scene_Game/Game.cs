@@ -39,6 +39,8 @@ public class Game : MonoBehaviour
 
     //public List<GameObject> afterConnectSpawnPrefabs_SERVER = new List<GameObject>();
 
+    [HideInInspector] public PlayerController[] players;
+
     private void Awake()
     {
         // Singleton pattern to ensure only one instance of the AudioManager exists
@@ -106,6 +108,9 @@ public class Game : MonoBehaviour
 
     public void Update()
     {
+        // get players for global use
+        players = FindObjectsByType<PlayerController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+
         if (m_isTryConnectClientGame && !NetworkManager.Singleton.ShutdownInProgress)
         {
             m_isTryConnectClientGame = false;
