@@ -256,7 +256,8 @@ public class SplashVolley : PlayerAbility
 
     public override void OnFinish()
     {
-        // Custom finish logic if needed
+        if (m_attackPathVisualizer == null) return;
+        m_attackPathVisualizer.SetMeshVisible(false);
     }
 
     public override void OnHoldStart()
@@ -324,9 +325,7 @@ public class SplashVolley : PlayerAbility
         base.OnHoldCancel();
 
         if (m_attackPathVisualizer == null) return;
-
         m_attackPathVisualizer.SetMeshVisible(false);
-        m_attackPathVisualizer = null;
     }
 
     public override void OnHoldFinish()
@@ -334,9 +333,7 @@ public class SplashVolley : PlayerAbility
         base.OnHoldFinish();
 
         if (m_attackPathVisualizer == null) return;
-
         m_attackPathVisualizer.SetMeshVisible(false);
-        m_attackPathVisualizer = null;
     }
 
     private class ScheduledProjectile

@@ -108,6 +108,8 @@ public class SmashWave : PlayerAbility
 
     public override void OnFinish()
     {
+        if (m_attackPathVisualizer == null) return;
+        m_attackPathVisualizer.SetMeshVisible(false);
     }
 
     public override void OnHoldStart()
@@ -155,9 +157,7 @@ public class SmashWave : PlayerAbility
         base.OnHoldCancel();
 
         if (m_attackPathVisualizer == null) return;
-
         m_attackPathVisualizer.SetMeshVisible(false);
-        m_attackPathVisualizer = null;
     }
 
     public override void OnHoldFinish()
@@ -165,9 +165,7 @@ public class SmashWave : PlayerAbility
         base.OnHoldFinish();
 
         if (m_attackPathVisualizer == null) return;
-
         m_attackPathVisualizer.SetMeshVisible(false);
-        m_attackPathVisualizer = null;
     }
 
     private void CustomCollisionCheck()
@@ -221,4 +219,5 @@ public class SmashWave : PlayerAbility
 
         if (IsServer && !IsHost) UnrollEnemies();
     }
+
 }
