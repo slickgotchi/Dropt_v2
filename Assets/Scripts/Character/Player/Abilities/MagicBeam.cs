@@ -131,7 +131,7 @@ public class MagicBeam : PlayerAbility
 
     public override void OnFinish()
     {
-
+        foreach (var sapv in m_chainAttackPathVisualizers) sapv.SetMeshVisible(false);
     }
 
     public override void OnHoldStart()
@@ -221,17 +221,6 @@ public class MagicBeam : PlayerAbility
         base.OnHoldFinish();
 
         foreach (var sapv in m_chainAttackPathVisualizers) sapv.SetMeshVisible(false);
-
-        //if (Player == null) return;
-        //var playerPrediction = Player.GetComponent<PlayerPrediction>();
-        //if (playerPrediction == null) return;
-
-        //var dir = playerPrediction.GetHoldActionDirection();
-        //var startAngle = GetAngleFromDirection(dir);
-
-        //// do a gotchi spin
-        //Player.GetComponent<PlayerGotchi>().PlayFacingSpin(1, 0.4f,
-        //    PlayerGotchi.SpinDirection.AntiClockwise, startAngle);
     }
 
     public List<GameObject> FindTargetChain(Vector3 attackCentrePosition, int numberTargets, float maxRange)

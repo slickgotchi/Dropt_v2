@@ -64,6 +64,14 @@ public class PierceDrill : PlayerAbility
         HandleRaycastCollisions(Time.deltaTime);
     }
 
+    public override void OnFinish()
+    {
+        base.OnFinish();
+
+        if (m_attackPathVisualizer == null) return;
+        m_attackPathVisualizer.SetMeshVisible(false);
+    }
+
     public override void OnHoldStart()
     {
         base.OnHoldStart();
@@ -112,9 +120,7 @@ public class PierceDrill : PlayerAbility
         base.OnHoldCancel();
 
         if (m_attackPathVisualizer == null) return;
-
         m_attackPathVisualizer.SetMeshVisible(false);
-        m_attackPathVisualizer = null;
     }
 
     public override void OnHoldFinish()
@@ -122,9 +128,7 @@ public class PierceDrill : PlayerAbility
         base.OnHoldFinish();
 
         if (m_attackPathVisualizer == null) return;
-
         m_attackPathVisualizer.SetMeshVisible(false);
-        m_attackPathVisualizer = null;
     }
 
     public override void OnAutoMoveFinish()

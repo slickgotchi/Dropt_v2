@@ -146,6 +146,8 @@ public class BallisticSnipe : PlayerAbility
 
     }
 
+
+
     public override void OnHoldStart()
     {
         base.OnHoldStart();
@@ -381,5 +383,6 @@ public class BallisticSnipe : PlayerAbility
 
     public override void OnFinish()
     {
+        foreach (var sapv in m_snipeAttackPathVisualizers) sapv.SetMeshVisible(false);
     }
 }
