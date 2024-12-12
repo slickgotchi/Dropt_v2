@@ -248,8 +248,13 @@ namespace Dropt
             if (!m_isDead)
             {
                 m_isDead = true;
-                //OnDeath(position);
-                OnDeathClientRPC();
+//<<<<<<< HEAD
+                OnDeath(position);
+                PlayDeathSoundClientRPC();
+//=======
+//                //OnDeath(position);
+//                OnDeathClientRPC();
+//>>>>>>> main
             }
 
             //OnDeadStart();
@@ -257,7 +262,7 @@ namespace Dropt
         }
 
         [ClientRpc]
-        private void OnDeathClientRPC()
+        private void PlayDeathSoundClientRPC()
         {
             m_soundFX_Enemy.PlayDieSound();
         }
@@ -267,7 +272,7 @@ namespace Dropt
             m_soundFX_Enemy.PlayTakeDamageSound();
         }
 
-        void HandleNull(float dt)
+        private void HandleNull(float dt)
         {
             OnNullUpdate(dt);
         }

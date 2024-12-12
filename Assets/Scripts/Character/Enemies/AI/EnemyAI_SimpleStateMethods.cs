@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 using Unity.Mathematics;
@@ -72,8 +70,9 @@ namespace Dropt
             if (m_cooldownTimer > 0.5 * CooldownDuration)
             {
                 m_navMeshAgent.isStopped = true;
-                
-            } else
+
+            }
+            else
             {
                 SimplePursueUpdate(dt);
             }

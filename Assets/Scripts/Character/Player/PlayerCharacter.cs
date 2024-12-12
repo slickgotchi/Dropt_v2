@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 using Cysharp.Threading.Tasks;
-using System.Threading.Tasks;
 
 public class PlayerCharacter : NetworkCharacter
 {

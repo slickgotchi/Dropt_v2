@@ -1,87 +1,99 @@
 using UnityEngine;
 using Unity.Netcode;
+using Cysharp.Threading.Tasks;
 
-public class SpiderPodController : NetworkBehaviour
+namespace Dropt
 {
-    public GameObject SpiderPrefab;
-    public float BurstRange = 4f;
-    public int NumberSpiders = 3;
-    public float SpawnDuration = 1f;
-    public float SpawnDistance = 2f;
-
-    private bool m_isBurst = false;
-
-    private SoundFX_SpiderPod m_soundFX_SpiderPod;
-
-    private void Start()
+    public class SpiderPodController : NetworkBehaviour
     {
-        GetComponent<Animator>().Play("SpiderPod_Idle");
-    }
+        public GameObject SpiderPrefab;
+        public float BurstRange = 4f;
+        public int NumberSpiders = 3;
+        public float SpawnDuration = 1f;
+        public float SpawnDistance = 2f;
 
-    public override void OnNetworkSpawn()
-    {
-        base.OnNetworkSpawn();
-        m_soundFX_SpiderPod = GetComponent<SoundFX_SpiderPod>();
-        m_soundFX_SpiderPod.PlaySpawnSound();
-    }
+        private bool m_isBurst = false;
 
-    private void Update()
-    {
-        if (!IsServer) return;
+        private SoundFX_SpiderPod m_soundFX_SpiderPod;
 
-        // check if time to burst pod
-        if (!m_isBurst)
+        private Animator m_animator;
+
+        public override void OnNetworkSpawn()
         {
-            var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
-            bool isBurstTime = false;
-            foreach (var player in players)
+            base.OnNetworkSpawn();
+            m_soundFX_SpiderPod = GetComponent<SoundFX_SpiderPod>();
+            m_soundFX_SpiderPod.PlaySpawnSound();
+            m_animator = GetComponent<Animator>();
+
+            if (IsServer)
             {
-                var dist = (player.transform.position - transform.position).magnitude;
-                if (dist < BurstRange)
+                PlaySpawnAnimation();
+            }
+        }
+
+        private async void PlaySpawnAnimation()
+        {
+            await UniTask.Delay(800);
+            Utils.Anim.PlayAnimationWithDuration(m_animator, "SpiderPod_Spawn", SpawnDuration);
+            await UniTask.Delay(1000);
+            Utils.Anim.Play(m_animator, "SpiderPod_Idle");
+        }
+
+        private void Update()
+        {
+            if (!IsServer) return;
+
+            // check if time to burst pod
+            if (!m_isBurst)
+            {
+                PlayerController[] players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+                bool isBurstTime = false;
+                foreach (PlayerController player in players)
                 {
-                    isBurstTime = true;
+                    float dist = (player.transform.position - transform.position).magnitude;
+                    if (dist < BurstRange)
+                    {
+                        isBurstTime = true;
+                    }
+                }
+
+                if (isBurstTime)
+                {
+                    Burst();
+                    m_isBurst = true;
                 }
             }
-
-            if (isBurstTime)
-            {
-                Burst();
-                m_isBurst = true;
-            }
         }
-    }
 
-    private void Burst()
-    {
-        GetComponent<Animator>().Play("SpiderPod_Burst");
-        PlayBurstSoundClientRpc();
-        float startAngle = Random.Range(0, 360.0f);
-        float deltaAngle = 360 / NumberSpiders;
-        for (int i = 0; i < NumberSpiders; i++)
+        private async void Burst()
         {
-            var dir = PlayerAbility.GetDirectionFromAngle(startAngle + deltaAngle * i);
-            var spider = Instantiate(SpiderPrefab);
-            spider.transform.position = transform.position + new Vector3(0f, 1f, 0f);
-            spider.GetComponent<Dropt.EnemyAI_Spider>().SpawnDuration = SpawnDuration;
-            spider.GetComponent<Dropt.EnemyAI_Spider>().SpawnDirection = dir.normalized;
-            spider.GetComponent<Dropt.EnemyAI_Spider>().SpawnDistance = SpawnDistance;
-            spider.SetActive(false);
+            Utils.Anim.Play(m_animator, "SpiderPod_Burst");
+            PlayBurstSoundClientRpc();
+            float startAngle = Random.Range(0, 360.0f);
+            float deltaAngle = 360 / NumberSpiders;
+            for (int i = 0; i < NumberSpiders; i++)
+            {
+                Vector3 dir = PlayerAbility.GetDirectionFromAngle(startAngle + deltaAngle * i);
+                GameObject spider = Instantiate(SpiderPrefab);
+                spider.transform.position = transform.position + new Vector3(0f, 1f, 0f);
+                EnemyAI_Spider enemyAI_Spider = spider.GetComponent<EnemyAI_Spider>();
+                enemyAI_Spider.SpawnDuration = SpawnDuration;
+                enemyAI_Spider.SpawnDirection = dir.normalized;
+                enemyAI_Spider.SpawnDistance = SpawnDistance;
+                spider.SetActive(false);
 
-            // DO NOT SPAWN DIRECTLY AFTER INSTANTIATING, UNITY NEEDS A FRAME TO ALLOW THE NAVMESH TO GET PICKED UP BY NEW SPIDERS
-            // USE THE DEFERRED SPAWNER INSTEAD
-            DeferredSpawner.SpawnNextFrame(spider.GetComponent<NetworkObject>());
+                // DO NOT SPAWN DIRECTLY AFTER INSTANTIATING, UNITY NEEDS A FRAME TO ALLOW THE NAVMESH TO GET PICKED UP BY NEW SPIDERS
+                // USE THE DEFERRED SPAWNER INSTEAD
+                DeferredSpawner.SpawnNextFrame(spider.GetComponent<NetworkObject>());
+            }
+            await UniTask.Delay(1000);
+            Utils.Anim.Play(m_animator, "SpiderPod_Idle");
         }
-    }
 
-    [ClientRpc]
-    private void PlayBurstSoundClientRpc()
-    {
-        m_soundFX_SpiderPod.PlayBurstSound();
-    }
-
-    public override void OnNetworkDespawn()
-    {
-        base.OnNetworkDespawn();
-        m_soundFX_SpiderPod.PlayDieSound();
+        [ClientRpc]
+        private void PlayBurstSoundClientRpc()
+        {
+            m_soundFX_SpiderPod.PlayBurstSound();
+        }
     }
 }
