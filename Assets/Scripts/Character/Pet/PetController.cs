@@ -113,6 +113,8 @@ public class PetController : NetworkBehaviour
 
     private void Update()
     {
+        if (m_petOwner == null) return;
+
         if (IsServer)
         {
             m_petStateMachine.Update();
@@ -295,12 +297,12 @@ public class PetController : NetworkBehaviour
 
     public bool IsEnemyInPlayerRange()
     {
-        return m_enemyDetactor.DetectEnemies(m_petOwner).Length > 0;
+        return m_enemyDetactor.DetectEnemies().Length > 0;
     }
 
     public Transform GetEnemyInPlayerRange(Transform previousEnemy)
     {
-        Collider2D[] enemiesCollider = m_enemyDetactor.DetectEnemies(m_petOwner);
+        Collider2D[] enemiesCollider = m_enemyDetactor.DetectEnemies();
         if (enemiesCollider.Length == 0)
         {
             return null;
