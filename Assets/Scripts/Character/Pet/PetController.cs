@@ -113,9 +113,9 @@ public class PetController : NetworkBehaviour
 
     private void Update()
     {
-        if (m_petOwner == null) return;
+        //if (m_petOwner == null) return;
 
-        if (IsServer)
+        if (IsServer && m_petOwner != null)
         {
             m_petStateMachine.Update();
             m_petPosition.Value = m_transform.position;

@@ -86,7 +86,10 @@ namespace Dropt
 
         public override void OnAttackStart()
         {
-            GetComponent<NavMeshAgent>().isStopped = true;
+            if (m_navMeshAgent != null && m_navMeshAgent.isOnNavMesh)
+            {
+                m_navMeshAgent.isStopped = true;
+            }
 
             SimpleAttackStart();
 
@@ -107,7 +110,10 @@ namespace Dropt
 
         public override void OnCooldownStart()
         {
-            GetComponent<NavMeshAgent>().isStopped = false;
+            if (m_navMeshAgent != null && m_navMeshAgent.isOnNavMesh)
+            {
+                m_navMeshAgent.isStopped = false;
+            }
         }
 
         public override void OnCooldownUpdate(float dt)
