@@ -184,13 +184,26 @@ public class PlayerController : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        GetComponent<PlayerController>().IsDead = true;
+        // set player to dead
+        var playerController = GetComponent<PlayerController>();
+        if (playerController != null)
+        {
+            playerController.IsDead = true;
+        }
 
-        // calcl balances
-        GetComponent<PlayerOffchainData>().ExitDungeonCalculateBalances(false);
+        // calc offchain balances
+        var playerOffchainData = GetComponent<PlayerOffchainData>();
+        if (playerOffchainData != null)
+        {
+            playerOffchainData.ExitDungeonCalculateBalances(false);
+        }
 
         // do leaderboard logging (only other place this is called is EscapePortal.cs)
-        GetComponent<PlayerLeaderboardLogger>().LogEndOfDungeonResults(false);
+        var playerLeaderboardLogger = GetComponent<PlayerLeaderboardLogger>();
+        if (playerLeaderboardLogger != null)
+        {
+            playerLeaderboardLogger.LogEndOfDungeonResults(false);
+        }
 
         TriggerGameOverClientRpc(GetComponent<NetworkObject>().NetworkObjectId, typeOfREKT);
     }
