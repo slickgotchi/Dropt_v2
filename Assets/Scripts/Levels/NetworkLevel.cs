@@ -7,7 +7,8 @@ namespace Level
 {
     public partial class NetworkLevel : NetworkBehaviour
     {
-        public enum LevelType { Null, Tutorial, DegenapeVillage, Dungeon, DungeonRest }
+        public enum LevelType { Null, Tutorial, DegenapeVillage,
+            Dungeon, DungeonRest }
         public LevelType levelType = LevelType.Dungeon;
 
         public AudioClip levelMusic;

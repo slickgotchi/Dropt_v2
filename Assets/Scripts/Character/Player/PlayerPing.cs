@@ -26,6 +26,9 @@ public class PlayerPing : NetworkBehaviour
 
     public NetworkVariable<int> serverFPS = new NetworkVariable<int>(0);
 
+    private List<float> m_serverFPSArray = new List<float>();
+    private int m_maxServerFPSArrayLength = 20;
+
     public float elapsedTimeSinceLastPing = 0;
 
     public override void OnNetworkSpawn()
@@ -44,8 +47,25 @@ public class PlayerPing : NetworkBehaviour
         if (IsServer)
         {
             if (m_unityTransport != null) RTT.Value = m_unityTransport.GetCurrentRtt(m_networkObject.OwnerClientId);
+
+            m_serverFPSArray.Add(1 / Time.deltaTime);
+            if (m_serverFPSArray.Count > m_maxServerFPSArrayLength)
+            {
+                m_serverFPSArray.RemoveAt(0);
+            }
+
+            // find average fps
+            float sum = 0;
+            for (int i = 0; i < m_serverFPSArray.Count; i++)
+            {
+                sum += m_serverFPSArray[i];
+            }
+
+            if (m_serverFPSArray.Count > 0)
+            {
+                serverFPS.Value = (int)(sum/m_serverFPSArray.Count);
+            }
             
-            serverFPS.Value = (int)(1 / Time.deltaTime);
         }
 
         if (IsLocalPlayer)

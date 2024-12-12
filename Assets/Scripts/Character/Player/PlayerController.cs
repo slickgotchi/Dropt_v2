@@ -34,6 +34,9 @@ public class PlayerController : NetworkBehaviour
     // tracking selected gotchi
     private int m_selectedGotchiId = 0;
 
+    // for tracking wallet
+    public string ConnectedWallet = "";
+
     // variables for tracking current gotchi
     private int m_localGotchiId = 0;
     [HideInInspector] public NetworkVariable<int> NetworkGotchiId = new NetworkVariable<int>(69420);
@@ -56,7 +59,7 @@ public class PlayerController : NetworkBehaviour
     {
         base.OnNetworkSpawn();
 
-        Debug.Log("Player spawned");
+        //Debug.Log("Player spawned");
 
         // local player
         if (IsLocalPlayer)
@@ -171,16 +174,37 @@ public class PlayerController : NetworkBehaviour
     }
 
     [Rpc(SendTo.Server)]
-    public void SetNetworkGotchiIdServerRpc(int gotchiId)
+    public void SetNetworkGotchiIdServerRpc(int gotchiId, string wallet)
     {
         NetworkGotchiId.Value = gotchiId;
+        ConnectedWallet = wallet;
     }
 
     public void KillPlayer(REKTCanvas.TypeOfREKT typeOfREKT)
     {
         if (!IsServer) return;
 
-        GetComponent<PlayerController>().IsDead = true;
+        // set player to dead
+        var playerController = GetComponent<PlayerController>();
+        if (playerController != null)
+        {
+            playerController.IsDead = true;
+        }
+
+        // calc offchain balances
+        var playerOffchainData = GetComponent<PlayerOffchainData>();
+        if (playerOffchainData != null)
+        {
+            playerOffchainData.ExitDungeonCalculateBalances(false);
+        }
+
+        // do leaderboard logging (only other place this is called is EscapePortal.cs)
+        var playerLeaderboardLogger = GetComponent<PlayerLeaderboardLogger>();
+        if (playerLeaderboardLogger != null)
+        {
+            playerLeaderboardLogger.LogEndOfDungeonResults(false);
+        }
+
         TriggerGameOverClientRpc(GetComponent<NetworkObject>().NetworkObjectId, typeOfREKT);
     }
 
@@ -275,7 +299,8 @@ public class PlayerController : NetworkBehaviour
             if (selectedGotchiId != m_selectedGotchiId)
             {
                 m_selectedGotchiId = selectedGotchiId;
-                SetNetworkGotchiIdServerRpc(m_selectedGotchiId);
+                ConnectedWallet = GotchiSelectCanvas.Instance.GetConnectedWallet();
+                SetNetworkGotchiIdServerRpc(m_selectedGotchiId, ConnectedWallet);
             }
         }
     }
@@ -440,6 +465,7 @@ public class PlayerController : NetworkBehaviour
     public void KillEnemy()
     {
         m_totalKilledEnemies.Value++;
+        Debug.Log("Kill count: " + m_totalKilledEnemies);
     }
 
     public int GetTotalKilledEnemies()

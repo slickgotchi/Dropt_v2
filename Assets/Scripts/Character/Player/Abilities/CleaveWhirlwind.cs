@@ -90,9 +90,7 @@ public class CleaveWhirlwind : PlayerAbility
         base.OnHoldCancel();
 
         if (m_attackPathVisualizer == null) return;
-
         m_attackPathVisualizer.SetMeshVisible(false);
-        m_attackPathVisualizer = null;
     }
 
     public override void OnHoldFinish()
@@ -100,13 +98,14 @@ public class CleaveWhirlwind : PlayerAbility
         base.OnHoldFinish();
 
         if (m_attackPathVisualizer == null) return;
-
         m_attackPathVisualizer.SetMeshVisible(false);
-        m_attackPathVisualizer = null;
     }
 
     public override void OnFinish()
     {
         PlayAnimation("CleaveDefault");
+
+        if (m_attackPathVisualizer == null) return;
+        m_attackPathVisualizer.SetMeshVisible(false);
     }
 }
