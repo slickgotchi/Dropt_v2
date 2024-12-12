@@ -166,7 +166,7 @@ public class AudioManager : MonoBehaviour
     {
         if (clip == null)
         {
-            Debug.LogWarning("NULL AUDIO CLIP");
+            //Debug.LogWarning("NULL AUDIO CLIP");
             return;
         }
 
@@ -180,7 +180,7 @@ public class AudioManager : MonoBehaviour
 
         if (playingSFXInstances[clip] >= maxDuplicates)
         {
-            Debug.Log("Max duplicates reached for clip: " + clip.name);
+            //Debug.Log("Max duplicates reached for clip: " + clip.name);
             return;
         }
 

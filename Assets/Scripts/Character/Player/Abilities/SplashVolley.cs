@@ -29,7 +29,8 @@ public class SplashVolley : PlayerAbility
     private NetworkVariable<ulong> m_splashProjectileId_3 = new NetworkVariable<ulong>();
     private NetworkVariable<ulong> m_splashProjectileId_4 = new NetworkVariable<ulong>();
 
-    private List<ScheduledProjectile> m_scheduledProjectiles = new List<ScheduledProjectile>();
+    private List<ScheduledProjectile> m_scheduledProjectiles =
+        new List<ScheduledProjectile>();
 
     private AttackPathVisualizer m_attackPathVisualizer;
 
@@ -255,7 +256,8 @@ public class SplashVolley : PlayerAbility
 
     public override void OnFinish()
     {
-        // Custom finish logic if needed
+        if (m_attackPathVisualizer == null) return;
+        m_attackPathVisualizer.SetMeshVisible(false);
     }
 
     public override void OnHoldStart()
@@ -323,9 +325,7 @@ public class SplashVolley : PlayerAbility
         base.OnHoldCancel();
 
         if (m_attackPathVisualizer == null) return;
-
         m_attackPathVisualizer.SetMeshVisible(false);
-        m_attackPathVisualizer = null;
     }
 
     public override void OnHoldFinish()
@@ -333,9 +333,7 @@ public class SplashVolley : PlayerAbility
         base.OnHoldFinish();
 
         if (m_attackPathVisualizer == null) return;
-
         m_attackPathVisualizer.SetMeshVisible(false);
-        m_attackPathVisualizer = null;
     }
 
     private class ScheduledProjectile
