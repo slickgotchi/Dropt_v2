@@ -486,7 +486,10 @@ namespace Dropt
             //}
 
             // stop navmesh agent
-            if (m_navMeshAgent != null) m_navMeshAgent.isStopped = true;
+            if (m_navMeshAgent != null && m_navMeshAgent.isOnNavMesh)
+            {
+                m_navMeshAgent.isStopped = true;
+            }
 
             // save pre knockback state
             m_preKnockbackState = state.Value;

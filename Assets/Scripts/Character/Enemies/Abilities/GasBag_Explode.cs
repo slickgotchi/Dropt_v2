@@ -75,7 +75,14 @@ public class GasBag_Explode : EnemyAbility
     public override void OnDeactivate()
     {
         base.OnDeactivate();
-        Parent.GetComponent<NetworkObject>().Despawn();
-        GetComponent<NetworkObject>().Despawn();
+
+        if (Parent != null)
+        {
+            var parentNetworkObject = Parent.GetComponent<NetworkObject>();
+            if (parentNetworkObject != null) parentNetworkObject.Despawn();
+        }
+
+        var networkObject = GetComponent<NetworkObject>();
+        if (networkObject != null) networkObject.Despawn();
     }
 }

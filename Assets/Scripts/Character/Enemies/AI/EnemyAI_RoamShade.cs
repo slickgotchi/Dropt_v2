@@ -57,8 +57,13 @@ namespace Dropt
             if (networkCharacter == null) return;
             if (m_navMeshAgent == null) return;
 
-            m_navMeshAgent.isStopped = false;
-            m_navMeshAgent.speed = 10;
+            // stop nav mesh
+            if (m_navMeshAgent != null && m_navMeshAgent.isOnNavMesh)
+            {
+                m_navMeshAgent.isStopped = false;
+                m_navMeshAgent.speed = 10;
+            }
+
 
             if (isGoToA)
             {

@@ -465,7 +465,7 @@ public class PlayerController : NetworkBehaviour
     public void KillEnemy()
     {
         m_totalKilledEnemies.Value++;
-        Debug.Log("Kill count: " + m_totalKilledEnemies);
+        //Debug.Log("Kill count: " + m_totalKilledEnemies);
     }
 
     public int GetTotalKilledEnemies()

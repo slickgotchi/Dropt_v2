@@ -51,7 +51,10 @@ namespace Dropt
             Debug.Log("OnDeath(): " + transform.position);
 
             // stop nav mesh
-            m_navMeshAgent.isStopped = true;
+            if (m_navMeshAgent != null && m_navMeshAgent.isOnNavMesh)
+            {
+                m_navMeshAgent.isStopped = true;
+            }
 
             m_isDeathTriggered = true;
             SetDeathClientRpc();
@@ -110,7 +113,11 @@ namespace Dropt
         {
             base.OnTelegraphStart();
 
-            m_navMeshAgent.isStopped = true;
+            // stop nav mesh
+            if (m_navMeshAgent != null && m_navMeshAgent.isOnNavMesh)
+            {
+                m_navMeshAgent.isStopped = true;
+            }
 
             Debug.Log("OnTelegraphStart(): " + transform.position);
         }
@@ -129,7 +136,11 @@ namespace Dropt
             OnTouchPoisonCollider.enabled = false;
             EnemyHurtCollider.enabled = false;
             m_isExploded = true;
-            m_navMeshAgent.isStopped = true;
+            // stop nav mesh
+            if (m_navMeshAgent != null && m_navMeshAgent.isOnNavMesh)
+            {
+                m_navMeshAgent.isStopped = true;
+            }
 
             DisableCollidersClientRpc();
 
