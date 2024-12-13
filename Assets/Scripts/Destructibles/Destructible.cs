@@ -102,7 +102,7 @@ public class Destructible : NetworkBehaviour
             if (weaponType == Wearable.WeaponTypeEnum.Smash) damage = 1;
             if (weaponType == Wearable.WeaponTypeEnum.Pierce) damage = 2;
             if (weaponType == Wearable.WeaponTypeEnum.Unarmed) damage = 1;
-            if (weaponType == Wearable.WeaponTypeEnum.Ballistic) damage = 2;
+            if (weaponType == Wearable.WeaponTypeEnum.Ballistic) damage = 3;
             if (weaponType == Wearable.WeaponTypeEnum.Splash) damage = 3;
             if (weaponType == Wearable.WeaponTypeEnum.Magic) damage = 2;
             if (weaponType == Wearable.WeaponTypeEnum.Shield) damage = 2;
@@ -114,7 +114,7 @@ public class Destructible : NetworkBehaviour
             if (weaponType == Wearable.WeaponTypeEnum.Smash) damage = 3;
             if (weaponType == Wearable.WeaponTypeEnum.Pierce) damage = 3;
             if (weaponType == Wearable.WeaponTypeEnum.Unarmed) damage = 2;
-            if (weaponType == Wearable.WeaponTypeEnum.Ballistic) damage = 2;
+            if (weaponType == Wearable.WeaponTypeEnum.Ballistic) damage = 3;
             if (weaponType == Wearable.WeaponTypeEnum.Splash) damage = 2;
             if (weaponType == Wearable.WeaponTypeEnum.Magic) damage = 3;
             if (weaponType == Wearable.WeaponTypeEnum.Shield) damage = 2;

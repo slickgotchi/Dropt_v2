@@ -51,7 +51,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3382593775
+  GlobalObjectIdHash: 2873853360
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -103,6 +103,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68a437cd191db314f9e436ebc9a0cb26, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  levelType: 3
+  levelMusic: {fileID: 0}
+  isEssenceDepleting: 1
+  objective: Find a hole to descend
+  navmeshGeneration: 1
 --- !u!156049354 &5683163653223124122
 Grid:
   m_ObjectHideFlags: 0
@@ -2395,7 +2400,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5682218950720887772, guid: a17b7c7983b3c134ca8d6daeccd00512, type: 3}
       propertyPath: spawnerId
-      value: 2000
+      value: 81
       objectReference: {fileID: 0}
     - target: {fileID: 5682218950720887772, guid: a17b7c7983b3c134ca8d6daeccd00512, type: 3}
       propertyPath: ApeDoorType
