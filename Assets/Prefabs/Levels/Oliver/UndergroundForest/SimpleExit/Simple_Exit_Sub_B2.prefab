@@ -52,7 +52,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3460520561
+  GlobalObjectIdHash: 1092226835
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -104,8 +104,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68a437cd191db314f9e436ebc9a0cb26, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  levelType: 3
   levelMusic: {fileID: 0}
   isEssenceDepleting: 1
+  objective: Find a hole to descend
+  navmeshGeneration: 1
 --- !u!156049354 &8472920957702935114
 Grid:
   m_ObjectHideFlags: 0
@@ -321,7 +324,7 @@ PrefabInstance:
     - target: {fileID: 8172421237754430842, guid: 621d6035bfe01a1489f2081add54b75d, type: 3}
       propertyPath: m_TileSpriteArray.Array.data[0].m_Data
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 948216702, guid: 3e916ee409873481e969a7e7ac260874, type: 3}
     - target: {fileID: 8172421237754430842, guid: 621d6035bfe01a1489f2081add54b75d, type: 3}
       propertyPath: m_TileSpriteArray.Array.data[1].m_Data
       value: 
@@ -333,7 +336,7 @@ PrefabInstance:
     - target: {fileID: 8172421237754430842, guid: 621d6035bfe01a1489f2081add54b75d, type: 3}
       propertyPath: m_TileSpriteArray.Array.data[3].m_Data
       value: 
-      objectReference: {fileID: 136934566, guid: 3e916ee409873481e969a7e7ac260874, type: 3}
+      objectReference: {fileID: 1394954441, guid: 3e916ee409873481e969a7e7ac260874, type: 3}
     - target: {fileID: 8172421237754430842, guid: 621d6035bfe01a1489f2081add54b75d, type: 3}
       propertyPath: m_TileSpriteArray.Array.data[4].m_Data
       value: 
@@ -404,7 +407,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8172421237754430842, guid: 621d6035bfe01a1489f2081add54b75d, type: 3}
       propertyPath: m_TileSpriteArray.Array.data[0].m_RefCount
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8172421237754430842, guid: 621d6035bfe01a1489f2081add54b75d, type: 3}
       propertyPath: m_TileSpriteArray.Array.data[1].m_RefCount
@@ -416,7 +419,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8172421237754430842, guid: 621d6035bfe01a1489f2081add54b75d, type: 3}
       propertyPath: m_TileSpriteArray.Array.data[3].m_RefCount
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8172421237754430842, guid: 621d6035bfe01a1489f2081add54b75d, type: 3}
       propertyPath: m_TileSpriteArray.Array.data[4].m_RefCount
@@ -512,7 +515,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8172421237754430842, guid: 621d6035bfe01a1489f2081add54b75d, type: 3}
       propertyPath: m_Tiles.Array.data[5].second.m_TileSpriteIndex
-      value: 3
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8172421237754430842, guid: 621d6035bfe01a1489f2081add54b75d, type: 3}
       propertyPath: m_Tiles.Array.data[6].second.m_TileSpriteIndex
@@ -789,7 +792,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nillSpawnChance: 0
   spawnOptions:
-  - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 2c8e41e39b307400b9febe89514c396c, type: 3}
+  - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 0fa50369c6fe97a45ab4ce801bc4ccbc, type: 3}
     Chance: 1
   spawnerId: 2
   spawnedNetworkObject: {fileID: 0}
@@ -976,7 +979,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nillSpawnChance: 0
   spawnOptions:
-  - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 2c8e41e39b307400b9febe89514c396c, type: 3}
+  - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 0fa50369c6fe97a45ab4ce801bc4ccbc, type: 3}
     Chance: 1
   spawnerId: 2
   spawnedNetworkObject: {fileID: 0}
@@ -4529,7 +4532,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nillSpawnChance: 0
   spawnOptions:
-  - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 2c8e41e39b307400b9febe89514c396c, type: 3}
+  - NetworkObjectPrefab: {fileID: 1249991746567512264, guid: 0fa50369c6fe97a45ab4ce801bc4ccbc, type: 3}
     Chance: 1
   spawnerId: 2
   spawnedNetworkObject: {fileID: 0}
