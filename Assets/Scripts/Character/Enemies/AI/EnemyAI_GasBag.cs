@@ -48,7 +48,7 @@ namespace Dropt
         protected override void OnDeath(Vector3 position)
         {
             transform.position = position;
-            Debug.Log("OnDeath(): " + transform.position);
+            //Debug.Log("OnDeath(): " + transform.position);
 
             // stop nav mesh
             if (m_navMeshAgent != null && m_navMeshAgent.isOnNavMesh)
@@ -119,7 +119,7 @@ namespace Dropt
                 m_navMeshAgent.isStopped = true;
             }
 
-            Debug.Log("OnTelegraphStart(): " + transform.position);
+            //Debug.Log("OnTelegraphStart(): " + transform.position);
         }
 
         public override void OnTelegraphUpdate(float dt)
@@ -219,7 +219,7 @@ namespace Dropt
             //gasBagExplosion.ExplosionRadius = OnDestroyPoisonCloudRadius;
             //gasBagExplosion.transform.position = transform.position;
             gasBagExplosion.transform.position = GetKnockbackPosition() + new Vector3(0, 0.5f, 0);
-            Debug.Log("GenerateEnemyAbility() gasBagExplosion position: " + gasBagExplosion.transform.position);
+            //Debug.Log("GenerateEnemyAbility() gasBagExplosion position: " + gasBagExplosion.transform.position);
             // initialise the ability
             ability.GetComponent<NetworkObject>().Spawn();
             enemyAbility.Activate(gameObject, NearestPlayer, Vector3.zero, PoisonCloudDuration, PositionToAttack);

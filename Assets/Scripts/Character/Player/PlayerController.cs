@@ -97,6 +97,23 @@ public class PlayerController : NetworkBehaviour
 
     public override void OnNetworkDespawn()
     {
+        if (!IsServer) return;
+
+        // check for any pets owned
+        var pets = FindObjectsByType<PetController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+
+        var playerNetworkObjectId = GetComponent<NetworkObject>().NetworkObjectId;
+
+        foreach (var pet in pets)
+        {
+            if (pet.GetPetOwnerNetworkObjectId() == playerNetworkObjectId)
+            {
+                pet.GetComponent<NetworkObject>().Despawn();
+            }
+        }
+
+
+
         base.OnNetworkDespawn();
 
     }
@@ -145,6 +162,7 @@ public class PlayerController : NetworkBehaviour
         if (IsServer && !IsLevelSpawnPositionSet)
         {
             var pos = LevelManager.Instance.TryGetPlayerSpawnPoint();
+            Debug.Log("Spawn Player at " + pos);
             if (pos != null)
             {
                 var spawnPoint = (Vector3)pos;

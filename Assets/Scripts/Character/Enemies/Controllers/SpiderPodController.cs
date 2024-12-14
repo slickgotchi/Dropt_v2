@@ -25,19 +25,27 @@ namespace Dropt
             m_soundFX_SpiderPod.PlaySpawnSound();
             m_animator = GetComponent<Animator>();
 
-            if (IsServer)
+            if (IsClient)
             {
-                PlaySpawnAnimation();
+                //PlaySpawnAnimation();
+                //PlaySpawnAnimationServerRpc();
             }
         }
 
-        private async void PlaySpawnAnimation()
-        {
-            await UniTask.Delay(800);
-            Utils.Anim.PlayAnimationWithDuration(m_animator, "SpiderPod_Spawn", SpawnDuration);
-            await UniTask.Delay(1000);
-            Utils.Anim.Play(m_animator, "SpiderPod_Idle");
-        }
+        //[Rpc(SendTo.Server)]
+        //void PlaySpawnAnimationServerRpc()
+        //{
+        //    Utils.Anim.PlayAnimationWithDuration(m_animator, "SpiderPod_Spawn", SpawnDuration);
+
+        //}
+
+        //private async void PlaySpawnAnimation()
+        //{
+        //    await UniTask.Delay(800);
+        //    Utils.Anim.PlayAnimationWithDuration(m_animator, "SpiderPod_Spawn", SpawnDuration);
+        //    //await UniTask.Delay(1000);
+        //    //Utils.Anim.Play(m_animator, "SpiderPod_Idle");
+        //}
 
         private void Update()
         {
@@ -65,7 +73,7 @@ namespace Dropt
             }
         }
 
-        private async void Burst()
+        private void Burst()
         {
             Utils.Anim.Play(m_animator, "SpiderPod_Burst");
             PlayBurstSoundClientRpc();
@@ -86,8 +94,8 @@ namespace Dropt
                 // USE THE DEFERRED SPAWNER INSTEAD
                 DeferredSpawner.SpawnNextFrame(spider.GetComponent<NetworkObject>());
             }
-            await UniTask.Delay(1000);
-            Utils.Anim.Play(m_animator, "SpiderPod_Idle");
+            //await UniTask.Delay(1000);
+            //Utils.Anim.Play(m_animator, "SpiderPod_Idle");
         }
 
         [ClientRpc]

@@ -445,11 +445,15 @@ public class LevelManager : NetworkBehaviour
 
     public Vector3? TryGetPlayerSpawnPoint()
     {
-        if (m_playerSpawnPoints.Count <= 0) return null;
+        if (m_playerSpawnPoints.Count <= 0) return Vector3.zero;
 
         var randIndex = UnityEngine.Random.Range(0, m_playerSpawnPoints.Count);
         var spawnPoint = m_playerSpawnPoints[randIndex];
-        m_playerSpawnPoints.RemoveAt(randIndex);
+
+        if (!LevelManager.Instance.IsDegenapeVillage())
+        {
+            m_playerSpawnPoints.RemoveAt(randIndex);
+        }
 
         return spawnPoint;
     }

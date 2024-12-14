@@ -78,8 +78,9 @@ public class GameServerHeartbeat : MonoBehaviour
 
         try
         {
-            var playerCount = Game.Instance.IsClientReconnecting() ?
-                math.max(m_playerCount, 1) : m_playerCount;
+            //var playerCount = Game.Instance.IsClientReconnecting() ?
+            //    math.max(m_playerCount, 1) : m_playerCount;
+            var playerCount = m_playerCount;
 
             // determine the status of our server
             string status = Game.Instance.isServerReady ? "ready" : "starting";
