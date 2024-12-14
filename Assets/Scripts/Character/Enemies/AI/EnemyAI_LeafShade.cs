@@ -15,8 +15,11 @@ namespace Dropt
 
         public override void OnSpawnStart()
         {
-            Utils.Anim.PlayAnimationWithDuration(m_animator, "LeafShade_Spawn", SpawnDuration);
             base.OnSpawnStart();
+            if (IsServer)
+            {
+                Utils.Anim.PlayAnimationWithDuration(m_animator, "LeafShade_Spawn", SpawnDuration);
+            }
         }
 
         public override void OnTelegraphStart()

@@ -53,6 +53,16 @@ public class PetController : NetworkBehaviour
         }
     }
 
+    public ulong GetPetOwnerNetworkObjectId()
+    {
+        if (m_petOwner != null)
+        {
+            return m_petOwner.GetComponent<NetworkObject>().NetworkObjectId;
+        }
+
+        return 0;
+    }
+
     public bool IsSummonDurationOver()
     {
         return m_petMeter.IsSummonDurationOver();

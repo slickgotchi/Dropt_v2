@@ -372,7 +372,7 @@ public class PlayerOffchainData : NetworkBehaviour
     // enter dungeon method that calculates balance
     public void EnterDungeonCalculateBalances()
     {
-        Debug.Log("EnterDungeonCalculateBalances()");
+        //Debug.Log("EnterDungeonCalculateBalances()");
 
         if (!IsServer) return;
 
@@ -382,7 +382,7 @@ public class PlayerOffchainData : NetworkBehaviour
         ectoDebitCount_dungeon.Value = ectoDebitStartAmount_dungeon.Value;
         ectoLiveCount_dungeon.Value = 0;
 
-        Debug.Log($"ectoDebitStartCount: {ectoDebitStartAmount_dungeon.Value}");
+        //Debug.Log($"ectoDebitStartCount: {ectoDebitStartAmount_dungeon.Value}");
 
         // dust starts at 0 always
         dustLiveCount_dungeon.Value = 0;
@@ -390,7 +390,7 @@ public class PlayerOffchainData : NetworkBehaviour
         // bomb counts
         bombStartCount_dungeon.Value =
             math.min(bombDungeonCapacity_offchain.Value, bombBalance_offchain.Value);
-        Debug.Log("bombStartCount_dungeon -> " + bombStartCount_dungeon.Value);
+        //Debug.Log("bombStartCount_dungeon -> " + bombStartCount_dungeon.Value);
         bombLiveCount_dungeon.Value = bombStartCount_dungeon.Value;
 
         // heal charge to full
@@ -401,7 +401,7 @@ public class PlayerOffchainData : NetworkBehaviour
     // exit dungeon calculates new balances and updates the database
     public async void ExitDungeonCalculateBalances(bool isEscaped)
     {
-        Debug.Log("ExitDungeonCalculateBalances()");
+        //Debug.Log("ExitDungeonCalculateBalances()");
 
         if (!IsServer) return;
 
@@ -413,7 +413,7 @@ public class PlayerOffchainData : NetworkBehaviour
             0;
         m_postDungeonBombDelta.Value = bombLiveCount_dungeon.Value - bombStartCount_dungeon.Value;
 
-        Debug.Log($"postDungeonEctoDelta: " + m_postDungeonEctoDelta);
+        //Debug.Log($"postDungeonEctoDelta: " + m_postDungeonEctoDelta);
 
         // log wallet deltas
         try

@@ -294,18 +294,18 @@ public class Game : MonoBehaviour
         ConnectClientGame(m_currentGameId);
     }
 
-    public void StartClientReconnectionTimer(float duration = 30f)
-    {
-        if (!Bootstrap.IsServer()) return;
+    //public void StartClientReconnectionTimer(float duration = 30f)
+    //{
+    //    if (!Bootstrap.IsServer()) return;
 
-        isReconnectTimerActive = true;
-        reconnectTimer = duration;
-    }
+    //    isReconnectTimerActive = true;
+    //    reconnectTimer = duration;
+    //}
 
-    public bool IsClientReconnecting()
-    {
-        return isReconnectTimerActive && reconnectTimer > 0;
-    }
+    //public bool IsClientReconnecting()
+    //{
+    //    return isReconnectTimerActive && reconnectTimer > 0;
+    //}
 
     public void ConnectHostGame()
     {

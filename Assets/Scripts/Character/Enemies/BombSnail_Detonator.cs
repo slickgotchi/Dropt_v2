@@ -32,7 +32,7 @@ public class BombSnail_Detonator : NetworkBehaviour
 
     private async void Update()
     {
-        if (IsServer)
+        if (IsServer && IsSpawned)
         {
             // check for triggered (aggro) state
             if (m_enemyAI.state.Value == Dropt.EnemyAI.State.Aggro && !m_isTriggered.Value)
