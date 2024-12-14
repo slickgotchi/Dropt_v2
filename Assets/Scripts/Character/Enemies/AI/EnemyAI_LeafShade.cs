@@ -15,15 +15,22 @@ namespace Dropt
 
         public override void OnSpawnStart()
         {
-            Utils.Anim.PlayAnimationWithDuration(m_animator, "LeafShade_Spawn", SpawnDuration);
             base.OnSpawnStart();
+            if (IsServer)
+            {
+                Utils.Anim.PlayAnimationWithDuration(m_animator, "LeafShade_Spawn", SpawnDuration);
+            }
         }
 
         public override void OnTelegraphStart()
         {
             if (IsServer)
             {
-                m_navMeshAgent.isStopped = true;
+                // stop nav mesh
+                if (m_navMeshAgent != null && m_navMeshAgent.isOnNavMesh)
+                {
+                    m_navMeshAgent.isStopped = true;
+                }
                 Utils.Anim.PlayAnimationWithDuration(m_animator, "LeafShade_Anticipation", TelegraphDuration);
             }
             GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, 0.1f);

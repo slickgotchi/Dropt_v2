@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
+using Cysharp.Threading.Tasks;
 
 public class PlayerCharacter : NetworkCharacter
 {
@@ -19,6 +20,9 @@ public class PlayerCharacter : NetworkCharacter
     public BuffObject petBuffObject;
 
     private SoundFX_Player m_soundFX_Player;
+
+    [SerializeField] private GameObject m_hpCannisterEffect;
+    [SerializeField] private GameObject m_essenceCannisterEffect;
 
     public override void OnNetworkSpawn()
     {
@@ -291,13 +295,42 @@ public class PlayerCharacter : NetworkCharacter
         return buffObject;
     }
 
-    public void ResetHp()
+    public void RecoverHealthByPercentageOfTotalHp(float percentage)
     {
-        HpCurrent.Value = HpMax.Value;
+        HpCurrent.Value += HpMax.Value * percentage / 100;
+        if (HpCurrent.Value > HpMax.Value)
+        {
+            HpCurrent.Value = HpMax.Value;
+        }
     }
 
     public bool IsHpFullyCharged()
     {
         return HpCurrent.Value == HpMax.Value;
+    }
+
+    public void AddEssenceValue(int amount)
+    {
+        Essence.Value += amount;
+    }
+
+    public void SpawnHpCannistaerEffect()
+    {
+        SpawnEffect(m_hpCannisterEffect);
+    }
+
+    public void SpawnEssenceCannisterEffect()
+    {
+        SpawnEffect(m_essenceCannisterEffect);
+    }
+
+    private async void SpawnEffect(GameObject prefab)
+    {
+        GameObject effect = Instantiate(prefab, transform);
+        effect.transform.localPosition = new Vector3(0, 0.5f, 0);
+        NetworkObject networkObject = effect.GetComponent<NetworkObject>();
+        networkObject.Spawn();
+        await UniTask.Delay(1500);
+        networkObject.Despawn();
     }
 }

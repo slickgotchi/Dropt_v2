@@ -41,15 +41,34 @@ namespace Dropt
             base.OnSpawnStart();
         }
 
+        private bool m_isDeathTriggered = false;
+
+        
         // override OnDeath so we do not get the default DeSpawn
         protected override void OnDeath(Vector3 position)
         {
-            // change to telegraph state
-            ChangeState(State.Telegraph);
+            transform.position = position;
+            //Debug.Log("OnDeath(): " + transform.position);
 
             // stop nav mesh
-            GetComponent<NavMeshAgent>().isStopped = true;
+            if (m_navMeshAgent != null && m_navMeshAgent.isOnNavMesh)
+            {
+                m_navMeshAgent.isStopped = true;
+            }
+
+            m_isDeathTriggered = true;
+            SetDeathClientRpc();
+
+            // change to telegraph state
+            ChangeState(State.Telegraph);
         }
+
+        [Rpc(SendTo.ClientsAndHost)]
+        void SetDeathClientRpc()
+        {
+            m_isDeathTriggered = true;
+        }
+        
 
         public override void OnRoamStart()
         {
@@ -62,19 +81,24 @@ namespace Dropt
 
         public override void OnRoamUpdate(float dt)
         {
-            if (m_isExploded) return;
+            if (m_isExploded || m_isDeathTriggered) return;
             SimpleRoamUpdate(dt);
         }
 
         public override void OnAggroUpdate(float dt)
         {
-            if (m_isExploded) return;
+            if (m_isExploded || m_isDeathTriggered) return;
             SimplePursueUpdate(dt);
         }
 
         public override void OnUpdate(float dt)
         {
-            if (m_isExploded) return;
+            if (m_isDeathTriggered)
+            {
+                //Debug.Log(state.Value + " " + transform.position);
+            }
+
+            if (m_isExploded || m_isDeathTriggered) return;
             base.OnUpdate(dt);
 
             m_onTouchPoisonDamageTimer -= dt;
@@ -85,6 +109,26 @@ namespace Dropt
             }
         }
 
+        public override void OnTelegraphStart()
+        {
+            base.OnTelegraphStart();
+
+            // stop nav mesh
+            if (m_navMeshAgent != null && m_navMeshAgent.isOnNavMesh)
+            {
+                m_navMeshAgent.isStopped = true;
+            }
+
+            //Debug.Log("OnTelegraphStart(): " + transform.position);
+        }
+
+        public override void OnTelegraphUpdate(float dt)
+        {
+            base.OnTelegraphUpdate(dt);
+
+
+        }
+
         public override void OnAttackStart()
         {
             base.OnAttackStart();
@@ -92,9 +136,37 @@ namespace Dropt
             OnTouchPoisonCollider.enabled = false;
             EnemyHurtCollider.enabled = false;
             m_isExploded = true;
-            m_navMeshAgent.isStopped = true;
+            // stop nav mesh
+            if (m_navMeshAgent != null && m_navMeshAgent.isOnNavMesh)
+            {
+                m_navMeshAgent.isStopped = true;
+            }
 
             DisableCollidersClientRpc();
+
+            //Debug.Log("OnAttackStart(): " + transform.position);
+
+            transform.position = GetKnockbackPosition();
+        }
+
+        public override void OnAttackUpdate(float dt)
+        {
+            base.OnAttackUpdate(dt);
+
+            m_navMeshAgent.isStopped = true;
+
+            transform.position = GetKnockbackPosition();
+        }
+
+        public override void OnLateUpdate(float dt)
+        {
+            base.OnLateUpdate(dt);
+
+            // we do this to keep dead gasbag in same place after death (prevents slight listing of the character)
+            if (IsClient && m_isDeathTriggered)
+            {
+                transform.position = GetKnockbackPosition();
+            }
         }
 
         [Rpc(SendTo.ClientsAndHost)]
@@ -104,6 +176,7 @@ namespace Dropt
             EnemyHurtCollider.enabled = false;
         }
 
+        // this function is called by the GasBag_Death animation
         public void ShowPoisionCloud()
         {
             if (!IsServer)
@@ -112,6 +185,7 @@ namespace Dropt
             }
 
             ShowPoisionCloudClientRpc();
+            //Debug.Log("GenerateEnemyAbility");
             GenerateEnemyAbility();
         }
 
@@ -143,17 +217,12 @@ namespace Dropt
             // set explosion radius
             GasBag_Explode gasBagExplosion = ability.GetComponent<GasBag_Explode>();
             //gasBagExplosion.ExplosionRadius = OnDestroyPoisonCloudRadius;
-            gasBagExplosion.transform.position = transform.position;
+            //gasBagExplosion.transform.position = transform.position;
+            gasBagExplosion.transform.position = GetKnockbackPosition() + new Vector3(0, 0.5f, 0);
+            //Debug.Log("GenerateEnemyAbility() gasBagExplosion position: " + gasBagExplosion.transform.position);
             // initialise the ability
             ability.GetComponent<NetworkObject>().Spawn();
             enemyAbility.Activate(gameObject, NearestPlayer, Vector3.zero, PoisonCloudDuration, PositionToAttack);
-        }
-
-        // attack
-        protected void GasBag_Attack(Vector3 position)
-        {
-            // switch to telegraph state
-            ChangeState(State.Telegraph);
         }
 
         private void HandleOnTouchCollisions()

@@ -6,7 +6,6 @@ using DG.Tweening;
 
 public class PlayerHUDCanvas : MonoBehaviour
 {
-
     public static PlayerHUDCanvas Instance { get; private set; }
 
     [SerializeField] private GameObject m_container;
@@ -180,6 +179,7 @@ public class PlayerHUDCanvas : MonoBehaviour
         UpdateEcto();
         UpdateEssence();
         UpdateAbilityIcons();
+        UpdateHealSlaveUpItem();
     }
 
     private void UpdateStatBars()
@@ -303,10 +303,10 @@ public class PlayerHUDCanvas : MonoBehaviour
         m_PetMeterView.SetProgress(progress);
     }
 
-    public void UpdateHealSlaveUpItem(int currentCharge, int maxCharge)
+    public void UpdateHealSlaveUpItem()
     {
-        m_healSlaveChargeText.text = currentCharge.ToString();
-        float fillAmount = currentCharge / (float)maxCharge;
+        m_healSlaveChargeText.text = m_localPlayerDungeonData.healSalveChargeCount_dungeon.Value.ToString();
+        float fillAmount = m_localPlayerDungeonData.healSalveChargeCount_dungeon.Value / (float)m_localPlayerDungeonData.healSalveDungeonCharges_offchain.Value;
         m_healSlaveUpImage.fillAmount = fillAmount;
     }
 }

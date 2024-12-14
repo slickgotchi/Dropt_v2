@@ -524,6 +524,7 @@ public class PlayerAbility : NetworkBehaviour
                     var damage = playerCharacter.GetAttackPower() * damageMultiplier * ActivationWearable.RarityMultiplier;
                     isCritical = playerCharacter.IsCriticalAttack();
                     damage = (int)(isCritical ? damage * playerCharacter.CriticalDamage.Value : damage);
+
                     hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical, Player);
 
                     var enemyAI = hit.GetComponent<Dropt.EnemyAI>();
@@ -532,6 +533,7 @@ public class PlayerAbility : NetworkBehaviour
                         var knockbackDir = Dropt.Utils.Battle.GetVectorFromAtoBAttackCentres(playerCharacter.gameObject, hit.gameObject).normalized;
                         enemyAI.Knockback(knockbackDir, KnockbackDistance, KnockbackStunDuration);
                     }
+
                 }
             }
 

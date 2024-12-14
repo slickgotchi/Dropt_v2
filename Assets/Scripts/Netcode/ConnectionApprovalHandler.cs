@@ -21,6 +21,7 @@ public class ConnectionApprovalHandler : MonoBehaviour
         if (m_NetworkManager != null)
         {
             m_NetworkManager.OnClientDisconnectCallback += OnClientDisconnectCallback;
+            m_NetworkManager.OnClientConnectedCallback += OnClientConnectedCallback;
             m_NetworkManager.ConnectionApprovalCallback = ApprovalCheck;
         }
     }
@@ -44,6 +45,8 @@ public class ConnectionApprovalHandler : MonoBehaviour
 
         // get number of players already in game
         int playerCount = FindObjectsByType<PlayerController>(FindObjectsSortMode.None).Length;
+        Debug.Log("ConnectionApprovalHandler PlayerCount: " + playerCount);
+
 
         // Your approval logic determines the following values
         response.Approved = playerCount < 3;
@@ -67,24 +70,13 @@ public class ConnectionApprovalHandler : MonoBehaviour
         response.Pending = false;
     }
 
+    private void OnClientConnectedCallback(ulong obj)
+    {
+        Debug.Log("Client connected, obj: " + obj);
+    }
+
     private void OnClientDisconnectCallback(ulong obj)
     {
-        // default behaviour is to try reconnect client game
-        // NOTE: this function internally checks for voluntary disconnects
-        if (Bootstrap.IsClient())
-        {
-            Debug.Log("Client was disconnected");
-            //PreGame.Instance.ReconnectClientGame();
-        }
-
-        if (Bootstrap.IsServer())
-        {
-            //PreGame.Instance.StartClientReconnectionTimer();
-        }
-
-        //if (!m_NetworkManager.IsServer && m_NetworkManager.DisconnectReason != string.Empty)
-        //{
-        //    Debug.Log($"Approval Declined Reason: {m_NetworkManager.DisconnectReason}");
-        //}
+        Debug.Log("Client disconnected, obj: " + obj);
     }
 }

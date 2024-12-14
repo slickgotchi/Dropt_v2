@@ -23,7 +23,7 @@ public class AudioManager : MonoBehaviour
 
     public float MasterMusicVolume
     {
-        get { return _masterMusicVolume; }
+        get => _masterMusicVolume;
         set
         {
             _masterMusicVolume = Mathf.Clamp(value, 0f, 1f);
@@ -33,7 +33,7 @@ public class AudioManager : MonoBehaviour
 
     public float MasterSFXVolume
     {
-        get { return _masterSFXVolume; }
+        get => _masterSFXVolume;
         set
         {
             _masterSFXVolume = Mathf.Clamp(value, 0f, 1f);
@@ -139,10 +139,7 @@ public class AudioManager : MonoBehaviour
                 });
             }
         }
-
     }
-
-
 
     private void UpdateMusicVolume()
     {
@@ -169,7 +166,7 @@ public class AudioManager : MonoBehaviour
     {
         if (clip == null)
         {
-            Debug.LogWarning("NULL AUDIO CLIP");
+            //Debug.LogWarning("NULL AUDIO CLIP");
             return;
         }
 
@@ -183,7 +180,7 @@ public class AudioManager : MonoBehaviour
 
         if (playingSFXInstances[clip] >= maxDuplicates)
         {
-            Debug.Log("Max duplicates reached for clip: " + clip.name);
+            //Debug.Log("Max duplicates reached for clip: " + clip.name);
             return;
         }
 
@@ -196,8 +193,7 @@ public class AudioManager : MonoBehaviour
 
         sfxSource.clip = clip;
         sfxSource.outputAudioMixerGroup = sfxMixerGroup;
-        sfxSource.volume = volume;
-
+        //Debug
         if (ignoreAttenuation)
         {
             // Set the sound to 2D by using spatialBlend = 0 (ignores distance attenuation)
@@ -212,15 +208,14 @@ public class AudioManager : MonoBehaviour
             sfxSource.rolloffMode = AudioRolloffMode.Linear; // Linear attenuation
         }
 
-        sfxSource.volume = _masterSFXVolume; // Apply global SFX volume
+        //sfxSource.volume = _masterSFXVolume; // Apply global SFX volume
+        sfxSource.volume = _masterSFXVolume * volume;
         sfxSource.transform.position = position;
         sfxSource.Play();
 
         // Track this SFX instance
         activeSFXList.Add(new ActiveSFX(clip, sfxObject, sfxSource, clip.length));
-
     }
-
 
     // Decrease the number of instances of a given clip
     private void DecreaseSFXInstanceCount(AudioClip clip)
@@ -271,7 +266,7 @@ public class AudioManager : MonoBehaviour
             elapsedTime += Time.deltaTime;
             if (IsFinished)
             {
-                GameObject.Destroy(SFXObject);
+                Destroy(SFXObject);
             }
         }
     }

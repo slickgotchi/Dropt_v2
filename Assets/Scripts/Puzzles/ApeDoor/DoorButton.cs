@@ -14,8 +14,9 @@ public abstract class DoorButton<T> : NetworkBehaviour where T : Enum
 
     protected SpriteRenderer m_spriteRenderer;
 
-    public virtual void Awake()
+    public void Awake()
     {
+        //Debug.Log("AWAKE BUTTON");
         m_spriteRenderer = GetComponent<SpriteRenderer>();
         State = new NetworkVariable<ButtonState>(ButtonState.Up);
     }
@@ -23,12 +24,19 @@ public abstract class DoorButton<T> : NetworkBehaviour where T : Enum
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-
-        if (!IsServer) return;
-
-        Type.Value = initType;
-        UpdateSprite();
         State.OnValueChanged += OnButtonStateChange;
+        if (IsServer)
+        {
+            //Debug.Log("TYPE-" + initType);
+            Type = new NetworkVariable<T>(initType);
+            UpdateInitialSpriteClientRpc();
+        }
+    }
+
+    [ClientRpc]
+    private void UpdateInitialSpriteClientRpc()
+    {
+        UpdateSprite();
     }
 
     private void OnButtonStateChange(ButtonState previousValue, ButtonState newValue)
@@ -39,8 +47,8 @@ public abstract class DoorButton<T> : NetworkBehaviour where T : Enum
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (!IsServer) return;
-        if (State.Value != ButtonState.Up) return;
 
+        if (State.Value != ButtonState.Up) return;
         // update button state
         State.Value = ButtonState.Down;
 
@@ -87,6 +95,7 @@ public abstract class DoorButton<T> : NetworkBehaviour where T : Enum
 
         Door<T>[] allDoors = GetAllOtherDoor();
         Door<T> matchingDoor = null;
+
         foreach (Door<T> dr in allDoors)
         {
             if (dr.spawnerId == spawnerId) matchingDoor = dr;

@@ -7,7 +7,7 @@ public class SoundFX_BombSnail : SoundFX_Enemy
 
     public void PlayIgniteSound()
     {
-        Debug.Log("PlayIgniteSound" + gameObject.name);
+        //Debug.Log("PlayIgniteSound" + gameObject.name);
         AudioManager.Instance.PlaySpatialSFX(m_igniteSound.AudioClip,
                                              transform.position,
                                              false,
@@ -16,7 +16,7 @@ public class SoundFX_BombSnail : SoundFX_Enemy
 
     public void PlayExplodeSound()
     {
-        Debug.Log("PlayExplodeSound" + gameObject.name);
+        //Debug.Log("PlayExplodeSound" + gameObject.name);
         AudioManager.Instance.PlaySpatialSFX(m_explodeSound.AudioClip,
                                              transform.position,
                                              false,

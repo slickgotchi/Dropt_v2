@@ -18,11 +18,11 @@ public class CrystalDoorButton : DoorButton<CrystalDoorType>
     [SerializeField] private Sprite m_Moustache_Up;
     [SerializeField] private Sprite m_Moustache_Down;
 
-    public override void Awake()
-    {
-        base.Awake();
-        Type = new NetworkVariable<CrystalDoorType>(CrystalDoorType.R);
-    }
+    //public override void Awake()
+    //{
+    //    base.Awake();
+    //    Type = new NetworkVariable<CrystalDoorType>(CrystalDoorType.R);
+    //}
 
     public override Door<CrystalDoorType>[] GetAllOtherDoor()
     {

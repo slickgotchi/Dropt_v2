@@ -17,33 +17,35 @@ public class PlayerController : NetworkBehaviour
     private NetworkCharacter m_networkCharacter;
     private PlayerPrediction m_playerPrediction;
 
-    public static float InactiveTimerDuration = 5 * 60;
+    [HideInInspector] public static float InactiveTimerDuration = 5 * 60;
 
-    public bool IsDead = false;
+    [HideInInspector] public bool IsDead = false;
 
-    public bool IsInvulnerable { get; private set; }
+    [HideInInspector] public bool IsInvulnerable { get; private set; }
 
     private float m_inactiveTimer = InactiveTimerDuration;
 
     private HoldBarCanvas m_holdBarCanvas;
 
-    public bool IsLevelSpawnPositionSet = false;
+    [HideInInspector] public bool IsLevelSpawnPositionSet = false;
 
     private AttackCentre m_playerAttackCentre;
 
     // tracking selected gotchi
     private int m_selectedGotchiId = 0;
 
+    // for tracking wallet
+    public string ConnectedWallet = "";
+
     // variables for tracking current gotchi
     private int m_localGotchiId = 0;
-    public NetworkVariable<int> NetworkGotchiId = new NetworkVariable<int>(69420);
+    [HideInInspector] public NetworkVariable<int> NetworkGotchiId = new NetworkVariable<int>(69420);
+    [HideInInspector] public NetworkVariable<int> m_totalKilledEnemies = new NetworkVariable<int>(0);
+    [HideInInspector] public NetworkVariable<int> m_totalDestroyedDestructibles = new NetworkVariable<int>(0);
 
     private CinemachineVirtualCamera m_virtualCamera;
 
     private Vector3 m_spawnPoint;
-
-    private NetworkVariable<int> m_totalKilledEnemies = new NetworkVariable<int>(0);
-    private NetworkVariable<int> m_totalDestroyedDestructibles = new NetworkVariable<int>(0);
 
     private void Awake()
     {
@@ -57,7 +59,7 @@ public class PlayerController : NetworkBehaviour
     {
         base.OnNetworkSpawn();
 
-        Debug.Log("Player spawned");
+        //Debug.Log("Player spawned");
 
         // local player
         if (IsLocalPlayer)
@@ -95,6 +97,23 @@ public class PlayerController : NetworkBehaviour
 
     public override void OnNetworkDespawn()
     {
+        if (!IsServer) return;
+
+        // check for any pets owned
+        var pets = FindObjectsByType<PetController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+
+        var playerNetworkObjectId = GetComponent<NetworkObject>().NetworkObjectId;
+
+        foreach (var pet in pets)
+        {
+            if (pet.GetPetOwnerNetworkObjectId() == playerNetworkObjectId)
+            {
+                pet.GetComponent<NetworkObject>().Despawn();
+            }
+        }
+
+
+
         base.OnNetworkDespawn();
 
     }
@@ -143,6 +162,7 @@ public class PlayerController : NetworkBehaviour
         if (IsServer && !IsLevelSpawnPositionSet)
         {
             var pos = LevelManager.Instance.TryGetPlayerSpawnPoint();
+            Debug.Log("Spawn Player at " + pos);
             if (pos != null)
             {
                 var spawnPoint = (Vector3)pos;
@@ -172,16 +192,37 @@ public class PlayerController : NetworkBehaviour
     }
 
     [Rpc(SendTo.Server)]
-    private void SetNetworkGotchiIdServerRpc(int gotchiId)
+    public void SetNetworkGotchiIdServerRpc(int gotchiId, string wallet)
     {
         NetworkGotchiId.Value = gotchiId;
+        ConnectedWallet = wallet;
     }
 
     public void KillPlayer(REKTCanvas.TypeOfREKT typeOfREKT)
     {
         if (!IsServer) return;
 
-        GetComponent<PlayerController>().IsDead = true;
+        // set player to dead
+        var playerController = GetComponent<PlayerController>();
+        if (playerController != null)
+        {
+            playerController.IsDead = true;
+        }
+
+        // calc offchain balances
+        var playerOffchainData = GetComponent<PlayerOffchainData>();
+        if (playerOffchainData != null)
+        {
+            playerOffchainData.ExitDungeonCalculateBalances(false);
+        }
+
+        // do leaderboard logging (only other place this is called is EscapePortal.cs)
+        var playerLeaderboardLogger = GetComponent<PlayerLeaderboardLogger>();
+        if (playerLeaderboardLogger != null)
+        {
+            playerLeaderboardLogger.LogEndOfDungeonResults(false);
+        }
+
         TriggerGameOverClientRpc(GetComponent<NetworkObject>().NetworkObjectId, typeOfREKT);
     }
 
@@ -222,8 +263,6 @@ public class PlayerController : NetworkBehaviour
     {
         if (!IsServer) return;
     }
-
-    
 
     [Rpc(SendTo.ClientsAndHost)]
     private void SetCameraPositionClientRpc(Vector3 position, ulong networkObjectId)
@@ -278,7 +317,8 @@ public class PlayerController : NetworkBehaviour
             if (selectedGotchiId != m_selectedGotchiId)
             {
                 m_selectedGotchiId = selectedGotchiId;
-                SetNetworkGotchiIdServerRpc(m_selectedGotchiId);
+                ConnectedWallet = GotchiSelectCanvas.Instance.GetConnectedWallet();
+                SetNetworkGotchiIdServerRpc(m_selectedGotchiId, ConnectedWallet);
             }
         }
     }
@@ -329,7 +369,7 @@ public class PlayerController : NetworkBehaviour
     {
         if (!IsLocalPlayer) return;
         if (LevelManager.Instance == null) return;
-        
+
 
         LevelManager.TransitionState state = LevelManager.Instance.transitionState.Value;
 
@@ -346,6 +386,10 @@ public class PlayerController : NetworkBehaviour
         else if (state == LevelManager.TransitionState.End)
         {
             LoadingCanvas.Instance.WipeOut();
+        }
+        else
+        {
+            LoadingCanvas.Instance.InstaClear();
         }
     }
 
@@ -439,6 +483,7 @@ public class PlayerController : NetworkBehaviour
     public void KillEnemy()
     {
         m_totalKilledEnemies.Value++;
+        //Debug.Log("Kill count: " + m_totalKilledEnemies);
     }
 
     public int GetTotalKilledEnemies()
