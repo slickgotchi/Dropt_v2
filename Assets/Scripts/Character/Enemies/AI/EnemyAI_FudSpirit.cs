@@ -104,7 +104,7 @@ namespace Dropt
         // fud spirit teleport
         private void TeleportToNewAttackPosition()
         {
-            Debug.Log("TELEPORT ENEMY " + Time.time);
+            //Debug.Log("TELEPORT ENEMY " + Time.time);
             // first check if we are outside of our max range
             float dist = math.distance(transform.position, RoamAnchorPoint);
             if (dist > MaxPursueRange)

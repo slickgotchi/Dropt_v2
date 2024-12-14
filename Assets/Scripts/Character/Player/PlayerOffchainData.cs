@@ -56,6 +56,8 @@ public class PlayerOffchainData : NetworkBehaviour
     // if player escapes
     //      ectoBankDelta = ectoDebitCount_dungeon - ectoDungeonStartMount_offchain + ectoLiveCount_dungeon
 
+    public string dungeonFormation = "solo";
+
     // uri for accessing database
     private string dbUri = "https://db.playdropt.io";
 
@@ -81,13 +83,13 @@ public class PlayerOffchainData : NetworkBehaviour
     public override void OnNetworkDespawn()
     {
         // WARNING: we need a way to differentiate between full disconnects and temporary internet loss disconnect/reconnects
-        if (IsServer)
-        {
-            if (LevelManager.Instance.IsDungeon() || LevelManager.Instance.IsDungeonRest())
-            {
-                ExitDungeonCalculateBalances(false);
-            }
-        }
+        //if (IsServer)
+        //{
+        //    if (LevelManager.Instance.IsDungeon() || LevelManager.Instance.IsDungeonRest())
+        //    {
+        //        ExitDungeonCalculateBalances(false);
+        //    }
+        //}
     }
 
     private void Update()
@@ -108,15 +110,33 @@ public class PlayerOffchainData : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        if (m_currentLevelType != LevelManager.Instance.GetCurrentLevelType())
+        var newLevelType = LevelManager.Instance.GetCurrentLevelType();
+
+        if (m_currentLevelType == newLevelType) return;
+
+        // perform once off code when moving from degenape to dungeon
+        if (newLevelType == Level.NetworkLevel.LevelType.Dungeon &&
+            m_currentLevelType == Level.NetworkLevel.LevelType.DegenapeVillage)
         {
-            var newLevelType = LevelManager.Instance.GetCurrentLevelType();
+//<<<<<<< HEAD
+            EnterDungeonCalculateBalances();
+            StartDungeonTimer();
+//=======
+            //var newLevelType = LevelManager.Instance.GetCurrentLevelType();
 
             // perform once off code when moving from degenape to dungeon
             if (newLevelType == Level.NetworkLevel.LevelType.Dungeon &&
                 m_currentLevelType == Level.NetworkLevel.LevelType.DegenapeVillage)
             {
                 EnterDungeonCalculateBalances();
+
+                // determine dungeon formation
+                var players = FindObjectsByType<PlayerController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+                if (players.Length == 3) dungeonFormation = "trio";
+                else if (players.Length == 2) dungeonFormation = "duo";
+                else if (players.Length == 1) dungeonFormation = "solo";
+                else dungeonFormation = "illegal: " + players.Length.ToString();
+
             }
 
             // perform once off code if we go from a dungeon or dungeonrest back to the village (via hole)
@@ -134,7 +154,28 @@ public class PlayerOffchainData : NetworkBehaviour
             }
 
             m_currentLevelType = newLevelType;
+//>>>>>>> main
         }
+
+        // perform once off code if we go from a dungeon or dungeonrest back to the village (via hole)
+        // THIS SHOULD ONLY HAPPEN DURING TESTING AND NOT IN ACTUAL GAMEPLAY
+        if (newLevelType == Level.NetworkLevel.LevelType.DegenapeVillage &&
+            m_currentLevelType == Level.NetworkLevel.LevelType.Dungeon)
+        {
+            ExitDungeonCalculateBalances(true);
+            StopDungeonTimer();
+            ResetTimer();
+        }
+
+        if (newLevelType == Level.NetworkLevel.LevelType.DegenapeVillage &&
+            m_currentLevelType == Level.NetworkLevel.LevelType.DungeonRest)
+        {
+            ExitDungeonCalculateBalances(true);
+            StopDungeonTimer();
+            ResetTimer();
+        }
+
+        m_currentLevelType = newLevelType;
     }
 
     private async UniTaskVoid CheckWalletAddressChanged()
@@ -154,11 +195,19 @@ public class PlayerOffchainData : NetworkBehaviour
 
             // get wallet
             var wallet = ThirdwebManager.Instance.GetActiveWallet();
-            if (wallet == null) return;
+            if (wallet == null)
+            {
+                TryGetOffchainTestData();
+                return;
+            }
 
             // check if wallet is connected
             var isConnected = await wallet.IsConnected();
-            if (!isConnected) return;
+            if (!isConnected)
+            {
+                TryGetOffchainTestData();
+                return;
+            }
 
             // get all latest data if address changed
             var connectedWalletAddress = await wallet.GetAddress();
@@ -168,17 +217,21 @@ public class PlayerOffchainData : NetworkBehaviour
                 PlayerPrefs.SetString("WalletAddress", m_walletAddress);
                 GetLatestOffchainWalletDataServerRpc(m_walletAddress);
             }
-            
+
         }
         catch
         {
-            // if we are in host mode, use the test wallet address
-            if (IsHost && m_walletAddress != Bootstrap.Instance.TestWalletAddress)
-            {
-                m_walletAddress = Bootstrap.Instance.TestWalletAddress;
-                PlayerPrefs.SetString("WalletAddress", m_walletAddress);
-                GetLatestOffchainWalletDataServerRpc(m_walletAddress);
-            }
+            TryGetOffchainTestData();
+        }
+    }
+
+    private void TryGetOffchainTestData()
+    {
+        if ((IsHost || Bootstrap.IsLocalConnection()) && m_walletAddress != Bootstrap.Instance.TestWalletAddress)
+        {
+            m_walletAddress = Bootstrap.Instance.TestWalletAddress;
+            PlayerPrefs.SetString("WalletAddress", m_walletAddress);
+            GetLatestOffchainWalletDataServerRpc(m_walletAddress);
         }
     }
 
@@ -319,7 +372,7 @@ public class PlayerOffchainData : NetworkBehaviour
     // enter dungeon method that calculates balance
     public void EnterDungeonCalculateBalances()
     {
-        Debug.Log("EnterDungeonCalculateBalances()");
+        //Debug.Log("EnterDungeonCalculateBalances()");
 
         if (!IsServer) return;
 
@@ -329,7 +382,7 @@ public class PlayerOffchainData : NetworkBehaviour
         ectoDebitCount_dungeon.Value = ectoDebitStartAmount_dungeon.Value;
         ectoLiveCount_dungeon.Value = 0;
 
-        Debug.Log($"ectoDebitStartCount: {ectoDebitStartAmount_dungeon.Value}");
+        //Debug.Log($"ectoDebitStartCount: {ectoDebitStartAmount_dungeon.Value}");
 
         // dust starts at 0 always
         dustLiveCount_dungeon.Value = 0;
@@ -337,17 +390,18 @@ public class PlayerOffchainData : NetworkBehaviour
         // bomb counts
         bombStartCount_dungeon.Value =
             math.min(bombDungeonCapacity_offchain.Value, bombBalance_offchain.Value);
-        Debug.Log("bombStartCount_dungeon -> " + bombStartCount_dungeon.Value);
+        //Debug.Log("bombStartCount_dungeon -> " + bombStartCount_dungeon.Value);
         bombLiveCount_dungeon.Value = bombStartCount_dungeon.Value;
 
         // heal charge to full
         healSalveChargeCount_dungeon.Value = healSalveDungeonCharges_offchain.Value;
+
     }
 
     // exit dungeon calculates new balances and updates the database
     public async void ExitDungeonCalculateBalances(bool isEscaped)
     {
-        Debug.Log("ExitDungeonCalculateBalances()");
+        //Debug.Log("ExitDungeonCalculateBalances()");
 
         if (!IsServer) return;
 
@@ -359,7 +413,7 @@ public class PlayerOffchainData : NetworkBehaviour
             0;
         m_postDungeonBombDelta.Value = bombLiveCount_dungeon.Value - bombStartCount_dungeon.Value;
 
-        Debug.Log($"postDungeonEctoDelta: " + m_postDungeonEctoDelta);
+        //Debug.Log($"postDungeonEctoDelta: " + m_postDungeonEctoDelta);
 
         // log wallet deltas
         try
@@ -493,6 +547,11 @@ public class PlayerOffchainData : NetworkBehaviour
         return true;
     }
 
+    public bool DoWeHaveEctoGraterThanOrEqualTo(int value)
+    {
+        return value >= ectoBalance_offchain.Value;
+    }
+
     // Method to remove ecto
     private bool TrySpendDungeonEcto(int value)
     {
@@ -526,6 +585,24 @@ public class PlayerOffchainData : NetworkBehaviour
 
         GetComponent<PlayerCharacter>().Essence.Value += value;
         PopupEssenceTextClientRpc(value, GetComponent<NetworkObject>().NetworkObjectId);
+    }
+
+    private void StartDungeonTimer()
+    {
+        PlayerDungeonTime playerDungeonTime = GetComponent<PlayerDungeonTime>();
+        playerDungeonTime.StartTimer();
+    }
+
+    private void StopDungeonTimer()
+    {
+        PlayerDungeonTime playerDungeonTime = GetComponent<PlayerDungeonTime>();
+        playerDungeonTime.StopTimer();
+    }
+
+    private void ResetTimer()
+    {
+        PlayerDungeonTime playerDungeonTime = GetComponent<PlayerDungeonTime>();
+        playerDungeonTime.ResetTimer();
     }
 
     [ClientRpc]

@@ -39,6 +39,8 @@ public class Game : MonoBehaviour
 
     //public List<GameObject> afterConnectSpawnPrefabs_SERVER = new List<GameObject>();
 
+    [HideInInspector] public PlayerController[] players;
+
     private void Awake()
     {
         // Singleton pattern to ensure only one instance of the AudioManager exists
@@ -106,6 +108,9 @@ public class Game : MonoBehaviour
 
     public void Update()
     {
+        // get players for global use
+        players = FindObjectsByType<PlayerController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+
         if (m_isTryConnectClientGame && !NetworkManager.Singleton.ShutdownInProgress)
         {
             m_isTryConnectClientGame = false;
@@ -124,6 +129,11 @@ public class Game : MonoBehaviour
             }
         }
 
+        if (Bootstrap.IsClient())
+        {
+            // update game id
+            Bootstrap.Instance.GameId = m_currentGameId;
+        }
     }
 
     private float m_noTimer = 0f;
@@ -284,18 +294,18 @@ public class Game : MonoBehaviour
         ConnectClientGame(m_currentGameId);
     }
 
-    public void StartClientReconnectionTimer()
-    {
-        if (!Bootstrap.IsServer()) return;
+    //public void StartClientReconnectionTimer(float duration = 30f)
+    //{
+    //    if (!Bootstrap.IsServer()) return;
 
-        isReconnectTimerActive = true;
-        reconnectTimer = 30f;
-    }
+    //    isReconnectTimerActive = true;
+    //    reconnectTimer = duration;
+    //}
 
-    public bool IsClientReconnecting()
-    {
-        return isReconnectTimerActive && reconnectTimer > 0;
-    }
+    //public bool IsClientReconnecting()
+    //{
+    //    return isReconnectTimerActive && reconnectTimer > 0;
+    //}
 
     public void ConnectHostGame()
     {

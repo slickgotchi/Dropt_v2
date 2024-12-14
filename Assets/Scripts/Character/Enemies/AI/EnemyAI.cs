@@ -86,7 +86,8 @@ namespace Dropt
             Knockback,
             Stun,
             Flee,
-            PredictionToAuthorativeSmoothing
+            PredictionToAuthorativeSmoothing,
+            Dead
         }
 
         [HideInInspector] public NetworkVariable<State> state = new NetworkVariable<State>(State.Spawn);
@@ -171,6 +172,9 @@ namespace Dropt
                 case State.Flee:
                     HandleFlee(dt);
                     break;
+                //case State.Dead:
+                //    HandleDead(dt);
+                //    break;
                 default: break;
             }
         }
@@ -178,6 +182,8 @@ namespace Dropt
         private void LateUpdate()
         {
             float dt = Time.deltaTime;
+
+            OnLateUpdate(dt);
 
             HandlClientPredictionToAuthorativeSmoothing(dt);
         }
@@ -224,7 +230,12 @@ namespace Dropt
         public virtual void OnFleeUpdate(float dt) { }
         public virtual void OnFleeFinish() { }
 
+        public virtual void OnDeadStart() { }
+        public virtual void OnDeadUpdate(float dt) { }
+        public virtual void OnDeadFinish() { }
+
         public virtual void OnUpdate(float dt) { }
+        public virtual void OnLateUpdate(float dt) { }
 
         // override this function in child class if you want to do something other than despawn
         protected virtual void OnDeath(Vector3 position)
@@ -237,13 +248,21 @@ namespace Dropt
             if (!m_isDead)
             {
                 m_isDead = true;
+//<<<<<<< HEAD
                 OnDeath(position);
-                OnDeathClientRPC();
+                PlayDeathSoundClientRPC();
+//=======
+//                //OnDeath(position);
+//                OnDeathClientRPC();
+//>>>>>>> main
             }
+
+            //OnDeadStart();
+            //ChangeState(State.Dead);
         }
 
         [ClientRpc]
-        private void OnDeathClientRPC()
+        private void PlayDeathSoundClientRPC()
         {
             m_soundFX_Enemy.PlayDieSound();
         }
@@ -253,7 +272,7 @@ namespace Dropt
             m_soundFX_Enemy.PlayTakeDamageSound();
         }
 
-        void HandleNull(float dt)
+        private void HandleNull(float dt)
         {
             OnNullUpdate(dt);
         }
@@ -388,9 +407,21 @@ namespace Dropt
             if (m_knockbackTimer >= m_knockbackDuration)
             {
                 OnKnockbackFinish();
-                state.Value = State.Stun;
-                OnStunStart();
-                m_stunTimer = StunDuration;
+
+                // set state based on if we're dead or not
+                if (m_isDead)
+                {
+                    state.Value = State.Dead;
+                    OnDeath(transform.position);
+                    OnDeadStart();
+                }
+                else
+                {
+                    state.Value = State.Stun;
+                    OnStunStart();
+                    m_stunTimer = StunDuration;
+                }
+
                 return;
             }
         }
@@ -401,11 +432,8 @@ namespace Dropt
             if (m_stunTimer < 0)
             {
                 OnStunFinish();
-                state.Value = m_postStunState;
-                if (state.Value == State.Aggro)
-                {
-                    OnAggroStart();
-                }
+                state.Value = State.Aggro;
+                OnAggroStart();
                 return;
             }
 
@@ -423,11 +451,16 @@ namespace Dropt
             OnFleeUpdate(dt);
         }
 
-        State m_postStunState = State.Aggro;
+        void HandleDead(float dt)
+        {
+            // do nothing
+            OnDeadUpdate(dt);
+        }
+
+        //State m_postStunState = State.Aggro;
 
         public void Knockback(Vector3 direction, float distance, float stunTime)
         {
-            if (m_isDead) return;
             if (state.Value == State.Attack) return;
             if (state.Value == State.Spawn) return;
 
@@ -447,8 +480,16 @@ namespace Dropt
             m_knockbackStartPosition = transform.position;
             m_knockbackFinishPosition = transform.position + direction.normalized * distance;
 
+            //if (IsClient)
+            //{
+            //    LogKnockbackPositionServerRpc(m_knockbackFinishPosition);
+            //}
+
             // stop navmesh agent
-            if (m_navMeshAgent != null) m_navMeshAgent.isStopped = true;
+            if (m_navMeshAgent != null && m_navMeshAgent.isOnNavMesh)
+            {
+                m_navMeshAgent.isStopped = true;
+            }
 
             // save pre knockback state
             m_preKnockbackState = state.Value;
@@ -466,6 +507,19 @@ namespace Dropt
             }
         }
 
+        //[Rpc(SendTo.Server)]
+        //void LogKnockbackPositionServerRpc(Vector3 clientKnockbackPosition)
+        //{
+        //    Debug.Log(state.Value);
+        //    Debug.Log("Client m_knockbackPosition: " + clientKnockbackPosition);
+        //    Debug.Log("Server m_knockbackPosition: " + m_knockbackFinishPosition);
+        //}
+
+        public Vector3 GetKnockbackPosition()
+        {
+            return m_knockbackFinishPosition;
+        }
+
         State m_clientPredictedState = State.Null;
 
         void HandleClientPredictedKnockback(float dt)
@@ -476,6 +530,8 @@ namespace Dropt
             m_knockbackTimer += dt;
             var alpha = math.min(m_knockbackTimer / m_knockbackDuration, 1);
             transform.position = math.lerp(m_knockbackStartPosition, m_knockbackFinishPosition, alpha);
+
+            //Debug.Log("Knockback: " + transform.position);
 
             if (m_knockbackTimer >= m_knockbackDuration)
             {
@@ -489,6 +545,8 @@ namespace Dropt
         {
             if (!IsClient) return;
             if (m_clientPredictedState != State.Stun) return;
+
+            //Debug.Log("Stun: " + transform.position);
 
             m_stunTimer -= dt;
             if (m_stunTimer < 0)

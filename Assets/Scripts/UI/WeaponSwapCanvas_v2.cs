@@ -33,7 +33,7 @@ public class WeaponSwapCanvas_v2 : DroptCanvas
 
     private void Awake()
     {
-        // Singleton pattern to ensure only one instance of the AudioManager exists
+        // Singleton pattern 
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -175,7 +175,7 @@ public class WeaponSwapCanvas_v2 : DroptCanvas
         }
         else
         {
-            m_swapInfoText.text = "Press left/right to swap new weapon for existing, or, F to leave it on the ground";
+            m_swapInfoText.text = "Press left/right move key to swap new weapon for existing, or, F to leave it on the ground";
         }
     }
 

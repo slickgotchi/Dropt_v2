@@ -8,7 +8,7 @@ public class SoundFX_Enemy : MonoBehaviour
 
     public void PlaySpawnSound()
     {
-        Debug.Log("PlaySpawnSound " + gameObject.name);
+        //Debug.Log("PlaySpawnSound " + gameObject.name);
         AudioManager.Instance.PlaySpatialSFX(m_spawnSound.AudioClip,
                                              transform.position,
                                              false,
@@ -17,7 +17,7 @@ public class SoundFX_Enemy : MonoBehaviour
 
     public void PlayTakeDamageSound()
     {
-        Debug.Log("PlayTakeDamageSound" + gameObject.name);
+        //Debug.Log("PlayTakeDamageSound" + gameObject.name);
         AudioManager.Instance.PlaySpatialSFX(m_takeDamageSound.AudioClip,
                                              transform.position,
                                              false,
@@ -26,7 +26,7 @@ public class SoundFX_Enemy : MonoBehaviour
 
     public void PlayDieSound()
     {
-        Debug.Log("PlayDieSound" + gameObject.name);
+        //Debug.Log("PlayDieSound" + gameObject.name);
         AudioManager.Instance.PlaySpatialSFX(m_dieSound.AudioClip,
                                              transform.position,
                                              false,

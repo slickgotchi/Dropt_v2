@@ -47,11 +47,13 @@ public class Destructible : NetworkBehaviour
     public void TakeDamage(Wearable.WeaponTypeEnum weaponType, ulong damageDealerId)
     {
         var damage = CalculateDamageToDestructible(type, weaponType);
-        m_soundFX_Destructible.PlayTakeDamageSound();
-
         if (CurrentHp.Value <= damage)
         {
             VisualEffectsManager.Instance.SpawnCloudExplosion(transform.position + new Vector3(0, 0.5f, 0));
+        }
+        else
+        {
+            m_soundFX_Destructible.PlayTakeDamageSound();
         }
 
         if (IsServer)
@@ -61,6 +63,7 @@ public class Destructible : NetworkBehaviour
             {
                 PRE_DIE?.Invoke();
                 NotifyPlayerToDestroyDestructible(damageDealerId);
+                DestroyDestructibleSoundClientRpc();
                 GetComponent<NetworkObject>().Despawn();
                 DIE?.Invoke();
             }
@@ -78,6 +81,7 @@ public class Destructible : NetworkBehaviour
             if (IsServer && CurrentHp.Value <= 0)
             {
                 NotifyPlayerToDestroyDestructible(damageDealerId);
+                DestroyDestructibleSoundClientRpc();
                 GetComponent<NetworkObject>().Despawn();
             }
         }
@@ -135,16 +139,16 @@ public class Destructible : NetworkBehaviour
         return damage;
     }
 
-    public override void OnNetworkDespawn()
-    {
-        base.OnNetworkDespawn();
-        m_soundFX_Destructible.PlayDieSound();
-    }
-
     private void NotifyPlayerToDestroyDestructible(ulong id)
     {
         NetworkObject networkObject = NetworkManager.SpawnManager.SpawnedObjects[id];
         PlayerController playerController = networkObject.GetComponent<PlayerController>();
         playerController?.DestroyDestructible();
+    }
+
+    [ClientRpc]
+    private void DestroyDestructibleSoundClientRpc()
+    {
+        m_soundFX_Destructible.PlayDieSound();
     }
 }

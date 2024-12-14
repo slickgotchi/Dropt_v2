@@ -29,7 +29,11 @@ namespace Dropt
         {
             if (IsServer)
             {
-                m_navMeshAgent.isStopped = true;
+                // stop nav mesh
+                if (m_navMeshAgent != null && m_navMeshAgent.isOnNavMesh)
+                {
+                    m_navMeshAgent.isStopped = true;
+                }
                 Utils.Anim.PlayAnimationWithDuration(m_animator,
                                                      "GeodeShade_Anticipation",
                                                      TelegraphDuration);

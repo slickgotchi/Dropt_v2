@@ -26,6 +26,7 @@ public class REKTCanvas : MonoBehaviour
     [SerializeField] private TextMeshProUGUI m_BombsUsedText;
     [SerializeField] private TextMeshProUGUI m_EnemiesSlainText;
     [SerializeField] private TextMeshProUGUI m_DestructiblesSmashedText;
+    [SerializeField] private TextMeshProUGUI m_dungeonTimerText;
 
     private void Awake()
     {
@@ -63,25 +64,24 @@ public class REKTCanvas : MonoBehaviour
         }
 
         // display text based on how we game over'd
-        if (type == TypeOfREKT.HP)
+        switch (type)
         {
-            ReasonText.text = "You ran out of HP... dungeons can be tough huh?";
-        }
-        else if (type == TypeOfREKT.Essence)
-        {
-            ReasonText.text = "You ran out of Essence... maybe catch a lil essence once in a while?";
-        }
-        else if (type == TypeOfREKT.Escaped)
-        {
-            ReasonText.text = "You successfully escaped with your collected treasures. Maybe a little deeper next time?";
-        }
-        else if (type == TypeOfREKT.InActive)
-        {
-            ReasonText.text = "You have been inactive for longer than " + PlayerController.InactiveTimerDuration.ToString("F0") + "s so... got the boot!";
+            case TypeOfREKT.HP:
+                ReasonText.text = "You ran out of HP... dungeons can be tough huh?";
+                break;
+            case TypeOfREKT.Essence:
+                ReasonText.text = "You ran out of Essence... maybe catch a lil essence once in a while?";
+                break;
+            case TypeOfREKT.Escaped:
+                ReasonText.text = "You successfully escaped with your collected treasures. Maybe a little deeper next time?";
+                break;
+            case TypeOfREKT.InActive:
+                ReasonText.text = "You have been inactive for longer than " + PlayerController.InactiveTimerDuration.ToString("F0") + "s so... got the boot!";
+                break;
         }
 
         DegenapeButton.GetComponentInChildren<TextMeshProUGUI>().text = "Return to Degenape Village";
-        InitializePlayerinfo();
+        InitializePlayerInfo();
     }
 
     private void HandleClickDegenapeButton()
@@ -91,12 +91,12 @@ public class REKTCanvas : MonoBehaviour
         SceneManager.LoadScene("Game");
     }
 
-    private void InitializePlayerinfo()
+    private void InitializePlayerInfo()
     {
         GameObject player = GetLocalPlayer();
         if (player == null)
         {
-            Debug.Log("No local player found");
+            Debug.LogWarning("No local player found");
             return;
         }
 
@@ -115,6 +115,9 @@ public class REKTCanvas : MonoBehaviour
         PlayerController playerController = player.GetComponent<PlayerController>();
         m_EnemiesSlainText.text = playerController.GetTotalKilledEnemies().ToString();
         m_DestructiblesSmashedText.text = playerController.GetTotalDestroyedDestructibles().ToString();
+
+        PlayerDungeonTime playerDungeonTime = player.GetComponent<PlayerDungeonTime>();
+        m_dungeonTimerText.text = playerDungeonTime.ToString();
     }
 
     private GameObject GetLocalPlayer()

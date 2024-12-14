@@ -156,9 +156,22 @@ public class PlayerAbilities : NetworkBehaviour
         CreateAbility(ref UnarmedPunch, unarmedPunchPrefab, UnarmedPunchId);
     }
 
+    private void OnDisable()
+    {
+        Debug.Log("OnDisable()");
+    }
+
+    public override void OnDestroy()
+    {
+        base.OnDestroy();
+
+        Debug.Log("OnDestroy()");
+    }
+
     public override void OnNetworkDespawn()
     {
-        Debug.Log("Player disconnected");
+
+        Debug.Log("OnNetworkDespawn()");
 
         if (Bootstrap.IsUnityEditor())
         {
@@ -204,10 +217,23 @@ public class PlayerAbilities : NetworkBehaviour
 
     void DestroyAbility(ref GameObject ability)
     {
-        if (ability != null)
+        if (ability != null && IsServer)
         {
-            if (IsServer) ability.GetComponent<NetworkObject>().Despawn();
+            var networkObject = ability.GetComponent<NetworkObject>();
+            if (networkObject != null && networkObject.IsSpawned)
+            {
+                networkObject.TryRemoveParent();
+                networkObject.Despawn();
+                GameObject.Destroy(ability); // Explicitly destroy the GameObject
+                ability = null; // Clear the reference
+            }
         }
+
+        //if (ability != null && IsServer)
+        //{
+        //    ability.transform.SetParent(null);
+        //    ability.GetComponent<NetworkObject>().Despawn();
+        //}
     }
 
     private void Update()

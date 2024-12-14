@@ -21,27 +21,23 @@ public class PetController : NetworkBehaviour
 
     private ulong m_ownerObjectId;
 
-    public void ResetSummonDuration()
-    {
-        m_petMeter.ResetSummonDuration();
-    }
+    private readonly NetworkVariable<Vector3> m_petPosition = new(Vector3.zero);
 
     private float m_damageMultiplier;
 
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-
         m_petView = GetComponent<PetView>();
-
-        if (!IsServer)
+        m_transform = transform;
+        if (!IsServer && !IsHost)
         {
+            m_petPosition.OnValueChanged += OnPetPositionChange;
             return;
         }
-
+        m_petPosition.Value = transform.position;
         InitializeNavmeshAgent();
         m_petMeter = GetComponent<PetMeter>();
-        m_transform = transform;
         m_petOwner = NetworkManager.SpawnManager.SpawnedObjects[m_ownerObjectId].transform;
         m_enemyDetactor = m_petOwner.GetComponent<EnemyDetactor>();
         m_petStateMachine = new PetStateMachine(this);
@@ -49,12 +45,30 @@ public class PetController : NetworkBehaviour
         ActivatePetMeterViewClientRpc(m_ownerObjectId);
     }
 
+    private void OnPetPositionChange(Vector3 previousValue, Vector3 newValue)
+    {
+        if (Vector3.Distance(m_transform.position, newValue) > 4.0f)
+        {
+            m_transform.position = newValue;
+        }
+    }
+
+    public ulong GetPetOwnerNetworkObjectId()
+    {
+        if (m_petOwner != null)
+        {
+            return m_petOwner.GetComponent<NetworkObject>().NetworkObjectId;
+        }
+
+        return 0;
+    }
+
     public bool IsSummonDurationOver()
     {
         return m_petMeter.IsSummonDurationOver();
     }
 
-    internal void DrainSummonDuration()
+    public void DrainSummonDuration()
     {
         m_petMeter.DrainSummonDuration();
     }
@@ -109,11 +123,16 @@ public class PetController : NetworkBehaviour
 
     private void Update()
     {
-        if (!IsServer)
+        //if (m_petOwner == null) return;
+
+        if (IsServer && m_petOwner != null)
         {
+            m_petStateMachine.Update();
+            m_petPosition.Value = m_transform.position;
             return;
         }
-        m_petStateMachine.Update();
+
+        m_transform.position = Vector3.Lerp(m_transform.position, m_petPosition.Value, m_petSettings.Speed * Time.deltaTime);
     }
 
     public void FollowOwner()
@@ -288,12 +307,12 @@ public class PetController : NetworkBehaviour
 
     public bool IsEnemyInPlayerRange()
     {
-        return m_enemyDetactor.DetectEnemies(m_petOwner).Length > 0;
+        return m_enemyDetactor.DetectEnemies().Length > 0;
     }
 
     public Transform GetEnemyInPlayerRange(Transform previousEnemy)
     {
-        Collider2D[] enemiesCollider = m_enemyDetactor.DetectEnemies(m_petOwner);
+        Collider2D[] enemiesCollider = m_enemyDetactor.DetectEnemies();
         if (enemiesCollider.Length == 0)
         {
             return null;
@@ -346,6 +365,11 @@ public class PetController : NetworkBehaviour
     public float GetSummonDuration()
     {
         return m_petMeter.summonDuration;
+    }
+
+    public void ResetSummonDuration()
+    {
+        m_petMeter.ResetSummonDuration();
     }
 
     public void ApplyDamageToEnemy(Transform enemyTransform)

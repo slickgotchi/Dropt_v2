@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 using Unity.Mathematics;
@@ -18,7 +16,7 @@ namespace Dropt
         protected void SimpleRoamUpdate(float dt)
         {
             if (networkCharacter == null) return;
-            if (m_navMeshAgent == null) return;
+            if (m_navMeshAgent == null || !m_navMeshAgent.isOnNavMesh) return;
 
             m_navMeshAgent.isStopped = false;
 
@@ -51,7 +49,7 @@ namespace Dropt
         protected void SimplePursueUpdate(float dt)
         {
             if (networkCharacter == null) return;
-            if (m_navMeshAgent == null) return;
+            if (m_navMeshAgent == null || !m_navMeshAgent.isOnNavMesh) return;
 
             m_navMeshAgent.isStopped = false;
 
@@ -71,9 +69,13 @@ namespace Dropt
         {
             if (m_cooldownTimer > 0.5 * CooldownDuration)
             {
-                m_navMeshAgent.isStopped = true;
-                
-            } else
+                if (m_navMeshAgent != null && m_navMeshAgent.isOnNavMesh)
+                {
+                    m_navMeshAgent.isStopped = true;
+                }
+
+            }
+            else
             {
                 SimplePursueUpdate(dt);
             }
@@ -84,7 +86,7 @@ namespace Dropt
         protected void SimpleFleeUpdate(float dt)
         {
             if (networkCharacter == null) return;
-            if (m_navMeshAgent == null) return;
+            if (m_navMeshAgent == null || !m_navMeshAgent.isOnNavMesh) return;
 
             m_navMeshAgent.isStopped = false;
 
@@ -179,9 +181,10 @@ namespace Dropt
         {
             // check we have a primary attack.
             if (PrimaryAttack == null) return;
+            if (m_navMeshAgent == null || !m_navMeshAgent.isOnNavMesh) return;
 
             // stop navmeshagent
-            GetComponent<NavMeshAgent>().isStopped = true;
+            m_navMeshAgent.isStopped = true;
 
             // instantiate an attack
             GameObject ability = Instantiate(PrimaryAttack, transform.position, Quaternion.identity);

@@ -32,7 +32,7 @@ public class BombSnail_Detonator : NetworkBehaviour
 
     private async void Update()
     {
-        if (IsServer)
+        if (IsServer && IsSpawned)
         {
             // check for triggered (aggro) state
             if (m_enemyAI.state.Value == Dropt.EnemyAI.State.Aggro && !m_isTriggered.Value)
@@ -42,12 +42,6 @@ public class BombSnail_Detonator : NetworkBehaviour
                 m_enemyAI.ChangeState(Dropt.EnemyAI.State.Telegraph);
             }
         }
-
-        //if (IsClient)
-        //{
-        //    detonationText.enabled = m_isTriggered.Value;
-        //    detonationText.text = math.ceil(m_detonationTimer.Value).ToString("F0");
-        //}
     }
 
     private async Task StartCountDown()
@@ -63,26 +57,14 @@ public class BombSnail_Detonator : NetworkBehaviour
             if (m_detonationTimer.Value == 1)
             {
                 animator.Play("BombSnail_ShortFuse");
+                await Task.Delay(600);
             }
         }
-        //PlayExplodeSoundClientRpc();
     }
 
     [ClientRpc]
     private void PlayIgniteSoundClientRpc()
     {
         m_soundFX_BombSnail.PlayIgniteSound();
-    }
-
-    public override void OnNetworkDespawn()
-    {
-        base.OnNetworkDespawn();
-        PlayExplodeSoundClientRpc();
-    }
-
-    [ClientRpc]
-    private void PlayExplodeSoundClientRpc()
-    {
-        m_soundFX_BombSnail.PlayExplodeSound();
     }
 }

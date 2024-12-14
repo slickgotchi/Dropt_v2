@@ -71,9 +71,9 @@ public class WispHollow : NetworkBehaviour
         m_liveWisps.Remove(fudWisp);
     }
 
-    public override void OnNetworkDespawn()
-    {
-        base.OnNetworkDespawn();
-        if (m_soundFX_WispHollow != null) m_soundFX_WispHollow.PlayDieSound();
-    }
+    //public override void OnNetworkDespawn()
+    //{
+    //base.OnNetworkDespawn();
+    //if (m_soundFX_WispHollow != null) m_soundFX_WispHollow.PlayDieSound();
+    //}
 }

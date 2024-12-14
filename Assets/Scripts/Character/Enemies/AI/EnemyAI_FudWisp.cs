@@ -86,7 +86,7 @@ namespace Dropt
 
         protected void FudWisp_PursueUpdate(float dt)
         {
-            if (networkCharacter == null || m_navMeshAgent == null)
+            if (networkCharacter == null || m_navMeshAgent == null || !m_navMeshAgent.isOnNavMesh)
             {
                 return;
             }

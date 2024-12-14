@@ -36,7 +36,7 @@ public class EscapePortal : Interactable
         // check valid escape interaction
         if (!IsValidInteraction(playerNetworkObjectId)) return;
 
-        // checkt his network object id has not already escaped
+        // check this network object id has not already escaped
         if (escapedNetworkObjectIds.Contains(playerNetworkObjectId)) return;
 
         // do database saves
@@ -51,6 +51,13 @@ public class EscapePortal : Interactable
 
         // add id to escaped ids
         escapedNetworkObjectIds.Add(playerNetworkObjectId);
+
+        // try update leaderboard
+        var playerLeaderboardLogger = playerNetworkObject.GetComponent<PlayerLeaderboardLogger>();
+        if (playerLeaderboardLogger != null)
+        {
+            playerLeaderboardLogger.LogEndOfDungeonResults(true);
+        }
 
         // confirm with client they can escape
         EscapeConfirmedClientRpc(playerNetworkObjectId);
