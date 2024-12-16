@@ -18,6 +18,7 @@ public class DebugCanvas : MonoBehaviour
     public TextMeshProUGUI networkObjectCountText;
     public TextMeshProUGUI gameObjectCountText;
     public TextMeshProUGUI networkVariableCountText;
+    public TextMeshProUGUI versionText;
 
     private float m_fpsSampleTimer = 0;
     private List<float> m_fpsList = new List<float>();
@@ -39,6 +40,11 @@ public class DebugCanvas : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         Container.SetActive(false);
+    }
+
+    private void Start()
+    {
+        versionText.text = "Version: " + Bootstrap.Instance.Version;
     }
 
     private void Update()

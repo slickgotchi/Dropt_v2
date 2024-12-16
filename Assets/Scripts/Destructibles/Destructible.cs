@@ -29,33 +29,44 @@ public class Destructible : NetworkBehaviour
         m_soundFX_Destructible = GetComponent<SoundFX_Destructible>();
     }
 
-    //public override void OnNetworkSpawn()
-    //{
-    //base.OnNetworkSpawn();
-
-    // configure audio
-    //if (type == Type.Crafted) audioOnHit = AudioLibrary.Instance.HitCrafted;
-    //if (type == Type.Inorganic) audioOnHit = AudioLibrary.Instance.HitInorganic;
-    //if (type == Type.Organic) audioOnHit = AudioLibrary.Instance.HitOrganic;
-    //}
-
+    
     public void Explode(ulong damageDealerId)
     {
-        TakeDamage(CurrentHp.Value, damageDealerId);
+        DoDamage(CurrentHp.Value, damageDealerId);
     }
 
     public void TakeDamage(Wearable.WeaponTypeEnum weaponType, ulong damageDealerId)
     {
         var damage = CalculateDamageToDestructible(type, weaponType);
-        if (CurrentHp.Value <= damage)
+        DoDamage(damage, damageDealerId);
+    }
+
+    private void DoDamage(int damage, ulong damageDealerId)
+    {
+        // do client actions
+        if (IsClient)
         {
-            VisualEffectsManager.Instance.SpawnCloudExplosion(transform.position + new Vector3(0, 0.5f, 0));
-        }
-        else
-        {
-            m_soundFX_Destructible.PlayTakeDamageSound();
+            if (CurrentHp.Value <= damage)
+            {
+                // play cloud explosion
+                VisualEffectsManager.Instance.SpawnCloudExplosion(transform.position + new Vector3(0, 0.5f, 0));
+
+                // hide all sprites
+                var spriteRenderers = GetComponentsInChildren<SpriteRenderer>();
+                foreach (var sr in spriteRenderers) sr.enabled = false;
+            }
+            else
+            {
+                // do damage wobble
+                DamageWobble damageWobble = GetComponent<DamageWobble>();
+                if (damageWobble != null) damageWobble?.Play();
+
+                // play hit sfx
+                m_soundFX_Destructible.PlayTakeDamageSound();
+            }
         }
 
+        // do server check for despawn
         if (IsServer)
         {
             CurrentHp.Value -= damage;
@@ -67,31 +78,6 @@ public class Destructible : NetworkBehaviour
                 GetComponent<NetworkObject>().Despawn();
                 DIE?.Invoke();
             }
-        }
-
-        DamageWobble damageWobble = GetComponent<DamageWobble>();
-        damageWobble?.Play();
-    }
-
-    public void TakeDamage(int damage, ulong damageDealerId)
-    {
-        if (IsServer)
-        {
-            CurrentHp.Value -= damage;
-            if (IsServer && CurrentHp.Value <= 0)
-            {
-                NotifyPlayerToDestroyDestructible(damageDealerId);
-                DestroyDestructibleSoundClientRpc();
-                GetComponent<NetworkObject>().Despawn();
-            }
-        }
-
-        DamageWobble damageWobble = GetComponent<DamageWobble>();
-        damageWobble?.Play();
-
-        if (CurrentHp.Value <= damage)
-        {
-            VisualEffectsManager.Instance.SpawnCloudExplosion(transform.position + new Vector3(0, 0.5f, 0));
         }
     }
 

@@ -48,7 +48,6 @@ namespace Dropt
         protected override void OnDeath(Vector3 position)
         {
             transform.position = position;
-            //Debug.Log("OnDeath(): " + transform.position);
 
             // stop nav mesh
             if (m_navMeshAgent != null && m_navMeshAgent.isOnNavMesh)
@@ -93,11 +92,6 @@ namespace Dropt
 
         public override void OnUpdate(float dt)
         {
-            if (m_isDeathTriggered)
-            {
-                //Debug.Log(state.Value + " " + transform.position);
-            }
-
             if (m_isExploded || m_isDeathTriggered) return;
             base.OnUpdate(dt);
 
@@ -118,8 +112,6 @@ namespace Dropt
             {
                 m_navMeshAgent.isStopped = true;
             }
-
-            //Debug.Log("OnTelegraphStart(): " + transform.position);
         }
 
         public override void OnTelegraphUpdate(float dt)

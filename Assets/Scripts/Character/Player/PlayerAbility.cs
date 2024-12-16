@@ -571,6 +571,7 @@ public class PlayerAbility : NetworkBehaviour
 
         // IMPORTANT: There was ALOT of finessing that went into this delay calc and
         // it MIGHT only work with ticks at 15 ticks per second.
+        // It takes into accouunt both network lag and interpolation delay
         var delay_s = 1f * rtt_s + 0.29f;
 
         // convert delay in seconds to delay in ticks
