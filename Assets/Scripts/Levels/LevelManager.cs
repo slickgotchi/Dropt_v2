@@ -309,12 +309,20 @@ public class LevelManager : NetworkBehaviour
         // destroy current level
         DestroyCurrentLevel_SERVER();
 
-        // if we were on last level (should not occur in actual game), return to degenape
+        // return to DegemApe village if we were on last level (should not occur in actual game), return to degenape
         if (m_currentLevelIndex_SERVER >= m_levels.Count - 1)
         {
             var levels = new List<GameObject>();
             levels.Add(ApeVillageLevel);
             SetLevelList_SERVER(levels);
+
+            // WE DO EXIT DUNGEON CHECKS IN PLAYEROFFCHAINDATA (NOT HERE)
+            //// do exist calcs for all players
+            //var playerOffchainDatas = FindObjectsByType<PlayerOffchainData>(FindObjectsSortMode.None);
+            //foreach (var pocd in playerOffchainDatas)
+            //{
+            //    pocd.ExitDungeonCalculateBalances(true);
+            //}
         }
 
         // increment current level index
