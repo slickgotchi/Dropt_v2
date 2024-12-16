@@ -166,10 +166,14 @@ public class LevelManager : NetworkBehaviour
         // find everything to destroy
         var destroyObjects = new List<DestroyAtLevelChange>(FindObjectsByType<DestroyAtLevelChange>(FindObjectsInactive.Include, FindObjectsSortMode.None));
 
-        // remove any parents
+        // remove any parents (NOTE: this should only apply to NetworkObjects! any embedded scene objects
+        // with DestroyAtLevelChange should still be destroyed)
         foreach (var destroyObject in destroyObjects)
         {
-            destroyObject.transform.parent = null;
+            if (destroyObject.HasComponent<NetworkObject>())
+            {
+                destroyObject.transform.parent = null;
+            }
         }
 
         // activate objects and add the ignore proximity component
@@ -197,12 +201,10 @@ public class LevelManager : NetworkBehaviour
             }
 
             // destroy object
-            if (destroyObject != null && destroyObject.HasComponent<NetworkObject>() && IsServer)
+            var doNetworkObject = destroyObject.GetComponent<NetworkObject>();
+            if (destroyObject != null && doNetworkObject != null && IsServer && doNetworkObject.IsSpawned)
             {
-                if (destroyObject.GetComponent<NetworkObject>().IsSpawned)
-                {
-                    destroyObject.GetComponent<NetworkObject>().Despawn();
-                }
+                doNetworkObject.Despawn();
             }
             else
             {
@@ -212,7 +214,6 @@ public class LevelManager : NetworkBehaviour
 
         // clear our list
         destroyObjects.Clear();
-
 
         // re-enable proximity manager
         ProximityManager.Instance.enabled = true;
