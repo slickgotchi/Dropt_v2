@@ -46,7 +46,7 @@ public class PlayerCharacter : NetworkCharacter
                 var playerOffchainData = GetComponent<PlayerOffchainData>();
                 if (playerOffchainData != null)
                 {
-                    Essence.Value = baseEssence + (playerOffchainData.isEssenceInfused_offchain.Value ? baseInfusedEssenceBonus : 0);
+                    Essence.Value = baseEssence + (playerOffchainData.data.Value.isEssenceInfused_offchain ? baseInfusedEssenceBonus : 0);
                 }
             }
             else

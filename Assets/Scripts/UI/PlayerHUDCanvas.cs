@@ -216,21 +216,21 @@ public class PlayerHUDCanvas : MonoBehaviour
 
     private void UpdateDust()
     {
-        var dust = LevelManager.Instance.IsDegenapeVillage() ? m_localPlayerDungeonData.dustBalance_offchain : m_localPlayerDungeonData.dustLiveCount_dungeon;
-        m_dustText.text = dust.Value.ToString();
+        var dust = LevelManager.Instance.IsDegenapeVillage() ? m_localPlayerDungeonData.data.Value.dustBalance_offchain : m_localPlayerDungeonData.data.Value.dustLiveCount_dungeon;
+        m_dustText.text = dust.ToString();
     }
 
     private void UpdateBombs()
     {
-        var bombs = LevelManager.Instance.IsDegenapeVillage() ? m_localPlayerDungeonData.bombBalance_offchain : m_localPlayerDungeonData.bombLiveCount_dungeon;
-        m_bombsText.text = bombs.Value.ToString("F0");
+        var bombs = LevelManager.Instance.IsDegenapeVillage() ? m_localPlayerDungeonData.data.Value.bombBalance_offchain : m_localPlayerDungeonData.data.Value.bombLiveCount_dungeon;
+        m_bombsText.text = bombs.ToString("F0");
     }
 
     private void UpdateEcto()
     {
         m_ectoText.text = LevelManager.Instance.IsDegenapeVillage() ?
-            m_localPlayerDungeonData.ectoBalance_offchain.Value.ToString("F0") :
-            "(" + m_localPlayerDungeonData.ectoDebitCount_dungeon.Value + ") " + m_localPlayerDungeonData.ectoLiveCount_dungeon.Value;
+            m_localPlayerDungeonData.data.Value.ectoBalance_offchain.ToString("F0") :
+            "(" + m_localPlayerDungeonData.data.Value.ectoDebitCount_dungeon + ") " + m_localPlayerDungeonData.data.Value.ectoLiveCount_dungeon;
     }
 
     private void UpdateEssence()
@@ -305,8 +305,8 @@ public class PlayerHUDCanvas : MonoBehaviour
 
     public void UpdateHealSlaveUpItem()
     {
-        m_healSlaveChargeText.text = m_localPlayerDungeonData.healSalveChargeCount_dungeon.Value.ToString();
-        float fillAmount = m_localPlayerDungeonData.healSalveChargeCount_dungeon.Value / (float)m_localPlayerDungeonData.healSalveDungeonCharges_offchain.Value;
+        m_healSlaveChargeText.text = m_localPlayerDungeonData.data.Value.healSalveChargeCount_dungeon.ToString();
+        float fillAmount = m_localPlayerDungeonData.data.Value.healSalveChargeCount_dungeon / (float)m_localPlayerDungeonData.data.Value.healSalveDungeonCharges_offchain;
         m_healSlaveUpImage.fillAmount = fillAmount;
     }
 }
