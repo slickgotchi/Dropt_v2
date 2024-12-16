@@ -215,6 +215,13 @@ public class LevelManager : NetworkBehaviour
         // clear our list
         destroyObjects.Clear();
 
+        // return all pickup items to their pools
+        var pickupItems = FindObjectsByType<PickupItem>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        foreach (var pi in pickupItems)
+        {
+            PickupItemManager.Instance.ReturnToPool(pi);
+        }
+
         // re-enable proximity manager
         ProximityManager.Instance.enabled = true;
     }
