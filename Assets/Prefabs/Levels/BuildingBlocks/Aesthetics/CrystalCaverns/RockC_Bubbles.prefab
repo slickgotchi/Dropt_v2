@@ -9,12 +9,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 551280027139294499}
-  - component: {fileID: -3599212634581151793}
   - component: {fileID: 3387859537420111930}
-  - component: {fileID: -5455499981175321330}
-  - component: {fileID: 8143876725488509952}
+  - component: {fileID: 6692869899584947105}
   m_Layer: 9
-  m_Name: Rock6
+  m_Name: RockC_Bubbles
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -36,27 +34,6 @@ Transform:
   - {fileID: 2228045280187910979}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &-3599212634581151793
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1249991746567512264}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1870966176
-  InScenePlacedSourceGlobalObjectIdHash: 0
-  AlwaysReplicateAsRoot: 0
-  SynchronizeTransform: 1
-  ActiveSceneSynchronization: 0
-  SceneMigrationSynchronization: 1
-  SpawnWithObservers: 1
-  DontDestroyWithOwner: 0
-  AutoObjectParentSync: 1
 --- !u!208 &3387859537420111930
 NavMeshObstacle:
   m_ObjectHideFlags: 0
@@ -67,25 +44,13 @@ NavMeshObstacle:
   m_Enabled: 1
   serializedVersion: 3
   m_Shape: 1
-  m_Extents: {x: 1.5, y: 0.65, z: 0.5}
+  m_Extents: {x: 0.8, y: 0.65, z: 0.5}
   m_MoveThreshold: 0.1
   m_Carve: 1
   m_CarveOnlyStationary: 1
   m_Center: {x: 0, y: 0, z: 0}
   m_TimeToStationary: 0.5
---- !u!114 &-5455499981175321330
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1249991746567512264}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 09698abc2e8964808b00a54103ccdd21, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!60 &8143876725488509952
+--- !u!60 &6692869899584947105
 PolygonCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -129,11 +94,11 @@ PolygonCollider2D:
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: 0, y: 0.62306917}
-      - {x: -1.4495779, y: 0.28469887}
-      - {x: -1.4753965, y: -0.7968581}
-      - {x: 1.4997149, y: -0.77253973}
-      - {x: 1.5225323, y: 0.30901712}
+    - - {x: -0.03647718, y: 0.48931944}
+      - {x: -0.8051478, y: 0.11447203}
+      - {x: -0.66073954, y: -0.5536768}
+      - {x: 0.5513082, y: -0.56583583}
+      - {x: 0.80514765, y: 0.22390372}
   m_UseDelaunayMesh: 0
 --- !u!1 &6525230415705073668
 GameObject:
@@ -209,12 +174,12 @@ SpriteRenderer:
   m_SortingLayerID: -317176571
   m_SortingLayer: -2
   m_SortingOrder: 0
-  m_Sprite: {fileID: 983769770, guid: 8ba60f7be80ed4b3e942aad40bcafea6, type: 3}
+  m_Sprite: {fileID: -1796224865, guid: b6aef83de256148e2808987f0ac75765, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 4.9166665, y: 6.2222223}
+  m_Size: {x: 1.4722222, y: 1.3888888}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1

@@ -101,9 +101,7 @@ GameObject:
   - component: {fileID: 3833536494947874834}
   - component: {fileID: 5305288398504534298}
   - component: {fileID: 2374059839498782581}
-  - component: {fileID: 861898163023033477}
   - component: {fileID: 3454233961467686585}
-  - component: {fileID: 7332358334556331613}
   m_Layer: 10
   m_Name: Bridge_Hole
   m_TagString: Untagged
@@ -438,27 +436,6 @@ PolygonCollider2D:
       - {x: 1.1459891, y: -1.7450054}
       - {x: 1.1806521, y: 0.93941545}
   m_UseDelaunayMesh: 0
---- !u!114 &861898163023033477
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8573877972712590008}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 133852484
-  InScenePlacedSourceGlobalObjectIdHash: 0
-  AlwaysReplicateAsRoot: 0
-  SynchronizeTransform: 1
-  ActiveSceneSynchronization: 0
-  SceneMigrationSynchronization: 1
-  SpawnWithObservers: 1
-  DontDestroyWithOwner: 0
-  AutoObjectParentSync: 1
 --- !u!208 &3454233961467686585
 NavMeshObstacle:
   m_ObjectHideFlags: 0
@@ -475,15 +452,3 @@ NavMeshObstacle:
   m_CarveOnlyStationary: 1
   m_Center: {x: 0, y: 0, z: 0}
   m_TimeToStationary: 0.5
---- !u!114 &7332358334556331613
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8573877972712590008}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 09698abc2e8964808b00a54103ccdd21, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
