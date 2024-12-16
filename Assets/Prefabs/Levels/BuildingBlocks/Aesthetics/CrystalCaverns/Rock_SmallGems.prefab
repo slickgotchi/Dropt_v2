@@ -9,12 +9,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 551280027139294499}
-  - component: {fileID: -3599212634581151793}
   - component: {fileID: 3387859537420111930}
-  - component: {fileID: -5455499981175321330}
-  - component: {fileID: 6692869899584947105}
+  - component: {fileID: 5468592435668569852}
   m_Layer: 9
-  m_Name: Rock1
+  m_Name: Rock_SmallGems
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -36,27 +34,6 @@ Transform:
   - {fileID: 2228045280187910979}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &-3599212634581151793
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1249991746567512264}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1266172247
-  InScenePlacedSourceGlobalObjectIdHash: 0
-  AlwaysReplicateAsRoot: 0
-  SynchronizeTransform: 1
-  ActiveSceneSynchronization: 0
-  SceneMigrationSynchronization: 1
-  SpawnWithObservers: 1
-  DontDestroyWithOwner: 0
-  AutoObjectParentSync: 1
 --- !u!208 &3387859537420111930
 NavMeshObstacle:
   m_ObjectHideFlags: 0
@@ -67,25 +44,13 @@ NavMeshObstacle:
   m_Enabled: 1
   serializedVersion: 3
   m_Shape: 1
-  m_Extents: {x: 0.8, y: 0.65, z: 0.5}
+  m_Extents: {x: 0.75, y: 0.5, z: 0.5}
   m_MoveThreshold: 0.1
   m_Carve: 1
   m_CarveOnlyStationary: 1
   m_Center: {x: 0, y: 0, z: 0}
   m_TimeToStationary: 0.5
---- !u!114 &-5455499981175321330
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1249991746567512264}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 09698abc2e8964808b00a54103ccdd21, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!60 &6692869899584947105
+--- !u!60 &5468592435668569852
 PolygonCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -129,11 +94,11 @@ PolygonCollider2D:
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: -0.03647718, y: 0.48931944}
-      - {x: -0.8051478, y: 0.11447203}
-      - {x: -0.66073954, y: -0.5536768}
-      - {x: 0.5513082, y: -0.56583583}
-      - {x: 0.80514765, y: 0.22390372}
+    - - {x: -0.01215906, y: 0.51363766}
+      - {x: -0.81730694, y: 0.18742639}
+      - {x: -0.7215348, y: -0.62663114}
+      - {x: 0.5999444, y: -0.5536767}
+      - {x: 0.7929887, y: 0.16310838}
   m_UseDelaunayMesh: 0
 --- !u!1 &6525230415705073668
 GameObject:
@@ -209,7 +174,7 @@ SpriteRenderer:
   m_SortingLayerID: -317176571
   m_SortingLayer: -2
   m_SortingOrder: 0
-  m_Sprite: {fileID: -788400518, guid: 8ba60f7be80ed4b3e942aad40bcafea6, type: 3}
+  m_Sprite: {fileID: -160789157, guid: 8ba60f7be80ed4b3e942aad40bcafea6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
