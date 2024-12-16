@@ -26,6 +26,12 @@ public class DeferredSpawner : MonoBehaviour
     // Enqueue the Spawn function to be called on the next frame
     public static void SpawnNextFrame(NetworkObject networkObject)
     {
+        if (networkObject == null || Instance == null)
+        {
+            Debug.LogWarning("Passed a null object (or Instance is null) to SpawnNextFrame");
+            return;
+        }
+
         Instance._nextFrameActions.Enqueue(() => {
             networkObject.gameObject.SetActive(true);
             networkObject.Spawn();
