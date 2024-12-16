@@ -24,10 +24,12 @@ public class GasBag_Explode : EnemyAbility
         if (Parent == null) return;
         if (m_isExploded) return;
 
-        // set position
-        //transform.position = Dropt.Utils.Battle.GetAttackCentrePosition(Parent);
-        transform.position = Parent.GetComponent<Dropt.EnemyAI>().GetKnockbackPosition() + new Vector3(0, 0.5f, 0);
-        //Debug.Log("OnActivate position: " + transform.position);
+        // set explosion position to knockback position
+        var parentEnemyAI = Parent.GetComponent<Dropt.EnemyAI>();
+        if (parentEnemyAI != null)
+        {
+            transform.position = parentEnemyAI.GetKnockbackPosition() + new Vector3(0, 0.5f, 0);
+        }
 
         m_isExploded = true;
 

@@ -43,9 +43,9 @@ public class EnemyAbility : NetworkBehaviour
         ExecutionDuration = executionDuration;
         PositionToAttack = positionToAttack;
 
-        OnActivate();
         m_timer = ExecutionDuration;
         m_isActive = true;
+        OnActivate();
     }
 
     public void Deactivate()
@@ -56,7 +56,7 @@ public class EnemyAbility : NetworkBehaviour
         if (IsServer)
         {
             var networkObject = GetComponent<NetworkObject>();
-            if (networkObject != null && networkObject.IsSpawned) GetComponent<NetworkObject>().Despawn();
+            if (networkObject != null && networkObject.IsSpawned) networkObject.Despawn();
         }
     }
 
@@ -66,16 +66,13 @@ public class EnemyAbility : NetworkBehaviour
         if (m_timer < 0 && m_isActive)
         {
             Deactivate();
-        } else
+        }
+        else
         {
             OnUpdate(Time.deltaTime);
         }
     }
 
-    //public virtual void OnTelegraphStart() { }
-    //public virtual void OnExecutionStart() { }
-    //public virtual void OnCooldownStart() { }
-    //public virtual void OnFinish() { }
     public virtual void OnUpdate(float dt) { }
 
     public virtual void OnInit() { }

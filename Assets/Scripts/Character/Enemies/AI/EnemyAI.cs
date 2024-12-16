@@ -248,17 +248,9 @@ namespace Dropt
             if (!m_isDead)
             {
                 m_isDead = true;
-//<<<<<<< HEAD
                 OnDeath(position);
                 PlayDeathSoundClientRPC();
-//=======
-//                //OnDeath(position);
-//                OnDeathClientRPC();
-//>>>>>>> main
             }
-
-            //OnDeadStart();
-            //ChangeState(State.Dead);
         }
 
         [ClientRpc]
@@ -457,16 +449,21 @@ namespace Dropt
             OnDeadUpdate(dt);
         }
 
-        //State m_postStunState = State.Aggro;
-
         public void Knockback(Vector3 direction, float distance, float stunTime)
         {
             if (state.Value == State.Attack) return;
             if (state.Value == State.Spawn) return;
 
+            // get network character
+            var networkCharacter = GetComponent<NetworkCharacter>();
+            if (networkCharacter == null) return;
+
+            // if we're dead, don't do anymore knockback
+            if (networkCharacter.IsDead.Value) return;
+
             // account for multipliers
-            distance *= GetComponent<NetworkCharacter>().KnockbackMultiplier.Value;
-            stunTime *= GetComponent<NetworkCharacter>().StunMultiplier.Value;
+            distance *= networkCharacter.KnockbackMultiplier.Value;
+            stunTime *= networkCharacter.StunMultiplier.Value;
 
             // recalc distance allowing for collisions
             distance = CalculateKnockbackDistance(direction, distance);
@@ -479,11 +476,6 @@ namespace Dropt
             m_knockbackTimer = 0f;
             m_knockbackStartPosition = transform.position;
             m_knockbackFinishPosition = transform.position + direction.normalized * distance;
-
-            //if (IsClient)
-            //{
-            //    LogKnockbackPositionServerRpc(m_knockbackFinishPosition);
-            //}
 
             // stop navmesh agent
             if (m_navMeshAgent != null && m_navMeshAgent.isOnNavMesh)
@@ -507,14 +499,6 @@ namespace Dropt
             }
         }
 
-        //[Rpc(SendTo.Server)]
-        //void LogKnockbackPositionServerRpc(Vector3 clientKnockbackPosition)
-        //{
-        //    Debug.Log(state.Value);
-        //    Debug.Log("Client m_knockbackPosition: " + clientKnockbackPosition);
-        //    Debug.Log("Server m_knockbackPosition: " + m_knockbackFinishPosition);
-        //}
-
         public Vector3 GetKnockbackPosition()
         {
             return m_knockbackFinishPosition;
@@ -527,11 +511,14 @@ namespace Dropt
             if (!IsClient) return;
             if (m_clientPredictedState != State.Knockback) return;
 
+            // check if player is dead
+            var networkCharacter = GetComponent<NetworkCharacter>();
+            if (networkCharacter == null) return;
+            if (networkCharacter.IsDead.Value) return;
+
             m_knockbackTimer += dt;
             var alpha = math.min(m_knockbackTimer / m_knockbackDuration, 1);
             transform.position = math.lerp(m_knockbackStartPosition, m_knockbackFinishPosition, alpha);
-
-            //Debug.Log("Knockback: " + transform.position);
 
             if (m_knockbackTimer >= m_knockbackDuration)
             {
@@ -546,7 +533,10 @@ namespace Dropt
             if (!IsClient) return;
             if (m_clientPredictedState != State.Stun) return;
 
-            //Debug.Log("Stun: " + transform.position);
+            // check if player is dead
+            var networkCharacter = GetComponent<NetworkCharacter>();
+            if (networkCharacter == null) return;
+            if (networkCharacter.IsDead.Value) return;
 
             m_stunTimer -= dt;
             if (m_stunTimer < 0)

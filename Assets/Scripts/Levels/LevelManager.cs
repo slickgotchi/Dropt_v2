@@ -166,10 +166,14 @@ public class LevelManager : NetworkBehaviour
         // find everything to destroy
         var destroyObjects = new List<DestroyAtLevelChange>(FindObjectsByType<DestroyAtLevelChange>(FindObjectsInactive.Include, FindObjectsSortMode.None));
 
-        // remove any parents
+        // remove any parents (NOTE: this should only apply to NetworkObjects! any embedded scene objects
+        // with DestroyAtLevelChange should still be destroyed)
         foreach (var destroyObject in destroyObjects)
         {
-            destroyObject.transform.parent = null;
+            if (destroyObject.HasComponent<NetworkObject>())
+            {
+                destroyObject.transform.parent = null;
+            }
         }
 
         // activate objects and add the ignore proximity component
@@ -197,12 +201,10 @@ public class LevelManager : NetworkBehaviour
             }
 
             // destroy object
-            if (destroyObject != null && destroyObject.HasComponent<NetworkObject>() && IsServer)
+            var doNetworkObject = destroyObject.GetComponent<NetworkObject>();
+            if (destroyObject != null && doNetworkObject != null && IsServer && doNetworkObject.IsSpawned)
             {
-                if (destroyObject.GetComponent<NetworkObject>().IsSpawned)
-                {
-                    destroyObject.GetComponent<NetworkObject>().Despawn();
-                }
+                doNetworkObject.Despawn();
             }
             else
             {
@@ -212,7 +214,6 @@ public class LevelManager : NetworkBehaviour
 
         // clear our list
         destroyObjects.Clear();
-
 
         // re-enable proximity manager
         ProximityManager.Instance.enabled = true;
@@ -308,12 +309,20 @@ public class LevelManager : NetworkBehaviour
         // destroy current level
         DestroyCurrentLevel_SERVER();
 
-        // if we were on last level (should not occur in actual game), return to degenape
+        // return to DegemApe village if we were on last level (should not occur in actual game), return to degenape
         if (m_currentLevelIndex_SERVER >= m_levels.Count - 1)
         {
             var levels = new List<GameObject>();
             levels.Add(ApeVillageLevel);
             SetLevelList_SERVER(levels);
+
+            // WE DO EXIT DUNGEON CHECKS IN PLAYEROFFCHAINDATA (NOT HERE)
+            //// do exist calcs for all players
+            //var playerOffchainDatas = FindObjectsByType<PlayerOffchainData>(FindObjectsSortMode.None);
+            //foreach (var pocd in playerOffchainDatas)
+            //{
+            //    pocd.ExitDungeonCalculateBalances(true);
+            //}
         }
 
         // increment current level index

@@ -110,7 +110,7 @@ public class LeafShade_Charge : EnemyAbility
             // handle destructibles
             if (destructible != null)
             {
-                destructible.TakeDamage(1000, Parent.GetComponent<NetworkObject>().NetworkObjectId);
+                destructible.Explode(Parent.GetComponent<NetworkObject>().NetworkObjectId);
             }
         }
 

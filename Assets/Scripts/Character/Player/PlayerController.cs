@@ -95,6 +95,24 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
+    [Rpc(SendTo.Server)]
+    void ValidateVersionServerRpc()
+    {
+
+    }
+
+    [Rpc(SendTo.Server)]
+    void ValidateVersionClientRpc(string serverVersion)
+    {
+        if (!IsLocalPlayer) return;
+
+        if (serverVersion != Bootstrap.Instance.Version)
+        {
+            ErrorDialogCanvas.Instance.Show("Your local browser version of Dropt does not match the server. Please hard refresh your browser to update.");
+            NetworkManager.Singleton.Shutdown();
+        }
+    }
+
     public override void OnNetworkDespawn()
     {
         if (!IsServer) return;
@@ -396,10 +414,10 @@ public class PlayerController : NetworkBehaviour
     // cheat to go to next level
     private void HandleNextLevelCheat()
     {
-        //if (Input.GetKeyDown(KeyCode.N))
-        //{
-        //    GoNextLevelServerRpc();
-        //}
+        if (Input.GetKeyDown(KeyCode.N))
+        {
+            GoNextLevelServerRpc();
+        }
     }
 
     [Rpc(SendTo.Server)]

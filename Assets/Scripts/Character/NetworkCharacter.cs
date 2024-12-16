@@ -36,8 +36,6 @@ public class NetworkCharacter : NetworkBehaviour
     // list of buff names for client to use to do UI things client side
     private List<string> activeBuffNames_CLIENT = new List<string>();
 
-    //private Action<ulong> m_onDamageToEnemy;
-
     // NetworkVariables
     [HideInInspector] public NetworkVariable<float> HpMax = new NetworkVariable<float>(0);
     [HideInInspector] public NetworkVariable<float> HpCurrent = new NetworkVariable<float>(0);
@@ -59,6 +57,9 @@ public class NetworkCharacter : NetworkBehaviour
     [HideInInspector] public NetworkVariable<float> StunMultiplier = new NetworkVariable<float>(0);
     [HideInInspector] public NetworkVariable<float> EnemyShield = new NetworkVariable<float>(0);
     [HideInInspector] public NetworkVariable<float> MaxEnemyShield = new NetworkVariable<float>(0);
+
+    // an IsDead variable
+    [HideInInspector] public NetworkVariable<bool> IsDead = new NetworkVariable<bool>(false);
 
     public override void OnNetworkSpawn()
     {
@@ -164,6 +165,8 @@ public class NetworkCharacter : NetworkBehaviour
             // check for death
             if (HpCurrent.Value <= 0 && enemyController != null)
             {
+                IsDead.Value = true;
+
                 // update the players kill count
                 if (damageDealer != null)
                 {
@@ -180,13 +183,9 @@ public class NetworkCharacter : NetworkBehaviour
                 }
                 else
                 {
-//<<<<<<< HEAD
                     PlayEnemyDieSoundClientRpc();
-                    //gameObject.GetComponent<NetworkObject>().Despawn();
-//=======
                     var networkObject = GetComponent<NetworkObject>();
                     if (networkObject != null) networkObject.Despawn();
-//>>>>>>> main
                 }
             }
 

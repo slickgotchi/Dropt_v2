@@ -106,7 +106,7 @@ public class PlayerItems : NetworkBehaviour
 
     private bool IsHealSalveChargeAvailable()
     {
-        return m_playerOffchainData.healSalveChargeCount_dungeon.Value > 0;
+        return m_playerOffchainData.healSalveChargeCount_dungeon > 0;
     }
 
     [ClientRpc]
