@@ -17,18 +17,14 @@ namespace Level
             }
 
 #if UNITY_EDITOR
-            List<GameObject> doors = new List<GameObject>();
+            List<ApeDoorType> doors = new List<ApeDoorType>();
             foreach (var buttonGroupSpawner in buttonGroupSpawners)
             {
-                foreach (var apeDoorSpawner in buttonGroupSpawner.ApeDoorSpawners)
+                if (doors.Contains(buttonGroupSpawner.ApeDoorType))
                 {
-                    GameObject door = apeDoorSpawner.ApeDoorPrefab;
-                    if (doors.Contains(door))
-                    {
-                        Debug.LogWarning($"{door.name} is assign to multiple ape door spawner", apeDoorSpawner);
-                    }
-                    doors.Add(door);
+                    Debug.LogWarning($"Ape Door Of Type {buttonGroupSpawner.ApeDoorType} is assign to multiple ape door spawner");
                 }
+                doors.Add(buttonGroupSpawner.ApeDoorType);
             }
 #endif
         }
@@ -42,18 +38,14 @@ namespace Level
                 CreateCrystalDoors(buttonGroupSpawners[i]);
             }
 #if UNITY_EDITOR
-            List<GameObject> doors = new List<GameObject>();
+            List<CrystalDoorType> doors = new List<CrystalDoorType>();
             foreach (var buttonGroupSpawner in buttonGroupSpawners)
             {
-                foreach (var crystalDoorSpawner in buttonGroupSpawner.CrystalDoorSpawners)
+                if (doors.Contains(buttonGroupSpawner.CrystalDoorType))
                 {
-                    GameObject door = crystalDoorSpawner.GetRandomDoorPrefab();
-                    if (doors.Contains(door))
-                    {
-                        Debug.LogWarning($"{door.name} is assign to multiple crystal door spawner", crystalDoorSpawner);
-                    }
-                    doors.Add(door);
+                    Debug.LogWarning($"Crystal Door Of Type {buttonGroupSpawner.CrystalDoorType} is assign to multiple crystal door spawner");
                 }
+                doors.Add(buttonGroupSpawner.CrystalDoorType);
             }
 #endif
         }
