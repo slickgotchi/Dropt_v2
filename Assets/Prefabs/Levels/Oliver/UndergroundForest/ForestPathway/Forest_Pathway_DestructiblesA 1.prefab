@@ -64,7 +64,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1211526286
+  GlobalObjectIdHash: 2432911933
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -85,6 +85,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68a437cd191db314f9e436ebc9a0cb26, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  levelType: 3
+  levelMusic: {fileID: 0}
+  isEssenceDepleting: 1
+  objective: Find a hole to descend
+  navmeshGeneration: 1
 --- !u!114 &790582418072709419
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17773,11 +17778,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc2d1349f2b5d4172a38f28982df173d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SpawnOnDestroyPrefab: {fileID: 1249991746567512264, guid: 970b46789a867e74ebfdba09e3228b83, type: 3}
+  SpawnOnDestroyPrefab: {fileID: 1249991746567512264, guid: 9250a285bcfa44e378c492d6b60e9be8, type: 3}
   Offset: {x: 0, y: 0, z: 0}
   SpawnChance: 0.1
-  MinNumberSpawns: 3
-  MaxNumberSpawns: 5
+  MinNumberSpawns: 2
+  MaxNumberSpawns: 4
 --- !u!4 &7181636341280804755 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3170796986802429630, guid: 34b33dff45f7b494598c72be60932d44, type: 3}
@@ -19364,7 +19369,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc2d1349f2b5d4172a38f28982df173d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SpawnOnDestroyPrefab: {fileID: 1249991746567512264, guid: 970b46789a867e74ebfdba09e3228b83, type: 3}
+  SpawnOnDestroyPrefab: {fileID: 1249991746567512264, guid: 9250a285bcfa44e378c492d6b60e9be8, type: 3}
   Offset: {x: 0, y: 0, z: 0}
   SpawnChance: 0.15
   MinNumberSpawns: 1
