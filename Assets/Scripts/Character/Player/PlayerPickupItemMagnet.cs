@@ -41,7 +41,7 @@ public class PlayerPickupItemMagnet : NetworkBehaviour
 
         if (pickupItem.gameObject.HasComponent<CGHSTOrb>())
         {
-            PlayerDungeonData.AddEcto(pickupItem.GetComponent<CGHSTOrb>().GetValue());
+            PlayerDungeonData.AddDungeonEcto(pickupItem.GetComponent<CGHSTOrb>().GetValue());
         }
 
         if (pickupItem.gameObject.HasComponent<ApOrb>())

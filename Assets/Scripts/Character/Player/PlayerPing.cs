@@ -25,9 +25,8 @@ public class PlayerPing : NetworkBehaviour
     public NetworkVariable<ulong> RTT = new NetworkVariable<ulong>(0);
 
     public NetworkVariable<int> serverFPS = new NetworkVariable<int>(0);
-
     private List<float> m_serverFPSArray = new List<float>();
-    private int m_maxServerFPSArrayLength = 20;
+    private int m_maxServerFPSArrayLength = 50;
 
     public float elapsedTimeSinceLastPing = 0;
 

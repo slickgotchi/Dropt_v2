@@ -1,5 +1,6 @@
 using Unity.Netcode;
 using UnityEngine;
+using Unity.Mathematics;
 
 public class WeaponSwap : Interactable
 {
@@ -16,14 +17,13 @@ public class WeaponSwap : Interactable
         Init(WeaponEnum);
 
         if (IsServer) SyncNameEnum.Value = WeaponEnum;
-
-        //SyncNameEnum.OnValueChanged += OnNetworkNameChanged;
     }
 
     public override void OnInteractPress()
     {
         base.OnInteractPress();
 
+        // we are closest so we can try swap out weapon
         WeaponEnum = SyncNameEnum.Value;
 
         if (WeaponSwapCanvas_v2.Instance.isCanvasOpen)

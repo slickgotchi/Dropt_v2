@@ -217,20 +217,25 @@ public class PlayerHUDCanvas : MonoBehaviour
     private void UpdateDust()
     {
         var dust = LevelManager.Instance.IsDegenapeVillage() ? m_localPlayerDungeonData.dustBalance_offchain : m_localPlayerDungeonData.dustLiveCount_dungeon;
-        m_dustText.text = dust.Value.ToString();
+        m_dustText.text = dust.ToString();
     }
 
     private void UpdateBombs()
     {
         var bombs = LevelManager.Instance.IsDegenapeVillage() ? m_localPlayerDungeonData.bombBalance_offchain : m_localPlayerDungeonData.bombLiveCount_dungeon;
-        m_bombsText.text = bombs.Value.ToString("F0");
+        m_bombsText.text = bombs.ToString("F0");
     }
 
     private void UpdateEcto()
     {
-        m_ectoText.text = LevelManager.Instance.IsDegenapeVillage() ?
-            m_localPlayerDungeonData.ectoBalance_offchain.Value.ToString("F0") :
-            "(" + m_localPlayerDungeonData.ectoDebitCount_dungeon.Value + ") " + m_localPlayerDungeonData.ectoLiveCount_dungeon.Value;
+        if (LevelManager.Instance.IsDegenapeVillage())
+        {
+            m_ectoText.text = m_localPlayerDungeonData.ectoBalance_offchain.ToString("F0");
+        }
+        else
+        {
+            m_ectoText.text = "(" + m_localPlayerDungeonData.ectoDebitCount_dungeon + ") " + m_localPlayerDungeonData.ectoLiveCount_dungeon;
+        }
     }
 
     private void UpdateEssence()
@@ -305,8 +310,8 @@ public class PlayerHUDCanvas : MonoBehaviour
 
     public void UpdateHealSlaveUpItem()
     {
-        m_healSlaveChargeText.text = m_localPlayerDungeonData.healSalveChargeCount_dungeon.Value.ToString();
-        float fillAmount = m_localPlayerDungeonData.healSalveChargeCount_dungeon.Value / (float)m_localPlayerDungeonData.healSalveDungeonCharges_offchain.Value;
+        m_healSlaveChargeText.text = m_localPlayerDungeonData.healSalveChargeCount_dungeon.ToString();
+        float fillAmount = m_localPlayerDungeonData.healSalveChargeCount_dungeon / (float)m_localPlayerDungeonData.healSalveDungeonCharges_offchain;
         m_healSlaveUpImage.fillAmount = fillAmount;
     }
 }

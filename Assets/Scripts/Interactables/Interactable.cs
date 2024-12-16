@@ -122,6 +122,9 @@ public class Interactable : NetworkBehaviour
 
         if (status == Status.Inactive) return;
 
+        // if we are not the closest interactable, don't do any of the below code
+        if (!IsClosestInteractable()) return;
+
         OnTriggerUpdateInteraction();
 
         if (interactableType == InteractableType.Press)
@@ -165,6 +168,26 @@ public class Interactable : NetworkBehaviour
                 m_holdTimer = -0.1f;
             }
         }
+    }
+
+    bool IsClosestInteractable()
+    {
+        if (localPlayerController == null) return false;
+
+        var interactables = FindObjectsByType<Interactable>(FindObjectsSortMode.None);
+        var closestDist = 1e9;
+        Interactable closestInteractable = null;
+        foreach (var interactable in interactables)
+        {
+            var dist = math.distance(localPlayerController.transform.position, interactable.transform.position);
+            if (dist < closestDist)
+            {
+                closestDist = dist;
+                closestInteractable = interactable;
+            }
+        }
+
+        return closestInteractable.gameObject == this.gameObject;
     }
 
     protected void TryGetLocalPlayerPrediction()
