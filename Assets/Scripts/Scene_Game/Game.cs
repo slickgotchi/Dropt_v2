@@ -86,7 +86,7 @@ public class Game : MonoBehaviour
                 QualitySettings.vSyncCount = 1;
 
                 // connect to a client game (leave gameId param "" to signify we want an empty game)
-                ConnectClientGame();
+                ConnectClientGame(Bootstrap.Instance.GameId);
             }
             else if (Bootstrap.IsHost())
             {
@@ -174,12 +174,12 @@ public class Game : MonoBehaviour
     {
         Debug.Log("ConnectClientGame()");
 
-        bool isGetEmptyGame = string.IsNullOrEmpty(gameId);
+        bool isReturnToTitleOnFail = string.IsNullOrEmpty(gameId) || Bootstrap.Instance.isJoiningFromTitle;
 
         if (m_unityTransport == null)
         {
             ErrorDialogCanvas.Instance.Show("Transports not available.");
-            if (isGetEmptyGame) SceneManager.LoadScene("Title");
+            if (isReturnToTitleOnFail) SceneManager.LoadScene("Title");
             return;
         }
 
@@ -197,7 +197,7 @@ public class Game : MonoBehaviour
                 if (response == null)
                 {
                     ErrorDialogCanvas.Instance.Show("The Dropt server manager is either full or not online, you can check https//manager.playdropt.io to see available instances.");
-                    if (isGetEmptyGame) SceneManager.LoadScene("Title");
+                    if (isReturnToTitleOnFail) SceneManager.LoadScene("Title");
                     return;
                 }
 
@@ -205,7 +205,7 @@ public class Game : MonoBehaviour
                 if (response.responseCode != 200)
                 {
                     ErrorDialogCanvas.Instance.Show(response.message);
-                    if (isGetEmptyGame) SceneManager.LoadScene("Title");
+                    if (isReturnToTitleOnFail) SceneManager.LoadScene("Title");
                     return;
                 }
 
@@ -270,6 +270,7 @@ public class Game : MonoBehaviour
         {
             success = NetworkManager.Singleton.StartClient();
             Debug.Log("StartClient()");
+            Bootstrap.Instance.isJoiningFromTitle = false;
         }
         else if (Bootstrap.IsServer())
         {
@@ -283,28 +284,16 @@ public class Game : MonoBehaviour
             Debug.Log("StartHost()");
         }
 
+
         return success;
     }
 
-    public void ReconnectClientGame()
-    {
-        if (!Bootstrap.IsClient()) return;
-
-        Debug.Log("ReconnectClientGame");
-        ConnectClientGame(m_currentGameId);
-    }
-
-    //public void StartClientReconnectionTimer(float duration = 30f)
+    //public void ReconnectClientGame()
     //{
-    //    if (!Bootstrap.IsServer()) return;
+    //    if (!Bootstrap.IsClient()) return;
 
-    //    isReconnectTimerActive = true;
-    //    reconnectTimer = duration;
-    //}
-
-    //public bool IsClientReconnecting()
-    //{
-    //    return isReconnectTimerActive && reconnectTimer > 0;
+    //    Debug.Log("ReconnectClientGame");
+    //    ConnectClientGame(m_currentGameId);
     //}
 
     public void ConnectHostGame()
