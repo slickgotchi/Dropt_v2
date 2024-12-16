@@ -13,11 +13,22 @@ public class NetworkPrefabsListEditor : EditorWindow
         GetWindow<NetworkPrefabsListEditor>("Network Prefabs List Updater");
     }
 
+    private void OnEnable()
+    {
+        // Try to find and assign the DefaultNetworkPrefabs asset in the project
+        AssignDefaultNetworkPrefabs();
+    }
+
     private void OnGUI()
     {
         GUILayout.Label("Network Prefabs List Updater", EditorStyles.boldLabel);
 
-        networkPrefabsList = (NetworkPrefabsList)EditorGUILayout.ObjectField("Network Prefabs List", networkPrefabsList, typeof(NetworkPrefabsList), false);
+        networkPrefabsList = (NetworkPrefabsList)EditorGUILayout.ObjectField(
+            "Network Prefabs List",
+            networkPrefabsList,
+            typeof(NetworkPrefabsList),
+            false
+        );
 
         if (networkPrefabsList == null)
         {
@@ -50,14 +61,12 @@ public class NetworkPrefabsListEditor : EditorWindow
         }
 
         // Update the NetworkPrefabsList
-        // Remove existing prefabs
         var existingPrefabs = new List<NetworkPrefab>(networkPrefabsList.PrefabList);
         foreach (var prefab in existingPrefabs)
         {
             networkPrefabsList.Remove(prefab);
         }
 
-        // Add new prefabs
         foreach (var prefab in newNetworkPrefabs)
         {
             networkPrefabsList.Add(prefab);
@@ -67,5 +76,21 @@ public class NetworkPrefabsListEditor : EditorWindow
         AssetDatabase.SaveAssets();
 
         Debug.Log("Network Prefabs List updated successfully.");
+    }
+
+    private void AssignDefaultNetworkPrefabs()
+    {
+        // Find the first asset of type NetworkPrefabsList in the project
+        string[] guids = AssetDatabase.FindAssets("t:NetworkPrefabsList");
+        if (guids.Length > 0)
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guids[0]);
+            networkPrefabsList = AssetDatabase.LoadAssetAtPath<NetworkPrefabsList>(path);
+            Debug.Log($"Assigned Default NetworkPrefabsList: {path}");
+        }
+        else
+        {
+            Debug.LogWarning("No NetworkPrefabsList asset found in the project.");
+        }
     }
 }
