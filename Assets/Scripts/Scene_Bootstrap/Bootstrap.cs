@@ -63,7 +63,7 @@ public class Bootstrap : MonoBehaviour
     public string IpAddress = "178.128.22.77";
     public ushort GamePort = 9000;
     public ushort WorkerPort = 3000;
-    public string GameId = "default";
+    public string GameId = "";
     public string HeartbeatSecret = "";
     public string DomainName = "";
 
@@ -72,6 +72,8 @@ public class Bootstrap : MonoBehaviour
     public string TestWalletAddress = "0xtest";
 
     private bool m_isUnityEditor = false;
+
+    [HideInInspector] public bool isJoiningFromTitle = false;
 
     [SerializeField] private GameObject StartupButtons;
 

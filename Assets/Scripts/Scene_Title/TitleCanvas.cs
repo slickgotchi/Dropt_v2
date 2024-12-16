@@ -10,6 +10,8 @@ public class TitleCanvas : MonoBehaviour
 {
     [SerializeField] private Button playButton;
     [SerializeField] private Button optionsButton;
+    [SerializeField] private Button joinButton;
+    [SerializeField] private TMPro.TMP_InputField joinInputField;
     [SerializeField] private TMPro.TMP_Dropdown regionDropdown;
     [SerializeField] private CanvasGroup m_fadeOutCanvasGroup;
     [SerializeField] private float m_fadeOutDuration = 1f;
@@ -32,7 +34,7 @@ public class TitleCanvas : MonoBehaviour
         // play button listener
         playButton.onClick.AddListener(() =>
         {
-            //LoadingCanvas.Instance.InstaBlack();
+            if (Bootstrap.IsClient()) Bootstrap.Instance.GameId = "";
             LoadingCanvas.Instance.WipeIn();
             SceneManager.LoadScene("Game");
         });
@@ -40,6 +42,14 @@ public class TitleCanvas : MonoBehaviour
         optionsButton.onClick.AddListener(() =>
         {
             OptionsMenuCanvas.Instance.ShowMenu();
+        });
+
+        joinButton.onClick.AddListener(() =>
+        {
+            Bootstrap.Instance.GameId = joinInputField.text;
+            Bootstrap.Instance.isJoiningFromTitle = true;
+            LoadingCanvas.Instance.WipeIn();
+            SceneManager.LoadScene("Game");
         });
 
         if (Defines.FAST_START)
