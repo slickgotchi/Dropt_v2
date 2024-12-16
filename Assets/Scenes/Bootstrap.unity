@@ -1598,6 +1598,7 @@ MonoBehaviour:
   networkObjectCountText: {fileID: 191208914}
   gameObjectCountText: {fileID: 1856830320}
   networkVariableCountText: {fileID: 879671507}
+  versionText: {fileID: 1998827857}
 --- !u!225 &383608115
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -3980,7 +3981,7 @@ MonoBehaviour:
   m_ProtocolType: 0
   m_UseWebSockets: 1
   m_UseEncryption: 1
-  m_MaxPacketQueueSize: 128
+  m_MaxPacketQueueSize: 512
   m_MaxPayloadSize: 6144
   m_HeartbeatTimeoutMS: 500
   m_ConnectTimeoutMS: 1000
@@ -5594,10 +5595,11 @@ MonoBehaviour:
   region: 2
   NetworkRole: 0
   ConnectionType: 0
-  AutoBoot: 1
+  AutoBoot: 0
   AutoPlay: 1
   UseServerManager: 0
   ShowTutorialLevel: 0
+  Version: 0.0.8
   IpAddress: 192.241.141.211
   GamePort: 9000
   WorkerPort: 3000

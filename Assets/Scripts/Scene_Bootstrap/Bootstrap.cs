@@ -58,6 +58,7 @@ public class Bootstrap : MonoBehaviour
     public bool AutoPlay = false;
     public bool UseServerManager = false;
     public bool ShowTutorialLevel = false;
+    public string Version = "0.0.0";
 
     public string IpAddress = "178.128.22.77";
     public ushort GamePort = 9000;
