@@ -179,11 +179,21 @@ public class Interactable : NetworkBehaviour
         Interactable closestInteractable = null;
         foreach (var interactable in interactables)
         {
-            var dist = math.distance(localPlayerController.transform.position, interactable.transform.position);
-            if (dist < closestDist)
+            var interactableCollider = interactable.GetComponent<Collider2D>();
+            if (interactableCollider != null)
             {
-                closestDist = dist;
-                closestInteractable = interactable;
+                var interactionPos = interactable.transform.position + new Vector3(interactableCollider.offset.x, interactableCollider.offset.y, 0);
+
+                var dist = math.distance(localPlayerController.transform.position, interactionPos);
+                if (dist < closestDist)
+                {
+                    closestDist = dist;
+                    closestInteractable = interactable;
+                }
+            }
+            else
+            {
+                Debug.LogWarning("Interactable " + interactable.name + " does not have a Collider2D for interaction on its root gameobject");
             }
         }
 
