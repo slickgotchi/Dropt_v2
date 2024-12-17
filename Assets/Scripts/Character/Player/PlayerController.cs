@@ -418,12 +418,23 @@ public class PlayerController : NetworkBehaviour
         {
             GoNextLevelServerRpc();
         }
+
+        if (Input.GetKeyDown(KeyCode.H))
+        {
+            GoToDegenapeVillageServerRpc();
+        }
     }
 
     [Rpc(SendTo.Server)]
     private void GoNextLevelServerRpc()
     {
         LevelManager.Instance.StartTransitionToNextLevel_SERVER();
+    }
+
+    [Rpc(SendTo.Server)]
+    private void GoToDegenapeVillageServerRpc()
+    {
+        LevelManager.Instance.GoToDegenapeVillageLevel_SERVER();
     }
 
     private void HandleDegenapeHpAp()
