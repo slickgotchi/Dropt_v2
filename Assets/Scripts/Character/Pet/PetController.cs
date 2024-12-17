@@ -121,6 +121,8 @@ public class PetController : NetworkBehaviour
         m_agent.enabled = true;
     }
 
+    private Vector3 m_velocity = Vector3.zero;
+
     private void Update()
     {
         //if (m_petOwner == null) return;
@@ -132,7 +134,8 @@ public class PetController : NetworkBehaviour
             return;
         }
 
-        m_transform.position = Vector3.Lerp(m_transform.position, m_petPosition.Value, m_petSettings.Speed * Time.deltaTime);
+        //m_transform.position = Vector3.Lerp(m_transform.position, m_petPosition.Value, m_petSettings.Speed * Time.deltaTime);
+        m_transform.position = Vector3.SmoothDamp(m_transform.position, m_petPosition.Value, ref m_velocity, 0.3f);
     }
 
     public void FollowOwner()
