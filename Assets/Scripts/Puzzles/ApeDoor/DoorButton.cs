@@ -6,7 +6,7 @@ using UnityEngine;
 public abstract class DoorButton<T> : NetworkBehaviour where T : Enum
 {
     [Header("State")]
-    public NetworkVariable<T> Type;
+    public NetworkVariable<T> DoorType;
     public NetworkVariable<ButtonState> State;
     public int spawnerId = -1;
 
@@ -14,7 +14,7 @@ public abstract class DoorButton<T> : NetworkBehaviour where T : Enum
 
     protected SpriteRenderer m_spriteRenderer;
 
-    public void Awake()
+    public virtual void Awake()
     {
         //Debug.Log("AWAKE BUTTON");
         m_spriteRenderer = GetComponent<SpriteRenderer>();
@@ -25,19 +25,31 @@ public abstract class DoorButton<T> : NetworkBehaviour where T : Enum
     {
         base.OnNetworkSpawn();
         State.OnValueChanged += OnButtonStateChange;
+        //DoorType.OnValueChanged += OnDoorTypeChange;
+        //Type = new NetworkVariable<T>(initType);
+        //UpdateSprite();
         if (IsServer)
         {
-            //Debug.Log("TYPE-" + initType);
-            Type = new NetworkVariable<T>(initType);
-            UpdateInitialSpriteClientRpc();
+            //Debug.Log("BEFORE TYPE-" + initType);
+            DoorType.Value = initType;
+            //Debug.Log("AFTER TYPE -" + DoorType.Value);
         }
+
+        //Debug.Log("DoorType -> " + DoorType.Value);
     }
 
-    [ClientRpc]
-    private void UpdateInitialSpriteClientRpc()
-    {
-        UpdateSprite();
-    }
+    //private void OnDoorTypeChange(T previousValue, T newValue)
+    //{
+    //    Debug.Log("TYPE -> " + DoorType.Value);
+    //    UpdateSprite();
+    //}
+
+    //[ClientRpc]
+    //private void UpdateInitialSpriteClientRpc()
+    //{
+    //    Debug.Log("TYPE -> " + DoorType.Value);
+    //    UpdateSprite();
+    //}
 
     private void OnButtonStateChange(ButtonState previousValue, ButtonState newValue)
     {
@@ -112,6 +124,13 @@ public abstract class DoorButton<T> : NetworkBehaviour where T : Enum
                 btn.State.Value = ButtonState.DownLocked;
             }
         }
+    }
+
+    private void Update()
+    {
+        //Debug.Log("DoorType -> " + DoorType.Value);
+        if (IsClient)
+            UpdateSprite();
     }
 
     public abstract void UpdateSprite();
