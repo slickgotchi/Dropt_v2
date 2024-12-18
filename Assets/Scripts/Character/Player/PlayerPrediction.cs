@@ -198,7 +198,8 @@ public partial class PlayerPrediction : NetworkBehaviour
     private void Update()
     {
         // don't run if the player is dead
-        if (GetComponent<PlayerController>().IsDead) return;
+        var playerController = GetComponent<PlayerController>();
+        if (playerController == null || playerController.IsDead) return;
 
         // timer stuff
         float dt = Time.deltaTime;
@@ -237,6 +238,10 @@ public partial class PlayerPrediction : NetworkBehaviour
     // NEW: We now let the NetworkTimer_v2 call the Tick function for us
     public void Tick()
     {
+        // don't run if the player is dead
+        var playerController = GetComponent<PlayerController>();
+        if (playerController == null || playerController.IsDead) return;
+
         HandleClientTick();
         HandleServerTick();
     }

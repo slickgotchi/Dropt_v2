@@ -217,7 +217,7 @@ public class PlayerHUDCanvas : MonoBehaviour
     private void UpdateDust()
     {
         var dust = LevelManager.Instance.IsDegenapeVillage() ? m_localPlayerDungeonData.dustBalance_offchain : m_localPlayerDungeonData.dustLiveCount_dungeon;
-        m_dustText.text = dust.ToString();
+        m_dustText.text = dust.ToString() + " x" + CodeInjector.Instance.GetOutputMultiplier();
     }
 
     private void UpdateBombs()

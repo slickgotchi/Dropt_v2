@@ -73,6 +73,6 @@ public class EscapePortal : Interactable
         REKTCanvas.Instance.Show(REKTCanvas.TypeOfREKT.Escaped);
 
         // shutdown the networkmanager for the client
-        NetworkManager.Singleton.Shutdown();
+        //NetworkManager.Singleton.Shutdown();
     }
 }
