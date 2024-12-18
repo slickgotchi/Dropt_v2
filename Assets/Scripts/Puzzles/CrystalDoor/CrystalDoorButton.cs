@@ -18,11 +18,11 @@ public class CrystalDoorButton : DoorButton<CrystalDoorType>
     [SerializeField] private Sprite m_Moustache_Up;
     [SerializeField] private Sprite m_Moustache_Down;
 
-    //public override void Awake()
-    //{
-    //    base.Awake();
-    //    Type = new NetworkVariable<CrystalDoorType>(CrystalDoorType.R);
-    //}
+    public override void Awake()
+    {
+        base.Awake();
+        DoorType = new NetworkVariable<CrystalDoorType>(CrystalDoorType.R);
+    }
 
     public override Door<CrystalDoorType>[] GetAllOtherDoor()
     {
@@ -38,7 +38,7 @@ public class CrystalDoorButton : DoorButton<CrystalDoorType>
     {
         if (State.Value == ButtonState.Up)
         {
-            switch (Type.Value)
+            switch (DoorType.Value)
             {
                 case CrystalDoorType.R: m_spriteRenderer.sprite = m_R_Up; break;
                 case CrystalDoorType.Ghost: m_spriteRenderer.sprite = m_Ghost_Up; break;
@@ -50,7 +50,7 @@ public class CrystalDoorButton : DoorButton<CrystalDoorType>
         }
         else
         {
-            switch (Type.Value)
+            switch (DoorType.Value)
             {
                 case CrystalDoorType.R: m_spriteRenderer.sprite = m_R_Down; break;
                 case CrystalDoorType.Ghost: m_spriteRenderer.sprite = m_Ghost_Down; break;

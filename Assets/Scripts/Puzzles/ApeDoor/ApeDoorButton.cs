@@ -1,3 +1,4 @@
+using Unity.Netcode;
 using UnityEngine;
 
 public class ApeDoorButton : DoorButton<ApeDoorType>
@@ -18,11 +19,11 @@ public class ApeDoorButton : DoorButton<ApeDoorType>
     public Sprite SquareUp;
     public Sprite SquareDown;
 
-    //public override void Awake()
-    //{
-    //    base.Awake();
-    //    //Type = new NetworkVariable<ApeDoorType>(ApeDoorType.Crescent);
-    //}
+    public override void Awake()
+    {
+        base.Awake();
+        DoorType = new NetworkVariable<ApeDoorType>(ApeDoorType.Crescent);
+    }
 
     public override Door<ApeDoorType>[] GetAllOtherDoor()
     {
@@ -38,7 +39,7 @@ public class ApeDoorButton : DoorButton<ApeDoorType>
     {
         if (State.Value == ButtonState.Up)
         {
-            switch (Type.Value)
+            switch (DoorType.Value)
             {
                 case ApeDoorType.Crescent: m_spriteRenderer.sprite = CrescentUp; break;
                 case ApeDoorType.Triangle: m_spriteRenderer.sprite = TriangleUp; break;
@@ -50,7 +51,7 @@ public class ApeDoorButton : DoorButton<ApeDoorType>
         }
         else
         {
-            switch (Type.Value)
+            switch (DoorType.Value)
             {
                 case ApeDoorType.Crescent: m_spriteRenderer.sprite = CrescentDown; break;
                 case ApeDoorType.Triangle: m_spriteRenderer.sprite = TriangleDown; break;
