@@ -101,7 +101,7 @@ public class FussPot_EruptProjectile : NetworkBehaviour
 
         // update target marker size
         float alpha = (Duration - m_timer) / Duration;
-        float targetScale = alpha * HitRadius * 2;
+		float targetScale = alpha * HitRadius * 2;
         TargetMarker.transform.localScale = new Vector3(targetScale, targetScale * 0.7f, 1);
     }
 }
