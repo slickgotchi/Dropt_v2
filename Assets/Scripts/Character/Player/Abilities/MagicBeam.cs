@@ -100,7 +100,7 @@ public class MagicBeam : PlayerAbility
             {
                 var damage = playerCharacter.GetAttackPower() * DamageMultiplier * ActivationWearable.RarityMultiplier;
                 bool isCritical = playerCharacter.IsCriticalAttack();
-                damage = (int)(isCritical ? damage * playerCharacter.CriticalDamage.Value : damage);
+                damage = (int)(isCritical ? damage * playerCharacter.currentStaticStats.CriticalDamage : damage);
 
                 var networkCharacter = m_targets[i].GetComponent<NetworkCharacter>();
                 var destructible = m_targets[i].GetComponent<Destructible>();

@@ -100,9 +100,9 @@ public class SplashLob : PlayerAbility
                 Wearable.WeaponTypeEnum.Splash, wearableNameEnum,
                 
                 Player,
-                playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier * DamageMultiplier,
-                playerCharacter.CriticalChance.Value,
-                playerCharacter.CriticalDamage.Value,
+                playerCharacter.currentStaticStats.AttackPower * ActivationWearable.RarityMultiplier * DamageMultiplier,
+                playerCharacter.currentStaticStats.CriticalChance,
+                playerCharacter.currentStaticStats.CriticalDamage,
                 KnockbackDistance,
                 KnockbackStunDuration);
 

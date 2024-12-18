@@ -36,20 +36,20 @@ public class StatBarCanvas : MonoBehaviour
     private void UpdateStatBarsShowIfBelow100()
     {
         // update sliders
-        hpSlider.maxValue = m_character.HpMax.Value;
-        hpSlider.value = m_character.HpCurrent.Value;
-        apSlider.maxValue = m_character.ApMax.Value;
-        apSlider.value = m_character.ApCurrent.Value;
-        shieldSlider.maxValue = m_character.MaxEnemyShield.Value;
-        shieldSlider.value = m_character.EnemyShield.Value;
+        hpSlider.maxValue = m_character.currentStaticStats.HpMax;
+        hpSlider.value = m_character.currentDynamicStats.HpCurrent;
+        apSlider.maxValue = m_character.currentStaticStats.ApMax;
+        apSlider.value = m_character.currentDynamicStats.ApCurrent;
+        shieldSlider.maxValue = m_character.currentStaticStats.MaxEnemyShield;
+        shieldSlider.value = m_character.currentDynamicStats.EnemyShield;
 
-        bool isShieldActive = m_character.EnemyShield.Value > 0;
+        bool isShieldActive = m_character.currentDynamicStats.EnemyShield > 0;
 
         shieldSlider.gameObject.SetActive(isShieldActive);
         hpSlider.gameObject.SetActive(!isShieldActive);
 
         // hide ap bar if char has no AP stat
-        if (m_character.ApMax.Value <= 0)
+        if (m_character.currentStaticStats.ApMax <= 0)
         {
             apSlider.gameObject.SetActive(false);
         }
@@ -62,7 +62,7 @@ public class StatBarCanvas : MonoBehaviour
         else
         {
             SetAlpha(0);
-            if (m_character.HpCurrent.Value - m_character.HpMax.Value < 0)
+            if (m_character.currentDynamicStats.HpCurrent - m_character.currentStaticStats.HpMax < 0)
             {
                 m_isDamaged = true;
             }

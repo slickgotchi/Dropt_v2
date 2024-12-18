@@ -43,21 +43,21 @@ public class NetworkCharacterDebugCanvas : MonoBehaviour
 
     private void UpdateText()
     {
-        HpMax.text = "HpMax: " + m_networkCharacter.HpMax.Value.ToString("F0");
-        HpCurrent.text = "HpCurrent: " + m_networkCharacter.HpCurrent.Value.ToString("F0");
-        HpBuffer.text = "HpBuffer: " + m_networkCharacter.HpBuffer.Value.ToString("F0");
-        AttackPower.text = "AttackPower: " + m_networkCharacter.AttackPower.Value.ToString("F0");
-        CriticalChance.text = "CriticalChance: " + m_networkCharacter.CriticalChance.Value.ToString("F2");
-        ApMax.text = "ApMax: " + m_networkCharacter.ApMax.Value.ToString("F0");
-        ApCurrent.text = "ApCurrent: " + m_networkCharacter.ApCurrent.Value.ToString("F0");
-        ApBuffer.text = "ApBuffer: " + m_networkCharacter.ApBuffer.Value.ToString("F0");
-        DoubleStrikeChance.text = "DoubleStrikeChance: " + m_networkCharacter.DoubleStrikeChance.Value.ToString("F2");
-        CriticalDamage.text = "CriticalDamage: " + m_networkCharacter.CriticalDamage.Value.ToString("F2");
-        MoveSpeed.text = "MoveSpeed: " + m_networkCharacter.MoveSpeed.Value.ToString("F2");
-        Accuracy.text = "Accuracy: " + m_networkCharacter.Accuracy.Value.ToString("F2");
-        Evasion.text = "Evasion: " + m_networkCharacter.Evasion.Value.ToString("F2");
-        DamageReduction.text = "DamageReduction: " + m_networkCharacter.DamageReduction.Value.ToString("F2");
-        ApLeech.text = "ApLeech: " + m_networkCharacter.ApLeech.Value.ToString("F2");
-        ApRegen.text = "ApRegen: " + m_networkCharacter.ApRegen.Value.ToString("F2");
+        HpMax.text = "HpMax: " + m_networkCharacter.currentStaticStats.HpMax.ToString("F0");
+        HpCurrent.text = "HpCurrent: " + m_networkCharacter.currentDynamicStats.HpCurrent.ToString("F0");
+        HpBuffer.text = "HpBuffer: " + m_networkCharacter.currentStaticStats.HpBuffer.ToString("F0");
+        AttackPower.text = "AttackPower: " + m_networkCharacter.currentStaticStats.AttackPower.ToString("F0");
+        CriticalChance.text = "CriticalChance: " + m_networkCharacter.currentStaticStats.CriticalChance.ToString("F2");
+        ApMax.text = "ApMax: " + m_networkCharacter.currentStaticStats.ApMax.ToString("F0");
+        ApCurrent.text = "ApCurrent: " + m_networkCharacter.currentDynamicStats.ApCurrent.ToString("F0");
+        ApBuffer.text = "ApBuffer: " + m_networkCharacter.currentStaticStats.ApBuffer.ToString("F0");
+        DoubleStrikeChance.text = "DoubleStrikeChance: " + m_networkCharacter.currentStaticStats.DoubleStrikeChance.ToString("F2");
+        CriticalDamage.text = "CriticalDamage: " + m_networkCharacter.currentStaticStats.CriticalDamage.ToString("F2");
+        MoveSpeed.text = "MoveSpeed: " + m_networkCharacter.currentStaticStats.MoveSpeed.ToString("F2");
+        Accuracy.text = "Accuracy: " + m_networkCharacter.currentStaticStats.Accuracy.ToString("F2");
+        Evasion.text = "Evasion: " + m_networkCharacter.currentStaticStats.Evasion.ToString("F2");
+        DamageReduction.text = "DamageReduction: " + m_networkCharacter.currentStaticStats.DamageReduction.ToString("F2");
+        ApLeech.text = "ApLeech: " + m_networkCharacter.currentStaticStats.ApLeech.ToString("F2");
+        ApRegen.text = "ApRegen: " + m_networkCharacter.currentStaticStats.ApRegen.ToString("F2");
     }
 }

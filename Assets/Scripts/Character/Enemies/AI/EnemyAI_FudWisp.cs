@@ -102,7 +102,7 @@ namespace Dropt
 
             Vector3 offsetVector = AttackRange * offset * dir;
             m_navMeshAgent.SetDestination(NearestPlayer.transform.position + offsetVector);
-            m_navMeshAgent.speed = networkCharacter.MoveSpeed.Value * PursueSpeedMultiplier;
+            m_navMeshAgent.speed = networkCharacter.currentStaticStats.MoveSpeed * PursueSpeedMultiplier;
 
             HandleAntiClumping();
             HandleAlertOthers();

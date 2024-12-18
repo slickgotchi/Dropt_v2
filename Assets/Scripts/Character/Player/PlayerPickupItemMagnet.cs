@@ -46,7 +46,7 @@ public class PlayerPickupItemMagnet : NetworkBehaviour
 
         if (pickupItem.gameObject.HasComponent<ApOrb>())
         {
-            PlayerDungeonData.GetComponent<NetworkCharacter>().ApCurrent.Value +=
+            PlayerDungeonData.GetComponent<NetworkCharacter>().currentDynamicStats.ApCurrent +=
                 pickupItem.GetComponent<ApOrb>().GetValue();
         }
 

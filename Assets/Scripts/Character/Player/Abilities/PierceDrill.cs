@@ -188,10 +188,10 @@ public class PierceDrill : PlayerAbility
             if (hit.HasComponent<NetworkCharacter>())
             {
                 var playerCharacter = Player.GetComponent<NetworkCharacter>();
-                var damage = playerCharacter.AttackPower.Value * DamageMultiplier * ActivationWearable.RarityMultiplier;
+                var damage = playerCharacter.currentStaticStats.AttackPower * DamageMultiplier * ActivationWearable.RarityMultiplier;
                 damage = GetRandomVariation(damage);
-                var isCritical = IsCriticalAttack(playerCharacter.CriticalChance.Value);
-                damage = (int)(isCritical ? damage * playerCharacter.CriticalDamage.Value : damage);
+                var isCritical = IsCriticalAttack(playerCharacter.currentStaticStats.CriticalChance);
+                damage = (int)(isCritical ? damage * playerCharacter.currentStaticStats.CriticalDamage : damage);
                 hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical, Player);
 
                 // do knockback if enemy

@@ -459,11 +459,11 @@ namespace Dropt
             if (networkCharacter == null) return;
 
             // if we're dead, don't do anymore knockback
-            if (networkCharacter.IsDead.Value) return;
+            if (networkCharacter.currentDynamicStats.IsDead) return;
 
             // account for multipliers
-            distance *= networkCharacter.KnockbackMultiplier.Value;
-            stunTime *= networkCharacter.StunMultiplier.Value;
+            distance *= networkCharacter.currentStaticStats.KnockbackMultiplier;
+            stunTime *= networkCharacter.currentStaticStats.StunMultiplier;
 
             // recalc distance allowing for collisions
             distance = CalculateKnockbackDistance(direction, distance);
@@ -514,7 +514,7 @@ namespace Dropt
             // check if player is dead
             var networkCharacter = GetComponent<NetworkCharacter>();
             if (networkCharacter == null) return;
-            if (networkCharacter.IsDead.Value) return;
+            if (networkCharacter.currentDynamicStats.IsDead) return;
 
             m_knockbackTimer += dt;
             var alpha = math.min(m_knockbackTimer / m_knockbackDuration, 1);
@@ -536,7 +536,7 @@ namespace Dropt
             // check if player is dead
             var networkCharacter = GetComponent<NetworkCharacter>();
             if (networkCharacter == null) return;
-            if (networkCharacter.IsDead.Value) return;
+            if (networkCharacter.currentDynamicStats.IsDead) return;
 
             m_stunTimer -= dt;
             if (m_stunTimer < 0)
