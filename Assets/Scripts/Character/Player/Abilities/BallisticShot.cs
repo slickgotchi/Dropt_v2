@@ -117,9 +117,9 @@ public class BallisticShot : PlayerAbility
             no_projectile.Init(startPosition, direction, distance, duration, 1,
                 IsServer ? PlayerAbility.NetworkRole.Server : PlayerAbility.NetworkRole.LocalClient, 
                 Wearable.WeaponTypeEnum.Ballistic, Player,
-                playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier * DamageMultiplier,
-                playerCharacter.CriticalChance.Value,
-                playerCharacter.CriticalDamage.Value,
+                playerCharacter.currentStaticStats.AttackPower * ActivationWearable.RarityMultiplier * DamageMultiplier,
+                playerCharacter.currentStaticStats.CriticalChance,
+                playerCharacter.currentStaticStats.CriticalDamage,
                 ActivationInput.actionDirection,
                 KnockbackDistance,
                 KnockbackStunDuration);

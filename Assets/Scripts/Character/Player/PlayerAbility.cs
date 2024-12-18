@@ -232,7 +232,7 @@ public class PlayerAbility : NetworkBehaviour
         // deduct ap from the player
         if (IsServer)
         {
-            Player.GetComponent<NetworkCharacter>().ApCurrent.Value -= ApCost;
+            Player.GetComponent<NetworkCharacter>().currentDynamicStats.ApCurrent -= ApCost;
         }
 
         // hide the player relevant hand
@@ -523,7 +523,7 @@ public class PlayerAbility : NetworkBehaviour
                 {
                     var damage = playerCharacter.GetAttackPower() * damageMultiplier * ActivationWearable.RarityMultiplier;
                     isCritical = playerCharacter.IsCriticalAttack();
-                    damage = (int)(isCritical ? damage * playerCharacter.CriticalDamage.Value : damage);
+                    damage = (int)(isCritical ? damage * playerCharacter.currentStaticStats.CriticalDamage : damage);
 
                     hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical, Player);
 

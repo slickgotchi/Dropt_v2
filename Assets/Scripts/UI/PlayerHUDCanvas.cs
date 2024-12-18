@@ -185,16 +185,16 @@ public class PlayerHUDCanvas : MonoBehaviour
     private void UpdateStatBars()
     {
         // HP
-        var maxHp = m_localPlayerCharacter.HpMax.Value + m_localPlayerCharacter.HpBuffer.Value;
-        var currHp = m_localPlayerCharacter.HpCurrent.Value;
+        var maxHp = m_localPlayerCharacter.currentStaticStats.HpMax + m_localPlayerCharacter.currentStaticStats.HpBuffer;
+        var currHp = m_localPlayerCharacter.currentDynamicStats.HpCurrent;
 
         m_hpImage.fillAmount = currHp / maxHp;
 
         m_hpText.text = currHp.ToString("F0") + " / " + maxHp.ToString("F0");
 
         // AP
-        var maxAp = m_localPlayerCharacter.ApMax.Value + m_localPlayerCharacter.ApBuffer.Value;
-        var currAp = m_localPlayerCharacter.ApCurrent.Value;
+        var maxAp = m_localPlayerCharacter.currentStaticStats.ApMax + m_localPlayerCharacter.currentStaticStats.ApBuffer;
+        var currAp = m_localPlayerCharacter.currentDynamicStats.ApCurrent;
 
         m_apImage.fillAmount = currAp / maxAp;
 

@@ -443,8 +443,8 @@ public class PlayerController : NetworkBehaviour
 
         if (LevelManager.Instance.IsDegenapeVillage())
         {
-            m_networkCharacter.HpCurrent.Value = m_networkCharacter.HpMax.Value;
-            m_networkCharacter.ApCurrent.Value = m_networkCharacter.ApMax.Value;
+            m_networkCharacter.currentDynamicStats.HpCurrent = m_networkCharacter.currentStaticStats.HpMax;
+            m_networkCharacter.currentDynamicStats.ApCurrent = m_networkCharacter.currentStaticStats.ApMax;
         }
     }
 

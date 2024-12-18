@@ -37,11 +37,11 @@ namespace Dropt
                 Vector3 finalDirection = math.lerp(randomDirection, toAnchorDirection, influenceFactor);
 
                 // calc a move distance
-                float distance = networkCharacter.MoveSpeed.Value * RoamSpeedMultiplier * m_roamChangeTimer;
+                float distance = networkCharacter.currentStaticStats.MoveSpeed * RoamSpeedMultiplier * m_roamChangeTimer;
 
                 // set nav mesh agent
                 m_navMeshAgent.SetDestination(transform.position + finalDirection * distance);
-                m_navMeshAgent.speed = networkCharacter.MoveSpeed.Value * RoamSpeedMultiplier;
+                m_navMeshAgent.speed = networkCharacter.currentStaticStats.MoveSpeed * RoamSpeedMultiplier;
             }
         }
 
@@ -58,7 +58,7 @@ namespace Dropt
             var offset = dir * PursueStopShortRange;
 
             m_navMeshAgent.SetDestination(NearestPlayer.transform.position + offset);
-            m_navMeshAgent.speed = networkCharacter.MoveSpeed.Value * PursueSpeedMultiplier;
+            m_navMeshAgent.speed = networkCharacter.currentStaticStats.MoveSpeed * PursueSpeedMultiplier;
 
             HandleAntiClumping();
             HandleAlertOthers();
@@ -94,7 +94,7 @@ namespace Dropt
             var dir = (transform.position - NearestPlayer.transform.position).normalized;
 
             m_navMeshAgent.SetDestination(transform.position + dir * 5f);
-            m_navMeshAgent.speed = networkCharacter.MoveSpeed.Value * FleeSpeedMultiplier;
+            m_navMeshAgent.speed = networkCharacter.currentStaticStats.MoveSpeed * FleeSpeedMultiplier;
 
             HandleAntiClumping();
             HandleAlertOthers();

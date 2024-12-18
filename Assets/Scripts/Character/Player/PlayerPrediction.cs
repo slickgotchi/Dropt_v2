@@ -256,7 +256,7 @@ public partial class PlayerPrediction : NetworkBehaviour
         var triggeredAbility = m_playerAbilities.GetAbility(m_triggeredAbilityEnum);
         if (triggeredAbility != null)
         {
-            bool isApEnough = m_networkCharacter.ApCurrent.Value >= triggeredAbility.ApCost;
+            bool isApEnough = m_networkCharacter.currentDynamicStats.ApCurrent >= triggeredAbility.ApCost;
             bool isCooldownFinished = triggeredAbility.IsCooldownFinished();
             bool isBlockedByOthers = !IsAttackCooldownFinished(Hand.Left) || !IsAttackCooldownFinished(Hand.Right) ||
                     !IsHoldCooldownFinished(Hand.Left) || !IsHoldCooldownFinished(Hand.Right);
@@ -276,7 +276,7 @@ public partial class PlayerPrediction : NetworkBehaviour
         var holdStartTriggeredAbility = m_playerAbilities.GetAbility(m_holdStartTriggeredAbilityEnum);
         if (holdStartTriggeredAbility != null)
         {
-            bool isEnoughAp = m_networkCharacter.ApCurrent.Value >= holdStartTriggeredAbility.ApCost;
+            bool isEnoughAp = m_networkCharacter.currentDynamicStats.ApCurrent >= holdStartTriggeredAbility.ApCost;
             bool isPredecessorAbility = IsLastAttackAbilityHoldPredecessor(m_lastActivatedAbilityEnum, m_holdStartTriggeredAbilityEnum);
 
             //Debug.Log($"isEnoughAp - {isEnoughAp}  isPredecessorAbility - {isPredecessorAbility}  !isHoldCancelled - { !isHoldCancelled }");
@@ -396,7 +396,7 @@ public partial class PlayerPrediction : NetworkBehaviour
             if (triggeredAbility != null && !IsHost)
             {
                 // check ap and cooldown sufficient
-                bool isApEnough = m_networkCharacter.ApCurrent.Value >= triggeredAbility.ApCost;
+                bool isApEnough = m_networkCharacter.currentDynamicStats.ApCurrent >= triggeredAbility.ApCost;
                 bool isCooldownFinished = triggeredAbility.IsCooldownFinished();
                 bool isBlockedByOthers = !IsAttackCooldownFinished(Hand.Left) || !IsAttackCooldownFinished(Hand.Right) ||
                         !IsHoldCooldownFinished(Hand.Left) || !IsHoldCooldownFinished(Hand.Right);
@@ -418,7 +418,7 @@ public partial class PlayerPrediction : NetworkBehaviour
             if (holdStartTriggeredAbility != null && !IsHost)
             {
                 // check AP only, we can't check against cooldown because we are commencing this attack within the starter attacks cooldown window
-                bool isEnoughAp = m_networkCharacter.ApCurrent.Value >= holdStartTriggeredAbility.ApCost;
+                bool isEnoughAp = m_networkCharacter.currentDynamicStats.ApCurrent >= holdStartTriggeredAbility.ApCost;
                 //bool isBlockedByOthers =
                 //    !IsAttackCooldownFinished(Hand.Left) ||
                 //    !IsAttackCooldownFinished(Hand.Right) ||
@@ -597,7 +597,7 @@ public partial class PlayerPrediction : NetworkBehaviour
         else
         {
             // generate velocity from char speed, move dir any potential abilities that slow down speed
-            rb.velocity = GetInputSlowFactor(input, isServerCalling) * m_networkCharacter.MoveSpeed.Value * input.moveDirection;
+            rb.velocity = GetInputSlowFactor(input, isServerCalling) * m_networkCharacter.currentStaticStats.MoveSpeed * input.moveDirection;
 
             // check for automove
             if (input.tick < m_autoMoveExpiryTick)

@@ -204,9 +204,9 @@ public class SplashVolley : PlayerAbility
                 explosionRadius, IsServer ? PlayerAbility.NetworkRole.Server : PlayerAbility.NetworkRole.LocalClient,
                 Wearable.WeaponTypeEnum.Splash, activationWearable,
                 Player,
-                playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier * DamageMultiplier,
-                playerCharacter.CriticalChance.Value,
-                playerCharacter.CriticalDamage.Value,
+                playerCharacter.currentStaticStats.AttackPower * ActivationWearable.RarityMultiplier * DamageMultiplier,
+                playerCharacter.currentStaticStats.CriticalChance,
+                playerCharacter.currentStaticStats.CriticalDamage,
                 KnockbackDistance,
                 KnockbackStunDuration);
 

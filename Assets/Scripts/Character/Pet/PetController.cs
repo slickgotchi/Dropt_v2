@@ -377,7 +377,7 @@ public class PetController : NetworkBehaviour
 
     public void ApplyDamageToEnemy(Transform enemyTransform)
     {
-        float damage = m_petMeter.basePetAttackMultiplier * m_damageMultiplier * m_petOwner.GetComponent<NetworkCharacter>().AttackPower.Value;
+        float damage = m_petMeter.basePetAttackMultiplier * m_damageMultiplier * m_petOwner.GetComponent<NetworkCharacter>().currentStaticStats.AttackPower;
         NetworkCharacter networkCharacter = enemyTransform.GetComponent<NetworkCharacter>();
         networkCharacter.TakeDamage(damage, false, m_petOwner.gameObject);
     }

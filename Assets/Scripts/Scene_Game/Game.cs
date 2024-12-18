@@ -11,8 +11,6 @@ using System.IO;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.SceneManagement;
-using System.Net.Sockets;
-using System.Reflection;
 
 public class Game : MonoBehaviour
 {
@@ -63,10 +61,6 @@ public class Game : MonoBehaviour
         m_unityTransport = NetworkManager.Singleton.GetComponent<UnityTransport>();
         if (m_unityTransport != null)
         {
-            // disable nagle algorith
-            DisableNagleAlgorithm();
-
-
             if (Bootstrap.IsLocalConnection())
             {
                 Bootstrap.Instance.IpAddress = "127.0.0.1";
@@ -355,41 +349,6 @@ public class Game : MonoBehaviour
             var networkObjects = FindObjectsByType<NetworkObject>(FindObjectsInactive.Include, FindObjectsSortMode.None);
             var gameObjects = FindObjectsByType<GameObject>(FindObjectsInactive.Include, FindObjectsSortMode.None);
             Debug.Log($"GameObjects: {gameObjects.Length}, Network Objects: {networkObjects.Length}");
-        }
-    }
-
-    void DisableNagleAlgorithm()
-    {
-        try
-        {
-            // Assuming you have access to the WebSocket or socket instance in Unity
-            var transport = NetworkManager.Singleton.GetComponent<UnityTransport>(); // Replace with your WebSocket/socket instance
-
-            // Access the private '_tcpClient' field
-            var tcpClientField = typeof(System.Net.WebSockets.WebSocket).GetField("_tcpClient",
-                BindingFlags.NonPublic | BindingFlags.Instance);
-
-            if (tcpClientField != null)
-            {
-                var tcpClient = tcpClientField.GetValue(transport) as TcpClient;
-                if (tcpClient != null)
-                {
-                    tcpClient.NoDelay = true; // Disable Nagle's Algorithm
-                    Debug.Log("Nagle's algorithm disabled successfully!");
-                }
-                else
-                {
-                    Debug.LogError("Failed to retrieve TcpClient.");
-                }
-            }
-            else
-            {
-                Debug.LogError("TcpClient field not found.");
-            }
-        }
-        catch (Exception ex)
-        {
-            Debug.LogError($"Error disabling Nagle's algorithm: {ex.Message}");
         }
     }
 
