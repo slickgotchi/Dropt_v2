@@ -64,7 +64,7 @@ public class Game : MonoBehaviour
         if (m_unityTransport != null)
         {
             // disable nagle algorith
-            DisableNagleAlgorithm();
+            //DisableNagleAlgorithm();
 
 
             if (Bootstrap.IsLocalConnection())
@@ -358,6 +358,7 @@ public class Game : MonoBehaviour
         }
     }
 
+    /*
     void DisableNagleAlgorithm()
     {
         try
@@ -392,6 +393,7 @@ public class Game : MonoBehaviour
             Debug.LogError($"Error disabling Nagle's algorithm: {ex.Message}");
         }
     }
+    */
 
     private string m_testGameServerCommonName = "test-game-server.playdropt.io";
 
