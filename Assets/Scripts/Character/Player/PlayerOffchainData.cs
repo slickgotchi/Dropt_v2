@@ -28,90 +28,6 @@ using Unity.Mathematics;
 
 public class PlayerOffchainData : NetworkBehaviour
 {
-    //[System.Serializable]
-    //public struct PlayerOffchainDataStruct : INetworkSerializable
-    //{
-    //    // wallet (offchain data)
-    //    public int ectoBalance_offchain;
-    //    public int dustBalance_offchain;
-    //    public int bombBalance_offchain;
-
-    //    // gotchi (offchain data)
-    //    public int ectoDungeonStartAmount_offchain;
-    //    public int bombDungeonCapacity_offchain;
-    //    public int healSalveDungeonCharges_offchain;
-    //    public bool isEssenceInfused_offchain;
-
-    //    // dungeon (dungeon run data set at the start of a dungeon run)
-    //    public int ectoDebitStartAmount_dungeon;
-    //    public int ectoDebitCount_dungeon;
-    //    public int ectoLiveCount_dungeon;
-    //    public int dustLiveCount_dungeon;
-    //    public int bombStartCount_dungeon;
-    //    public int bombLiveCount_dungeon;
-    //    public int healSalveChargeCount_dungeon;
-
-    //    // post dungeon deltas
-    //    public int postDungeonEctoDelta;
-    //    public int postDungeonDustDelta;
-    //    public int postDungeonBombDelta;
-
-    //    // Implement INetworkSerializable
-    //    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
-    //    {
-    //        // Serialize/Deserialize all fields in the struct
-    //        serializer.SerializeValue(ref ectoBalance_offchain);
-    //        serializer.SerializeValue(ref dustBalance_offchain);
-    //        serializer.SerializeValue(ref bombBalance_offchain);
-
-    //        serializer.SerializeValue(ref ectoDungeonStartAmount_offchain);
-    //        serializer.SerializeValue(ref bombDungeonCapacity_offchain);
-    //        serializer.SerializeValue(ref healSalveDungeonCharges_offchain);
-    //        serializer.SerializeValue(ref isEssenceInfused_offchain);
-
-    //        serializer.SerializeValue(ref ectoDebitStartAmount_dungeon);
-    //        serializer.SerializeValue(ref ectoDebitCount_dungeon);
-    //        serializer.SerializeValue(ref ectoLiveCount_dungeon);
-    //        serializer.SerializeValue(ref dustLiveCount_dungeon);
-    //        serializer.SerializeValue(ref bombStartCount_dungeon);
-    //        serializer.SerializeValue(ref bombLiveCount_dungeon);
-    //        serializer.SerializeValue(ref healSalveChargeCount_dungeon);
-
-    //        serializer.SerializeValue(ref postDungeonEctoDelta);
-    //        serializer.SerializeValue(ref postDungeonDustDelta);
-    //        serializer.SerializeValue(ref postDungeonBombDelta);
-    //    }
-    //}
-
-    //public NetworkVariable<PlayerOffchainDataStruct> data =
-    //    new NetworkVariable<PlayerOffchainDataStruct>(new PlayerOffchainDataStruct());
-
-    /*
-    // wallet (offchain data)
-    public NetworkVariable<int> ectoBalance_offchain = new NetworkVariable<int>(0);
-    public NetworkVariable<int> dustBalance_offchain = new NetworkVariable<int>(0);
-    public NetworkVariable<int> bombBalance_offchain = new NetworkVariable<int>(0);
-
-    // gotchi (offchain data)
-    public NetworkVariable<int> ectoDungeonStartAmount_offchain = new NetworkVariable<int>(0);
-    public NetworkVariable<int> bombDungeonCapacity_offchain = new NetworkVariable<int>(0);
-    public NetworkVariable<int> healSalveDungeonCharges_offchain = new NetworkVariable<int>(3);
-    public NetworkVariable<bool> isEssenceInfused_offchain = new NetworkVariable<bool>(false);
-
-    // dungeon (dungeon run data set at the start of a dungeon run)
-    public NetworkVariable<int> ectoDebitStartAmount_dungeon = new NetworkVariable<int>(0);
-    public NetworkVariable<int> ectoDebitCount_dungeon = new NetworkVariable<int>(0);       // this is the ecto out of your offchain bank account you start with
-    public NetworkVariable<int> ectoLiveCount_dungeon = new NetworkVariable<int>(0);        // this is the ecto that gets added to as you collect ecto, starts at 0
-    public NetworkVariable<int> dustLiveCount_dungeon = new NetworkVariable<int>(0);
-    public NetworkVariable<int> bombStartCount_dungeon = new NetworkVariable<int>(3);
-    public NetworkVariable<int> bombLiveCount_dungeon = new NetworkVariable<int>(0);
-    public NetworkVariable<int> healSalveChargeCount_dungeon = new NetworkVariable<int>(0);
-
-    private NetworkVariable<int> m_postDungeonEctoDelta = new NetworkVariable<int>(0);
-    private NetworkVariable<int> m_postDungeonDustDelta = new NetworkVariable<int>(0);
-    private NetworkVariable<int> m_postDungeonBombDelta = new NetworkVariable<int>(0);
-    */
-
     // wallet (offchain data)
     public int ectoBalance_offchain = 0;
     public int dustBalance_offchain = 0;
@@ -195,7 +111,7 @@ public class PlayerOffchainData : NetworkBehaviour
         }
     }
 
-    void SyncClientDataToServer()
+    void SyncServerDataToClient()
     {
         if (!IsServer) return;
 
@@ -350,7 +266,7 @@ public class PlayerOffchainData : NetworkBehaviour
                 ectoBalance_offchain = walletData.ecto_balance;
                 bombBalance_offchain = walletData.bomb_balance;
 
-                SyncClientDataToServer();
+                SyncServerDataToClient();
 
                 return;
             }
@@ -377,7 +293,7 @@ public class PlayerOffchainData : NetworkBehaviour
                 ectoBalance_offchain = walletData.ecto_balance;
                 bombBalance_offchain = walletData.bomb_balance;
 
-                SyncClientDataToServer();
+                SyncServerDataToClient();
 
                 Debug.Log("Create new wallet entry in offchain database for " + walletAddress);
                 return;
@@ -433,7 +349,7 @@ public class PlayerOffchainData : NetworkBehaviour
                 dustBalance_offchain = gotchiData.dust_balance;
                 isEssenceInfused_offchain = gotchiData.is_essence_infused;
 
-                SyncClientDataToServer();
+                SyncServerDataToClient();
 
                 return;
             }
@@ -466,7 +382,7 @@ public class PlayerOffchainData : NetworkBehaviour
                 dustBalance_offchain = gotchiData.dust_balance;
                 isEssenceInfused_offchain = gotchiData.is_essence_infused;
 
-                SyncClientDataToServer();
+                SyncServerDataToClient();
 
                 Debug.Log("Created new database entry for gotchi: " + gotchiId);
                 return;
@@ -504,7 +420,7 @@ public class PlayerOffchainData : NetworkBehaviour
         // heal charge to full
         healSalveChargeCount_dungeon = healSalveDungeonCharges_offchain;
 
-        SyncClientDataToServer();
+        SyncServerDataToClient();
     }
 
     // exit dungeon calculates new balances and updates the database
@@ -516,13 +432,25 @@ public class PlayerOffchainData : NetworkBehaviour
 
         m_postDungeonEctoDelta = isEscaped ?
             ectoDebitCount_dungeon - ectoDebitStartAmount_dungeon + ectoLiveCount_dungeon :
-            ectoDebitCount_dungeon - ectoDungeonStartAmount_offchain;
-        m_postDungeonDustDelta = isEscaped ?
-            (int)(dustLiveCount_dungeon * CodeInjector.Instance.GetOutputMultiplier()) :
-            0;
-        m_postDungeonBombDelta = bombLiveCount_dungeon - bombStartCount_dungeon;
+            ectoDebitCount_dungeon - ectoDebitStartAmount_dungeon;
 
         Debug.Log($"postDungeonEctoDelta: " + m_postDungeonEctoDelta);
+
+        //m_postDungeonDustDelta = isEscaped ?
+        //    (int)(dustLiveCount_dungeon * CodeInjector.Instance.GetOutputMultiplier()) :
+        //    0;
+
+        m_postDungeonDustDelta = 
+            (int)(dustLiveCount_dungeon * CodeInjector.Instance.GetOutputMultiplier())
+            ;
+
+        Debug.Log("m_postDungeonDustDelta: " + m_postDungeonDustDelta);
+
+        m_postDungeonBombDelta = bombLiveCount_dungeon - bombStartCount_dungeon;
+
+
+        SyncServerDataToClient();
+
 
         // log wallet deltas
         try
@@ -535,8 +463,6 @@ public class PlayerOffchainData : NetworkBehaviour
             ectoLiveCount_dungeon = 0;
             bombStartCount_dungeon = 0;
             bombLiveCount_dungeon = 0;
-            SyncClientDataToServer();
-
         }
         catch
         {
@@ -546,10 +472,10 @@ public class PlayerOffchainData : NetworkBehaviour
         // log gotchi deltas
         try
         {
-            await LogGotchiDeltaDataServerRpcAsync(GetComponent<PlayerController>().NetworkGotchiId.Value, m_postDungeonDustDelta);
+            await LogGotchiDeltaDataServerRpcAsync(
+                GetComponent<PlayerController>().NetworkGotchiId.Value,
+                isEscaped ? m_postDungeonDustDelta : 0);
             dustLiveCount_dungeon = 0;
-            SyncClientDataToServer();
-
         }
         catch
         {
@@ -578,7 +504,7 @@ public class PlayerOffchainData : NetworkBehaviour
                 ectoBalance_offchain = walletData.ecto_balance;
                 bombBalance_offchain = walletData.bomb_balance;
 
-                SyncClientDataToServer();
+                SyncServerDataToClient();
 
 
                 Debug.Log("set ecto balance to: " + ectoBalance_offchain);
@@ -609,7 +535,7 @@ public class PlayerOffchainData : NetworkBehaviour
                 Gotchi_Data gotchiData = JsonUtility.FromJson<Gotchi_Data>(responseStr);
                 dustBalance_offchain = gotchiData.dust_balance;
 
-                SyncClientDataToServer();
+                SyncServerDataToClient();
 
 
                 return;
@@ -628,7 +554,7 @@ public class PlayerOffchainData : NetworkBehaviour
 
         dustLiveCount_dungeon += value;
 
-        SyncClientDataToServer();
+        SyncServerDataToClient();
 
     }
 
@@ -640,7 +566,7 @@ public class PlayerOffchainData : NetworkBehaviour
 
         ectoLiveCount_dungeon += value;
 
-        SyncClientDataToServer();
+        SyncServerDataToClient();
 
 
         return true;
@@ -661,7 +587,7 @@ public class PlayerOffchainData : NetworkBehaviour
                 try
                 {
                     await LogWalletDeltaDataServerRpcAsync(-value, 0);
-                    SyncClientDataToServer();
+                    SyncServerDataToClient();
 
                     return true;
                 }
@@ -675,7 +601,7 @@ public class PlayerOffchainData : NetworkBehaviour
         else
         {
             var isSpent = TrySpendDungeonEcto(value);
-            SyncClientDataToServer();
+            SyncServerDataToClient();
 
             return isSpent;
         }
@@ -712,7 +638,7 @@ public class PlayerOffchainData : NetworkBehaviour
             ectoLiveCount_dungeon -= value;
         }
 
-        SyncClientDataToServer();
+        SyncServerDataToClient();
 
 
         return true;
@@ -790,7 +716,7 @@ public class PlayerOffchainData : NetworkBehaviour
         if (!IsServer) return;
 
         healSalveChargeCount_dungeon--;
-        SyncClientDataToServer();
+        SyncServerDataToClient();
 
     }
 
@@ -805,7 +731,7 @@ public class PlayerOffchainData : NetworkBehaviour
 
         bombLiveCount_dungeon--;
 
-        SyncClientDataToServer();
+        SyncServerDataToClient();
 
     }
 

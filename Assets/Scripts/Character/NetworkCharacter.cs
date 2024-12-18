@@ -271,7 +271,7 @@ public class NetworkCharacter : NetworkBehaviour
             if (HpCurrent.Value <= 0)
             {
                 HpCurrent.Value = 0;
-                Debug.Log("Hp hit 0, KillPlayer");
+                //Debug.Log("Hp hit 0, KillPlayer");
                 playerController.KillPlayer(REKTCanvas.TypeOfREKT.HP);
             }
 

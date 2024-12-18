@@ -272,9 +272,6 @@ public class PlayerController : NetworkBehaviour
 
         // show the game over canvas
         REKTCanvas.Instance.Show(typeOfREKT);
-
-        // shutdown the networkmanager for the client
-        NetworkManager.Singleton.Shutdown();
     }
 
     public void StartTransition()

@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
+using Unity.Netcode;
 
 public class REKTCanvas : MonoBehaviour
 {
@@ -44,8 +45,34 @@ public class REKTCanvas : MonoBehaviour
         DegenapeButton.onClick.AddListener(HandleClickDegenapeButton);
     }
 
+    //private bool m_isDisconnectTimerActive = false;
+    //private float m_disconnectTimer = 0f;
+    //private float k_disconnectTime = 10f;
+
+    public void Update()
+    {
+        if (!Bootstrap.IsClient()) return;
+
+        //m_disconnectTimer -= Time.deltaTime;
+        //if (m_isDisconnectTimerActive && m_disconnectTimer < 0)
+        //{
+        //    m_isDisconnectTimerActive = false;
+        //    NetworkManager.Singleton.Shutdown();
+        //}
+
+        //if (Container.activeSelf)
+        //{
+        //    InitializePlayerInfo();
+        //}
+    }
+
     public void Show(TypeOfREKT type)
     {
+        //m_isDisconnectTimerActive = true;
+        //m_disconnectTimer = k_disconnectTime;
+
+        InitializePlayerInfo();
+
         Type = type;
         Container.SetActive(true);
 
@@ -81,13 +108,18 @@ public class REKTCanvas : MonoBehaviour
         }
 
         DegenapeButton.GetComponentInChildren<TextMeshProUGUI>().text = "Return to Degenape Village";
-        InitializePlayerInfo();
+
+        //InitializeTime();
+
+        NetworkManager.Singleton.Shutdown();
     }
 
     private void HandleClickDegenapeButton()
     {
+        //m_isDisconnectTimerActive = false;
+        //NetworkManager.Singleton.Shutdown();
         Container.SetActive(false);
-
+        Bootstrap.Instance.GameId = "";
         SceneManager.LoadScene("Game");
     }
 
@@ -107,7 +139,7 @@ public class REKTCanvas : MonoBehaviour
         m_BankEctoDeltaText.color = ectoDelta < 0 ? new Color32(245, 85, 93, 255) : new Color32(153, 230, 95, 255);
 
         int dustDelta = playerOffchainData.GetDustDeltaValue();
-        m_GotchiDustCollectedText.text = dustDelta.ToString();
+        m_GotchiDustCollectedText.text = dustDelta.ToString() + " x" + CodeInjector.Instance.GetOutputMultiplier();
 
         int bombDelta = playerOffchainData.GetBombDeltaValue();
         m_BombsUsedText.text = bombDelta.ToString();
@@ -119,6 +151,18 @@ public class REKTCanvas : MonoBehaviour
         PlayerDungeonTime playerDungeonTime = player.GetComponent<PlayerDungeonTime>();
         m_dungeonTimerText.text = playerDungeonTime.ToString();
     }
+
+    //private void InitializeTime()
+    //{
+    //    GameObject player = GetLocalPlayer();
+    //    if (player == null)
+    //    {
+    //        Debug.LogWarning("No local player found");
+    //        return;
+    //    }
+
+        
+    //}
 
     private GameObject GetLocalPlayer()
     {
