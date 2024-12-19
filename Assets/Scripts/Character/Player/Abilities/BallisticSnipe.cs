@@ -16,7 +16,7 @@ public class BallisticSnipe : PlayerAbility
         new List<AttackPathVisualizer>();
 
     [Header("Projectile Prefab")]
-    public GameObject ProjectilePrefab;
+    public List<GameObject> Projectiles = new List<GameObject>();
     
 
     [Header("Visual Projectile Prefab")]
@@ -39,73 +39,23 @@ public class BallisticSnipe : PlayerAbility
     private List<GameObject> m_targets = new List<GameObject>();
     private int m_numTargetsAllowed = 0;
 
-    // all the ballistic projectiles
-    private List<GameObject> m_networkProjectiles
-        = new List<GameObject>(new GameObject[5]);
-
-    private NetworkVariable<ulong> m_networkProjectileId_0 = new NetworkVariable<ulong>();
-    private NetworkVariable<ulong> m_networkProjectileId_1 = new NetworkVariable<ulong>();
-    private NetworkVariable<ulong> m_networkProjectileId_2 = new NetworkVariable<ulong>();
-    private NetworkVariable<ulong> m_networkProjectileId_3 = new NetworkVariable<ulong>();
-    private NetworkVariable<ulong> m_networkProjectileId_4 = new NetworkVariable<ulong>();
-
     private List<GameObject> m_visualProjectiles =
         new List<GameObject>(new GameObject[5]);
-
-    ref NetworkVariable<ulong> GetNetworkProjectileId(int index)
-    {
-        if (index == 0) return ref m_networkProjectileId_0;
-        else if (index == 1) return ref m_networkProjectileId_1;
-        else if (index == 2) return ref m_networkProjectileId_2;
-        else if (index == 3) return ref m_networkProjectileId_3;
-        else return ref m_networkProjectileId_4;
-    }
-
-    void InitNetworkProjectile(int index, GameObject prefab)
-    {
-        var projectile = Instantiate(prefab);
-        projectile.GetComponent<NetworkObject>().Spawn();
-        projectile.SetActive(false);
-        m_networkProjectiles[index] = projectile;
-
-        GetNetworkProjectileId(index).Value = projectile.GetComponent<NetworkObject>().NetworkObjectId;
-    }
 
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
 
-        if (IsServer)
+        foreach (var projectile in Projectiles)
         {
-            for (int i = 0; i < 5; i++)
-            {
-                InitNetworkProjectile(i, ProjectilePrefab);
-            }
+            projectile.GetComponent<GenericProjectile>().VisualGameObject =
+                InstantiateVisualProjectile(Wearable.NameEnum.AagentPistol);
         }
     }
 
     public override void OnNetworkDespawn()
     {
-        if (IsServer)
-        {
-            for (int i = 0; i < 5; i++)
-            {
-                m_networkProjectiles[i].GetComponent<NetworkObject>().Despawn();
-            }
-        }
-
         base.OnNetworkDespawn();
-    }
-
-    void TryAddProjectileOnClient(int index)
-    {
-        var projectileId = GetNetworkProjectileId(index).Value;
-        if (m_networkProjectiles[index] == null && projectileId > 0)
-        {
-            var projectile = NetworkManager.SpawnManager.SpawnedObjects[projectileId].gameObject;
-            projectile.SetActive(false);
-            m_networkProjectiles[index] = projectile;
-        }
     }
 
     protected override void Update()
@@ -115,14 +65,6 @@ public class BallisticSnipe : PlayerAbility
         if (m_attackCentre == null && Player != null)
         {
             m_attackCentre = Player.GetComponentInChildren<AttackCentre>();
-        }
-
-        if (IsClient)
-        {
-            for (int i = 0; i < 5; i++)
-            {
-                TryAddProjectileOnClient(i);
-            }
         }
     }
 
@@ -306,8 +248,8 @@ public class BallisticSnipe : PlayerAbility
     void ActivateProjectile(int i, Wearable.NameEnum activationWearable, Vector3 direction, float distance, float duration, 
         float scale)
     {
-        var no_projectile = m_networkProjectiles[i].GetComponent<GenericProjectile>();
-        var no_projectileId = no_projectile.GetComponent<NetworkObject>().NetworkObjectId;
+        var no_projectile = Projectiles[i].GetComponent<GenericProjectile>();
+        //var no_projectileId = no_projectile.GetComponent<NetworkObject>().NetworkObjectId;
         var playerCharacter = Player.GetComponent<NetworkCharacter>();
         var startPosition =
                 Player.GetComponent<PlayerPrediction>().GetInterpPositionAtTick(ActivationInput.tick)
@@ -346,13 +288,13 @@ public class BallisticSnipe : PlayerAbility
             ulong playerId = Player.GetComponent<NetworkObject>().NetworkObjectId;
             ActivateProjectileClientRpc(i, activationWearable, startPosition,
                 direction, distance, duration, scale,
-                playerId, no_projectileId);
+                playerId);
         }
     }
 
     [Rpc(SendTo.ClientsAndHost)]
     void ActivateProjectileClientRpc(int i, Wearable.NameEnum activationWearable, Vector3 startPosition, Vector3 direction, float distance, float duration, 
-        float scale, ulong playerNetworkObjectId, ulong projectileNetworkObjectId)
+        float scale, ulong playerNetworkObjectId)
     {
         // Remote Client
         Player = NetworkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId].gameObject;
@@ -361,7 +303,7 @@ public class BallisticSnipe : PlayerAbility
         // Remote Client
         if (!Player.GetComponent<NetworkObject>().IsLocalPlayer)
         {
-            var no_projectile = NetworkManager.SpawnManager.SpawnedObjects[projectileNetworkObjectId].
+            var no_projectile = Projectiles[i].
                 GetComponent<GenericProjectile>();
 
             m_visualProjectiles[i] = InstantiateVisualProjectile(activationWearable);

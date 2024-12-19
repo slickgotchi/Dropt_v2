@@ -11,7 +11,7 @@ public class BallisticShot : PlayerAbility
     public float Duration = 1f;
 
     [Header("Projectile Prefab")]
-    public GameObject ProjectilePrefab;
+    public GameObject Projectile;
 
     [Header("Visual Projectile Prefabs")]
     public GameObject ApplePrefab;
@@ -24,40 +24,25 @@ public class BallisticShot : PlayerAbility
     public GameObject NailTrioPrefab;
     public GameObject SeedPrefab;
 
-    // variables for keeping track of the spawned projectile
-    private GameObject m_projectile;
-    private NetworkVariable<ulong> m_projectileId = new NetworkVariable<ulong>(0);
-
     private GameObject m_instantiatedVisualProjectile;
 
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
 
-        if (!IsServer) return;
-
-        GenericProjectile.InitSpawnProjectileOnServer(ref m_projectile, ref m_projectileId, ProjectilePrefab);
-
+        // set our projectiles visual game object
+        Projectile.GetComponent<GenericProjectile>().VisualGameObject =
+            InstantiateVisualProjectile(Wearable.NameEnum.AagentPistol);
     }
 
     public override void OnNetworkDespawn()
     {
-        if (!IsServer) return;
-
-        if (m_projectile != null) m_projectile.GetComponent<NetworkObject>().Despawn();
-
         base.OnNetworkDespawn();
     }
 
     protected override void Update()
     {
         base.Update();
-
-        if (IsClient)
-        {
-            // ensure remote clients associate projectiles with local projectile variables
-            GenericProjectile.TryAddProjectileOnClient(ref m_projectile, ref m_projectileId, NetworkManager);
-        }
     }
 
     public override void OnStart()
@@ -67,14 +52,13 @@ public class BallisticShot : PlayerAbility
         SetLocalPosition(PlayerAbilityCentreOffset);
 
         // play animation
-        //PlayAnimation("BallisticShot");
         PlayAnimationWithDuration("BallisticShot", ExecutionDuration);
 
         // activate projectile
         ActivateProjectile(ActivationWearableNameEnum, ActivationInput.actionDirection, Distance, Duration);
     }
 
-    GameObject InstantiateProjectile(Wearable.NameEnum activationWearable)
+    GameObject InstantiateVisualProjectile(Wearable.NameEnum activationWearable)
     {
         switch (activationWearable)
         {
@@ -94,8 +78,8 @@ public class BallisticShot : PlayerAbility
 
     void ActivateProjectile(Wearable.NameEnum activationWearable, Vector3 direction, float distance, float duration)
     {
-        var no_projectile = m_projectile.GetComponent<GenericProjectile>();
-        var no_projectileId = no_projectile.GetComponent<NetworkObject>().NetworkObjectId;
+        var no_projectile = Projectile.GetComponent<GenericProjectile>();
+        //var no_projectileId = no_projectile.GetComponent<NetworkObject>().NetworkObjectId;
         var playerCharacter = Player.GetComponent<NetworkCharacter>();
         var startPosition =
                 Player.GetComponent<PlayerPrediction>().GetInterpPositionAtTick(ActivationInput.tick)
@@ -107,7 +91,7 @@ public class BallisticShot : PlayerAbility
         {
             if (IsClient)
             {
-                m_instantiatedVisualProjectile = InstantiateProjectile(activationWearable);
+                m_instantiatedVisualProjectile = InstantiateVisualProjectile(activationWearable);
                 m_instantiatedVisualProjectile.transform.position = startPosition;
                 if (no_projectile.VisualGameObject != null) Destroy(no_projectile.VisualGameObject);
                 no_projectile.VisualGameObject = m_instantiatedVisualProjectile;
@@ -135,7 +119,7 @@ public class BallisticShot : PlayerAbility
             ActivateProjectileClientRpc(
                 activationWearable, startPosition, 
                 direction, distance, duration,
-                playerId, no_projectileId);
+                playerId);
         }
 
         // set hand wearable
@@ -144,7 +128,7 @@ public class BallisticShot : PlayerAbility
 
     [Rpc(SendTo.ClientsAndHost)]
     void ActivateProjectileClientRpc(Wearable.NameEnum activationWearable, Vector3 startPosition, Vector3 direction, 
-        float distance, float duration, ulong playerNetworkObjectId, ulong projectileNetworkObjectId)
+        float distance, float duration, ulong playerNetworkObjectId)
     {
         // Remote Client
         Player = NetworkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId].gameObject;
@@ -153,10 +137,9 @@ public class BallisticShot : PlayerAbility
         // Remote Client
         if (!Player.GetComponent<NetworkObject>().IsLocalPlayer)
         {
-            var no_projectile = NetworkManager.SpawnManager.SpawnedObjects[projectileNetworkObjectId].
-                GetComponent<GenericProjectile>();
+            var no_projectile = Projectile.GetComponent<GenericProjectile>();
 
-            m_instantiatedVisualProjectile = InstantiateProjectile(activationWearable);
+            m_instantiatedVisualProjectile = InstantiateVisualProjectile(activationWearable);
             m_instantiatedVisualProjectile.transform.position = startPosition;
             if (no_projectile.VisualGameObject != null) Destroy(no_projectile.VisualGameObject);
             no_projectile.VisualGameObject = m_instantiatedVisualProjectile;
