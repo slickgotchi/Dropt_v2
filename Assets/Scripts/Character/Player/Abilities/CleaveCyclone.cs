@@ -16,28 +16,13 @@ public class CleaveCyclone : PlayerAbility
     [Header("Projectile Prefab")]
     public GameObject Projectile;
 
-    // variables for keeping track of the spawned projectile on both local and remote client
-    //private GameObject m_projectile;
-    //private NetworkVariable<ulong> m_projectileId = new NetworkVariable<ulong>(0);
-
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-
-        //if (IsServer)
-        //{
-        //    GenericProjectile.InitSpawnProjectileOnServer(ref m_projectile, ref m_projectileId, Projectile);
-        //}
     }
 
     public override void OnNetworkDespawn()
     {
-
-        //if (m_projectile != null)
-        //{
-        //    if (IsServer) m_projectile.GetComponent<NetworkObject>().Despawn();
-        //}
-
         base.OnNetworkDespawn();
 
     }
@@ -45,11 +30,6 @@ public class CleaveCyclone : PlayerAbility
     protected override void Update()
     {
         base.Update();
-
-        //if (IsClient)
-        //{
-        //    GenericProjectile.TryAddProjectileOnClient(ref m_projectile, ref m_projectileId, NetworkManager);
-        //}
     }
 
     public override void OnStart()

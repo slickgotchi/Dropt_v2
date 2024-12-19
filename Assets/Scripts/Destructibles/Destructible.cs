@@ -19,20 +19,40 @@ public class Destructible : NetworkBehaviour
     public Type type;
     public int Hp = 1;
 
-    private NetworkVariable<int> CurrentHp;
+    private int previousHp;
+    private int currentHp;
 
     private SoundFX_Destructible m_soundFX_Destructible;
 
     private void Awake()
     {
-        CurrentHp = new NetworkVariable<int>(Hp);
+        previousHp = Hp;
+        currentHp = Hp;
         m_soundFX_Destructible = GetComponent<SoundFX_Destructible>();
     }
 
-    
+    private void Update()
+    {
+        if (IsServer)
+        {
+            if (previousHp != currentHp)
+            {
+                previousHp = currentHp;
+                SyncHpClientRpc(currentHp);
+            }
+        }
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    void SyncHpClientRpc(int hp)
+    {
+        previousHp = hp;
+        currentHp = hp;
+    }
+
     public void Explode(ulong damageDealerId)
     {
-        DoDamage(CurrentHp.Value, damageDealerId);
+        DoDamage(currentHp, damageDealerId);
     }
 
     public void TakeDamage(Wearable.WeaponTypeEnum weaponType, ulong damageDealerId)
@@ -46,7 +66,7 @@ public class Destructible : NetworkBehaviour
         // do client actions
         if (IsClient)
         {
-            if (CurrentHp.Value <= damage)
+            if (currentHp <= damage)
             {
                 // play cloud explosion
                 VisualEffectsManager.Instance.SpawnCloudExplosion(transform.position + new Vector3(0, 0.5f, 0));
@@ -69,8 +89,8 @@ public class Destructible : NetworkBehaviour
         // do server check for despawn
         if (IsServer)
         {
-            CurrentHp.Value -= damage;
-            if (CurrentHp.Value <= 0)
+            currentHp -= damage;
+            if (currentHp <= 0)
             {
                 PRE_DIE?.Invoke();
                 NotifyPlayerToDestroyDestructible(damageDealerId);

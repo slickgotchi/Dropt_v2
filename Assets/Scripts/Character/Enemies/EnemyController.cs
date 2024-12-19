@@ -14,7 +14,6 @@ public class EnemyController : NetworkBehaviour
     private NavMeshAgent m_navMeshAgent;
 
     // private parameters for updating facing position
-    //private LocalVelocity m_localVelocity;
     private float m_facingTimer = 0f;
 
     // spawn parameters
@@ -22,14 +21,12 @@ public class EnemyController : NetworkBehaviour
     [HideInInspector] public bool IsSpawning = true;
     public float SpawnDuration = 0f;
 
-    private NetworkVariable<Vector3> m_agentVelocity = new NetworkVariable<Vector3>();
+    //private Vector3 m_agentVelocity;
+    private Vector3 m_currentPosition;
+    private Vector3 m_previousPosition;
+    private float m_previousPositionUpdateTimer = 0f;
 
     [HideInInspector] public bool IsArmed = false;
-
-    //private void Awake()
-    //{
-    //    m_localVelocity = GetComponent<LocalVelocity>();
-    //}
 
     public override void OnNetworkSpawn()
     {
@@ -52,14 +49,18 @@ public class EnemyController : NetworkBehaviour
 
     }
 
-    //public override void OnNetworkDespawn()
-    //{
-    //    base.OnNetworkDespawn();
-    //}
-
     // Update is called once per frame
     void Update()
     {
+        // update previous transform once every 0.1s
+        m_previousPositionUpdateTimer -= Time.deltaTime;
+        if (m_previousPositionUpdateTimer < 0)
+        {
+            m_previousPositionUpdateTimer = 0.1f;
+            m_previousPosition = m_currentPosition;
+            m_currentPosition = transform.position;
+        }
+
         HandleFacing();
     }
 
@@ -75,7 +76,6 @@ public class EnemyController : NetworkBehaviour
     [ClientRpc]
     void SetFacingFromDirectionClientRpc(Vector3 direction, float facingTimer)
     {
-        //SetFacingFromDirection(direction, facingTimer);
         SetFacing(direction.x > 0 ? Facing.Right : Facing.Left, facingTimer);
     }
 
@@ -83,7 +83,6 @@ public class EnemyController : NetworkBehaviour
     {
         m_facingTimer = facingTimer;
         m_facingDirection = facingDirection;
-        //SpriteToFlip.flipX = FacingDirection == Facing.Left ? true : false;
         SetEnemySpritesFlip();
     }
 
@@ -91,19 +90,32 @@ public class EnemyController : NetworkBehaviour
     {
         if (m_spritesToFlip.Count == 0) return;
 
-        if (IsServer)
-        {
-            m_agentVelocity.Value = m_navMeshAgent != null ? m_navMeshAgent.velocity : Vector3.zero;
-        }
-
         if (IsClient)
         {
-            if (math.abs(m_agentVelocity.Value.x) < 0.02f) return;
+            // if in knockback/stun states we don't flip sprites
+            var enemyAI = GetComponent<Dropt.EnemyAI>();
+            if (enemyAI != null)
+            {
+                if (enemyAI.GetClientPredictedState() == Dropt.EnemyAI.State.Knockback) return;
+                if (enemyAI.GetClientPredictedState() == Dropt.EnemyAI.State.Stun) return;
+            }
 
+            // if there is active facing timer we don't flip sprites
             m_facingTimer -= Time.deltaTime;
             if (m_facingTimer > 0f) return;
 
-            m_facingDirection = m_agentVelocity.Value.x < 0 ? Facing.Left : Facing.Right;
+            // find our position delta (use 0.01f, if we update positions every 0.1s this equates to a 
+            var positionDeltaX = m_currentPosition.x - m_previousPosition.x;
+            if (positionDeltaX > 0.01f)
+            {
+                m_facingDirection = Facing.Right;
+            }
+            else if (positionDeltaX < -0.01f)
+            {
+                m_facingDirection = Facing.Left;
+            }
+
+            // set the sprite flip
             SetEnemySpritesFlip();
         }
     }

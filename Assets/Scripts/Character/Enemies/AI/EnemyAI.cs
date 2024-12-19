@@ -92,6 +92,8 @@ namespace Dropt
 
         [HideInInspector] public NetworkVariable<State> state = new NetworkVariable<State>(State.Spawn);
         [HideInInspector] public NetworkVariable<float> debugSlider = new NetworkVariable<float>(0);
+        //[HideInInspector] public State previousState = State.Null;
+        //[HideInInspector] public State currentState = State.Spawn;
 
 
         public override void OnNetworkSpawn()
@@ -505,6 +507,8 @@ namespace Dropt
         }
 
         State m_clientPredictedState = State.Null;
+
+        public State GetClientPredictedState() { return m_clientPredictedState; }
 
         void HandleClientPredictedKnockback(float dt)
         {

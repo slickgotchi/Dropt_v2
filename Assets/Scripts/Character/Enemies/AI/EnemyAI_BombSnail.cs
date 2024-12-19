@@ -6,8 +6,6 @@ namespace Dropt
     public class EnemyAI_BombSnail : EnemyAI
     {
         private Animator m_animator;
-        private NetworkVariable<bool> m_isTriggered = new NetworkVariable<bool>(false);
-        private NetworkVariable<float> m_triggerTimer = new NetworkVariable<float>(3);
         private SoundFX_BombSnail m_soundFX_BombSnail;
 
         private void Awake()

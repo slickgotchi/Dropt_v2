@@ -226,47 +226,6 @@ public class PlayerAbilities : NetworkBehaviour
 
         return PlayerAbilityEnum.Null;
     }
-
-    /*
-    void CreateAbility(ref GameObject ability, GameObject prefab, NetworkVariable<ulong> abilityId)
-    {
-        if (prefab == null)
-        {
-            Debug.LogWarning("Prefab passed to CreateAbility in PlayerAbilities was null");
-            return;
-        }
-        if (!prefab.HasComponent<PlayerAbility>())
-        {
-            Debug.LogWarning("Prefab for " + ability.ToString() + " ability is not a valid PlayerAbility");
-            return;
-        }
-        ability = Instantiate(prefab);
-        ability.GetComponent<NetworkObject>().Spawn();
-        ability.GetComponent<NetworkObject>().TrySetParent(gameObject, false);
-        ability.transform.localPosition = new Vector3(0, 0.5f, 0);
-        ability.transform.rotation = Quaternion.identity;
-        abilityId.Value = ability.GetComponent<NetworkObject>().NetworkObjectId;
-    }
-
-    void TryAddAbilityClientSide(ref GameObject ability, NetworkVariable<ulong> abilityId)
-    {
-        if (ability == null && abilityId.Value > 0)
-        {
-            ability = NetworkManager.SpawnManager.SpawnedObjects[abilityId.Value].gameObject;
-            if (ability == null)
-            {
-                Debug.LogWarning("Could not add ability " + ability.ToString() + " to the client side");
-                return;
-            }
-            if (!ability.HasComponent<PlayerAbility>())
-            {
-                Debug.LogWarning("No PlayerAbility on " + ability.ToString() + " ability on client side");
-                return;
-            }
-            ability.GetComponent<PlayerAbility>().Player = gameObject;
-        }
-    }
-    */
 }
 
 
