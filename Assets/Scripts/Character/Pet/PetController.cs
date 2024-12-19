@@ -25,6 +25,8 @@ public class PetController : NetworkBehaviour
 
     private float m_damageMultiplier;
 
+    public bool AllowToSummonThePet;
+
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
@@ -136,6 +138,21 @@ public class PetController : NetworkBehaviour
 
         //m_transform.position = Vector3.Lerp(m_transform.position, m_petPosition.Value, m_petSettings.Speed * Time.deltaTime);
         m_transform.position = Vector3.SmoothDamp(m_transform.position, m_petPosition.Value, ref m_velocity, 0.3f);
+
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            TryToSummonThePetServerRpc();
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void TryToSummonThePetServerRpc()
+    {
+        if (!AllowToSummonThePet) return;
+        if (!IsPetMeterFullyCharged()) return;
+
+        ResetPetMeter();
+        m_petStateMachine.ChangeState(m_petStateMachine.PetAttackState);
     }
 
     public void FollowOwner()

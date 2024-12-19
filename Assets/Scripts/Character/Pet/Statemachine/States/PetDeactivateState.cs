@@ -10,6 +10,7 @@ public class PetDeactivateState : PetState
 
     public override void Enter()
     {
+        m_PetController.AllowToSummonThePet = true;
         m_PetController.CloudExplosionClientRpc();
         m_PetController.DeactivateAgent();
         m_PetController.DeactivatePet();
@@ -18,6 +19,7 @@ public class PetDeactivateState : PetState
 
     public override void Exit()
     {
+        m_PetController.AllowToSummonThePet = false;
         m_PetController.UnsubscribeOnEnemyGetDamage();
     }
 
@@ -34,11 +36,5 @@ public class PetDeactivateState : PetState
         }
 
         m_PetController.SetPetMeterProgress();
-
-        if (Input.GetKeyDown(KeyCode.R) && m_PetController.IsPetMeterFullyCharged())
-        {
-            m_PetController.ResetPetMeter();
-            m_PetStateMachine.ChangeState(m_PetStateMachine.PetAttackState);
-        }
     }
 }
