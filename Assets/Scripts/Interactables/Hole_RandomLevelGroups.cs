@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 
-public class Hole_v2 : Interactable
+public class Hole_RandomLevelGroups : Interactable
 {
     public List<LevelGroup> LevelGroups = new List<LevelGroup>();
 
