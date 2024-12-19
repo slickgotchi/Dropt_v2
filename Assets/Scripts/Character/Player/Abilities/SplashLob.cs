@@ -19,10 +19,6 @@ public class SplashLob : PlayerAbility
 
     private float m_distance = 8f;
 
-    // variables for keeping track of the spawned projectile
-    //private GameObject m_splashProjectile;
-    //private NetworkVariable<ulong> m_splashProjectileId = new NetworkVariable<ulong>(0);
-
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();

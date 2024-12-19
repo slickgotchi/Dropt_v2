@@ -16,10 +16,6 @@ public class MagicCast : PlayerAbility
     [Header("Visual Projectile Prefab")]
     public GameObject VisualProjectilePrefab;
 
-    // variables for keeping track of the spawned projectile
-    //private GameObject m_projectile;
-    //private NetworkVariable<ulong> m_projectileId = new NetworkVariable<ulong>(0);
-
     private GameObject m_instantiatedVisualProjectile;
 
     public override void OnNetworkSpawn()
@@ -28,29 +24,16 @@ public class MagicCast : PlayerAbility
 
         Projectile.GetComponent<GenericProjectile>().VisualGameObject =
             Instantiate(VisualProjectilePrefab);
-
-        //if (!IsServer) return;
-
-        //GenericProjectile.InitSpawnProjectileOnServer(ref m_projectile, ref m_projectileId, ProjectilePrefab);
     }
 
     public override void OnNetworkDespawn()
     {
-        //if (!IsServer) return;
-
-        //if (m_projectile != null) m_projectile.GetComponent<NetworkObject>().Despawn();
-
         base.OnNetworkDespawn();
     }
 
     protected override void Update()
     {
         base.Update();
-
-        //if (IsClient)
-        //{
-        //    GenericProjectile.TryAddProjectileOnClient(ref m_projectile, ref m_projectileId, NetworkManager);
-        //}
     }
 
     public override void OnStart()

@@ -28,10 +28,6 @@ public class BallisticExplosion : PlayerAbility
     public GameObject NailTrioPrefab;
     public GameObject SeedPrefab;
 
-    // variables for keeping track of the spawned projectile
-    //private GameObject m_projectile;
-    //private NetworkVariable<ulong> m_projectileId = new NetworkVariable<ulong>(0);
-
     private GameObject m_instantiatedVisualProjectile;
 
     public override void OnNetworkSpawn()
