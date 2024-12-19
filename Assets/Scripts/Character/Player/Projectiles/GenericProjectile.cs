@@ -210,25 +210,25 @@ public class GenericProjectile : NetworkBehaviour
         }
     }
 
-    public static void InitSpawnProjectileOnServer(ref GameObject projectile, ref NetworkVariable<ulong> projectileId, GameObject prefab)
-    {
-        // instantiate/spawn our projectile we'll be using when this ability activates
-        // and initially set to deactivated
-        projectile = Instantiate(prefab);
-        projectile.GetComponent<NetworkObject>().Spawn();
-        projectileId.Value = projectile.GetComponent<NetworkObject>().NetworkObjectId;
-        projectile.SetActive(false);
-    }
+    //public static void InitSpawnProjectileOnServer(ref GameObject projectile, ref NetworkVariable<ulong> projectileId, GameObject prefab)
+    //{
+    //    // instantiate/spawn our projectile we'll be using when this ability activates
+    //    // and initially set to deactivated
+    //    projectile = Instantiate(prefab);
+    //    projectile.GetComponent<NetworkObject>().Spawn();
+    //    projectileId.Value = projectile.GetComponent<NetworkObject>().NetworkObjectId;
+    //    projectile.SetActive(false);
+    //}
 
-    public static bool TryAddProjectileOnClient(ref GameObject projectile,
-        ref NetworkVariable<ulong> projectileId, NetworkManager networkManager)
-    {
-        if (projectile == null && projectileId.Value > 0)
-        {
-            projectile = networkManager.SpawnManager.SpawnedObjects[projectileId.Value].gameObject;
-            projectile.SetActive(false);
-        }
+    //public static bool TryAddProjectileOnClient(ref GameObject projectile,
+    //    ref NetworkVariable<ulong> projectileId, NetworkManager networkManager)
+    //{
+    //    if (projectile == null && projectileId.Value > 0)
+    //    {
+    //        projectile = networkManager.SpawnManager.SpawnedObjects[projectileId.Value].gameObject;
+    //        projectile.SetActive(false);
+    //    }
 
-        return projectile != null;
-    }
+    //    return projectile != null;
+    //}
 }

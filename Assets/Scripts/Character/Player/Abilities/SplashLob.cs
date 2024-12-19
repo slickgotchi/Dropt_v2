@@ -15,42 +15,27 @@ public class SplashLob : PlayerAbility
     public float Scale = 1f;
 
     [Header("Projectile Prefab")]
-    public GameObject SplashProjectilePrefab;
+    public GameObject Projectile;
 
     private float m_distance = 8f;
 
     // variables for keeping track of the spawned projectile
-    private GameObject m_splashProjectile;
-    private NetworkVariable<ulong> m_splashProjectileId = new NetworkVariable<ulong>(0);
+    //private GameObject m_splashProjectile;
+    //private NetworkVariable<ulong> m_splashProjectileId = new NetworkVariable<ulong>(0);
 
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-
-        if (!IsServer) return;
-
-        GenericProjectile.InitSpawnProjectileOnServer(ref m_splashProjectile, ref m_splashProjectileId, SplashProjectilePrefab);
     }
 
     public override void OnNetworkDespawn()
     {
-        if (m_splashProjectile != null)
-        {
-            if (IsServer) m_splashProjectile.GetComponent<NetworkObject>().Despawn();
-        }
-
         base.OnNetworkDespawn();
     }
 
     protected override void Update()
     {
         base.Update();
-
-        if (IsClient)
-        {
-            GenericProjectile.TryAddProjectileOnClient(ref m_splashProjectile, ref m_splashProjectileId, NetworkManager);
-            
-        }
     }
 
     public override void OnStart()
@@ -74,17 +59,12 @@ public class SplashLob : PlayerAbility
             Scale, ExplosionRadius);
     }
 
-    ref GameObject GetProjectileInstance(Wearable.NameEnum activationWearable)
-    {
-        return ref m_splashProjectile;
-    }
-
     void ActivateProjectile(Wearable.NameEnum wearableNameEnum, Vector3 direction, float distance, 
         float duration, float scale, float explosionRadius)
     {
-        GameObject projectile = GetProjectileInstance(wearableNameEnum);
-        var no_projectile = projectile.GetComponent<SplashProjectile>();
-        var no_projectileId = no_projectile.GetComponent<NetworkObject>().NetworkObjectId;
+        //GameObject projectile = GetProjectileInstance(wearableNameEnum);
+        var no_projectile = Projectile.GetComponent<SplashProjectile>();
+        //var no_projectileId = no_projectile.GetComponent<NetworkObject>().NetworkObjectId;
         var playerCharacter = Player.GetComponent<NetworkCharacter>();
         var startPosition =
                 Player.GetComponent<PlayerPrediction>().GetInterpPositionAtTick(ActivationInput.tick)
@@ -94,6 +74,8 @@ public class SplashLob : PlayerAbility
         // Local Client & Server
         if (Player.GetComponent<NetworkObject>().IsLocalPlayer || IsServer)
         {
+            Projectile.SetActive(true);
+
             // init
             no_projectile.Init(startPosition, direction, distance, duration, scale, explosionRadius,
                 IsServer ? PlayerAbility.NetworkRole.Server : PlayerAbility.NetworkRole.LocalClient,
@@ -116,7 +98,7 @@ public class SplashLob : PlayerAbility
             ulong playerId = Player.GetComponent<NetworkObject>().NetworkObjectId;
             ActivateProjectileClientRpc(startPosition,
                 direction, distance, duration, scale, explosionRadius, wearableNameEnum,
-                playerId, no_projectileId);
+                playerId);
         }
 
     }
@@ -124,7 +106,7 @@ public class SplashLob : PlayerAbility
     [Rpc(SendTo.ClientsAndHost)]
     void ActivateProjectileClientRpc(Vector3 startPosition, Vector3 direction, 
         float distance, float duration, float scale, float explosionRadius, Wearable.NameEnum wearableNameEnum,
-        ulong playerNetworkObjectId, ulong projectileNetworkObjectId)
+        ulong playerNetworkObjectId)
     {
         // Remote Client
         Player = NetworkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId].gameObject;
@@ -133,7 +115,7 @@ public class SplashLob : PlayerAbility
         // Remote Client
         if (!Player.GetComponent<NetworkObject>().IsLocalPlayer)
         {
-            var no_projectile = NetworkManager.SpawnManager.SpawnedObjects[projectileNetworkObjectId].
+            var no_projectile = Projectile.
                 GetComponent<SplashProjectile>();
 
             // init

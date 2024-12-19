@@ -36,6 +36,14 @@ public class SplashProjectile : NetworkBehaviour
     private float m_speed = 1;
     private Vector3 m_finalPosition;
 
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        transform.parent = null;
+        gameObject.SetActive(false);
+    }
+
     public void Init(
         // server, local & remote
         Vector3 position,

@@ -14,29 +14,29 @@ public class CleaveCyclone : PlayerAbility
     public int NumberHits = 6;
 
     [Header("Projectile Prefab")]
-    public GameObject ProjectilePrefab;
+    public GameObject Projectile;
 
     // variables for keeping track of the spawned projectile on both local and remote client
-    private GameObject m_projectile;
-    private NetworkVariable<ulong> m_projectileId = new NetworkVariable<ulong>(0);
+    //private GameObject m_projectile;
+    //private NetworkVariable<ulong> m_projectileId = new NetworkVariable<ulong>(0);
 
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
 
-        if (IsServer)
-        {
-            GenericProjectile.InitSpawnProjectileOnServer(ref m_projectile, ref m_projectileId, ProjectilePrefab);
-        }
+        //if (IsServer)
+        //{
+        //    GenericProjectile.InitSpawnProjectileOnServer(ref m_projectile, ref m_projectileId, Projectile);
+        //}
     }
 
     public override void OnNetworkDespawn()
     {
 
-        if (m_projectile != null)
-        {
-            if (IsServer) m_projectile.GetComponent<NetworkObject>().Despawn();
-        }
+        //if (m_projectile != null)
+        //{
+        //    if (IsServer) m_projectile.GetComponent<NetworkObject>().Despawn();
+        //}
 
         base.OnNetworkDespawn();
 
@@ -46,10 +46,10 @@ public class CleaveCyclone : PlayerAbility
     {
         base.Update();
 
-        if (IsClient)
-        {
-            GenericProjectile.TryAddProjectileOnClient(ref m_projectile, ref m_projectileId, NetworkManager);
-        }
+        //if (IsClient)
+        //{
+        //    GenericProjectile.TryAddProjectileOnClient(ref m_projectile, ref m_projectileId, NetworkManager);
+        //}
     }
 
     public override void OnStart()
@@ -64,8 +64,8 @@ public class CleaveCyclone : PlayerAbility
 
     void ActivateProjectile(Vector3 direction, float distance, float duration, float scale)
     {
-        var no_projectile = m_projectile.GetComponent<CleaveCycloneProjectile>();
-        var projectileId = no_projectile.GetComponent<NetworkObject>().NetworkObjectId;
+        var no_projectile = Projectile.GetComponent<CleaveCycloneProjectile>();
+        //var projectileId = no_projectile.GetComponent<NetworkObject>().NetworkObjectId;
         var playerCharacter = Player.GetComponent<NetworkCharacter>();
 
         // Local Client & Server
@@ -96,13 +96,13 @@ public class CleaveCyclone : PlayerAbility
         if (IsServer)
         {
             ulong playerNetworkObjectid = Player.GetComponent<NetworkObject>().NetworkObjectId;
-            ActivateProjectileClientRpc(direction, distance, duration, scale, NumberHits, playerNetworkObjectid, projectileId);
+            ActivateProjectileClientRpc(direction, distance, duration, scale, NumberHits, playerNetworkObjectid);
         }
     }
 
     [Rpc(SendTo.ClientsAndHost)]
     void ActivateProjectileClientRpc(Vector3 direction, float distance, float duration, float scale, int numberHits,
-        ulong playerNetworkObjectId, ulong projectileId)
+        ulong playerNetworkObjectId)
     {
         // Remote Client
         Player = NetworkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId].gameObject;
@@ -111,7 +111,7 @@ public class CleaveCyclone : PlayerAbility
         if (!Player.GetComponent<NetworkObject>().IsLocalPlayer)
         {
             //var no_projectile = m_projectile.GetComponent<CleaveCycloneProjectile>();
-            var no_projectile = NetworkManager.SpawnManager.SpawnedObjects[projectileId].GetComponent<CleaveCycloneProjectile>();
+            var no_projectile = Projectile.GetComponent<CleaveCycloneProjectile>();
 
             // init
             no_projectile.Init(

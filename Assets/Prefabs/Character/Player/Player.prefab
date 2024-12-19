@@ -11868,6 +11868,30 @@ PrefabInstance:
       propertyPath: m_Name
       value: SplashVolley
       objectReference: {fileID: 0}
+    - target: {fileID: 3206390623170966551, guid: 6d940295e568bba44ad1dc15739df34c, type: 3}
+      propertyPath: Projectiles.Array.size
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3206390623170966551, guid: 6d940295e568bba44ad1dc15739df34c, type: 3}
+      propertyPath: Projectiles.Array.data[0]
+      value: 
+      objectReference: {fileID: 8885321100325888085}
+    - target: {fileID: 3206390623170966551, guid: 6d940295e568bba44ad1dc15739df34c, type: 3}
+      propertyPath: Projectiles.Array.data[1]
+      value: 
+      objectReference: {fileID: 1551981917998691462}
+    - target: {fileID: 3206390623170966551, guid: 6d940295e568bba44ad1dc15739df34c, type: 3}
+      propertyPath: Projectiles.Array.data[2]
+      value: 
+      objectReference: {fileID: 1345033569708527729}
+    - target: {fileID: 3206390623170966551, guid: 6d940295e568bba44ad1dc15739df34c, type: 3}
+      propertyPath: Projectiles.Array.data[3]
+      value: 
+      objectReference: {fileID: 7720688894166827688}
+    - target: {fileID: 3206390623170966551, guid: 6d940295e568bba44ad1dc15739df34c, type: 3}
+      propertyPath: Projectiles.Array.data[4]
+      value: 
+      objectReference: {fileID: 5803142546135351531}
     - target: {fileID: 8086004901219037682, guid: 6d940295e568bba44ad1dc15739df34c, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -11914,14 +11938,39 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6d940295e568bba44ad1dc15739df34c, type: 3}
+--- !u!1 &1345033569708527729 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 455131931729901187, guid: 6d940295e568bba44ad1dc15739df34c, type: 3}
+  m_PrefabInstance: {fileID: 1511644815421433586}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1551981917998691462 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 104655535510737524, guid: 6d940295e568bba44ad1dc15739df34c, type: 3}
+  m_PrefabInstance: {fileID: 1511644815421433586}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &4013853887725647723 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2544078778212307353, guid: 6d940295e568bba44ad1dc15739df34c, type: 3}
   m_PrefabInstance: {fileID: 1511644815421433586}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &5803142546135351531 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4932171209784419865, guid: 6d940295e568bba44ad1dc15739df34c, type: 3}
+  m_PrefabInstance: {fileID: 1511644815421433586}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &7263517225887930112 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8086004901219037682, guid: 6d940295e568bba44ad1dc15739df34c, type: 3}
+  m_PrefabInstance: {fileID: 1511644815421433586}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &7720688894166827688 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 9214106830188274778, guid: 6d940295e568bba44ad1dc15739df34c, type: 3}
+  m_PrefabInstance: {fileID: 1511644815421433586}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &8885321100325888085 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8049463627774969511, guid: 6d940295e568bba44ad1dc15739df34c, type: 3}
   m_PrefabInstance: {fileID: 1511644815421433586}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1599427136792170593
@@ -12084,6 +12133,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: MagicCast
       objectReference: {fileID: 0}
+    - target: {fileID: 6299837425860839283, guid: 3831cf4185879534996557a5c67e6aa8, type: 3}
+      propertyPath: Projectile
+      value: 
+      objectReference: {fileID: 1585457655941884338}
     - target: {fileID: 8086004901219037682, guid: 3831cf4185879534996557a5c67e6aa8, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -12133,6 +12186,11 @@ PrefabInstance:
 --- !u!1 &793540271607296482 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2544078778212307353, guid: 3831cf4185879534996557a5c67e6aa8, type: 3}
+  m_PrefabInstance: {fileID: 2904076872133042299}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1585457655941884338 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4489516884323731913, guid: 3831cf4185879534996557a5c67e6aa8, type: 3}
   m_PrefabInstance: {fileID: 2904076872133042299}
   m_PrefabAsset: {fileID: 0}
 --- !u!4 &6375434726317003145 stripped
@@ -12846,6 +12904,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SplashBomb
       objectReference: {fileID: 0}
+    - target: {fileID: 2620590469603976232, guid: c12b8e341e450584e9ac58a8c8873a2f, type: 3}
+      propertyPath: Projectile
+      value: 
+      objectReference: {fileID: 6241250707507995661}
     - target: {fileID: 8086004901219037682, guid: c12b8e341e450584e9ac58a8c8873a2f, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -12895,6 +12957,11 @@ PrefabInstance:
 --- !u!4 &3634858524974239402 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8086004901219037682, guid: c12b8e341e450584e9ac58a8c8873a2f, type: 3}
+  m_PrefabInstance: {fileID: 4775748599216193368}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &6241250707507995661 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1503004353998543701, guid: c12b8e341e450584e9ac58a8c8873a2f, type: 3}
   m_PrefabInstance: {fileID: 4775748599216193368}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &6992045297839763137 stripped
@@ -13390,6 +13457,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8765156321553665057, guid: 56e8499149b00074aaba259fddfe9730, type: 3}
+      propertyPath: Projectile
+      value: 
+      objectReference: {fileID: 2525648639077639987}
     m_RemovedComponents:
     - {fileID: -6693017499447722929, guid: 56e8499149b00074aaba259fddfe9730, type: 3}
     m_RemovedGameObjects: []
@@ -13399,6 +13470,11 @@ PrefabInstance:
 --- !u!4 &1452877541360261918 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8086004901219037682, guid: 56e8499149b00074aaba259fddfe9730, type: 3}
+  m_PrefabInstance: {fileID: 7214461972422699756}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &2525648639077639987 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5121159019984735711, guid: 56e8499149b00074aaba259fddfe9730, type: 3}
   m_PrefabInstance: {fileID: 7214461972422699756}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &5138757652366883701 stripped
@@ -13820,6 +13896,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SplashLob
       objectReference: {fileID: 0}
+    - target: {fileID: 7641160337537727043, guid: 71417140dd56cb64bb9087736b042670, type: 3}
+      propertyPath: Projectile
+      value: 
+      objectReference: {fileID: 1533831847654419877}
     - target: {fileID: 8086004901219037682, guid: 71417140dd56cb64bb9087736b042670, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -13869,6 +13949,11 @@ PrefabInstance:
 --- !u!4 &1124502656019266560 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8086004901219037682, guid: 71417140dd56cb64bb9087736b042670, type: 3}
+  m_PrefabInstance: {fileID: 9199811326090186226}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1533831847654419877 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7702571915305017431, guid: 71417140dd56cb64bb9087736b042670, type: 3}
   m_PrefabInstance: {fileID: 9199811326090186226}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &6692957642665286763 stripped
