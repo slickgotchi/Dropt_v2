@@ -35,6 +35,24 @@ public class BallisticExplosionProjectile : NetworkBehaviour
 
     private Collider2D m_collider;
 
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        transform.parent = null;
+
+        if (VisualGameObject != null) VisualGameObject.SetActive(false);
+
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        // destroy the ExplosionCollider which was deparented
+        Destroy(ExplosionCollider.gameObject);
+
+        base.OnNetworkDespawn();
+    }
+
     public void Init(
         // server, local & remote
         Vector3 position,
@@ -84,6 +102,8 @@ public class BallisticExplosionProjectile : NetworkBehaviour
         KnockbackStunDuration = knockbackStunDuration;
         ExplosionKnockbackDistance = explosionKnockbackDistance;
         ExplosionKnockbackStunDuration = explosionKnockbackStunDuration;
+
+   
     }
 
     public void Fire()
@@ -95,14 +115,8 @@ public class BallisticExplosionProjectile : NetworkBehaviour
         m_speed = Distance / Duration;
 
         m_collider = GetComponent<Collider2D>();
-    }
 
-    public override void OnNetworkDespawn()
-    {
-        base.OnNetworkDespawn();
-
-        // destroy the ExplosionCollider which was deparented
-        Destroy(ExplosionCollider.gameObject);
+        if (VisualGameObject != null) VisualGameObject.SetActive(true);
     }
 
     private void Update()
@@ -188,7 +202,7 @@ public class BallisticExplosionProjectile : NetworkBehaviour
         if (LocalPlayer != null)
         {
             // visual effect
-            VisualEffectsManager.Instance.SpawnSplashExplosion(position, new Color(1, 0, 0, 0.5f), ExplosionRadius);
+            //VisualEffectsManager.Instance.SpawnSplashExplosion(position, new Color(1, 0, 0, 0.5f), ExplosionRadius);
         }
 
         // do explosion collision check
@@ -245,42 +259,48 @@ public class BallisticExplosionProjectile : NetworkBehaviour
     void Deactivate(Vector3 hitPosition)
     {
         if (VisualGameObject != null) Destroy(VisualGameObject);
+        VisualEffectsManager.Instance.SpawnSplashExplosion(hitPosition, new Color(1, 0, 0, 0.5f), ExplosionRadius);
         VisualEffectsManager.Instance.SpawnBulletExplosion(hitPosition);
+        if (VisualGameObject != null) VisualGameObject.SetActive(false);
+
         gameObject.SetActive(false);
 
         if (Role == PlayerAbility.NetworkRole.Server)
         {
-            DeactivateClientRpc(hitPosition);
+            DeactivateClientRpc(hitPosition, ExplosionRadius);
         }
     }
 
     [Rpc(SendTo.ClientsAndHost)]
-    void DeactivateClientRpc(Vector3 hitPosition)
+    void DeactivateClientRpc(Vector3 hitPosition, float explosionRadius)
     {
         if (Role == PlayerAbility.NetworkRole.RemoteClient)
         {
+            VisualEffectsManager.Instance.SpawnSplashExplosion(hitPosition, new Color(1, 0, 0, 0.5f), explosionRadius);
             VisualEffectsManager.Instance.SpawnBulletExplosion(hitPosition);
+            if (VisualGameObject != null) VisualGameObject.SetActive(false);
+
             gameObject.SetActive(false);
         }
     }
 
-    public static void InitSpawnProjectileOnServer(ref GameObject projectile, ref NetworkVariable<ulong> projectileId, GameObject prefab)
-    {
-        // instantiate/spawn our projectile we'll be using when this ability activates
-        // and initially set to deactivated
-        projectile = Instantiate(prefab);
-        projectile.GetComponent<NetworkObject>().Spawn();
-        projectileId.Value = projectile.GetComponent<NetworkObject>().NetworkObjectId;
-        projectile.SetActive(false);
-    }
+    //public static void InitSpawnProjectileOnServer(ref GameObject projectile, ref NetworkVariable<ulong> projectileId, GameObject prefab)
+    //{
+    //    // instantiate/spawn our projectile we'll be using when this ability activates
+    //    // and initially set to deactivated
+    //    projectile = Instantiate(prefab);
+    //    projectile.GetComponent<NetworkObject>().Spawn();
+    //    projectileId.Value = projectile.GetComponent<NetworkObject>().NetworkObjectId;
+    //    projectile.SetActive(false);
+    //}
 
-    public static void TryAddProjectileOnClient(ref GameObject projectile,
-        ref NetworkVariable<ulong> projectileId, NetworkManager networkManager)
-    {
-        if (projectile == null && projectileId.Value > 0)
-        {
-            projectile = networkManager.SpawnManager.SpawnedObjects[projectileId.Value].gameObject;
-            projectile.SetActive(false);
-        }
-    }
+    //public static void TryAddProjectileOnClient(ref GameObject projectile,
+    //    ref NetworkVariable<ulong> projectileId, NetworkManager networkManager)
+    //{
+    //    if (projectile == null && projectileId.Value > 0)
+    //    {
+    //        projectile = networkManager.SpawnManager.SpawnedObjects[projectileId.Value].gameObject;
+    //        projectile.SetActive(false);
+    //    }
+    //}
 }

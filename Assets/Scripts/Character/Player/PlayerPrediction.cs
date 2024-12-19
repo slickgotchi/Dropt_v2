@@ -737,7 +737,7 @@ public partial class PlayerPrediction : NetworkBehaviour
         // sort the array in case ticks were received out of order
         m_lastServerStateArray.Sort((state1, state2) => state1.tick.CompareTo(state2.tick));
 
-        var targetTick = currentTick - m_remoteClientTickDelta - 10;
+        var targetTick = currentTick - m_remoteClientTickDelta - 3;
 
         // find out where we are in last server state array
         int a = -1;

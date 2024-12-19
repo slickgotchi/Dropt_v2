@@ -15,7 +15,7 @@ public class BallisticExplosion : PlayerAbility
     public float ExplosionKnockbackStunDuration = 0.5f;
 
     [Header("Projectile Prefab")]
-    public GameObject ProjectilePrefab;
+    public GameObject Projectile;
 
     [Header("Projectile Prefab")]
     public GameObject ApplePrefab;
@@ -29,8 +29,8 @@ public class BallisticExplosion : PlayerAbility
     public GameObject SeedPrefab;
 
     // variables for keeping track of the spawned projectile
-    private GameObject m_projectile;
-    private NetworkVariable<ulong> m_projectileId = new NetworkVariable<ulong>(0);
+    //private GameObject m_projectile;
+    //private NetworkVariable<ulong> m_projectileId = new NetworkVariable<ulong>(0);
 
     private GameObject m_instantiatedVisualProjectile;
 
@@ -38,32 +38,19 @@ public class BallisticExplosion : PlayerAbility
     {
         base.OnNetworkSpawn();
 
-        if (!IsServer) return;
-
-        GenericProjectile.InitSpawnProjectileOnServer(ref m_projectile, ref m_projectileId, ProjectilePrefab);
-
+        // set our projectiles visual game object
+        Projectile.GetComponent<BallisticExplosionProjectile>().VisualGameObject =
+            InstantiateVisualProjectile(Wearable.NameEnum.AagentPistol);
     }
 
     public override void OnNetworkDespawn()
     {
-
-        if (!IsServer) return;
-
-        if (m_projectile != null) m_projectile.GetComponent<NetworkObject>().Despawn();
-
         base.OnNetworkDespawn();
-
     }
 
     protected override void Update()
     {
         base.Update();
-
-        if (IsClient)
-        {
-            // ensure remote clients associate projectiles with local projectile variables
-            GenericProjectile.TryAddProjectileOnClient(ref m_projectile, ref m_projectileId, NetworkManager);
-        }
     }
 
     public override void OnStart()
@@ -82,7 +69,7 @@ public class BallisticExplosion : PlayerAbility
         ActivateProjectile(ActivationWearableNameEnum, ActivationInput.actionDirection, Distance, Duration);
     }
 
-    GameObject InstantiateProjectile(Wearable.NameEnum activationWearable)
+    GameObject InstantiateVisualProjectile(Wearable.NameEnum activationWearable)
     {
         switch (activationWearable)
         {
@@ -102,8 +89,8 @@ public class BallisticExplosion : PlayerAbility
 
     void ActivateProjectile(Wearable.NameEnum activationWearable, Vector3 direction, float distance, float duration)
     {
-        var no_projectile = m_projectile.GetComponent<BallisticExplosionProjectile>();
-        var no_projectileId = no_projectile.GetComponent<NetworkObject>().NetworkObjectId;
+        var no_projectile = Projectile.GetComponent<BallisticExplosionProjectile>();
+        //var no_projectileId = no_projectile.GetComponent<NetworkObject>().NetworkObjectId;
         var playerCharacter = Player.GetComponent<NetworkCharacter>();
         var startPosition =
                 Player.GetComponent<PlayerPrediction>().GetInterpPositionAtTick(ActivationInput.tick)
@@ -115,7 +102,7 @@ public class BallisticExplosion : PlayerAbility
         {
             if (IsClient)
             {
-                m_instantiatedVisualProjectile = InstantiateProjectile(activationWearable);
+                m_instantiatedVisualProjectile = InstantiateVisualProjectile(activationWearable);
                 m_instantiatedVisualProjectile.transform.position = startPosition;
                 if (no_projectile.VisualGameObject != null) Destroy(no_projectile.VisualGameObject);
                 no_projectile.VisualGameObject = m_instantiatedVisualProjectile;
@@ -147,13 +134,13 @@ public class BallisticExplosion : PlayerAbility
             ulong playerId = Player.GetComponent<NetworkObject>().NetworkObjectId;
             ActivateProjectileClientRpc(activationWearable, startPosition,
                 direction, distance, duration,
-                playerId, no_projectileId);
+                playerId);
         }
     }
 
     [Rpc(SendTo.ClientsAndHost)]
     void ActivateProjectileClientRpc(Wearable.NameEnum activationWearable, Vector3 startPosition, Vector3 direction, 
-        float distance, float duration, ulong playerNetworkObjectId, ulong projectileNetworkObjectId)
+        float distance, float duration, ulong playerNetworkObjectId)
     { 
         // Remote Client
         Player = NetworkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId].gameObject;
@@ -163,10 +150,10 @@ public class BallisticExplosion : PlayerAbility
         // Remote Client
         if (!Player.GetComponent<NetworkObject>().IsLocalPlayer)
         {
-            var no_projectile = NetworkManager.SpawnManager.SpawnedObjects[projectileNetworkObjectId].
+            var no_projectile = Projectile.
                 GetComponent<BallisticExplosionProjectile>();
 
-            m_instantiatedVisualProjectile = InstantiateProjectile(activationWearable);
+            m_instantiatedVisualProjectile = InstantiateVisualProjectile(activationWearable);
             m_instantiatedVisualProjectile.transform.position = startPosition;
             if (no_projectile.VisualGameObject != null) Destroy(no_projectile.VisualGameObject);
             no_projectile.VisualGameObject = m_instantiatedVisualProjectile;

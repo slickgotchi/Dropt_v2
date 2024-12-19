@@ -13637,6 +13637,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 7386278464542488644}
     m_Modifications:
+    - target: {fileID: -7426985183669802435, guid: 5ed5b365bb9645b43b8848b0b401334b, type: 3}
+      propertyPath: Projectile
+      value: 
+      objectReference: {fileID: 2134087431585923263}
     - target: {fileID: -6693017499447722929, guid: 5ed5b365bb9645b43b8848b0b401334b, type: 3}
       propertyPath: GlobalObjectIdHash
       value: 1311497934
@@ -13696,6 +13700,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8086004901219037682, guid: 5ed5b365bb9645b43b8848b0b401334b, type: 3}
   m_PrefabInstance: {fileID: 8400714636507257506}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &2134087431585923263 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7568466598990617117, guid: 5ed5b365bb9645b43b8848b0b401334b, type: 3}
+  m_PrefabInstance: {fileID: 8400714636507257506}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &6330714554838076219 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2544078778212307353, guid: 5ed5b365bb9645b43b8848b0b401334b, type: 3}
@@ -13716,6 +13725,22 @@ PrefabInstance:
     - target: {fileID: 2544078778212307353, guid: 371f3124e5b4ff94686f952e5f097bb7, type: 3}
       propertyPath: m_Name
       value: BallisticShot
+      objectReference: {fileID: 0}
+    - target: {fileID: 3963884182834467150, guid: 371f3124e5b4ff94686f952e5f097bb7, type: 3}
+      propertyPath: Projectile
+      value: 
+      objectReference: {fileID: 5131998510060705933}
+    - target: {fileID: 3963884182834467150, guid: 371f3124e5b4ff94686f952e5f097bb7, type: 3}
+      propertyPath: ProjectilePrefab
+      value: 
+      objectReference: {fileID: 5131998510060705933}
+    - target: {fileID: 4528944453316856045, guid: 371f3124e5b4ff94686f952e5f097bb7, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 1311497934
+      objectReference: {fileID: 0}
+    - target: {fileID: 6344743881134708964, guid: 371f3124e5b4ff94686f952e5f097bb7, type: 3}
+      propertyPath: m_Name
+      value: Projectiles
       objectReference: {fileID: 0}
     - target: {fileID: 8086004901219037682, guid: 371f3124e5b4ff94686f952e5f097bb7, type: 3}
       propertyPath: m_LocalPosition.x
@@ -13759,6 +13784,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: -6693017499447722929, guid: 371f3124e5b4ff94686f952e5f097bb7, type: 3}
+    - {fileID: 4528944453316856045, guid: 371f3124e5b4ff94686f952e5f097bb7, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
@@ -13766,6 +13792,11 @@ PrefabInstance:
 --- !u!4 &686252714473163844 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8086004901219037682, guid: 371f3124e5b4ff94686f952e5f097bb7, type: 3}
+  m_PrefabInstance: {fileID: 8768875335655128502}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &5131998510060705933 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4506353752892564795, guid: 371f3124e5b4ff94686f952e5f097bb7, type: 3}
   m_PrefabInstance: {fileID: 8768875335655128502}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &6557011826098056239 stripped
