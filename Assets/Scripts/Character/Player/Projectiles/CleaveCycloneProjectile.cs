@@ -41,6 +41,14 @@ public class CleaveCycloneProjectile : NetworkBehaviour
     private float m_hitClearTimer = 0;
     private float m_hitClearInterval = 1;
 
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        transform.parent = null;
+        gameObject.SetActive(false);
+    }
+
     public void Init(
         // server, local & remote
         Vector3 position,
