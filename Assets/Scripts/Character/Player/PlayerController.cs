@@ -272,9 +272,6 @@ public class PlayerController : NetworkBehaviour
 
         // show the game over canvas
         REKTCanvas.Instance.Show(typeOfREKT);
-
-        // shutdown the networkmanager for the client
-        NetworkManager.Singleton.Shutdown();
     }
 
     public void StartTransition()
@@ -418,12 +415,23 @@ public class PlayerController : NetworkBehaviour
         {
             GoNextLevelServerRpc();
         }
+
+        if (Input.GetKeyDown(KeyCode.H))
+        {
+            GoToDegenapeVillageServerRpc();
+        }
     }
 
     [Rpc(SendTo.Server)]
     private void GoNextLevelServerRpc()
     {
         LevelManager.Instance.StartTransitionToNextLevel_SERVER();
+    }
+
+    [Rpc(SendTo.Server)]
+    private void GoToDegenapeVillageServerRpc()
+    {
+        LevelManager.Instance.GoToDegenapeVillageLevel_SERVER();
     }
 
     private void HandleDegenapeHpAp()
