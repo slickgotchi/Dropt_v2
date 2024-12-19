@@ -100,6 +100,7 @@ GameObject:
   - component: {fileID: -8410415049872253199}
   - component: {fileID: -794936541731685515}
   - component: {fileID: 362734463344164852}
+  - component: {fileID: -718215436722411308}
   m_Layer: 12
   m_Name: Chest_Godlike
   m_TagString: Untagged
@@ -280,6 +281,21 @@ MonoBehaviour:
   m_dieSound:
     AudioClip: {fileID: 8300000, guid: fd41e82baef7549d58389e055c616390, type: 3}
     Volume: 0.5
+--- !u!114 &-718215436722411308
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd03bbcc1645c3f479166c0d837fd86b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  NumberWobbles: 1
+  WobbleDuration: 0.3
+  MaxWobbleAngle: 15
 --- !u!1 &6525230415705073668
 GameObject:
   m_ObjectHideFlags: 0
