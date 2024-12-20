@@ -95,6 +95,8 @@ public class Destructible : NetworkBehaviour
                 PRE_DIE?.Invoke();
                 NotifyPlayerToDestroyDestructible(damageDealerId);
                 DestroyDestructibleSoundClientRpc();
+                Core.Pool.NetworkObjectPool.Instance.ReturnNetworkObject(
+                    GetComponent<NetworkObject>(), this.gameObject);
                 GetComponent<NetworkObject>().Despawn();
                 DIE?.Invoke();
             }

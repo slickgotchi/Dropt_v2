@@ -94,6 +94,7 @@ public class PlayerConnectionWarning : NetworkBehaviour
         }
         else
         {
+            Debug.Log("Shutdown NetworkManager");
             NetworkManager.Singleton.Shutdown();
         }
     }

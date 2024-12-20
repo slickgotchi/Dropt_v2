@@ -57,6 +57,7 @@ namespace Level
 
                 AddLevelSpawnComponent(no_button,
                                        buttonGroupSpawner.spawnerId,
+                                       null,
                                        buttonGroupSpawner.GetComponent<Spawner_SpawnCondition>());
             }
         }
@@ -91,6 +92,7 @@ namespace Level
 
                 AddLevelSpawnComponent(no_button,
                                        buttonGroupSpawner.spawnerId,
+                                       null,
                                        buttonGroupSpawner.GetComponent<Spawner_SpawnCondition>());
             }
         }
@@ -109,6 +111,7 @@ namespace Level
 
                 AddLevelSpawnComponent(no_sunkenFloor,
                                        buttonGroupSpawner.spawnerId,
+                                       null,
                                        floorSpawner.GetComponent<Spawner_SpawnCondition>());
             }
         }
@@ -127,6 +130,7 @@ namespace Level
 
                 AddLevelSpawnComponent(no_sunkenFloor,
                                        buttonGroupSpawner.spawnerId,
+                                       null,
                                        floorSpawner.GetComponent<Spawner_SpawnCondition>());
             }
         }

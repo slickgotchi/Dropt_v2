@@ -153,14 +153,14 @@ public class NetworkCharacter : NetworkBehaviour
         {
             previousDynamicStats = currentDynamicStats;
             SyncDynamicStatsClientRpc(currentDynamicStats);
-            Debug.Log("Update Dynamic Stats");
+            //Debug.Log("Update Dynamic Stats");
         }
 
         if (!StaticStatsAreEqual(previousStaticStats, currentStaticStats))
         {
             previousStaticStats = currentStaticStats;
             SyncStaticStatsClientRpc(currentStaticStats);
-            Debug.Log("Update Static Stats");
+            //Debug.Log("Update Static Stats");
         }
     }
 
@@ -315,6 +315,8 @@ public class NetworkCharacter : NetworkBehaviour
                     PlayEnemyDieSoundClientRpc();
                     var networkObject = GetComponent<NetworkObject>();
                     if (networkObject != null) networkObject.Despawn();
+                    Core.Pool.NetworkObjectPool.Instance.ReturnNetworkObject(
+                        networkObject, networkObject.gameObject);
                 }
             }
 

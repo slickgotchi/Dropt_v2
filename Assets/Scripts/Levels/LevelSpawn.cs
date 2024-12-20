@@ -26,6 +26,9 @@ namespace Level
         public bool isSpawned = false;
         public bool isTouchedByPlayer = false;
 
+        // the prefab used to create this level spawn
+        [HideInInspector] public GameObject prefab;
+
         // take note when a player touches this object
         private void OnTriggerEnter2D(Collider2D collision)
         {

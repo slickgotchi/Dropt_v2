@@ -77,8 +77,9 @@ namespace Level
                 apeDoorButton.spawnerId = buttonGroupSpawner.spawnerId;
 
                 AddLevelSpawnComponent(no_button,
-                                       buttonGroupSpawner.spawnerId,
-                                       buttonGroupSpawner.GetComponent<Spawner_SpawnCondition>());
+                           buttonGroupSpawner.spawnerId,
+                           null,
+                           buttonGroupSpawner.GetComponent<Spawner_SpawnCondition>());
             }
         }
 
@@ -108,6 +109,7 @@ namespace Level
                 crystalDoorButton.spawnerId = buttonGroupSpawner.spawnerId;
                 AddLevelSpawnComponent(no_button,
                                        buttonGroupSpawner.spawnerId,
+                                       null,
                                        buttonGroupSpawner.GetComponent<Spawner_SpawnCondition>());
             }
         }
@@ -126,6 +128,7 @@ namespace Level
 
                 AddLevelSpawnComponent(no_apeDoor,
                                        buttonGroupSpawner.spawnerId,
+                                       null,
                                        apeDoorSpawner.GetComponent<Spawner_SpawnCondition>());
             }
         }
@@ -144,6 +147,7 @@ namespace Level
 
                 AddLevelSpawnComponent(no_crystalDoor,
                                        buttonGroupSpawner.spawnerId,
+                                       null,
                                        crystalDoorSpawner.GetComponent<Spawner_SpawnCondition>());
             }
 

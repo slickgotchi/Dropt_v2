@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
+using Core.Pool;
 
 namespace Level
 {
@@ -23,24 +24,47 @@ namespace Level
                 }
 
                 // now instantiate
-                var no_object = Object.Instantiate(randPrefab);
-                no_object.transform.position = spawners[i].transform.position;
+                var enemyController = randPrefab.GetComponent<EnemyController>();
+                var destructible = randPrefab.GetComponent<Destructible>();
+                NetworkObject no_object = null;
+                if (destructible != null || enemyController != null)
+                {
+                    Debug.Log("GetNetworkObject() for Destructible or Enemy");
+                    no_object = NetworkObjectPool.Instance.GetNetworkObject(
+                        randPrefab, spawners[i].transform.position, Quaternion.identity);
+                }
+                else
+                {
+                    var gameObject = Object.Instantiate(
+                        randPrefab, spawners[i].transform.position, Quaternion.identity);
+                    no_object = gameObject.GetComponent<NetworkObject>();
+                }
+                
+                //no_object.transform.position = spawners[i].transform.position;
 
-                AddLevelSpawnComponent(no_object, spawners[i].spawnerId, spawners[i].GetComponent<Spawner_SpawnCondition>());
+                if (no_object != null)
+                {
+                    AddLevelSpawnComponent(no_object.gameObject,
+                        spawners[i].spawnerId,
+                        randPrefab,
+                        spawners[i].GetComponent<Spawner_SpawnCondition>());
 
-                // add no_object ref to original spawner
-                spawners[i].spawnedNetworkObject = no_object;
+                    // add no_object ref to original spawner
+                    spawners[i].spawnedNetworkObject = no_object.gameObject;
+                }
             }
 
         }
 
-        public void AddLevelSpawnComponent(GameObject no_object, int spawnerId, Spawner_SpawnCondition spawnCondition = null)
+        public void AddLevelSpawnComponent(GameObject no_object, int spawnerId, GameObject prefab,
+            Spawner_SpawnCondition spawnCondition = null)
         {
             // Add the LevelSpawn component to the instantiated object
             var levelSpawn = no_object.AddComponent<LevelSpawn>();
 
             // Set the spawn details
             levelSpawn.spawnerId = spawnerId;
+            levelSpawn.prefab = prefab;
 
             // if no spawn condition, just do a basic elapsed time spawn
             if (spawnCondition == null)

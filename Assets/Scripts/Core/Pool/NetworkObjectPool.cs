@@ -85,6 +85,8 @@ namespace Core.Pool
         /// <returns></returns>
         public NetworkObject GetNetworkObject(GameObject prefab, Vector3 position, Quaternion rotation)
         {
+            Debug.Log("GetNetworkObject: " + prefab.name);
+
             var networkObject = m_PooledObjects[prefab].Get();
 
             var noTransform = networkObject.transform;
@@ -99,7 +101,28 @@ namespace Core.Pool
         /// </summary>
         public void ReturnNetworkObject(NetworkObject networkObject, GameObject prefab)
         {
-            m_PooledObjects[prefab].Release(networkObject);
+            Debug.Log($"ReturnNetworkObject {networkObject.name}, {prefab.name}");
+            if (!m_PooledObjects.ContainsKey(prefab))
+            {
+                Debug.LogWarning($"Prefab {prefab.name} not found in the pool.");
+                return;
+            }
+
+            // Check if the object is already in the pool
+            if (networkObject.IsSpawned)
+            {
+                Debug.LogWarning($"NetworkObject {networkObject.name} is still spawned. Cannot return to pool.");
+                return;
+            }
+
+            try
+            {
+                m_PooledObjects[prefab].Release(networkObject);
+            }
+            catch (InvalidOperationException ex)
+            {
+                Debug.LogWarning($"Attempted to release an already released object {prefab.name}: {ex.Message}");
+            }
         }
 
         /// <summary>
@@ -114,16 +137,19 @@ namespace Core.Pool
 
             void ActionOnGet(NetworkObject networkObject)
             {
+                if (networkObject == null) return;
                 networkObject.gameObject.SetActive(true);
             }
 
             void ActionOnRelease(NetworkObject networkObject)
             {
+                if (networkObject == null) return;
                 networkObject.gameObject.SetActive(false);
             }
 
             void ActionOnDestroy(NetworkObject networkObject)
             {
+                if (networkObject == null) return;
                 Destroy(networkObject.gameObject);
             }
 

@@ -82,41 +82,13 @@ public class PlayerAbilities : NetworkBehaviour
         base.OnNetworkDespawn();
     }
 
-    /*
-    void DestroyAbility(ref GameObject ability)
-    {
-        if (ability != null && IsServer)
-        {
-            var networkObject = ability.GetComponent<NetworkObject>();
-            if (networkObject != null && networkObject.IsSpawned)
-            {
-                networkObject.TryRemoveParent();
-                networkObject.Despawn();
-                GameObject.Destroy(ability); // Explicitly destroy the GameObject
-                ability = null; // Clear the reference
-            }
-        }
-
-        //if (ability != null && IsServer)
-        //{
-        //    ability.transform.SetParent(null);
-        //    ability.GetComponent<NetworkObject>().Despawn();
-        //}
-    }
-    */
-
     private void Update()
     {
         float dt = Time.deltaTime;
-        if (IsServer && IsSpawned)
+        if (IsServer && IsSpawned && leftAttackCooldown != null && rightAttackCooldown != null)
         {
             leftAttackCooldown.Value -= dt;
             rightAttackCooldown.Value -= dt;
-        }
-
-        if (IsClient && IsSpawned)
-        {
-
         }
     }
 
