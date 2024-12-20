@@ -242,7 +242,12 @@ namespace Dropt
         // override this function in child class if you want to do something other than despawn
         protected virtual void OnDeath(Vector3 position)
         {
-            GetComponent<NetworkObject>().Despawn();
+            var networkObject = GetComponent<NetworkObject>();
+            if (networkObject == null) return;
+
+            Core.Pool.NetworkObjectPool.Instance.ReturnNetworkObject(
+                networkObject, networkObject.gameObject);
+            networkObject.Despawn();
         }
 
         public void Death(Vector3 position)

@@ -81,7 +81,12 @@ public class GasBag_Explode : EnemyAbility
         if (Parent != null)
         {
             var parentNetworkObject = Parent.GetComponent<NetworkObject>();
-            if (parentNetworkObject != null) parentNetworkObject.Despawn();
+            if (parentNetworkObject != null)
+            {
+                Core.Pool.NetworkObjectPool.Instance.ReturnNetworkObject(
+                    parentNetworkObject, parentNetworkObject.gameObject);
+                parentNetworkObject.Despawn();
+            }
         }
 
         var networkObject = GetComponent<NetworkObject>();

@@ -253,6 +253,7 @@ public class Game : MonoBehaviour
 
         //if (!isGetEmptyGame)
         {
+            Debug.Log("Shutdown NetworkManager");
             NetworkManager.Singleton.Shutdown();
         }
 

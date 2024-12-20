@@ -109,6 +109,7 @@ public class PlayerController : NetworkBehaviour
         if (serverVersion != Bootstrap.Instance.Version)
         {
             ErrorDialogCanvas.Instance.Show("Your local browser version of Dropt does not match the server. Please hard refresh your browser to update.");
+            Debug.Log("Shutdown NetworkManager");
             NetworkManager.Singleton.Shutdown();
         }
     }
@@ -274,6 +275,7 @@ public class PlayerController : NetworkBehaviour
         REKTCanvas.Instance.Show(typeOfREKT);
 
         // shutdown the networkmanager for the client
+        Debug.Log("Shutdown NetworkManager");
         NetworkManager.Singleton.Shutdown();
     }
 
