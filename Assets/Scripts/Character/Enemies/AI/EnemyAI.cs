@@ -245,6 +245,7 @@ namespace Dropt
             var networkObject = GetComponent<NetworkObject>();
             if (networkObject == null) return;
 
+            Debug.Log("OnDeath");
             Core.Pool.NetworkObjectPool.Instance.ReturnNetworkObject(
                 networkObject, networkObject.gameObject);
             networkObject.Despawn();

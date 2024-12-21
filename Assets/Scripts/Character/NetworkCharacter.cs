@@ -315,6 +315,8 @@ public class NetworkCharacter : NetworkBehaviour
                     PlayEnemyDieSoundClientRpc();
                     var networkObject = GetComponent<NetworkObject>();
                     if (networkObject != null) networkObject.Despawn();
+
+                    Debug.Log("HandleEnemyTakeDamage: ReturnNetworkObject()");
                     Core.Pool.NetworkObjectPool.Instance.ReturnNetworkObject(
                         networkObject, networkObject.gameObject);
                 }

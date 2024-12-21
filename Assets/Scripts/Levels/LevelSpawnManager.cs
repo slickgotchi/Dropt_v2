@@ -102,14 +102,14 @@ public class LevelSpawnManager : MonoBehaviour
         }
     }
 
-    public void TagAllCurrentLevelSpawnsForDead()
-    {
-        var levelSpawns = FindObjectsByType<Level.LevelSpawn>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-        for (int i = levelSpawns.Length-1; i >= 0; i--)
-        {
-            Destroy(levelSpawns[i].gameObject);
-        }
-    }
+    //public void TagAllCurrentLevelSpawnsForDead()
+    //{
+    //    var levelSpawns = FindObjectsByType<Level.LevelSpawn>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+    //    for (int i = levelSpawns.Length-1; i >= 0; i--)
+    //    {
+    //        Destroy(levelSpawns[i].gameObject);
+    //    }
+    //}
 
      
 }

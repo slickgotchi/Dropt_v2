@@ -7,11 +7,31 @@ using UnityEngine.Pool;
 
 namespace Core.Pool
 {
+    /// <summary>
+    /// Object Pool for networked objects, used for controlling how objects are spawned by Netcode. Netcode by default
+    /// will allocate new memory when spawning new objects. With this Networked Pool, we're using the ObjectPool to
+    /// reuse objects.
+    /// Boss Room uses this for projectiles. In theory it should use this for imps too, but we wanted to show vanilla spawning vs pooled spawning.
+    /// Hooks to NetworkManager's prefab handler to intercept object spawning and do custom actions.
+    /// </summary>
     public class NetworkObjectPool : NetworkBehaviour
     {
         public static NetworkObjectPool Instance { get; private set; }
 
-        [SerializeField] List<PoolConfigObject> PooledPrefabsList;
+        //[Header("Enemy")]
+        //[SerializeField] List<GameObject> enemyPooledPrefabs;
+        //[SerializeField] int enemyPoolPrewarmCount = 10;
+
+        //[Header("Destructible")]
+        //[SerializeField] List<GameObject> destructiblePooledPrefabs;
+        //[SerializeField] int destructiblePoolPrewarmCount = 20;
+
+        //[Header("Pickup")]
+        //[SerializeField] List<GameObject> pickupPooledPrefabs;
+        //[SerializeField] int pickupPoolPrewarmCount = 30;
+
+        //[Header("Custom")]
+        [SerializeField] List<PoolConfigObject> m_poolConfigObjects;
 
         HashSet<GameObject> m_Prefabs = new HashSet<GameObject>();
 
@@ -34,8 +54,26 @@ namespace Core.Pool
         {
             base.OnNetworkSpawn();
 
-            // Registers all objects in PooledPrefabsList to the cache.
-            foreach (var configObject in PooledPrefabsList)
+            //// register enemies
+            //foreach (var ep in enemyPooledPrefabs)
+            //{
+            //    RegisterPrefabInternal(ep, enemyPoolPrewarmCount);
+            //}
+
+            //// register destructibles
+            //foreach (var dp in destructiblePooledPrefabs)
+            //{
+            //    RegisterPrefabInternal(dp, destructiblePoolPrewarmCount);
+            //}
+
+            //// register pickups
+            //foreach (var pp in pickupPooledPrefabs)
+            //{
+            //    RegisterPrefabInternal(pp, pickupPoolPrewarmCount);
+            //}
+
+            // Registers all objects in cust prefab pool to the cache.
+            foreach (var configObject in m_poolConfigObjects)
             {
                 RegisterPrefabInternal(configObject.Prefab, configObject.PrewarmCount);
             }
@@ -59,9 +97,9 @@ namespace Core.Pool
 
         public void OnValidate()
         {
-            for (var i = 0; i < PooledPrefabsList.Count; i++)
+            for (var i = 0; i < m_poolConfigObjects.Count; i++)
             {
-                var prefab = PooledPrefabsList[i].Prefab;
+                var prefab = m_poolConfigObjects[i].Prefab;
                 if (prefab != null)
                 {
                     Assert.IsNotNull(prefab.GetComponent<NetworkObject>(),
@@ -71,7 +109,7 @@ namespace Core.Pool
         }
 
         /// <summary>
-        /// Gets an instance of the given prefab from the pool. The prefab must be registered to the pool.
+        /// Gets a NetworkObject instance of the given prefab from the pool. The prefab must be registered to the pool.
         /// </summary>
         /// <remarks>
         /// To spawn a NetworkObject from one of the pools, this must be called on the server, then the instance
@@ -85,15 +123,34 @@ namespace Core.Pool
         /// <returns></returns>
         public NetworkObject GetNetworkObject(GameObject prefab, Vector3 position, Quaternion rotation)
         {
-            Debug.Log("GetNetworkObject: " + prefab.name);
+            //// Log the attempt to get a NetworkObject
+            //Debug.Log($"GetNetworkObject called for prefab: {prefab.name}");
 
-            var networkObject = m_PooledObjects[prefab].Get();
+            // Check if the prefab is registered in the pool
+            if (!m_PooledObjects.ContainsKey(prefab))
+            {
+                Debug.LogWarning($"Prefab {prefab.name} not found in the pool. Creating a new instance dynamically.");
 
-            var noTransform = networkObject.transform;
-            noTransform.position = position;
-            noTransform.rotation = rotation;
+                // Dynamically create and return a new instance if not found in the pool
+                var networkObject = Instantiate(prefab).GetComponent<NetworkObject>();
+                if (networkObject == null)
+                {
+                    throw new Exception($"Failed to instantiate NetworkObject from prefab: {prefab.name}");
+                }
 
-            return networkObject;
+                // Set position and rotation for the new instance
+                networkObject.transform.position = position;
+                networkObject.transform.rotation = rotation;
+
+                return networkObject;
+            }
+
+            // Retrieve an instance from the pool
+            var pooledNetworkObject = m_PooledObjects[prefab].Get();
+            pooledNetworkObject.transform.position = position;
+            pooledNetworkObject.transform.rotation = rotation;
+
+            return pooledNetworkObject;
         }
 
         /// <summary>
@@ -101,7 +158,7 @@ namespace Core.Pool
         /// </summary>
         public void ReturnNetworkObject(NetworkObject networkObject, GameObject prefab)
         {
-            Debug.Log($"ReturnNetworkObject {networkObject.name}, {prefab.name}");
+            //Debug.Log($"ReturnNetworkObject {networkObject.name}, {prefab.name}");
             if (!m_PooledObjects.ContainsKey(prefab))
             {
                 Debug.LogWarning($"Prefab {prefab.name} not found in the pool.");

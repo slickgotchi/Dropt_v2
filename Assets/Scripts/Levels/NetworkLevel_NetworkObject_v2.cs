@@ -11,6 +11,8 @@ namespace Level
     {
         public void CreateSpawners_NetworkObject_v2()
         {
+            if (!IsServer) return;
+
             var spawners = new List<Spawner_NetworkObject_v2>(GetComponentsInChildren<Spawner_NetworkObject_v2>());
 
             for (int i = 0; i < spawners.Count; i++)
@@ -29,12 +31,13 @@ namespace Level
                 NetworkObject no_object = null;
                 if (destructible != null || enemyController != null)
                 {
-                    Debug.Log("GetNetworkObject() for Destructible or Enemy");
+                    Debug.Log("CreateSpawners_NetworkObject_v2 - GetNetworkObject() for Destructible or Enemy");
                     no_object = NetworkObjectPool.Instance.GetNetworkObject(
                         randPrefab, spawners[i].transform.position, Quaternion.identity);
                 }
                 else
                 {
+                    Debug.Log("CreateSpawners_NetworkObject_v2 - Instantiating network object");
                     var gameObject = Object.Instantiate(
                         randPrefab, spawners[i].transform.position, Quaternion.identity);
                     no_object = gameObject.GetComponent<NetworkObject>();
