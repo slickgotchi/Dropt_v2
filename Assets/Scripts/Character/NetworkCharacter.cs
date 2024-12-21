@@ -403,8 +403,13 @@ public class NetworkCharacter : NetworkBehaviour
 
             if (currentDynamicStats.HpCurrent <= 0)
             {
+//<<<<<<< HEAD
                 currentDynamicStats.HpCurrent = 0;
-                Debug.Log("Hp hit 0, KillPlayer");
+                //Debug.Log("Hp hit 0, KillPlayer");
+//=======
+//                HpCurrent.Value = 0;
+//                //Debug.Log("Hp hit 0, KillPlayer");
+//>>>>>>> main
                 playerController.KillPlayer(REKTCanvas.TypeOfREKT.HP);
             }
 

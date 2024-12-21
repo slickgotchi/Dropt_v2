@@ -28,7 +28,7 @@ public class Game : MonoBehaviour
     private bool m_isTryConnectClientGame = false;
 
     // store current game Id
-    private string m_currentGameId = "";
+    //private string m_currentGameId = "";
 
     [HideInInspector] public bool isReconnecting = true;
 
@@ -55,12 +55,19 @@ public class Game : MonoBehaviour
 
     private void Start()
     {
-        m_currentGameId = "";
+        //m_currentGameId = "";
 
         // check for web socket
         m_unityTransport = NetworkManager.Singleton.GetComponent<UnityTransport>();
         if (m_unityTransport != null)
         {
+//<<<<<<< HEAD
+//=======
+//            // disable nagle algorith
+//            //DisableNagleAlgorithm();
+
+
+//>>>>>>> main
             if (Bootstrap.IsLocalConnection())
             {
                 Bootstrap.Instance.IpAddress = "127.0.0.1";
@@ -85,7 +92,7 @@ public class Game : MonoBehaviour
                 QualitySettings.vSyncCount = 1;
 
                 // connect to a client game (leave gameId param "" to signify we want an empty game)
-                ConnectClientGame(Bootstrap.Instance.GameId);
+                ConnectClientGame(Bootstrap.Instance.isJoiningFromTitle ? Bootstrap.Instance.GameId : "");
             }
             else if (Bootstrap.IsHost())
             {
@@ -131,7 +138,7 @@ public class Game : MonoBehaviour
         if (Bootstrap.IsClient())
         {
             // update game id
-            Bootstrap.Instance.GameId = m_currentGameId;
+            //Bootstrap.Instance.GameId = m_currentGameId;
         }
     }
 
@@ -173,6 +180,8 @@ public class Game : MonoBehaviour
     {
         Debug.Log("ConnectClientGame()");
 
+        //m_currentGameId = gameId;
+
         bool isReturnToTitleOnFail = string.IsNullOrEmpty(gameId) || Bootstrap.Instance.isJoiningFromTitle;
 
         if (m_unityTransport == null)
@@ -211,6 +220,8 @@ public class Game : MonoBehaviour
                 // set IP address and port
                 Bootstrap.Instance.IpAddress = response.ipAddress;
                 Bootstrap.Instance.GamePort = ushort.Parse(response.gamePort);
+                Bootstrap.Instance.GameId = response.gameId;
+                //m_currentGameId = response.gameId;
                 m_chainPem = response.clientCA;
                 m_commonName = response.commonName;
             }
@@ -258,7 +269,8 @@ public class Game : MonoBehaviour
         }
 
         m_isTryConnectClientGame = true;
-        m_currentGameId = gameId;
+        //m_currentGameId = gameId;
+        //Bootstrap.Instance.GameId = gameId;
     }
 
 
@@ -352,6 +364,10 @@ public class Game : MonoBehaviour
             Debug.Log($"GameObjects: {gameObjects.Length}, Network Objects: {networkObjects.Length}");
         }
     }
+//<<<<<<< HEAD
+//=======
+    
+//>>>>>>> main
 
     private string m_testGameServerCommonName = "test-game-server.playdropt.io";
 

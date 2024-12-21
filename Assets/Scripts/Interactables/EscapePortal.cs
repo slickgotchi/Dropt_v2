@@ -72,8 +72,12 @@ public class EscapePortal : Interactable
         // show the game over canvas
         REKTCanvas.Instance.Show(REKTCanvas.TypeOfREKT.Escaped);
 
-        // shutdown the networkmanager for the client
-        Debug.Log("Shutdown NetworkManager");
-        NetworkManager.Singleton.Shutdown();
+//        // shutdown the networkmanager for the client
+//<<<<<<< HEAD
+//        Debug.Log("Shutdown NetworkManager");
+//        NetworkManager.Singleton.Shutdown();
+//=======
+//        //NetworkManager.Singleton.Shutdown();
+//>>>>>>> main
     }
 }

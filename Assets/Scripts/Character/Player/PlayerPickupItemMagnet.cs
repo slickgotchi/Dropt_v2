@@ -20,6 +20,10 @@ public class PlayerPickupItemMagnet : NetworkBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        // don't run if the player is dead
+        //var playerController = GetComponent<PlayerController>();
+        //if (playerController == null || playerController.IsDead) return;
+
         m_currentPickupItem = other.GetComponent<PickupItem>();
 
         if (m_currentPickupItem != null)
@@ -33,6 +37,10 @@ public class PlayerPickupItemMagnet : NetworkBehaviour
     public void Collect(PickupItem pickupItem)
     {
         if (!IsServer) return;
+
+        // don't run if the player is dead
+        //var playerController = GetComponent<PlayerController>();
+        //if (playerController == null || playerController.IsDead) return;
 
         if (pickupItem.gameObject.HasComponent<GltrOrb>())
         {

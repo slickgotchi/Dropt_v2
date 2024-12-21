@@ -18,7 +18,7 @@ public class CoOpModeCanvas : DroptCanvas
     public TMP_InputField JoinPrivateInput;
     public Toggle IsPublicToggle;
 
-    private TextMeshProUGUI m_copyButtonText;
+    public TextMeshProUGUI m_copyButtonText;
 
     public GameObject MenuCard;
 
@@ -42,7 +42,7 @@ public class CoOpModeCanvas : DroptCanvas
         JoinPrivateButton.onClick.AddListener(HandleClick_JoinPrivateButton);
         IsPublicToggle.onValueChanged.AddListener(HandleChange_IsPublicToggle);
 
-        m_copyButtonText = CopyMyGameIdButton.GetComponentInChildren<TextMeshProUGUI>();
+        //m_copyButtonText = CopyMyGameIdButton.GetComponentInChildren<TextMeshProUGUI>();
     }
 
     private void Start()

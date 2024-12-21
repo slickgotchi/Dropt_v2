@@ -100,6 +100,7 @@ GameObject:
   - component: {fileID: -2301808547402161533}
   - component: {fileID: -4115307958717244951}
   - component: {fileID: 3136065186067048187}
+  - component: {fileID: -7147469017879845128}
   m_Layer: 12
   m_Name: Chest_Starter_Rare
   m_TagString: Untagged
@@ -286,6 +287,21 @@ MonoBehaviour:
   m_dieSound:
     AudioClip: {fileID: 8300000, guid: 63c77ad4e995243e995f08fcb5352753, type: 3}
     Volume: 0.5
+--- !u!114 &-7147469017879845128
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd03bbcc1645c3f479166c0d837fd86b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  NumberWobbles: 1
+  WobbleDuration: 0.3
+  MaxWobbleAngle: 15
 --- !u!1 &6525230415705073668
 GameObject:
   m_ObjectHideFlags: 0

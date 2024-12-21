@@ -146,33 +146,6 @@ public class PlayerEquipment : NetworkBehaviour
 
         Debug.LogWarning("No gotchi data found for: " + id);
 
-        //// check for default gotchi
-        //if (id <= 0 || id == 69420)
-        //{
-        //    // tell server to change our equipment if we're the local player
-        //    if (IsLocalPlayer)
-        //    {
-        //        Debug.Log("Set weapons");
-        //        SetEquipmentServerRpc(Slot.LeftHand, leftHandStarterWeapon);
-        //        SetEquipmentServerRpc(Slot.RightHand, rightHandStarterWeapon);
-        //    }
-        //}
-        //else
-        //{
-        //    var gotchiData = GotchiDataManager.Instance.GetGotchiDataById(id);
-        //    var rightHandWearableId = gotchiData.equippedWearables[4];
-        //    var leftHandWearableId = gotchiData.equippedWearables[5];
-
-        //    var lhWearable = WearableManager.Instance.GetWearable(leftHandWearableId);
-        //    var rhWearable = WearableManager.Instance.GetWearable(rightHandWearableId);
-
-        //    // tell server to change our equipment if we're the local player
-        //    if (IsLocalPlayer)
-        //    {
-        //        SetEquipmentServerRpc(Slot.LeftHand, lhWearable != null ? lhWearable.NameType : Wearable.NameEnum.Unarmed);
-        //        SetEquipmentServerRpc(Slot.RightHand, rhWearable != null ? rhWearable.NameType : Wearable.NameEnum.Unarmed);
-        //    }
-        //}
     }
 
     public void SetPlayerPetByGotchiId(int id)
@@ -196,30 +169,6 @@ public class PlayerEquipment : NetworkBehaviour
             SetEquipmentServerRpc(Slot.Pet, petWearable != null ? petWearable.NameType : Wearable.NameEnum.Null);
             return;
         }
-
-        /*
-        if (!IsClient) return;
-
-        if (id <= 0 || id == 69420)
-        {
-            if (IsLocalPlayer)
-            {
-                SetEquipmentServerRpc(Slot.Pet, starterPet);
-            }
-        }
-        else
-        {
-            var gotchiData = GotchiDataManager.Instance.GetGotchiDataById(id);
-            var petId = gotchiData.equippedWearables[6];
-            var petWearable = WearableManager.Instance.GetWearable(petId);
-
-            if (IsLocalPlayer)
-            {
-                SetEquipmentServerRpc(Slot.Pet, petWearable != null ? petWearable.NameType : Wearable.NameEnum.None);
-            }
-
-        }
-        */
     }
 
     public void SetPlayerWeapon(Hand hand, Wearable.NameEnum nameEnum)
