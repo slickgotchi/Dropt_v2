@@ -86,4 +86,26 @@ public class LeaderboardCanvas : DroptCanvas
                 interactable.interactableType);
         }
     }
+
+    public override void OnShowCanvas()
+    {
+        base.OnShowCanvas();
+
+        // get latest leaderboard data
+    }
+
+
+
+    struct LeaderboardRowEntry
+    {
+        public int rank;
+        public string gotchi;
+        public int id;
+        public string address;
+        public int ghst;
+        public string formation;
+        public int dust;
+        public int kills;
+        public int time;
+    }
 }
