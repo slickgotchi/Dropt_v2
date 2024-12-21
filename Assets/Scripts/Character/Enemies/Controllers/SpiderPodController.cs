@@ -82,8 +82,8 @@ namespace Dropt
             for (int i = 0; i < NumberSpiders; i++)
             {
                 Vector3 dir = PlayerAbility.GetDirectionFromAngle(startAngle + deltaAngle * i);
-                GameObject spider = Instantiate(SpiderPrefab);
-                spider.transform.position = transform.position + new Vector3(0f, 1f, 0f);
+                GameObject spider = Core.Pool.NetworkObjectPool.Instance.GetNetworkObject(SpiderPrefab, transform.position + new Vector3(0f, 1f, 0f), Quaternion.identity).gameObject;
+                //spider.transform.position = transform.position + new Vector3(0f, 1f, 0f);
                 EnemyAI_Spider enemyAI_Spider = spider.GetComponent<EnemyAI_Spider>();
                 enemyAI_Spider.SpawnDuration = SpawnDuration;
                 enemyAI_Spider.SpawnDirection = dir.normalized;

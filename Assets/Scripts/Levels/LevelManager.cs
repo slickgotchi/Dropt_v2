@@ -161,7 +161,7 @@ public class LevelManager : NetworkBehaviour
         ProximityManager.Instance.enabled = false;
 
         // tag all spawns to die
-        LevelSpawnManager.Instance.TagAllCurrentLevelSpawnsForDead();
+        //LevelSpawnManager.Instance.TagAllCurrentLevelSpawnsForDead();
 
         // find everything to destroy
         var destroyObjects = new List<DestroyAtLevelChange>(FindObjectsByType<DestroyAtLevelChange>(FindObjectsInactive.Include, FindObjectsSortMode.None));
@@ -200,31 +200,26 @@ public class LevelManager : NetworkBehaviour
                 destroyObject.GetComponent<Interactables.Chest>().enabled = false;
             }
 
-            Debug.Log("Destroy object: " + destroyObject.gameObject.name);
 
-            // destroy object
-            var doNetworkObject = destroyObject.GetComponent<NetworkObject>();
-            if (destroyObject != null && doNetworkObject != null && IsServer)
+            // get our destroy objects networkobject
+            var networkObject = destroyObject.GetComponent<NetworkObject>();
+            if (networkObject != null)
             {
                 // check for enemies or destructibles
-                var enemyController = doNetworkObject.GetComponent<EnemyController>();
-                var destructible = doNetworkObject.GetComponent<Destructible>();
-                var levelSpawn = doNetworkObject.GetComponent<Level.LevelSpawn>();
+                var enemyController = networkObject.GetComponent<EnemyController>();
+                var destructible = networkObject.GetComponent<Destructible>();
+                var levelSpawn = networkObject.GetComponent<Level.LevelSpawn>();
+
                 if ((enemyController != null || destructible != null) && levelSpawn != null)
                 {
-                    Debug.Log("Try return: " + doNetworkObject.gameObject.name);
                     Core.Pool.NetworkObjectPool.Instance.ReturnNetworkObject(
-                        doNetworkObject, levelSpawn.prefab);
+                        networkObject, levelSpawn.prefab);
                 }
 
-                if (doNetworkObject.IsSpawned)
-                {
-                    doNetworkObject.Despawn();
-                }
+                if (networkObject.IsSpawned) networkObject.Despawn();
             }
             else
             {
-                Debug.Log("Destroy: " + destroyObject.gameObject);
                 Destroy(destroyObject);
             }
         }
