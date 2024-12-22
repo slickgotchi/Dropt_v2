@@ -28,6 +28,11 @@ public class StatBarCanvas : MonoBehaviour
         m_character = transform.parent.GetComponent<NetworkCharacter>();
     }
 
+    public void Init()
+    {
+        m_isDamaged = false;
+    }
+
     private void Update()
     {
         UpdateStatBarsShowIfBelow100();

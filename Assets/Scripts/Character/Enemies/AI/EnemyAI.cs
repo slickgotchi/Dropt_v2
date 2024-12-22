@@ -127,6 +127,14 @@ namespace Dropt
             // set debug visibility
             var enemyAICanvas = GetComponentInChildren<EnemyAI_DebugCanvas>();
             enemyAICanvas.Container.SetActive(EnemyAIManager.Instance.IsDebugVisible);
+
+            Init();
+        }
+
+        public void Init()
+        {
+            if (IsServer) state.Value = State.Spawn;
+            m_isDead = false;
         }
 
         private void Update()
@@ -245,9 +253,11 @@ namespace Dropt
             var networkObject = GetComponent<NetworkObject>();
             if (networkObject == null) return;
 
+            var levelSpawn = GetComponent<Level.LevelSpawn>();
+
             Debug.Log("OnDeath");
             Core.Pool.NetworkObjectPool.Instance.ReturnNetworkObject(
-                networkObject, networkObject.gameObject);
+                networkObject, levelSpawn.prefab);
             networkObject.Despawn();
         }
 

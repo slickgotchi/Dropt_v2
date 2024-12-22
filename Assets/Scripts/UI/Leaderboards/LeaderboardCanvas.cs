@@ -21,8 +21,11 @@ public class LeaderboardCanvas : DroptCanvas
     [SerializeField] private Button m_spotPrizesButton;
     [SerializeField] private Button m_exitButton;
 
-    public enum Tab { Adventure, Gauntlet, SpotPrizes}
-    private Tab m_tab = Tab.Adventure;
+    private List<LeaderboardDataRow> m_leaderboardDataRows;
+
+    public enum Tab { Adventure, Gauntlet, SpotPrizes, Null }
+    private Tab m_currentTab = Tab.Adventure;
+    private Tab m_previousTab = Tab.Null;
 
     private void Awake()
     {
@@ -48,6 +51,16 @@ public class LeaderboardCanvas : DroptCanvas
     {
         base.OnUpdate();
 
+        if (m_currentTab != m_previousTab)
+        {
+            m_previousTab = m_currentTab;
+            SetNewTab(m_currentTab);
+            Debug.Log("Set new tab");
+        }
+    }
+
+    void SetNewTab(Tab newTab)
+    {
         m_adventureBoard.SetActive(false);
         m_gauntletBoard.SetActive(false);
         m_spotPrizesBoard.SetActive(false);
@@ -56,12 +69,12 @@ public class LeaderboardCanvas : DroptCanvas
         m_gauntletButton.GetComponent<Image>().color = m_buttonUnselectedColor;
         m_spotPrizesButton.GetComponent<Image>().color = m_buttonUnselectedColor;
 
-        if (m_tab == Tab.Adventure)
+        if (newTab == Tab.Adventure)
         {
             m_adventureBoard.SetActive(true);
             m_adventureButton.GetComponent<Image>().color = m_buttonSelectedColor;
         }
-        else if (m_tab == Tab.Gauntlet)
+        else if (newTab == Tab.Gauntlet)
         {
             m_gauntletBoard.SetActive(true);
             m_gauntletButton.GetComponent<Image>().color = m_buttonSelectedColor;
@@ -73,9 +86,9 @@ public class LeaderboardCanvas : DroptCanvas
         }
     }
 
-    void HandleClickAdventure() { m_tab = Tab.Adventure; }
-    void HandleClickGauntlet() { m_tab = Tab.Gauntlet; }
-    void HandleClickSpotPrizes() { m_tab = Tab.SpotPrizes; }
+    void HandleClickAdventure() { m_currentTab = Tab.Adventure; }
+    void HandleClickGauntlet() { m_currentTab = Tab.Gauntlet; }
+    void HandleClickSpotPrizes() { m_currentTab = Tab.SpotPrizes; }
 
     void HandleClickExit()
     {
@@ -91,10 +104,39 @@ public class LeaderboardCanvas : DroptCanvas
     {
         base.OnShowCanvas();
 
-        // get latest leaderboard data
+        PopulateLeaderboards();
     }
 
+    async void PopulateLeaderboards()
+    {
+        try
+        {
+            // get local players leaderboard logger
+            TryGetLocalPlayerInput();
+            if (m_localPlayerInput == null) return;
+            var playerLeaderboardLogger = m_localPlayerInput.GetComponent<PlayerLeaderboardLogger>();
+            if (playerLeaderboardLogger == null) return;
 
+            // get leaderboard entries
+            var entries = await playerLeaderboardLogger.GetAllLeaderboardEntries("adventure_leaderboard");
+
+            // populate the data rows
+            for (int i = 0; i < m_leaderboardDataRows.Count; i++)
+            {
+                var entry = entries[i];
+                var dataRow = m_leaderboardDataRows[i];
+                if (entry != null && dataRow != null)
+                {
+                    dataRow.Set(
+                        i, entry.gotchi_name, entry.gotchi_id, entry.wallet_address, 0, entry.formation, entry.dust_balance, entry.kills, entry.completion_time);
+                }
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.Log(e.Message);
+        }
+    }
 
     struct LeaderboardRowEntry
     {

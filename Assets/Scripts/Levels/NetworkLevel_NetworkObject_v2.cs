@@ -28,66 +28,73 @@ namespace Level
                 // now instantiate
                 var enemyController = randPrefab.GetComponent<EnemyController>();
                 var destructible = randPrefab.GetComponent<Destructible>();
-                NetworkObject no_object = null;
+                NetworkObject networkObject = null;
+
+                // handle enemies and destructibles
                 if (destructible != null || enemyController != null)
                 {
                     Debug.Log("CreateSpawners_NetworkObject_v2 - GetNetworkObject() for Destructible or Enemy");
-                    no_object = NetworkObjectPool.Instance.GetNetworkObject(
+                    networkObject = NetworkObjectPool.Instance.GetNetworkObject(
                         randPrefab, spawners[i].transform.position, Quaternion.identity);
                 }
+                // handle instantiating all other objects
                 else
                 {
-                    Debug.Log("CreateSpawners_NetworkObject_v2 - Instantiating network object");
+                    Debug.Log("CreateSpawners_NetworkObject_v2 - Instantiating general network object");
                     var gameObject = Object.Instantiate(
                         randPrefab, spawners[i].transform.position, Quaternion.identity);
-                    no_object = gameObject.GetComponent<NetworkObject>();
+                    networkObject = gameObject.GetComponent<NetworkObject>();
                 }
                 
-                //no_object.transform.position = spawners[i].transform.position;
-
-                if (no_object != null)
+                // if we got networkobject, set levelspawn
+                if (networkObject != null)
                 {
-                    AddLevelSpawnComponent(no_object.gameObject,
+                    AddLevelSpawnComponent(networkObject.gameObject,
                         spawners[i].spawnerId,
                         randPrefab,
                         spawners[i].GetComponent<Spawner_SpawnCondition>());
 
-                    // add no_object ref to original spawner
-                    spawners[i].spawnedNetworkObject = no_object.gameObject;
+                    // add networkObject ref to original spawner
+                    spawners[i].spawnedNetworkObject = networkObject.gameObject;
+
+                    // start the object off inactive
+                    networkObject.gameObject.SetActive(false);
                 }
             }
 
         }
 
-        public void AddLevelSpawnComponent(GameObject no_object, int spawnerId, GameObject prefab,
+        public void AddLevelSpawnComponent(GameObject gObject, int spawnerId, GameObject prefab,
             Spawner_SpawnCondition spawnCondition = null)
         {
-            // Add the LevelSpawn component to the instantiated object
-            var levelSpawn = no_object.AddComponent<LevelSpawn>();
+            // Add the LevelSpawn component to the instantiated object if does not have it
+            LevelSpawn levelSpawn = gObject.GetComponent<LevelSpawn>();
+            if (levelSpawn == null)
+            {
+                levelSpawn = gObject.AddComponent<LevelSpawn>();
+            }
 
-            // Set the spawn details
-            levelSpawn.spawnerId = spawnerId;
-            levelSpawn.prefab = prefab;
-
-            // if no spawn condition, just do a basic elapsed time spawn
+            // set basic instant spawn if no condition was passed
             if (spawnCondition == null)
             {
-                levelSpawn.spawnCondition = LevelSpawn.SpawnCondition.ElapsedTime;
-                levelSpawn.elapsedTime = 0f;
+                levelSpawn.Set(
+                    spawnerId,
+                    LevelSpawn.SpawnCondition.ElapsedTime,
+                    0, 0, 0, 0, 0, prefab);
             }
+            // set a more detailed spawn condition
             else
             {
-                //Debug.Log("Setting spawn condition to: " + spawnCondition.spawnCondition + " with elapsedTime: " + spawnCondition.elapsedTime);
-                levelSpawn.spawnCondition = spawnCondition.spawnCondition;
-                levelSpawn.elapsedTime = spawnCondition.elapsedTime;
-                levelSpawn.destroyAllWithSpawnerId = spawnCondition.destroyAllWithSpawnerId;
-                levelSpawn.spawnTimeAfterDestroyAll = spawnCondition.spawnTimeAfterDestroyAll;
-                levelSpawn.touchTriggerWithSpawnerId = spawnCondition.touchTriggerWithSpawnerId;
-                levelSpawn.spawnTimeAfterTrigger = spawnCondition.spawnTimeAfterTrigger;
+                levelSpawn.Set(
+                    spawnerId,
+                    spawnCondition.spawnCondition,
+                    spawnCondition.elapsedTime,
+                    spawnCondition.destroyAllWithSpawnerId,
+                    spawnCondition.spawnTimeAfterDestroyAll,
+                    spawnCondition.touchTriggerWithSpawnerId,
+                    spawnCondition.spawnTimeAfterTrigger,
+                    prefab);
             }
-
-            // start object off inactive
-            no_object.SetActive(false);
         }
     }
 }

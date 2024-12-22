@@ -164,24 +164,38 @@ public class LevelManager : NetworkBehaviour
         //LevelSpawnManager.Instance.TagAllCurrentLevelSpawnsForDead();
 
         // find everything to destroy
-        var destroyObjects = new List<DestroyAtLevelChange>(FindObjectsByType<DestroyAtLevelChange>(FindObjectsInactive.Include, FindObjectsSortMode.None));
+        //var destroyObjects = new List<DestroyAtLevelChange>(FindObjectsByType<DestroyAtLevelChange>(FindObjectsInactive.Include, FindObjectsSortMode.None));
+        //var destroyObjects = FindObjectsByType<Level.LevelSpawn>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        var destroyObjects = FindObjectsByType<DestroyAtLevelChange>(FindObjectsInactive.Include, FindObjectsSortMode.None);
 
         // remove any parents (NOTE: this should only apply to NetworkObjects! any embedded scene objects
         // with DestroyAtLevelChange should still be destroyed)
         foreach (var destroyObject in destroyObjects)
         {
+            // enable all destroys (excpet for not in use pooled objects)
+            var pooledObject = destroyObject.GetComponent<PooledObject>();
+            if (pooledObject != null && !pooledObject.IsInUse)
+            {
+                destroyObject.gameObject.SetActive(false);
+            }
+            else
+            {
+                destroyObject.gameObject.SetActive(true);
+            }
+
+            // deparent objects
             if (destroyObject.HasComponent<NetworkObject>())
             {
                 destroyObject.transform.parent = null;
             }
         }
 
-        // activate objects and add the ignore proximity component
-        foreach (var destroyObject in destroyObjects)
-        {
-            destroyObject.gameObject.SetActive(true);
-            destroyObject.gameObject.AddComponent<IgnoreProximity>();
-        }
+        //// activate all objects (some may be inactive due to proximity culling)
+        //foreach (var destroyObject in destroyObjects)
+        //{
+        //    destroyObject.gameObject.SetActive(true);
+        //    //destroyObject.gameObject.AddComponent<IgnoreProximity>();
+        //}
 
         // despawn/destroy all objects
         foreach (var destroyObject in destroyObjects)
@@ -200,7 +214,6 @@ public class LevelManager : NetworkBehaviour
                 destroyObject.GetComponent<Interactables.Chest>().enabled = false;
             }
 
-
             // get our destroy objects networkobject
             var networkObject = destroyObject.GetComponent<NetworkObject>();
             if (networkObject != null)
@@ -209,14 +222,26 @@ public class LevelManager : NetworkBehaviour
                 var enemyController = networkObject.GetComponent<EnemyController>();
                 var destructible = networkObject.GetComponent<Destructible>();
                 var levelSpawn = networkObject.GetComponent<Level.LevelSpawn>();
+                var pooledObject = networkObject.GetComponent<PooledObject>();
 
-                if ((enemyController != null || destructible != null) && levelSpawn != null)
+                if ((enemyController != null || destructible != null) &&
+                    levelSpawn != null &&
+                    pooledObject != null && pooledObject.IsInUse &&
+                    networkObject.IsSpawned)
                 {
+                    Debug.Log($"Returning {networkObject.gameObject.name} to pool");
                     Core.Pool.NetworkObjectPool.Instance.ReturnNetworkObject(
                         networkObject, levelSpawn.prefab);
+
+                    networkObject.Despawn(false);
                 }
 
-                if (networkObject.IsSpawned) networkObject.Despawn();
+                else
+                {
+                    if (networkObject.IsSpawned) networkObject.Despawn();
+                }
+
+                //if (networkObject.IsSpawned) networkObject.Despawn();
             }
             else
             {
@@ -225,7 +250,7 @@ public class LevelManager : NetworkBehaviour
         }
 
         // clear our list
-        destroyObjects.Clear();
+        //destroyObjects.Clear();
 
         // return all pickup items to their pools
         var pickupItems = FindObjectsByType<PickupItem>(FindObjectsInactive.Include, FindObjectsSortMode.None);

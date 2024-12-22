@@ -185,8 +185,37 @@ public class NetworkCharacter : NetworkBehaviour
         if (IsServer)
         {
             // baseize default values on the server
-            InitializeStats();
+            Init();
         }
+    }
+
+    public virtual void Init()
+    {
+        // set values to base values
+        currentDynamicStats.HpCurrent = baseHpCurrent;
+        currentDynamicStats.ApCurrent = baseApCurrent;
+        currentDynamicStats.IsDead = false;
+
+        currentStaticStats.HpMax = baseHpMax;           // needs to be += as we also add to hp from enemy controller with dynamicHp
+        currentStaticStats.HpBuffer = baseHpBuffer;
+        currentStaticStats.AttackPower = baseAttackPower;
+        currentStaticStats.CriticalChance = baseCriticalChance;
+        currentStaticStats.ApMax = baseApMax;
+        currentStaticStats.ApBuffer = baseApBuffer;
+        currentStaticStats.DoubleStrikeChance = baseDoubleStrikeChance;
+        currentStaticStats.CriticalDamage = baseCriticalDamage;
+        currentStaticStats.MoveSpeed = baseMoveSpeed;
+        currentStaticStats.Accuracy = baseAccuracy;
+        currentStaticStats.Evasion = baseEvasion;
+        currentStaticStats.DamageReduction = baseDamageReduction;
+        currentStaticStats.ApLeech = baseApLeech;
+        currentStaticStats.ApRegen = baseApRegen;
+        currentStaticStats.KnockbackMultiplier = baseKnockbackMutliplier;
+        currentStaticStats.StunMultiplier = baseStunMultiplier;
+
+        // check for and apply dynamic HP
+        DynamicHP dynamicHp = GetComponent<DynamicHP>();
+        dynamicHp?.ApplyDynamicHp();
     }
 
 
@@ -314,11 +343,16 @@ public class NetworkCharacter : NetworkBehaviour
                 {
                     PlayEnemyDieSoundClientRpc();
                     var networkObject = GetComponent<NetworkObject>();
-                    if (networkObject != null) networkObject.Despawn();
+                    //if (networkObject != null) networkObject.Despawn();
+
+                    // grab level spawn component
+                    var levelSpawn = networkObject.GetComponent<Level.LevelSpawn>();
 
                     Debug.Log("HandleEnemyTakeDamage: ReturnNetworkObject()");
                     Core.Pool.NetworkObjectPool.Instance.ReturnNetworkObject(
-                        networkObject, networkObject.gameObject);
+                        networkObject, levelSpawn.prefab);
+
+                    networkObject.Despawn();
                 }
             }
 
@@ -477,33 +511,7 @@ public class NetworkCharacter : NetworkBehaviour
             0.2f);
     }
 
-    protected virtual void InitializeStats()
-    {
-        // set values to base values
-        currentDynamicStats.HpCurrent = baseHpCurrent;
-        currentDynamicStats.ApCurrent = baseApCurrent;
-
-        currentStaticStats.HpMax = baseHpMax;           // needs to be += as we also add to hp from enemy controller with dynamicHp
-        currentStaticStats.HpBuffer = baseHpBuffer;
-        currentStaticStats.AttackPower = baseAttackPower;
-        currentStaticStats.CriticalChance = baseCriticalChance;
-        currentStaticStats.ApMax = baseApMax;
-        currentStaticStats.ApBuffer = baseApBuffer;
-        currentStaticStats.DoubleStrikeChance = baseDoubleStrikeChance;
-        currentStaticStats.CriticalDamage = baseCriticalDamage;
-        currentStaticStats.MoveSpeed = baseMoveSpeed;
-        currentStaticStats.Accuracy = baseAccuracy;
-        currentStaticStats.Evasion = baseEvasion;
-        currentStaticStats.DamageReduction = baseDamageReduction;
-        currentStaticStats.ApLeech = baseApLeech;
-        currentStaticStats.ApRegen = baseApRegen;
-        currentStaticStats.KnockbackMultiplier = baseKnockbackMutliplier;
-        currentStaticStats.StunMultiplier = baseStunMultiplier;
-
-        // check for and apply dynamic HP
-        DynamicHP dynamicHp = GetComponent<DynamicHP>();
-        dynamicHp?.ApplyDynamicHp();
-    }
+    
 
     public bool HasBuffObject(BuffObject buffObject)
     {

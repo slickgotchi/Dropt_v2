@@ -18,19 +18,6 @@ namespace Core.Pool
     {
         public static NetworkObjectPool Instance { get; private set; }
 
-        //[Header("Enemy")]
-        //[SerializeField] List<GameObject> enemyPooledPrefabs;
-        //[SerializeField] int enemyPoolPrewarmCount = 10;
-
-        //[Header("Destructible")]
-        //[SerializeField] List<GameObject> destructiblePooledPrefabs;
-        //[SerializeField] int destructiblePoolPrewarmCount = 20;
-
-        //[Header("Pickup")]
-        //[SerializeField] List<GameObject> pickupPooledPrefabs;
-        //[SerializeField] int pickupPoolPrewarmCount = 30;
-
-        //[Header("Custom")]
         [SerializeField] List<PoolConfigObject> m_poolConfigObjects;
 
         HashSet<GameObject> m_Prefabs = new HashSet<GameObject>();
@@ -53,24 +40,6 @@ namespace Core.Pool
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
-
-            //// register enemies
-            //foreach (var ep in enemyPooledPrefabs)
-            //{
-            //    RegisterPrefabInternal(ep, enemyPoolPrewarmCount);
-            //}
-
-            //// register destructibles
-            //foreach (var dp in destructiblePooledPrefabs)
-            //{
-            //    RegisterPrefabInternal(dp, destructiblePoolPrewarmCount);
-            //}
-
-            //// register pickups
-            //foreach (var pp in pickupPooledPrefabs)
-            //{
-            //    RegisterPrefabInternal(pp, pickupPoolPrewarmCount);
-            //}
 
             // Registers all objects in cust prefab pool to the cache.
             foreach (var configObject in m_poolConfigObjects)
@@ -129,13 +98,13 @@ namespace Core.Pool
             // Check if the prefab is registered in the pool
             if (!m_PooledObjects.ContainsKey(prefab))
             {
-                Debug.LogWarning($"Prefab {prefab.name} not found in the pool. Creating a new instance dynamically.");
+                Debug.LogWarning($"GetNetworkObject(): Prefab {prefab.name} not found in the pool. Creating a new instance dynamically and returning to caller.");
 
                 // Dynamically create and return a new instance if not found in the pool
                 var networkObject = Instantiate(prefab).GetComponent<NetworkObject>();
                 if (networkObject == null)
                 {
-                    throw new Exception($"Failed to instantiate NetworkObject from prefab: {prefab.name}");
+                    throw new Exception($"GetNetworkObject(): Failed to instantiate NetworkObject from prefab: {prefab.name}");
                 }
 
                 // Set position and rotation for the new instance
@@ -144,6 +113,8 @@ namespace Core.Pool
 
                 return networkObject;
             }
+
+            Debug.Log($"GetNetworkObject(): Prefab {prefab.name} found in pool and returning to caller");
 
             // Retrieve an instance from the pool
             var pooledNetworkObject = m_PooledObjects[prefab].Get();
@@ -161,14 +132,7 @@ namespace Core.Pool
             //Debug.Log($"ReturnNetworkObject {networkObject.name}, {prefab.name}");
             if (!m_PooledObjects.ContainsKey(prefab))
             {
-                Debug.LogWarning($"Prefab {prefab.name} not found in the pool.");
-                return;
-            }
-
-            // Check if the object is already in the pool
-            if (networkObject.IsSpawned)
-            {
-                Debug.LogWarning($"NetworkObject {networkObject.name} is still spawned. Cannot return to pool.");
+                Debug.LogWarning($"ReturnNetworkObject(): Prefab {prefab.name} not found in the pool.");
                 return;
             }
 
@@ -178,7 +142,7 @@ namespace Core.Pool
             }
             catch (InvalidOperationException ex)
             {
-                Debug.LogWarning($"Attempted to release an already released object {prefab.name}: {ex.Message}");
+                Debug.LogWarning($"ReturnNetworkObject(): Attempted to release an already released object {prefab.name}: {ex.Message}");
             }
         }
 
@@ -189,18 +153,32 @@ namespace Core.Pool
         {
             NetworkObject CreateFunc()
             {
-                return Instantiate(prefab).GetComponent<NetworkObject>();
+                var networkObject = Instantiate(prefab).GetComponent<NetworkObject>();
+                networkObject.gameObject.SetActive(false);
+                return networkObject;
             }
 
             void ActionOnGet(NetworkObject networkObject)
             {
                 if (networkObject == null) return;
+
+                // set pooled object in use
+                var pooledObject = networkObject.GetComponent<PooledObject>();
+                if (pooledObject != null) pooledObject.IsInUse = true;
+
+                // activate gameobject
                 networkObject.gameObject.SetActive(true);
             }
 
             void ActionOnRelease(NetworkObject networkObject)
             {
                 if (networkObject == null) return;
+
+                // set pooled object not in use
+                var pooledObject = networkObject.GetComponent<PooledObject>();
+                if (pooledObject != null) pooledObject.IsInUse = false;
+
+                // activate gameobject
                 networkObject.gameObject.SetActive(false);
             }
 
@@ -220,7 +198,12 @@ namespace Core.Pool
             var prewarmNetworkObjects = new List<NetworkObject>();
             for (var i = 0; i < prewarmCount; i++)
             {
-                prewarmNetworkObjects.Add(m_PooledObjects[prefab].Get());
+                var obj = m_PooledObjects[prefab].Get();
+
+                // Ensure prewarmed objects are inactive
+                obj.gameObject.SetActive(false);
+
+                prewarmNetworkObjects.Add(obj);
             }
 
             foreach (var networkObject in prewarmNetworkObjects)

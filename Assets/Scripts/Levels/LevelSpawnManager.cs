@@ -98,6 +98,17 @@ public class LevelSpawnManager : MonoBehaviour
                 //levelSpawn.gameObject.SetActive(true);
                 //levelSpawn.GetComponent<NetworkObject>().Spawn();
                 levelSpawn.isSpawned = true;
+
+                // init enemyAI and networkcharacter
+                var enemyAI = levelSpawn.GetComponent<Dropt.EnemyAI>();
+                var networkCharacter = levelSpawn.GetComponent<NetworkCharacter>();
+                var statBarCanvas = levelSpawn.GetComponentInChildren<StatBarCanvas>();
+                if (enemyAI != null && networkCharacter != null && statBarCanvas)
+                {
+                    enemyAI.Init();
+                    networkCharacter.Init();
+                    statBarCanvas.Init();
+                }
             }
         }
     }

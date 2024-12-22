@@ -16,6 +16,11 @@ public class LeaderboardDataRow : MonoBehaviour
     [SerializeField] TextMeshProUGUI KillsText;
     [SerializeField] TextMeshProUGUI TimeText;
 
+    private void Start()
+    {
+        gameObject.SetActive(false);
+    }
+
     public void Set(
         int rank,
         string gotchi,
@@ -37,6 +42,7 @@ public class LeaderboardDataRow : MonoBehaviour
         DustText.text = dust.ToString();
         KillsText.text = kills.ToString();
         TimeText.text = ConvertTimeInSecondsToString(time);
+        gameObject.SetActive(true);
     }
 
     string ConvertTimeInSecondsToString(int time)
