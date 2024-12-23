@@ -32,6 +32,9 @@ public class EnemyController : NetworkBehaviour
     {
         base.OnNetworkSpawn();
 
+        Game.Instance.enemyControllers.Add(this);
+        ProximityManager.Instance.culledObjects.Add(this.GetComponent<ProximityCulling>());
+
         if (IsClient && !IsHost)
         {
             Destroy(GetComponent<NavMeshAgent>());
@@ -47,6 +50,14 @@ public class EnemyController : NetworkBehaviour
             m_navMeshAgent.enabled = true;
         }
 
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        Game.Instance.enemyControllers.Remove(this);
+        ProximityManager.Instance.culledObjects.Remove(this.GetComponent<ProximityCulling>());
+
+        base.OnNetworkDespawn();
     }
 
     // Update is called once per frame

@@ -44,9 +44,8 @@ public class ConnectionApprovalHandler : MonoBehaviour
         var connectionData = request.Payload;
 
         // get number of players already in game
-        int playerCount = FindObjectsByType<PlayerController>(FindObjectsSortMode.None).Length;
+        int playerCount = Game.Instance.playerControllers.Count;
         Debug.Log("ConnectionApprovalHandler PlayerCount: " + playerCount);
-
 
         // Your approval logic determines the following values
         response.Approved = playerCount < 3;

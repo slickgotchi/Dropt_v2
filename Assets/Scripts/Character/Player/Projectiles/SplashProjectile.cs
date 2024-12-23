@@ -171,9 +171,10 @@ public class SplashProjectile : NetworkBehaviour
         }
 
         // screen shake
-        var playerCameras = FindObjectsByType<PlayerCamera>(FindObjectsSortMode.None);
-        foreach (var playerCamera in playerCameras)
+        var playerControllers = Game.Instance.playerControllers;
+        foreach (var pc in playerControllers)
         {
+            var playerCamera = pc.GetComponent<PlayerCamera>();
             if (playerCamera.GetComponent<NetworkObject>().IsLocalPlayer)
             {
                 playerCamera.Shake(1.5f, 0.3f);

@@ -9,6 +9,9 @@ public class DebugColliderVisualizer : MonoBehaviour
         if (!Application.isPlaying)
             return;
 
+        // lets not do this for now.
+        return;
+
         // Get all Collider2D components in the scene
         Collider2D[] colliders = FindObjectsByType<Collider2D>(FindObjectsSortMode.None);
 

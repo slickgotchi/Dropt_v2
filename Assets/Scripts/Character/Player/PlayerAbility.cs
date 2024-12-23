@@ -584,9 +584,11 @@ public class PlayerAbility : NetworkBehaviour
         var targetTickAndFraction = currentTickAndFraction - delay_ticks;
 
         // 1. if we are on server we need to do lag compensation
-        var positionBuffers = FindObjectsByType<PositionBuffer>(FindObjectsSortMode.None);
-        foreach (var positionBuffer in positionBuffers)
+        var enemyControllers = Game.Instance.enemyControllers;
+        foreach (var ec in enemyControllers)
         {
+            var positionBuffer = ec.GetComponent<PositionBuffer>();
+
             // stash our enemies current position
             positionBuffer.StashCurrentPosition();
 
@@ -601,9 +603,11 @@ public class PlayerAbility : NetworkBehaviour
     public static void UnrollEnemies()
     {
         // reset positions to those that were stashed
-        var positionBuffers = FindObjectsByType<PositionBuffer>(FindObjectsSortMode.None);
-        foreach (var positionBuffer in positionBuffers)
+        var enemyControllers = Game.Instance.enemyControllers;
+        foreach (var ec in enemyControllers)
         {
+            var positionBuffer = ec.GetComponent<PositionBuffer>();
+
             // set position back to the stashed position
             positionBuffer.transform.position = positionBuffer.GetStashPosition();
         }

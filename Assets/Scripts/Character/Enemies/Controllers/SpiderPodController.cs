@@ -24,28 +24,7 @@ namespace Dropt
             m_soundFX_SpiderPod = GetComponent<SoundFX_SpiderPod>();
             m_soundFX_SpiderPod.PlaySpawnSound();
             m_animator = GetComponent<Animator>();
-
-            if (IsClient)
-            {
-                //PlaySpawnAnimation();
-                //PlaySpawnAnimationServerRpc();
-            }
         }
-
-        //[Rpc(SendTo.Server)]
-        //void PlaySpawnAnimationServerRpc()
-        //{
-        //    Utils.Anim.PlayAnimationWithDuration(m_animator, "SpiderPod_Spawn", SpawnDuration);
-
-        //}
-
-        //private async void PlaySpawnAnimation()
-        //{
-        //    await UniTask.Delay(800);
-        //    Utils.Anim.PlayAnimationWithDuration(m_animator, "SpiderPod_Spawn", SpawnDuration);
-        //    //await UniTask.Delay(1000);
-        //    //Utils.Anim.Play(m_animator, "SpiderPod_Idle");
-        //}
 
         private void Update()
         {
@@ -54,7 +33,7 @@ namespace Dropt
             // check if time to burst pod
             if (!m_isBurst)
             {
-                PlayerController[] players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+                var players = Game.Instance.playerControllers;
                 bool isBurstTime = false;
                 foreach (PlayerController player in players)
                 {
@@ -82,8 +61,9 @@ namespace Dropt
             for (int i = 0; i < NumberSpiders; i++)
             {
                 Vector3 dir = PlayerAbility.GetDirectionFromAngle(startAngle + deltaAngle * i);
-                GameObject spider = Core.Pool.NetworkObjectPool.Instance.GetNetworkObject(SpiderPrefab, transform.position + new Vector3(0f, 1f, 0f), Quaternion.identity).gameObject;
-                //spider.transform.position = transform.position + new Vector3(0f, 1f, 0f);
+                //GameObject spider = Core.Pool.NetworkObjectPool.Instance.GetNetworkObject(SpiderPrefab, transform.position + new Vector3(0f, 1f, 0f), Quaternion.identity).gameObject;
+                GameObject spider = Instantiate(SpiderPrefab);
+                spider.transform.position = transform.position + new Vector3(0f, 1f, 0f);
                 EnemyAI_Spider enemyAI_Spider = spider.GetComponent<EnemyAI_Spider>();
                 enemyAI_Spider.SpawnDuration = SpawnDuration;
                 enemyAI_Spider.SpawnDirection = dir.normalized;

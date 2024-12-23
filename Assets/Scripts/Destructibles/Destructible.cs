@@ -31,6 +31,20 @@ public class Destructible : NetworkBehaviour
         m_soundFX_Destructible = GetComponent<SoundFX_Destructible>();
     }
 
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        ProximityManager.Instance.culledObjects.Add(this.GetComponent<ProximityCulling>());
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        ProximityManager.Instance.culledObjects.Remove(this.GetComponent<ProximityCulling>());
+
+        base.OnNetworkDespawn();
+    }
+
     private void Update()
     {
         if (IsServer)
@@ -98,9 +112,10 @@ public class Destructible : NetworkBehaviour
 
                 var levelSpawn = GetComponent<Level.LevelSpawn>();
 
-                Core.Pool.NetworkObjectPool.Instance.ReturnNetworkObject(
-                    GetComponent<NetworkObject>(), levelSpawn.prefab);
-                GetComponent<NetworkObject>().Despawn(false);
+                //Core.Pool.NetworkObjectPool.Instance.ReturnNetworkObject(
+                //    GetComponent<NetworkObject>(), levelSpawn.prefab);
+                //GetComponent<NetworkObject>().Despawn(false);
+                GetComponent<NetworkObject>().Despawn();
                 DIE?.Invoke();
             }
         }

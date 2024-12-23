@@ -128,12 +128,12 @@ public class DroptCanvas : MonoBehaviour
     {
         if (m_localPlayerInput != null) return;
 
-        var playerInputs = FindObjectsByType<PlayerInput>(FindObjectsSortMode.None);
-        foreach (var playerInput in playerInputs)
+        var playerControllers = Game.Instance.playerControllers;
+        foreach (var playerController in playerControllers)
         {
-            if (playerInput.GetComponent<NetworkObject>().IsLocalPlayer)
+            if (playerController.GetComponent<NetworkObject>().IsLocalPlayer)
             {
-                m_localPlayerInput = playerInput.GetComponent<PlayerInput>();
+                m_localPlayerInput = playerController.GetComponent<PlayerInput>();
             }
         }
     }

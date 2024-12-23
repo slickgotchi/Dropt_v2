@@ -55,7 +55,7 @@ namespace Level
                 sunkenFloorButton.initType = buttonGroupSpawner.SunkenFloorType;
                 sunkenFloorButton.spawnerId = buttonGroupSpawner.spawnerId;
 
-                AddLevelSpawnComponent(no_button,
+                LevelSpawnManager.Instance.AddLevelSpawnComponent(no_button,
                                        buttonGroupSpawner.spawnerId,
                                        null,
                                        buttonGroupSpawner.GetComponent<Spawner_SpawnCondition>());
@@ -90,7 +90,7 @@ namespace Level
                 crystalPlatformButton.initType = buttonGroupSpawner.CrystalPlatformType;
                 crystalPlatformButton.spawnerId = buttonGroupSpawner.spawnerId;
 
-                AddLevelSpawnComponent(no_button,
+                LevelSpawnManager.Instance.AddLevelSpawnComponent(no_button,
                                        buttonGroupSpawner.spawnerId,
                                        null,
                                        buttonGroupSpawner.GetComponent<Spawner_SpawnCondition>());
@@ -109,7 +109,7 @@ namespace Level
                 sunkenFloor.initState = PlatformState.Lowered;
                 sunkenFloor.spawnerId = buttonGroupSpawner.spawnerId;
 
-                AddLevelSpawnComponent(no_sunkenFloor,
+                LevelSpawnManager.Instance.AddLevelSpawnComponent(no_sunkenFloor,
                                        buttonGroupSpawner.spawnerId,
                                        null,
                                        floorSpawner.GetComponent<Spawner_SpawnCondition>());
@@ -128,7 +128,7 @@ namespace Level
                 crystalPlatform.initState = PlatformState.Lowered;
                 crystalPlatform.spawnerId = buttonGroupSpawner.spawnerId;
 
-                AddLevelSpawnComponent(no_sunkenFloor,
+                LevelSpawnManager.Instance.AddLevelSpawnComponent(no_sunkenFloor,
                                        buttonGroupSpawner.spawnerId,
                                        null,
                                        floorSpawner.GetComponent<Spawner_SpawnCondition>());

@@ -164,8 +164,6 @@ public class LevelManager : NetworkBehaviour
         //LevelSpawnManager.Instance.TagAllCurrentLevelSpawnsForDead();
 
         // find everything to destroy
-        //var destroyObjects = new List<DestroyAtLevelChange>(FindObjectsByType<DestroyAtLevelChange>(FindObjectsInactive.Include, FindObjectsSortMode.None));
-        //var destroyObjects = FindObjectsByType<Level.LevelSpawn>(FindObjectsInactive.Include, FindObjectsSortMode.None);
         var destroyObjects = FindObjectsByType<DestroyAtLevelChange>(FindObjectsInactive.Include, FindObjectsSortMode.None);
 
         // remove any parents (NOTE: this should only apply to NetworkObjects! any embedded scene objects
@@ -188,14 +186,14 @@ public class LevelManager : NetworkBehaviour
             {
                 destroyObject.transform.parent = null;
             }
-        }
 
-        //// activate all objects (some may be inactive due to proximity culling)
-        //foreach (var destroyObject in destroyObjects)
-        //{
-        //    destroyObject.gameObject.SetActive(true);
-        //    //destroyObject.gameObject.AddComponent<IgnoreProximity>();
-        //}
+            // if has levelspawn, remove it from the level spawn manager
+            var levelSpawn = destroyObject.GetComponent<Level.LevelSpawn>();
+            if (levelSpawn != null)
+            {
+                LevelSpawnManager.Instance.RemoveLevelSpawnComponent(levelSpawn);
+            }
+        }
 
         // despawn/destroy all objects
         foreach (var destroyObject in destroyObjects)
@@ -230,10 +228,11 @@ public class LevelManager : NetworkBehaviour
                     networkObject.IsSpawned)
                 {
                     //Debug.Log($"LevelManager: Returning {networkObject.gameObject.name} to pool");
-                    Core.Pool.NetworkObjectPool.Instance.ReturnNetworkObject(
-                        networkObject, levelSpawn.prefab);
+                    //Core.Pool.NetworkObjectPool.Instance.ReturnNetworkObject(
+                    //    networkObject, levelSpawn.prefab);
+                    //networkObject.Despawn(false);
 
-                    networkObject.Despawn(false);
+                    networkObject.Despawn();
                 }
 
                 else
@@ -475,7 +474,7 @@ public class LevelManager : NetworkBehaviour
             }
 
             // get all players to recheck their spawn position
-            var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+            var players = Game.Instance.playerControllers;
             foreach (var player in players)
             {
                 player.IsLevelSpawnPositionSet = false;

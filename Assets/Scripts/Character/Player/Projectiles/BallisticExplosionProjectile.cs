@@ -243,12 +243,12 @@ public class BallisticExplosionProjectile : NetworkBehaviour
         }
 
         // screen shake
-        var playerCameras = FindObjectsByType<PlayerCamera>(FindObjectsSortMode.None);
-        foreach (var playerCamera in playerCameras)
+        var playerControllers = Game.Instance.playerControllers;
+        foreach (var playerController in playerControllers)
         {
-            if (playerCamera.GetComponent<NetworkObject>().IsLocalPlayer)
+            if (playerController.GetComponent<NetworkObject>().IsLocalPlayer)
             {
-                playerCamera.Shake(1.5f, 0.3f);
+                playerController.GetComponent<PlayerCamera>().Shake(1.5f, 0.3f);
             }
         }
 

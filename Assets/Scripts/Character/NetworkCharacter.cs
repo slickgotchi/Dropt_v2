@@ -152,14 +152,14 @@ public class NetworkCharacter : NetworkBehaviour
         if (!DynamicStatsAreEqual(previousDynamicStats, currentDynamicStats))
         {
             previousDynamicStats = currentDynamicStats;
-            SyncDynamicStatsClientRpc(currentDynamicStats);
+            if (IsSpawned) SyncDynamicStatsClientRpc(currentDynamicStats);
             //Debug.Log("Update Dynamic Stats");
         }
 
         if (!StaticStatsAreEqual(previousStaticStats, currentStaticStats))
         {
             previousStaticStats = currentStaticStats;
-            SyncStaticStatsClientRpc(currentStaticStats);
+            if (IsSpawned) SyncStaticStatsClientRpc(currentStaticStats);
             //Debug.Log("Update Static Stats");
         }
     }
@@ -277,8 +277,7 @@ public class NetworkCharacter : NetworkBehaviour
         {
             // get the local player
             ulong localPlayerNOID = 0;
-            //PlayerController[] players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
-            foreach (var player in Game.Instance.players)
+            foreach (var player in Game.Instance.playerControllers)
             {
                 var playerNetworkObject = player.GetComponent<NetworkObject>();
                 if (playerNetworkObject != null && playerNetworkObject.IsLocalPlayer)
@@ -349,10 +348,11 @@ public class NetworkCharacter : NetworkBehaviour
                     var levelSpawn = networkObject.GetComponent<Level.LevelSpawn>();
 
                     //Debug.Log("HandleEnemyTakeDamage: ReturnNetworkObject()");
-                    Core.Pool.NetworkObjectPool.Instance.ReturnNetworkObject(
-                        networkObject, levelSpawn.prefab);
+                    //Core.Pool.NetworkObjectPool.Instance.ReturnNetworkObject(
+                    //    networkObject, levelSpawn.prefab);
+                    //networkObject.Despawn(false);
 
-                    networkObject.Despawn(false);
+                    networkObject.Despawn();
                 }
             }
 
@@ -385,7 +385,7 @@ public class NetworkCharacter : NetworkBehaviour
     {
         // get the local player
         ulong localPlayerNOID = 0;
-        PlayerController[] players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+        PlayerController[] players = Game.Instance.playerControllers.ToArray();
         foreach (var player in players)
         {
             if (player.GetComponent<NetworkObject>().IsLocalPlayer)

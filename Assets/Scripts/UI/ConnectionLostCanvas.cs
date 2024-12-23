@@ -55,12 +55,12 @@ public class ConnectionLostCanvas : MonoBehaviour
         // get local player if not yet got it
         if (m_localPlayerPing == null)
         {
-            var players = FindObjectsByType<PlayerPing>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-            foreach (var player in players)
+            var playerControllers = Game.Instance.playerControllers;
+            foreach (var playerController in playerControllers)
             {
-                if (player.GetComponent<NetworkObject>().IsLocalPlayer)
+                if (playerController.GetComponent<NetworkObject>().IsLocalPlayer)
                 {
-                    m_localPlayerPing = player;
+                    m_localPlayerPing = playerController.GetComponent<PlayerPing>();
                 }
             }
         }

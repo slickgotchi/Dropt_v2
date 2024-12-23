@@ -69,34 +69,16 @@ public class NetworkTimer_v2 : MonoBehaviour
     {
         // insert all functions that need to be ticked throughout the codebase
         HandleTick_PlayerPrediction();
-        //HandleTick_PositionBuffer();
-        //HandleTick_DroptNetworkTransform();
     }
 
     private void HandleTick_PlayerPrediction()
     {
-        var playerPredictions = FindObjectsByType<PlayerPrediction>(FindObjectsSortMode.None);
-        foreach (var playerPrediction in playerPredictions)
+        if (Game.Instance == null) return;
+
+        var players = Game.Instance.playerControllers;
+        foreach (var player in players)
         {
-            playerPrediction.Tick();
+            player.GetComponent<PlayerPrediction>().Tick();
         }
     }
-
-    //private void HandleTick_PositionBuffer()
-    //{
-    //    var positionBuffers = FindObjectsByType<PositionBuffer>(FindObjectsSortMode.None);
-    //    foreach (var positionBuffer in positionBuffers)
-    //    {
-    //        positionBuffer.Tick();
-    //    }
-    //}
-
-    //private void HandleTick_DroptNetworkTransform()
-    //{
-    //    var dnts = FindObjectsByType<DroptNetworkTransform>(FindObjectsSortMode.None);
-    //    foreach (var dnt in dnts)
-    //    {
-    //        dnt.Tick();
-    //    }
-    //}
 }

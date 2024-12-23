@@ -25,31 +25,23 @@ public abstract class DoorButton<T> : NetworkBehaviour where T : Enum
     {
         base.OnNetworkSpawn();
         State.OnValueChanged += OnButtonStateChange;
-        //DoorType.OnValueChanged += OnDoorTypeChange;
-        //Type = new NetworkVariable<T>(initType);
-        //UpdateSprite();
+
+        DoorManager<T>.Instance.RegisterButton(this);
+
         if (IsServer)
         {
-            //Debug.Log("BEFORE TYPE-" + initType);
             DoorType.Value = initType;
-            //Debug.Log("AFTER TYPE -" + DoorType.Value);
         }
-
-        //Debug.Log("DoorType -> " + DoorType.Value);
     }
 
-    //private void OnDoorTypeChange(T previousValue, T newValue)
-    //{
-    //    Debug.Log("TYPE -> " + DoorType.Value);
-    //    UpdateSprite();
-    //}
+    public override void OnNetworkDespawn()
+    {
+        DoorManager<T>.Instance.UnregisterButton(this);
 
-    //[ClientRpc]
-    //private void UpdateInitialSpriteClientRpc()
-    //{
-    //    Debug.Log("TYPE -> " + DoorType.Value);
-    //    UpdateSprite();
-    //}
+        State.OnValueChanged -= OnButtonStateChange;
+
+        base.OnNetworkDespawn();
+    }
 
     private void OnButtonStateChange(ButtonState previousValue, ButtonState newValue)
     {
@@ -138,10 +130,4 @@ public abstract class DoorButton<T> : NetworkBehaviour where T : Enum
     public abstract DoorButton<T>[] GetAllOtherDoorButtons();
 
     public abstract Door<T>[] GetAllOtherDoor();
-
-    public override void OnNetworkDespawn()
-    {
-        base.OnNetworkDespawn();
-        State.OnValueChanged -= OnButtonStateChange;
-    }
 }

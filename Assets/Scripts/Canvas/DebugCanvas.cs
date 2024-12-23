@@ -49,6 +49,9 @@ public class DebugCanvas : MonoBehaviour
 
     private void Update()
     {
+        // don't update any of these variables on the server
+        if (Bootstrap.IsServer()) return;
+
         // update fps
         UpdateFps();
 
@@ -93,7 +96,7 @@ public class DebugCanvas : MonoBehaviour
 
         if (m_noTimer < 0)
         {
-            m_noTimer = 1f;
+            m_noTimer = 5f;
 
             var networkObjects = FindObjectsByType<NetworkObject>(FindObjectsInactive.Include, FindObjectsSortMode.None);
             networkObjectCountText.text = "NetworkObjects: " + networkObjects.Length.ToString("F0");

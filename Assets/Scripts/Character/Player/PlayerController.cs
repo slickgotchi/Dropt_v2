@@ -59,7 +59,8 @@ public class PlayerController : NetworkBehaviour
     {
         base.OnNetworkSpawn();
 
-        //Debug.Log("Player spawned");
+        // register player controller
+        Game.Instance.playerControllers.Add(GetComponent<PlayerController>());
 
         // local player
         if (IsLocalPlayer)
@@ -95,6 +96,32 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
+    public override void OnNetworkDespawn()
+    {
+        // degregister player controller
+        Game.Instance.playerControllers.Remove(GetComponent<PlayerController>());
+        
+
+        if (!IsServer) return;
+
+        // check for any pets owned
+        var pets = Game.Instance.petControllers;
+        var playerNetworkObjectId = GetComponent<NetworkObject>().NetworkObjectId;
+
+        foreach (var pet in pets)
+        {
+            if (pet.GetPetOwnerNetworkObjectId() == playerNetworkObjectId)
+            {
+                pet.GetComponent<NetworkObject>().Despawn();
+            }
+        }
+
+
+
+        base.OnNetworkDespawn();
+
+    }
+
     [Rpc(SendTo.Server)]
     void ValidateVersionServerRpc()
     {
@@ -114,28 +141,7 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
-    public override void OnNetworkDespawn()
-    {
-        if (!IsServer) return;
 
-        // check for any pets owned
-        var pets = FindObjectsByType<PetController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-
-        var playerNetworkObjectId = GetComponent<NetworkObject>().NetworkObjectId;
-
-        foreach (var pet in pets)
-        {
-            if (pet.GetPetOwnerNetworkObjectId() == playerNetworkObjectId)
-            {
-                pet.GetComponent<NetworkObject>().Despawn();
-            }
-        }
-
-
-
-        base.OnNetworkDespawn();
-
-    }
 
     private void Update()
     {

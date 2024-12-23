@@ -152,21 +152,9 @@ public class REKTCanvas : MonoBehaviour
         m_dungeonTimerText.text = playerDungeonTime.ToString();
     }
 
-    //private void InitializeTime()
-    //{
-    //    GameObject player = GetLocalPlayer();
-    //    if (player == null)
-    //    {
-    //        Debug.LogWarning("No local player found");
-    //        return;
-    //    }
-
-        
-    //}
-
     private GameObject GetLocalPlayer()
     {
-        PlayerController[] playerControllers = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+        PlayerController[] playerControllers = Game.Instance.playerControllers.ToArray();
         foreach (PlayerController playerController in playerControllers)
         {
             if (playerController.IsLocalPlayer)

@@ -255,9 +255,10 @@ namespace Dropt
 
             var levelSpawn = GetComponent<Level.LevelSpawn>();
 
-            Core.Pool.NetworkObjectPool.Instance.ReturnNetworkObject(
-                networkObject, levelSpawn.prefab);
-            networkObject.Despawn(false);
+            //Core.Pool.NetworkObjectPool.Instance.ReturnNetworkObject(
+            //    networkObject, levelSpawn.prefab);
+            //networkObject.Despawn(false);
+            networkObject.Despawn();
         }
 
         public void Death(Vector3 position)

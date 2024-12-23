@@ -9,7 +9,6 @@ public class GeneralDebugCanvas : DroptCanvas
     public Toggle fpsToggle;
     public Toggle characterStatsToggle;
     public Toggle enemyAIToggle;
-    //public Toggle consoleLogToggle;
 
     private void Awake()
     {
@@ -33,12 +32,6 @@ public class GeneralDebugCanvas : DroptCanvas
             enemyAIToggle.onValueChanged.AddListener(SetEnemyStateVisible);
             SetEnemyStateVisible(enemyAIToggle.isOn);
         }
-
-        //if (consoleLogToggle != null)
-        //{
-        //    consoleLogToggle.onValueChanged.AddListener(SetConsoleLogVisible);
-        //    SetConsoleLogVisible(consoleLogToggle.isOn);
-        //}
     }
 
     public override void OnUpdate()
@@ -72,23 +65,27 @@ public class GeneralDebugCanvas : DroptCanvas
 
     private void SetCharacterStatsVisibile(bool visible)
     {
-        foreach (var canvas in FindObjectsByType<NetworkCharacterDebugCanvas>(FindObjectsSortMode.None))
+        if (Game.Instance == null) return;
+
+        var playerControllers = Game.Instance.playerControllers;
+
+        foreach (var pc in playerControllers)
         {
+            var canvas = pc.GetComponentInChildren<NetworkCharacterDebugCanvas>();
             canvas.Container.SetActive(visible);
         }
     }
 
     private void SetEnemyStateVisible(bool visible)
     {
-        var debugCanvases = FindObjectsByType<EnemyAI_DebugCanvas>(FindObjectsSortMode.None);
-        foreach (var dc in debugCanvases)
+        if (Game.Instance == null) return;
+
+        var enemyControllers = Game.Instance.enemyControllers;
+
+        foreach (var ec in enemyControllers)
         {
-            dc.Container.SetActive(visible);
+            var canvas = ec.GetComponentInChildren<EnemyAI_DebugCanvas>();
+            canvas.Container.SetActive(visible);
         }
     }
-
-    //private void SetConsoleLogVisible(bool visible)
-    //{
-    //    DebugLogDisplay.Instance.container.SetActive(visible);
-    //}
 }

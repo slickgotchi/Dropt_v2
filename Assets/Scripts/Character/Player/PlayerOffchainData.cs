@@ -169,7 +169,7 @@ public class PlayerOffchainData : NetworkBehaviour
             StartDungeonTimer();
 
             // determine dungeon formation
-            var players = FindObjectsByType<PlayerController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            var players = Game.Instance.playerControllers.ToArray();
             if (players.Length == 3) dungeonFormation = "trio";
             else if (players.Length == 2) dungeonFormation = "duo";
             else if (players.Length == 1) dungeonFormation = "solo";

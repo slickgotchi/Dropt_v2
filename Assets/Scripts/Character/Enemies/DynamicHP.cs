@@ -12,11 +12,11 @@ public class DynamicHP : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        var playerCharacters = FindObjectsByType<PlayerCharacter>(FindObjectsSortMode.None);
+        var playerControllers = Game.Instance.playerControllers;
         var netAttackPowers = new List<float>();
-        foreach (var pc in playerCharacters)
+        foreach (var pc in playerControllers)
         {
-            netAttackPowers.Add(GetPlayerNetAttackPower(pc));
+            netAttackPowers.Add(GetPlayerNetAttackPower(pc.GetComponent<PlayerCharacter>()));
         }
 
         netAttackPowers.Sort((a, b) => b.CompareTo(a));

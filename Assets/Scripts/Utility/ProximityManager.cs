@@ -11,6 +11,8 @@ public class ProximityManager : MonoBehaviour
     float k_xDist = 16*1.2f;
     float k_yDist = 10f*1.2f;
 
+    [HideInInspector] public List<ProximityCulling> culledObjects = new List<ProximityCulling>();
+
     private void Awake()
     {
         // Singleton pattern to ensure only one instance of the AudioManager exists
@@ -37,11 +39,10 @@ public class ProximityManager : MonoBehaviour
         if (m_updateTimer > 0) return;
         m_updateTimer = k_updateInterval;
 
-        var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
-        var culledObjects = FindObjectsByType<ProximityCulling>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        var players = Game.Instance.playerControllers;
 
-        int culledObjectCount = culledObjects.Length;
-        int numPlayers = players.Length;
+        int culledObjectCount = culledObjects.Count;
+        int numPlayers = players.Count;
         for (int i = 0; i < culledObjectCount; i++)
         {
             var culledObject = culledObjects[i];

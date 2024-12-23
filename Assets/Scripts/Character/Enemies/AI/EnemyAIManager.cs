@@ -10,7 +10,7 @@ public class EnemyAIManager : MonoBehaviour
     public float m_updateInterval = 0.1f;
     private float m_updateTimer = 0f;
 
-    public List<EnemyAI> allEnemies = new List<EnemyAI>(); // Use List instead of array
+    public List<EnemyController> allEnemyControllers = new List<EnemyController>(); // Use List instead of array
 
     private void Awake()
     {
@@ -27,7 +27,7 @@ public class EnemyAIManager : MonoBehaviour
     private void OnDestroy()
     {
         // Clear the list when this manager is destroyed
-        allEnemies.Clear();
+        allEnemyControllers.Clear();
     }
 
     private void Update()
@@ -41,49 +41,40 @@ public class EnemyAIManager : MonoBehaviour
         m_updateTimer = m_updateInterval;
 
         // get players and enemies
-        var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
-        var enemies = FindObjectsByType<EnemyAI>(FindObjectsSortMode.None);
+        var players = Game.Instance.playerControllers.ToArray();
+        var enemies = Game.Instance.enemyControllers.ToArray();
 
         // Clear the existing list and populate it with the latest enemies
-        allEnemies.Clear();
-        allEnemies.AddRange(enemies);
+        allEnemyControllers.Clear();
+        allEnemyControllers.AddRange(enemies);
 
         // Cacl nearest players for enemies
-        CalculateNearestPlayers(players, allEnemies);
+        CalculateNearestPlayers(players, allEnemyControllers);
     }
 
-    void CalculateNearestPlayers(PlayerController[] players, List<EnemyAI> enemies)
+    void CalculateNearestPlayers(PlayerController[] playerControllers, List<EnemyController> enemyControllers)
     {
         // set all enemies distances quite large
-        foreach (var enemy in enemies)
+        foreach (var enemyController in enemyControllers)
         {
-            enemy.NearestPlayerDistance = 1e10f;
+            var enemyAI = enemyController.GetComponent<Dropt.EnemyAI>();
+            if (enemyAI == null) continue;
+
+            enemyAI.NearestPlayerDistance = 1e10f;
 
             // iterate through players
-            foreach (var player in players)
+            foreach (var playerController in playerControllers)
             {
-                var dist = math.distance(enemy.transform.position, player.transform.position);
-                if (dist < enemy.NearestPlayerDistance)
+                var dist = math.distance(enemyController.transform.position, playerController.transform.position);
+                if (dist < enemyAI.NearestPlayerDistance)
                 {
-                    enemy.NearestPlayer = player.gameObject;
-                    enemy.NearestPlayerDistance = dist;
+                    enemyAI.NearestPlayer = playerController.gameObject;
+                    enemyAI.NearestPlayerDistance = dist;
                 }
             }
         }
     }
 
     public bool IsDebugVisible = false;
-    //void HandleToggleDebugCanvases()
-    //{
-    //    if (Input.GetKeyDown(KeyCode.Alpha4))
-    //    {
-    //        IsDebugVisible = !IsDebugVisible;
 
-    //        var debugCanvases = FindObjectsByType<EnemyAI_DebugCanvas>(FindObjectsSortMode.None);
-    //        foreach (var dc in debugCanvases)
-    //        {
-    //            dc.Container.SetActive(IsDebugVisible);
-    //        }
-    //    }
-    //}
 }

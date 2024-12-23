@@ -45,24 +45,24 @@ public class DialogueManagerUIController : MonoBehaviour
 
     public void FreezePlayerMovement()
     {
-        var players = FindObjectsByType<PlayerPrediction>(FindObjectsSortMode.None);
-        foreach (var player in players)
+        var playerControllers = Game.Instance.playerControllers;
+        foreach (var playerController in playerControllers)
         {
-            if (player.GetComponent<NetworkObject>().IsLocalPlayer)
+            if (playerController.GetComponent<NetworkObject>().IsLocalPlayer)
             {
-                player.IsInputEnabled = false;
+                playerController.GetComponent<PlayerPrediction>().IsInputEnabled = false;
             }
         }
     }
 
     public void UnfreezePlayerMovement()
     {
-        var players = FindObjectsByType<PlayerPrediction>(FindObjectsSortMode.None);
-        foreach (var player in players)
+        var playerControllers = Game.Instance.playerControllers;
+        foreach (var playerController in playerControllers)
         {
-            if (player.GetComponent<NetworkObject>().IsLocalPlayer)
+            if (playerController.GetComponent<NetworkObject>().IsLocalPlayer)
             {
-                player.IsInputEnabled = true;
+                playerController.GetComponent<PlayerPrediction>().IsInputEnabled = true;
             }
         }
     }

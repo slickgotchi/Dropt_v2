@@ -53,13 +53,14 @@ public class WispHollow : NetworkBehaviour
     private GameObject SpawnWisp()
     {
         m_animator.Play("WispHollow_SpawnWisp");
-        GameObject wisp = Core.Pool.NetworkObjectPool.Instance.GetNetworkObject(
-            FudWispPrefab,
-            SpawnPoint != null ? SpawnPoint.transform.position : transform.position,
-            Quaternion.identity).gameObject;
+        //GameObject wisp = Core.Pool.NetworkObjectPool.Instance.GetNetworkObject(
+        //    FudWispPrefab,
+        //    SpawnPoint != null ? SpawnPoint.transform.position : transform.position,
+        //    Quaternion.identity).gameObject;
+        GameObject wisp = Instantiate(FudWispPrefab);
         EnemyAI_FudWisp enemyAI_FudWisp = wisp.GetComponent<EnemyAI_FudWisp>();
         enemyAI_FudWisp.AssignDespawnAction(OnFudWispDespawn);
-        //wisp.transform.position = SpawnPoint != null ? SpawnPoint.transform.position : transform.position;
+        wisp.transform.position = SpawnPoint != null ? SpawnPoint.transform.position : transform.position;
         wisp.SetActive(false);
 
         // DO NOT SPAWN DIRECTLY AFTER INSTANTIATING, FOR SOME REASON UNITY NEEDS A FRAME TO GO BY FOR NAVMESH TO WORK CORRECTLY BEFORE SPAWNING
