@@ -217,6 +217,27 @@ public class Interactable : NetworkBehaviour
         }
     }
 
+    private void OnTriggerExit2D(Collider2D collider)
+    {
+        if (!IsClient) return;
+
+        var cameraFollower = collider.GetComponent<CameraFollowerAndPlayerInteractor>();
+        if (cameraFollower == null) return;
+
+        var player = cameraFollower.Player;
+        if (player == null) return;
+
+        var playerNetworkObject = player.GetComponent<NetworkObject>();
+        if (playerNetworkObject == null || !playerNetworkObject.IsLocalPlayer) return;
+
+        status = Status.Inactive;
+
+        localPlayerNetworkObjectId = 0;
+        //playerNetworkObjectId = 0;
+
+        OnTriggerExit2DInteraction();
+    }
+
     public ulong GetLocalPlayerNetworkObjectId()
     {
         return m_localPlayerPrediction.GetComponent<NetworkObject>().NetworkObjectId;

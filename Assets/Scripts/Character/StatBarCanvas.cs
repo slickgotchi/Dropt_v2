@@ -23,6 +23,16 @@ public class StatBarCanvas : MonoBehaviour
 
     private bool m_isDamaged = false;
 
+    // Cached values
+    private float cachedHpMax = -1;
+    private float cachedHpCurrent = -1;
+    private float cachedApMax = -1;
+    private float cachedApCurrent = -1;
+    private float cachedShieldMax = -1;
+    private float cachedShieldCurrent = -1;
+
+    private bool cachedShieldActive = false;
+
     private void Awake()
     {
         m_character = transform.parent.GetComponent<NetworkCharacter>();
@@ -40,49 +50,77 @@ public class StatBarCanvas : MonoBehaviour
 
     private void UpdateStatBarsShowIfBelow100()
     {
-        // update sliders
-        hpSlider.maxValue = m_character.currentStaticStats.HpMax;
-        hpSlider.value = m_character.currentDynamicStats.HpCurrent;
-        apSlider.maxValue = m_character.currentStaticStats.ApMax;
-        apSlider.value = m_character.currentDynamicStats.ApCurrent;
-        shieldSlider.maxValue = m_character.currentStaticStats.MaxEnemyShield;
-        shieldSlider.value = m_character.currentDynamicStats.EnemyShield;
+        bool valuesChanged = false;
 
-        bool isShieldActive = m_character.currentDynamicStats.EnemyShield > 0;
-
-        shieldSlider.gameObject.SetActive(isShieldActive);
-        hpSlider.gameObject.SetActive(!isShieldActive);
-
-        // hide ap bar if char has no AP stat
-        if (m_character.currentStaticStats.ApMax <= 0)
+        // Update HP slider only if the values change
+        if (cachedHpMax != m_character.currentStaticStats.HpMax || cachedHpCurrent != m_character.currentDynamicStats.HpCurrent)
         {
-            apSlider.gameObject.SetActive(false);
+            cachedHpMax = m_character.currentStaticStats.HpMax;
+            cachedHpCurrent = m_character.currentDynamicStats.HpCurrent;
+            hpSlider.maxValue = cachedHpMax;
+            hpSlider.value = cachedHpCurrent;
+            valuesChanged = true;
         }
 
-        // show damage
-        if (m_isDamaged)
+        // Update AP slider only if the values change
+        if (cachedApMax != m_character.currentStaticStats.ApMax || cachedApCurrent != m_character.currentDynamicStats.ApCurrent)
+        {
+            cachedApMax = m_character.currentStaticStats.ApMax;
+            cachedApCurrent = m_character.currentDynamicStats.ApCurrent;
+            apSlider.maxValue = cachedApMax;
+            apSlider.value = cachedApCurrent;
+
+            // Hide AP bar if character has no AP stat
+            apSlider.gameObject.SetActive(cachedApMax > 0);
+            valuesChanged = true;
+        }
+
+        // Update Shield slider only if the values change
+        if (cachedShieldMax != m_character.currentStaticStats.MaxEnemyShield || cachedShieldCurrent != m_character.currentDynamicStats.EnemyShield)
+        {
+            cachedShieldMax = m_character.currentStaticStats.MaxEnemyShield;
+            cachedShieldCurrent = m_character.currentDynamicStats.EnemyShield;
+            shieldSlider.maxValue = cachedShieldMax;
+            shieldSlider.value = cachedShieldCurrent;
+
+            bool isShieldActive = cachedShieldCurrent > 0;
+            if (isShieldActive != cachedShieldActive)
+            {
+                cachedShieldActive = isShieldActive;
+                shieldSlider.gameObject.SetActive(isShieldActive);
+                hpSlider.gameObject.SetActive(!isShieldActive);
+                valuesChanged = true;
+            }
+        }
+
+        // Update damage alpha only if it changes
+        if (m_isDamaged || m_character.currentDynamicStats.HpCurrent < m_character.currentStaticStats.HpMax)
         {
             SetAlpha(1);
+            m_isDamaged = true;
         }
         else
         {
             SetAlpha(0);
-            if (m_character.currentDynamicStats.HpCurrent - m_character.currentStaticStats.HpMax < 0)
-            {
-                m_isDamaged = true;
-            }
+        }
+
+        // Redraw the layout only if necessary
+        if (valuesChanged)
+        {
+            RefreshLayout();
         }
     }
 
     private void SetAlpha(float alpha)
     {
-        alpha = math.min(alpha, 1f);
-        alpha = math.max(0, alpha);
+        alpha = math.clamp(alpha, 0f, 1f);
 
         SetImageAlpha(hpBg, 0.7f * alpha);
         SetImageAlpha(hpFill, alpha);
         SetImageAlpha(apBg, 0.7f * alpha);
         SetImageAlpha(apFill, alpha);
+        SetImageAlpha(shieldBg, 0.7f * alpha);
+        SetImageAlpha(shieldFill, alpha);
     }
 
     private void SetImageAlpha(Image image, float alpha)
@@ -90,5 +128,11 @@ public class StatBarCanvas : MonoBehaviour
         Color color = image.color;
         color.a = alpha;
         image.color = color;
+    }
+
+    private void RefreshLayout()
+    {
+        // Add logic to force layout updates if necessary
+        LayoutRebuilder.ForceRebuildLayoutImmediate(GetComponent<RectTransform>());
     }
 }

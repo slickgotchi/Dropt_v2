@@ -145,6 +145,19 @@ public class NetworkCharacter : NetworkBehaviour
                math.abs(current.MaxEnemyShield - previous.MaxEnemyShield) < k_floatTolerance;
     }
 
+    [Rpc(SendTo.Server)]
+    void RequestSyncStatServerRpc()
+    {
+        if (!IsServer) return;
+
+        if (IsSpawned)
+        {
+            SyncDynamicStatsClientRpc(currentDynamicStats);
+            SyncStaticStatsClientRpc(currentStaticStats);
+        }
+        
+    }
+
     void SyncStats()
     {
         if (!IsServer) return;
@@ -186,6 +199,11 @@ public class NetworkCharacter : NetworkBehaviour
         {
             // baseize default values on the server
             Init();
+        }
+        else if (IsClient)
+        {
+            // request a stat sync
+            RequestSyncStatServerRpc();
         }
     }
 

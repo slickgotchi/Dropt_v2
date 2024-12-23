@@ -38,11 +38,11 @@ namespace Level
                 //}
                 // handle instantiating all other objects
                 //else
-                {
+                //{
                     var gameObject = Object.Instantiate(
                         randPrefab, spawners[i].transform.position, Quaternion.identity);
                     networkObject = gameObject.GetComponent<NetworkObject>();
-                }
+                //}
                 
                 // if we got networkobject, set levelspawn
                 if (networkObject != null)

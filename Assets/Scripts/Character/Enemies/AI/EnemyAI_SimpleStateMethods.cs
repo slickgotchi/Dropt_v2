@@ -105,17 +105,17 @@ namespace Dropt
             if (networkCharacter == null) return;
             if (m_navMeshAgent == null) return;
 
-            var allEnemyControllers = Game.Instance.enemyControllers;
+            //var allEnemyControllers = Game.Instance.enemyControllers;
             //var minDistance = 1.5f;
             var repellingForce = 5f;
 
             Vector3 avoidanceForce = Vector3.zero; // Initialize the avoidance force
 
             // Check all other enemies
-            int numEnemies = allEnemyControllers.Count;
+            int numEnemies = enemyAIs.Count;
             for (int i = 0; i < numEnemies; i++)
             {
-                var otherEnemy = allEnemyControllers[i].GetComponent<EnemyAI>();
+                var otherEnemy = enemyAIs[i];
                 if (otherEnemy == this) continue; // Skip itself
                 if (otherEnemy == null) continue;
                 if (!otherEnemy.gameObject.activeInHierarchy) continue;
@@ -142,10 +142,10 @@ namespace Dropt
 
         protected void HandleAlertOthers()
         {
-            var allEnemyControllers = Game.Instance.enemyControllers;
-            for (int i = 0; i < allEnemyControllers.Count; i++)
+            //var allEnemyControllers = Game.Instance.enemyControllers;
+            for (int i = 0; i < enemyAIs.Count; i++)
             {
-                var otherEnemy = allEnemyControllers[i].GetComponent<EnemyAI>();
+                var otherEnemy = enemyAIs[i];
                 if (otherEnemy == null) continue;
                 if (otherEnemy.state.Value != State.Roam) continue;
 

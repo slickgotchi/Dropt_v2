@@ -653,8 +653,8 @@ GameObject:
   - component: {fileID: 3199090954834604453}
   - component: {fileID: 9132449902431043672}
   - component: {fileID: 7833059599498724318}
-  - component: {fileID: 5577207974631020078}
   - component: {fileID: 280974544690016271}
+  - component: {fileID: -4203560643465852605}
   m_Layer: 5
   m_Name: StatBarCanvas
   m_TagString: Untagged
@@ -730,23 +730,6 @@ MonoBehaviour:
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
   m_PresetInfoIsWorld: 1
---- !u!114 &5577207974631020078
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9026217826315858155}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_IgnoreReversedGraphics: 1
-  m_BlockingObjects: 0
-  m_BlockingMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
 --- !u!114 &280974544690016271
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -762,13 +745,24 @@ MonoBehaviour:
   hpSlider: {fileID: 7711612044361524991}
   apSlider: {fileID: 4113612089378630418}
   shieldSlider: {fileID: 6490250849876370592}
-  character: {fileID: 0}
   hpBg: {fileID: 3910359261837846125}
   hpFill: {fileID: 726012874850900969}
   apBg: {fileID: 505297030239011196}
   apFill: {fileID: 331968061458109081}
   shieldBg: {fileID: 6840896816589744604}
   shieldFill: {fileID: 6526119988275976494}
+--- !u!114 &-4203560643465852605
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9026217826315858155}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f19ec7e7041c4e818c7a1820846a568, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &9174892217831617033
 GameObject:
   m_ObjectHideFlags: 0

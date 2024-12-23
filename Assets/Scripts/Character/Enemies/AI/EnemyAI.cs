@@ -2,6 +2,7 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.AI;
 using Unity.Mathematics;
+using System.Collections.Generic;
 
 namespace Dropt
 {
@@ -92,13 +93,14 @@ namespace Dropt
 
         [HideInInspector] public NetworkVariable<State> state = new NetworkVariable<State>(State.Spawn);
         [HideInInspector] public NetworkVariable<float> debugSlider = new NetworkVariable<float>(0);
-        //[HideInInspector] public State previousState = State.Null;
-        //[HideInInspector] public State currentState = State.Spawn;
 
+        [HideInInspector] public static List<EnemyAI> enemyAIs = new List<EnemyAI>();
 
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
+
+            enemyAIs.Add(this);
 
             m_soundFX_Enemy = GetComponent<SoundFX_Enemy>();
             networkCharacter = GetComponent<NetworkCharacter>();
@@ -129,6 +131,13 @@ namespace Dropt
             enemyAICanvas.Container.SetActive(EnemyAIManager.Instance.IsDebugVisible);
 
             Init();
+        }
+
+        public override void OnNetworkDespawn()
+        {
+            enemyAIs.Remove(this);
+
+            base.OnNetworkDespawn();
         }
 
         public void Init()
