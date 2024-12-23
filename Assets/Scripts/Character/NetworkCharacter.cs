@@ -348,11 +348,11 @@ public class NetworkCharacter : NetworkBehaviour
                     // grab level spawn component
                     var levelSpawn = networkObject.GetComponent<Level.LevelSpawn>();
 
-                    Debug.Log("HandleEnemyTakeDamage: ReturnNetworkObject()");
+                    //Debug.Log("HandleEnemyTakeDamage: ReturnNetworkObject()");
                     Core.Pool.NetworkObjectPool.Instance.ReturnNetworkObject(
                         networkObject, levelSpawn.prefab);
 
-                    networkObject.Despawn();
+                    networkObject.Despawn(false);
                 }
             }
 

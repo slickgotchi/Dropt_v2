@@ -64,7 +64,7 @@ public class PlayerOffchainData : NetworkBehaviour
     public string dungeonFormation = "solo";
 
     // uri for accessing database
-    private string dbUri = "https://db.playdropt.io";
+    private string dbUri = "https://db.playdropt.io/offchaindata";
 
     // for keeping track of current wallet
     private string m_walletAddress = null;

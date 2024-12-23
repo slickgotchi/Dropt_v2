@@ -208,7 +208,7 @@ public sealed class PickupItemManager : NetworkBehaviour
                 networkObj.gameObject.SetActive(false);
                 networkObj.Despawn(false);
 
-                Debug.Log("ReturnToPool - ReturnNetworkObject()");
+                //Debug.Log("ReturnToPool - ReturnNetworkObject()");
                 NetworkObjectPool.Instance.ReturnNetworkObject(networkObj, prefab);
                 m_prefabByInstanceMap.Remove(item.gameObject);
             }

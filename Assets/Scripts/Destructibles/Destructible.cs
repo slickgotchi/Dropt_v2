@@ -100,7 +100,7 @@ public class Destructible : NetworkBehaviour
 
                 Core.Pool.NetworkObjectPool.Instance.ReturnNetworkObject(
                     GetComponent<NetworkObject>(), levelSpawn.prefab);
-                GetComponent<NetworkObject>().Despawn();
+                GetComponent<NetworkObject>().Despawn(false);
                 DIE?.Invoke();
             }
         }

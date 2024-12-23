@@ -87,7 +87,7 @@ public class GasBag_Explode : EnemyAbility
 
                 Core.Pool.NetworkObjectPool.Instance.ReturnNetworkObject(
                     parentNetworkObject, levelSpawn.prefab);
-                parentNetworkObject.Despawn();
+                parentNetworkObject.Despawn(false);
             }
         }
 

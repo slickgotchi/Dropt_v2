@@ -18,7 +18,9 @@ namespace Core.Pool
     {
         public static NetworkObjectPool Instance { get; private set; }
 
-        [SerializeField] List<PoolConfigObject> m_poolConfigObjects;
+        //[SerializeField] List<PoolConfigObject> m_poolConfigObjects;
+        [SerializeField] List<GameObject> m_poolPrefabs;
+        [SerializeField] int m_poolPrefabPrewarmCount = 1;
 
         HashSet<GameObject> m_Prefabs = new HashSet<GameObject>();
 
@@ -41,11 +43,16 @@ namespace Core.Pool
         {
             base.OnNetworkSpawn();
 
-            // Registers all objects in cust prefab pool to the cache.
-            foreach (var configObject in m_poolConfigObjects)
+            foreach (var poolPrefab in m_poolPrefabs)
             {
-                RegisterPrefabInternal(configObject.Prefab, configObject.PrewarmCount);
+                RegisterPrefabInternal(poolPrefab, m_poolPrefabPrewarmCount);
             }
+
+            // Registers all objects in cust prefab pool to the cache.
+            //foreach (var configObject in m_poolConfigObjects)
+            //{
+            //    RegisterPrefabInternal(configObject.Prefab, configObject.PrewarmCount);
+            //}
         }
 
         public override void OnNetworkDespawn()
@@ -66,15 +73,25 @@ namespace Core.Pool
 
         public void OnValidate()
         {
-            for (var i = 0; i < m_poolConfigObjects.Count; i++)
+            for (var i = 0; i < m_poolPrefabs.Count; i++)
             {
-                var prefab = m_poolConfigObjects[i].Prefab;
+                var prefab = m_poolPrefabs[i];
                 if (prefab != null)
                 {
                     Assert.IsNotNull(prefab.GetComponent<NetworkObject>(),
                         $"{nameof(NetworkObjectPool)}: Pooled prefab \"{prefab.name}\" at index {i.ToString()} has no {nameof(NetworkObject)} component.");
                 }
             }
+
+            //for (var i = 0; i < m_poolConfigObjects.Count; i++)
+            //{
+            //    var prefab = m_poolConfigObjects[i].Prefab;
+            //    if (prefab != null)
+            //    {
+            //        Assert.IsNotNull(prefab.GetComponent<NetworkObject>(),
+            //            $"{nameof(NetworkObjectPool)}: Pooled prefab \"{prefab.name}\" at index {i.ToString()} has no {nameof(NetworkObject)} component.");
+            //    }
+            //}
         }
 
         /// <summary>
@@ -92,29 +109,15 @@ namespace Core.Pool
         /// <returns></returns>
         public NetworkObject GetNetworkObject(GameObject prefab, Vector3 position, Quaternion rotation)
         {
-            //// Log the attempt to get a NetworkObject
-            //Debug.Log($"GetNetworkObject called for prefab: {prefab.name}");
-
             // Check if the prefab is registered in the pool
             if (!m_PooledObjects.ContainsKey(prefab))
             {
-                Debug.LogWarning($"GetNetworkObject(): Prefab {prefab.name} not found in the pool. Creating a new instance dynamically and returning to caller.");
+                Debug.LogError($"GetNetworkObject(): Prefab {prefab.name} not found in the pool. Creating a new instance dynamically and returning to caller.");
 
-                // Dynamically create and return a new instance if not found in the pool
-                var networkObject = Instantiate(prefab).GetComponent<NetworkObject>();
-                if (networkObject == null)
-                {
-                    throw new Exception($"GetNetworkObject(): Failed to instantiate NetworkObject from prefab: {prefab.name}");
-                }
-
-                // Set position and rotation for the new instance
-                networkObject.transform.position = position;
-                networkObject.transform.rotation = rotation;
-
-                return networkObject;
+                return null;
             }
 
-            Debug.Log($"GetNetworkObject(): Prefab {prefab.name} found in pool and returning to caller");
+            //Debug.Log($"GetNetworkObject(): Prefab {prefab.name} found in pool and returning to caller");
 
             // Retrieve an instance from the pool
             var pooledNetworkObject = m_PooledObjects[prefab].Get();
@@ -132,7 +135,7 @@ namespace Core.Pool
             //Debug.Log($"ReturnNetworkObject {networkObject.name}, {prefab.name}");
             if (!m_PooledObjects.ContainsKey(prefab))
             {
-                Debug.LogWarning($"ReturnNetworkObject(): Prefab {prefab.name} not found in the pool.");
+                Debug.LogError($"ReturnNetworkObject(): Prefab {prefab.name} not found in the pool.");
                 return;
             }
 
@@ -142,7 +145,7 @@ namespace Core.Pool
             }
             catch (InvalidOperationException ex)
             {
-                Debug.LogWarning($"ReturnNetworkObject(): Attempted to release an already released object {prefab.name}: {ex.Message}");
+                Debug.LogError($"ReturnNetworkObject(): Pooled object release failed {prefab.name}: {ex.Message}");
             }
         }
 
@@ -189,6 +192,11 @@ namespace Core.Pool
             }
 
             m_Prefabs.Add(prefab);
+
+            if (!prefab.HasComponent<PooledObject>())
+            {
+                Debug.LogError($"RegistarPrefabInternal: {prefab.name} does not have a PooledObject component attached to it!");
+            }
 
             // Create the pool
             m_PooledObjects[prefab] = new ObjectPool<NetworkObject>(CreateFunc, ActionOnGet, ActionOnRelease,

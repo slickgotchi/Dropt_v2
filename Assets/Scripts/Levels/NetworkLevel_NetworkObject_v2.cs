@@ -33,14 +33,14 @@ namespace Level
                 // handle enemies and destructibles
                 if (destructible != null || enemyController != null)
                 {
-                    Debug.Log("CreateSpawners_NetworkObject_v2 - GetNetworkObject() for Destructible or Enemy");
+                    //Debug.Log("CreateSpawners_NetworkObject_v2 - GetNetworkObject() for Destructible or Enemy");
                     networkObject = NetworkObjectPool.Instance.GetNetworkObject(
                         randPrefab, spawners[i].transform.position, Quaternion.identity);
                 }
                 // handle instantiating all other objects
                 else
                 {
-                    Debug.Log("CreateSpawners_NetworkObject_v2 - Instantiating general network object");
+                    //Debug.Log("CreateSpawners_NetworkObject_v2 - Instantiating general network object");
                     var gameObject = Object.Instantiate(
                         randPrefab, spawners[i].transform.position, Quaternion.identity);
                     networkObject = gameObject.GetComponent<NetworkObject>();

@@ -229,7 +229,7 @@ public class LevelManager : NetworkBehaviour
                     pooledObject != null && pooledObject.IsInUse &&
                     networkObject.IsSpawned)
                 {
-                    Debug.Log($"Returning {networkObject.gameObject.name} to pool");
+                    //Debug.Log($"LevelManager: Returning {networkObject.gameObject.name} to pool");
                     Core.Pool.NetworkObjectPool.Instance.ReturnNetworkObject(
                         networkObject, levelSpawn.prefab);
 
