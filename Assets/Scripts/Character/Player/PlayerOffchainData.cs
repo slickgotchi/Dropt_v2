@@ -398,7 +398,7 @@ public class PlayerOffchainData : NetworkBehaviour
     // enter dungeon method that calculates balance
     public void EnterDungeonCalculateBalances()
     {
-        Debug.Log("EnterDungeonCalculateBalances()");
+        //Debug.Log("EnterDungeonCalculateBalances()");
 
         if (!IsServer) return;
 
@@ -407,7 +407,7 @@ public class PlayerOffchainData : NetworkBehaviour
         ectoDebitCount_dungeon = ectoDebitStartAmount_dungeon;
         ectoLiveCount_dungeon = 0;
 
-        Debug.Log($"ectoDebitStartAmount_dungeon: {ectoDebitStartAmount_dungeon}");
+        //Debug.Log($"ectoDebitStartAmount_dungeon: {ectoDebitStartAmount_dungeon}");
 
         // dust starts at 0 always
         dustLiveCount_dungeon = 0;
@@ -425,9 +425,9 @@ public class PlayerOffchainData : NetworkBehaviour
     }
 
     // exit dungeon calculates new balances and updates the database
-    public async void ExitDungeonCalculateBalances(bool isEscaped)
+    public async UniTask ExitDungeonCalculateBalances(bool isEscaped)
     {
-        Debug.Log("ExitDungeonCalculateBalances()");
+        //Debug.Log("ExitDungeonCalculateBalances()");
 
         if (!IsServer) return;
 
@@ -435,7 +435,7 @@ public class PlayerOffchainData : NetworkBehaviour
             ectoDebitCount_dungeon - ectoDebitStartAmount_dungeon + ectoLiveCount_dungeon :
             ectoDebitCount_dungeon - ectoDebitStartAmount_dungeon;
 
-        Debug.Log($"postDungeonEctoDelta: " + m_postDungeonEctoDelta);
+        //Debug.Log($"postDungeonEctoDelta: " + m_postDungeonEctoDelta);
 
         //m_postDungeonDustDelta = isEscaped ?
         //    (int)(dustLiveCount_dungeon * CodeInjector.Instance.GetOutputMultiplier()) :
@@ -445,7 +445,7 @@ public class PlayerOffchainData : NetworkBehaviour
             (int)(dustLiveCount_dungeon * CodeInjector.Instance.GetOutputMultiplier())
             ;
 
-        Debug.Log("m_postDungeonDustDelta: " + m_postDungeonDustDelta);
+        //Debug.Log("m_postDungeonDustDelta: " + m_postDungeonDustDelta);
 
         m_postDungeonBombDelta = bombLiveCount_dungeon - bombStartCount_dungeon;
 

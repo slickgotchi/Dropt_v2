@@ -149,6 +149,9 @@ public class LevelSpawnManager : MonoBehaviour
 
         // add levelspawn to list
         m_levelSpawns.Add(levelSpawn);
+
+        // deactivate the gameobject
+        gObject.SetActive(false);
     }
 
     public void RemoveLevelSpawnComponent(LevelSpawn levelSpawn)

@@ -18,7 +18,7 @@ public class GauntletLeaderboardTrigger : NetworkBehaviour
             foreach (var pc in playerControllers)
             {
                 var pll = pc.GetComponent<PlayerLeaderboardLogger>(); ;
-                pll.dungeonType = PlayerLeaderboardLogger.DungeonType.Gauntlet;
+                pll.dungeonType = LeaderboardLogger.DungeonType.Gauntlet;
             }
         }
     }

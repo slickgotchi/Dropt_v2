@@ -9,9 +9,10 @@ using System.Collections.Generic;
 
 public class PlayerLeaderboardLogger : NetworkBehaviour
 {
-    public enum DungeonType { Adventure, Gauntlet }
-    public DungeonType dungeonType = DungeonType.Adventure;
+    //public enum DungeonType { Adventure, Gauntlet }
+    public LeaderboardLogger.DungeonType dungeonType = LeaderboardLogger.DungeonType.Adventure;
 
+    /*
     private string leaderboardDbUri = "https://db.playdropt.io/leaderboard";
 
     public async void LogEndOfDungeonResults(bool isEscaped)
@@ -41,7 +42,7 @@ public class PlayerLeaderboardLogger : NetworkBehaviour
             completion_time = completionTime
         };
 
-        if (dungeonType == DungeonType.Adventure)
+        if (dungeonType == LeaderboardLogger.DungeonType.Adventure)
         {
             if (isEscaped)
                 await HandleAdventureLogging(leaderboardEntry);
@@ -171,4 +172,5 @@ public class PlayerLeaderboardLogger : NetworkBehaviour
         public int kills;
         public int completion_time;
     }
+    */
 }

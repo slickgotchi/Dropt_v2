@@ -43,6 +43,17 @@ public class LeaderboardDataRow : MonoBehaviour
         KillsText.text = kills.ToString();
         TimeText.text = ConvertTimeInSecondsToString(time);
         gameObject.SetActive(true);
+
+        var ellipsisAddressText = AddressText.GetComponent<TextEllipsisInMiddle>();
+        if (ellipsisAddressText != null)
+        {
+            ellipsisAddressText.UpdateTextWithEllipsis();
+        }
+    }
+
+    public void SetActive(bool isActive)
+    {
+        gameObject.SetActive(isActive);
     }
 
     string ConvertTimeInSecondsToString(int time)

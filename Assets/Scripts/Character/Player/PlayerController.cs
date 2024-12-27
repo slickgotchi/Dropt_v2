@@ -27,7 +27,7 @@ public class PlayerController : NetworkBehaviour
 
     private HoldBarCanvas m_holdBarCanvas;
 
-    [HideInInspector] public bool IsLevelSpawnPositionSet = false;
+    [HideInInspector] public bool IsLevelSpawnPositionSet = true;
 
     private AttackCentre m_playerAttackCentre;
 
@@ -58,6 +58,8 @@ public class PlayerController : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
+
+        IsLevelSpawnPositionSet = true;
 
         // register player controller
         Game.Instance.playerControllers.Add(GetComponent<PlayerController>());
@@ -100,7 +102,7 @@ public class PlayerController : NetworkBehaviour
     {
         // degregister player controller
         Game.Instance.playerControllers.Remove(GetComponent<PlayerController>());
-        
+
 
         if (!IsServer) return;
 
@@ -223,32 +225,48 @@ public class PlayerController : NetworkBehaviour
         ConnectedWallet = wallet;
     }
 
-    public void KillPlayer(REKTCanvas.TypeOfREKT typeOfREKT)
+    public async UniTask KillPlayer(REKTCanvas.TypeOfREKT typeOfREKT)
     {
+        try
+        {
+            // set player to dead
+            var playerController = GetComponent<PlayerController>();
+            if (playerController == null) return;
+            if (playerController.IsDead) return;
+
+            // set player to dead
+            playerController.IsDead = true;
+
+            // calc offchain balances
+            var playerOffchainData = GetComponent<PlayerOffchainData>();
+            if (playerOffchainData != null)
+            {
+                await playerOffchainData.ExitDungeonCalculateBalances(false);
+            }
+
+            // do leaderboard logging (only other place this is called is EscapePortal.cs)
+            Debug.Log("KillPlayer: LogEndOfDungeonResults");
+            var playerLeaderboardLogger = GetComponent<PlayerLeaderboardLogger>();
+            if (playerLeaderboardLogger != null)
+            {
+                Debug.Log("Start logging leaderboard: " + playerLeaderboardLogger.GetComponent<PlayerController>());
+                await LeaderboardLogger.LogEndOfDungeonResults(
+                    playerLeaderboardLogger.GetComponent<PlayerController>(),
+                    playerLeaderboardLogger.dungeonType,
+                    false);
+                Debug.Log("Finished logging leaderboard");
+            }
+
+            Debug.Log("TriggerGameoverclient");
+            TriggerGameOverClientRpc(GetComponent<NetworkObject>().NetworkObjectId, typeOfREKT);
+        }
+        catch (System.Exception e)
+        {
+            Debug.Log(e.Message);
+        }
         if (!IsServer) return;
 
-        // set player to dead
-        var playerController = GetComponent<PlayerController>();
-        if (playerController != null)
-        {
-            playerController.IsDead = true;
-        }
-
-        // calc offchain balances
-        var playerOffchainData = GetComponent<PlayerOffchainData>();
-        if (playerOffchainData != null)
-        {
-            playerOffchainData.ExitDungeonCalculateBalances(false);
-        }
-
-        // do leaderboard logging (only other place this is called is EscapePortal.cs)
-        var playerLeaderboardLogger = GetComponent<PlayerLeaderboardLogger>();
-        if (playerLeaderboardLogger != null)
-        {
-            playerLeaderboardLogger.LogEndOfDungeonResults(false);
-        }
-
-        TriggerGameOverClientRpc(GetComponent<NetworkObject>().NetworkObjectId, typeOfREKT);
+        
     }
 
     public void StartInvulnerability(float duration)
@@ -279,13 +297,6 @@ public class PlayerController : NetworkBehaviour
 
         // show the game over canvas
         REKTCanvas.Instance.Show(typeOfREKT);
-//<<<<<<< HEAD
-
-//        // shutdown the networkmanager for the client
-//        Debug.Log("Shutdown NetworkManager");
-//        NetworkManager.Singleton.Shutdown();
-//=======
-//>>>>>>> main
     }
 
     public void StartTransition()

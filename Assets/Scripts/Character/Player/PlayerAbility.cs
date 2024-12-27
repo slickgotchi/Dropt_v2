@@ -588,6 +588,7 @@ public class PlayerAbility : NetworkBehaviour
         foreach (var ec in enemyControllers)
         {
             var positionBuffer = ec.GetComponent<PositionBuffer>();
+            if (positionBuffer == null) continue;
 
             // stash our enemies current position
             positionBuffer.StashCurrentPosition();

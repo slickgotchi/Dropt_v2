@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Unity.Mathematics;
 
 public class LeaderboardCanvas : DroptCanvas
 {
@@ -21,11 +22,20 @@ public class LeaderboardCanvas : DroptCanvas
     [SerializeField] private Button m_spotPrizesButton;
     [SerializeField] private Button m_exitButton;
 
-    private List<LeaderboardDataRow> m_leaderboardDataRows;
+    [SerializeField] private List<LeaderboardDataRow> m_adventureLeaderboardDataRows;
+    [SerializeField] private List<LeaderboardDataRow> m_gauntletLeaderboardDataRows;
+
+    private List<LeaderboardLogger.LeaderboardEntry> m_adventureLeaderboardEntries;
+    private List<LeaderboardLogger.LeaderboardEntry> m_gauntletLeaderboardEntries;
 
     public enum Tab { Adventure, Gauntlet, SpotPrizes, Null }
     private Tab m_currentTab = Tab.Adventure;
     private Tab m_previousTab = Tab.Null;
+
+    private int m_pageNumber = 0;
+    [SerializeField] private TMPro.TextMeshProUGUI m_pageNumberText;
+    [SerializeField] private Button m_pageLeftButton;
+    [SerializeField] private Button m_pageRightButton;
 
     private void Awake()
     {
@@ -45,6 +55,8 @@ public class LeaderboardCanvas : DroptCanvas
         m_gauntletButton.onClick.AddListener(HandleClickGauntlet);
         m_spotPrizesButton.onClick.AddListener(HandleClickSpotPrizes);
         m_exitButton.onClick.AddListener(HandleClickExit);
+        m_pageLeftButton.onClick.AddListener(HandlePageLeft);
+        m_pageRightButton.onClick.AddListener(HandlePageRight);
     }
 
     public override void OnUpdate()
@@ -55,8 +67,26 @@ public class LeaderboardCanvas : DroptCanvas
         {
             m_previousTab = m_currentTab;
             SetNewTab(m_currentTab);
-            Debug.Log("Set new tab");
         }
+    }
+
+    void HandlePageLeft()
+    {
+        m_pageNumber--;
+        m_pageNumber = math.max(m_pageNumber, 0);
+
+        SetLeaderboard(m_currentTab, m_pageNumber);
+
+        m_pageNumberText.text = $"{m_pageNumber*100 + 1} - {(m_pageNumber+1) * 100}";
+    }
+
+    void HandlePageRight()
+    {
+        m_pageNumber++;
+
+        SetLeaderboard(m_currentTab, m_pageNumber);
+
+        m_pageNumberText.text = $"{m_pageNumber * 100 + 1} - {(m_pageNumber + 1) * 100}";
     }
 
     void SetNewTab(Tab newTab)
@@ -114,27 +144,64 @@ public class LeaderboardCanvas : DroptCanvas
             // get local players leaderboard logger
             TryGetLocalPlayerInput();
             if (m_localPlayerInput == null) return;
-            var playerLeaderboardLogger = m_localPlayerInput.GetComponent<PlayerLeaderboardLogger>();
-            if (playerLeaderboardLogger == null) return;
 
             // get leaderboard entries
-            var entries = await playerLeaderboardLogger.GetAllLeaderboardEntries("adventure_leaderboard");
+            Debug.Log("get entries");
+            m_adventureLeaderboardEntries = await LeaderboardLogger.GetAllLeaderboardEntries("adventure_leaderboard");
+            Debug.Log($"LeaderboardLogger: Retrieved {m_adventureLeaderboardEntries.Count} entries from adventure_leaderboard");
 
             // populate the data rows
-            for (int i = 0; i < m_leaderboardDataRows.Count; i++)
-            {
-                var entry = entries[i];
-                var dataRow = m_leaderboardDataRows[i];
-                if (entry != null && dataRow != null)
-                {
-                    dataRow.Set(
-                        i, entry.gotchi_name, entry.gotchi_id, entry.wallet_address, 0, entry.formation, entry.dust_balance, entry.kills, entry.completion_time);
-                }
-            }
+            SetLeaderboard(Tab.Adventure, m_pageNumber);
         }
         catch (System.Exception e)
         {
             Debug.Log(e.Message);
+        }
+    }
+
+    void SetLeaderboard(Tab boardName, int pageNumber)
+    {
+        if (boardName == Tab.Adventure)
+        {
+            for (int i = 0; i < m_adventureLeaderboardDataRows.Count; i++)
+            {
+                var dataRow = m_adventureLeaderboardDataRows[i];
+
+                if (i + pageNumber*100 >= m_adventureLeaderboardEntries.Count)
+                {
+                    dataRow.SetActive(false);
+                }
+                else
+                {
+                    var entry = m_adventureLeaderboardEntries[i + pageNumber];
+                    if (entry != null && dataRow != null)
+                    {
+                        dataRow.Set(
+                            i + 1 + pageNumber * 100, entry.gotchi_name, entry.gotchi_id, entry.wallet_address, 0, entry.formation, entry.dust_balance, entry.kills, entry.completion_time);
+                    }
+                }
+            }
+        }
+        else if (boardName == Tab.Gauntlet)
+        {
+            for (int i = 0; i < m_gauntletLeaderboardDataRows.Count; i++)
+            {
+                var dataRow = m_gauntletLeaderboardDataRows[i];
+
+                if (i + pageNumber*100 >= m_gauntletLeaderboardEntries.Count)
+                {
+                    dataRow.SetActive(false);
+                }
+                else
+                {
+                    var entry = m_gauntletLeaderboardEntries[i + pageNumber];
+                    if (entry != null && dataRow != null)
+                    {
+                        dataRow.Set(
+                            i+1 + pageNumber*100, entry.gotchi_name, entry.gotchi_id, entry.wallet_address, 0, entry.formation, entry.dust_balance, entry.kills, entry.completion_time);
+                    }
+                }
+            }
         }
     }
 

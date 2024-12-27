@@ -33,7 +33,6 @@ public class EnemyController : NetworkBehaviour
         base.OnNetworkSpawn();
 
         Game.Instance.enemyControllers.Add(this);
-        ProximityManager.Instance.culledObjects.Add(this.GetComponent<ProximityCulling>());
 
         if (IsClient && !IsHost)
         {
@@ -55,7 +54,9 @@ public class EnemyController : NetworkBehaviour
     public override void OnNetworkDespawn()
     {
         Game.Instance.enemyControllers.Remove(this);
-        ProximityManager.Instance.culledObjects.Remove(this.GetComponent<ProximityCulling>());
+
+        // remove any level spawn components
+        LevelSpawnManager.Instance.RemoveLevelSpawnComponent(GetComponent<Level.LevelSpawn>());
 
         base.OnNetworkDespawn();
     }

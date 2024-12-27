@@ -489,7 +489,7 @@ namespace GotchiHub
             }
 
             // else lets get offchain data
-            var offchainGotchiData = GotchiDataManager.Instance.GetOffchainGotchiDataById(id);
+            var offchainGotchiData = GotchiDataManager.Instance.GetOffchainGotchiConfigById(id);
             if (offchainGotchiData != null)
             {
                 OffchainImage.enabled = true;

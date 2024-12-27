@@ -382,6 +382,16 @@ public class LevelManager : NetworkBehaviour
         {
             m_depthCounter_SERVER = 0;
 
+            // set playres leaderboard loggers
+            foreach (var pc in Game.Instance.playerControllers)
+            {
+                var pll = pc.GetComponent<PlayerLeaderboardLogger>();
+                if (pll != null)
+                {
+                    pll.dungeonType = LeaderboardLogger.DungeonType.Adventure;
+                }
+            }
+
             // destroy all buffs
             foreach (var lcb in levelCountBuffs)
             {
@@ -402,7 +412,7 @@ public class LevelManager : NetworkBehaviour
 
     // vars for handling level loaded
     bool isHandleLevelLoadedNextFrame = false;
-    bool isLevelLoaded = false;
+    public bool isLevelLoaded = true;
 
     // update nav mesh, spawn things, drop spawn players
     void HandleLevelLoaded_SERVER()

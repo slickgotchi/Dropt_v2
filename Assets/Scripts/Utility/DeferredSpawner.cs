@@ -47,6 +47,10 @@ public class DeferredSpawner : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
+        if (!NetworkManager.Singleton ||
+            NetworkManager.Singleton.ShutdownInProgress ||
+            !NetworkManager.Singleton.IsListening) return;
+
         while (_nextFrameActions.Count > 0)
         {
             // Dequeue and execute all actions that were queued for the next frame

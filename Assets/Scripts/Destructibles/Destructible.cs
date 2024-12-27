@@ -34,13 +34,12 @@ public class Destructible : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-
-        ProximityManager.Instance.culledObjects.Add(this.GetComponent<ProximityCulling>());
     }
 
     public override void OnNetworkDespawn()
     {
-        ProximityManager.Instance.culledObjects.Remove(this.GetComponent<ProximityCulling>());
+        // remove any level spawn components
+        LevelSpawnManager.Instance.RemoveLevelSpawnComponent(GetComponent<Level.LevelSpawn>());
 
         base.OnNetworkDespawn();
     }
