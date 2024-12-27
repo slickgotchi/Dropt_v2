@@ -49,8 +49,10 @@ public class GotchiSelectCard : MonoBehaviour
         CritText.text = (DroptStatCalculator.GetDroptStatForGotchiAndAllWearablesByGotchiId(id, TraitType.SPK) * 100).ToString("F0");
         ApText.text = DroptStatCalculator.GetDroptStatForGotchiAndAllWearablesByGotchiId(id, TraitType.BRN).ToString("F0");
 
+        bool isOffchain = GotchiDataManager.Instance.GetOffchainGotchiDataById(id) != null;
+
         // if we got onchain data, set svg image
-        if (gotchiData != null)
+        if (!isOffchain)
         {
             OnchainSvgImage.sprite = CustomSvgLoader.CreateSvgSprite(GotchiDataManager.Instance.stylingUI.CustomizeSVG(gotchiSvg.Front), Vector2.zero);
             OnchainSvgImage.material = GotchiDataManager.Instance.Material_Unlit_VectorGradientUI;
@@ -77,7 +79,6 @@ public class GotchiSelectCard : MonoBehaviour
 
     private void HandleOnClick()
     {
-        Debug.Log("Clicked ID: " + Id);
         GotchiDataManager.Instance.SetSelectedGotchiById(Id);
         GotchiSelectCanvas.Instance.SelectById(Id);
     }

@@ -21,40 +21,49 @@ public static class LeaderboardLogger
             return;
         }
 
-        Debug.Log("LogEndOfDungeonResults: Got Player");
-
-        // Extract data from PlayerController
-        var gotchiId = playerController.NetworkGotchiId.Value;
-        Debug.Log("gotchiId: " + gotchiId);
-        var gotchiData = GotchiHub.GotchiDataManager.Instance.GetGotchiDataById(gotchiId);
-        Debug.Log("gotchiData: " + gotchiData);
-        var gotchiName = gotchiData.name;
-        Debug.Log("gotchiName: " + gotchiName);
-        var walletAddress = playerController.ConnectedWallet;
-        Debug.Log("walletAddress: " + walletAddress);
-        var playerOffchainData = playerController.GetComponent<PlayerOffchainData>();
-        Debug.Log("playerOffchainData: " + playerOffchainData);
-        var formation = playerOffchainData?.dungeonFormation ?? "unknown";
-        var dustBalance = playerOffchainData?.GetEctoDeltaValue() ?? 0;
-        var kills = playerController.GetTotalKilledEnemies();
-        var completionTime = (int)Time.timeSinceLevelLoad; // Example completion time in seconds
-
-        Debug.Log("LogEndOfDungeonResults: Create leaderboard entry");
-        var leaderboardEntry = new LeaderboardEntry
-        {
-            gotchi_id = gotchiId,
-            gotchi_name = gotchiName,
-            wallet_address = walletAddress,
-            formation = formation,
-            dust_balance = dustBalance,
-            kills = kills,
-            completion_time = completionTime
-        };
-
         try
         {
+
+            Debug.Log("LogEndOfDungeonResults: Got Player");
+
+            // Extract data from PlayerController
+            var gotchiId = playerController.NetworkGotchiId.Value;
+            Debug.Log("gotchiId: " + gotchiId);
+            var gotchiData = GotchiHub.GotchiDataManager.Instance.GetGotchiDataById(gotchiId);
+            Debug.Log("gotchiData: " + gotchiData);
+            var gotchiName = gotchiData.name;
+            Debug.Log("gotchiName: " + gotchiName);
+            var walletAddress = playerController.ConnectedWallet;
+            Debug.Log("walletAddress: " + walletAddress);
+            var playerOffchainData = playerController.GetComponent<PlayerOffchainData>();
+            Debug.Log("playerOffchainData: " + playerOffchainData);
+            var formation = playerOffchainData?.dungeonFormation ?? "unknown";
+            Debug.Log("formation: " + formation);
+            var dustBalance = playerOffchainData?.GetDustDeltaValue() ?? 0;
+            Debug.Log("dustBalance: " + dustBalance);
+            var kills = playerController.GetTotalKilledEnemies();
+            Debug.Log("kills: " + kills);
+            var completionTime = (int)Time.timeSinceLevelLoad; // Example completion time in seconds
+            Debug.Log("completionTime: " + completionTime);
+
+            Debug.Log("LogEndOfDungeonResults: Create leaderboard entry");
+            var leaderboardEntry = new LeaderboardEntry
+            {
+                gotchi_id = gotchiId,
+                gotchi_name = gotchiName,
+                wallet_address = walletAddress,
+                formation = formation,
+                dust_balance = dustBalance,
+                kills = kills,
+                completion_time = completionTime
+            };
+
+            Debug.Log("Created leaderboardEntry");
+
+
             if (dungeonType == DungeonType.Adventure)
             {
+                Debug.Log("HandleAdventureLogging...");
                 if (isEscaped)
                 {
                     Debug.Log("HandleAdventureLogging: Try");
@@ -82,12 +91,16 @@ public static class LeaderboardLogger
         {
             var existingEntry = await GetLeaderboardEntry("adventure_leaderboard", entry.gotchi_id);
 
-            if (existingEntry == null ||
-                entry.dust_balance > existingEntry.dust_balance ||
-                (entry.dust_balance == existingEntry.dust_balance && entry.kills > existingEntry.kills) ||
-                (entry.dust_balance == existingEntry.dust_balance && entry.kills == existingEntry.kills && entry.completion_time < existingEntry.completion_time))
+            if (existingEntry == null)
             {
-                await UpdateLeaderboardEntry("adventure_leaderboard", entry);
+                await UpsertLeaderboardEntry("adventure_leaderboard", entry);
+                return;
+            }
+
+            if (entry.dust_balance > existingEntry.dust_balance)
+            {
+                await UpsertLeaderboardEntry("adventure_leaderboard", entry);
+                return;
             }
         }
         catch (Exception e)
@@ -102,12 +115,16 @@ public static class LeaderboardLogger
         {
             var existingEntry = await GetLeaderboardEntry("gauntlet_leaderboard", entry.gotchi_id);
 
-            if (existingEntry == null ||
-                entry.kills > existingEntry.kills ||
-                (entry.kills == existingEntry.kills && entry.completion_time < existingEntry.completion_time) ||
-                (entry.kills == existingEntry.kills && entry.completion_time == existingEntry.completion_time && entry.dust_balance > existingEntry.dust_balance))
+            if (existingEntry == null)
             {
-                await UpdateLeaderboardEntry("gauntlet_leaderboard", entry);
+                await UpsertLeaderboardEntry("gauntlet_leaderboard", entry);
+                return;
+            }
+
+            if (entry.dust_balance > existingEntry.dust_balance)
+            {
+                await UpsertLeaderboardEntry("gauntlet_leaderboard", entry);
+                return;
             }
         }
         catch (Exception e)
@@ -130,14 +147,17 @@ public static class LeaderboardLogger
         }
     }
 
-    private static async UniTask UpdateLeaderboardEntry(string leaderboard, LeaderboardEntry entry)
+    private static async UniTask UpsertLeaderboardEntry(string leaderboard, LeaderboardEntry entry)
     {
+        Debug.Log($"Upserting entry: {JsonConvert.SerializeObject(entry)}");
+
         using (var client = new HttpClient())
         {
             var json = JsonConvert.SerializeObject(entry);
+            Debug.Log($"JSON Payload: {json}");
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await client.PostAsync($"{leaderboardDbUri}/{leaderboard}", content);
+            var response = await client.PutAsync($"{leaderboardDbUri}/{leaderboard}/{entry.gotchi_id}", content);
             if (!response.IsSuccessStatusCode)
             {
                 Debug.LogError($"Failed to update {leaderboard}: {response.ReasonPhrase}");

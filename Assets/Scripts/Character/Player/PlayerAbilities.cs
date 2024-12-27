@@ -57,20 +57,16 @@ public class PlayerAbilities : NetworkBehaviour
 
     private void OnDisable()
     {
-        Debug.Log("OnDisable()");
     }
 
     public override void OnDestroy()
     {
         base.OnDestroy();
 
-        Debug.Log("OnDestroy()");
     }
 
     public override void OnNetworkDespawn()
     {
-
-        Debug.Log("OnNetworkDespawn()");
 
         if (Bootstrap.IsUnityEditor())
         {

@@ -16,7 +16,7 @@ public class LeaderboardDataRow : MonoBehaviour
     [SerializeField] TextMeshProUGUI KillsText;
     [SerializeField] TextMeshProUGUI TimeText;
 
-    private void Start()
+    private void Awake()
     {
         gameObject.SetActive(false);
     }

@@ -88,14 +88,7 @@ public class PlayerOffchainData : NetworkBehaviour
 
     public override void OnNetworkDespawn()
     {
-        // WARNING: we need a way to differentiate between full disconnects and temporary internet loss disconnect/reconnects
-        //if (IsServer)
-        //{
-        //    if (LevelManager.Instance.IsDungeon() || LevelManager.Instance.IsDungeonRest())
-        //    {
-        //        ExitDungeonCalculateBalances(false);
-        //    }
-        //}
+
     }
 
     private void Update()
@@ -431,21 +424,16 @@ public class PlayerOffchainData : NetworkBehaviour
 
         if (!IsServer) return;
 
+        var playerLeaderboardLogger = GetComponent<PlayerLeaderboardLogger>();
+        if (playerLeaderboardLogger == null) return;
+
         m_postDungeonEctoDelta = isEscaped ?
             ectoDebitCount_dungeon - ectoDebitStartAmount_dungeon + ectoLiveCount_dungeon :
             ectoDebitCount_dungeon - ectoDebitStartAmount_dungeon;
 
-        //Debug.Log($"postDungeonEctoDelta: " + m_postDungeonEctoDelta);
+        m_postDungeonDustDelta = (int)(dustLiveCount_dungeon * CodeInjector.Instance.GetOutputMultiplier());
 
-        //m_postDungeonDustDelta = isEscaped ?
-        //    (int)(dustLiveCount_dungeon * CodeInjector.Instance.GetOutputMultiplier()) :
-        //    0;
-
-        m_postDungeonDustDelta = 
-            (int)(dustLiveCount_dungeon * CodeInjector.Instance.GetOutputMultiplier())
-            ;
-
-        //Debug.Log("m_postDungeonDustDelta: " + m_postDungeonDustDelta);
+        Debug.Log("m_postDungeonDustDelta: " + m_postDungeonDustDelta);
 
         m_postDungeonBombDelta = bombLiveCount_dungeon - bombStartCount_dungeon;
 

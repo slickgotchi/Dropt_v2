@@ -185,6 +185,14 @@ public class PlayerController : NetworkBehaviour
             CheckForPlayerInput();
         }
 
+        if (IsHost)
+        {
+            if (Input.GetKeyDown(KeyCode.V))
+            {
+                GetComponent<NetworkCharacter>().TakeDamage(300, false);
+            }
+        }
+
         // Handle level spawning on the server
         if (IsServer && !IsLevelSpawnPositionSet)
         {
@@ -250,7 +258,7 @@ public class PlayerController : NetworkBehaviour
             if (playerLeaderboardLogger != null)
             {
                 Debug.Log("Start logging leaderboard: " + playerLeaderboardLogger.GetComponent<PlayerController>());
-                await LeaderboardLogger.LogEndOfDungeonResults(
+                LeaderboardLogger.LogEndOfDungeonResults(
                     playerLeaderboardLogger.GetComponent<PlayerController>(),
                     playerLeaderboardLogger.dungeonType,
                     false);

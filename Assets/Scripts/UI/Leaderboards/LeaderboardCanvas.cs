@@ -30,9 +30,10 @@ public class LeaderboardCanvas : DroptCanvas
 
     public enum Tab { Adventure, Gauntlet, SpotPrizes, Null }
     private Tab m_currentTab = Tab.Adventure;
-    private Tab m_previousTab = Tab.Null;
+    //private Tab m_previousTab = Tab.Null;
 
     private int m_pageNumber = 0;
+    [SerializeField] private GameObject m_paginationPanel;
     [SerializeField] private TMPro.TextMeshProUGUI m_pageNumberText;
     [SerializeField] private Button m_pageLeftButton;
     [SerializeField] private Button m_pageRightButton;
@@ -62,12 +63,6 @@ public class LeaderboardCanvas : DroptCanvas
     public override void OnUpdate()
     {
         base.OnUpdate();
-
-        if (m_currentTab != m_previousTab)
-        {
-            m_previousTab = m_currentTab;
-            SetNewTab(m_currentTab);
-        }
     }
 
     void HandlePageLeft()
@@ -91,6 +86,9 @@ public class LeaderboardCanvas : DroptCanvas
 
     void SetNewTab(Tab newTab)
     {
+        if (newTab == m_currentTab) return;
+        m_currentTab = newTab;
+
         m_adventureBoard.SetActive(false);
         m_gauntletBoard.SetActive(false);
         m_spotPrizesBoard.SetActive(false);
@@ -116,9 +114,22 @@ public class LeaderboardCanvas : DroptCanvas
         }
     }
 
-    void HandleClickAdventure() { m_currentTab = Tab.Adventure; }
-    void HandleClickGauntlet() { m_currentTab = Tab.Gauntlet; }
-    void HandleClickSpotPrizes() { m_currentTab = Tab.SpotPrizes; }
+    void HandleClickAdventure() {
+        m_paginationPanel.SetActive(true);
+        SetNewTab(Tab.Adventure);
+        SetLeaderboard(Tab.Adventure, 0);
+    }
+
+    void HandleClickGauntlet() {
+        m_paginationPanel.SetActive(true);
+        SetNewTab(Tab.Gauntlet);
+        SetLeaderboard(Tab.Gauntlet, 0);
+    }
+
+    void HandleClickSpotPrizes() {
+        m_paginationPanel.SetActive(false);
+        SetNewTab(Tab.SpotPrizes);
+    }
 
     void HandleClickExit()
     {
@@ -146,12 +157,13 @@ public class LeaderboardCanvas : DroptCanvas
             if (m_localPlayerInput == null) return;
 
             // get leaderboard entries
-            Debug.Log("get entries");
             m_adventureLeaderboardEntries = await LeaderboardLogger.GetAllLeaderboardEntries("adventure_leaderboard");
-            Debug.Log($"LeaderboardLogger: Retrieved {m_adventureLeaderboardEntries.Count} entries from adventure_leaderboard");
+            m_gauntletLeaderboardEntries = await LeaderboardLogger.GetAllLeaderboardEntries("gauntlet_leaderboard");
 
             // populate the data rows
             SetLeaderboard(Tab.Adventure, m_pageNumber);
+            SetLeaderboard(Tab.Gauntlet, m_pageNumber);
+
         }
         catch (System.Exception e)
         {
@@ -161,6 +173,8 @@ public class LeaderboardCanvas : DroptCanvas
 
     void SetLeaderboard(Tab boardName, int pageNumber)
     {
+        m_pageNumber = math.max(0, pageNumber);
+
         if (boardName == Tab.Adventure)
         {
             for (int i = 0; i < m_adventureLeaderboardDataRows.Count; i++)
@@ -176,6 +190,7 @@ public class LeaderboardCanvas : DroptCanvas
                     var entry = m_adventureLeaderboardEntries[i + pageNumber];
                     if (entry != null && dataRow != null)
                     {
+                        dataRow.SetActive(true);
                         dataRow.Set(
                             i + 1 + pageNumber * 100, entry.gotchi_name, entry.gotchi_id, entry.wallet_address, 0, entry.formation, entry.dust_balance, entry.kills, entry.completion_time);
                     }
@@ -197,6 +212,7 @@ public class LeaderboardCanvas : DroptCanvas
                     var entry = m_gauntletLeaderboardEntries[i + pageNumber];
                     if (entry != null && dataRow != null)
                     {
+                        dataRow.SetActive(true);
                         dataRow.Set(
                             i+1 + pageNumber*100, entry.gotchi_name, entry.gotchi_id, entry.wallet_address, 0, entry.formation, entry.dust_balance, entry.kills, entry.completion_time);
                     }

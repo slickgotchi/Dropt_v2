@@ -30,7 +30,7 @@ namespace GotchiHub
         // these are default gotchis free players can use
         [Header("Offchain & Default Gotchis")]
         public List<DefaultGotchiData> offchainGotchiConfigs = new List<DefaultGotchiData>();
-        [HideInInspector] public List<GotchiData> offchainGotchiData = new List<GotchiData>();
+        public List<GotchiData> offchainGotchiData = new List<GotchiData>();
 
         // these our local players wallet gotchis
         [HideInInspector] public List<GotchiData> localWalletGotchiData = new List<GotchiData>();
@@ -71,6 +71,23 @@ namespace GotchiHub
             Instance = this;
             DontDestroyOnLoad(gameObject);
 
+
+        }
+
+        private void Start()
+        {
+            ClearGotchiDataAndSvgs();
+        }
+
+        private void ClearGotchiDataAndSvgs()
+        {
+            localWalletGotchiData.Clear();
+            localWalletGotchiSvgSets.Clear();
+            remoteGotchiData.Clear();
+            remoteGotchiSvgSets.Clear();
+
+            offchainGotchiData.Clear();
+
             // populate offchain gotchis
             foreach (var defaultGotchiData in offchainGotchiConfigs)
             {
@@ -88,22 +105,7 @@ namespace GotchiHub
                 };
 
                 offchainGotchiData.Add(newGotchiData);
-                Debug.Log("add offchain gotchi");
-                Debug.Log(newGotchiData);
             }
-        }
-
-        private void Start()
-        {
-            ClearGotchiDataAndSvgs();
-        }
-
-        private void ClearGotchiDataAndSvgs()
-        {
-            localWalletGotchiData.Clear();
-            localWalletGotchiSvgSets.Clear();
-            remoteGotchiData.Clear();
-            remoteGotchiSvgSets.Clear();
         }
 
         public bool SetSelectedGotchiById(int id)

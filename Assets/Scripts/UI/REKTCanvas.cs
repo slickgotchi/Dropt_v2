@@ -139,7 +139,7 @@ public class REKTCanvas : MonoBehaviour
         m_BankEctoDeltaText.color = ectoDelta < 0 ? new Color32(245, 85, 93, 255) : new Color32(153, 230, 95, 255);
 
         int dustDelta = playerOffchainData.GetDustDeltaValue();
-        m_GotchiDustCollectedText.text = dustDelta.ToString() + " x" + CodeInjector.Instance.GetOutputMultiplier();
+        m_GotchiDustCollectedText.text = dustDelta.ToString();
 
         int bombDelta = playerOffchainData.GetBombDeltaValue();
         m_BombsUsedText.text = bombDelta.ToString();
