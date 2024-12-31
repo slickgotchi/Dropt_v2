@@ -84,12 +84,12 @@ public static class LeaderboardLogger
     {
         try
         {
-            var existingEntry = await GetLeaderboardEntry("adventure_leaderboard", entry.gotchi_id);
+            //var existingEntry = await GetLeaderboardEntry("adventure_leaderboard", entry.gotchi_id);
 
-            if (existingEntry == null || entry.dust_balance > existingEntry.dust_balance)
-            {
-                await UpsertLeaderboardEntry("adventure_leaderboard", entry);
-            }
+            //if (existingEntry == null || entry.dust_balance > existingEntry.dust_balance)
+            //{
+                await UpsertLeaderboardEntry("adventure_leaderboard", entry, "leaderboard_dr0pt_secret");
+            //}
         }
         catch (Exception e)
         {
@@ -101,12 +101,12 @@ public static class LeaderboardLogger
     {
         try
         {
-            var existingEntry = await GetLeaderboardEntry("gauntlet_leaderboard", entry.gotchi_id);
+            //var existingEntry = await GetLeaderboardEntry("gauntlet_leaderboard", entry.gotchi_id);
 
-            if (existingEntry == null || entry.dust_balance > existingEntry.dust_balance)
-            {
-                await UpsertLeaderboardEntry("gauntlet_leaderboard", entry);
-            }
+            //if (existingEntry == null || entry.dust_balance > existingEntry.dust_balance)
+            //{
+                await UpsertLeaderboardEntry("gauntlet_leaderboard", entry, "leaderboard_dr0pt_secret");
+            //}
         }
         catch (Exception e)
         {
@@ -143,7 +143,7 @@ public static class LeaderboardLogger
         }
     }
 
-    private static async UniTask UpsertLeaderboardEntry(string leaderboard, LeaderboardEntry entry)
+    private static async UniTask UpsertLeaderboardEntry(string leaderboard, LeaderboardEntry entry, string secretKey)
     {
         string url = $"{leaderboardDbUri}/{leaderboard}/{entry.gotchi_id}";
         string json = JsonUtility.ToJson(entry);
@@ -153,6 +153,7 @@ public static class LeaderboardLogger
             request.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(json));
             request.downloadHandler = new DownloadHandlerBuffer();
             request.SetRequestHeader("Content-Type", "application/json");
+            request.SetRequestHeader("Authorization", secretKey); // Add secret key to headers
 
             var operation = request.SendWebRequest();
             while (!operation.isDone)
@@ -166,6 +167,7 @@ public static class LeaderboardLogger
             }
         }
     }
+
 
 
     public static async UniTask<List<LeaderboardEntry>> GetAllLeaderboardEntries(string leaderboard)

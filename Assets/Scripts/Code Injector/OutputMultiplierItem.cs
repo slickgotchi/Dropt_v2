@@ -7,6 +7,6 @@ public class OutputMultiplierItem : MonoBehaviour
 
     public void Initialize()
     {
-        m_valueText.text = CodeInjector.Instance.GetOutputMultiplier().ToString("F1");
+        m_valueText.text = CodeInjector.Instance.GetOutputMultiplier().ToString("F2");
     }
 }

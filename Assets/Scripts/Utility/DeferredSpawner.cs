@@ -33,6 +33,8 @@ public class DeferredSpawner : MonoBehaviour
         }
 
         Instance._nextFrameActions.Enqueue(() => {
+            if (networkObject == null) return;
+
             networkObject.gameObject.SetActive(true);
             networkObject.Spawn();
             });
