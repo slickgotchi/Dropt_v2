@@ -18,7 +18,8 @@ namespace Dropt
         {
             if (IsServer)
             {
-                m_animator.Play("BombSnail_Spawn");
+                //m_animator.Play("BombSnail_Spawn");
+                Utils.Anim.Play(m_animator, "BombSnail_Spawn");
             }
             base.OnSpawnStart();
         }
@@ -35,7 +36,8 @@ namespace Dropt
         {
             if (IsServer)
             {
-                m_animator.Play("BombSnail_Roam");
+                //m_animator.Play("BombSnail_Roam");
+                Utils.Anim.Play(m_animator, "BombSnail_Spawn", interpolationDelay_s);
             }
             SimpleRoamUpdate(dt);
         }

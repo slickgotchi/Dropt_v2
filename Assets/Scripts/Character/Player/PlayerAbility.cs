@@ -159,6 +159,8 @@ public class PlayerAbility : NetworkBehaviour
     private bool m_isHoldReady = true;
     private bool m_isHolding = false;
 
+    public bool IsHolding() { return m_isHolding; }
+
     public void HoldStart()
     {
         if (!m_isHoldReady) return;
@@ -608,6 +610,7 @@ public class PlayerAbility : NetworkBehaviour
         foreach (var ec in enemyControllers)
         {
             var positionBuffer = ec.GetComponent<PositionBuffer>();
+            if (positionBuffer == null) continue;
 
             // set position back to the stashed position
             positionBuffer.transform.position = positionBuffer.GetStashPosition();

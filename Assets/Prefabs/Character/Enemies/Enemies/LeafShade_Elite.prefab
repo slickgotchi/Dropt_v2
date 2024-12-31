@@ -111,6 +111,7 @@ GameObject:
   - component: {fileID: -3916906166274183195}
   - component: {fileID: -4760153985233720130}
   - component: {fileID: -2864347708537599040}
+  - component: {fileID: 3587877539629333086}
   m_Layer: 15
   m_Name: LeafShade_Elite
   m_TagString: Untagged
@@ -203,7 +204,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1249991746567512264}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
   m_Name: 
@@ -567,6 +568,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsCulled: 1
+--- !u!114 &3587877539629333086
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40782bf69052c45b8b668c6bcbf0e9b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_syncOnPositionDelta: 0.1
+  interpolationDelayTicks: 4
 --- !u!1 &1308822279949722805
 GameObject:
   m_ObjectHideFlags: 0

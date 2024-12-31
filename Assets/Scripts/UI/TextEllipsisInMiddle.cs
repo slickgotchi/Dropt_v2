@@ -33,17 +33,19 @@ public class TextEllipsisInMiddle : MonoBehaviour
 
     public void UpdateTextWithEllipsis()
     {
-        fullText = GetComponent<TMPro.TextMeshProUGUI>().text;
+        if (tmpText == null)
+            tmpText = GetComponent<TextMeshProUGUI>();
+
+        fullText = tmpText?.text ?? string.Empty; // Avoid null references
+
         if (fullText.Length > startCharacters + endCharacters)
         {
-            // Show the first `startCharacters`, then "...", then the last `endCharacters`
             string start = fullText.Substring(0, startCharacters);
             string end = fullText.Substring(fullText.Length - endCharacters);
             tmpText.text = $"{start}...{end}";
         }
         else
         {
-            // If the text is short enough, display the entire text
             tmpText.text = fullText;
         }
     }

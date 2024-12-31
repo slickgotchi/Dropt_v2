@@ -25,6 +25,7 @@ namespace Dropt
 
         private bool m_isExploded = false;
         private bool m_isAttackSoundPlaying = false;
+
         private void Awake()
         {
             m_animator = GetComponent<Animator>();
@@ -74,7 +75,7 @@ namespace Dropt
             base.OnRoamStart();
             if (IsServer)
             {
-                Utils.Anim.Play(m_animator, "GasBag_Roam");
+                Utils.Anim.Play(m_animator, "GasBag_Roam", interpolationDelay_s);
             }
         }
 
@@ -124,7 +125,7 @@ namespace Dropt
         public override void OnAttackStart()
         {
             base.OnAttackStart();
-            Utils.Anim.Play(m_animator, "GasBag_Death");
+            Utils.Anim.Play(m_animator, "GasBag_Death", interpolationDelay_s);
             OnTouchPoisonCollider.enabled = false;
             EnemyHurtCollider.enabled = false;
             m_isExploded = true;
@@ -230,7 +231,7 @@ namespace Dropt
                 m_isAttackSoundPlaying = false;
                 if (IsServer)
                 {
-                    Utils.Anim.Play(m_animator, "GasBag_Roam");
+                    Utils.Anim.Play(m_animator, "GasBag_Roam", interpolationDelay_s);
                 }
                 return;
             }
@@ -242,7 +243,7 @@ namespace Dropt
                     // apply damage
                     if (IsServer)
                     {
-                        Utils.Anim.Play(m_animator, "GasBag_Attack");
+                        Utils.Anim.Play(m_animator, "GasBag_Attack", interpolationDelay_s);
                     }
                     if (!m_isAttackSoundPlaying)
                     {

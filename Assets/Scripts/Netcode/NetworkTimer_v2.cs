@@ -65,10 +65,16 @@ public class NetworkTimer_v2 : MonoBehaviour
         TickFraction = m_timer / TickInterval;
     }
 
+    public float GetTime()
+    {
+        return (TickCurrent + TickFraction) * TickInterval; 
+    }
+
     private void HandleTickFunctions()
     {
         // insert all functions that need to be ticked throughout the codebase
         HandleTick_PlayerPrediction();
+        HandleTick_CustomNetworkTransforms();
     }
 
     private void HandleTick_PlayerPrediction()
@@ -79,6 +85,21 @@ public class NetworkTimer_v2 : MonoBehaviour
         foreach (var player in players)
         {
             player.GetComponent<PlayerPrediction>().Tick();
+        }
+    }
+
+    private void HandleTick_CustomNetworkTransforms()
+    {
+        if (Game.Instance == null) return;
+
+        var enemies = Game.Instance.enemyControllers;
+        foreach (var enemy in enemies)
+        {
+            var customNetworkTransform = enemy.GetComponent<CustomNetworkTransform>();
+            if (customNetworkTransform != null)
+            {
+                customNetworkTransform.Tick();
+            }
         }
     }
 }

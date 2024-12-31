@@ -43,6 +43,8 @@ namespace Dropt
         [Header("Debug")]
         public EnemyAI_DebugCanvas debugCanvas;
 
+        [HideInInspector] public float interpolationDelay_s = 0.26f;
+
         private float m_spawnTimer = 0f;
         private float m_telegraphTimer = 0f;
         private float m_attackTimer = 0f;
@@ -99,6 +101,12 @@ namespace Dropt
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
+
+            var customNetworkTransform = GetComponent<CustomNetworkTransform>();
+            if (NetworkTimer_v2.Instance != null && customNetworkTransform != null)
+            {
+                interpolationDelay_s = NetworkTimer_v2.Instance.TickInterval * customNetworkTransform.interpolationDelayTicks;
+            }
 
             enemyAIs.Add(this);
 

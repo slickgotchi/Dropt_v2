@@ -6,12 +6,23 @@ using UnityEngine.UI;
 
 public class GeneralDebugCanvas : DroptCanvas
 {
+    public static GeneralDebugCanvas Instance { get; private set; }
+
     public Toggle fpsToggle;
     public Toggle characterStatsToggle;
     public Toggle enemyAIToggle;
 
     private void Awake()
     {
+        // Singleton pattern to ensure only one instance of the AudioManager exists
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+
         InstaHideCanvas();
 
         if (fpsToggle != null)
@@ -78,14 +89,19 @@ public class GeneralDebugCanvas : DroptCanvas
 
     private void SetEnemyStateVisible(bool visible)
     {
-        if (Game.Instance == null) return;
+        //if (Game.Instance == null) return;
 
-        var enemyControllers = Game.Instance.enemyControllers;
 
-        foreach (var ec in enemyControllers)
-        {
-            var canvas = ec.GetComponentInChildren<EnemyAI_DebugCanvas>();
-            canvas.Container.SetActive(visible);
-        }
+
+        //var enemyControllers = Game.Instance.enemyControllers;
+
+        //foreach (var ec in enemyControllers)
+        //{
+        //    bool isActive = ec.gameObject.activeSelf;
+        //    ec.gameObject.SetActive(true);
+        //    var canvas = ec.GetComponentInChildren<EnemyAI_DebugCanvas>();
+        //    canvas.Container.SetActive(visible);
+        //    ec.gameObject.SetActive(isActive);
+        //}
     }
 }

@@ -35,10 +35,8 @@ public class PlayerCharacter : NetworkCharacter
         m_soundFX_Player = GetComponent<SoundFX_Player>();
     }
 
-    protected override void Update()
+    public override void OnUpdate()
     {
-        base.Update();
-
         if (IsServer)
         {
             if (LevelManager.Instance.IsDegenapeVillage())

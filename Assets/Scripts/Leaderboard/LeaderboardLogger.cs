@@ -1,11 +1,9 @@
 using System;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
-using System.Net.Http;
-using System.Text;
-using Newtonsoft.Json;
+using UnityEngine.Networking;
 using System.Collections.Generic;
-using Cysharp.Threading.Tasks;
+using System.Text;
 
 public static class LeaderboardLogger
 {
@@ -23,7 +21,6 @@ public static class LeaderboardLogger
 
         try
         {
-
             Debug.Log("LogEndOfDungeonResults: Got Player");
 
             // Extract data from PlayerController
@@ -60,7 +57,6 @@ public static class LeaderboardLogger
 
             Debug.Log("Created leaderboardEntry");
 
-
             if (dungeonType == DungeonType.Adventure)
             {
                 Debug.Log("HandleAdventureLogging...");
@@ -78,11 +74,10 @@ public static class LeaderboardLogger
                 Debug.Log("HandleGauntletLogging: Success");
             }
         }
-        catch (System.Exception e)
+        catch (Exception e)
         {
             Debug.LogWarning(e.Message);
         }
-
     }
 
     private static async UniTask HandleAdventureLogging(LeaderboardEntry entry)
@@ -91,16 +86,9 @@ public static class LeaderboardLogger
         {
             var existingEntry = await GetLeaderboardEntry("adventure_leaderboard", entry.gotchi_id);
 
-            if (existingEntry == null)
+            if (existingEntry == null || entry.dust_balance > existingEntry.dust_balance)
             {
                 await UpsertLeaderboardEntry("adventure_leaderboard", entry);
-                return;
-            }
-
-            if (entry.dust_balance > existingEntry.dust_balance)
-            {
-                await UpsertLeaderboardEntry("adventure_leaderboard", entry);
-                return;
             }
         }
         catch (Exception e)
@@ -115,16 +103,9 @@ public static class LeaderboardLogger
         {
             var existingEntry = await GetLeaderboardEntry("gauntlet_leaderboard", entry.gotchi_id);
 
-            if (existingEntry == null)
+            if (existingEntry == null || entry.dust_balance > existingEntry.dust_balance)
             {
                 await UpsertLeaderboardEntry("gauntlet_leaderboard", entry);
-                return;
-            }
-
-            if (entry.dust_balance > existingEntry.dust_balance)
-            {
-                await UpsertLeaderboardEntry("gauntlet_leaderboard", entry);
-                return;
             }
         }
         catch (Exception e)
@@ -135,74 +116,110 @@ public static class LeaderboardLogger
 
     private static async UniTask<LeaderboardEntry> GetLeaderboardEntry(string leaderboard, int gotchiId)
     {
-        using (var client = new HttpClient())
+        string url = $"{leaderboardDbUri}/{leaderboard}/{gotchiId}";
+
+        using (UnityWebRequest request = UnityWebRequest.Get(url))
         {
-            var response = await client.GetAsync($"{leaderboardDbUri}/{leaderboard}/{gotchiId}");
-            if (response.IsSuccessStatusCode)
+            var operation = request.SendWebRequest();
+            while (!operation.isDone)
             {
-                var json = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<LeaderboardEntry>(json);
+                await UniTask.Yield();
             }
+
+            if (request.result == UnityWebRequest.Result.Success)
+            {
+                string json = request.downloadHandler.text;
+                if (!string.IsNullOrEmpty(json))
+                {
+                    return JsonUtility.FromJson<LeaderboardEntry>(json);
+                }
+            }
+            else
+            {
+                Debug.LogError($"Failed to fetch leaderboard entry: {request.error}\nResponse: {request.downloadHandler.text}");
+            }
+
             return null;
         }
     }
 
     private static async UniTask UpsertLeaderboardEntry(string leaderboard, LeaderboardEntry entry)
     {
-        Debug.Log($"Upserting entry: {JsonConvert.SerializeObject(entry)}");
+        string url = $"{leaderboardDbUri}/{leaderboard}/{entry.gotchi_id}";
+        string json = JsonUtility.ToJson(entry);
 
-        using (var client = new HttpClient())
+        using (UnityWebRequest request = new UnityWebRequest(url, UnityWebRequest.kHttpVerbPUT))
         {
-            var json = JsonConvert.SerializeObject(entry);
-            Debug.Log($"JSON Payload: {json}");
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            request.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(json));
+            request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("Content-Type", "application/json");
 
-            var response = await client.PutAsync($"{leaderboardDbUri}/{leaderboard}/{entry.gotchi_id}", content);
-            if (!response.IsSuccessStatusCode)
+            var operation = request.SendWebRequest();
+            while (!operation.isDone)
             {
-                Debug.LogError($"Failed to update {leaderboard}: {response.ReasonPhrase}");
+                await UniTask.Yield();
+            }
+
+            if (request.result != UnityWebRequest.Result.Success)
+            {
+                Debug.LogError($"Failed to update {leaderboard}: {request.error}\nResponse: {request.downloadHandler.text}");
             }
         }
     }
 
-    /// <summary>
-    /// Fetches all leaderboard entries for a given leaderboard.
-    /// </summary>
-    /// <param name="leaderboard">The leaderboard name ("adventure_leaderboard" or "gauntlet_leaderboard").</param>
-    /// <returns>A list of leaderboard entries.</returns>
+
     public static async UniTask<List<LeaderboardEntry>> GetAllLeaderboardEntries(string leaderboard)
     {
         if (string.IsNullOrEmpty(leaderboard))
         {
             Debug.LogError("Leaderboard name cannot be null or empty.");
-            return null;
+            return new List<LeaderboardEntry>(); // Return an empty list instead of null
         }
 
-        using (var client = new HttpClient())
+        string apiUrl = $"{leaderboardDbUri}/{leaderboard}";
+
+        using (UnityWebRequest request = UnityWebRequest.Get(apiUrl))
         {
-            try
+            var operation = request.SendWebRequest().ToUniTask();
+
+            await operation;
+
+            if (request.result == UnityWebRequest.Result.Success)
             {
-                var response = await client.GetAsync($"{leaderboardDbUri}/{leaderboard}");
-                if (response.IsSuccessStatusCode)
+                string jsonResult = request.downloadHandler.text;
+
+                try
                 {
-                    var json = await response.Content.ReadAsStringAsync();
-                    var entries = JsonConvert.DeserializeObject<List<LeaderboardEntry>>(json);
-                    Debug.Log($"Successfully fetched {entries.Count} entries from {leaderboard}.");
-                    return entries;
+                    // Wrap JSON response in an object if necessary
+                    string wrappedJson = "{\"entries\":" + jsonResult + "}";
+
+                    // Parse JSON into a list of LeaderboardEntry
+                    Wrapper wrapper = JsonUtility.FromJson<Wrapper>(wrappedJson);
+
+                    if (wrapper != null && wrapper.entries != null)
+                    {
+                        return wrapper.entries;
+                    }
+                    else
+                    {
+                        Debug.LogError("Parsed wrapper or entries were null.");
+                        return new List<LeaderboardEntry>();
+                    }
                 }
-                else
+                catch (Exception e)
                 {
-                    Debug.LogError($"Failed to fetch leaderboard entries: {response.ReasonPhrase}");
-                    return null;
+                    Debug.LogError($"Failed to parse leaderboard JSON: {e.Message}\nJSON: {jsonResult}");
+                    return new List<LeaderboardEntry>(); // Return empty list on exception
                 }
             }
-            catch (Exception e)
+            else
             {
-                Debug.LogError($"Error fetching leaderboard entries: {e.Message}");
-                return null;
+                Debug.LogError($"Failed to fetch leaderboard entries: {request.error}");
+                return new List<LeaderboardEntry>(); // Return empty list on failure
             }
         }
     }
+
 
     [Serializable]
     public class LeaderboardEntry
@@ -214,5 +231,12 @@ public static class LeaderboardLogger
         public int dust_balance;
         public int kills;
         public int completion_time;
+    }
+
+    // Wrapper class to handle the JSON array format
+    [Serializable]
+    public class Wrapper
+    {
+        public List<LeaderboardEntry> entries;
     }
 }

@@ -71,7 +71,8 @@ public class Game : MonoBehaviour
             if (Bootstrap.IsServer())
             {
                 // set a reasonably high target frame rate to reduce latency
-                Application.targetFrameRate = Bootstrap.IsRemoteConnection() ? 1200 : 300;
+                //Application.targetFrameRate = Bootstrap.IsRemoteConnection() ? 1200 : 300;
+                Application.targetFrameRate = 180;
                 QualitySettings.vSyncCount = 0;
 
                 // hide loading canvas
@@ -83,6 +84,8 @@ public class Game : MonoBehaviour
             else if (Bootstrap.IsClient())
             {
                 QualitySettings.vSyncCount = 1;
+
+                Application.targetFrameRate = 60;
 
                 // connect to a client game (leave gameId param "" to signify we want an empty game)
                 ConnectClientGame(Bootstrap.Instance.isJoiningFromTitle ? Bootstrap.Instance.GameId : "");

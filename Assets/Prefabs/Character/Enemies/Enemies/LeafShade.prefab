@@ -112,6 +112,8 @@ GameObject:
   - component: {fileID: -2462436751054439784}
   - component: {fileID: 9072564434406264143}
   - component: {fileID: 3340937047251004772}
+  - component: {fileID: 7771907008413602047}
+  - component: {fileID: -4144377813499766453}
   m_Layer: 15
   m_Name: LeafShade
   m_TagString: Untagged
@@ -174,7 +176,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3251470331
+  GlobalObjectIdHash: 1888255537
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 0
@@ -204,7 +206,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1249991746567512264}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
   m_Name: 
@@ -219,7 +221,7 @@ MonoBehaviour:
   SyncScaleX: 0
   SyncScaleY: 0
   SyncScaleZ: 0
-  PositionThreshold: 0.01
+  PositionThreshold: 0.1
   RotAngleThreshold: 1
   ScaleThreshold: 1
   UseQuaternionSynchronization: 0
@@ -581,6 +583,34 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsCulled: 1
+--- !u!114 &7771907008413602047
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40782bf69052c45b8b668c6bcbf0e9b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_syncOnPositionDelta: 0.1
+  interpolationDelayTicks: 4
+--- !u!114 &-4144377813499766453
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40782bf69052c45b8b668c6bcbf0e9b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_syncOnPositionDelta: 0.1
+  interpolationDelayTicks: 4
 --- !u!1 &1308822279949722805
 GameObject:
   m_ObjectHideFlags: 0
@@ -815,7 +845,7 @@ SpriteRenderer:
   m_SortingLayerID: 133809489
   m_SortingLayer: -1
   m_SortingOrder: 0
-  m_Sprite: {fileID: -3599907312673860206, guid: a40958ecf3deafe40add55ae256dfd9d, type: 3}
+  m_Sprite: {fileID: 295894589, guid: b071d82892e654e009e97c78ddc14357, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -853,7 +883,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   NeutralHeightY: 0
-  AmplitudeY: 0.3
+  AmplitudeY: 0.1
   Frequency: 2
 --- !u!1001 &6045679701102444868
 PrefabInstance:

@@ -59,7 +59,7 @@ public class PlayerController : NetworkBehaviour
     {
         base.OnNetworkSpawn();
 
-        IsLevelSpawnPositionSet = true;
+        IsLevelSpawnPositionSet = false;
 
         // register player controller
         Game.Instance.playerControllers.Add(GetComponent<PlayerController>());

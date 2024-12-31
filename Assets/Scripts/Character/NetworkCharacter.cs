@@ -240,25 +240,30 @@ public class NetworkCharacter : NetworkBehaviour
     private float m_syncTimer = 0f;
     private float k_syncInterval = 0.1f;
 
-    protected virtual void Update()
+    protected void Update()
     {
-        if (!IsServer) return;
-
-        // handle ap regen
-        currentDynamicStats.ApCurrent += (int)(currentStaticStats.ApRegen * Time.deltaTime);
-        if (currentDynamicStats.ApCurrent > currentStaticStats.ApMax)
+        if (IsServer)
         {
-            currentDynamicStats.ApCurrent = currentStaticStats.ApMax;
+            // handle ap regen
+            currentDynamicStats.ApCurrent += currentStaticStats.ApRegen * Time.deltaTime;
+            if (currentDynamicStats.ApCurrent > currentStaticStats.ApMax)
+            {
+                currentDynamicStats.ApCurrent = currentStaticStats.ApMax;
+            }
+
+            // handle stat syncing
+            m_syncTimer -= Time.deltaTime;
+            if (m_syncTimer < 0)
+            {
+                m_syncTimer = k_syncInterval;
+                SyncStats();
+            }
         }
 
-        // handle stat syncing
-        m_syncTimer -= Time.deltaTime;
-        if (m_syncTimer < 0)
-        {
-            m_syncTimer = k_syncInterval;
-            SyncStats();
-        }
+        OnUpdate();
     }
+
+    public virtual void OnUpdate() { }
 
     public float GetAttackPower(float randomVariation = 0.1f)
     {

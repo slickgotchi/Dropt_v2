@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Unity.Mathematics;
+using Cysharp.Threading.Tasks;
 
 public class LeaderboardCanvas : DroptCanvas
 {
@@ -148,17 +149,33 @@ public class LeaderboardCanvas : DroptCanvas
         PopulateLeaderboards();
     }
 
-    async void PopulateLeaderboards()
+    async UniTaskVoid PopulateLeaderboards()
     {
         try
         {
             // get local players leaderboard logger
             TryGetLocalPlayerInput();
-            if (m_localPlayerInput == null) return;
+            if (m_localPlayerInput == null)
+            {
+                Debug.Log("m_localPlayerInput = null... returning...");
+                return;
+            }
 
-            // get leaderboard entries
+            // get adventure leaderboard entries
             m_adventureLeaderboardEntries = await LeaderboardLogger.GetAllLeaderboardEntries("adventure_leaderboard");
+            if (m_adventureLeaderboardEntries == null)
+            {
+                Debug.Log("m_adventureLeaderboardEntries = null... returning...");
+                return;
+            }
+
+            // get gauntlet leaderboard entries
             m_gauntletLeaderboardEntries = await LeaderboardLogger.GetAllLeaderboardEntries("gauntlet_leaderboard");
+            if (m_gauntletLeaderboardEntries == null)
+            {
+                Debug.Log("m_gauntletLeaderboardEntries = null... returning...");
+                return;
+            }
 
             // populate the data rows
             SetLeaderboard(Tab.Adventure, m_pageNumber);

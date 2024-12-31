@@ -16,6 +16,7 @@ namespace Dropt
         public override void OnSpawnStart()
         {
             base.OnSpawnStart();
+
             if (IsServer)
             {
                 Utils.Anim.PlayAnimationWithDuration(m_animator, "LeafShade_Spawn", SpawnDuration);
@@ -31,7 +32,9 @@ namespace Dropt
                 {
                     m_navMeshAgent.isStopped = true;
                 }
-                Utils.Anim.PlayAnimationWithDuration(m_animator, "LeafShade_Anticipation", TelegraphDuration);
+
+                Utils.Anim.PlayAnimationWithDuration(m_animator, "LeafShade_Anticipation", TelegraphDuration, interpolationDelay_s);
+
             }
             GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, 0.1f);
             m_soundFX_Shade.PlayChargeSound();
@@ -42,7 +45,7 @@ namespace Dropt
             base.OnRoamStart();
             if (IsServer)
             {
-                Utils.Anim.Play(m_animator, "LeafShade_Roam");
+                Utils.Anim.Play(m_animator, "LeafShade_Roam", interpolationDelay_s);
             }
         }
 
@@ -56,7 +59,7 @@ namespace Dropt
             base.OnAggroStart();
             if (IsServer)
             {
-                Utils.Anim.Play(m_animator, "LeafShade_Roam");
+                Utils.Anim.Play(m_animator, "LeafShade_Roam", interpolationDelay_s);
             }
         }
 
@@ -69,7 +72,7 @@ namespace Dropt
         {
             if (IsServer)
             {
-                Utils.Anim.Play(m_animator, "LeafShade_Attack");
+                Utils.Anim.Play(m_animator, "LeafShade_Attack", interpolationDelay_s);
             }
             SimpleAttackStart();
             m_soundFX_Shade.PlayAttackSound();
@@ -80,7 +83,7 @@ namespace Dropt
         {
             if (IsServer)
             {
-                Utils.Anim.Play(m_animator, "LeafShade_Roam");
+                Utils.Anim.Play(m_animator, "LeafShade_Roam", interpolationDelay_s);
             }
         }
 

@@ -131,6 +131,7 @@ public class MagicBeam : PlayerAbility
 
     public override void OnFinish()
     {
+        if (IsHolding()) return;
         foreach (var sapv in m_chainAttackPathVisualizers) sapv.SetMeshVisible(false);
     }
 

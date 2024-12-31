@@ -69,7 +69,8 @@ public class PierceDrill : PlayerAbility
         base.OnFinish();
 
         if (m_attackPathVisualizer == null) return;
-        m_attackPathVisualizer.SetMeshVisible(false);
+        
+        if (!IsHolding()) m_attackPathVisualizer.SetMeshVisible(false);
     }
 
     public override void OnHoldStart()
