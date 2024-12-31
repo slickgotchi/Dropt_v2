@@ -162,9 +162,9 @@ GameObject:
   - component: {fileID: 4974996773238406466}
   - component: {fileID: 1765478850189108541}
   - component: {fileID: 1985905379785562293}
-  - component: {fileID: 6220554781755722535}
   - component: {fileID: 7839663921815635967}
   - component: {fileID: 7271283838154051036}
+  - component: {fileID: 6323278197832788531}
   m_Layer: 5
   m_Name: EnemyAI_DebugCanvas
   m_TagString: Untagged
@@ -237,24 +237,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 0
---- !u!114 &6220554781755722535
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6693740103783179488}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_IgnoreReversedGraphics: 1
-  m_BlockingObjects: 0
-  m_BlockingMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
+  m_PresetInfoIsWorld: 1
 --- !u!114 &7839663921815635967
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -321,6 +304,18 @@ MonoBehaviour:
   Container: {fileID: 6473082529024187324}
   stateTMP: {fileID: 1451070944213457944}
   slider: {fileID: 7839663921815635967}
+--- !u!114 &6323278197832788531
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6693740103783179488}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f19ec7e7041c4e818c7a1820846a568, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7776626171444153718
 GameObject:
   m_ObjectHideFlags: 0

@@ -60,22 +60,63 @@ public class NetworkPrefabsListEditor : EditorWindow
             }
         }
 
-        // Update the NetworkPrefabsList
+        // Track changes for logging
         var existingPrefabs = new List<NetworkPrefab>(networkPrefabsList.PrefabList);
+        var removedPrefabs = new List<NetworkPrefab>(existingPrefabs);
+        var addedPrefabs = new List<NetworkPrefab>();
+
+        // Remove all existing prefabs from the list
         foreach (var prefab in existingPrefabs)
         {
             networkPrefabsList.Remove(prefab);
         }
 
+        // Add new prefabs to the list
         foreach (var prefab in newNetworkPrefabs)
         {
+            if (!existingPrefabs.Contains(prefab))
+            {
+                addedPrefabs.Add(prefab);
+            }
+            removedPrefabs.Remove(prefab);
             networkPrefabsList.Add(prefab);
         }
 
+        // Save changes
         EditorUtility.SetDirty(networkPrefabsList);
         AssetDatabase.SaveAssets();
 
+        // Log details of the operation
         Debug.Log("Network Prefabs List updated successfully.");
+
+        if (addedPrefabs.Count > 0)
+        {
+            Debug.Log($"Added {addedPrefabs.Count} prefab(s):");
+            foreach (var prefab in addedPrefabs)
+            {
+                Debug.Log($"    Added: {prefab.Prefab.name}");
+            }
+        }
+        else
+        {
+            Debug.Log("No new prefabs were added.");
+        }
+
+        if (removedPrefabs.Count > 0)
+        {
+            Debug.Log($"Removed {removedPrefabs.Count} prefab(s):");
+            foreach (var prefab in removedPrefabs)
+            {
+                Debug.Log($"    Removed: {prefab.Prefab.name}");
+            }
+        }
+        else
+        {
+            Debug.Log("No prefabs were removed.");
+        }
+
+        int unchangedCount = newNetworkPrefabs.Count - addedPrefabs.Count;
+        Debug.Log($"{unchangedCount} prefab(s) remained unchanged.");
     }
 
     private void AssignDefaultNetworkPrefabs()

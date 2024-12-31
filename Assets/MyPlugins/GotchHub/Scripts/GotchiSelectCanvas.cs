@@ -392,7 +392,7 @@ namespace GotchiHub
                 if (numGotchis <= 0)
                 {
                     SetMenuScreen(MenuScreen.NoGotchis);
-                } else
+                } else if (m_menuScreen != MenuScreen.Connected)
                 {
                     SetMenuScreen(MenuScreen.Connected);
                 }
@@ -477,8 +477,10 @@ namespace GotchiHub
             var gotchiSvg = GotchiDataManager.Instance.GetGotchiSvgsById(id);
             var gotchiData = GotchiDataManager.Instance.GetGotchiDataById(id);
 
+            bool isOffchain = GotchiDataManager.Instance.GetOffchainGotchiDataById(id) != null;
+
             // if we got onchain data, set svg image
-            if (gotchiData != null)
+            if (!isOffchain)
             {
                 OnchainSvgImage.enabled = true;
                 OnchainSvgImage.sprite = CustomSvgLoader.CreateSvgSprite(GotchiDataManager.Instance.stylingUI.CustomizeSVG(gotchiSvg.Front), Vector2.zero);
@@ -489,7 +491,7 @@ namespace GotchiHub
             }
 
             // else lets get offchain data
-            var offchainGotchiData = GotchiDataManager.Instance.GetOffchainGotchiDataById(id);
+            var offchainGotchiData = GotchiDataManager.Instance.GetOffchainGotchiConfigById(id);
             if (offchainGotchiData != null)
             {
                 OffchainImage.enabled = true;
@@ -664,13 +666,26 @@ namespace GotchiHub
             // 2. add offchain gotchis as cards
             foreach (var offchainGotchi in GotchiDataManager.Instance.offchainGotchiData)
             {
-                var newGotchiSelectCard = Instantiate(gotchiSelectCard).GetComponent<GotchiSelectCard>();
-                if (newGotchiSelectCard != null)
+                try
                 {
-                    newGotchiSelectCard.transform.SetParent(gotchiList.transform, false);
-                    newGotchiSelectCard.InitById(offchainGotchi.id);
+                    var newGotchiSelectCard = Instantiate(gotchiSelectCard).GetComponent<GotchiSelectCard>();
+                    if (newGotchiSelectCard != null)
+                    {
+                        var parentTransform = gotchiList.transform;
+                        if (parentTransform == null)
+                        {
+                            return;
+                        }
+                        newGotchiSelectCard.transform.SetParent(parentTransform, false);
+                        newGotchiSelectCard.InitById(offchainGotchi.id);
+                    }
+                }
+                catch (System.Exception e)
+                {
+                    Debug.LogError($"Error processing Gotchi: {offchainGotchi.id}, {e.Message}");
                 }
             }
+
 
             // 3. reate new instance of gotchi list item and set parent to gotchi list
             var gotchiSvgs = m_gotchiDataManager.localWalletGotchiSvgSets;

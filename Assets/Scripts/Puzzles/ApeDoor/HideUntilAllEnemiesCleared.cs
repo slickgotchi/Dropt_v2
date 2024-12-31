@@ -57,10 +57,10 @@ public class HideUntilAllEnemiesCleared : MonoBehaviour
 
     int GetEnemyCount()
     {
-        var enemies = FindObjectsByType<EnemyController>(FindObjectsSortMode.None);
+        var enemies = Game.Instance.enemyControllers;
         var lilEssence = FindObjectsByType<LilEssence>(FindObjectsSortMode.None);
 
-        int enemyCount = enemies != null ? enemies.Length : 0;
+        int enemyCount = enemies != null ? enemies.Count : 0;
         int lilEssenceCount = lilEssence != null ? lilEssence.Length : 0;
 
         return enemyCount - lilEssenceCount;

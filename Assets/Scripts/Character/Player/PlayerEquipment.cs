@@ -84,8 +84,8 @@ public class PlayerEquipment : NetworkBehaviour
             if (m_localPet != Pet.Value)
             {
                 // see if player owns a pet already
-                var petControllers = FindObjectsByType<PetController>(FindObjectsSortMode.None);
-                for (int i = 0; i < petControllers.Length; i++)
+                var petControllers = Game.Instance.petControllers;
+                for (int i = 0; i < petControllers.Count; i++)
                 {
                     var petController = petControllers[i];
                     if (petController.GetPlayerNetworkObjectId() == GetComponent<NetworkObject>().NetworkObjectId)

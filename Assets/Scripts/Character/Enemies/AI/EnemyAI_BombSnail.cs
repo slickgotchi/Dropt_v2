@@ -6,8 +6,6 @@ namespace Dropt
     public class EnemyAI_BombSnail : EnemyAI
     {
         private Animator m_animator;
-        private NetworkVariable<bool> m_isTriggered = new NetworkVariable<bool>(false);
-        private NetworkVariable<float> m_triggerTimer = new NetworkVariable<float>(3);
         private SoundFX_BombSnail m_soundFX_BombSnail;
 
         private void Awake()
@@ -20,7 +18,8 @@ namespace Dropt
         {
             if (IsServer)
             {
-                m_animator.Play("BombSnail_Spawn");
+                //m_animator.Play("BombSnail_Spawn");
+                Utils.Anim.Play(m_animator, "BombSnail_Spawn");
             }
             base.OnSpawnStart();
         }
@@ -37,7 +36,8 @@ namespace Dropt
         {
             if (IsServer)
             {
-                m_animator.Play("BombSnail_Roam");
+                //m_animator.Play("BombSnail_Roam");
+                Utils.Anim.Play(m_animator, "BombSnail_Spawn", interpolationDelay_s);
             }
             SimpleRoamUpdate(dt);
         }

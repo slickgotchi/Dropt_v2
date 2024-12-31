@@ -13,13 +13,18 @@ public class FussPot_Erupt : EnemyAbility
 
     public override void OnActivate()
     {
+        if (Parent == null) { Debug.Log("Null ref detected"); return; }
+
+        var parentNetworkCharacter = Parent.GetComponent<NetworkCharacter>();
+        if (parentNetworkCharacter == null) { Debug.LogWarning("Null ref detected"); return; }
+
         var spawnPosition = Parent.transform.position + new Vector3(0, 1.5f, 0);
 
         var dir = AttackDirection;
         var distance = (PositionToAttack - Parent.transform.position).magnitude;
-        var damage = Parent.GetComponent<NetworkCharacter>().AttackPower.Value;
-        var criticalChance = Parent.GetComponent<NetworkCharacter>().CriticalChance.Value;
-        var criticalDamage = Parent.GetComponent<NetworkCharacter>().CriticalDamage.Value;
+        var damage = parentNetworkCharacter.currentStaticStats.AttackPower;
+        var criticalChance = parentNetworkCharacter.currentStaticStats.CriticalChance;
+        var criticalDamage = parentNetworkCharacter.currentStaticStats.CriticalDamage;
 
         // Function to create and fire a projectile
         void CreateAndFireProjectile(Vector3 direction)
@@ -34,8 +39,15 @@ public class FussPot_Erupt : EnemyAbility
                 damage,
                 criticalChance,
                 criticalDamage);
-            projectile.GetComponent<NetworkObject>().Spawn();
-            projectile.GetComponent<FussPot_EruptProjectile>().Fire();
+
+            var projectileNetworkObject = projectile.GetComponent<NetworkObject>();
+            if (projectileNetworkObject == null) { Debug.LogWarning("Null ref detected"); return; }
+
+            var projectileEruptProjectile = projectile.GetComponent<FussPot_EruptProjectile>();
+            if (projectileEruptProjectile == null) { Debug.LogWarning("Null ref detected"); return; }
+
+            projectileNetworkObject.Spawn();
+            projectileEruptProjectile.Fire();
         }
 
         // Fire the first projectile

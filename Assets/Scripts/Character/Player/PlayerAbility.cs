@@ -159,6 +159,8 @@ public class PlayerAbility : NetworkBehaviour
     private bool m_isHoldReady = true;
     private bool m_isHolding = false;
 
+    public bool IsHolding() { return m_isHolding; }
+
     public void HoldStart()
     {
         if (!m_isHoldReady) return;
@@ -232,7 +234,7 @@ public class PlayerAbility : NetworkBehaviour
         // deduct ap from the player
         if (IsServer)
         {
-            Player.GetComponent<NetworkCharacter>().ApCurrent.Value -= ApCost;
+            Player.GetComponent<NetworkCharacter>().currentDynamicStats.ApCurrent -= ApCost;
         }
 
         // hide the player relevant hand
@@ -523,7 +525,7 @@ public class PlayerAbility : NetworkBehaviour
                 {
                     var damage = playerCharacter.GetAttackPower() * damageMultiplier * ActivationWearable.RarityMultiplier;
                     isCritical = playerCharacter.IsCriticalAttack();
-                    damage = (int)(isCritical ? damage * playerCharacter.CriticalDamage.Value : damage);
+                    damage = (int)(isCritical ? damage * playerCharacter.currentStaticStats.CriticalDamage : damage);
 
                     hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical, Player);
 
@@ -584,9 +586,12 @@ public class PlayerAbility : NetworkBehaviour
         var targetTickAndFraction = currentTickAndFraction - delay_ticks;
 
         // 1. if we are on server we need to do lag compensation
-        var positionBuffers = FindObjectsByType<PositionBuffer>(FindObjectsSortMode.None);
-        foreach (var positionBuffer in positionBuffers)
+        var enemyControllers = Game.Instance.enemyControllers;
+        foreach (var ec in enemyControllers)
         {
+            var positionBuffer = ec.GetComponent<PositionBuffer>();
+            if (positionBuffer == null) continue;
+
             // stash our enemies current position
             positionBuffer.StashCurrentPosition();
 
@@ -601,9 +606,12 @@ public class PlayerAbility : NetworkBehaviour
     public static void UnrollEnemies()
     {
         // reset positions to those that were stashed
-        var positionBuffers = FindObjectsByType<PositionBuffer>(FindObjectsSortMode.None);
-        foreach (var positionBuffer in positionBuffers)
+        var enemyControllers = Game.Instance.enemyControllers;
+        foreach (var ec in enemyControllers)
         {
+            var positionBuffer = ec.GetComponent<PositionBuffer>();
+            if (positionBuffer == null) continue;
+
             // set position back to the stashed position
             positionBuffer.transform.position = positionBuffer.GetStashPosition();
         }

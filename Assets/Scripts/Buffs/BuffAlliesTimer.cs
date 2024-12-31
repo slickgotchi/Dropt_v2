@@ -19,7 +19,7 @@ public class BuffAlliesTimer : MonoBehaviour
 
     private void ApplyBuffToAllPlayers()
     {
-        var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+        var players = Game.Instance.playerControllers;
         foreach (var player in players)
         {
             var character = player.GetComponent<NetworkCharacter>();

@@ -11,8 +11,6 @@ using System.IO;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.SceneManagement;
-using System.Net.Sockets;
-using System.Reflection;
 
 public class Game : MonoBehaviour
 {
@@ -41,7 +39,9 @@ public class Game : MonoBehaviour
 
     //public List<GameObject> afterConnectSpawnPrefabs_SERVER = new List<GameObject>();
 
-    [HideInInspector] public PlayerController[] players;
+    [HideInInspector] public List<PlayerController> playerControllers = new List<PlayerController>();
+    [HideInInspector] public List<EnemyController> enemyControllers = new List<EnemyController>();
+    [HideInInspector] public List<PetController> petControllers = new List<PetController>();
 
     private void Awake()
     {
@@ -57,16 +57,10 @@ public class Game : MonoBehaviour
 
     private void Start()
     {
-        //m_currentGameId = "";
-
         // check for web socket
         m_unityTransport = NetworkManager.Singleton.GetComponent<UnityTransport>();
         if (m_unityTransport != null)
         {
-            // disable nagle algorith
-            //DisableNagleAlgorithm();
-
-
             if (Bootstrap.IsLocalConnection())
             {
                 Bootstrap.Instance.IpAddress = "127.0.0.1";
@@ -77,7 +71,8 @@ public class Game : MonoBehaviour
             if (Bootstrap.IsServer())
             {
                 // set a reasonably high target frame rate to reduce latency
-                Application.targetFrameRate = Bootstrap.IsRemoteConnection() ? 1200 : 60;
+                //Application.targetFrameRate = Bootstrap.IsRemoteConnection() ? 1200 : 300;
+                Application.targetFrameRate = 180;
                 QualitySettings.vSyncCount = 0;
 
                 // hide loading canvas
@@ -89,6 +84,8 @@ public class Game : MonoBehaviour
             else if (Bootstrap.IsClient())
             {
                 QualitySettings.vSyncCount = 1;
+
+                Application.targetFrameRate = 60;
 
                 // connect to a client game (leave gameId param "" to signify we want an empty game)
                 ConnectClientGame(Bootstrap.Instance.isJoiningFromTitle ? Bootstrap.Instance.GameId : "");
@@ -113,9 +110,6 @@ public class Game : MonoBehaviour
 
     public void Update()
     {
-        // get players for global use
-        players = FindObjectsByType<PlayerController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-
         if (m_isTryConnectClientGame && !NetworkManager.Singleton.ShutdownInProgress)
         {
             m_isTryConnectClientGame = false;
@@ -124,9 +118,6 @@ public class Game : MonoBehaviour
 
         if (Bootstrap.IsServer())
         {
-            // used to checck object memory leaks on server
-            //GetObjectCounts();
-
             if (isReconnectTimerActive)
             {
                 reconnectTimer -= Time.deltaTime;
@@ -136,8 +127,7 @@ public class Game : MonoBehaviour
 
         if (Bootstrap.IsClient())
         {
-            // update game id
-            //Bootstrap.Instance.GameId = m_currentGameId;
+
         }
     }
 
@@ -263,6 +253,7 @@ public class Game : MonoBehaviour
 
         //if (!isGetEmptyGame)
         {
+            Debug.Log("Shutdown NetworkManager");
             NetworkManager.Singleton.Shutdown();
         }
 
@@ -297,14 +288,6 @@ public class Game : MonoBehaviour
 
         return success;
     }
-
-    //public void ReconnectClientGame()
-    //{
-    //    if (!Bootstrap.IsClient()) return;
-
-    //    Debug.Log("ReconnectClientGame");
-    //    ConnectClientGame(m_currentGameId);
-    //}
 
     public void ConnectHostGame()
     {
@@ -347,22 +330,6 @@ public class Game : MonoBehaviour
             playerInput.enabled = isEnabled;
         }
     }
-
-    // useful for debugging to see if any object memory leaks
-    void GetObjectCounts()
-    {
-        m_noTimer -= Time.deltaTime;
-
-        if (m_noTimer < 0)
-        {
-            m_noTimer = 1f;
-
-            var networkObjects = FindObjectsByType<NetworkObject>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-            var gameObjects = FindObjectsByType<GameObject>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-            Debug.Log($"GameObjects: {gameObjects.Length}, Network Objects: {networkObjects.Length}");
-        }
-    }
-    
 
     private string m_testGameServerCommonName = "test-game-server.playdropt.io";
 

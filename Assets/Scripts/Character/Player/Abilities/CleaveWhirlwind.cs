@@ -106,6 +106,6 @@ public class CleaveWhirlwind : PlayerAbility
         PlayAnimation("CleaveDefault");
 
         if (m_attackPathVisualizer == null) return;
-        m_attackPathVisualizer.SetMeshVisible(false);
+        if (!IsHolding()) m_attackPathVisualizer.SetMeshVisible(false);
     }
 }

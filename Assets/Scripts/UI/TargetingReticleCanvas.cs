@@ -26,7 +26,7 @@ public class TargetingReticleCanvas : MonoBehaviour
     {
         if (m_playerController == null)
         {
-            var playerControllers = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+            var playerControllers = Game.Instance.playerControllers;
             foreach (var playerController in playerControllers)
             {
                 var networkObject = playerController.GetComponent<NetworkObject>();

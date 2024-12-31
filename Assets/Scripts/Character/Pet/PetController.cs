@@ -28,6 +28,9 @@ public class PetController : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
+
+        Game.Instance.petControllers.Add(this);
+
         m_petView = GetComponent<PetView>();
         m_transform = transform;
         if (!IsServer && !IsHost)
@@ -43,6 +46,13 @@ public class PetController : NetworkBehaviour
         m_petStateMachine = new PetStateMachine(this);
         m_petStateMachine.ChangeState(m_petStateMachine.PetFollowOwnerState);
         ActivatePetMeterViewClientRpc(m_ownerObjectId);
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        Game.Instance.petControllers.Remove(this);
+
+        base.OnNetworkDespawn();
     }
 
     private void OnPetPositionChange(Vector3 previousValue, Vector3 newValue)
@@ -94,7 +104,7 @@ public class PetController : NetworkBehaviour
 
     private bool IsOwnerOfPet(ulong id)
     {
-        PlayerController[] players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+        PlayerController[] players = Game.Instance.playerControllers.ToArray();
         foreach (PlayerController player in players)
         {
             if (player.IsLocalPlayer && player.NetworkObjectId == id)
@@ -377,7 +387,7 @@ public class PetController : NetworkBehaviour
 
     public void ApplyDamageToEnemy(Transform enemyTransform)
     {
-        float damage = m_petMeter.basePetAttackMultiplier * m_damageMultiplier * m_petOwner.GetComponent<NetworkCharacter>().AttackPower.Value;
+        float damage = m_petMeter.basePetAttackMultiplier * m_damageMultiplier * m_petOwner.GetComponent<NetworkCharacter>().currentStaticStats.AttackPower;
         NetworkCharacter networkCharacter = enemyTransform.GetComponent<NetworkCharacter>();
         networkCharacter.TakeDamage(damage, false, m_petOwner.gameObject);
     }

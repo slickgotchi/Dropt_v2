@@ -35,10 +35,8 @@ public class PlayerCharacter : NetworkCharacter
         m_soundFX_Player = GetComponent<SoundFX_Player>();
     }
 
-    protected override void Update()
+    public override void OnUpdate()
     {
-        base.Update();
-
         if (IsServer)
         {
             if (LevelManager.Instance.IsDegenapeVillage())
@@ -297,16 +295,16 @@ public class PlayerCharacter : NetworkCharacter
 
     public void RecoverHealthByPercentageOfTotalHp(float percentage)
     {
-        HpCurrent.Value += HpMax.Value * percentage / 100;
-        if (HpCurrent.Value > HpMax.Value)
+        currentDynamicStats.HpCurrent += currentStaticStats.HpMax * percentage / 100;
+        if (currentDynamicStats.HpCurrent > currentStaticStats.HpMax)
         {
-            HpCurrent.Value = HpMax.Value;
+            currentDynamicStats.HpCurrent = currentStaticStats.HpMax;
         }
     }
 
     public bool IsHpFullyCharged()
     {
-        return HpCurrent.Value == HpMax.Value;
+        return currentDynamicStats.HpCurrent == currentStaticStats.HpMax;
     }
 
     public void AddEssenceValue(int amount)

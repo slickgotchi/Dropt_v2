@@ -2,6 +2,7 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.AI;
 using Unity.Mathematics;
+using System.Collections.Generic;
 
 namespace Dropt
 {
@@ -41,6 +42,8 @@ namespace Dropt
 
         [Header("Debug")]
         public EnemyAI_DebugCanvas debugCanvas;
+
+        [HideInInspector] public float interpolationDelay_s = 0.26f;
 
         private float m_spawnTimer = 0f;
         private float m_telegraphTimer = 0f;
@@ -93,10 +96,19 @@ namespace Dropt
         [HideInInspector] public NetworkVariable<State> state = new NetworkVariable<State>(State.Spawn);
         [HideInInspector] public NetworkVariable<float> debugSlider = new NetworkVariable<float>(0);
 
+        [HideInInspector] public static List<EnemyAI> enemyAIs = new List<EnemyAI>();
 
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
+
+            var customNetworkTransform = GetComponent<CustomNetworkTransform>();
+            if (NetworkTimer_v2.Instance != null && customNetworkTransform != null)
+            {
+                interpolationDelay_s = NetworkTimer_v2.Instance.TickInterval * customNetworkTransform.interpolationDelayTicks;
+            }
+
+            enemyAIs.Add(this);
 
             m_soundFX_Enemy = GetComponent<SoundFX_Enemy>();
             networkCharacter = GetComponent<NetworkCharacter>();
@@ -125,6 +137,21 @@ namespace Dropt
             // set debug visibility
             var enemyAICanvas = GetComponentInChildren<EnemyAI_DebugCanvas>();
             enemyAICanvas.Container.SetActive(EnemyAIManager.Instance.IsDebugVisible);
+
+            Init();
+        }
+
+        public override void OnNetworkDespawn()
+        {
+            enemyAIs.Remove(this);
+
+            base.OnNetworkDespawn();
+        }
+
+        public void Init()
+        {
+            if (IsServer) state.Value = State.Spawn;
+            m_isDead = false;
         }
 
         private void Update()
@@ -240,7 +267,15 @@ namespace Dropt
         // override this function in child class if you want to do something other than despawn
         protected virtual void OnDeath(Vector3 position)
         {
-            GetComponent<NetworkObject>().Despawn();
+            var networkObject = GetComponent<NetworkObject>();
+            if (networkObject == null) return;
+
+            var levelSpawn = GetComponent<Level.LevelSpawn>();
+
+            //Core.Pool.NetworkObjectPool.Instance.ReturnNetworkObject(
+            //    networkObject, levelSpawn.prefab);
+            //networkObject.Despawn(false);
+            networkObject.Despawn();
         }
 
         public void Death(Vector3 position)
@@ -459,11 +494,11 @@ namespace Dropt
             if (networkCharacter == null) return;
 
             // if we're dead, don't do anymore knockback
-            if (networkCharacter.IsDead.Value) return;
+            if (networkCharacter.currentDynamicStats.IsDead) return;
 
             // account for multipliers
-            distance *= networkCharacter.KnockbackMultiplier.Value;
-            stunTime *= networkCharacter.StunMultiplier.Value;
+            distance *= networkCharacter.currentStaticStats.KnockbackMultiplier;
+            stunTime *= networkCharacter.currentStaticStats.StunMultiplier;
 
             // recalc distance allowing for collisions
             distance = CalculateKnockbackDistance(direction, distance);
@@ -506,6 +541,8 @@ namespace Dropt
 
         State m_clientPredictedState = State.Null;
 
+        public State GetClientPredictedState() { return m_clientPredictedState; }
+
         void HandleClientPredictedKnockback(float dt)
         {
             if (!IsClient) return;
@@ -514,7 +551,7 @@ namespace Dropt
             // check if player is dead
             var networkCharacter = GetComponent<NetworkCharacter>();
             if (networkCharacter == null) return;
-            if (networkCharacter.IsDead.Value) return;
+            if (networkCharacter.currentDynamicStats.IsDead) return;
 
             m_knockbackTimer += dt;
             var alpha = math.min(m_knockbackTimer / m_knockbackDuration, 1);
@@ -536,7 +573,7 @@ namespace Dropt
             // check if player is dead
             var networkCharacter = GetComponent<NetworkCharacter>();
             if (networkCharacter == null) return;
-            if (networkCharacter.IsDead.Value) return;
+            if (networkCharacter.currentDynamicStats.IsDead) return;
 
             m_stunTimer -= dt;
             if (m_stunTimer < 0)

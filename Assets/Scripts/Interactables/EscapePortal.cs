@@ -33,6 +33,11 @@ public class EscapePortal : Interactable
     [Rpc(SendTo.Server)]
     void TryEscapeServerRpc(ulong playerNetworkObjectId)
     {
+        TryEscapeServerRpcAsync(playerNetworkObjectId);   
+    }
+
+    async void TryEscapeServerRpcAsync(ulong playerNetworkObjectId)
+    {
         // check valid escape interaction
         if (!IsValidInteraction(playerNetworkObjectId)) return;
 
@@ -56,7 +61,10 @@ public class EscapePortal : Interactable
         var playerLeaderboardLogger = playerNetworkObject.GetComponent<PlayerLeaderboardLogger>();
         if (playerLeaderboardLogger != null)
         {
-            playerLeaderboardLogger.LogEndOfDungeonResults(true);
+            await LeaderboardLogger.LogEndOfDungeonResults(
+                playerLeaderboardLogger.GetComponent<PlayerController>(),
+                playerLeaderboardLogger.dungeonType,
+                true);
         }
 
         // confirm with client they can escape
@@ -71,8 +79,5 @@ public class EscapePortal : Interactable
 
         // show the game over canvas
         REKTCanvas.Instance.Show(REKTCanvas.TypeOfREKT.Escaped);
-
-        // shutdown the networkmanager for the client
-        //NetworkManager.Singleton.Shutdown();
     }
 }

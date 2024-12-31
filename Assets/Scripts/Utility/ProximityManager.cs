@@ -37,28 +37,30 @@ public class ProximityManager : MonoBehaviour
         if (m_updateTimer > 0) return;
         m_updateTimer = k_updateInterval;
 
-        var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
-        var levelObjects = FindObjectsByType<DestroyAtLevelChange>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        var players = Game.Instance.playerControllers;
+        var culledObjects = ProximityCulling.culledObjects;
 
-        int numLevelObjects = levelObjects.Length;
-        int numPlayers = players.Length;
-        for (int i = 0; i < numLevelObjects; i++)
+        int culledObjectCount = culledObjects.Count;
+        int numPlayers = players.Count;
+        for (int i = 0; i < culledObjectCount; i++)
         {
-            var levelObject = levelObjects[i];
-            var levelObjectPos = levelObject.transform.position;
+            var culledObject = culledObjects[i];
+            if (culledObject == null) continue;
 
-            if (levelObject.HasComponent<Dropt.EnemyAI_RoamShade>()) continue;
+            var culledObjectPosition = culledObject.transform.position;
 
-            // also ensure we don't deactivate anything that has not yet spawned
-            if (!levelObject.HasComponent<NetworkObject>()) continue;
-            if (!levelObject.GetComponent<NetworkObject>().IsSpawned) continue;
+            // don't activate/deactivate if not spawned
+            var networkObject = culledObject.GetComponent<NetworkObject>();
+            if (networkObject != null && !networkObject.IsSpawned) continue;
 
-            // don't deactivate grid maps
-            if (levelObject.HasComponent<Grid>()) continue;
+            // if culling is off, don't cull
+            if (!culledObject.IsCulled) continue;
 
-            // continue if component ignores proximity
-            if (levelObject.HasComponent<IgnoreProximity>()) continue;
+            // check for pooled objects that are not in use
+            var pooledObject = networkObject.GetComponent<PooledObject>();
+            if (pooledObject != null && !pooledObject.IsInUse) continue;
 
+            // check if in range
             bool inRange = false;
 
             for (int j = 0; j < numPlayers; j++)
@@ -71,7 +73,7 @@ public class ProximityManager : MonoBehaviour
                 float yLow = playerPos.y - k_yDist;
                 float yHigh = playerPos.y + k_yDist;
 
-                if (levelObjectPos.x > xLow && levelObjectPos.x < xHigh && levelObjectPos.y > yLow && levelObjectPos.y < yHigh)
+                if (culledObjectPosition.x > xLow && culledObjectPosition.x < xHigh && culledObjectPosition.y > yLow && culledObjectPosition.y < yHigh)
                 {
                     inRange = true;
                 }
@@ -81,11 +83,11 @@ public class ProximityManager : MonoBehaviour
             // set enabled state
             if (inRange)
             {
-                levelObject.gameObject.SetActive(true);
+                culledObject.gameObject.SetActive(true);
             }
             else
             {
-                levelObject.gameObject.SetActive(false);
+                culledObject.gameObject.SetActive(false);
             }
         }
 

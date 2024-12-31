@@ -11,14 +11,10 @@ public class MagicCast : PlayerAbility
     public float Duration = 1f;
 
     [Header("Projectile Prefab")]
-    public GameObject ProjectilePrefab;
+    public GameObject Projectile;
 
     [Header("Visual Projectile Prefab")]
     public GameObject VisualProjectilePrefab;
-
-    // variables for keeping track of the spawned projectile
-    private GameObject m_projectile;
-    private NetworkVariable<ulong> m_projectileId = new NetworkVariable<ulong>(0);
 
     private GameObject m_instantiatedVisualProjectile;
 
@@ -26,28 +22,18 @@ public class MagicCast : PlayerAbility
     {
         base.OnNetworkSpawn();
 
-        if (!IsServer) return;
-
-        GenericProjectile.InitSpawnProjectileOnServer(ref m_projectile, ref m_projectileId, ProjectilePrefab);
+        Projectile.GetComponent<GenericProjectile>().VisualGameObject =
+            Instantiate(VisualProjectilePrefab);
     }
 
     public override void OnNetworkDespawn()
     {
-        if (!IsServer) return;
-
-        if (m_projectile != null) m_projectile.GetComponent<NetworkObject>().Despawn();
-
         base.OnNetworkDespawn();
     }
 
     protected override void Update()
     {
         base.Update();
-
-        if (IsClient)
-        {
-            GenericProjectile.TryAddProjectileOnClient(ref m_projectile, ref m_projectileId, NetworkManager);
-        }
     }
 
     public override void OnStart()
@@ -71,8 +57,8 @@ public class MagicCast : PlayerAbility
 
     void ActivateProjectile(Wearable.NameEnum activationWearable, Vector3 direction, float distance, float duration)
     {
-        var no_projectile = m_projectile.GetComponent<GenericProjectile>();
-        var no_projectileId = no_projectile.GetComponent<NetworkObject>().NetworkObjectId;
+        var no_projectile = Projectile.GetComponent<GenericProjectile>();
+        //var no_projectileId = no_projectile.GetComponent<NetworkObject>().NetworkObjectId;
         var playerCharacter = Player.GetComponent<NetworkCharacter>();
         var startPosition =
                 Player.GetComponent<PlayerPrediction>().GetInterpPositionAtTick(ActivationInput.tick)
@@ -94,9 +80,9 @@ public class MagicCast : PlayerAbility
             no_projectile.Init(startPosition, direction, distance, duration, 1,
                 IsServer ? PlayerAbility.NetworkRole.Server : PlayerAbility.NetworkRole.LocalClient,
                 Wearable.WeaponTypeEnum.Magic, Player,
-                playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier * DamageMultiplier,
-                playerCharacter.CriticalChance.Value,
-                playerCharacter.CriticalDamage.Value,
+                playerCharacter.currentStaticStats.AttackPower * ActivationWearable.RarityMultiplier * DamageMultiplier,
+                playerCharacter.currentStaticStats.CriticalChance,
+                playerCharacter.currentStaticStats.CriticalDamage,
                 ActivationInput.actionDirection,
                 KnockbackDistance,
                 KnockbackStunDuration);
@@ -112,13 +98,13 @@ public class MagicCast : PlayerAbility
             ActivateProjectileClientRpc(
                 activationWearable, startPosition,
                 direction, distance, duration,
-                playerId, no_projectileId);
+                playerId);
         }
     }
 
     [Rpc(SendTo.ClientsAndHost)]
     void ActivateProjectileClientRpc(Wearable.NameEnum activationWearable, Vector3 startPosition, Vector3 direction,
-        float distance, float duration, ulong playerNetworkObjectId, ulong projectileNetworkObjectId)
+        float distance, float duration, ulong playerNetworkObjectId)
     {
         // Remote Client
         Player = NetworkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId].gameObject;
@@ -128,7 +114,7 @@ public class MagicCast : PlayerAbility
         // Remote Client
         if (!Player.GetComponent<NetworkObject>().IsLocalPlayer)
         {
-            var no_projectile = NetworkManager.SpawnManager.SpawnedObjects[projectileNetworkObjectId].
+            var no_projectile = Projectile.
                 GetComponent<GenericProjectile>();
 
             m_instantiatedVisualProjectile = InstantiateProjectile(activationWearable);

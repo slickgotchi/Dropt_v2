@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
+using Core.Pool;
 
 namespace Level
 {
@@ -10,6 +11,8 @@ namespace Level
     {
         public void CreateSpawners_NetworkObject_v2()
         {
+            if (!IsServer) return;
+
             var spawners = new List<Spawner_NetworkObject_v2>(GetComponentsInChildren<Spawner_NetworkObject_v2>());
 
             for (int i = 0; i < spawners.Count; i++)
@@ -23,44 +26,40 @@ namespace Level
                 }
 
                 // now instantiate
-                var no_object = Object.Instantiate(randPrefab);
-                no_object.transform.position = spawners[i].transform.position;
+                var enemyController = randPrefab.GetComponent<EnemyController>();
+                var destructible = randPrefab.GetComponent<Destructible>();
+                NetworkObject networkObject = null;
 
-                AddLevelSpawnComponent(no_object, spawners[i].spawnerId, spawners[i].GetComponent<Spawner_SpawnCondition>());
+                // handle enemies and destructibles
+                //if (destructible != null || enemyController != null)
+                //{
+                //    networkObject = NetworkObjectPool.Instance.GetNetworkObject(
+                //        randPrefab, spawners[i].transform.position, Quaternion.identity);
+                //}
+                // handle instantiating all other objects
+                //else
+                //{
+                    var gameObject = Object.Instantiate(
+                        randPrefab, spawners[i].transform.position, Quaternion.identity);
+                    networkObject = gameObject.GetComponent<NetworkObject>();
+                //}
+                
+                // if we got networkobject, set levelspawn
+                if (networkObject != null)
+                {
+                    LevelSpawnManager.Instance.AddLevelSpawnComponent(
+                        networkObject.gameObject,
+                        spawners[i].spawnerId,
+                        randPrefab,
+                        spawners[i].GetComponent<Spawner_SpawnCondition>());
 
-                // add no_object ref to original spawner
-                spawners[i].spawnedNetworkObject = no_object;
+                    // add networkObject ref to original spawner
+                    spawners[i].spawnedNetworkObject = networkObject.gameObject;
+
+                    // start the object off inactive
+                    networkObject.gameObject.SetActive(false);
+                }
             }
-
-        }
-
-        public void AddLevelSpawnComponent(GameObject no_object, int spawnerId, Spawner_SpawnCondition spawnCondition = null)
-        {
-            // Add the LevelSpawn component to the instantiated object
-            var levelSpawn = no_object.AddComponent<LevelSpawn>();
-
-            // Set the spawn details
-            levelSpawn.spawnerId = spawnerId;
-
-            // if no spawn condition, just do a basic elapsed time spawn
-            if (spawnCondition == null)
-            {
-                levelSpawn.spawnCondition = LevelSpawn.SpawnCondition.ElapsedTime;
-                levelSpawn.elapsedTime = 0f;
-            }
-            else
-            {
-                //Debug.Log("Setting spawn condition to: " + spawnCondition.spawnCondition + " with elapsedTime: " + spawnCondition.elapsedTime);
-                levelSpawn.spawnCondition = spawnCondition.spawnCondition;
-                levelSpawn.elapsedTime = spawnCondition.elapsedTime;
-                levelSpawn.destroyAllWithSpawnerId = spawnCondition.destroyAllWithSpawnerId;
-                levelSpawn.spawnTimeAfterDestroyAll = spawnCondition.spawnTimeAfterDestroyAll;
-                levelSpawn.touchTriggerWithSpawnerId = spawnCondition.touchTriggerWithSpawnerId;
-                levelSpawn.spawnTimeAfterTrigger = spawnCondition.spawnTimeAfterTrigger;
-            }
-
-            // start object off inactive
-            no_object.SetActive(false);
         }
     }
 }

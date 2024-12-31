@@ -29,7 +29,8 @@ namespace GotchiHub
 
         // these are default gotchis free players can use
         [Header("Offchain & Default Gotchis")]
-        public List<DefaultGotchiData> offchainGotchiData = new List<DefaultGotchiData>();
+        public List<DefaultGotchiData> offchainGotchiConfigs = new List<DefaultGotchiData>();
+        public List<GotchiData> offchainGotchiData = new List<GotchiData>();
 
         // these our local players wallet gotchis
         [HideInInspector] public List<GotchiData> localWalletGotchiData = new List<GotchiData>();
@@ -69,6 +70,8 @@ namespace GotchiHub
 
             Instance = this;
             DontDestroyOnLoad(gameObject);
+
+
         }
 
         private void Start()
@@ -82,6 +85,27 @@ namespace GotchiHub
             localWalletGotchiSvgSets.Clear();
             remoteGotchiData.Clear();
             remoteGotchiSvgSets.Clear();
+
+            offchainGotchiData.Clear();
+
+            // populate offchain gotchis
+            foreach (var defaultGotchiData in offchainGotchiConfigs)
+            {
+                var newGotchiData = new GotchiData
+                {
+                    id = defaultGotchiData.id,
+                    hauntId = defaultGotchiData.hauntId,
+                    name = defaultGotchiData.name,
+                    collateral = defaultGotchiData.collateral,
+                    numericTraits = defaultGotchiData.numericTraits,
+                    equippedWearables = defaultGotchiData.equippedWearables,
+                    level = defaultGotchiData.level,
+                    kinship = defaultGotchiData.kinship,
+                    status = defaultGotchiData.status
+                };
+
+                offchainGotchiData.Add(newGotchiData);
+            }
         }
 
         public bool SetSelectedGotchiById(int id)
@@ -132,12 +156,21 @@ namespace GotchiHub
                 }
             }
 
+            // now check offchain
+            for (int i = 0; i < offchainGotchiData.Count; i++)
+            {
+                if (id == offchainGotchiData[i].id)
+                {
+                    return offchainGotchiData[i];
+                }
+            }
+
             // if got here we were passed invalid id
             //Debug.Log("Invalid id passed to GetGotchiDataById()");
             return null;
         }
 
-        public DefaultGotchiData GetOffchainGotchiDataById(int id)
+        public GotchiData GetOffchainGotchiDataById(int id)
         {
             // finally check offchain
             for (int i = 0; i < offchainGotchiData.Count; i++)
@@ -145,6 +178,22 @@ namespace GotchiHub
                 if (id == offchainGotchiData[i].id)
                 {
                     return offchainGotchiData[i];
+                }
+            }
+
+            // if got here we were passed invalid id
+            //Debug.Log("Invalid id passed to GetOffchainGotchiDataById()");
+            return null;
+        }
+
+        public DefaultGotchiData GetOffchainGotchiConfigById(int id)
+        {
+            // finally check offchain
+            for (int i = 0; i < offchainGotchiConfigs.Count; i++)
+            {
+                if (id == offchainGotchiConfigs[i].id)
+                {
+                    return offchainGotchiConfigs[i];
                 }
             }
 

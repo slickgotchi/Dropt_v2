@@ -18,18 +18,18 @@ public class EnemyCharacter : NetworkCharacter
 
     private void LinkCodeInjectorMultipliers()
     {
-        HpMax.Value *= CodeInjector.Instance.EnemyHp.GetValue();
-        HpCurrent.Value *= CodeInjector.Instance.EnemyHp.GetValue();
-        AttackPower.Value *= CodeInjector.Instance.EnemyDamage.GetValue();
-        MoveSpeed.Value *= CodeInjector.Instance.EnemySpeed.GetValue();
-        EnemyShield.Value = CodeInjector.Instance.EnemyShield.GetValue();
-        MaxEnemyShield.Value = CodeInjector.Instance.EnemyShield.GetValue();
+        currentStaticStats.HpMax *= CodeInjector.Instance.EnemyHp.GetValue();
+        currentDynamicStats.HpCurrent *= CodeInjector.Instance.EnemyHp.GetValue();
+        currentStaticStats.AttackPower *= CodeInjector.Instance.EnemyDamage.GetValue();
+        currentStaticStats.MoveSpeed *= CodeInjector.Instance.EnemySpeed.GetValue();
+        currentDynamicStats.EnemyShield = CodeInjector.Instance.EnemyShield.GetValue();
+        currentStaticStats.MaxEnemyShield = CodeInjector.Instance.EnemyShield.GetValue();
     }
 
     public override void TakeDamage(float damage, bool isCritical, GameObject damageDealer = null)
     {
         base.TakeDamage(damage, isCritical, damageDealer);
-        if (HpCurrent.Value > 0)
+        if (currentDynamicStats.HpCurrent > 0)
         {
             m_soundFX_Enemy?.PlayTakeDamageSound();
             return;

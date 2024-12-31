@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 using Unity.Mathematics;
@@ -25,6 +26,9 @@ public class Interactable : NetworkBehaviour
     protected ulong localPlayerNetworkObjectId;
     protected PlayerController localPlayerController;
 
+    // Static list of all interactables
+    private static readonly List<Interactable> allInteractables = new List<Interactable>();
+
     // hold timer variables
     private float k_holdDuration = 0.5f;
     private float m_holdTimer = -0.1f;
@@ -36,7 +40,6 @@ public class Interactable : NetworkBehaviour
     private PlayerInput m_localPlayerInput;
     private InputAction m_interactAction;
     private InputAction m_interactUIAction;
-
 
     // float to validate distance to interactable
     private float k_validateInteractionDistance = 3f;
@@ -60,8 +63,19 @@ public class Interactable : NetworkBehaviour
     {
         base.OnNetworkSpawn();
 
+        // Add to the static list
+        allInteractables.Add(this);
+
         m_holdTimer = -0.1f;
         m_holdCooldownTimer = 0f;
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        base.OnNetworkDespawn();
+
+        // Remove from the static list
+        allInteractables.Remove(this);
     }
 
     public bool IsPlayerIdLocal(ulong playerNetworkObjectId)
@@ -77,7 +91,6 @@ public class Interactable : NetworkBehaviour
         return playerObject.GetComponent<PlayerController>();
     }
 
-    // client only (and local player only) code
     private void OnTriggerEnter2D(Collider2D collider)
     {
         if (!IsClient) return;
@@ -105,24 +118,19 @@ public class Interactable : NetworkBehaviour
         }
     }
 
-    // Update only occurs for the LocalPlayer
     private void Update()
     {
-        // this function just helps get the interact ui input actions
         TryGetLocalPlayerPrediction();
         if (m_localPlayerPrediction == null) return;
 
-        // only run the below code if we are the local player and in client mode
         if (!m_localPlayerPrediction.GetComponent<NetworkObject>().IsLocalPlayer || !IsClient) return;
 
-        // trigger updates for children
         OnUpdate();
 
         m_pressTimer -= Time.deltaTime;
 
         if (status == Status.Inactive) return;
 
-        // if we are not the closest interactable, don't do any of the below code
         if (!IsClosestInteractable()) return;
 
         OnTriggerUpdateInteraction();
@@ -136,31 +144,24 @@ public class Interactable : NetworkBehaviour
                 OnInteractPress();
             }
         }
-
         else if (interactableType == InteractableType.Hold)
         {
-            // check for hold cooldown timer
             m_holdCooldownTimer -= Time.deltaTime;
             if (m_holdCooldownTimer > 0) return;
 
-            // check for first time
             if (m_holdCooldownTimer <= 0 && m_holdTimer <= 0)
             {
                 OnInteractHoldStart();
             }
 
-            // update if f is pressed
-            //if (Input.GetKey(KeyCode.F)) m_holdTimer += Time.deltaTime;
             if (m_localPlayerPrediction.IsInteracting) m_holdTimer += Time.deltaTime;
             else m_holdTimer = 0f;
+
             float alpha = m_holdTimer / k_holdDuration;
             OnInteractHoldUpdate(alpha);
 
-            // update sliderslider
-            //if (m_holdSlider != null) m_holdSlider.value = m_holdTimer / k_holdDuration;
             PlayerHUDCanvas.Instance.SetInteractHoldSliderValue(m_holdTimer / k_holdDuration);
 
-            // check if hold complete
             if (m_holdTimer > k_holdDuration)
             {
                 m_holdCooldownTimer = k_holdCooldownDuration;
@@ -174,17 +175,19 @@ public class Interactable : NetworkBehaviour
     {
         if (localPlayerController == null) return false;
 
-        var interactables = FindObjectsByType<Interactable>(FindObjectsSortMode.None);
-        var closestDist = 1e9;
+        float closestDist = float.MaxValue;
         Interactable closestInteractable = null;
-        foreach (var interactable in interactables)
+
+        foreach (var interactable in allInteractables)
         {
+            if (interactable == null) continue;
+
             var interactableCollider = interactable.GetComponent<Collider2D>();
             if (interactableCollider != null)
             {
                 var interactionPos = interactable.transform.position + new Vector3(interactableCollider.offset.x, interactableCollider.offset.y, 0);
+                float dist = math.distance(localPlayerController.transform.position, interactionPos);
 
-                var dist = math.distance(localPlayerController.transform.position, interactionPos);
                 if (dist < closestDist)
                 {
                     closestDist = dist;
@@ -193,28 +196,24 @@ public class Interactable : NetworkBehaviour
             }
             else
             {
-                Debug.LogWarning("Interactable " + interactable.name + " does not have a Collider2D for interaction on its root gameobject");
+                Debug.LogWarning($"Interactable {interactable.name} does not have a Collider2D for interaction.");
             }
         }
 
-        return closestInteractable.gameObject == this.gameObject;
+        return closestInteractable != null && closestInteractable == this;
     }
 
     protected void TryGetLocalPlayerPrediction()
     {
-        if (!IsClient) return;
-        if (m_localPlayerPrediction != null) return;
+        if (!IsClient || m_localPlayerPrediction != null) return;
 
-        var playerPredictions = FindObjectsByType<PlayerPrediction>(FindObjectsSortMode.None);
-        foreach (var playerPrediction in playerPredictions)
+        var playerObject = NetworkManager.Singleton.LocalClient?.PlayerObject;
+        if (playerObject != null)
         {
-            if (playerPrediction.GetComponent<NetworkObject>().IsLocalPlayer)
-            {
-                m_localPlayerPrediction = playerPrediction;
-                m_localPlayerInput = playerPrediction.GetComponent<PlayerInput>();
-                m_interactAction = m_localPlayerInput.actions["InGame/Generic_Interact"];
-                m_interactUIAction = m_localPlayerInput.actions["InUI/Select"];
-            }
+            m_localPlayerPrediction = playerObject.GetComponent<PlayerPrediction>();
+            m_localPlayerInput = m_localPlayerPrediction.GetComponent<PlayerInput>();
+            m_interactAction = m_localPlayerInput.actions["InGame/Generic_Interact"];
+            m_interactUIAction = m_localPlayerInput.actions["InUI/Select"];
         }
     }
 

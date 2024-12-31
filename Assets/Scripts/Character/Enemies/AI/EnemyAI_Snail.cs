@@ -26,23 +26,16 @@ namespace Dropt
         {
             if (IsServer)
             {
-                Utils.Anim.PlayAnimationWithDuration(m_animator, "Snail_Telegraph", TelegraphDuration);
+                Utils.Anim.PlayAnimationWithDuration(m_animator, "Snail_Telegraph", TelegraphDuration, interpolationDelay_s);
             }
-            //GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, TelegraphDuration);
         }
-
-        //public override void OnTelegraphUpdate(float dt)
-        //{
-        //base.OnTelegraphUpdate(dt);
-        //GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, TelegraphDuration);
-        //}
 
         public override void OnRoamStart()
         {
             base.OnRoamStart();
             if (IsServer)
             {
-                Utils.Anim.PlayAnimationWithDuration(m_animator, "Snail_Roam", TelegraphDuration);
+                Utils.Anim.PlayAnimationWithDuration(m_animator, "Snail_Roam", TelegraphDuration, interpolationDelay_s);
             }
         }
 
@@ -56,7 +49,7 @@ namespace Dropt
             base.OnAggroStart();
             if (IsServer)
             {
-                Utils.Anim.PlayAnimationWithDuration(m_animator, "Snail_Roam", TelegraphDuration);
+                Utils.Anim.PlayAnimationWithDuration(m_animator, "Snail_Roam", TelegraphDuration, interpolationDelay_s);
             }
         }
 
@@ -69,7 +62,7 @@ namespace Dropt
         {
             if (IsServer)
             {
-                Utils.Anim.PlayAnimationWithDuration(m_animator, "Snail_Attack", AttackDuration);
+                Utils.Anim.PlayAnimationWithDuration(m_animator, "Snail_Attack", AttackDuration, interpolationDelay_s);
             }
             SimpleAttackStart();
             m_soundFX_Snail.PlayAttackSound();
@@ -79,11 +72,9 @@ namespace Dropt
 
         public override void OnCooldownStart()
         {
-            // set facing
-            //GetComponent<EnemyController>().SetFacingFromDirection(NearestPlayer.transform.position - transform.position, CooldownDuration);
             if (IsServer)
             {
-                Utils.Anim.PlayAnimationWithDuration(m_animator, "Snail_Roam", TelegraphDuration);
+                Utils.Anim.PlayAnimationWithDuration(m_animator, "Snail_Roam", TelegraphDuration, interpolationDelay_s);
             }
         }
 
@@ -91,17 +82,9 @@ namespace Dropt
         {
             if (IsServer)
             {
-                Utils.Anim.PlayAnimationWithDuration(m_animator, "Snail_Roam", TelegraphDuration);
+                Utils.Anim.PlayAnimationWithDuration(m_animator, "Snail_Roam", TelegraphDuration, interpolationDelay_s);
             }
             SimpleCooldownUpdate(dt);
         }
-
-        //public override void OnKnockback(Vector3 direction, float distance, float duration)
-        //{
-        //    SimpleKnockback(direction, distance, duration);
-
-        //    // stop animator
-        //    m_animator.Play("Snail_Idle");
-        //}
     }
 }

@@ -16,92 +16,33 @@ public class SplashVolley : PlayerAbility
     public float Scale = 1f;
 
     [Header("Projectile Prefab")]
-    public GameObject SplashProjectilePrefab;
+    public List<GameObject> Projectiles = new List<GameObject>();
 
     private float m_distance = 8f;
-
-    // variables for keeping track of the spawned projectiles
-    private List<GameObject> m_splashProjectiles = new List<GameObject>(new GameObject[5]);
-
-    private NetworkVariable<ulong> m_splashProjectileId_0 = new NetworkVariable<ulong>();
-    private NetworkVariable<ulong> m_splashProjectileId_1 = new NetworkVariable<ulong>();
-    private NetworkVariable<ulong> m_splashProjectileId_2 = new NetworkVariable<ulong>();
-    private NetworkVariable<ulong> m_splashProjectileId_3 = new NetworkVariable<ulong>();
-    private NetworkVariable<ulong> m_splashProjectileId_4 = new NetworkVariable<ulong>();
 
     private List<ScheduledProjectile> m_scheduledProjectiles =
         new List<ScheduledProjectile>();
 
     private AttackPathVisualizer m_attackPathVisualizer;
 
-    ref NetworkVariable<ulong> GetSplashProjectileId(int index)
-    {
-        if (index == 0) return ref m_splashProjectileId_0;
-        else if (index == 1) return ref m_splashProjectileId_1;
-        else if (index == 2) return ref m_splashProjectileId_2;
-        else if (index == 3) return ref m_splashProjectileId_3;
-        else return ref m_splashProjectileId_4;
-    }
-
-    void InitProjectile(int index, GameObject prefab)
-    {
-        var projectile = Instantiate(prefab);
-        projectile.GetComponent<NetworkObject>().Spawn();
-        projectile.SetActive(false);
-        m_splashProjectiles[index] = projectile;
-
-        GetSplashProjectileId(index).Value = projectile.GetComponent<NetworkObject>().NetworkObjectId;
-    }
-
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
 
-        if (IsServer)
+        foreach (var projectile in Projectiles)
         {
-            for (int i = 0; i < 5; i++)
-            {
-                InitProjectile(i, SplashProjectilePrefab);
-            }
+            projectile.SetActive(false);
         }
     }
 
     public override void OnNetworkDespawn()
     {
-        foreach (var projectile in m_splashProjectiles)
-        {
-            if (projectile != null)
-            {
-                if (IsServer) projectile.GetComponent<NetworkObject>().Despawn();
-            }
-        }
-
         base.OnNetworkDespawn();
-    }
-
-    void TryAddProjectileOnClient(int index)
-    {
-        var projectileId = GetSplashProjectileId(index).Value;
-        if (m_splashProjectiles[index] == null && projectileId > 0)
-        {
-            var projectile = NetworkManager.SpawnManager.SpawnedObjects[projectileId].gameObject;
-            projectile.SetActive(false);
-            m_splashProjectiles[index] = projectile;
-        }
     }
 
     protected override void Update()
     {
         base.Update();
-
-        if (IsClient)
-        {
-            // Ensure remote clients associate projectiles with local projectile variables
-            for (int i = 0; i < m_splashProjectiles.Count; i++)
-            {
-                TryAddProjectileOnClient(i);
-            }
-        }
     }
 
     public override void OnUpdate()
@@ -140,10 +81,10 @@ public class SplashVolley : PlayerAbility
             holdChargePercentage);
     }
 
-    GameObject GetProjectileInstance(int index)
-    {
-        return m_splashProjectiles[index];
-    }
+    //GameObject GetProjectileInstance(int index)
+    //{
+    //    return m_visualProjectiles[index];
+    //}
 
     void ActivateMultipleProjectiles(Wearable.NameEnum activationWearable, 
         Vector3 direction, float distance, float duration, float scale, float explosionRadius,
@@ -187,26 +128,30 @@ public class SplashVolley : PlayerAbility
     void ActivateProjectile(int index, Wearable.NameEnum activationWearable, 
         Vector3 direction, float distance, float duration, float scale, float explosionRadius)
     {
-        GameObject projectile = GetProjectileInstance(index);
-        var no_projectile = projectile.GetComponent<SplashProjectile>();
+        //GameObject projectile = GetProjectileInstance(index);
+        var no_projectile = Projectiles[index].GetComponent<SplashProjectile>();
         var playerCharacter = Player.GetComponent<NetworkCharacter>();
 
         // Local Client & Server
         if (Player.GetComponent<NetworkObject>().IsLocalPlayer || IsServer)
         {
+
             var position =
                 Player.GetComponent<PlayerPrediction>().GetInterpPositionAtTick(ActivationInput.tick)
                 + new Vector3(0, 0.5f, 0);
                 //+ ActivationInput.actionDirection * Projection;
+
+            Projectiles[index].SetActive(true);
+            Projectiles[index].transform.position = position;
 
             no_projectile.Init(
                 position, direction, distance, duration, scale,
                 explosionRadius, IsServer ? PlayerAbility.NetworkRole.Server : PlayerAbility.NetworkRole.LocalClient,
                 Wearable.WeaponTypeEnum.Splash, activationWearable,
                 Player,
-                playerCharacter.AttackPower.Value * ActivationWearable.RarityMultiplier * DamageMultiplier,
-                playerCharacter.CriticalChance.Value,
-                playerCharacter.CriticalDamage.Value,
+                playerCharacter.currentStaticStats.AttackPower * ActivationWearable.RarityMultiplier * DamageMultiplier,
+                playerCharacter.currentStaticStats.CriticalChance,
+                playerCharacter.currentStaticStats.CriticalDamage,
                 KnockbackDistance,
                 KnockbackStunDuration);
 
@@ -218,31 +163,35 @@ public class SplashVolley : PlayerAbility
         if (IsServer)
         {
             var playerNetworkObjectId = Player.GetComponent<NetworkObject>().NetworkObjectId;
-            var projectileNetworkObjectId = projectile.GetComponent<NetworkObject>().NetworkObjectId;
-            ActivateProjectileClientRpc(index, activationWearable, projectile.transform.position, 
+            //var projectileNetworkObjectId = projectile.GetComponent<NetworkObject>().NetworkObjectId;
+            ActivateProjectileClientRpc(index, activationWearable, Projectiles[index].transform.position, 
                 direction, distance, duration, scale, explosionRadius,
-                playerNetworkObjectId, projectileNetworkObjectId);
+                playerNetworkObjectId);
         }
     }
 
     [Rpc(SendTo.ClientsAndHost)]
     void ActivateProjectileClientRpc(int index,Wearable.NameEnum activationWearable, Vector3 startPosition, 
         Vector3 direction, float distance, float duration, float scale, float explosionRadius,
-        ulong playerNetworkObjectId, ulong projectileNetworkObjectId)
+        ulong playerNetworkObjectId)
     {
         // Remote Client
         Player = NetworkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId].gameObject;
         if (!Player) return;
 
         //GameObject projectile = GetProjectileInstance(index);
-        GameObject projectile = NetworkManager.SpawnManager.SpawnedObjects[projectileNetworkObjectId].gameObject;
+        //GameObject projectile = NetworkManager.SpawnManager.SpawnedObjects[projectileNetworkObjectId].gameObject;
+
+        
 
         // Remote Client
         if (!Player.GetComponent<NetworkObject>().IsLocalPlayer)
         {
-            projectile.SetActive(true);
-            projectile.transform.position = startPosition;
-            var no_projectile = projectile.GetComponent<SplashProjectile>();
+            var no_projectile = Projectiles[index].GetComponent<SplashProjectile>();
+
+            Projectiles[index].SetActive(true);
+            Projectiles[index].transform.position = startPosition;
+
             no_projectile.Init(
                 startPosition, direction, distance, duration, scale, explosionRadius,
                 NetworkRole.RemoteClient, Wearable.WeaponTypeEnum.Splash, activationWearable,
@@ -257,7 +206,7 @@ public class SplashVolley : PlayerAbility
     public override void OnFinish()
     {
         if (m_attackPathVisualizer == null) return;
-        m_attackPathVisualizer.SetMeshVisible(false);
+        if (!IsHolding()) m_attackPathVisualizer.SetMeshVisible(false);
     }
 
     public override void OnHoldStart()

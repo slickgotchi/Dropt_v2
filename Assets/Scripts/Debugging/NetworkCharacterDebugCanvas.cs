@@ -25,6 +25,23 @@ public class NetworkCharacterDebugCanvas : MonoBehaviour
     public TextMeshProUGUI ApLeech;
     public TextMeshProUGUI ApRegen;
 
+    private float prevHpMax;
+    private float prevHpCurrent;
+    private float prevHpBuffer;
+    private float prevAttackPower;
+    private float prevCriticalChance;
+    private float prevApMax;
+    private float prevApCurrent;
+    private float prevApBuffer;
+    private float prevDoubleStrikeChance;
+    private float prevCriticalDamage;
+    private float prevMoveSpeed;
+    private float prevAccuracy;
+    private float prevEvasion;
+    private float prevDamageReduction;
+    private float prevApLeech;
+    private float prevApRegen;
+
     private void Awake()
     {
         m_networkCharacter = transform.parent.GetComponent<NetworkCharacter>();
@@ -43,21 +60,100 @@ public class NetworkCharacterDebugCanvas : MonoBehaviour
 
     private void UpdateText()
     {
-        HpMax.text = "HpMax: " + m_networkCharacter.HpMax.Value.ToString("F0");
-        HpCurrent.text = "HpCurrent: " + m_networkCharacter.HpCurrent.Value.ToString("F0");
-        HpBuffer.text = "HpBuffer: " + m_networkCharacter.HpBuffer.Value.ToString("F0");
-        AttackPower.text = "AttackPower: " + m_networkCharacter.AttackPower.Value.ToString("F0");
-        CriticalChance.text = "CriticalChance: " + m_networkCharacter.CriticalChance.Value.ToString("F2");
-        ApMax.text = "ApMax: " + m_networkCharacter.ApMax.Value.ToString("F0");
-        ApCurrent.text = "ApCurrent: " + m_networkCharacter.ApCurrent.Value.ToString("F0");
-        ApBuffer.text = "ApBuffer: " + m_networkCharacter.ApBuffer.Value.ToString("F0");
-        DoubleStrikeChance.text = "DoubleStrikeChance: " + m_networkCharacter.DoubleStrikeChance.Value.ToString("F2");
-        CriticalDamage.text = "CriticalDamage: " + m_networkCharacter.CriticalDamage.Value.ToString("F2");
-        MoveSpeed.text = "MoveSpeed: " + m_networkCharacter.MoveSpeed.Value.ToString("F2");
-        Accuracy.text = "Accuracy: " + m_networkCharacter.Accuracy.Value.ToString("F2");
-        Evasion.text = "Evasion: " + m_networkCharacter.Evasion.Value.ToString("F2");
-        DamageReduction.text = "DamageReduction: " + m_networkCharacter.DamageReduction.Value.ToString("F2");
-        ApLeech.text = "ApLeech: " + m_networkCharacter.ApLeech.Value.ToString("F2");
-        ApRegen.text = "ApRegen: " + m_networkCharacter.ApRegen.Value.ToString("F2");
+        if (prevHpMax != m_networkCharacter.currentStaticStats.HpMax)
+        {
+            prevHpMax = m_networkCharacter.currentStaticStats.HpMax;
+            HpMax.text = "HpMax: " + prevHpMax.ToString("F0");
+        }
+
+        if (prevHpCurrent != m_networkCharacter.currentDynamicStats.HpCurrent)
+        {
+            prevHpCurrent = m_networkCharacter.currentDynamicStats.HpCurrent;
+            HpCurrent.text = "HpCurrent: " + prevHpCurrent.ToString("F0");
+        }
+
+        if (prevHpBuffer != m_networkCharacter.currentStaticStats.HpBuffer)
+        {
+            prevHpBuffer = m_networkCharacter.currentStaticStats.HpBuffer;
+            HpBuffer.text = "HpBuffer: " + prevHpBuffer.ToString("F0");
+        }
+
+        if (prevAttackPower != m_networkCharacter.currentStaticStats.AttackPower)
+        {
+            prevAttackPower = m_networkCharacter.currentStaticStats.AttackPower;
+            AttackPower.text = "AttackPower: " + prevAttackPower.ToString("F0");
+        }
+
+        if (prevCriticalChance != m_networkCharacter.currentStaticStats.CriticalChance)
+        {
+            prevCriticalChance = m_networkCharacter.currentStaticStats.CriticalChance;
+            CriticalChance.text = "CriticalChance: " + prevCriticalChance.ToString("F2");
+        }
+
+        if (prevApMax != m_networkCharacter.currentStaticStats.ApMax)
+        {
+            prevApMax = m_networkCharacter.currentStaticStats.ApMax;
+            ApMax.text = "ApMax: " + prevApMax.ToString("F0");
+        }
+
+        if (prevApCurrent != m_networkCharacter.currentDynamicStats.ApCurrent)
+        {
+            prevApCurrent = m_networkCharacter.currentDynamicStats.ApCurrent;
+            ApCurrent.text = "ApCurrent: " + prevApCurrent.ToString("F0");
+        }
+
+        if (prevApBuffer != m_networkCharacter.currentStaticStats.ApBuffer)
+        {
+            prevApBuffer = m_networkCharacter.currentStaticStats.ApBuffer;
+            ApBuffer.text = "ApBuffer: " + prevApBuffer.ToString("F0");
+        }
+
+        if (prevDoubleStrikeChance != m_networkCharacter.currentStaticStats.DoubleStrikeChance)
+        {
+            prevDoubleStrikeChance = m_networkCharacter.currentStaticStats.DoubleStrikeChance;
+            DoubleStrikeChance.text = "DoubleStrikeChance: " + prevDoubleStrikeChance.ToString("F2");
+        }
+
+        if (prevCriticalDamage != m_networkCharacter.currentStaticStats.CriticalDamage)
+        {
+            prevCriticalDamage = m_networkCharacter.currentStaticStats.CriticalDamage;
+            CriticalDamage.text = "CriticalDamage: " + prevCriticalDamage.ToString("F2");
+        }
+
+        if (prevMoveSpeed != m_networkCharacter.currentStaticStats.MoveSpeed)
+        {
+            prevMoveSpeed = m_networkCharacter.currentStaticStats.MoveSpeed;
+            MoveSpeed.text = "MoveSpeed: " + prevMoveSpeed.ToString("F2");
+        }
+
+        if (prevAccuracy != m_networkCharacter.currentStaticStats.Accuracy)
+        {
+            prevAccuracy = m_networkCharacter.currentStaticStats.Accuracy;
+            Accuracy.text = "Accuracy: " + prevAccuracy.ToString("F2");
+        }
+
+        if (prevEvasion != m_networkCharacter.currentStaticStats.Evasion)
+        {
+            prevEvasion = m_networkCharacter.currentStaticStats.Evasion;
+            Evasion.text = "Evasion: " + prevEvasion.ToString("F2");
+        }
+
+        if (prevDamageReduction != m_networkCharacter.currentStaticStats.DamageReduction)
+        {
+            prevDamageReduction = m_networkCharacter.currentStaticStats.DamageReduction;
+            DamageReduction.text = "DamageReduction: " + prevDamageReduction.ToString("F2");
+        }
+
+        if (prevApLeech != m_networkCharacter.currentStaticStats.ApLeech)
+        {
+            prevApLeech = m_networkCharacter.currentStaticStats.ApLeech;
+            ApLeech.text = "ApLeech: " + prevApLeech.ToString("F2");
+        }
+
+        if (prevApRegen != m_networkCharacter.currentStaticStats.ApRegen)
+        {
+            prevApRegen = m_networkCharacter.currentStaticStats.ApRegen;
+            ApRegen.text = "ApRegen: " + prevApRegen.ToString("F2");
+        }
     }
 }

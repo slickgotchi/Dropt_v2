@@ -72,7 +72,7 @@ public class LilEssence : NetworkBehaviour
         if (m_navmeshAgent != null)
         {
             // Check if there are any players within the flee radius to start fleeing
-            var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+            var players = Game.Instance.playerControllers;
             foreach (var player in players)
             {
                 var dist = math.distance(transform.position, player.transform.position);
@@ -115,7 +115,7 @@ public class LilEssence : NetworkBehaviour
 
         if (m_navmeshAgent != null)
         {
-            var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+            var players = Game.Instance.playerControllers;
             var closestDist = 100f;
             PlayerController closestPlayer = null;
             foreach (var player in players)

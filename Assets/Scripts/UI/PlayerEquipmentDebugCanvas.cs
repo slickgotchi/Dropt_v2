@@ -114,13 +114,14 @@ public class PlayerEquipmentDebugCanvas : DroptCanvas
     {
         // get the most up to date playerEquipment object
         playerEquipment = null;
-        var playerEquipments = FindObjectsByType<PlayerEquipment>(FindObjectsSortMode.None);
-        for (int i = 0; i < playerEquipments.Length; i++)
+        var players = Game.Instance.playerControllers;
+        foreach (var player in players)
         {
-            var networkObject = playerEquipments[i].GetComponent<NetworkObject>();
+
+            var networkObject = player.GetComponent<NetworkObject>();
             if (networkObject != null && networkObject.IsLocalPlayer)
             {
-                playerEquipment = playerEquipments[i];
+                playerEquipment = player.GetComponent<PlayerEquipment>();
                 break;
             }
         }

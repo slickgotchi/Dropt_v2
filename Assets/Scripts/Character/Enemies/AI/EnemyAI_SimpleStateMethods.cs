@@ -37,11 +37,11 @@ namespace Dropt
                 Vector3 finalDirection = math.lerp(randomDirection, toAnchorDirection, influenceFactor);
 
                 // calc a move distance
-                float distance = networkCharacter.MoveSpeed.Value * RoamSpeedMultiplier * m_roamChangeTimer;
+                float distance = networkCharacter.currentStaticStats.MoveSpeed * RoamSpeedMultiplier * m_roamChangeTimer;
 
                 // set nav mesh agent
                 m_navMeshAgent.SetDestination(transform.position + finalDirection * distance);
-                m_navMeshAgent.speed = networkCharacter.MoveSpeed.Value * RoamSpeedMultiplier;
+                m_navMeshAgent.speed = networkCharacter.currentStaticStats.MoveSpeed * RoamSpeedMultiplier;
             }
         }
 
@@ -58,7 +58,7 @@ namespace Dropt
             var offset = dir * PursueStopShortRange;
 
             m_navMeshAgent.SetDestination(NearestPlayer.transform.position + offset);
-            m_navMeshAgent.speed = networkCharacter.MoveSpeed.Value * PursueSpeedMultiplier;
+            m_navMeshAgent.speed = networkCharacter.currentStaticStats.MoveSpeed * PursueSpeedMultiplier;
 
             HandleAntiClumping();
             HandleAlertOthers();
@@ -94,7 +94,7 @@ namespace Dropt
             var dir = (transform.position - NearestPlayer.transform.position).normalized;
 
             m_navMeshAgent.SetDestination(transform.position + dir * 5f);
-            m_navMeshAgent.speed = networkCharacter.MoveSpeed.Value * FleeSpeedMultiplier;
+            m_navMeshAgent.speed = networkCharacter.currentStaticStats.MoveSpeed * FleeSpeedMultiplier;
 
             HandleAntiClumping();
             HandleAlertOthers();
@@ -105,17 +105,17 @@ namespace Dropt
             if (networkCharacter == null) return;
             if (m_navMeshAgent == null) return;
 
-            var allEnemies = EnemyAIManager.Instance.allEnemies;
+            //var allEnemyControllers = Game.Instance.enemyControllers;
             //var minDistance = 1.5f;
             var repellingForce = 5f;
 
             Vector3 avoidanceForce = Vector3.zero; // Initialize the avoidance force
 
             // Check all other enemies
-            int numEnemies = allEnemies.Count;
+            int numEnemies = enemyAIs.Count;
             for (int i = 0; i < numEnemies; i++)
             {
-                var otherEnemy = allEnemies[i];
+                var otherEnemy = enemyAIs[i];
                 if (otherEnemy == this) continue; // Skip itself
                 if (otherEnemy == null) continue;
                 if (!otherEnemy.gameObject.activeInHierarchy) continue;
@@ -142,10 +142,11 @@ namespace Dropt
 
         protected void HandleAlertOthers()
         {
-            var allEnemies = EnemyAIManager.Instance.allEnemies;
-            for (int i = 0; i < allEnemies.Count; i++)
+            //var allEnemyControllers = Game.Instance.enemyControllers;
+            for (int i = 0; i < enemyAIs.Count; i++)
             {
-                var otherEnemy = allEnemies[i];
+                var otherEnemy = enemyAIs[i];
+                if (otherEnemy == null) continue;
                 if (otherEnemy.state.Value != State.Roam) continue;
 
                 var dist = math.distance(transform.position, otherEnemy.transform.position);

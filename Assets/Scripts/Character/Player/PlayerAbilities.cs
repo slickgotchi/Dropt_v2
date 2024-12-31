@@ -5,105 +5,45 @@ using UnityEngine;
 public class PlayerAbilities : NetworkBehaviour
 {
     [Header("Dash")]
-    public GameObject dashPrefab;
-    [HideInInspector] public GameObject Dash;
-    private NetworkVariable<ulong> DashId = new NetworkVariable<ulong>(0);
+    public GameObject Dash;
 
     [Header("Cleave")]
-    public GameObject cleaveSlashPrefab;
-    [HideInInspector] public GameObject CleaveSlash;
-    private NetworkVariable<ulong> CleaveSlashId = new NetworkVariable<ulong>(0);
-
-    public GameObject cleaveWhirlwindPrefab;
-    [HideInInspector] public GameObject CleaveWhirlwind;
-    private NetworkVariable<ulong> CleaveWhirlwindId = new NetworkVariable<ulong>(0);
-
-    public GameObject cleaveCyclonePrefab;
-    [HideInInspector] public GameObject CleaveCyclone;
-    private NetworkVariable<ulong> CleaveCycloneId = new NetworkVariable<ulong>(0);
+    public GameObject CleaveSlash;
+    public GameObject CleaveWhirlwind;
+    public GameObject CleaveCyclone;
 
     [Header("Pierce")]
-    public GameObject pierceThrustPrefab;
-    [HideInInspector] public GameObject PierceThrust;
-    private NetworkVariable<ulong> PierceThrustId = new NetworkVariable<ulong>(0);
-
-    public GameObject pierceDrillPrefab;
-    [HideInInspector] public GameObject PierceDrill;
-    private NetworkVariable<ulong> PierceDrillId = new NetworkVariable<ulong>(0);
-
-    public GameObject pierceLancePrefab;
-    [HideInInspector] public GameObject PierceLance;
-    private NetworkVariable<ulong> PierceLanceId = new NetworkVariable<ulong>(0);
+    public GameObject PierceThrust;
+    public GameObject PierceDrill;
+    public GameObject PierceLance;
 
     [Header("Smash")]
-    public GameObject smashSwipePrefab;
-    [HideInInspector] public GameObject SmashSwipe;
-    private NetworkVariable<ulong> SmashSwipeId = new NetworkVariable<ulong>(0);
-
-    public GameObject smashWavePrefab;
-    [HideInInspector] public GameObject SmashWave;
-    private NetworkVariable<ulong> SmashWaveId = new NetworkVariable<ulong>(0);
-
-    public GameObject smashSlamPrefab;
-    [HideInInspector] public GameObject SmashSlam;
-    private NetworkVariable<ulong> SmashSlamId = new NetworkVariable<ulong>(0);
+    public GameObject SmashSwipe;
+    public GameObject SmashWave;
+    public GameObject SmashSlam;
 
     [Header("Ballistic")]
-    public GameObject ballisticShotPrefab;
-    [HideInInspector] public GameObject BallisticShot;
-    private NetworkVariable<ulong> BallisticShotId = new NetworkVariable<ulong>(0);
-
-    public GameObject ballisticSnipePrefab;
-    [HideInInspector] public GameObject BallisticSnipe;
-    private NetworkVariable<ulong> BallisticSnipeId = new NetworkVariable<ulong>(0);
-
-    public GameObject ballisticExplosionPrefab;
-    [HideInInspector] public GameObject BallisticExplosion;
-    private NetworkVariable<ulong> BallisticExplosionId = new NetworkVariable<ulong>(0);
+    public GameObject BallisticShot;
+    public GameObject BallisticSnipe;
+    public GameObject BallisticExplosion;
 
     [Header("Magic")]
-    public GameObject magicCastPrefab;
-    [HideInInspector] public GameObject MagicCast;
-    private NetworkVariable<ulong> MagicCastId = new NetworkVariable<ulong>(0);
-
-    public GameObject magicBeamPrefab;
-    [HideInInspector] public GameObject MagicBeam;
-    private NetworkVariable<ulong> MagicBeamId = new NetworkVariable<ulong>(0);
-
-    public GameObject magicBlastPrefab;
-    [HideInInspector] public GameObject MagicBlast;
-    private NetworkVariable<ulong> MagicBlastId = new NetworkVariable<ulong>(0);
+    public GameObject MagicCast;
+    public GameObject MagicBeam;
+    public GameObject MagicBlast;
 
     [Header("Splash")]
-    public GameObject splashLobPrefab;
-    [HideInInspector] public GameObject SplashLob;
-    private NetworkVariable<ulong> SplashLobId = new NetworkVariable<ulong>(0);
-
-    public GameObject splashVolleyPrefab;
-    [HideInInspector] public GameObject SplashVolley;
-    private NetworkVariable<ulong> SplashVolleyId = new NetworkVariable<ulong>(0);
-
-    public GameObject splashBombPrefab;
-    [HideInInspector] public GameObject SplashBomb;
-    private NetworkVariable<ulong> SplashBombId = new NetworkVariable<ulong>(0);
+    public GameObject SplashLob;
+    public GameObject SplashVolley;
+    public GameObject SplashBomb;
 
     [Header("Shield")]
-    public GameObject shieldBashPrefab;
-    [HideInInspector] public GameObject ShieldBash;
-    private NetworkVariable<ulong> ShieldBashId = new NetworkVariable<ulong>(0);
-
-    public GameObject shieldBlockPrefab;
-    [HideInInspector] public GameObject shieldBlock;
-    private NetworkVariable<ulong> ShieldBlockId = new NetworkVariable<ulong>(0);
-
-    public GameObject shieldWallPrefab;
-    [HideInInspector] public GameObject ShieldWall;
-    private NetworkVariable<ulong> ShieldWallId = new NetworkVariable<ulong>(0);
+    public GameObject ShieldBash;
+    public GameObject shieldBlock;
+    public GameObject ShieldWall;
 
     [Header("Unarmed")]
-    public GameObject unarmedPunchPrefab;
-    [HideInInspector] public GameObject UnarmedPunch;
-    private NetworkVariable<ulong> UnarmedPunchId = new NetworkVariable<ulong>(0);
+    public GameObject UnarmedPunch;
 
     // cooldowns
     [HideInInspector] public NetworkVariable<float> leftAttackCooldown = new NetworkVariable<float>(0);
@@ -113,65 +53,20 @@ public class PlayerAbilities : NetworkBehaviour
     {
         // Ensure we instatiate here in Start() AFTER OnNetworkSpawn() otherwise we end up with duplciates
         if (!IsServer) return;
-
-        // dash
-        CreateAbility(ref Dash, dashPrefab, DashId);
-
-        // cleave
-        CreateAbility(ref CleaveSlash, cleaveSlashPrefab, CleaveSlashId);
-        CreateAbility(ref CleaveWhirlwind, cleaveWhirlwindPrefab, CleaveWhirlwindId);
-        CreateAbility(ref CleaveCyclone, cleaveCyclonePrefab, CleaveCycloneId);
-
-        // pierce
-        CreateAbility(ref PierceThrust, pierceThrustPrefab, PierceThrustId);
-        CreateAbility(ref PierceDrill, pierceDrillPrefab, PierceDrillId);
-        CreateAbility(ref PierceLance, pierceLancePrefab, PierceLanceId);
-
-        // smash
-        CreateAbility(ref SmashSwipe, smashSwipePrefab, SmashSwipeId);
-        CreateAbility(ref SmashWave, smashWavePrefab, SmashWaveId);
-        CreateAbility(ref SmashSlam, smashSlamPrefab, SmashSlamId);
-
-        // ballistic
-        CreateAbility(ref BallisticShot, ballisticShotPrefab, BallisticShotId);
-        CreateAbility(ref BallisticSnipe, ballisticSnipePrefab, BallisticSnipeId);
-        CreateAbility(ref BallisticExplosion, ballisticExplosionPrefab, BallisticExplosionId);
-
-        // magic
-        CreateAbility(ref MagicCast, magicCastPrefab, MagicCastId);
-        CreateAbility(ref MagicBeam, magicBeamPrefab, MagicBeamId);
-        CreateAbility(ref MagicBlast, magicBlastPrefab, MagicBlastId);
-
-        // splash
-        CreateAbility(ref SplashLob, splashLobPrefab, SplashLobId);
-        CreateAbility(ref SplashVolley, splashVolleyPrefab, SplashVolleyId);
-        CreateAbility(ref SplashBomb, splashBombPrefab, SplashBombId);
-
-        // shield
-        CreateAbility(ref ShieldBash, shieldBashPrefab, ShieldBashId);
-        CreateAbility(ref shieldBlock, shieldBlockPrefab, ShieldBlockId);
-        CreateAbility(ref ShieldWall, shieldWallPrefab, ShieldWallId);
-
-        // unarmed
-        CreateAbility(ref UnarmedPunch, unarmedPunchPrefab, UnarmedPunchId);
     }
 
     private void OnDisable()
     {
-        Debug.Log("OnDisable()");
     }
 
     public override void OnDestroy()
     {
         base.OnDestroy();
 
-        Debug.Log("OnDestroy()");
     }
 
     public override void OnNetworkDespawn()
     {
-
-        Debug.Log("OnNetworkDespawn()");
 
         if (Bootstrap.IsUnityEditor())
         {
@@ -180,113 +75,16 @@ public class PlayerAbilities : NetworkBehaviour
                 return;
         }
 
-        DestroyAbility(ref Dash);
-
-        DestroyAbility(ref CleaveSlash);
-        DestroyAbility(ref CleaveWhirlwind);
-        DestroyAbility(ref CleaveCyclone);
-
-        DestroyAbility(ref PierceThrust);
-        DestroyAbility(ref PierceDrill);
-        DestroyAbility(ref PierceLance);
-
-        DestroyAbility(ref SmashSwipe);
-        DestroyAbility(ref SmashWave);
-        DestroyAbility(ref SmashSlam);
-
-        DestroyAbility(ref BallisticShot);
-        DestroyAbility(ref BallisticSnipe);
-        DestroyAbility(ref BallisticExplosion);
-
-        DestroyAbility(ref MagicCast);
-        DestroyAbility(ref MagicBeam);
-        DestroyAbility(ref MagicBlast);
-
-        DestroyAbility(ref SplashLob);
-        DestroyAbility(ref SplashVolley);
-        DestroyAbility(ref SplashBomb);
-
-        DestroyAbility(ref ShieldBash);
-        DestroyAbility(ref shieldBlock);
-        DestroyAbility(ref ShieldWall);
-
-        DestroyAbility(ref UnarmedPunch);
-
         base.OnNetworkDespawn();
-    }
-
-    void DestroyAbility(ref GameObject ability)
-    {
-        if (ability != null && IsServer)
-        {
-            var networkObject = ability.GetComponent<NetworkObject>();
-            if (networkObject != null && networkObject.IsSpawned)
-            {
-                networkObject.TryRemoveParent();
-                networkObject.Despawn();
-                GameObject.Destroy(ability); // Explicitly destroy the GameObject
-                ability = null; // Clear the reference
-            }
-        }
-
-        //if (ability != null && IsServer)
-        //{
-        //    ability.transform.SetParent(null);
-        //    ability.GetComponent<NetworkObject>().Despawn();
-        //}
     }
 
     private void Update()
     {
         float dt = Time.deltaTime;
-        if (IsServer && IsSpawned)
+        if (IsServer && IsSpawned && leftAttackCooldown != null && rightAttackCooldown != null)
         {
             leftAttackCooldown.Value -= dt;
             rightAttackCooldown.Value -= dt;
-        }
-
-        if (IsClient && IsSpawned)
-        {
-            // dash
-            TryAddAbilityClientSide(ref Dash, DashId);
-
-            // cleave
-            TryAddAbilityClientSide(ref CleaveSlash, CleaveSlashId);
-            TryAddAbilityClientSide(ref CleaveWhirlwind, CleaveWhirlwindId);
-            TryAddAbilityClientSide(ref CleaveCyclone, CleaveCycloneId);
-
-            // pierce
-            TryAddAbilityClientSide(ref PierceThrust, PierceThrustId);
-            TryAddAbilityClientSide(ref PierceDrill, PierceDrillId);
-            TryAddAbilityClientSide(ref PierceLance, PierceLanceId);
-
-            // smash
-            TryAddAbilityClientSide(ref SmashSwipe, SmashSwipeId);
-            TryAddAbilityClientSide(ref SmashWave, SmashWaveId);
-            TryAddAbilityClientSide(ref SmashSlam, SmashSlamId);
-
-            // ballistic
-            TryAddAbilityClientSide(ref BallisticShot, BallisticShotId);
-            TryAddAbilityClientSide(ref BallisticSnipe, BallisticSnipeId);
-            TryAddAbilityClientSide(ref BallisticExplosion, BallisticExplosionId);
-
-            // magic
-            TryAddAbilityClientSide(ref MagicCast, MagicCastId);
-            TryAddAbilityClientSide(ref MagicBeam, MagicBeamId);
-            TryAddAbilityClientSide(ref MagicBlast, MagicBlastId);
-
-            // splash
-            TryAddAbilityClientSide(ref SplashLob, SplashLobId);
-            TryAddAbilityClientSide(ref SplashVolley, SplashVolleyId);
-            TryAddAbilityClientSide(ref SplashBomb, SplashBombId);
-
-            // shield
-            TryAddAbilityClientSide(ref ShieldBash, ShieldBashId);
-            TryAddAbilityClientSide(ref shieldBlock, ShieldBlockId);
-            TryAddAbilityClientSide(ref ShieldWall, ShieldWallId);
-
-            // unarmed
-            TryAddAbilityClientSide(ref UnarmedPunch, UnarmedPunchId);
         }
     }
 
@@ -395,45 +193,6 @@ public class PlayerAbilities : NetworkBehaviour
         if (wearable.WeaponType == Wearable.WeaponTypeEnum.Shield) return PlayerAbilityEnum.ShieldWall;
 
         return PlayerAbilityEnum.Null;
-    }
-
-    void CreateAbility(ref GameObject ability, GameObject prefab, NetworkVariable<ulong> abilityId)
-    {
-        if (prefab == null)
-        {
-            Debug.LogWarning("Prefab passed to CreateAbility in PlayerAbilities was null");
-            return;
-        }
-        if (!prefab.HasComponent<PlayerAbility>())
-        {
-            Debug.LogWarning("Prefab for " + ability.ToString() + " ability is not a valid PlayerAbility");
-            return;
-        }
-        ability = Instantiate(prefab);
-        ability.GetComponent<NetworkObject>().Spawn();
-        ability.GetComponent<NetworkObject>().TrySetParent(gameObject, false);
-        ability.transform.localPosition = new Vector3(0, 0.5f, 0);
-        ability.transform.rotation = Quaternion.identity;
-        abilityId.Value = ability.GetComponent<NetworkObject>().NetworkObjectId;
-    }
-
-    void TryAddAbilityClientSide(ref GameObject ability, NetworkVariable<ulong> abilityId)
-    {
-        if (ability == null && abilityId.Value > 0)
-        {
-            ability = NetworkManager.SpawnManager.SpawnedObjects[abilityId.Value].gameObject;
-            if (ability == null)
-            {
-                Debug.LogWarning("Could not add ability " + ability.ToString() + " to the client side");
-                return;
-            }
-            if (!ability.HasComponent<PlayerAbility>())
-            {
-                Debug.LogWarning("No PlayerAbility on " + ability.ToString() + " ability on client side");
-                return;
-            }
-            ability.GetComponent<PlayerAbility>().Player = gameObject;
-        }
     }
 }
 
