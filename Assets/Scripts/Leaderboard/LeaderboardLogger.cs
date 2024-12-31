@@ -84,12 +84,7 @@ public static class LeaderboardLogger
     {
         try
         {
-            var existingEntry = await GetLeaderboardEntry("adventure_leaderboard", entry.gotchi_id);
-
-            if (existingEntry == null || entry.dust_balance > existingEntry.dust_balance)
-            {
-                await UpsertLeaderboardEntry("adventure_leaderboard", entry);
-            }
+            await UpsertLeaderboardEntry("adventure_leaderboard", entry);
         }
         catch (Exception e)
         {
@@ -101,12 +96,7 @@ public static class LeaderboardLogger
     {
         try
         {
-            var existingEntry = await GetLeaderboardEntry("gauntlet_leaderboard", entry.gotchi_id);
-
-            if (existingEntry == null || entry.dust_balance > existingEntry.dust_balance)
-            {
-                await UpsertLeaderboardEntry("gauntlet_leaderboard", entry);
-            }
+            await UpsertLeaderboardEntry("gauntlet_leaderboard", entry);
         }
         catch (Exception e)
         {
@@ -136,7 +126,7 @@ public static class LeaderboardLogger
             }
             else
             {
-                Debug.LogError($"Failed to fetch leaderboard entry: {request.error}\nResponse: {request.downloadHandler.text}");
+                Debug.LogWarning($"Failed to fetch leaderboard entry: {request.error}\nResponse: {request.downloadHandler.text}");
             }
 
             return null;
@@ -162,7 +152,7 @@ public static class LeaderboardLogger
 
             if (request.result != UnityWebRequest.Result.Success)
             {
-                Debug.LogError($"Failed to update {leaderboard}: {request.error}\nResponse: {request.downloadHandler.text}");
+                Debug.LogWarning($"Failed to update {leaderboard}: {request.error}\nResponse: {request.downloadHandler.text}");
             }
         }
     }
