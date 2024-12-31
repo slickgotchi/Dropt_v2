@@ -27,7 +27,7 @@ public class PlayerController : NetworkBehaviour
 
     private HoldBarCanvas m_holdBarCanvas;
 
-    [HideInInspector] public bool IsLevelSpawnPositionSet = false;
+    [HideInInspector] public bool IsLevelSpawnPositionSet = true;
 
     private AttackCentre m_playerAttackCentre;
 
@@ -59,7 +59,10 @@ public class PlayerController : NetworkBehaviour
     {
         base.OnNetworkSpawn();
 
-        //Debug.Log("Player spawned");
+        IsLevelSpawnPositionSet = false;
+
+        // register player controller
+        Game.Instance.playerControllers.Add(GetComponent<PlayerController>());
 
         // local player
         if (IsLocalPlayer)
@@ -95,31 +98,16 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
-    [Rpc(SendTo.Server)]
-    void ValidateVersionServerRpc()
-    {
-
-    }
-
-    [Rpc(SendTo.Server)]
-    void ValidateVersionClientRpc(string serverVersion)
-    {
-        if (!IsLocalPlayer) return;
-
-        if (serverVersion != Bootstrap.Instance.Version)
-        {
-            ErrorDialogCanvas.Instance.Show("Your local browser version of Dropt does not match the server. Please hard refresh your browser to update.");
-            NetworkManager.Singleton.Shutdown();
-        }
-    }
-
     public override void OnNetworkDespawn()
     {
+        // degregister player controller
+        Game.Instance.playerControllers.Remove(GetComponent<PlayerController>());
+
+
         if (!IsServer) return;
 
         // check for any pets owned
-        var pets = FindObjectsByType<PetController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-
+        var pets = Game.Instance.petControllers;
         var playerNetworkObjectId = GetComponent<NetworkObject>().NetworkObjectId;
 
         foreach (var pet in pets)
@@ -135,6 +123,27 @@ public class PlayerController : NetworkBehaviour
         base.OnNetworkDespawn();
 
     }
+
+    [Rpc(SendTo.Server)]
+    void ValidateVersionServerRpc()
+    {
+
+    }
+
+    [Rpc(SendTo.Server)]
+    void ValidateVersionClientRpc(string serverVersion)
+    {
+        if (!IsLocalPlayer) return;
+
+        if (serverVersion != Bootstrap.Instance.Version)
+        {
+            ErrorDialogCanvas.Instance.Show("Your local browser version of Dropt does not match the server. Please hard refresh your browser to update.");
+            Debug.Log("Shutdown NetworkManager");
+            NetworkManager.Singleton.Shutdown();
+        }
+    }
+
+
 
     private void Update()
     {
@@ -174,6 +183,14 @@ public class PlayerController : NetworkBehaviour
 
             // check for player input to ensure we stay active
             CheckForPlayerInput();
+        }
+
+        if (IsHost)
+        {
+            if (Input.GetKeyDown(KeyCode.V))
+            {
+                GetComponent<NetworkCharacter>().TakeDamage(300, false);
+            }
         }
 
         // Handle level spawning on the server
@@ -216,32 +233,48 @@ public class PlayerController : NetworkBehaviour
         ConnectedWallet = wallet;
     }
 
-    public void KillPlayer(REKTCanvas.TypeOfREKT typeOfREKT)
+    public async UniTask KillPlayer(REKTCanvas.TypeOfREKT typeOfREKT)
     {
+        try
+        {
+            // set player to dead
+            var playerController = GetComponent<PlayerController>();
+            if (playerController == null) return;
+            if (playerController.IsDead) return;
+
+            // set player to dead
+            playerController.IsDead = true;
+
+            // calc offchain balances
+            var playerOffchainData = GetComponent<PlayerOffchainData>();
+            if (playerOffchainData != null)
+            {
+                await playerOffchainData.ExitDungeonCalculateBalances(false);
+            }
+
+            // do leaderboard logging (only other place this is called is EscapePortal.cs)
+            Debug.Log("KillPlayer: LogEndOfDungeonResults");
+            var playerLeaderboardLogger = GetComponent<PlayerLeaderboardLogger>();
+            if (playerLeaderboardLogger != null)
+            {
+                Debug.Log("Start logging leaderboard: " + playerLeaderboardLogger.GetComponent<PlayerController>());
+                LeaderboardLogger.LogEndOfDungeonResults(
+                    playerLeaderboardLogger.GetComponent<PlayerController>(),
+                    playerLeaderboardLogger.dungeonType,
+                    false);
+                Debug.Log("Finished logging leaderboard");
+            }
+
+            Debug.Log("TriggerGameoverclient");
+            TriggerGameOverClientRpc(GetComponent<NetworkObject>().NetworkObjectId, typeOfREKT);
+        }
+        catch (System.Exception e)
+        {
+            Debug.Log(e.Message);
+        }
         if (!IsServer) return;
 
-        // set player to dead
-        var playerController = GetComponent<PlayerController>();
-        if (playerController != null)
-        {
-            playerController.IsDead = true;
-        }
-
-        // calc offchain balances
-        var playerOffchainData = GetComponent<PlayerOffchainData>();
-        if (playerOffchainData != null)
-        {
-            playerOffchainData.ExitDungeonCalculateBalances(false);
-        }
-
-        // do leaderboard logging (only other place this is called is EscapePortal.cs)
-        var playerLeaderboardLogger = GetComponent<PlayerLeaderboardLogger>();
-        if (playerLeaderboardLogger != null)
-        {
-            playerLeaderboardLogger.LogEndOfDungeonResults(false);
-        }
-
-        TriggerGameOverClientRpc(GetComponent<NetworkObject>().NetworkObjectId, typeOfREKT);
+        
     }
 
     public void StartInvulnerability(float duration)
@@ -440,8 +473,8 @@ public class PlayerController : NetworkBehaviour
 
         if (LevelManager.Instance.IsDegenapeVillage())
         {
-            m_networkCharacter.HpCurrent.Value = m_networkCharacter.HpMax.Value;
-            m_networkCharacter.ApCurrent.Value = m_networkCharacter.ApMax.Value;
+            m_networkCharacter.currentDynamicStats.HpCurrent = m_networkCharacter.currentStaticStats.HpMax;
+            m_networkCharacter.currentDynamicStats.ApCurrent = m_networkCharacter.currentStaticStats.ApMax;
         }
     }
 

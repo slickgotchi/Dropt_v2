@@ -6,13 +6,23 @@ using UnityEngine.UI;
 
 public class GeneralDebugCanvas : DroptCanvas
 {
+    public static GeneralDebugCanvas Instance { get; private set; }
+
     public Toggle fpsToggle;
     public Toggle characterStatsToggle;
     public Toggle enemyAIToggle;
-    //public Toggle consoleLogToggle;
 
     private void Awake()
     {
+        // Singleton pattern to ensure only one instance of the AudioManager exists
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+
         InstaHideCanvas();
 
         if (fpsToggle != null)
@@ -33,12 +43,6 @@ public class GeneralDebugCanvas : DroptCanvas
             enemyAIToggle.onValueChanged.AddListener(SetEnemyStateVisible);
             SetEnemyStateVisible(enemyAIToggle.isOn);
         }
-
-        //if (consoleLogToggle != null)
-        //{
-        //    consoleLogToggle.onValueChanged.AddListener(SetConsoleLogVisible);
-        //    SetConsoleLogVisible(consoleLogToggle.isOn);
-        //}
     }
 
     public override void OnUpdate()
@@ -72,23 +76,32 @@ public class GeneralDebugCanvas : DroptCanvas
 
     private void SetCharacterStatsVisibile(bool visible)
     {
-        foreach (var canvas in FindObjectsByType<NetworkCharacterDebugCanvas>(FindObjectsSortMode.None))
+        if (Game.Instance == null) return;
+
+        var playerControllers = Game.Instance.playerControllers;
+
+        foreach (var pc in playerControllers)
         {
+            var canvas = pc.GetComponentInChildren<NetworkCharacterDebugCanvas>();
             canvas.Container.SetActive(visible);
         }
     }
 
     private void SetEnemyStateVisible(bool visible)
     {
-        var debugCanvases = FindObjectsByType<EnemyAI_DebugCanvas>(FindObjectsSortMode.None);
-        foreach (var dc in debugCanvases)
-        {
-            dc.Container.SetActive(visible);
-        }
-    }
+        //if (Game.Instance == null) return;
 
-    //private void SetConsoleLogVisible(bool visible)
-    //{
-    //    DebugLogDisplay.Instance.container.SetActive(visible);
-    //}
+
+
+        //var enemyControllers = Game.Instance.enemyControllers;
+
+        //foreach (var ec in enemyControllers)
+        //{
+        //    bool isActive = ec.gameObject.activeSelf;
+        //    ec.gameObject.SetActive(true);
+        //    var canvas = ec.GetComponentInChildren<EnemyAI_DebugCanvas>();
+        //    canvas.Container.SetActive(visible);
+        //    ec.gameObject.SetActive(isActive);
+        //}
+    }
 }

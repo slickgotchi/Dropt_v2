@@ -14,9 +14,6 @@ namespace Dropt
 
         private float m_localSpawnTimer = 0f;
 
-
-        private float m_interpDelay = 0.3f;
-
         private void Awake()
         {
             m_animator = GetComponent<Animator>();
@@ -30,9 +27,7 @@ namespace Dropt
 
         public override void OnSpawnStart()
         {
-            m_interpDelay = IsHost ? 0 : 3 * 1 / (float)NetworkManager.Singleton.NetworkTickSystem.TickRate;
-
-            m_animator.Play("Spider_Jump");
+            Utils.Anim.Play(m_animator, "Spider_Jump", interpolationDelay_s);
             base.OnSpawnStart();
         }
 
@@ -63,7 +58,7 @@ namespace Dropt
             base.OnRoamStart();
 
             // walk anim
-            Invoke("PlayWalkAnimation", m_interpDelay);
+            Utils.Anim.Play(m_animator, "Spider_Walk", interpolationDelay_s);
         }
 
         public override void OnRoamUpdate(float dt)
@@ -76,7 +71,7 @@ namespace Dropt
             base.OnAggroStart();
 
             // walk anim
-            Invoke("PlayWalkAnimation", m_interpDelay);
+            Utils.Anim.Play(m_animator, "Spider_Walk", interpolationDelay_s);
         }
 
         public override void OnAggroUpdate(float dt)
@@ -97,15 +92,13 @@ namespace Dropt
             GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, AttackDuration);
 
             // jump anim
-            Invoke(nameof(PlayJumpAnimation), m_interpDelay);
+            Utils.Anim.Play(m_animator, "Spider_Jump", interpolationDelay_s);
             m_soundFX_Spider.PlayJumpAttackSound();
         }
 
         public override void OnAttackFinish()
         {
             base.OnAttackFinish();
-
-            Invoke(nameof(SpawnStompCircle), m_interpDelay);
         }
 
         public override void OnCooldownStart()
@@ -120,21 +113,5 @@ namespace Dropt
         {
             SimpleCooldownUpdate(dt);
         }
-
-
-        void PlayJumpAnimation()
-        {
-            GetComponent<Animator>().Play("Spider_Jump");
-        }
-
-        void PlayWalkAnimation()
-        {
-            GetComponent<Animator>().Play("Spider_Walk");
-        }
-
-        void SpawnStompCircle()
-        {
-        }
-
     }
 }

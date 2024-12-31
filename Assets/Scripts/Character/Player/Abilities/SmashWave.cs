@@ -109,7 +109,7 @@ public class SmashWave : PlayerAbility
     public override void OnFinish()
     {
         if (m_attackPathVisualizer == null) return;
-        m_attackPathVisualizer.SetMeshVisible(false);
+        if (!IsHolding()) m_attackPathVisualizer.SetMeshVisible(false);
     }
 
     public override void OnHoldStart()
@@ -192,10 +192,10 @@ public class SmashWave : PlayerAbility
                 if (hit.HasComponent<NetworkCharacter>())
                 {
                     var playerCharacter = Player.GetComponent<NetworkCharacter>();
-                    var damage = playerCharacter.AttackPower.Value * m_damageMultiplier * ActivationWearable.RarityMultiplier;
+                    var damage = playerCharacter.currentStaticStats.AttackPower * m_damageMultiplier * ActivationWearable.RarityMultiplier;
                     damage = GetRandomVariation(damage);
-                    var isCritical = IsCriticalAttack(playerCharacter.CriticalChance.Value);
-                    damage = (int)(isCritical ? damage * playerCharacter.CriticalDamage.Value : damage);
+                    var isCritical = IsCriticalAttack(playerCharacter.currentStaticStats.CriticalChance);
+                    damage = (int)(isCritical ? damage * playerCharacter.currentStaticStats.CriticalDamage : damage);
                     hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical, Player);
 
                     // do knockback if enemy

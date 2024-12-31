@@ -102,6 +102,8 @@ GameObject:
   - component: {fileID: 3342939453437860468}
   - component: {fileID: 7852769511401550485}
   - component: {fileID: 3289187942674299237}
+  - component: {fileID: 5622671422950672804}
+  - component: {fileID: 7328076140368292172}
   m_Layer: 12
   m_Name: Barrel_ALPHA
   m_TagString: Untagged
@@ -294,6 +296,32 @@ MonoBehaviour:
   m_dieSound:
     AudioClip: {fileID: 8300000, guid: 63c77ad4e995243e995f08fcb5352753, type: 3}
     Volume: 0.5
+--- !u!114 &5622671422950672804
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1494eb41af97744799a551a8b1ec3906, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  IsInUse: 0
+--- !u!114 &7328076140368292172
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2fca993741f744a18a8a2c029469458, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  IsCulled: 1
 --- !u!1 &6525230415705073668
 GameObject:
   m_ObjectHideFlags: 0

@@ -5,13 +5,15 @@ using Unity.Netcode;
 using System.Net.Http;
 using System.Text;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 
 public class PlayerLeaderboardLogger : NetworkBehaviour
 {
-    public enum DungeonType { Adventure, Gauntlet }
-    public DungeonType dungeonType = DungeonType.Adventure;
+    //public enum DungeonType { Adventure, Gauntlet }
+    public LeaderboardLogger.DungeonType dungeonType = LeaderboardLogger.DungeonType.Adventure;
 
-    private string dbUri = "https://db.playdropt.io";
+    /*
+    private string leaderboardDbUri = "https://db.playdropt.io/leaderboard";
 
     public async void LogEndOfDungeonResults(bool isEscaped)
     {
@@ -40,7 +42,7 @@ public class PlayerLeaderboardLogger : NetworkBehaviour
             completion_time = completionTime
         };
 
-        if (dungeonType == DungeonType.Adventure)
+        if (dungeonType == LeaderboardLogger.DungeonType.Adventure)
         {
             if (isEscaped)
                 await HandleAdventureLogging(leaderboardEntry);
@@ -95,7 +97,7 @@ public class PlayerLeaderboardLogger : NetworkBehaviour
     {
         using (var client = new HttpClient())
         {
-            var response = await client.GetAsync($"{dbUri}/{leaderboard}/{gotchiId}");
+            var response = await client.GetAsync($"{leaderboardDbUri}/{leaderboard}/{gotchiId}");
             if (response.IsSuccessStatusCode)
             {
                 var json = await response.Content.ReadAsStringAsync();
@@ -112,10 +114,49 @@ public class PlayerLeaderboardLogger : NetworkBehaviour
             var json = JsonConvert.SerializeObject(entry);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await client.PostAsync($"{dbUri}/{leaderboard}", content);
+            var response = await client.PostAsync($"{leaderboardDbUri}/{leaderboard}", content);
             if (!response.IsSuccessStatusCode)
             {
                 Debug.LogError($"Failed to update {leaderboard}: {response.ReasonPhrase}");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Fetches all leaderboard entries for a given leaderboard.
+    /// </summary>
+    /// <param name="leaderboard">The leaderboard name ("adventure_leaderboard" or "gauntlet_leaderboard").</param>
+    /// <returns>A list of leaderboard entries.</returns>
+    public async UniTask<List<LeaderboardEntry>> GetAllLeaderboardEntries(string leaderboard)
+    {
+        if (string.IsNullOrEmpty(leaderboard))
+        {
+            Debug.LogError("Leaderboard name cannot be null or empty.");
+            return null;
+        }
+
+        using (var client = new HttpClient())
+        {
+            try
+            {
+                var response = await client.GetAsync($"{leaderboardDbUri}/{leaderboard}");
+                if (response.IsSuccessStatusCode)
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+                    var entries = JsonConvert.DeserializeObject<List<LeaderboardEntry>>(json);
+                    Debug.Log($"Successfully fetched {entries.Count} entries from {leaderboard}.");
+                    return entries;
+                }
+                else
+                {
+                    Debug.LogError($"Failed to fetch leaderboard entries: {response.ReasonPhrase}");
+                    return null;
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Error fetching leaderboard entries: {e.Message}");
+                return null;
             }
         }
     }
@@ -131,4 +172,5 @@ public class PlayerLeaderboardLogger : NetworkBehaviour
         public int kills;
         public int completion_time;
     }
+    */
 }

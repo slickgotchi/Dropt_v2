@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using System;
+using Unity.Mathematics;
 
 public class NetworkCharacter : NetworkBehaviour
 {
@@ -36,30 +38,158 @@ public class NetworkCharacter : NetworkBehaviour
     // list of buff names for client to use to do UI things client side
     private List<string> activeBuffNames_CLIENT = new List<string>();
 
-    // NetworkVariables
-    [HideInInspector] public NetworkVariable<float> HpMax = new NetworkVariable<float>(0);
-    [HideInInspector] public NetworkVariable<float> HpCurrent = new NetworkVariable<float>(0);
-    [HideInInspector] public NetworkVariable<float> HpBuffer = new NetworkVariable<float>(0);
-    [HideInInspector] public NetworkVariable<float> AttackPower = new NetworkVariable<float>(0);
-    [HideInInspector] public NetworkVariable<float> CriticalChance = new NetworkVariable<float>(0);
-    [HideInInspector] public NetworkVariable<float> ApMax = new NetworkVariable<float>(0);
-    [HideInInspector] public NetworkVariable<float> ApCurrent = new NetworkVariable<float>(0);
-    [HideInInspector] public NetworkVariable<float> ApBuffer = new NetworkVariable<float>(0);
-    [HideInInspector] public NetworkVariable<float> DoubleStrikeChance = new NetworkVariable<float>(0);
-    [HideInInspector] public NetworkVariable<float> CriticalDamage = new NetworkVariable<float>(0);
-    [HideInInspector] public NetworkVariable<float> MoveSpeed = new NetworkVariable<float>(0);
-    [HideInInspector] public NetworkVariable<float> Accuracy = new NetworkVariable<float>(0);
-    [HideInInspector] public NetworkVariable<float> Evasion = new NetworkVariable<float>(0);
-    [HideInInspector] public NetworkVariable<float> DamageReduction = new NetworkVariable<float>(0);
-    [HideInInspector] public NetworkVariable<float> ApLeech = new NetworkVariable<float>(0);
-    [HideInInspector] public NetworkVariable<float> ApRegen = new NetworkVariable<float>(0);
-    [HideInInspector] public NetworkVariable<float> KnockbackMultiplier = new NetworkVariable<float>(0);
-    [HideInInspector] public NetworkVariable<float> StunMultiplier = new NetworkVariable<float>(0);
-    [HideInInspector] public NetworkVariable<float> EnemyShield = new NetworkVariable<float>(0);
-    [HideInInspector] public NetworkVariable<float> MaxEnemyShield = new NetworkVariable<float>(0);
+    public DynamicStats previousDynamicStats;
+    public DynamicStats currentDynamicStats;
+    public StaticStats previousStaticStats;
+    public StaticStats currentStaticStats;
 
-    // an IsDead variable
-    [HideInInspector] public NetworkVariable<bool> IsDead = new NetworkVariable<bool>(false);
+    [Serializable]
+    public struct DynamicStats : INetworkSerializable
+    {
+        public float HpCurrent;
+        public float ApCurrent;
+        public float EnemyShield;
+        public bool IsDead;
+
+        public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+        {
+            serializer.SerializeValue(ref HpCurrent);
+            serializer.SerializeValue(ref ApCurrent);
+            serializer.SerializeValue(ref EnemyShield);
+            serializer.SerializeValue(ref IsDead);
+        }
+    }
+
+    [Serializable]
+    public struct StaticStats : INetworkSerializable
+    {
+        public float HpMax;
+        public float HpBuffer;
+        public float AttackPower;
+        public float CriticalChance;
+        public float ApMax;
+        public float ApBuffer;
+        public float DoubleStrikeChance;
+        public float CriticalDamage;
+
+        public float MoveSpeed;
+        public float Accuracy;
+        public float Evasion;
+        public float DamageReduction;
+
+        public float ApLeech;
+        public float ApRegen;
+        public float KnockbackMultiplier;
+        public float StunMultiplier;
+        public float MaxEnemyShield;
+
+        public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+        {
+            // Integers
+            serializer.SerializeValue(ref HpMax);
+            serializer.SerializeValue(ref HpBuffer);
+            serializer.SerializeValue(ref AttackPower);
+            serializer.SerializeValue(ref CriticalChance);
+            serializer.SerializeValue(ref ApMax);
+            serializer.SerializeValue(ref ApBuffer);
+            serializer.SerializeValue(ref DoubleStrikeChance);
+            serializer.SerializeValue(ref CriticalDamage);
+
+            serializer.SerializeValue(ref MoveSpeed);
+            serializer.SerializeValue(ref Accuracy);
+            serializer.SerializeValue(ref Evasion);
+            serializer.SerializeValue(ref DamageReduction);
+
+            serializer.SerializeValue(ref ApLeech);
+            serializer.SerializeValue(ref ApRegen);
+            serializer.SerializeValue(ref KnockbackMultiplier);
+            serializer.SerializeValue(ref StunMultiplier);
+            serializer.SerializeValue(ref MaxEnemyShield);
+        }
+    }
+
+    private float k_floatTolerance = 0.01f;
+
+    /// <summary>
+    /// Compares two DynamicStatData structs and returns true if they are equal.
+    /// </summary>
+    private bool DynamicStatsAreEqual(DynamicStats current, DynamicStats previous)
+    {
+        return math.abs(current.HpCurrent - previous.HpCurrent) < k_floatTolerance &&
+               math.abs(current.ApCurrent - previous.ApCurrent) < k_floatTolerance &&
+               math.abs(current.EnemyShield - previous.EnemyShield) < k_floatTolerance &&
+               current.IsDead == previous.IsDead;
+    }
+
+    /// <summary>
+    /// Compares two StaticStatData structs and returns true if they are equal.
+    /// </summary>
+    private bool StaticStatsAreEqual(StaticStats current, StaticStats previous)
+    {
+        return math.abs(current.HpMax - previous.HpMax) < k_floatTolerance &&
+               math.abs(current.HpBuffer - previous.HpBuffer) < k_floatTolerance &&
+               math.abs(current.AttackPower - previous.AttackPower) < k_floatTolerance &&
+               math.abs(current.CriticalChance - previous.CriticalChance) < k_floatTolerance &&
+               math.abs(current.ApMax - previous.ApMax) < k_floatTolerance &&
+               math.abs(current.ApBuffer - previous.ApBuffer) < k_floatTolerance &&
+               math.abs(current.DoubleStrikeChance - previous.DoubleStrikeChance) < k_floatTolerance &&
+               math.abs(current.CriticalDamage - previous.CriticalDamage) < k_floatTolerance &&
+               math.abs(current.MoveSpeed - previous.MoveSpeed) < k_floatTolerance &&
+               math.abs(current.Accuracy - previous.Accuracy) < k_floatTolerance &&
+               math.abs(current.Evasion - previous.Evasion) < k_floatTolerance &&
+               math.abs(current.DamageReduction - previous.DamageReduction) < k_floatTolerance &&
+               math.abs(current.ApLeech - previous.ApLeech) < k_floatTolerance &&
+               math.abs(current.ApRegen - previous.ApRegen) < k_floatTolerance &&
+               math.abs(current.KnockbackMultiplier - previous.KnockbackMultiplier) < k_floatTolerance &&
+               math.abs(current.StunMultiplier - previous.StunMultiplier) < k_floatTolerance &&
+               math.abs(current.MaxEnemyShield - previous.MaxEnemyShield) < k_floatTolerance;
+    }
+
+    [Rpc(SendTo.Server)]
+    void RequestSyncStatServerRpc()
+    {
+        if (!IsServer) return;
+
+        if (IsSpawned)
+        {
+            SyncDynamicStatsClientRpc(currentDynamicStats);
+            SyncStaticStatsClientRpc(currentStaticStats);
+        }
+        
+    }
+
+    void SyncStats()
+    {
+        if (!IsServer) return;
+
+        if (!DynamicStatsAreEqual(previousDynamicStats, currentDynamicStats))
+        {
+            previousDynamicStats = currentDynamicStats;
+            if (IsSpawned) SyncDynamicStatsClientRpc(currentDynamicStats);
+            //Debug.Log("Update Dynamic Stats");
+        }
+
+        if (!StaticStatsAreEqual(previousStaticStats, currentStaticStats))
+        {
+            previousStaticStats = currentStaticStats;
+            if (IsSpawned) SyncStaticStatsClientRpc(currentStaticStats);
+            //Debug.Log("Update Static Stats");
+        }
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    void SyncDynamicStatsClientRpc(DynamicStats newDynamicStats)
+    {
+        currentDynamicStats = newDynamicStats;
+        previousDynamicStats = newDynamicStats;
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    void SyncStaticStatsClientRpc(StaticStats newStaticStats)
+    {
+        currentStaticStats = newStaticStats;
+        previousStaticStats = newStaticStats;
+    }
 
     public override void OnNetworkSpawn()
     {
@@ -68,39 +198,90 @@ public class NetworkCharacter : NetworkBehaviour
         if (IsServer)
         {
             // baseize default values on the server
-            InitializeStats();
+            Init();
         }
-    }
-
-    protected virtual void Update()
-    {
-        if (!IsServer) return;
-
-        // handle ap regen
-        ApCurrent.Value += ApRegen.Value * Time.deltaTime;
-        if (ApCurrent.Value > ApMax.Value)
+        else if (IsClient)
         {
-            ApCurrent.Value = ApMax.Value;
+            // request a stat sync
+            RequestSyncStatServerRpc();
         }
     }
+
+    public virtual void Init()
+    {
+        // set values to base values
+        currentDynamicStats.HpCurrent = baseHpCurrent;
+        currentDynamicStats.ApCurrent = baseApCurrent;
+        currentDynamicStats.IsDead = false;
+
+        currentStaticStats.HpMax = baseHpMax;           // needs to be += as we also add to hp from enemy controller with dynamicHp
+        currentStaticStats.HpBuffer = baseHpBuffer;
+        currentStaticStats.AttackPower = baseAttackPower;
+        currentStaticStats.CriticalChance = baseCriticalChance;
+        currentStaticStats.ApMax = baseApMax;
+        currentStaticStats.ApBuffer = baseApBuffer;
+        currentStaticStats.DoubleStrikeChance = baseDoubleStrikeChance;
+        currentStaticStats.CriticalDamage = baseCriticalDamage;
+        currentStaticStats.MoveSpeed = baseMoveSpeed;
+        currentStaticStats.Accuracy = baseAccuracy;
+        currentStaticStats.Evasion = baseEvasion;
+        currentStaticStats.DamageReduction = baseDamageReduction;
+        currentStaticStats.ApLeech = baseApLeech;
+        currentStaticStats.ApRegen = baseApRegen;
+        currentStaticStats.KnockbackMultiplier = baseKnockbackMutliplier;
+        currentStaticStats.StunMultiplier = baseStunMultiplier;
+
+        // check for and apply dynamic HP
+        DynamicHP dynamicHp = GetComponent<DynamicHP>();
+        dynamicHp?.ApplyDynamicHp();
+    }
+
+
+    private float m_syncTimer = 0f;
+    private float k_syncInterval = 0.1f;
+
+    protected void Update()
+    {
+        if (IsServer)
+        {
+            // handle ap regen
+            currentDynamicStats.ApCurrent += currentStaticStats.ApRegen * Time.deltaTime;
+            if (currentDynamicStats.ApCurrent > currentStaticStats.ApMax)
+            {
+                currentDynamicStats.ApCurrent = currentStaticStats.ApMax;
+            }
+
+            // handle stat syncing
+            m_syncTimer -= Time.deltaTime;
+            if (m_syncTimer < 0)
+            {
+                m_syncTimer = k_syncInterval;
+                SyncStats();
+            }
+        }
+
+        OnUpdate();
+    }
+
+    public virtual void OnUpdate() { }
 
     public float GetAttackPower(float randomVariation = 0.1f)
     {
-        return Random.Range(
-            AttackPower.Value * (1 - randomVariation),
-            AttackPower.Value * (1 + randomVariation));
+        return UnityEngine.Random.Range(
+            currentStaticStats.AttackPower * (1 - randomVariation),
+            currentStaticStats.AttackPower * (1 + randomVariation));
     }
 
     public bool IsCriticalAttack()
     {
-        var rand = Random.Range(0f, 0.999f);
-        return rand < CriticalChance.Value;
+        var rand = UnityEngine.Random.Range(0f, 0.999f);
+        return rand < currentStaticStats.CriticalChance;
     }
 
     public virtual void TakeDamage(float damage, bool isCritical, GameObject damageDealer = null)
     {
         // reduce damage
-        damage *= (1 - DamageReduction.Value);
+        damage *= (1 - currentStaticStats.DamageReduction);
 
         HandleEnemyTakeDamage(damage, isCritical, damageDealer);
         HandlePlayerTakeDamage(damage, isCritical, damageDealer != null ? damageDealer.GetComponent<NetworkObject>().NetworkObjectId : 0);
@@ -119,8 +300,7 @@ public class NetworkCharacter : NetworkBehaviour
         {
             // get the local player
             ulong localPlayerNOID = 0;
-            //PlayerController[] players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
-            foreach (var player in Game.Instance.players)
+            foreach (var player in Game.Instance.playerControllers)
             {
                 var playerNetworkObject = player.GetComponent<NetworkObject>();
                 if (playerNetworkObject != null && playerNetworkObject.IsLocalPlayer)
@@ -145,9 +325,9 @@ public class NetworkCharacter : NetworkBehaviour
         if (IsServer)
         {
             EventManager.Instance.TriggerEventWithParam("OnEnemyGetDamage", damageDealerNOID);
-            if (EnemyShield.Value > 0)
+            if (currentDynamicStats.EnemyShield > 0)
             {
-                EnemyShield.Value--;
+                currentDynamicStats.EnemyShield--;
                 damage = 0;
             }
             if (!IsHost)
@@ -156,16 +336,16 @@ public class NetworkCharacter : NetworkBehaviour
             }
 
             // deplete hp
-            HpCurrent.Value -= (int)damage;
-            if (HpCurrent.Value < 0) { HpCurrent.Value = 0; }
+            currentDynamicStats.HpCurrent -= (int)damage;
+            if (currentDynamicStats.HpCurrent < 0) { currentDynamicStats.HpCurrent = 0; }
 
             // show damage text
             DamagePopupTextClientRpc(damage, isCritical);
 
             // check for death
-            if (HpCurrent.Value <= 0 && enemyController != null)
+            if (currentDynamicStats.HpCurrent <= 0 && enemyController != null)
             {
-                IsDead.Value = true;
+                currentDynamicStats.IsDead = true;
 
                 // update the players kill count
                 if (damageDealer != null)
@@ -185,7 +365,17 @@ public class NetworkCharacter : NetworkBehaviour
                 {
                     PlayEnemyDieSoundClientRpc();
                     var networkObject = GetComponent<NetworkObject>();
-                    if (networkObject != null) networkObject.Despawn();
+                    //if (networkObject != null) networkObject.Despawn();
+
+                    // grab level spawn component
+                    var levelSpawn = networkObject.GetComponent<Level.LevelSpawn>();
+
+                    //Debug.Log("HandleEnemyTakeDamage: ReturnNetworkObject()");
+                    //Core.Pool.NetworkObjectPool.Instance.ReturnNetworkObject(
+                    //    networkObject, levelSpawn.prefab);
+                    //networkObject.Despawn(false);
+
+                    networkObject.Despawn();
                 }
             }
 
@@ -198,7 +388,7 @@ public class NetworkCharacter : NetworkBehaviour
                     NetworkCharacter nc_damageDealer = damageDealerNetworkObject.GetComponent<NetworkCharacter>();
                     if (nc_damageDealer != null)
                     {
-                        nc_damageDealer.ApCurrent.Value += (int)(damage * nc_damageDealer.ApLeech.Value);
+                        nc_damageDealer.currentDynamicStats.ApCurrent += (int)(damage * nc_damageDealer.currentStaticStats.ApLeech);
                     }
                 }
             }
@@ -218,7 +408,7 @@ public class NetworkCharacter : NetworkBehaviour
     {
         // get the local player
         ulong localPlayerNOID = 0;
-        PlayerController[] players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+        PlayerController[] players = Game.Instance.playerControllers.ToArray();
         foreach (var player in players)
         {
             if (player.GetComponent<NetworkObject>().IsLocalPlayer)
@@ -264,14 +454,14 @@ public class NetworkCharacter : NetworkBehaviour
                 HandlePlayerTakeDamageClientRpc(damage, isCritical, damageDealerNOID);
             }
 
-            HpCurrent.Value -= (int)damage;
-            if (HpCurrent.Value < 0) { HpCurrent.Value = 0; }
+            currentDynamicStats.HpCurrent -= (int)damage;
+            if (currentDynamicStats.HpCurrent < 0) { currentDynamicStats.HpCurrent = 0; }
             DamagePopupTextClientRpc(damage, isCritical);
 
-            if (HpCurrent.Value <= 0)
+            if (currentDynamicStats.HpCurrent <= 0)
             {
-                HpCurrent.Value = 0;
-                //Debug.Log("Hp hit 0, KillPlayer");
+                currentDynamicStats.HpCurrent = 0;
+
                 playerController.KillPlayer(REKTCanvas.TypeOfREKT.HP);
             }
 
@@ -284,7 +474,7 @@ public class NetworkCharacter : NetworkBehaviour
                     var nc_damageDealer = damageDealer.GetComponent<NetworkCharacter>();
                     if (nc_damageDealer != null)
                     {
-                        nc_damageDealer.ApCurrent.Value += (int)(damage * nc_damageDealer.ApLeech.Value);
+                        nc_damageDealer.currentDynamicStats.ApCurrent += (int)(damage * nc_damageDealer.currentStaticStats.ApLeech);
                     }
                 }
             }
@@ -339,32 +529,7 @@ public class NetworkCharacter : NetworkBehaviour
             0.2f);
     }
 
-    protected virtual void InitializeStats()
-    {
-        // set values to base values
-        HpMax.Value = baseHpMax;           // needs to be += as we also add to hp from enemy controller with dynamicHp
-        HpCurrent.Value = baseHpCurrent;
-        HpBuffer.Value = baseHpBuffer;
-        AttackPower.Value = baseAttackPower;
-        CriticalChance.Value = baseCriticalChance;
-        ApMax.Value = baseApMax;
-        ApCurrent.Value = baseApCurrent;
-        ApBuffer.Value = baseApBuffer;
-        DoubleStrikeChance.Value = baseDoubleStrikeChance;
-        CriticalDamage.Value = baseCriticalDamage;
-        MoveSpeed.Value = baseMoveSpeed;
-        Accuracy.Value = baseAccuracy;
-        Evasion.Value = baseEvasion;
-        DamageReduction.Value = baseDamageReduction;
-        ApLeech.Value = baseApLeech;
-        ApRegen.Value = baseApRegen;
-        KnockbackMultiplier.Value = baseKnockbackMutliplier;
-        StunMultiplier.Value = baseStunMultiplier;
-
-        // check for and apply dynamic HP
-        DynamicHP dynamicHp = GetComponent<DynamicHP>();
-        dynamicHp?.ApplyDynamicHp();
-    }
+    
 
     public bool HasBuffObject(BuffObject buffObject)
     {
@@ -434,8 +599,8 @@ public class NetworkCharacter : NetworkBehaviour
             return;
         }
 
-        var hpRatio = HpCurrent.Value / HpMax.Value;
-        var apRatio = ApCurrent.Value / ApMax.Value;
+        var hpRatio = currentDynamicStats.HpCurrent / currentStaticStats.HpMax;
+        var apRatio = currentDynamicStats.ApCurrent / currentStaticStats.ApMax;
 
         Dictionary<CharacterStat, float> baseStats = new Dictionary<CharacterStat, float>
         {
@@ -501,33 +666,34 @@ public class NetworkCharacter : NetworkBehaviour
         }
 
         // Update network variables with final calculated stats
-        HpMax.Value = baseStats[CharacterStat.HpMax];
-        HpCurrent.Value = HpMax.Value * hpRatio;
-        HpBuffer.Value = baseStats[CharacterStat.HpBuffer];
-        AttackPower.Value = baseStats[CharacterStat.AttackPower];
-        CriticalChance.Value = baseStats[CharacterStat.CriticalChance];
-        ApMax.Value = baseStats[CharacterStat.ApMax];
-        ApCurrent.Value = ApMax.Value * apRatio;
-        ApBuffer.Value = baseStats[CharacterStat.ApBuffer];
-        DoubleStrikeChance.Value = baseStats[CharacterStat.DoubleStrikeChance];
-        CriticalDamage.Value = baseStats[CharacterStat.CriticalDamage];
-        MoveSpeed.Value = baseStats[CharacterStat.MoveSpeed];
-        Accuracy.Value = baseStats[CharacterStat.Accuracy];
-        Evasion.Value = baseStats[CharacterStat.Evasion];
-        DamageReduction.Value = baseStats[CharacterStat.DamageReduction];
-        ApLeech.Value = baseStats[CharacterStat.ApLeech];
-        ApRegen.Value = baseStats[CharacterStat.ApRegen];
 
+        currentStaticStats.HpMax = baseStats[CharacterStat.HpMax];
+        currentStaticStats.HpBuffer = baseStats[CharacterStat.HpBuffer];
+        currentStaticStats.AttackPower = baseStats[CharacterStat.AttackPower];
+        currentStaticStats.CriticalChance = baseStats[CharacterStat.CriticalChance];
+        currentStaticStats.ApMax = baseStats[CharacterStat.ApMax];
+        currentStaticStats.ApBuffer = baseStats[CharacterStat.ApBuffer];
+        currentStaticStats.DoubleStrikeChance = baseStats[CharacterStat.DoubleStrikeChance];
+        currentStaticStats.CriticalDamage = baseStats[CharacterStat.CriticalDamage];
+        currentStaticStats.MoveSpeed = baseStats[CharacterStat.MoveSpeed];
+        currentStaticStats.Accuracy = baseStats[CharacterStat.Accuracy];
+        currentStaticStats.Evasion = baseStats[CharacterStat.Evasion];
+        currentStaticStats.DamageReduction = baseStats[CharacterStat.DamageReduction];
+        currentStaticStats.ApLeech = baseStats[CharacterStat.ApLeech];
+        currentStaticStats.ApRegen = baseStats[CharacterStat.ApRegen];
+
+        currentDynamicStats.HpCurrent = currentStaticStats.HpMax * hpRatio;
+        currentDynamicStats.ApCurrent = currentStaticStats.ApMax * apRatio;
         // Optionally, you can log the final stats for debugging
         //Debug.Log("Player Stats Updated");
     }
 
     public void AddHp(int amount)
     {
-        HpCurrent.Value += amount;
-        if (HpCurrent.Value > HpMax.Value)
+        currentDynamicStats.HpCurrent += amount;
+        if (currentDynamicStats.HpCurrent > currentStaticStats.HpMax)
         {
-            HpCurrent.Value = HpMax.Value;
+            currentDynamicStats.HpCurrent = currentStaticStats.HpMax;
         }
     }
 }

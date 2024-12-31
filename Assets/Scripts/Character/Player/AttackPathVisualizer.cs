@@ -71,6 +71,8 @@ public class AttackPathVisualizer : MonoBehaviour
     {
         if (Bootstrap.IsServer()) return;
 
+        if (!fillMeshFilter.gameObject.activeSelf) return;
+
         if (useCircle)
         {
             UpdateCircleFill();

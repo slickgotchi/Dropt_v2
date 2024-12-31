@@ -161,26 +161,38 @@ public class LevelManager : NetworkBehaviour
         ProximityManager.Instance.enabled = false;
 
         // tag all spawns to die
-        LevelSpawnManager.Instance.TagAllCurrentLevelSpawnsForDead();
+        //LevelSpawnManager.Instance.TagAllCurrentLevelSpawnsForDead();
 
         // find everything to destroy
-        var destroyObjects = new List<DestroyAtLevelChange>(FindObjectsByType<DestroyAtLevelChange>(FindObjectsInactive.Include, FindObjectsSortMode.None));
+        var destroyObjects = FindObjectsByType<DestroyAtLevelChange>(FindObjectsInactive.Include, FindObjectsSortMode.None);
 
         // remove any parents (NOTE: this should only apply to NetworkObjects! any embedded scene objects
         // with DestroyAtLevelChange should still be destroyed)
         foreach (var destroyObject in destroyObjects)
         {
+            // enable all destroys (excpet for not in use pooled objects)
+            var pooledObject = destroyObject.GetComponent<PooledObject>();
+            if (pooledObject != null && !pooledObject.IsInUse)
+            {
+                destroyObject.gameObject.SetActive(false);
+            }
+            else
+            {
+                destroyObject.gameObject.SetActive(true);
+            }
+
+            // deparent objects
             if (destroyObject.HasComponent<NetworkObject>())
             {
                 destroyObject.transform.parent = null;
             }
-        }
 
-        // activate objects and add the ignore proximity component
-        foreach (var destroyObject in destroyObjects)
-        {
-            destroyObject.gameObject.SetActive(true);
-            destroyObject.gameObject.AddComponent<IgnoreProximity>();
+            // if has levelspawn, remove it from the level spawn manager
+            var levelSpawn = destroyObject.GetComponent<Level.LevelSpawn>();
+            if (levelSpawn != null)
+            {
+                LevelSpawnManager.Instance.RemoveLevelSpawnComponent(levelSpawn);
+            }
         }
 
         // despawn/destroy all objects
@@ -200,11 +212,35 @@ public class LevelManager : NetworkBehaviour
                 destroyObject.GetComponent<Interactables.Chest>().enabled = false;
             }
 
-            // destroy object
-            var doNetworkObject = destroyObject.GetComponent<NetworkObject>();
-            if (destroyObject != null && doNetworkObject != null && IsServer && doNetworkObject.IsSpawned)
+            // get our destroy objects networkobject
+            var networkObject = destroyObject.GetComponent<NetworkObject>();
+            if (networkObject != null)
             {
-                doNetworkObject.Despawn();
+                // check for enemies or destructibles
+                var enemyController = networkObject.GetComponent<EnemyController>();
+                var destructible = networkObject.GetComponent<Destructible>();
+                var levelSpawn = networkObject.GetComponent<Level.LevelSpawn>();
+                var pooledObject = networkObject.GetComponent<PooledObject>();
+
+                if ((enemyController != null || destructible != null) &&
+                    levelSpawn != null &&
+                    pooledObject != null && pooledObject.IsInUse &&
+                    networkObject.IsSpawned)
+                {
+                    //Debug.Log($"LevelManager: Returning {networkObject.gameObject.name} to pool");
+                    //Core.Pool.NetworkObjectPool.Instance.ReturnNetworkObject(
+                    //    networkObject, levelSpawn.prefab);
+                    //networkObject.Despawn(false);
+
+                    networkObject.Despawn();
+                }
+
+                else
+                {
+                    if (networkObject.IsSpawned) networkObject.Despawn();
+                }
+
+                //if (networkObject.IsSpawned) networkObject.Despawn();
             }
             else
             {
@@ -213,7 +249,7 @@ public class LevelManager : NetworkBehaviour
         }
 
         // clear our list
-        destroyObjects.Clear();
+        //destroyObjects.Clear();
 
         // return all pickup items to their pools
         var pickupItems = FindObjectsByType<PickupItem>(FindObjectsInactive.Include, FindObjectsSortMode.None);
@@ -346,6 +382,16 @@ public class LevelManager : NetworkBehaviour
         {
             m_depthCounter_SERVER = 0;
 
+            // set playres leaderboard loggers
+            foreach (var pc in Game.Instance.playerControllers)
+            {
+                var pll = pc.GetComponent<PlayerLeaderboardLogger>();
+                if (pll != null)
+                {
+                    pll.dungeonType = LeaderboardLogger.DungeonType.Adventure;
+                }
+            }
+
             // destroy all buffs
             foreach (var lcb in levelCountBuffs)
             {
@@ -366,7 +412,7 @@ public class LevelManager : NetworkBehaviour
 
     // vars for handling level loaded
     bool isHandleLevelLoadedNextFrame = false;
-    bool isLevelLoaded = false;
+    public bool isLevelLoaded = true;
 
     // update nav mesh, spawn things, drop spawn players
     void HandleLevelLoaded_SERVER()
@@ -438,7 +484,7 @@ public class LevelManager : NetworkBehaviour
             }
 
             // get all players to recheck their spawn position
-            var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+            var players = Game.Instance.playerControllers;
             foreach (var player in players)
             {
                 player.IsLevelSpawnPositionSet = false;

@@ -58,13 +58,14 @@ public class WeaponSwapCanvas_v2 : DroptCanvas
         m_newWeapon.Init(newWeaponNameEnum, selectedGotchiId);
 
         // now we need to get the local player gotchi and set the lh and rh weapon cards
-        var playerEquipments = FindObjectsByType<PlayerEquipment>(FindObjectsSortMode.None);
-        foreach (var playerEquipment in playerEquipments)
+        var playerControllers = Game.Instance.playerControllers;
+        foreach (var pc in playerControllers)
         {
-            var networkObject = playerEquipment.GetComponent<NetworkObject>();
+            var networkObject = pc.GetComponent<NetworkObject>();
             if (networkObject != null && networkObject.IsLocalPlayer)
             {
                 m_localPlayer = networkObject.GetComponent<PlayerController>();
+                var playerEquipment = pc.GetComponent<PlayerEquipment>();
                 m_lhWeapon.Init(playerEquipment.LeftHand.Value, selectedGotchiId);
                 m_rhWeapon.Init(playerEquipment.RightHand.Value, selectedGotchiId);
             }
@@ -101,12 +102,13 @@ public class WeaponSwapCanvas_v2 : DroptCanvas
 
     protected void SetInteractionActions()
     {
-        var playerInputs = FindObjectsByType<PlayerInput>(FindObjectsSortMode.None);
-        foreach (var playerInput in playerInputs)
+        var playerControllers = Game.Instance.playerControllers;
+        foreach (var pc in playerControllers)
         {
-            var networkObject = playerInput.GetComponent<NetworkObject>();
+            var networkObject = pc.GetComponent<NetworkObject>();
             if (networkObject != null && networkObject.IsLocalPlayer)
             {
+                var playerInput = pc.GetComponent<PlayerInput>();
                 m_leftUIAction = playerInput.actions["InUI/Left"];
                 m_rightUIAction = playerInput.actions["InUI/Right"];
                 m_selectUIAction = playerInput.actions["InUI/Select"];

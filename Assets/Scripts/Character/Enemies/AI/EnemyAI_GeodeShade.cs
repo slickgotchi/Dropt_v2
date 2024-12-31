@@ -36,7 +36,8 @@ namespace Dropt
                 }
                 Utils.Anim.PlayAnimationWithDuration(m_animator,
                                                      "GeodeShade_Anticipation",
-                                                     TelegraphDuration);
+                                                     TelegraphDuration,
+                                                     interpolationDelay_s);
             }
             m_soundFX_Shade.PlayChargeSound();
         }
@@ -46,7 +47,8 @@ namespace Dropt
             base.OnRoamStart();
             if (IsServer)
             {
-                Utils.Anim.Play(m_animator, "GeodeShade_Roam");
+                Utils.Anim.Play(m_animator, "GeodeShade_Roam",
+                                                     interpolationDelay_s);
             }
         }
 
@@ -60,7 +62,8 @@ namespace Dropt
             base.OnAggroStart();
             if (IsServer)
             {
-                Utils.Anim.Play(m_animator, "GeodeShade_Roam");
+                Utils.Anim.Play(m_animator, "GeodeShade_Roam",
+                                                     interpolationDelay_s);
             }
         }
 
@@ -76,7 +79,8 @@ namespace Dropt
             m_soundFX_Shade.PlayAttackSound();
             if (IsServer)
             {
-                Utils.Anim.Play(m_animator, "GeodeShade_Attack");
+                Utils.Anim.Play(m_animator, "GeodeShade_Attack",
+                                                     interpolationDelay_s);
             }
         }
 
@@ -84,7 +88,8 @@ namespace Dropt
         {
             if (IsServer)
             {
-                Utils.Anim.Play(m_animator, "GeodeShade_Roam");
+                Utils.Anim.Play(m_animator, "GeodeShade_Roam",
+                                                     interpolationDelay_s);
             }
         }
 

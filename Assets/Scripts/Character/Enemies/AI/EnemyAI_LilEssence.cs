@@ -8,7 +8,6 @@ namespace Dropt
     {
         private Animator m_animator;
         public float EssenceReward = 10;
-        private NetworkVariable<Vector3> m_agentVelocity = new NetworkVariable<Vector3>();
         [SerializeField] private List<SpriteRenderer> m_spritesToFlip;
 
         private void Awake()

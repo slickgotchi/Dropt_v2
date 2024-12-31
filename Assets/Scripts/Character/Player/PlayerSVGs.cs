@@ -30,7 +30,7 @@ public class PlayerSVGs : NetworkBehaviour
             return;
         }
 
-        var offchainGotchiData = GotchiDataManager.Instance.GetOffchainGotchiDataById(gotchiId);
+        var offchainGotchiData = GotchiDataManager.Instance.GetOffchainGotchiConfigById(gotchiId);
         if (offchainGotchiData != null)
         {
             SetBodySpritesFromOffchainGotchiData(offchainGotchiData);

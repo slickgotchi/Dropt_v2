@@ -28,10 +28,19 @@ public abstract class Door<T> : NetworkBehaviour where T : Enum
     {
         base.OnNetworkSpawn();
 
+        DoorManager<T>.Instance.RegisterDoor(this);
+
         if (IsServer)
         {
             SetTypeAndState(initType, initState);
         }
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        DoorManager<T>.Instance.UnregisterDoor(this);
+
+        base.OnNetworkDespawn();
     }
 
     public void Open()

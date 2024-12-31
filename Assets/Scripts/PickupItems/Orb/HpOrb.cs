@@ -6,10 +6,10 @@ namespace PickupItems.Orb
         {
             return size switch
             {
-                PickupItemManager.Size.Tiny => 10,
+                PickupItemManager.Size.Tiny => 20,
                 PickupItemManager.Size.Small => 20,
-                PickupItemManager.Size.Medium => 30,
-                PickupItemManager.Size.Large => 50,
+                PickupItemManager.Size.Medium => 100,
+                PickupItemManager.Size.Large => 100,
                 _ => 0
             };
         }

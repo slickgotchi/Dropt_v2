@@ -42,14 +42,21 @@ public class DroptCanvas : MonoBehaviour
             m_modalRectTransform = m_modal.GetComponent<RectTransform>();
         }
 
+        // Reactivate container at the start of the animation
+        m_container.SetActive(true);
+
         if (m_backgroundCanvasGroup != null)
         {
             m_backgroundCanvasGroup.blocksRaycasts = true;
             m_backgroundCanvasGroup.DOFade(1, 0.2f);
         }
-        m_modalRectTransform.DOAnchorPosX(m_modalOnscreenXPosition, 0.2f);
+
+        m_modalRectTransform.DOAnchorPosX(m_modalOnscreenXPosition, 0.2f)
+            .OnComplete(() => {
+                OnShowCanvas(); // Custom logic after showing canvas
+            });
+
         PlayerInputMapSwitcher.Instance.SwitchToInUI();
-        OnShowCanvas();
         isCanvasOpen = true;
     }
 
@@ -65,8 +72,13 @@ public class DroptCanvas : MonoBehaviour
             m_backgroundCanvasGroup.blocksRaycasts = false;
             m_backgroundCanvasGroup.alpha = 0;
         }
+
         m_modalRectTransform.anchoredPosition =
             new Vector2(m_modalOffscreenXPosition, m_modalRectTransform.anchoredPosition.y);
+
+        // Immediately deactivate the container
+        m_container.SetActive(false);
+
         PlayerInputMapSwitcher.Instance.SwitchToInGame();
         isCanvasOpen = false;
     }
@@ -82,9 +94,15 @@ public class DroptCanvas : MonoBehaviour
         if (m_backgroundCanvasGroup != null)
         {
             m_backgroundCanvasGroup.blocksRaycasts = false;
-            m_backgroundCanvasGroup.alpha = 0;
+            m_backgroundCanvasGroup.DOFade(0, 0.2f);
         }
-        m_modalRectTransform.DOAnchorPosX(m_modalOffscreenXPosition, 0.2f);
+
+        m_modalRectTransform.DOAnchorPosX(m_modalOffscreenXPosition, 0.2f)
+            .OnComplete(() => {
+                // Deactivate the container after the animation completes
+                m_container.SetActive(false);
+            });
+
         PlayerInputMapSwitcher.Instance.SwitchToInGame();
         isCanvasOpen = false;
     }
@@ -110,12 +128,12 @@ public class DroptCanvas : MonoBehaviour
     {
         if (m_localPlayerInput != null) return;
 
-        var playerInputs = FindObjectsByType<PlayerInput>(FindObjectsSortMode.None);
-        foreach (var playerInput in playerInputs)
+        var playerControllers = Game.Instance.playerControllers;
+        foreach (var playerController in playerControllers)
         {
-            if (playerInput.GetComponent<NetworkObject>().IsLocalPlayer)
+            if (playerController.GetComponent<NetworkObject>().IsLocalPlayer)
             {
-                m_localPlayerInput = playerInput.GetComponent<PlayerInput>();
+                m_localPlayerInput = playerController.GetComponent<PlayerInput>();
             }
         }
     }

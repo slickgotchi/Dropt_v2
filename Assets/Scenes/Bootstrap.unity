@@ -772,6 +772,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.x
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1288923049808236541, guid: f1f7a02a8c5efe54c95062bd90592227, type: 3}
+      propertyPath: <ShowDebugLogs>k__BackingField
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2985666425045432145, guid: f1f7a02a8c5efe54c95062bd90592227, type: 3}
       propertyPath: m_Name
       value: ThirdwebManager
@@ -2119,12 +2123,16 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7549681568489780150, guid: 27b85bc49d6af884b904ac7a26fa00ec, type: 3}
       propertyPath: offchainGotchiData.Array.size
-      value: 3
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7549681568489780150, guid: 27b85bc49d6af884b904ac7a26fa00ec, type: 3}
       propertyPath: offchainGotchis.Array.data[0]
       value: 
       objectReference: {fileID: 11400000, guid: b8227e9ff629143c19d365d39f1b543c, type: 2}
+    - target: {fileID: 7549681568489780150, guid: 27b85bc49d6af884b904ac7a26fa00ec, type: 3}
+      propertyPath: offchainGotchiConfigs.Array.size
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 7549681568489780150, guid: 27b85bc49d6af884b904ac7a26fa00ec, type: 3}
       propertyPath: offchainGotchiData.Array.data[0]
       value: 
@@ -2205,6 +2213,18 @@ PrefabInstance:
       propertyPath: offchainGotchiData.Array.data[19]
       value: 
       objectReference: {fileID: 11400000, guid: 69feb079e61aa4bff98aca76a312347a, type: 2}
+    - target: {fileID: 7549681568489780150, guid: 27b85bc49d6af884b904ac7a26fa00ec, type: 3}
+      propertyPath: offchainGotchiConfigs.Array.data[0]
+      value: 
+      objectReference: {fileID: 11400000, guid: b8227e9ff629143c19d365d39f1b543c, type: 2}
+    - target: {fileID: 7549681568489780150, guid: 27b85bc49d6af884b904ac7a26fa00ec, type: 3}
+      propertyPath: offchainGotchiConfigs.Array.data[1]
+      value: 
+      objectReference: {fileID: 11400000, guid: 69feb079e61aa4bff98aca76a312347a, type: 2}
+    - target: {fileID: 7549681568489780150, guid: 27b85bc49d6af884b904ac7a26fa00ec, type: 3}
+      propertyPath: offchainGotchiConfigs.Array.data[2]
+      value: 
+      objectReference: {fileID: 11400000, guid: dde51fb3ae6644b59afe9cee7f42ba4a, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -3894,6 +3914,7 @@ GameObject:
   - component: {fileID: 1171476966}
   - component: {fileID: 1171476969}
   - component: {fileID: 1171476970}
+  - component: {fileID: 1171476971}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -3995,6 +4016,18 @@ MonoBehaviour:
     PacketDelayMS: 0
     PacketJitterMS: 0
     PacketDropRate: 0
+--- !u!114 &1171476971
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1171476962}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d98d32abffdec411395c8cf4146a200c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1202603107
 GameObject:
   m_ObjectHideFlags: 0
@@ -5593,14 +5626,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   region: 2
-  NetworkRole: 0
+  NetworkRole: 2
   ConnectionType: 0
   AutoBoot: 0
   AutoPlay: 1
   UseServerManager: 0
   ShowTutorialLevel: 0
   Version: 0.0.10
-  IpAddress: 128.199.214.5
+  IpAddress: 192.241.141.211
   GamePort: 9000
   WorkerPort: 3000
   GameId: 

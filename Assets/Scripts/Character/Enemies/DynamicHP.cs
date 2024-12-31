@@ -12,11 +12,11 @@ public class DynamicHP : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        var playerCharacters = FindObjectsByType<PlayerCharacter>(FindObjectsSortMode.None);
+        var playerControllers = Game.Instance.playerControllers;
         var netAttackPowers = new List<float>();
-        foreach (var pc in playerCharacters)
+        foreach (var pc in playerControllers)
         {
-            netAttackPowers.Add(GetPlayerNetAttackPower(pc));
+            netAttackPowers.Add(GetPlayerNetAttackPower(pc.GetComponent<PlayerCharacter>()));
         }
 
         netAttackPowers.Sort((a, b) => b.CompareTo(a));
@@ -38,8 +38,8 @@ public class DynamicHP : NetworkBehaviour
 
         dynamicHp *= Multiplier;
 
-        GetComponent<NetworkCharacter>().HpMax.Value += dynamicHp;
-        GetComponent<NetworkCharacter>().HpCurrent.Value += dynamicHp;
+        GetComponent<NetworkCharacter>().currentStaticStats.HpMax += dynamicHp;
+        GetComponent<NetworkCharacter>().currentDynamicStats.HpCurrent += dynamicHp;
     }
 
     float GetPlayerNetAttackPower(PlayerCharacter playerCharacter)
@@ -56,8 +56,8 @@ public class DynamicHP : NetworkBehaviour
 
         float rarityMultiplier = math.max(lhRarityMultiplier, rhRarityMultiplier);
 
-        var baseAttack = playerCharacter.AttackPower.Value * rarityMultiplier;
-        var baseCrit = playerCharacter.CriticalChance.Value;
+        var baseAttack = playerCharacter.currentStaticStats.AttackPower * rarityMultiplier;
+        var baseCrit = playerCharacter.currentStaticStats.CriticalChance;
 
         float netAttackPower = (baseAttack * (1 - baseCrit) + (baseAttack * 2 * baseCrit));
 

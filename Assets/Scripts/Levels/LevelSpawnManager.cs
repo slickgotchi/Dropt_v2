@@ -14,6 +14,8 @@ public class LevelSpawnManager : MonoBehaviour
     private float k_updateInterval = 0.1f;
     private float m_updateTimer = 0f;
 
+    private List<LevelSpawn> m_levelSpawns = new List<LevelSpawn>();
+
     private void Awake()
     {
         // Singleton pattern to ensure only one instance of the AudioManager exists
@@ -33,7 +35,7 @@ public class LevelSpawnManager : MonoBehaviour
         m_updateTimer = k_updateInterval;
 
         // get all levelspawns
-        var levelSpawns = FindObjectsByType<Level.LevelSpawn>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        var levelSpawns = m_levelSpawns.ToArray();
         var numLevelSpawns = levelSpawns.Length;
 
         // get a list of all the active spawn Id's
@@ -98,16 +100,65 @@ public class LevelSpawnManager : MonoBehaviour
                 //levelSpawn.gameObject.SetActive(true);
                 //levelSpawn.GetComponent<NetworkObject>().Spawn();
                 levelSpawn.isSpawned = true;
+
+                // init enemyAI and networkcharacter
+                var enemyAI = levelSpawn.GetComponent<Dropt.EnemyAI>();
+                var networkCharacter = levelSpawn.GetComponent<NetworkCharacter>();
+                var statBarCanvas = levelSpawn.GetComponentInChildren<StatBarCanvas>();
+                if (enemyAI != null && networkCharacter != null && statBarCanvas)
+                {
+                    enemyAI.Init();
+                    networkCharacter.Init();
+                    statBarCanvas.Init();
+                }
             }
         }
     }
 
-    public void TagAllCurrentLevelSpawnsForDead()
+    public void AddLevelSpawnComponent(GameObject gObject, int spawnerId, GameObject prefab,
+        Spawner_SpawnCondition spawnCondition = null)
     {
-        var levelSpawns = FindObjectsByType<Level.LevelSpawn>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-        for (int i = levelSpawns.Length-1; i >= 0; i--)
+        // Add the LevelSpawn component to the instantiated object if does not have it
+        LevelSpawn levelSpawn = gObject.GetComponent<LevelSpawn>();
+        if (levelSpawn == null)
         {
-            Destroy(levelSpawns[i].gameObject);
+            levelSpawn = gObject.AddComponent<LevelSpawn>();
+        }
+
+        // set basic instant spawn if no condition was passed
+        if (spawnCondition == null)
+        {
+            levelSpawn.Set(
+                spawnerId,
+                LevelSpawn.SpawnCondition.ElapsedTime,
+                0, 0, 0, 0, 0, prefab);
+        }
+        // set a more detailed spawn condition
+        else
+        {
+            levelSpawn.Set(
+                spawnerId,
+                spawnCondition.spawnCondition,
+                spawnCondition.elapsedTime,
+                spawnCondition.destroyAllWithSpawnerId,
+                spawnCondition.spawnTimeAfterDestroyAll,
+                spawnCondition.touchTriggerWithSpawnerId,
+                spawnCondition.spawnTimeAfterTrigger,
+                prefab);
+        }
+
+        // add levelspawn to list
+        m_levelSpawns.Add(levelSpawn);
+
+        // deactivate the gameobject
+        gObject.SetActive(false);
+    }
+
+    public void RemoveLevelSpawnComponent(LevelSpawn levelSpawn)
+    {
+        if (m_levelSpawns.Contains(levelSpawn))
+        {
+            m_levelSpawns.Remove(levelSpawn);
         }
     }
 }

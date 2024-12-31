@@ -16,8 +16,8 @@ public class Lure : NetworkBehaviour
 
         if (IsServer)
         {
-            GetComponent<NetworkCharacter>().HpMax.Value = Hp;
-            GetComponent<NetworkCharacter>().HpCurrent.Value = Hp;
+            GetComponent<NetworkCharacter>().currentStaticStats.HpMax = Hp;
+            GetComponent<NetworkCharacter>().currentDynamicStats.HpCurrent = Hp;
         }
 
         if (IsClient)

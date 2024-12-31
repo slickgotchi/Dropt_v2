@@ -27,12 +27,12 @@ public class ApeDoorButton : DoorButton<ApeDoorType>
 
     public override Door<ApeDoorType>[] GetAllOtherDoor()
     {
-        return FindObjectsByType<ApeDoor>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        return DoorManager<ApeDoorType>.Instance.GetDoors().ToArray();
     }
 
     public override DoorButton<ApeDoorType>[] GetAllOtherDoorButtons()
     {
-        return FindObjectsByType<ApeDoorButton>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        return DoorManager<ApeDoorType>.Instance.GetButtons().ToArray();
     }
 
     public override void UpdateSprite()

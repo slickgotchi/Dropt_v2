@@ -19,7 +19,7 @@ public class TutorialRevealOnEnemyClear : MonoBehaviour
     void Update()
     {
         // find active enemies
-        var enemies = FindObjectsByType<EnemyController>(FindObjectsSortMode.None);
+        var enemies = Game.Instance.enemyControllers.ToArray();
 
         // don't do anything if this is the first time we've found enemies
         if (!m_isActivated && enemies != null && enemies.Length > 0)

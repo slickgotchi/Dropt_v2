@@ -13,11 +13,12 @@ public class GauntletLeaderboardTrigger : NetworkBehaviour
 
         if (IsServer)
         {
-            var playerLeaderboardLoggers = FindObjectsByType<PlayerLeaderboardLogger>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            var playerControllers = Game.Instance.playerControllers;
 
-            foreach (var pll in playerLeaderboardLoggers)
+            foreach (var pc in playerControllers)
             {
-                pll.dungeonType = PlayerLeaderboardLogger.DungeonType.Gauntlet;
+                var pll = pc.GetComponent<PlayerLeaderboardLogger>(); ;
+                pll.dungeonType = LeaderboardLogger.DungeonType.Gauntlet;
             }
         }
     }

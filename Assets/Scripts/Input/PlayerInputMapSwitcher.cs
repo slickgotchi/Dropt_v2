@@ -62,14 +62,14 @@ public class PlayerInputMapSwitcher : MonoBehaviour
     private void PerformSwitch()
     {
         // Perform the actual switch to the scheduled action map
-        var playerInputs = FindObjectsByType<PlayerInput>(FindObjectsSortMode.None);
+        var playerControllers = Game.Instance.playerControllers;
 
-        foreach (var playerInput in playerInputs)
+        foreach (var pc in playerControllers)
         {
-            var networkObject = playerInput.GetComponent<NetworkObject>();
+            var networkObject = pc.GetComponent<NetworkObject>();
             if (networkObject != null && networkObject.IsLocalPlayer)
             {
-                playerInput.SwitchCurrentActionMap(actionMapToSwitch);
+                pc.GetComponent<PlayerInput>().SwitchCurrentActionMap(actionMapToSwitch);
                 m_switchTimer = 0.5f;
             }
         }

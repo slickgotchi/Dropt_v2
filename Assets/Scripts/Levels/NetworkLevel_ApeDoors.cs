@@ -76,9 +76,10 @@ namespace Level
                 apeDoorButton.initType = buttonGroupSpawner.ApeDoorType;
                 apeDoorButton.spawnerId = buttonGroupSpawner.spawnerId;
 
-                AddLevelSpawnComponent(no_button,
-                                       buttonGroupSpawner.spawnerId,
-                                       buttonGroupSpawner.GetComponent<Spawner_SpawnCondition>());
+                LevelSpawnManager.Instance.AddLevelSpawnComponent(no_button,
+                           buttonGroupSpawner.spawnerId,
+                           null,
+                           buttonGroupSpawner.GetComponent<Spawner_SpawnCondition>());
             }
         }
 
@@ -106,8 +107,9 @@ namespace Level
                 CrystalDoorButton crystalDoorButton = no_button.GetComponent<CrystalDoorButton>();
                 crystalDoorButton.initType = buttonGroupSpawner.CrystalDoorType;
                 crystalDoorButton.spawnerId = buttonGroupSpawner.spawnerId;
-                AddLevelSpawnComponent(no_button,
+                LevelSpawnManager.Instance.AddLevelSpawnComponent(no_button,
                                        buttonGroupSpawner.spawnerId,
+                                       null,
                                        buttonGroupSpawner.GetComponent<Spawner_SpawnCondition>());
             }
         }
@@ -124,8 +126,9 @@ namespace Level
                 apeDoor.initState = DoorState.Closed;
                 apeDoor.spawnerId = buttonGroupSpawner.spawnerId;
 
-                AddLevelSpawnComponent(no_apeDoor,
+                LevelSpawnManager.Instance.AddLevelSpawnComponent(no_apeDoor,
                                        buttonGroupSpawner.spawnerId,
+                                       null,
                                        apeDoorSpawner.GetComponent<Spawner_SpawnCondition>());
             }
         }
@@ -142,8 +145,9 @@ namespace Level
                 crystalDoor.initState = DoorState.Closed;
                 crystalDoor.spawnerId = buttonGroupSpawner.spawnerId;
 
-                AddLevelSpawnComponent(no_crystalDoor,
+                LevelSpawnManager.Instance.AddLevelSpawnComponent(no_crystalDoor,
                                        buttonGroupSpawner.spawnerId,
+                                       null,
                                        crystalDoorSpawner.GetComponent<Spawner_SpawnCondition>());
             }
 

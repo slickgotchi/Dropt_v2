@@ -13,10 +13,16 @@ public class FudSpirit_ThrowFud : EnemyAbility
 
     public override void OnActivate()
     {
-        if (Parent == null) return;
+        if (Parent == null) { Debug.LogWarning("Null ref detected"); return; }
+
+        var parentNetworkCharacter = Parent.GetComponent<NetworkCharacter>();
+        if (parentNetworkCharacter == null) { Debug.LogWarning("Null ref detected"); return; }
+
+        var parentEnemyAI = Parent.GetComponent<Dropt.EnemyAI>();
+        if (parentEnemyAI == null) { Debug.LogWarning("Null ref detected"); return; }
 
         // get direction and parent centre position
-        var attackDir = Parent.GetComponent<Dropt.EnemyAI>().AttackDirection;
+        var attackDir = parentEnemyAI.AttackDirection;
         var attackCentrePos = Dropt.Utils.Battle.GetAttackCentrePosition(Parent);
 
         // init and spawn projectile
@@ -27,16 +33,26 @@ public class FudSpirit_ThrowFud : EnemyAbility
             attackDir,
             Distance,
             Duration,
-            Parent.GetComponent<NetworkCharacter>().AttackPower.Value,
-            Parent.GetComponent<NetworkCharacter>().CriticalChance.Value,
-            Parent.GetComponent<NetworkCharacter>().CriticalDamage.Value,
+            parentNetworkCharacter.currentStaticStats.AttackPower,
+            parentNetworkCharacter.currentStaticStats.CriticalChance,
+            parentNetworkCharacter.currentStaticStats.CriticalDamage,
             Parent,
             1);
-        projectile.GetComponent<NetworkObject>().Spawn();
-        projectile.GetComponent<GenericEnemyProjectile>().Fire();
+
+        var projectileNetworkObject = projectile.GetComponent<NetworkObject>();
+        if (projectileNetworkObject == null) { Debug.LogWarning("Null ref detected"); return; }
+
+        var projectileGenericEnemyProjectile = projectile.GetComponent<GenericEnemyProjectile>();
+        if (projectileGenericEnemyProjectile == null) { Debug.LogWarning("Null ref detected"); return; }
+
+        projectileNetworkObject.Spawn();
+        projectileGenericEnemyProjectile.Fire();
+
+        var parentEnemyController = Parent.GetComponent<EnemyController>();
+        if (parentEnemyController == null) { Debug.LogWarning("Null ref detected"); return; }
 
         // orient the parent fud spirit sprite
         EnemyController.Facing facing = AttackDirection.x > 0 ? EnemyController.Facing.Right : EnemyController.Facing.Left;
-        Parent.GetComponent<EnemyController>().SetFacing(facing, 1f);
+        parentEnemyController.SetFacing(facing, 1f);
     }
 }

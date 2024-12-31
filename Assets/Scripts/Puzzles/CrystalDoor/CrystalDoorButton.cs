@@ -26,12 +26,12 @@ public class CrystalDoorButton : DoorButton<CrystalDoorType>
 
     public override Door<CrystalDoorType>[] GetAllOtherDoor()
     {
-        return FindObjectsByType<CrystalDoor>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        return DoorManager<CrystalDoorType>.Instance.GetDoors().ToArray();
     }
 
     public override DoorButton<CrystalDoorType>[] GetAllOtherDoorButtons()
     {
-        return FindObjectsByType<CrystalDoorButton>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        return DoorManager<CrystalDoorType>.Instance.GetButtons().ToArray();
     }
 
     public override void UpdateSprite()

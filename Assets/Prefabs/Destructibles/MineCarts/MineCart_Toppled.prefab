@@ -102,6 +102,8 @@ GameObject:
   - component: {fileID: -2947274318234710277}
   - component: {fileID: 6037413169356437118}
   - component: {fileID: 2169758601115750565}
+  - component: {fileID: 389136354392832860}
+  - component: {fileID: -6217567830749385574}
   m_Layer: 12
   m_Name: MineCart_Toppled
   m_TagString: Untagged
@@ -294,6 +296,32 @@ MonoBehaviour:
   m_dieSound:
     AudioClip: {fileID: 8300000, guid: 63c77ad4e995243e995f08fcb5352753, type: 3}
     Volume: 0.5
+--- !u!114 &389136354392832860
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1494eb41af97744799a551a8b1ec3906, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  IsInUse: 0
+--- !u!114 &-6217567830749385574
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2fca993741f744a18a8a2c029469458, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  IsCulled: 1
 --- !u!1 &6525230415705073668
 GameObject:
   m_ObjectHideFlags: 0
