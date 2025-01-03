@@ -149,7 +149,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 655881700
+  GlobalObjectIdHash: 3860212160
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -165,7 +165,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1249991746567512264}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
   m_Name: 
@@ -359,6 +359,7 @@ MonoBehaviour:
   SecondaryAttack: {fileID: 0}
   avoidanceRadius: 1
   debugCanvas: {fileID: 3967208961839877272}
+  interpolationDelay_s: 0.26
   m_navMeshAgent: {fileID: 0}
   AttackDirection: {x: 0, y: 0, z: 0}
   PositionToAttack: {x: 0, y: 0, z: 0}
@@ -522,13 +523,13 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1249991746567512264}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 40782bf69052c45b8b668c6bcbf0e9b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_syncOnPositionDelta: 0.1
-  interpolationDelayTicks: 4
+  interpolationDelayTicks: 5
 --- !u!1 &1308822279949722805
 GameObject:
   m_ObjectHideFlags: 0

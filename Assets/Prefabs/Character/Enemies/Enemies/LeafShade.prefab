@@ -112,7 +112,6 @@ GameObject:
   - component: {fileID: -2462436751054439784}
   - component: {fileID: 9072564434406264143}
   - component: {fileID: 3340937047251004772}
-  - component: {fileID: 7771907008413602047}
   - component: {fileID: -4144377813499766453}
   m_Layer: 15
   m_Name: LeafShade
@@ -206,7 +205,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1249991746567512264}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
   m_Name: 
@@ -401,6 +400,7 @@ MonoBehaviour:
   SecondaryAttack: {fileID: 0}
   avoidanceRadius: 1
   debugCanvas: {fileID: 3967208961839877272}
+  interpolationDelay_s: 0.26
   m_navMeshAgent: {fileID: 0}
   AttackDirection: {x: 0, y: 0, z: 0}
   PositionToAttack: {x: 0, y: 0, z: 0}
@@ -583,20 +583,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsCulled: 1
---- !u!114 &7771907008413602047
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1249991746567512264}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 40782bf69052c45b8b668c6bcbf0e9b4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_syncOnPositionDelta: 0.1
-  interpolationDelayTicks: 4
 --- !u!114 &-4144377813499766453
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -604,7 +590,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1249991746567512264}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 40782bf69052c45b8b668c6bcbf0e9b4, type: 3}
   m_Name: 

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
+using Unity.Mathematics;
 
 public class ClientServerTickDelta : NetworkBehaviour
 {
@@ -45,6 +46,11 @@ public class ClientServerTickDelta : NetworkBehaviour
     [Rpc(SendTo.ClientsAndHost)]
     void SyncTickDeltaClientRpc(int serverTick)
     {
-        TickDelta = NetworkTimer_v2.Instance.TickCurrent - serverTick;
+        var newTickDelta = NetworkTimer_v2.Instance.TickCurrent - serverTick;
+        if (math.abs(newTickDelta - TickDelta) > 5)
+        {
+            TickDelta = newTickDelta;
+            Debug.Log("Updated tick delta");
+        }
     }
 }

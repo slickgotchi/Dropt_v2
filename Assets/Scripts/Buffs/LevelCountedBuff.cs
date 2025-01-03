@@ -9,7 +9,7 @@ public class LevelCountedBuff : MonoBehaviour
     private int m_levelCount = 0;
     private NetworkCharacter m_networkCharacter;
 
-    public bool TryInit(BuffObject buffObject, NetworkCharacter networkCharacter, int numLevels)
+    public bool TryAddBuffToPlayer(BuffObject buffObject, NetworkCharacter networkCharacter, int numLevels)
     {
         m_buffObject = buffObject;
         m_numberLevels = numLevels;
@@ -26,6 +26,15 @@ public class LevelCountedBuff : MonoBehaviour
             m_networkCharacter.AddBuffObject(m_buffObject);
             return true;
         }
+    }
+
+    public bool IsBuffAlreadyOnPlayer(BuffObject buffObject, NetworkCharacter networkCharacter)
+    {
+        if (buffObject == null) { Debug.LogWarning("buffObject = null"); return false; }
+        if (networkCharacter == null) { Debug.LogWarning("networkCharacter = null"); return false; }
+
+        // see if we already have that buff
+        return networkCharacter.HasBuffObject(buffObject);
     }
 
     public void IncrementLevelCount()

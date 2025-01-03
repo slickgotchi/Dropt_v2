@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using Unity.Mathematics;
 using System.Collections.Generic;
+using Unity.Netcode.Components;
 
 namespace Dropt
 {
@@ -43,7 +44,7 @@ namespace Dropt
         [Header("Debug")]
         public EnemyAI_DebugCanvas debugCanvas;
 
-        [HideInInspector] public float interpolationDelay_s = 0.26f;
+        [HideInInspector] public float interpolationDelay_s = 0.1f;
 
         private float m_spawnTimer = 0f;
         private float m_telegraphTimer = 0f;
@@ -62,7 +63,7 @@ namespace Dropt
         protected Vector3 RoamAnchorPoint;
         protected NetworkCharacter networkCharacter;
         [HideInInspector] public NavMeshAgent m_navMeshAgent;
-        protected Unity.Netcode.Components.NetworkTransform m_networkTransform;
+        protected NetworkTransform m_networkTransform;
 
         private SoundFX_Enemy m_soundFX_Enemy;
 
@@ -105,7 +106,8 @@ namespace Dropt
             var customNetworkTransform = GetComponent<CustomNetworkTransform>();
             if (NetworkTimer_v2.Instance != null && customNetworkTransform != null)
             {
-                interpolationDelay_s = NetworkTimer_v2.Instance.TickInterval * customNetworkTransform.interpolationDelayTicks;
+                //interpolationDelay_s = NetworkTimer_v2.Instance.TickInterval * customNetworkTransform.interpolationDelayTicks;
+                interpolationDelay_s = 0.1f + 3 * 1 / 15;
             }
 
             enemyAIs.Add(this);
@@ -113,7 +115,7 @@ namespace Dropt
             m_soundFX_Enemy = GetComponent<SoundFX_Enemy>();
             networkCharacter = GetComponent<NetworkCharacter>();
             m_navMeshAgent = GetComponent<NavMeshAgent>();
-            m_networkTransform = GetComponent<Unity.Netcode.Components.NetworkTransform>();
+            m_networkTransform = GetComponent<NetworkTransform>();
 
             // Find the closest point on the NavMesh
             if (FindClosestNavMeshPosition(transform.position, out Vector3 navMeshPosition))
@@ -211,6 +213,7 @@ namespace Dropt
             float dt = Time.deltaTime;
 
             OnLateUpdate(dt);
+
 
             HandlClientPredictionToAuthorativeSmoothing(dt);
         }
@@ -560,6 +563,7 @@ namespace Dropt
             if (m_knockbackTimer >= m_knockbackDuration)
             {
                 m_clientPredictedState = State.Stun;
+                m_predictedStunFinishPosition = transform.position;
                 if (m_networkTransform != null) m_stunTimer = StunDuration;
                 return;
             }
@@ -580,7 +584,7 @@ namespace Dropt
             {
                 m_clientPredictedState = State.PredictionToAuthorativeSmoothing;
                 m_smoothingTimer = 0f;
-                m_predictedStunFinishPosition = transform.position;
+                transform.position = m_predictedStunFinishPosition;
                 if (m_networkTransform != null) m_networkTransform.enabled = true;
                 return;
             }

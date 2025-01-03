@@ -85,7 +85,7 @@ public class Game : MonoBehaviour
             {
                 QualitySettings.vSyncCount = 1;
 
-                Application.targetFrameRate = 60;
+                Application.targetFrameRate = 120;
 
                 // connect to a client game (leave gameId param "" to signify we want an empty game)
                 ConnectClientGame(Bootstrap.Instance.isJoiningFromTitle ? Bootstrap.Instance.GameId : "");

@@ -84,12 +84,7 @@ public static class LeaderboardLogger
     {
         try
         {
-            //var existingEntry = await GetLeaderboardEntry("adventure_leaderboard", entry.gotchi_id);
-
-            //if (existingEntry == null || entry.dust_balance > existingEntry.dust_balance)
-            //{
-                await UpsertLeaderboardEntry("adventure_leaderboard", entry, "leaderboard_dr0pt_secret");
-            //}
+            await UpsertLeaderboardEntry("adventure_leaderboard", entry, "leaderboard_dr0pt_secret");
         }
         catch (Exception e)
         {
@@ -101,12 +96,7 @@ public static class LeaderboardLogger
     {
         try
         {
-            //var existingEntry = await GetLeaderboardEntry("gauntlet_leaderboard", entry.gotchi_id);
-
-            //if (existingEntry == null || entry.dust_balance > existingEntry.dust_balance)
-            //{
-                await UpsertLeaderboardEntry("gauntlet_leaderboard", entry, "leaderboard_dr0pt_secret");
-            //}
+            await UpsertLeaderboardEntry("gauntlet_leaderboard", entry, "leaderboard_dr0pt_secret");
         }
         catch (Exception e)
         {

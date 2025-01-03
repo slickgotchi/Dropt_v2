@@ -17,7 +17,7 @@ public class PlayerController : NetworkBehaviour
     private NetworkCharacter m_networkCharacter;
     private PlayerPrediction m_playerPrediction;
 
-    [HideInInspector] public static float InactiveTimerDuration = 5 * 60;
+    [HideInInspector] public static float InactiveTimerDuration = 15 * 60;
 
     [HideInInspector] public bool IsDead = false;
 
@@ -36,6 +36,8 @@ public class PlayerController : NetworkBehaviour
 
     // for tracking wallet
     public string ConnectedWallet = "";
+
+    [HideInInspector] public bool isGameOvered = false;
 
     // variables for tracking current gotchi
     private int m_localGotchiId = 0;
@@ -59,7 +61,7 @@ public class PlayerController : NetworkBehaviour
     {
         base.OnNetworkSpawn();
 
-        IsLevelSpawnPositionSet = false;
+        IsLevelSpawnPositionSet = true;
 
         // register player controller
         Game.Instance.playerControllers.Add(GetComponent<PlayerController>());
@@ -102,7 +104,6 @@ public class PlayerController : NetworkBehaviour
     {
         // degregister player controller
         Game.Instance.playerControllers.Remove(GetComponent<PlayerController>());
-
 
         if (!IsServer) return;
 
@@ -237,36 +238,30 @@ public class PlayerController : NetworkBehaviour
     {
         try
         {
-            // set player to dead
-            var playerController = GetComponent<PlayerController>();
-            if (playerController == null) return;
-            if (playerController.IsDead) return;
+            if (IsDead) return;
+            IsDead = true;
 
-            // set player to dead
-            playerController.IsDead = true;
-
-            // calc offchain balances
             var playerOffchainData = GetComponent<PlayerOffchainData>();
             if (playerOffchainData != null)
             {
                 await playerOffchainData.ExitDungeonCalculateBalances(false);
             }
 
-            // do leaderboard logging (only other place this is called is EscapePortal.cs)
-            Debug.Log("KillPlayer: LogEndOfDungeonResults");
             var playerLeaderboardLogger = GetComponent<PlayerLeaderboardLogger>();
             if (playerLeaderboardLogger != null)
             {
-                Debug.Log("Start logging leaderboard: " + playerLeaderboardLogger.GetComponent<PlayerController>());
                 LeaderboardLogger.LogEndOfDungeonResults(
                     playerLeaderboardLogger.GetComponent<PlayerController>(),
                     playerLeaderboardLogger.dungeonType,
                     false);
-                Debug.Log("Finished logging leaderboard");
             }
 
-            Debug.Log("TriggerGameoverclient");
-            TriggerGameOverClientRpc(GetComponent<NetworkObject>().NetworkObjectId, typeOfREKT);
+            var networkObject = GetComponent<NetworkObject>();
+            if (networkObject == null) { Debug.LogWarning("KillPlayer: networkObject = null"); return; }
+
+            isGameOvered = true;
+
+            TriggerGameOverClientRpc(networkObject.NetworkObjectId, typeOfREKT);
         }
         catch (System.Exception e)
         {
@@ -296,14 +291,15 @@ public class PlayerController : NetworkBehaviour
     }
 
     [Rpc(SendTo.ClientsAndHost)]
-    private void TriggerGameOverClientRpc(ulong playerNetworkObjectId, REKTCanvas.TypeOfREKT typeOfREKT)
+    private void TriggerGameOverClientRpc(ulong killedPlayerNetworkObjectId, REKTCanvas.TypeOfREKT typeOfREKT)
     {
-        //ensure we only trigger this for the relevant player
-        var player = NetworkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId];
-        var localId = GetComponent<NetworkObject>().NetworkObjectId;
-        if (player.NetworkObjectId != localId) return;
+        var networkObject = GetComponent<NetworkObject>();
+        if (networkObject == null) { Debug.LogWarning("networkObject = null"); return; }
 
-        // show the game over canvas
+        if (networkObject.NetworkObjectId != killedPlayerNetworkObjectId) return;
+
+        isGameOvered = true;
+
         REKTCanvas.Instance.Show(typeOfREKT);
     }
 
@@ -352,7 +348,15 @@ public class PlayerController : NetworkBehaviour
             framingTransposer.m_YDamping = 1;
             framingTransposer.m_ZDamping = 0;
         }
+
+        // track our speed
+        var displacement = transform.position - prevPosition;
+        prevPosition = transform.position;
+        var distance = displacement.magnitude;
+        var velocity = distance / Time.deltaTime;
     }
+
+    Vector3 prevPosition;
 
     private void HandleLocalGotchiIdChanges()
     {

@@ -3956,7 +3956,7 @@ MonoBehaviour:
     Prefabs:
       NetworkPrefabsLists:
       - {fileID: 11400000, guid: 04eb27354a6d1d2449d9c01ada203b14, type: 2}
-    TickRate: 15
+    TickRate: 20
     ClientConnectionBufferTimeout: 10
     ConnectionApproval: 1
     ConnectionData: 
@@ -4002,7 +4002,7 @@ MonoBehaviour:
   m_ProtocolType: 0
   m_UseWebSockets: 1
   m_UseEncryption: 1
-  m_MaxPacketQueueSize: 512
+  m_MaxPacketQueueSize: 2048
   m_MaxPayloadSize: 6144
   m_HeartbeatTimeoutMS: 500
   m_ConnectTimeoutMS: 1000
@@ -5626,11 +5626,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   region: 2
-  NetworkRole: 2
-  ConnectionType: 1
-  AutoBoot: 1
-  AutoPlay: 0
-  UseServerManager: 1
+  NetworkRole: 0
+  ConnectionType: 0
+  AutoBoot: 0
+  AutoPlay: 1
+  UseServerManager: 0
   ShowTutorialLevel: 0
   Version: 0.0.10
   IpAddress: 192.241.141.211
@@ -9681,7 +9681,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7fc859ec67d734255b5cccb5ab0357ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TickRate: 15
+  TickRate: 20
   TickInterval: 0.1
   TickCurrent: 0
   TickFraction: 0

@@ -15,8 +15,12 @@ public class JoostInteractionCanvas : MonoBehaviour
     public TextMeshProUGUI CostText;
     public TextMeshProUGUI PurchasedText;
 
-    [SerializeField] private Color toPurchaseColor;
-    [SerializeField] private Color isPurchasedColor;
+    [SerializeField] private Color m_availableColor;
+    [SerializeField] private Color m_consumedColor;
+    [SerializeField] private Color m_insufficientEctoColor;
+
+    public enum PurchaseState { Available, Consumed, InsufficientEcto }
+    [HideInInspector] public PurchaseState purchaseState = PurchaseState.Available;
 
     private void Awake()
     {
@@ -31,24 +35,31 @@ public class JoostInteractionCanvas : MonoBehaviour
 
         Container.SetActive(false);
         PurchasedText.text = "Purchase?";
-        PurchasedText.color = toPurchaseColor;
+        PurchasedText.color = m_availableColor;
     }
 
-    public void Init(string name, string description, string cost, bool isPurchased)
+    public void Set(string name, string description, string cost, PurchaseState purchaseState)
     {
         NameText.text = name;
         DescriptionText.text = description;
         CostText.text = cost;
 
-        if (isPurchased)
+        switch (purchaseState)
         {
-            PurchasedText.text = "[ Purchased ]";
-            PurchasedText.color = isPurchasedColor;
-        }
-        else
-        {
-            PurchasedText.text = "Purchase?";
-            PurchasedText.color = toPurchaseColor;
+            case PurchaseState.Available:
+                PurchasedText.text = "Purchase?";
+                PurchasedText.color = m_availableColor;
+                break;
+            case PurchaseState.Consumed:
+                PurchasedText.text = "Consuumed";
+                PurchasedText.color = m_consumedColor;
+                break;
+            case PurchaseState.InsufficientEcto:
+                PurchasedText.text = "Insufficient Ecto";
+                PurchasedText.color = m_insufficientEctoColor;
+                break;
+            default:
+                break;
         }
     }
 }

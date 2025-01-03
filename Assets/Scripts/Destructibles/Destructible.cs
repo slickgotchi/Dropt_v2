@@ -87,6 +87,10 @@ public class Destructible : NetworkBehaviour
                 // hide all sprites
                 var spriteRenderers = GetComponentsInChildren<SpriteRenderer>();
                 foreach (var sr in spriteRenderers) sr.enabled = false;
+
+                // disable all colliders
+                var colliders = GetComponentsInChildren<Collider2D>();
+                foreach (var c in colliders) c.enabled = false;
             }
             else
             {

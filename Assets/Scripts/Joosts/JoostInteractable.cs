@@ -43,13 +43,39 @@ public class JoostInteractable : Interactable
     {
         base.OnTriggerEnter2DInteraction();
 
-        bool hasBuff = HasLocalPlayerGotBuff();
-        if (!hasBuff)
+        if (localPlayerController == null) return;
+
+        if (IsClient)
         {
-            PlayerHUDCanvas.Instance.ShowPlayerInteractionCanvii(interactionText, interactableType);
+            JoostInteractionCanvas.Instance.Container.SetActive(true);
+
+            bool isBuffAlreadyOnLocalPlayer = HasLocalPlayerGotBuff();
+            if (isBuffAlreadyOnLocalPlayer)
+            {
+                PlayerHUDCanvas.Instance.HidePlayerInteractionCanvii(interactableType);
+                JoostInteractionCanvas.Instance.Set(m_name, m_description, m_cost.ToString(), JoostInteractionCanvas.PurchaseState.Consumed);
+                return;
+            }
+            else
+            {
+                var playerOffchainData = localPlayerController.GetComponent<PlayerOffchainData>();
+                if (playerOffchainData == null) { Debug.LogWarning("playerOffchainData = null"); return; }
+
+                bool isLocalPlayerEctoSufficient = playerOffchainData.IsEctoBalanceGreaterThanOrEqualTo(m_cost);
+
+                if (isLocalPlayerEctoSufficient)
+                {
+                    PlayerHUDCanvas.Instance.ShowPlayerInteractionCanvii(interactionText, interactableType);
+                    JoostInteractionCanvas.Instance.Set(m_name, m_description, m_cost.ToString(), JoostInteractionCanvas.PurchaseState.Available);
+                }
+                else
+                {
+                    PlayerHUDCanvas.Instance.HidePlayerInteractionCanvii(interactableType);
+                    JoostInteractionCanvas.Instance.Set(m_name, m_description, m_cost.ToString(), JoostInteractionCanvas.PurchaseState.InsufficientEcto);
+                }
+            }
         }
-        JoostInteractionCanvas.Instance.Container.SetActive(true);
-        JoostInteractionCanvas.Instance.Init(m_name, m_description, m_cost.ToString(), hasBuff);
+
     }
 
     bool HasLocalPlayerGotBuff()
@@ -78,30 +104,66 @@ public class JoostInteractable : Interactable
     public override void OnInteractHoldFinish()
     {
         TryAddJoostBuffServerRpc(localPlayerNetworkObjectId);
-        JoostInteractionCanvas.Instance.Init(m_name, m_description, m_cost.ToString(), true);
-        PlayerHUDCanvas.Instance.HidePlayerInteractionCanvii(interactableType);
+
     }
 
     [Rpc(SendTo.Server)]
     void TryAddJoostBuffServerRpc(ulong playerNetworkObjectId)
     {
-        TryAddJoostBufferServerRpcAsync(playerNetworkObjectId);
+        TryAddJoostBuffServerRpcAsync(playerNetworkObjectId);
     }
 
-    private async UniTaskVoid TryAddJoostBufferServerRpcAsync(ulong playerNetworkObjectId)
+    private async UniTaskVoid TryAddJoostBuffServerRpcAsync(ulong playerNetworkObjectId)
     {
         if (!IsServer) return;
 
         var playerController = GetPlayerController(playerNetworkObjectId);
-        var playerDungeonData = playerController.GetComponent<PlayerOffchainData>();
+        if (playerController == null) { Debug.LogWarning("TryAddJoostBuffServerRpcAsync: playerController = null"); return; }
+
+        var networkCharacter = playerController.GetComponent<NetworkCharacter>();
+        if (networkCharacter == null) { Debug.LogWarning("TryAddJoostBuffServerRpcAsync: networkCharacter = null"); return; }
 
         var levelCountedBuffObject = new GameObject();
         var levelCountedBuff = levelCountedBuffObject.AddComponent<LevelCountedBuff>();
-        bool isBuffAdded = levelCountedBuff.TryInit(m_buffObject, playerController.GetComponent<NetworkCharacter>(), NumberLevels);
-        if (!isBuffAdded) return;
 
-        bool isSuccess = await playerDungeonData.RemoveEcto(m_cost);
-        if (!isSuccess) return;
+        bool isBuffAlreadyOnPlayer = levelCountedBuff.IsBuffAlreadyOnPlayer(m_buffObject, networkCharacter);
+        if (isBuffAlreadyOnPlayer) { Debug.Log("TryAddJoostBuffServerRpcAsync: Player already has buff: " + m_buffObject.name); return; }
+
+        var playerDungeonData = playerController.GetComponent<PlayerOffchainData>();
+        if (playerDungeonData == null) Debug.LogWarning("TryAddJoostBuffServerRpcAsync: playerDungeonData = null");
+
+        bool isSufficientEcto = await playerDungeonData.RemoveEcto(m_cost);
+        if (!isSufficientEcto) { Debug.Log("TryAddJoostBuffServerRpcAsync: Insufficient Ecto"); return; }
+
+        bool isBuffAdded = levelCountedBuff.TryAddBuffToPlayer(m_buffObject, playerController.GetComponent<NetworkCharacter>(), NumberLevels);
+        if (!isBuffAdded) { Debug.LogWarning("TryAddJoostBuffServerRpcAsync: Buff could not be added to player"); return; }
+
+        // tell client purchase was successful
+        Debug.Log("TryAddJoostBuffServerRpcAsync: Buff added to player, sending confirmation to client");
+        ConfirmJoostBuffAddedClientRpc(playerNetworkObjectId);
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    void ConfirmJoostBuffAddedClientRpc(ulong playerNetworkObjectId)
+    {
+        if (localPlayerController == null)
+        {
+            Debug.Log("ConfirmJoostBuffClientRpc: localPlayerControl = null");
+            return;
+        }
+
+        var networkObject = localPlayerController.GetComponent<NetworkObject>();
+        if (networkObject == null)
+        {
+            Debug.Log("ConfirmJoostBuffClientRpc: localPlayerNetworkObject = null");
+            return;
+        }
+
+        if (networkObject.NetworkObjectId == playerNetworkObjectId)
+        {
+            JoostInteractionCanvas.Instance.Set(m_name, m_description, m_cost.ToString(), JoostInteractionCanvas.PurchaseState.Consumed);
+            PlayerHUDCanvas.Instance.HidePlayerInteractionCanvii(interactableType);
+        }
     }
 
     private string AddSpacesToCamelCase(string text)

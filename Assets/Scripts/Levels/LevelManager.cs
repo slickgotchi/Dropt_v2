@@ -50,6 +50,8 @@ public class LevelManager : NetworkBehaviour
     // this is for doing first spawn of level manager
     private bool m_isSpawnedFirstLevel = false;
 
+    private bool m_isOnceOnlySpawnDone = false;
+
     private void Awake()
     {
         // Singleton pattern to ensure only one instance of the AudioManager exists
@@ -75,6 +77,7 @@ public class LevelManager : NetworkBehaviour
         if (IsServer)
         {
             m_isSpawnedFirstLevel = false;
+            m_isOnceOnlySpawnDone = false;
             m_currentLevelIndex_SERVER = -1;
             m_depthCounter_SERVER = 0;
             transitionState.Value = TransitionState.Null;
@@ -102,10 +105,10 @@ public class LevelManager : NetworkBehaviour
     public void TryGoToTutorialLevelServerRpc()
     {
         // ensure this only works once
-        if (!m_isSpawnedFirstLevel)
+        if (!m_isOnceOnlySpawnDone)
         {
             GoToTutorialLevel_SERVER();
-            m_isSpawnedFirstLevel = true;
+            m_isOnceOnlySpawnDone = true;
         }
     }
 
@@ -113,10 +116,10 @@ public class LevelManager : NetworkBehaviour
     public void TryGoToDegenapeVillageLevelServerRpc()
     {
         // ensure this only works once
-        if (!m_isSpawnedFirstLevel)
+        if (!m_isOnceOnlySpawnDone)
         {
             GoToDegenapeVillageLevel_SERVER();
-            m_isSpawnedFirstLevel = true;
+            m_isOnceOnlySpawnDone = true;
         }
     }
 
@@ -227,11 +230,6 @@ public class LevelManager : NetworkBehaviour
                     pooledObject != null && pooledObject.IsInUse &&
                     networkObject.IsSpawned)
                 {
-                    //Debug.Log($"LevelManager: Returning {networkObject.gameObject.name} to pool");
-                    //Core.Pool.NetworkObjectPool.Instance.ReturnNetworkObject(
-                    //    networkObject, levelSpawn.prefab);
-                    //networkObject.Despawn(false);
-
                     networkObject.Despawn();
                 }
 
@@ -239,17 +237,12 @@ public class LevelManager : NetworkBehaviour
                 {
                     if (networkObject.IsSpawned) networkObject.Despawn();
                 }
-
-                //if (networkObject.IsSpawned) networkObject.Despawn();
             }
             else
             {
                 Destroy(destroyObject);
             }
         }
-
-        // clear our list
-        //destroyObjects.Clear();
 
         // return all pickup items to their pools
         var pickupItems = FindObjectsByType<PickupItem>(FindObjectsInactive.Include, FindObjectsSortMode.None);
