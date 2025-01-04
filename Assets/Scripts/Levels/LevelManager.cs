@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 using System;
+using Cysharp.Threading.Tasks;
 
 // Level Management
 // - Four types of level
@@ -312,6 +313,7 @@ public class LevelManager : NetworkBehaviour
                 break;
             case TransitionState.GoToNext:
                 HandleGoToNextLevel_SERVER();
+
                 m_headsDownTimer = m_headsDownDuration;
                 transitionState.Value = TransitionState.ClientHeadsDown;
                 break;
@@ -323,7 +325,6 @@ public class LevelManager : NetworkBehaviour
                 }
                 break;
             case TransitionState.End:
-
                 //transitionState.Value = TransitionState.Null;
                 break;
             default:
@@ -401,19 +402,25 @@ public class LevelManager : NetworkBehaviour
                 lcb.IncrementLevelCount();
             }
         }
+
+        isLevelLoaded = false;
     }
 
     // vars for handling level loaded
-    bool isHandleLevelLoadedNextFrame = false;
+    //bool isHandleLevelLoadedNextFrame = false;
     public bool isLevelLoaded = true;
+    public bool isPlayersSpawnable = false;
 
     // update nav mesh, spawn things, drop spawn players
-    void HandleLevelLoaded_SERVER()
+    async UniTaskVoid HandleLevelLoaded_SERVER()
     {
         if (!IsServer) return;
 
-        if (isHandleLevelLoadedNextFrame && !isLevelLoaded)
+        //if (isHandleLevelLoadedNextFrame && !isLevelLoaded)
+        if (!isLevelLoaded && LevelSpawningCount <= 0)
         {
+            isLevelLoaded = false;
+            await UniTask.Yield();
             isLevelLoaded = true;
 
             // check if level uses render mesh or physics colliders
@@ -449,7 +456,6 @@ public class LevelManager : NetworkBehaviour
 
             // drop spawn players
             var no_playerSpawnPoints = m_currentLevel.GetComponentsInChildren<PlayerSpawnPoints>();
-            int makeupCount = 3;
             if (no_playerSpawnPoints != null)
             {
                 for (int i = 0; i < no_playerSpawnPoints.Length; i++)
@@ -458,12 +464,12 @@ public class LevelManager : NetworkBehaviour
                     for (int j = 0; j < playerSpawnPoints.transform.childCount; j++)
                     {
                         m_playerSpawnPoints.Add(playerSpawnPoints.transform.GetChild(j).transform.position);
-                        makeupCount--;
                     }
                 }
             }
 
-            for (int i = 0; i < makeupCount; i++)
+            // add extra spawn points if we didn't get 3
+            for (int i = 0; i < 3 - m_playerSpawnPoints.Count; i++)
             {
                 // if we got at least one legit spawn use that
                 if (m_playerSpawnPoints.Count > 0)
@@ -476,22 +482,24 @@ public class LevelManager : NetworkBehaviour
                 }
             }
 
-            // get all players to recheck their spawn position
-            var players = Game.Instance.playerControllers;
-            foreach (var player in players)
-            {
-                player.IsLevelSpawnPositionSet = false;
-            }
+            // clear the spawnedPlayers lists which will mean any player checking the list
+            // will know if they need to spawn or not
+            // NOTE: players need to check both this list and the state of isLevelLoaded
+            spawnedPlayers.Clear();
+            isPlayersSpawnable = true;
+
         }
 
         // this code ensures we only build a navmesh once level is finished loading
-        if (isHandleLevelLoaded && LevelSpawningCount <= 0)
-        {
-            isHandleLevelLoaded = false;
-            isHandleLevelLoadedNextFrame = true;
-            isLevelLoaded = false;
-        }
+        //if (isHandleLevelLoaded && LevelSpawningCount <= 0)
+        //{
+        //    isHandleLevelLoaded = false;
+        //    isHandleLevelLoadedNextFrame = true;
+        //    isLevelLoaded = false;
+        //}
     }
+
+    public List<PlayerController> spawnedPlayers = new List<PlayerController>();
 
     public bool IsPlayerSpawnPointsReady()
     {

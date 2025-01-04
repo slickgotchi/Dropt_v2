@@ -17,7 +17,7 @@ public class PlayerController : NetworkBehaviour
     private NetworkCharacter m_networkCharacter;
     private PlayerPrediction m_playerPrediction;
 
-    [HideInInspector] public static float InactiveTimerDuration = 15 * 60;
+    [HideInInspector] public static float InactiveTimerDuration = 60 * 60;
 
     [HideInInspector] public bool IsDead = false;
 
@@ -195,7 +195,9 @@ public class PlayerController : NetworkBehaviour
         }
 
         // Handle level spawning on the server
-        if (IsServer && !IsLevelSpawnPositionSet)
+        //if (IsServer && !IsLevelSpawnPositionSet)
+        if (IsServer && LevelManager.Instance.isPlayersSpawnable &&
+            !LevelManager.Instance.spawnedPlayers.Contains(this))
         {
             var pos = LevelManager.Instance.TryGetPlayerSpawnPoint();
             Debug.Log("Spawn Player at " + pos);
@@ -213,6 +215,8 @@ public class PlayerController : NetworkBehaviour
                 // Mark the spawn position as set
                 IsLevelSpawnPositionSet = true;
                 m_spawnPoint = spawnPoint;
+
+                LevelManager.Instance.spawnedPlayers.Add(this);
             }
         }
 
