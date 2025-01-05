@@ -399,7 +399,7 @@ public class LevelManager : NetworkBehaviour
             // increment all buffs
             foreach (var lcb in levelCountBuffs)
             {
-                lcb.IncrementLevelCount();
+                if (lcb != null) lcb.IncrementLevelCount();
             }
         }
 

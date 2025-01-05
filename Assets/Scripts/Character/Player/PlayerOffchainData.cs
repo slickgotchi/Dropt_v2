@@ -119,18 +119,26 @@ public class PlayerOffchainData : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        SyncClientRpc(ectoBalance_offchain, dustBalance_offchain, bombBalance_offchain,
+        var networkObject = GetComponent<NetworkObject>();
+        if (networkObject == null) { Debug.LogWarning("SyncServerDataToClient: networkObject = null"); return; }
+
+        SyncClientRpc(networkObject.NetworkObjectId, ectoBalance_offchain, dustBalance_offchain, bombBalance_offchain,
             ectoDungeonStartAmount_offchain, bombDungeonCapacity_offchain, healSalveDungeonCharges_offchain, isEssenceInfused_offchain,
             ectoDebitStartAmount_dungeon, ectoDebitCount_dungeon, ectoLiveCount_dungeon, dustLiveCount_dungeon, bombStartCount_dungeon, bombLiveCount_dungeon, healSalveChargeCount_dungeon,
             m_postDungeonEctoDelta, m_postDungeonDustDelta, m_postDungeonBombDelta);
     }
 
-    [Rpc(SendTo.NotServer)]
-    void SyncClientRpc(int ectoBalanceOffchain, int dustBalanceOffchain, int bombBalanceOffchain,
+    [Rpc(SendTo.ClientsAndHost)]
+    void SyncClientRpc(ulong syncNetworkObjectId, int ectoBalanceOffchain, int dustBalanceOffchain, int bombBalanceOffchain,
         int ectoDungeonStartAmountOffcahin, int bombDungeonCapacityOffchain, int healSalveDungeonChargesOffchain, bool isEssenceInfusedOffchain,
         int ectoDebitStartAmountDungeon, int ectoDebitCountDungeon, int ectoLiveCountDungeon, int dustLiveCountDungeon, int bombStartCountDungeon, int bombLiveCountDungeon, int healSalveChargeCountDungeon,
         int postDungeonEctoDelta, int postDungeonDustDelta, int postDungeonBombDelta)
     {
+        var networkObject = GetComponent<NetworkObject>();
+        if (networkObject == null) { Debug.LogWarning("SyncClientRpc: networkObject = null"); return; }
+
+        if (networkObject.NetworkObjectId != syncNetworkObjectId) return;
+
         // wallet (offchain data)
         ectoBalance_offchain = ectoBalanceOffchain;
         dustBalance_offchain = dustBalanceOffchain;
@@ -159,6 +167,7 @@ public class PlayerOffchainData : NetworkBehaviour
     private void CheckCurrentLevelType_SERVER()
     {
         if (!IsServer) return;
+        if (LevelManager.Instance == null) return;
 
         var newLevelType = LevelManager.Instance.GetCurrentLevelType();
 
@@ -199,6 +208,7 @@ public class PlayerOffchainData : NetworkBehaviour
         m_walletUpdateTimer = k_walletUpdateInterval;
 
         // only check for wallet updates if in degenape village
+        if (LevelManager.Instance == null) return;
         if (!LevelManager.Instance.IsDegenapeVillage()) return;
 
         // try get latest wallet address
@@ -317,6 +327,7 @@ public class PlayerOffchainData : NetworkBehaviour
         m_gotchiIdUpdateTimer = k_gotchiIdUpdateInterval;
 
         // only check for gotchi updates if in degenape village
+        if (LevelManager.Instance == null) return;
         if (!LevelManager.Instance.IsDegenapeVillage()) return;
 
         // get gotchi
@@ -441,7 +452,7 @@ public class PlayerOffchainData : NetworkBehaviour
 
         SyncServerDataToClient();
 
-        // log wallet deltas
+        // save wallet specific dungeon collectibles
         try
         {
             await LogWalletDeltaDataServerRpcAsync(m_postDungeonEctoDelta, m_postDungeonBombDelta);
@@ -458,7 +469,7 @@ public class PlayerOffchainData : NetworkBehaviour
             Debug.LogWarning("Could not log post-dungeon wallet delta data, is server running?");
         }
 
-        // log gotchi deltas
+        // save gotchi specific dungeon collectibles
         try
         {
             await LogGotchiDeltaDataServerRpcAsync(
@@ -612,6 +623,8 @@ public class PlayerOffchainData : NetworkBehaviour
     /// </summary>
     public bool IsEctoBalanceGreaterThanOrEqualTo(int value)
     {
+        if (LevelManager.Instance == null) return false;
+
         if (LevelManager.Instance.IsDegenapeVillage())
         {
             return ectoBalance_offchain >= value;
@@ -656,25 +669,38 @@ public class PlayerOffchainData : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        GetComponent<PlayerCharacter>().Essence.Value += value;
-        PopupEssenceTextClientRpc(value, GetComponent<NetworkObject>().NetworkObjectId);
+        var playerCharacter = GetComponent<PlayerCharacter>();
+        if (playerCharacter == null) return;
+
+        playerCharacter.Essence.Value += value;
+
+        var networkObject = GetComponent<NetworkObject>();
+        if (networkObject == null) return;
+
+        PopupEssenceTextClientRpc(value, networkObject.NetworkObjectId);
     }
 
     private void StartDungeonTimer()
     {
         PlayerDungeonTime playerDungeonTime = GetComponent<PlayerDungeonTime>();
+        if (playerDungeonTime == null) return;
+
         playerDungeonTime.StartTimer();
     }
 
     private void StopDungeonTimer()
     {
         PlayerDungeonTime playerDungeonTime = GetComponent<PlayerDungeonTime>();
+        if (playerDungeonTime == null) return;
+
         playerDungeonTime.StopTimer();
     }
 
     private void ResetTimer()
     {
         PlayerDungeonTime playerDungeonTime = GetComponent<PlayerDungeonTime>();
+        if (playerDungeonTime == null) return;
+
         playerDungeonTime.ResetTimer();
     }
 

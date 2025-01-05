@@ -773,8 +773,8 @@ public partial class PlayerPrediction : NetworkBehaviour
         // something went wrong so just return original position
         if (a == -1 || b == -1)
         {
-            Debug.Log("Remote player outside interp range. Target tick: " + targetTick +
-                ", LastServerOldest Tick: " + m_lastServerStateArray[0].tick + ", LastServerNewest Tick: " + m_lastServerStateArray[m_lastServerStateArray.Count - 1].tick);
+            //Debug.Log("Remote player outside interp range. Target tick: " + targetTick +
+            //    ", LastServerOldest Tick: " + m_lastServerStateArray[0].tick + ", LastServerNewest Tick: " + m_lastServerStateArray[m_lastServerStateArray.Count - 1].tick);
             return transform.position;
         }
 

@@ -41,7 +41,7 @@ public class LevelCountedBuff : MonoBehaviour
     {
         m_levelCount++;
 
-        if (m_levelCount > m_numberLevels)
+        if (m_networkCharacter != null && m_levelCount > m_numberLevels && this.gameObject != null && m_buffObject != null)
         {
             m_networkCharacter.RemoveBuffObject(m_buffObject);
             Destroy(this.gameObject);
