@@ -5,7 +5,7 @@ using Unity.Netcode;
 
 public class ProximityCulling : NetworkBehaviour
 {
-    public bool IsCulled = true;
+    //public bool IsCulled = true;
 
     public NetworkObject networkObject;
     public PooledObject pooledObject;

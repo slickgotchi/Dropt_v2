@@ -4,15 +4,6 @@ using UnityEngine;
 
 public class IgnoreProximity : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    [Tooltip("This script is redundant and should be removed from any prefabs that have it!")]
+    public int RemoveThisScriptPlease = 0;
 }

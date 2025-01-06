@@ -38,10 +38,6 @@ public class PlayerPickupItemMagnet : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        // don't run if the player is dead
-        //var playerController = GetComponent<PlayerController>();
-        //if (playerController == null || playerController.IsDead) return;
-
         if (pickupItem.gameObject.HasComponent<GltrOrb>())
         {
             PlayerDungeonData.AddDungeonDust(pickupItem.GetComponent<GltrOrb>().GetValue());
@@ -90,7 +86,8 @@ public class PlayerPickupItemMagnet : NetworkBehaviour
             return;
         }
 
-        PickupItemManager.Instance.ReturnToPool(pickupItem);
+        var networkObject = pickupItem.GetComponent<NetworkObject>();
+        if (networkObject != null) networkObject.Despawn();
     }
 
     [Rpc(SendTo.ClientsAndHost)]

@@ -158,8 +158,6 @@ namespace Dropt
 
         private void Update()
         {
-            if (m_proximityCulling != null && m_proximityCulling.IsCulled) return;
-
             float dt = Time.deltaTime;
 
             OnUpdate(dt);

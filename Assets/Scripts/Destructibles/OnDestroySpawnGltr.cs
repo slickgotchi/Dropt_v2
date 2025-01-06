@@ -12,6 +12,10 @@ public class OnDestroySpawnGltr : NetworkBehaviour
         if (!IsServer) return;
         if (!GetComponent<OnDestroySpawnGltr>().enabled) return;
 
+        // we don't want to spawn if the level is changing so check isDestroying
+        var destroyAtLevelChange = GetComponent<DestroyAtLevelChange>();
+        if (destroyAtLevelChange != null && destroyAtLevelChange.isDestroying) return;
+
         PickupItemManager.Instance.SpawnGltr(GltrValue, transform.position);
 
         base.OnNetworkDespawn();

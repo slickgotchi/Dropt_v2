@@ -115,10 +115,6 @@ public class EnemyController : NetworkBehaviour
         if (isServer) return;
 
         if (m_spritesToFlip.Count == 0) return;
-        if (m_proximityCulling != null)
-        {
-            if (m_proximityCulling.IsCulled) return;
-        }
 
         if (IsClient)
         {

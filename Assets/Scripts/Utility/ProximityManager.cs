@@ -66,9 +66,6 @@ public class ProximityManager : MonoBehaviour
 
                 var culledObjectPosition = culledObject.transform.position;
 
-                // Skip checks if the object cannot be culled
-                if (!ShouldProcessCulledObject(culledObject)) continue;
-
                 // Check if in range
                 if (culledObjectPosition.x > xLow && culledObjectPosition.x < xHigh &&
                     culledObjectPosition.y > yLow && culledObjectPosition.y < yHigh)
@@ -85,27 +82,8 @@ public class ProximityManager : MonoBehaviour
             var culledObject = culledObjects[i];
             if (culledObject == null || activatedObjects.Contains(culledObject)) continue;
 
-            if (ShouldProcessCulledObject(culledObject))
-            {
-                culledObject.gameObject.SetActive(false);
-            }
+            culledObject.gameObject.SetActive(false);
         }
-    }
-
-    // Helper function to centralize culled object checks
-    bool ShouldProcessCulledObject(ProximityCulling culledObject)
-    {
-        if (culledObject == null) return false;
-
-        var networkObject = culledObject.networkObject;
-        if (networkObject != null && !networkObject.IsSpawned) return false;
-
-        if (!culledObject.IsCulled) return false;
-
-        var pooledObject = culledObject.pooledObject;
-        if (pooledObject != null && !pooledObject.IsInUse) return false;
-
-        return true;
     }
 
     /*

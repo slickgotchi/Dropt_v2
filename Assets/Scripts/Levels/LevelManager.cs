@@ -164,9 +164,6 @@ public class LevelManager : NetworkBehaviour
         // disable proximity manager
         ProximityManager.Instance.enabled = false;
 
-        // tag all spawns to die
-        //LevelSpawnManager.Instance.TagAllCurrentLevelSpawnsForDead();
-
         // find everything to destroy
         var destroyObjects = FindObjectsByType<DestroyAtLevelChange>(FindObjectsInactive.Include, FindObjectsSortMode.None);
 
@@ -174,16 +171,9 @@ public class LevelManager : NetworkBehaviour
         // with DestroyAtLevelChange should still be destroyed)
         foreach (var destroyObject in destroyObjects)
         {
-            // enable all destroys (excpet for not in use pooled objects)
-            var pooledObject = destroyObject.GetComponent<PooledObject>();
-            if (pooledObject != null && !pooledObject.IsInUse)
-            {
-                destroyObject.gameObject.SetActive(false);
-            }
-            else
-            {
-                destroyObject.gameObject.SetActive(true);
-            }
+            // its important everything is enabled (the proximity manager disables things)
+            destroyObject.gameObject.SetActive(true);
+            destroyObject.isDestroying = true;
 
             // deparent objects
             if (destroyObject.HasComponent<NetworkObject>())
@@ -202,54 +192,24 @@ public class LevelManager : NetworkBehaviour
         // despawn/destroy all objects
         foreach (var destroyObject in destroyObjects)
         {
-            // disable any onDestroySpawn something components
-            if (destroyObject.HasComponent<OnDestroySpawnNetworkObject>())
-            {
-                destroyObject.GetComponent<OnDestroySpawnNetworkObject>().enabled = false;
-            }
-            if (destroyObject.HasComponent<OnDestroySpawnGltr>())
-            {
-                destroyObject.GetComponent<OnDestroySpawnGltr>().enabled = false;
-            }
-            if (destroyObject.HasComponent<Interactables.Chest>())
-            {
-                destroyObject.GetComponent<Interactables.Chest>().enabled = false;
-            }
-
             // get our destroy objects networkobject
             var networkObject = destroyObject.GetComponent<NetworkObject>();
             if (networkObject != null)
             {
-                // check for enemies or destructibles
-                var enemyController = networkObject.GetComponent<EnemyController>();
-                var destructible = networkObject.GetComponent<Destructible>();
-                var levelSpawn = networkObject.GetComponent<Level.LevelSpawn>();
-                var pooledObject = networkObject.GetComponent<PooledObject>();
-
-                if ((enemyController != null || destructible != null) &&
-                    levelSpawn != null &&
-                    pooledObject != null && pooledObject.IsInUse &&
-                    networkObject.IsSpawned)
+                if (networkObject.IsSpawned)
                 {
                     networkObject.Despawn();
                 }
-
                 else
                 {
-                    if (networkObject.IsSpawned) networkObject.Despawn();
+                    networkObject.Spawn();
+                    networkObject.Despawn();
                 }
             }
             else
             {
                 Destroy(destroyObject);
             }
-        }
-
-        // return all pickup items to their pools
-        var pickupItems = FindObjectsByType<PickupItem>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-        foreach (var pi in pickupItems)
-        {
-            PickupItemManager.Instance.ReturnToPool(pi);
         }
 
         // re-enable proximity manager

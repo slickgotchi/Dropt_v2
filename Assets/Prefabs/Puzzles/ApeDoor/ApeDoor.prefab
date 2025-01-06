@@ -709,7 +709,6 @@ GameObject:
   - component: {fileID: 950494912577993695}
   - component: {fileID: 6171197292853117010}
   - component: {fileID: 858873554661095736}
-  - component: {fileID: -6103268862835248928}
   m_Layer: 0
   m_Name: ApeDoor
   m_TagString: Untagged
@@ -768,7 +767,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2229376969
+  GlobalObjectIdHash: 3830851443
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -797,6 +796,8 @@ MonoBehaviour:
   spawnerId: -1
   initType: 0
   initState: 0
+  ClosedCollider: {fileID: 6120786186020349525}
+  OpenCollider: {fileID: 3991240059267330904}
   LeftEmblem: {fileID: 2713316522340092158}
   RightEmblem: {fileID: 1083511669759604156}
   CrescentLeft: {fileID: 3888007131878988358, guid: 6e1ddf02229864b60b1be0857b580e76, type: 3}
@@ -809,8 +810,6 @@ MonoBehaviour:
   PlusRight: {fileID: -8538896922517681192, guid: 6e1ddf02229864b60b1be0857b580e76, type: 3}
   SquareLeft: {fileID: -5281560394975120672, guid: 6e1ddf02229864b60b1be0857b580e76, type: 3}
   SquareRight: {fileID: 6391732422367643168, guid: 6e1ddf02229864b60b1be0857b580e76, type: 3}
-  ClosedCollider: {fileID: 6120786186020349525}
-  OpenCollider: {fileID: 3991240059267330904}
 --- !u!114 &6171197292853117010
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -835,18 +834,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 09698abc2e8964808b00a54103ccdd21, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &-6103268862835248928
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3924821971453843158}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6265237bded1742eaa3ff8cc10e67f00, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &5509170766403334704

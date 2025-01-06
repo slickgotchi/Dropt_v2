@@ -15,6 +15,10 @@ public class OnDestroySpawnHpAp : NetworkBehaviour
         if (!IsServer) return;
         if (!GetComponent<OnDestroySpawnHpAp>().enabled) return;
 
+        // we don't want to spawn if the level is changing so check isDestroying
+        var destroyAtLevelChange = GetComponent<DestroyAtLevelChange>();
+        if (destroyAtLevelChange != null && destroyAtLevelChange.isDestroying) return;
+
         var rand = UnityEngine.Random.Range(0f, 1f);
 
         if (rand < SmallHpChance)

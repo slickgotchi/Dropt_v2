@@ -96,11 +96,6 @@ public class LevelSpawnManager : MonoBehaviour
 
             if (isSpawnTime)
             {
-                DeferredSpawner.SpawnNextFrame(levelSpawn.GetComponent<NetworkObject>());
-                //levelSpawn.gameObject.SetActive(true);
-                //levelSpawn.GetComponent<NetworkObject>().Spawn();
-                levelSpawn.isSpawned = true;
-
                 // init enemyAI and networkcharacter
                 var enemyAI = levelSpawn.GetComponent<Dropt.EnemyAI>();
                 var networkCharacter = levelSpawn.GetComponent<NetworkCharacter>();
@@ -111,6 +106,10 @@ public class LevelSpawnManager : MonoBehaviour
                     networkCharacter.Init();
                     statBarCanvas.Init();
                 }
+
+                // we defer spawning to next frame to give navmesh enough time to be picked up by level spawns that need it
+                DeferredSpawner.SpawnNextFrame(levelSpawn.GetComponent<NetworkObject>());
+                levelSpawn.isSpawned = true;
             }
         }
     }
