@@ -33,9 +33,23 @@ public class StatBarCanvas : MonoBehaviour
 
     private bool cachedShieldActive = false;
 
+    public bool isVisible = false;
+    public bool isServer = false;
+
     private void Awake()
     {
         m_character = transform.parent.GetComponent<NetworkCharacter>();
+    }
+
+    private void Start()
+    {
+        if (Bootstrap.IsServer())
+        {
+            isServer = true;
+            isVisible = false;
+            SetAlpha(0);
+            gameObject.SetActive(false);
+        }
     }
 
     public void Init()
@@ -45,6 +59,8 @@ public class StatBarCanvas : MonoBehaviour
 
     private void Update()
     {
+        if (isServer) return;
+
         UpdateStatBarsShowIfBelow100();
     }
 
@@ -96,12 +112,14 @@ public class StatBarCanvas : MonoBehaviour
         // Update damage alpha only if it changes
         if (m_isDamaged || m_character.currentDynamicStats.HpCurrent < m_character.currentStaticStats.HpMax)
         {
-            SetAlpha(1);
+            if (!isVisible) SetAlpha(1);
+            isVisible = true;
             m_isDamaged = true;
         }
         else
         {
-            SetAlpha(0);
+            if (isVisible) SetAlpha(0);
+            isVisible = false;
         }
 
         // Redraw the layout only if necessary

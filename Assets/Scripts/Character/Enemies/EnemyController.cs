@@ -28,11 +28,21 @@ public class EnemyController : NetworkBehaviour
 
     [HideInInspector] public bool IsArmed = false;
 
+    public Dropt.EnemyAI enemyAI;
+    private ProximityCulling m_proximityCulling;
+
+    private bool isServer = false;
+
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
 
         Game.Instance.enemyControllers.Add(this);
+
+        isServer = Bootstrap.IsServer();
+
+        enemyAI = GetComponent<Dropt.EnemyAI>();
+        m_proximityCulling = GetComponent<ProximityCulling>();
 
         if (IsClient && !IsHost)
         {
@@ -71,9 +81,10 @@ public class EnemyController : NetworkBehaviour
             m_previousPositionUpdateTimer = 0.1f;
             m_previousPosition = m_currentPosition;
             m_currentPosition = transform.position;
+
+            HandleFacing();
         }
 
-        HandleFacing();
     }
 
     public void SetFacingFromDirection(Vector3 direction, float facingTimer)
@@ -98,14 +109,20 @@ public class EnemyController : NetworkBehaviour
         SetEnemySpritesFlip();
     }
 
+
     public void HandleFacing()
     {
+        if (isServer) return;
+
         if (m_spritesToFlip.Count == 0) return;
+        if (m_proximityCulling != null)
+        {
+            if (m_proximityCulling.IsCulled) return;
+        }
 
         if (IsClient)
         {
             // if in knockback/stun states we don't flip sprites
-            var enemyAI = GetComponent<Dropt.EnemyAI>();
             if (enemyAI != null)
             {
                 if (enemyAI.GetClientPredictedState() == Dropt.EnemyAI.State.Knockback) return;

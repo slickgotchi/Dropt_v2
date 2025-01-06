@@ -57,7 +57,7 @@ public class EnemyAIManager : MonoBehaviour
         // set all enemies distances quite large
         foreach (var enemyController in enemyControllers)
         {
-            var enemyAI = enemyController.GetComponent<Dropt.EnemyAI>();
+            var enemyAI = enemyController.enemyAI;
             if (enemyAI == null) continue;
 
             enemyAI.NearestPlayerDistance = 1e10f;

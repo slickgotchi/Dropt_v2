@@ -78,6 +78,8 @@ namespace Dropt
 
         private bool m_isDead = false;
 
+        private ProximityCulling m_proximityCulling;
+
         public enum State
         {
             Null,
@@ -103,12 +105,9 @@ namespace Dropt
         {
             base.OnNetworkSpawn();
 
-            var customNetworkTransform = GetComponent<CustomNetworkTransform>();
-            if (NetworkTimer_v2.Instance != null && customNetworkTransform != null)
-            {
-                //interpolationDelay_s = NetworkTimer_v2.Instance.TickInterval * customNetworkTransform.interpolationDelayTicks;
-                interpolationDelay_s = 0.1f + 3 * 1 / 15;
-            }
+            // WARNING: this interpolation delay is a guess, more monitoring required to see how well
+            // it actually works in live games
+            interpolationDelay_s = 0.3f;
 
             enemyAIs.Add(this);
 
@@ -116,6 +115,7 @@ namespace Dropt
             networkCharacter = GetComponent<NetworkCharacter>();
             m_navMeshAgent = GetComponent<NavMeshAgent>();
             m_networkTransform = GetComponent<NetworkTransform>();
+            m_proximityCulling = GetComponent<ProximityCulling>();
 
             // Find the closest point on the NavMesh
             if (FindClosestNavMeshPosition(transform.position, out Vector3 navMeshPosition))
@@ -158,6 +158,8 @@ namespace Dropt
 
         private void Update()
         {
+            if (m_proximityCulling != null && m_proximityCulling.IsCulled) return;
+
             float dt = Time.deltaTime;
 
             OnUpdate(dt);
@@ -643,7 +645,7 @@ namespace Dropt
 
         void HandleDebugCanvas()
         {
-            if (debugCanvas == null) return;
+            if (debugCanvas == null || !debugCanvas.isVisible) return;
 
             if (IsServer)
             {
