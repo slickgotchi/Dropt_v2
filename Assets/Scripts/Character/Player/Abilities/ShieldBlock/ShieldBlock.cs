@@ -19,25 +19,26 @@ public class ShieldBlock : PlayerAbility
     [SerializeField] private float m_rechargeRate;
     [SerializeField] private float m_breakCoolDown;
 
-    private ShieldBarCanvas m_shieldBarCanvas;
 
     private readonly NetworkVariable<float> m_leftHp = new NetworkVariable<float>(0);
     private readonly NetworkVariable<float> m_rightHp = new NetworkVariable<float>(0);
 
     [SerializeField] private bool m_isBlocking;
     private Hand m_blockingHand;
-    private bool m_isOwnner;
+    //private bool m_isOwner;
 
-    private ShieldBlockEffect _shieldBlockEffect;
+    [SerializeField] private ShieldBlockEffect _shieldBlockEffect;
+    [SerializeField] private ShieldBarCanvas m_shieldBarCanvas;
+    [SerializeField] private NetworkObject m_ownerNetworkObject;
 
     private void OnTransformParentChanged()
     {
         Transform parent = transform.parent;
         if (parent == null) return;
 
-        m_shieldBarCanvas = parent.GetComponentInChildren<ShieldBarCanvas>();
-        m_isOwnner = parent.GetComponent<NetworkObject>().IsOwner;
-        _shieldBlockEffect = parent.GetComponentInChildren<ShieldBlockEffect>();
+        //m_shieldBarCanvas = parent.GetComponentInChildren<ShieldBarCanvas>();
+        //m_isOwner = parent.GetComponent<NetworkObject>().IsOwner;
+        //_shieldBlockEffect = parent.GetComponentInChildren<ShieldBlockEffect>();
     }
 
     public void Initialize(Hand hand, Wearable.RarityEnum rarityEnum)
@@ -82,7 +83,7 @@ public class ShieldBlock : PlayerAbility
         ShieldBlockStateMachine shieldBlockStateMachine = m_shieldDatas[AbilityHand].ShieldBlockStateMachine;
         shieldBlockStateMachine.ChangeState(shieldBlockStateMachine.InUseState);
         float progress = GetHpRatio(AbilityHand);
-        SetPlayerHudShieldProgressClientRpc(AbilityHand, progress);
+        SetPlayerHudShieldProgressClientRpc(AbilityHand, progress, m_ownerNetworkObject.NetworkObjectId);
     }
 
     public override void OnHoldFinish()
@@ -129,9 +130,9 @@ public class ShieldBlock : PlayerAbility
     }
 
     [ClientRpc]
-    public void SetPlayerHudShieldProgressClientRpc(Hand hand, float progress)
+    public void SetPlayerHudShieldProgressClientRpc(Hand hand, float progress, ulong ownerNetworkObjectId)
     {
-        if (!m_isOwnner)
+        if (m_ownerNetworkObject.NetworkObjectId != ownerNetworkObjectId)
         {
             return;
         }
@@ -214,7 +215,7 @@ public class ShieldBlock : PlayerAbility
 
     private void OnLeftHpValueChange(float previousValue, float newValue)
     {
-        SetPlayerHudShieldProgressClientRpc(Hand.Left, GetHpRatio(Hand.Left));
+        SetPlayerHudShieldProgressClientRpc(Hand.Left, GetHpRatio(Hand.Left), m_ownerNetworkObject.NetworkObjectId);
         if (newValue <= 0)
         {
             ShieldBlockStateMachine shieldBlockStateMachine = m_shieldDatas[Hand.Left].ShieldBlockStateMachine;
@@ -224,7 +225,7 @@ public class ShieldBlock : PlayerAbility
 
     private void OnRightHpValueChange(float previousValue, float newValue)
     {
-        SetPlayerHudShieldProgressClientRpc(Hand.Right, GetHpRatio(Hand.Right));
+        SetPlayerHudShieldProgressClientRpc(Hand.Right, GetHpRatio(Hand.Right), m_ownerNetworkObject.NetworkObjectId);
         if (newValue <= 0)
         {
             ShieldBlockStateMachine shieldBlockStateMachine = m_shieldDatas[Hand.Right].ShieldBlockStateMachine;
