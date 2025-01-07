@@ -38,6 +38,8 @@ public partial class PlayerPrediction : NetworkBehaviour
     private float k_actionDirectionTime = 0.5f;
     public NetworkVariable<Vector3> ActionDirection = new NetworkVariable<Vector3>();
 
+    private LayerMask m_environmentWallLayerMask;
+
     // for access
     private Rigidbody2D rb;
     private PlayerAbilities m_playerAbilities;
@@ -137,6 +139,9 @@ public partial class PlayerPrediction : NetworkBehaviour
 
 
         m_lastServerStateArray = new List<StatePayload>();
+
+        m_environmentWallLayerMask = LayerMask.GetMask("EnvironmentWall", "EnvironmentWater");
+
 
         ResetRemoteClientTickDelta();
 
@@ -354,6 +359,13 @@ public partial class PlayerPrediction : NetworkBehaviour
         if (triggeredAbility != null && m_triggeredAbilityEnum != PlayerAbilityEnum.Null
             && triggeredAbility.AutoMoveDuration > 0)
         {
+            // we also need to do a raycast to ensure m_targetDistance does not go outside any EnvironmentWalls
+            var raycastHit = Physics2D.Raycast(transform.position, m_actionDirection, triggeredAbility.AutoMoveDistance, m_environmentWallLayerMask);
+            if (raycastHit)
+            {
+                triggeredAbility.AutoMoveDistance = raycastHit.distance;
+            }
+
             var speed = triggeredAbility.AutoMoveDistance / triggeredAbility.AutoMoveDuration;
             m_autoMoveVelocity = m_actionDirection * speed;
             m_autoMoveExpiryTick = currentTick + (int)(triggeredAbility.AutoMoveDuration * tickRate);
@@ -464,6 +476,13 @@ public partial class PlayerPrediction : NetworkBehaviour
             // 4. handle auto-move
             if (triggeredAbility != null && inputPayload.triggeredAbilityEnum != PlayerAbilityEnum.Null && triggeredAbility.AutoMoveDuration > 0 && !IsHost)
             {
+                // we also need to do a raycast to ensure m_targetDistance does not go outside any EnvironmentWalls
+                var raycastHit = Physics2D.Raycast(transform.position, m_actionDirection, triggeredAbility.AutoMoveDistance, m_environmentWallLayerMask);
+                if (raycastHit)
+                {
+                    triggeredAbility.AutoMoveDistance = raycastHit.distance;
+                }
+
                 var speed = triggeredAbility.AutoMoveDistance / triggeredAbility.AutoMoveDuration;
                 m_autoMoveVelocity = inputPayload.actionDirection * speed;
                 m_autoMoveExpiryTick = inputPayload.tick + (int)(triggeredAbility.AutoMoveDuration * tickRate);

@@ -10,7 +10,7 @@ public class PierceDrill : PlayerAbility
     [SerializeField] private int NumberHits = 3;
     [SerializeField] private float m_holdStartDistance = 3f;
     [SerializeField] private float m_holdFinishDistance = 14f;
-    private float m_targetDistance = 3f;
+    //private float m_targetDistance = 3f;
     private float m_speed = 1f;
 
     private Collider2D m_collider;
@@ -22,7 +22,7 @@ public class PierceDrill : PlayerAbility
 
     private List<Transform> m_hitTransforms = new List<Transform>();
 
-    private LayerMask m_environmentWallLayerMask;
+
 
     public override void OnNetworkSpawn()
     {
@@ -31,7 +31,6 @@ public class PierceDrill : PlayerAbility
         Animator = GetComponent<Animator>();
         m_collider = GetComponent<Collider2D>();
 
-        m_environmentWallLayerMask = LayerMask.GetMask("EnvironmentWall", "EnvironmentWater");
     }
 
     public override void OnStart()
@@ -44,19 +43,7 @@ public class PierceDrill : PlayerAbility
 
         PlayAnimation("PierceDrill");
 
-        m_targetDistance = math.lerp(m_holdStartDistance, m_holdFinishDistance, GetHoldPercentage());
-
-        // we also need to do a raycast to ensure m_targetDistance does not go outside any EnvironmentWalls
-        var raycastHit = Physics2D.Raycast(Player.transform.position, ActivationInput.actionDirection, m_targetDistance, m_environmentWallLayerMask);
-        if (raycastHit)
-        {
-            m_targetDistance = raycastHit.distance;
-            Debug.Log("Revised target distance: " + m_targetDistance);
-        }
-
-        m_targetDistance = 3;
-
-        m_speed = m_targetDistance / AutoMoveDuration;
+        m_speed = AutoMoveDistance / AutoMoveDuration;
 
         PlayerGotchi playerGotchi = Player.GetComponent<PlayerGotchi>();
         playerGotchi.PlayFacingSpin(2, AutoMoveDuration / 2,
@@ -125,6 +112,8 @@ public class PierceDrill : PlayerAbility
 
         // update auto move distance
         AutoMoveDistance = m_attackPathVisualizer.outerFinishPoint;
+
+
     }
 
     public override void OnHoldCancel()
