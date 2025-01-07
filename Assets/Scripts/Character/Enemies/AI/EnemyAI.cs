@@ -214,7 +214,6 @@ namespace Dropt
 
             OnLateUpdate(dt);
 
-
             HandlClientPredictionToAuthorativeSmoothing(dt);
         }
 
@@ -271,14 +270,7 @@ namespace Dropt
         protected virtual void OnDeath(Vector3 position)
         {
             var networkObject = GetComponent<NetworkObject>();
-            if (networkObject == null) return;
-
-            var levelSpawn = GetComponent<Level.LevelSpawn>();
-
-            //Core.Pool.NetworkObjectPool.Instance.ReturnNetworkObject(
-            //    networkObject, levelSpawn.prefab);
-            //networkObject.Despawn(false);
-            networkObject.Despawn();
+            if (networkObject != null && networkObject.IsSpawned) networkObject.Despawn();
         }
 
         public void Death(Vector3 position)
@@ -491,6 +483,9 @@ namespace Dropt
         {
             if (state.Value == State.Attack) return;
             if (state.Value == State.Spawn) return;
+
+            var noKnockback = GetComponent<NoKnockback>();
+            if (noKnockback != null) return;
 
             // get network character
             var networkCharacter = GetComponent<NetworkCharacter>();
