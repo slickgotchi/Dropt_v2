@@ -773,8 +773,16 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1288923049808236541, guid: f1f7a02a8c5efe54c95062bd90592227, type: 3}
+      propertyPath: <ClientId>k__BackingField
+      value: 7aebaf2b1784b8cd46c52fb6ca4b6bae
+      objectReference: {fileID: 0}
+    - target: {fileID: 1288923049808236541, guid: f1f7a02a8c5efe54c95062bd90592227, type: 3}
       propertyPath: <ShowDebugLogs>k__BackingField
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1288923049808236541, guid: f1f7a02a8c5efe54c95062bd90592227, type: 3}
+      propertyPath: <SupportedChains>k__BackingField.Array.data[0]
+      value: 137
       objectReference: {fileID: 0}
     - target: {fileID: 2985666425045432145, guid: f1f7a02a8c5efe54c95062bd90592227, type: 3}
       propertyPath: m_Name
@@ -3956,7 +3964,7 @@ MonoBehaviour:
     Prefabs:
       NetworkPrefabsLists:
       - {fileID: 11400000, guid: 04eb27354a6d1d2449d9c01ada203b14, type: 2}
-    TickRate: 20
+    TickRate: 15
     ClientConnectionBufferTimeout: 10
     ConnectionApproval: 1
     ConnectionData: 
@@ -5628,7 +5636,7 @@ MonoBehaviour:
   region: 2
   NetworkRole: 0
   ConnectionType: 0
-  AutoBoot: 0
+  AutoBoot: 1
   AutoPlay: 1
   UseServerManager: 0
   ShowTutorialLevel: 0
@@ -9681,7 +9689,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7fc859ec67d734255b5cccb5ab0357ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TickRate: 20
+  TickRate: 15
   TickInterval: 0.1
   TickCurrent: 0
   TickFraction: 0

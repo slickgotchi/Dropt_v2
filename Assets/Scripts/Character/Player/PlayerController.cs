@@ -547,10 +547,9 @@ public class PlayerController : NetworkBehaviour
         m_inactiveTimer = InactiveTimerDuration;
     }
 
-    public void KillEnemy()
+    public void AddToTotalKilledEnemies()
     {
         m_totalKilledEnemies.Value++;
-        //Debug.Log("Kill count: " + m_totalKilledEnemies);
     }
 
     public int GetTotalKilledEnemies()
@@ -558,7 +557,7 @@ public class PlayerController : NetworkBehaviour
         return m_totalKilledEnemies.Value;
     }
 
-    public void DestroyDestructible()
+    public void AddToTotalDestroyedDestructibles()
     {
         m_totalDestroyedDestructibles.Value++;
     }

@@ -52,21 +52,23 @@ public class EscapePortal : Interactable
         if (playerOffchainData == null) { Debug.LogWarning("Player network object id does not have PlayerOffchainData"); return; }
 
         // do dungeon exit calcs with an escaped = true status
-        playerOffchainData.ExitDungeonCalculateBalances(true);
+        await playerOffchainData.ExitDungeonCalculateBalances(true);
 
         // add id to escaped ids
         escapedNetworkObjectIds.Add(playerNetworkObjectId);
 
         // try update leaderboard
+        var playerController = playerNetworkObject.GetComponent<PlayerController>();
         var playerLeaderboardLogger = playerNetworkObject.GetComponent<PlayerLeaderboardLogger>();
-        if (playerLeaderboardLogger != null)
-        {
-            await LeaderboardLogger.LogEndOfDungeonResults(
-                playerLeaderboardLogger.GetComponent<PlayerController>(),
-                playerLeaderboardLogger.dungeonType,
-                true);
-        }
 
+        if (playerController == null) { Debug.LogWarning("TryEscapeServerRpcAsync: playerController = null"); return; }
+        if (playerLeaderboardLogger == null) { Debug.LogWarning("TryEscapeServerRpcAsync: playerLeaderboardLogger = null"); return; }
+
+        await LeaderboardLogger.LogEndOfDungeonResults(
+            playerController,
+            playerLeaderboardLogger.dungeonType,
+            true);
+        
         // confirm with client they can escape
         EscapeConfirmedClientRpc(playerNetworkObjectId);
     }

@@ -72,7 +72,7 @@ public class Game : MonoBehaviour
             {
                 // set a reasonably high target frame rate to reduce latency
                 //Application.targetFrameRate = Bootstrap.IsRemoteConnection() ? 1200 : 300;
-                Application.targetFrameRate = 60;
+                Application.targetFrameRate = 60;   // 30fps is too low and starts adding significant (+40ms) latency
                 QualitySettings.vSyncCount = 0;
 
                 // hide loading canvas
@@ -172,6 +172,7 @@ public class Game : MonoBehaviour
         //m_currentGameId = gameId;
 
         bool isReturnToTitleOnFail = string.IsNullOrEmpty(gameId) || Bootstrap.Instance.isJoiningFromTitle;
+        Debug.Log("isReturnToTitleOnFail: " + isReturnToTitleOnFail);
 
         if (m_unityTransport == null)
         {

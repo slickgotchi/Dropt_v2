@@ -21,7 +21,7 @@ public static class LeaderboardLogger
 
         try
         {
-            Debug.Log("LogEndOfDungeonResults: Got Player");
+            Debug.Log("LogEndOfDungeonResults()");
 
             // Extract data from PlayerController
             var gotchiId = playerController.NetworkGotchiId.Value;
@@ -43,7 +43,6 @@ public static class LeaderboardLogger
             var completionTime = (int)Time.timeSinceLevelLoad; // Example completion time in seconds
             Debug.Log("completionTime: " + completionTime);
 
-            Debug.Log("LogEndOfDungeonResults: Create leaderboard entry");
             var leaderboardEntry = new LeaderboardEntry
             {
                 gotchi_id = gotchiId,
@@ -55,23 +54,25 @@ public static class LeaderboardLogger
                 completion_time = completionTime
             };
 
-            Debug.Log("Created leaderboardEntry");
+            Debug.Log("Created temporary leaderboardEntry data object");
 
             if (dungeonType == DungeonType.Adventure)
             {
-                Debug.Log("HandleAdventureLogging...");
+                Debug.Log("Did we escape?");
                 if (isEscaped)
                 {
-                    Debug.Log("HandleAdventureLogging: Try");
+                    Debug.Log("Yes escaped. HandleAdventureLogging");
                     await HandleAdventureLogging(leaderboardEntry);
-                    Debug.Log("HandleAdventureLogging: Success");
+                }
+                else
+                {
+                    Debug.Log("Did not escape, do not update leaderboard");
                 }
             }
             else
             {
-                Debug.Log("HandleGauntletLogging: Try");
+                Debug.Log("HandleGauntletLogging");
                 await HandleGauntletLogging(leaderboardEntry);
-                Debug.Log("HandleGauntletLogging: Success");
             }
         }
         catch (Exception e)
@@ -85,6 +86,7 @@ public static class LeaderboardLogger
         try
         {
             await UpsertLeaderboardEntry("adventure_leaderboard", entry, "leaderboard_dr0pt_secret");
+            Debug.Log("Successfully updated adventure_leaderboard for " + entry.gotchi_name);
         }
         catch (Exception e)
         {
@@ -97,6 +99,7 @@ public static class LeaderboardLogger
         try
         {
             await UpsertLeaderboardEntry("gauntlet_leaderboard", entry, "leaderboard_dr0pt_secret");
+            Debug.Log("Successfully updated gauntlet_leader for " + entry.gotchi_name);
         }
         catch (Exception e)
         {

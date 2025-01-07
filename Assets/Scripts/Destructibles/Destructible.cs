@@ -1,10 +1,11 @@
 using System;
 using Unity.Netcode;
 using UnityEngine;
+using Cysharp.Threading.Tasks;
 
 public class Destructible : NetworkBehaviour
 {
-    public event Action DIE;
+    //public event Action DIE;
     public event Action PRE_DIE;
 
     //public AudioClip audioOnHit;
@@ -74,6 +75,26 @@ public class Destructible : NetworkBehaviour
         DoDamage(damage, damageDealerId);
     }
 
+    /*
+    async UniTaskVoid DelayColliderDisableOneFrame()
+    {
+        await UniTask.Yield();
+
+        // disable all colliders
+        var colliders = GetComponentsInChildren<Collider2D>();
+        foreach (var c in colliders) c.enabled = false;
+    }
+
+    async UniTaskVoid DelayColliderDisableTimed(float delayInSeconds)
+    {
+        await UniTask.Delay((int)(delayInSeconds * 1000));
+
+        // disable all colliders
+        var colliders = GetComponentsInChildren<Collider2D>();
+        foreach (var c in colliders) c.enabled = false;
+    }
+    */
+
     private void DoDamage(int damage, ulong damageDealerId)
     {
         // do client actions
@@ -88,9 +109,9 @@ public class Destructible : NetworkBehaviour
                 var spriteRenderers = GetComponentsInChildren<SpriteRenderer>();
                 foreach (var sr in spriteRenderers) sr.enabled = false;
 
-                // disable all colliders
-                var colliders = GetComponentsInChildren<Collider2D>();
-                foreach (var c in colliders) c.enabled = false;
+                // NOTE: the jitter caused by doing the below is worse than the mini-teleport that can happen
+                // if we don't do the below. Leaving it commnted out for now.
+                //DelayColliderDisableTimed(1 / NetworkTimer_v2.Instance.TickRate);
             }
             else
             {
@@ -109,17 +130,19 @@ public class Destructible : NetworkBehaviour
             currentHp -= damage;
             if (currentHp <= 0)
             {
+                // disable all colliders
+                var colliders = GetComponentsInChildren<Collider2D>();
+                foreach (var c in colliders) c.enabled = false;
+
+                // do pre die
                 PRE_DIE?.Invoke();
-                NotifyPlayerToDestroyDestructible(damageDealerId);
+                NotifyPlayerTheyDestroyedDestructible(damageDealerId);
                 DestroyDestructibleSoundClientRpc();
 
-                var levelSpawn = GetComponent<Level.LevelSpawn>();
-
-                //Core.Pool.NetworkObjectPool.Instance.ReturnNetworkObject(
-                //    GetComponent<NetworkObject>(), levelSpawn.prefab);
-                //GetComponent<NetworkObject>().Despawn(false);
-                GetComponent<NetworkObject>().Despawn();
-                DIE?.Invoke();
+                //var levelSpawn = GetComponent<Level.LevelSpawn>();
+                var networkObject = GetComponent<NetworkObject>();
+                if (networkObject != null) networkObject.Despawn();
+                //DIE?.Invoke();
             }
         }
     }
@@ -168,11 +191,11 @@ public class Destructible : NetworkBehaviour
         return damage;
     }
 
-    private void NotifyPlayerToDestroyDestructible(ulong id)
+    private void NotifyPlayerTheyDestroyedDestructible(ulong id)
     {
         NetworkObject networkObject = NetworkManager.SpawnManager.SpawnedObjects[id];
         PlayerController playerController = networkObject.GetComponent<PlayerController>();
-        playerController?.DestroyDestructible();
+        playerController?.AddToTotalDestroyedDestructibles();
     }
 
     [ClientRpc]
