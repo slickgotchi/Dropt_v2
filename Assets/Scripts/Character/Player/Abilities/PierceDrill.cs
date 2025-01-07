@@ -8,8 +8,6 @@ public class PierceDrill : PlayerAbility
     [Header("PierceDrill Parameters")]
     [SerializeField] float Projection = 0f;
     [SerializeField] private int NumberHits = 3;
-    //[SerializeField] private float m_holdStartDamageMultiplier = 1f;
-    //[SerializeField] private float m_holdFinishDamageMultiplier = 2f;
     [SerializeField] private float m_holdStartDistance = 3f;
     [SerializeField] private float m_holdFinishDistance = 14f;
     private float m_targetDistance = 3f;
@@ -19,12 +17,12 @@ public class PierceDrill : PlayerAbility
 
     private AttackPathVisualizer m_attackPathVisualizer;
 
-    //private List<Collider2D> m_hitColliders = new List<Collider2D>();
-
     private RaycastHit2D[] m_wallHits = new RaycastHit2D[1];
     private RaycastHit2D[] m_objectHits = new RaycastHit2D[10];
 
     private List<Transform> m_hitTransforms = new List<Transform>();
+
+    private LayerMask m_environmentWallLayerMask;
 
     public override void OnNetworkSpawn()
     {
@@ -32,19 +30,32 @@ public class PierceDrill : PlayerAbility
 
         Animator = GetComponent<Animator>();
         m_collider = GetComponent<Collider2D>();
+
+        m_environmentWallLayerMask = LayerMask.GetMask("EnvironmentWall", "EnvironmentWater");
     }
 
     public override void OnStart()
     {
+        if (Player == null) return;
+
         // set transform to activation rotation/position
         SetRotationToActionDirection();
         SetLocalPosition(PlayerAbilityCentreOffset + ActivationInput.actionDirection * Projection);
 
         PlayAnimation("PierceDrill");
 
-        // calc target distance
-        m_targetDistance = math.lerp(m_holdStartDistance, m_holdFinishDistance,
-            GetHoldPercentage());
+        m_targetDistance = math.lerp(m_holdStartDistance, m_holdFinishDistance, GetHoldPercentage());
+
+        // we also need to do a raycast to ensure m_targetDistance does not go outside any EnvironmentWalls
+        var raycastHit = Physics2D.Raycast(Player.transform.position, ActivationInput.actionDirection, m_targetDistance, m_environmentWallLayerMask);
+        if (raycastHit)
+        {
+            m_targetDistance = raycastHit.distance;
+            Debug.Log("Revised target distance: " + m_targetDistance);
+        }
+
+        m_targetDistance = 3;
+
         m_speed = m_targetDistance / AutoMoveDuration;
 
         PlayerGotchi playerGotchi = Player.GetComponent<PlayerGotchi>();
