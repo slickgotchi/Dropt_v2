@@ -13,6 +13,7 @@ namespace PortalDefender.AavegotchiKit
         public int kinship;
         public int status; // 0 == portal, 1 == VRF_PENDING, 2 == open portal, 3 == Aavegotchi
         public string lastInteracted;
+        public Owner owner;
 
         public GotchiData()
         {
@@ -25,11 +26,18 @@ namespace PortalDefender.AavegotchiKit
             level = 1;
             kinship = 0;
             status = 0;
+            owner = new Owner();
         }
 
         public int GetTraitValue(GotchiTrait trait)
         {
             return  numericTraits[(int)trait];
         }
+    }
+
+    [System.Serializable]
+    public class Owner
+    {
+        public string id;
     }
 }

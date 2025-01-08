@@ -94,6 +94,8 @@ namespace GotchiHub
 
             ClearGotchiDataAndSvgs();
 
+            return;
+
             var existingWalletAddress = PlayerPrefs.GetString("WalletAddress");
             if (string.IsNullOrEmpty(existingWalletAddress))
             {
@@ -187,6 +189,21 @@ namespace GotchiHub
 
             //Debug.Log("Gotchi with id " + id + " does not exist in GotchiDataManager");
             return false;
+        }
+
+        async public UniTask<GotchiData> GetGotchiDataFromGraph(int id)
+        {
+            try
+            {
+                var gotchiData = await graphManager.GetGotchiData(id.ToString());
+                return gotchiData;
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogWarning(ex.Message);
+            }
+
+            return null;
         }
 
         public GotchiData GetGotchiDataById(int id)

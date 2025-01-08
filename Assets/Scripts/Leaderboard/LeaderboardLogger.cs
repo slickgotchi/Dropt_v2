@@ -19,6 +19,7 @@ public static class LeaderboardLogger
             return;
         }
 
+
         try
         {
             Debug.Log("LogEndOfDungeonResults()");
@@ -26,20 +27,39 @@ public static class LeaderboardLogger
             // Extract data from PlayerController
             var gotchiId = playerController.NetworkGotchiId.Value;
             Debug.Log("gotchiId: " + gotchiId);
-            var gotchiData = GotchiHub.GotchiDataManager.Instance.GetGotchiDataById(gotchiId);
-            Debug.Log("gotchiData: " + gotchiData);
-            var gotchiName = gotchiData.name;
+
+            // we wrap this call in the event that the graph is down for some reason
+            // note: we can always check gotchis against wallets after the fact but
+            // we still want to guarantee that scores get logged for gotchis
+            PortalDefender.AavegotchiKit.GotchiData gotchiData = null;
+            try
+            {
+                gotchiData = await GotchiHub.GotchiDataManager.Instance.GetGotchiDataFromGraph(gotchiId);
+                Debug.Log("GotchiData received");
+            }
+            catch (System.Exception e)
+            {
+                Debug.Log(e);
+            }
+
+            var gotchiName = gotchiData != null ? gotchiData.name : $"Gotchi ID: {gotchiId}";
             Debug.Log("gotchiName: " + gotchiName);
-            var walletAddress = playerController.ConnectedWallet;
+
+            var walletAddress = gotchiData != null ? gotchiData.owner.id : "TBC";
             Debug.Log("walletAddress: " + walletAddress);
+
             var playerOffchainData = playerController.GetComponent<PlayerOffchainData>();
             Debug.Log("playerOffchainData: " + playerOffchainData);
+
             var formation = playerOffchainData?.dungeonFormation ?? "unknown";
             Debug.Log("formation: " + formation);
+
             var dustBalance = playerOffchainData?.GetDustDeltaValue() ?? 0;
             Debug.Log("dustBalance: " + dustBalance);
+
             var kills = playerController.GetTotalKilledEnemies();
             Debug.Log("kills: " + kills);
+
             var completionTime = (int)Time.timeSinceLevelLoad; // Example completion time in seconds
             Debug.Log("completionTime: " + completionTime);
 

@@ -34,9 +34,6 @@ public class PlayerController : NetworkBehaviour
     // tracking selected gotchi
     private int m_selectedGotchiId = 0;
 
-    // for tracking wallet
-    public string ConnectedWallet = "";
-
     [HideInInspector] public bool isGameOvered = false;
 
     // variables for tracking current gotchi
@@ -231,11 +228,16 @@ public class PlayerController : NetworkBehaviour
         if (m_holdBarCanvas != null) m_holdBarCanvas.transform.localPosition = new Vector3(0, 2, 0);
     }
 
+    // this is where we set everything required for leaderboarding
     [Rpc(SendTo.Server)]
-    public void SetNetworkGotchiIdServerRpc(int gotchiId, string wallet)
+    public void SetNetworkGotchiIdServerRpc(int gotchiId)
     {
+        // make sure we're in the Degenape village!
+        // players can only change gotchis in the village. this prevents someone using
+        // someone elses god gotchi (client side hack) and then switching back to theirs
+        if (!LevelManager.Instance.IsDegenapeVillage()) return;
+
         NetworkGotchiId.Value = gotchiId;
-        ConnectedWallet = wallet;
     }
 
     public async UniTask KillPlayer(REKTCanvas.TypeOfREKT typeOfREKT)
@@ -373,8 +375,7 @@ public class PlayerController : NetworkBehaviour
             if (selectedGotchiId != m_selectedGotchiId)
             {
                 m_selectedGotchiId = selectedGotchiId;
-                ConnectedWallet = GotchiSelectCanvas.Instance.GetConnectedWallet();
-                SetNetworkGotchiIdServerRpc(m_selectedGotchiId, ConnectedWallet);
+                SetNetworkGotchiIdServerRpc(m_selectedGotchiId);
             }
         }
     }
