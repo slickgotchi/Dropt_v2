@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using Unity.Mathematics;
+using UnityEngine.UI;
 
 public class LeaderboardDataRow : MonoBehaviour
 {
@@ -11,10 +12,16 @@ public class LeaderboardDataRow : MonoBehaviour
     [SerializeField] TextMeshProUGUI IdText;
     [SerializeField] TextMeshProUGUI AddressText;
     [SerializeField] TextMeshProUGUI GhstText;
-    [SerializeField] TextMeshProUGUI FormationText;
+    //[SerializeField] TextMeshProUGUI FormationText;
     [SerializeField] TextMeshProUGUI DustText;
     [SerializeField] TextMeshProUGUI KillsText;
     [SerializeField] TextMeshProUGUI TimeText;
+
+    [SerializeField] GameObject m_formationTrio;
+    [SerializeField] GameObject m_formationDuo;
+    [SerializeField] GameObject m_formationSolo;
+
+    [SerializeField] GameObject GhstIcon;
 
     private void Awake()
     {
@@ -37,18 +44,34 @@ public class LeaderboardDataRow : MonoBehaviour
         GotchiText.text = gotchi;
         IdText.text = id.ToString();
         AddressText.text = address;
-        GhstText.text = ghst.ToString();
-        FormationText.text = formation;
-        DustText.text = dust.ToString();
-        KillsText.text = kills.ToString();
+        GhstText.text = ghst == 0 ? "-" : ghst.ToString();
+        SetFormation(formation);
+        DustText.text = dust.ToString("N0");
+        KillsText.text = kills.ToString("N0");
         TimeText.text = ConvertTimeInSecondsToString(time);
         gameObject.SetActive(true);
+
+        if (ghst == 0)
+        {
+            GhstIcon.SetActive(false);
+        }
 
         var ellipsisAddressText = AddressText.GetComponent<TextEllipsisInMiddle>();
         if (ellipsisAddressText != null)
         {
             ellipsisAddressText.UpdateTextWithEllipsis();
         }
+    }
+
+    private void SetFormation(string formation)
+    {
+        m_formationTrio.SetActive(false);
+        m_formationDuo.SetActive(false);
+        m_formationSolo.SetActive(false);
+
+        if (formation == "trio") m_formationTrio.SetActive(true);
+        else if (formation == "duo") m_formationDuo.SetActive(true);
+        else if (formation == "solo") m_formationSolo.SetActive(true);
     }
 
     public void SetActive(bool isActive)

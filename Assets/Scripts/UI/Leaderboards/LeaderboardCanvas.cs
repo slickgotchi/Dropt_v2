@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Unity.Mathematics;
 using Cysharp.Threading.Tasks;
+using System;
 
 public class LeaderboardCanvas : DroptCanvas
 {
@@ -39,6 +40,14 @@ public class LeaderboardCanvas : DroptCanvas
     [SerializeField] private Button m_pageLeftButton;
     [SerializeField] private Button m_pageRightButton;
 
+    [Header("Set the End Date and Time in UTC")]
+    [Tooltip("Enter the end date and time in UTC (YYYY-MM-DD HH:mm:ss)")]
+    public string EndDateAndTimeUTC;
+
+    [Header("Reference to the TextMeshPro Text")]
+    [SerializeField] private TMPro.TextMeshProUGUI countdownText;
+    private DateTime endDateTime;
+
     private void Awake()
     {
         // Singleton pattern 
@@ -61,9 +70,27 @@ public class LeaderboardCanvas : DroptCanvas
         m_pageRightButton.onClick.AddListener(HandlePageRight);
     }
 
+    public override void OnStart()
+    {
+        base.OnStart();
+
+        // Parse the EndDateAndTimeUTC from the Inspector
+        if (DateTime.TryParse(EndDateAndTimeUTC, out endDateTime))
+        {
+            // Ensure the entered date is in UTC format
+            endDateTime = DateTime.SpecifyKind(endDateTime, DateTimeKind.Utc);
+        }
+        else
+        {
+            Debug.LogError("Invalid EndDateAndTimeUTC format. Use 'YYYY-MM-DD HH:mm:ss'.");
+        }
+    }
+
     public override void OnUpdate()
     {
         base.OnUpdate();
+
+        if (isCanvasOpen) UpdateCountdown();
     }
 
     void HandlePageLeft()
@@ -207,9 +234,11 @@ public class LeaderboardCanvas : DroptCanvas
                     var entry = m_adventureLeaderboardEntries[i + pageNumber];
                     if (entry != null && dataRow != null)
                     {
+                        var ghstPrize = (i + pageNumber > m_adventurePrizes.Length) ? 0 : m_adventurePrizes[i + pageNumber];
+
                         dataRow.SetActive(true);
                         dataRow.Set(
-                            i + 1 + pageNumber * 100, entry.gotchi_name, entry.gotchi_id, entry.wallet_address, 0, entry.formation, entry.dust_balance, entry.kills, entry.completion_time);
+                            i + 1 + pageNumber * 100, entry.gotchi_name, entry.gotchi_id, entry.wallet_address, ghstPrize, entry.formation, entry.dust_balance, entry.kills, entry.completion_time);
                     }
                 }
             }
@@ -229,12 +258,31 @@ public class LeaderboardCanvas : DroptCanvas
                     var entry = m_gauntletLeaderboardEntries[i + pageNumber];
                     if (entry != null && dataRow != null)
                     {
+                        var ghstPrize = (i + pageNumber > m_gauntletPrizes.Length) ? 0 : m_gauntletPrizes[i + pageNumber];
+
                         dataRow.SetActive(true);
                         dataRow.Set(
-                            i+1 + pageNumber*100, entry.gotchi_name, entry.gotchi_id, entry.wallet_address, 0, entry.formation, entry.dust_balance, entry.kills, entry.completion_time);
+                            i+1 + pageNumber*100, entry.gotchi_name, entry.gotchi_id, entry.wallet_address, ghstPrize, entry.formation, entry.dust_balance, entry.kills, entry.completion_time);
                     }
                 }
             }
+        }
+    }
+
+    private void UpdateCountdown()
+    {
+        // Calculate the remaining time
+        TimeSpan remainingTime = endDateTime - DateTime.UtcNow;
+
+        if (remainingTime.TotalSeconds > 0)
+        {
+            // Format as "XXh : XXm : XXs"
+            countdownText.text = $"10 - 19th Jan  |  {remainingTime.Days:D2}d : {remainingTime.Hours:D2}h : {remainingTime.Minutes:D2}m : {remainingTime.Seconds:D2}s";
+        }
+        else
+        {
+            // Display "00h : 00m : 00s" if time is up
+            countdownText.text = "00h : 00m : 00s";
         }
     }
 
@@ -250,4 +298,18 @@ public class LeaderboardCanvas : DroptCanvas
         public int kills;
         public int time;
     }
+
+    private int[] m_adventurePrizes = new int[] {
+        200,    150,    100,    75,     50,
+        35,     25,     15,     15,     15,
+        10,     10,     10,     10,     10,
+        10,     10,     10,     10,     10,
+        10,     10,     10,     10,     10
+    };
+
+    private int[] m_gauntletPrizes = new int[]
+    {
+        200,    150,    100,    75,     50,
+        35,     25,     15,     10,     10
+    };
 }
