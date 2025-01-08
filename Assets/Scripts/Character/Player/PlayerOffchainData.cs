@@ -95,7 +95,7 @@ public class PlayerOffchainData : NetworkBehaviour
             {
                 if (!playerController.isGameOvered)
                 {
-                    ExitDungeonCalculateBalances(false);
+                    _ = ExitDungeonCalculateBalances(false);
                 }
             }
         }
@@ -216,6 +216,9 @@ public class PlayerOffchainData : NetworkBehaviour
         {
             if (ThirdwebManager.Instance == null) return;
 
+            // see if we have a wallet address in player prefs
+            var playerPrefWalletAddress = PlayerPrefs.GetString("WalletAddress");
+
             // get wallet
             var wallet = ThirdwebManager.Instance.GetActiveWallet();
             if (wallet == null)
@@ -269,7 +272,7 @@ public class PlayerOffchainData : NetworkBehaviour
         // save the current wallet address for this player
         m_walletAddress = walletAddress;
 
-        // first check if the wallet exists
+        // getsert wallet
         try
         {
             var responseStr = await Dropt.Utils.Http.GetRequest(dbUri + "/wallets/" + walletAddress);
@@ -282,34 +285,6 @@ public class PlayerOffchainData : NetworkBehaviour
 
                 SyncServerDataToClient();
 
-                return;
-            }
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogWarning(e);
-        }
-
-        // create a new entry with defaults if we didn't find a valid wallet
-        try
-        {
-            var json = JsonUtility.ToJson(new Wallet_Data
-            {
-                id = walletAddress,
-                ecto_balance = 0,
-                bomb_balance = 0,
-            });
-            var responseStr = await Dropt.Utils.Http.PostRequest(dbUri + "/wallets", json);
-            if (!string.IsNullOrEmpty(responseStr))
-            {
-                Wallet_Data walletData = JsonUtility.FromJson<Wallet_Data>(responseStr);
-
-                ectoBalance_offchain = walletData.ecto_balance;
-                bombBalance_offchain = walletData.bomb_balance;
-
-                SyncServerDataToClient();
-
-                Debug.Log("Create new wallet entry in offchain database for " + walletAddress);
                 return;
             }
         }
@@ -350,7 +325,7 @@ public class PlayerOffchainData : NetworkBehaviour
         // save gotchi id to server m_gotchiId
         m_gotchiId = gotchiId;
 
-        // try get data
+        // getsert gotchi data
         try
         {
             string responseStr = await Dropt.Utils.Http.GetRequest(dbUri + "/gotchis/" + gotchiId.ToString());
@@ -366,40 +341,6 @@ public class PlayerOffchainData : NetworkBehaviour
 
                 SyncServerDataToClient();
 
-                return;
-            }
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogWarning(e);
-        }
-
-        // add a new entry
-        try
-        {
-            var json = JsonUtility.ToJson(new Gotchi_Data
-            {
-                id = gotchiId,
-                ecto_dungeon_start_amount = 0,
-                bomb_dungeon_capacity = 1,
-                heal_salve_dungeon_charges = 1,
-                dust_balance = 0,
-                is_essence_infused = false
-            });
-            var responseStr = await Dropt.Utils.Http.PostRequest(dbUri + "/gotchis", json);
-            if (!string.IsNullOrEmpty(responseStr))
-            {
-                var gotchiData = JsonUtility.FromJson<Gotchi_Data>(responseStr);
-
-                ectoDungeonStartAmount_offchain = gotchiData.ecto_dungeon_start_amount;
-                bombDungeonCapacity_offchain = gotchiData.bomb_dungeon_capacity;
-                healSalveDungeonCharges_offchain = gotchiData.heal_salve_dungeon_charges;
-                dustBalance_offchain = gotchiData.dust_balance;
-                isEssenceInfused_offchain = gotchiData.is_essence_infused;
-
-                SyncServerDataToClient();
-
-                Debug.Log("Created new database entry for gotchi: " + gotchiId);
                 return;
             }
         }
@@ -458,10 +399,10 @@ public class PlayerOffchainData : NetworkBehaviour
             await LogWalletDeltaDataServerRpcAsync(m_postDungeonEctoDelta, m_postDungeonBombDelta);
 
             // successfully logged deltas so zero all the balances
-            ectoDebitStartAmount_dungeon = 0;
+            //ectoDebitStartAmount_dungeon = 0;
             ectoDebitCount_dungeon = 0;
             ectoLiveCount_dungeon = 0;
-            bombStartCount_dungeon = 0;
+            //bombStartCount_dungeon = 0;
             bombLiveCount_dungeon = 0;
         }
         catch

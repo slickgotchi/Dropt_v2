@@ -254,7 +254,7 @@ public class PlayerController : NetworkBehaviour
             var playerLeaderboardLogger = GetComponent<PlayerLeaderboardLogger>();
             if (playerLeaderboardLogger != null)
             {
-                LeaderboardLogger.LogEndOfDungeonResults(
+                _ = LeaderboardLogger.LogEndOfDungeonResults(
                     playerLeaderboardLogger.GetComponent<PlayerController>(),
                     playerLeaderboardLogger.dungeonType,
                     false);

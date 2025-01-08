@@ -19,6 +19,8 @@ public partial class PlayerPrediction : NetworkBehaviour
     // called every frame in the main PlayerPrediction.cs file Update()
     private void UpdateInput()
     {
+        if (!Application.isFocused) return;
+
         // update cursor
         m_cursorScreenPosition = Input.mousePosition;
 

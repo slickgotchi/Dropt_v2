@@ -77,6 +77,8 @@ namespace GotchiHub
         private void Start()
         {
             ClearGotchiDataAndSvgs();
+
+            //FetchWalletGotchiData();
         }
 
         private void ClearGotchiDataAndSvgs()
@@ -116,6 +118,7 @@ namespace GotchiHub
                 {
                     m_selectedGotchiId = id;
                     onSelectedGotchi?.Invoke(m_selectedGotchiId); // Trigger event
+                    PlayerPrefs.SetInt("GotchiId", id);
                     return true;
                 }
             }
@@ -126,6 +129,7 @@ namespace GotchiHub
                 {
                     m_selectedGotchiId = id;
                     onSelectedGotchi?.Invoke(m_selectedGotchiId);
+                    PlayerPrefs.SetInt("GotchiId", id);
                     return true;
                 }
             }
