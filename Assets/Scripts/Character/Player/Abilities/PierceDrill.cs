@@ -17,8 +17,8 @@ public class PierceDrill : PlayerAbility
 
     private AttackPathVisualizer m_attackPathVisualizer;
 
-    private RaycastHit2D[] m_wallHits = new RaycastHit2D[1];
-    private RaycastHit2D[] m_objectHits = new RaycastHit2D[10];
+    private RaycastHit2D[] m_wallHits = new RaycastHit2D[50];
+    private RaycastHit2D[] m_objectHits = new RaycastHit2D[50];
 
     private List<Transform> m_hitTransforms = new List<Transform>();
 
@@ -31,6 +31,7 @@ public class PierceDrill : PlayerAbility
         Animator = GetComponent<Animator>();
         m_collider = GetComponent<Collider2D>();
 
+        m_collider.enabled = false;
     }
 
     public override void OnStart()
@@ -53,13 +54,50 @@ public class PierceDrill : PlayerAbility
             GetAngleFromDirection(ActivationInput.actionDirection) - 90, AutoMoveDuration);
 
         Player.GetComponent<PlayerController>().StartInvulnerability(ExecutionDuration);
+        //var playerPos = Player.transform.position;
+        //var abilityPos = transform.position;
+        //ErrorDialogCanvas.Instance.Show($"Player: ({playerPos.x}, {playerPos.y}, ability: ({abilityPos.x}, {abilityPos.y}");
 
         m_hitTransforms.Clear();
+
+        m_collider.enabled = true;
     }
 
     public override void OnUpdate()
     {
-        HandleRaycastCollisions(Time.deltaTime);
+        // SWAPPED out weird ray casting for continuous collision detection
+        //HandleRaycastCollisions(Time.deltaTime);
+    }
+
+    private void OnTriggerEnter2D(Collider2D collider)
+    {
+        if (m_hitTransforms.Contains(collider.gameObject.transform)) return;
+
+        var networkCharacter = collider.gameObject.GetComponent<NetworkCharacter>();
+        if (networkCharacter)
+        {
+            var playerCharacter = Player.GetComponent<NetworkCharacter>();
+            var damage = playerCharacter.currentStaticStats.AttackPower * DamageMultiplier * ActivationWearable.RarityMultiplier;
+            damage = GetRandomVariation(damage);
+            var isCritical = IsCriticalAttack(playerCharacter.currentStaticStats.CriticalChance);
+            damage = (int)(isCritical ? damage * playerCharacter.currentStaticStats.CriticalDamage : damage);
+            networkCharacter.TakeDamage(damage, isCritical, Player);
+
+            // do knockback if enemy
+            var enemyAI = collider.gameObject.GetComponent<Dropt.EnemyAI>();
+            if (enemyAI != null)
+            {
+                var knockbackDir = Dropt.Utils.Battle.GetVectorFromAtoBAttackCentres(playerCharacter.gameObject, collider.gameObject).normalized;
+                enemyAI.Knockback(knockbackDir, KnockbackDistance, KnockbackStunDuration);
+            }
+        }
+
+        var destructible = collider.gameObject.GetComponent<Destructible>();
+        if (destructible != null)
+        {
+            m_hitTransforms.Add(collider.gameObject.transform);
+            destructible.TakeDamage(Wearable.WeaponTypeEnum.Pierce, Player.GetComponent<NetworkObject>().NetworkObjectId);
+        }
     }
 
     public override void OnFinish()
@@ -112,8 +150,6 @@ public class PierceDrill : PlayerAbility
 
         // update auto move distance
         AutoMoveDistance = m_attackPathVisualizer.outerFinishPoint;
-
-
     }
 
     public override void OnHoldCancel()
@@ -136,18 +172,28 @@ public class PierceDrill : PlayerAbility
     {
         // play the default anim
         PlayAnimation("PierceDefault");
+
+        m_collider.enabled = false;
     }
 
     public void HandleRaycastCollisions(float dt)
     {
         if (IsServer && !IsHost) PlayerAbility.RollbackEnemies(Player);
 
+        Debug.Log("HandleRayCastCollisions");
+
         // 1. sync transoforms
         Physics2D.SyncTransforms();
 
         // 2. determine how far we can move (check for wall/water collisions)
         Vector2 castDirection = ActivationInput.actionDirection;
+
+        Debug.Log("actionDirection: " + ActivationInput.actionDirection);
+        Debug.Log("m_speed: " + m_speed + ", dt: " + dt + ", position: " + transform.position);
+
+
         float castDistance = m_speed * dt;
+        ClearRaycastHit2DArray(m_wallHits);
         int hitCount = m_collider.Cast(castDirection,
             PlayerAbility.GetContactFilter(new string[] { "EnvironmentWall", "EnvironmentWater" }),
             m_wallHits, castDistance);
@@ -158,7 +204,10 @@ public class PierceDrill : PlayerAbility
             castDistance = rayHit.distance;
         }
 
+        Debug.Log("castDirection: " + castDirection + ", castDistance: " + castDistance);
         // 3. perform collisions using the new (if applicable) cast distance
+        //castDistance = 1;
+        ClearRaycastHit2DArray(m_objectHits);
         m_collider.Cast(castDirection,
             PlayerAbility.GetContactFilter(new string[] { "EnemyHurt", "Destructible" }),
             m_objectHits, castDistance);
@@ -166,11 +215,17 @@ public class PierceDrill : PlayerAbility
         // 4. iterate over any object  hits
         for (int i = 0; i < m_objectHits.Length; i++)
         {
+            if (m_objectHits[i].collider == null) return;
+
+            Debug.Log("Hit something A: " + m_objectHits[i].collider.gameObject.name);
             var collider = m_objectHits[i].collider;
             if (collider == null) continue;
+
+            Debug.Log("Hit something A2");
             var colliderTransform = collider.transform;
             if (colliderTransform == null) continue;
 
+            Debug.Log("Hit something B");
             bool isAlreadyHit = false;
             for (int j = 0; j < m_hitTransforms.Count; j++)
             {
@@ -181,11 +236,13 @@ public class PierceDrill : PlayerAbility
                 }
             }
 
+            Debug.Log("Hit something C");
             if (isAlreadyHit) continue;
             m_hitTransforms.Add(colliderTransform);
 
             var hit = collider;
 
+            Debug.Log("Hit something D");
             if (hit.HasComponent<NetworkCharacter>())
             {
                 var playerCharacter = Player.GetComponent<NetworkCharacter>();
@@ -206,9 +263,24 @@ public class PierceDrill : PlayerAbility
 
             if (hit.HasComponent<Destructible>())
             {
+                Debug.Log("Hit " + ", Player: " + Player + ", direction: " + ActivationInput.actionDirection);
                 var destructible = hit.GetComponent<Destructible>();
                 destructible.TakeDamage(Wearable.WeaponTypeEnum.Pierce, Player.GetComponent<NetworkObject>().NetworkObjectId);
+                //destructible.TakeDamageDirect(1000, Player.GetComponent<NetworkObject>().NetworkObjectId);
             }
+        }
+
+        m_objectHits = null;
+
+        if (IsServer && !IsHost) PlayerAbility.UnrollEnemies();
+    }
+
+    // Helper function to clear the contents of an array
+    private void ClearRaycastHit2DArray(RaycastHit2D[] array)
+    {
+        for (int i = 0; i < array.Length; i++)
+        {
+            array[i] = default;
         }
     }
 }

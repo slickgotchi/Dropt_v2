@@ -35,6 +35,9 @@ public class Destructible : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
+
+        previousHp = Hp;
+        currentHp = Hp;
     }
 
     public override void OnNetworkDespawn()
@@ -75,25 +78,10 @@ public class Destructible : NetworkBehaviour
         DoDamage(damage, damageDealerId);
     }
 
-    /*
-    async UniTaskVoid DelayColliderDisableOneFrame()
-    {
-        await UniTask.Yield();
-
-        // disable all colliders
-        var colliders = GetComponentsInChildren<Collider2D>();
-        foreach (var c in colliders) c.enabled = false;
-    }
-
-    async UniTaskVoid DelayColliderDisableTimed(float delayInSeconds)
-    {
-        await UniTask.Delay((int)(delayInSeconds * 1000));
-
-        // disable all colliders
-        var colliders = GetComponentsInChildren<Collider2D>();
-        foreach (var c in colliders) c.enabled = false;
-    }
-    */
+    //public void TakeDamageDirect(int damage, ulong damageDealerId)
+    //{
+    //    DoDamage(damage, damageDealerId);
+    //}
 
     private void DoDamage(int damage, ulong damageDealerId)
     {
@@ -139,10 +127,8 @@ public class Destructible : NetworkBehaviour
                 NotifyPlayerTheyDestroyedDestructible(damageDealerId);
                 DestroyDestructibleSoundClientRpc();
 
-                //var levelSpawn = GetComponent<Level.LevelSpawn>();
                 var networkObject = GetComponent<NetworkObject>();
                 if (networkObject != null) networkObject.Despawn();
-                //DIE?.Invoke();
             }
         }
     }

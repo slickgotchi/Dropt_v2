@@ -94,8 +94,7 @@ namespace GotchiHub
 
             ClearGotchiDataAndSvgs();
 
-            return;
-
+            /*
             var existingWalletAddress = PlayerPrefs.GetString("WalletAddress");
             if (string.IsNullOrEmpty(existingWalletAddress))
             {
@@ -132,6 +131,7 @@ namespace GotchiHub
 
                 LoadGotchiDataAndSvgsForLocalWalletAddress(m_walletAddress);
             }
+            */
         }
 
         private void ClearGotchiDataAndSvgs()
@@ -303,8 +303,7 @@ namespace GotchiHub
         {
             try
             {
-                // clear all current data
-                ClearGotchiDataAndSvgs();
+
 
                 // get wallet
                 var wallet = ThirdwebManager.Instance.GetActiveWallet();
@@ -321,6 +320,12 @@ namespace GotchiHub
                 }
 
                 walletAddress = walletAddress.ToLower();
+
+                // don't do anything if our wallet hasn't changed
+                if (walletAddress == m_walletAddress) return;
+                m_walletAddress = walletAddress;
+
+                ClearGotchiDataAndSvgs();
 
                 // fetch gotchis with aavegotchi kit
                 var userAccount = await graphManager.GetUserAccount(walletAddress);
