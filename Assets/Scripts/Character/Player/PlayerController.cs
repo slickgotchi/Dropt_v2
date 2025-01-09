@@ -34,9 +34,6 @@ public class PlayerController : NetworkBehaviour
     // tracking selected gotchi
     private int m_selectedGotchiId = 0;
 
-    // for tracking wallet
-    public string ConnectedWallet = "";
-
     [HideInInspector] public bool isGameOvered = false;
 
     // variables for tracking current gotchi
@@ -49,6 +46,9 @@ public class PlayerController : NetworkBehaviour
 
     private Vector3 m_spawnPoint;
 
+
+
+
     private void Awake()
     {
         m_networkCharacter = GetComponent<NetworkCharacter>();
@@ -57,11 +57,15 @@ public class PlayerController : NetworkBehaviour
         m_playerAttackCentre = GetComponentInChildren<AttackCentre>();
     }
 
+  
+
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
 
         IsLevelSpawnPositionSet = true;
+
+        if (IsClient) Application.focusChanged += OnApplicationFocusChanged;
 
         // register player controller
         Game.Instance.playerControllers.Add(GetComponent<PlayerController>());
@@ -102,6 +106,8 @@ public class PlayerController : NetworkBehaviour
 
     public override void OnNetworkDespawn()
     {
+        if (IsClient) Application.focusChanged -= OnApplicationFocusChanged;
+
         // degregister player controller
         Game.Instance.playerControllers.Remove(GetComponent<PlayerController>());
 
@@ -144,7 +150,40 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
+    private System.DateTime? m_focusLostTimestamp = null;
 
+    void OnApplicationFocusChanged(bool hasFocus)
+    {
+        var unityTransport = NetworkManager.Singleton.GetComponent<Unity.Netcode.Transports.UTP.UnityTransport>();
+
+        if (!hasFocus)
+        {
+            // Record the timestamp when focus is lost
+            m_focusLostTimestamp = System.DateTime.UtcNow;
+            Debug.Log("Lost focus, taking a timestamp");
+        }
+        else
+        {
+            // When focus is regained, check the elapsed time
+            if (m_focusLostTimestamp.HasValue)
+            {
+                double elapsedMilliseconds = (System.DateTime.UtcNow - m_focusLostTimestamp.Value).TotalMilliseconds;
+
+                if (elapsedMilliseconds > unityTransport.DisconnectTimeoutMS)
+                {
+                    Debug.Log("You were disconnected due to inactivity while the game was unfocused.");
+                    ErrorDialogCanvas.Instance.Show("Disconnected from the server due to being out of focus (tabbed out) longer than " + unityTransport.DisconnectTimeoutMS + "s. Please refresh for a new game!");
+                }
+                else
+                {
+                    Debug.Log("Welcome back! No disconnection occurred.");
+                }
+
+                // Reset the timestamp
+                m_focusLostTimestamp = null;
+            }
+        }
+    }
 
     private void Update()
     {
@@ -231,11 +270,16 @@ public class PlayerController : NetworkBehaviour
         if (m_holdBarCanvas != null) m_holdBarCanvas.transform.localPosition = new Vector3(0, 2, 0);
     }
 
+    // this is where we set everything required for leaderboarding
     [Rpc(SendTo.Server)]
-    public void SetNetworkGotchiIdServerRpc(int gotchiId, string wallet)
+    public void SetNetworkGotchiIdServerRpc(int gotchiId)
     {
+        // make sure we're in the Degenape village!
+        // players can only change gotchis in the village. this prevents someone using
+        // someone elses god gotchi (client side hack) and then switching back to theirs
+        if (!LevelManager.Instance.IsDegenapeVillage()) return;
+
         NetworkGotchiId.Value = gotchiId;
-        ConnectedWallet = wallet;
     }
 
     public async UniTask KillPlayer(REKTCanvas.TypeOfREKT typeOfREKT)
@@ -373,8 +417,7 @@ public class PlayerController : NetworkBehaviour
             if (selectedGotchiId != m_selectedGotchiId)
             {
                 m_selectedGotchiId = selectedGotchiId;
-                ConnectedWallet = GotchiSelectCanvas.Instance.GetConnectedWallet();
-                SetNetworkGotchiIdServerRpc(m_selectedGotchiId, ConnectedWallet);
+                SetNetworkGotchiIdServerRpc(m_selectedGotchiId);
             }
         }
     }

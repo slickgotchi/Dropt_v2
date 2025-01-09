@@ -1,7 +1,16 @@
+
 namespace PickupItems.Orb
 {
     public class ApOrb : BaseOrb
     {
+        public override void OnNetworkSpawn()
+        {
+            if (IsClient)
+            {
+                Init(m_size);
+            }
+        }
+
         protected override int CalculateValue(PickupItemManager.Size size)
         {
             return size switch

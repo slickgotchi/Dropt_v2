@@ -133,16 +133,6 @@ public sealed class PickupItemManager : NetworkBehaviour
             networkObj.Spawn();
         }
 
-        //// Safely add to the dictionary
-        //if (!m_prefabByInstanceMap.ContainsKey(orb.gameObject))
-        //{
-        //    m_prefabByInstanceMap.Add(orb.gameObject, prefab);
-        //}
-        //else
-        //{
-        //    Debug.LogWarning($"Duplicate key detected for {orb.gameObject.name}. Skipping addition.");
-        //}
-
         return orb;
     }
 

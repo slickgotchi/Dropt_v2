@@ -127,6 +127,8 @@ public partial class PlayerPrediction : NetworkBehaviour
     {
         base.OnNetworkSpawn();
 
+        if (IsClient) Application.focusChanged += OnApplicationFocusChanged;
+
         // deparent our circles for representing server/client prediction locations
         if (m_clientCircle != null) m_clientCircle.transform.SetParent(null);
         if (m_serverCircle != null) m_serverCircle.transform.SetParent(null);
@@ -156,16 +158,13 @@ public partial class PlayerPrediction : NetworkBehaviour
 
         // start input disabled
         if (IsClient) IsInputEnabled = false;
+    }
 
-        // local players do not have a network transform enabled
-        //if (IsLocalPlayer || IsHost)
-        //{
-        //    var networkTransform = GetComponent<Unity.Netcode.Components.NetworkTransform>();
-        //    if (networkTransform != null)
-        //    {
-        //        networkTransform.enabled = false;
-        //    }
-        //}
+    public override void OnNetworkDespawn()
+    {
+        if (IsClient) Application.focusChanged -= OnApplicationFocusChanged;
+
+        base.OnNetworkDespawn();
     }
 
     void ResetRemoteClientTickDelta()
@@ -359,13 +358,6 @@ public partial class PlayerPrediction : NetworkBehaviour
         if (triggeredAbility != null && m_triggeredAbilityEnum != PlayerAbilityEnum.Null
             && triggeredAbility.AutoMoveDuration > 0)
         {
-            // we also need to do a raycast to ensure m_targetDistance does not go outside any EnvironmentWalls
-            var raycastHit = Physics2D.Raycast(transform.position, m_actionDirection, triggeredAbility.AutoMoveDistance, m_environmentWallLayerMask);
-            if (raycastHit)
-            {
-                triggeredAbility.AutoMoveDistance = raycastHit.distance;
-            }
-
             var speed = triggeredAbility.AutoMoveDistance / triggeredAbility.AutoMoveDuration;
             m_autoMoveVelocity = m_actionDirection * speed;
             m_autoMoveExpiryTick = currentTick + (int)(triggeredAbility.AutoMoveDuration * tickRate);
@@ -476,13 +468,6 @@ public partial class PlayerPrediction : NetworkBehaviour
             // 4. handle auto-move
             if (triggeredAbility != null && inputPayload.triggeredAbilityEnum != PlayerAbilityEnum.Null && triggeredAbility.AutoMoveDuration > 0 && !IsHost)
             {
-                // we also need to do a raycast to ensure m_targetDistance does not go outside any EnvironmentWalls
-                var raycastHit = Physics2D.Raycast(transform.position, m_actionDirection, triggeredAbility.AutoMoveDistance, m_environmentWallLayerMask);
-                if (raycastHit)
-                {
-                    triggeredAbility.AutoMoveDistance = raycastHit.distance;
-                }
-
                 var speed = triggeredAbility.AutoMoveDistance / triggeredAbility.AutoMoveDuration;
                 m_autoMoveVelocity = inputPayload.actionDirection * speed;
                 m_autoMoveExpiryTick = inputPayload.tick + (int)(triggeredAbility.AutoMoveDuration * tickRate);

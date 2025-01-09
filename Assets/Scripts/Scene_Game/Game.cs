@@ -27,17 +27,12 @@ public class Game : MonoBehaviour
     // reconnecting to new game from gaeover
     private bool m_isTryConnectClientGame = false;
 
-    // store current game Id
-    //private string m_currentGameId = "";
-
     [HideInInspector] public bool isReconnecting = true;
 
     public float reconnectTimer = 30f;
     [HideInInspector] public bool isReconnectTimerActive = false;
 
     public bool isServerReady = false;
-
-    //public List<GameObject> afterConnectSpawnPrefabs_SERVER = new List<GameObject>();
 
     [HideInInspector] public List<PlayerController> playerControllers = new List<PlayerController>();
     [HideInInspector] public List<EnemyController> enemyControllers = new List<EnemyController>();
@@ -168,8 +163,6 @@ public class Game : MonoBehaviour
     public async UniTaskVoid ConnectClientGame(string gameId = "")
     {
         Debug.Log("ConnectClientGame()");
-
-        //m_currentGameId = gameId;
 
         bool isReturnToTitleOnFail = string.IsNullOrEmpty(gameId) || Bootstrap.Instance.isJoiningFromTitle;
         Debug.Log("isReturnToTitleOnFail: " + isReturnToTitleOnFail);

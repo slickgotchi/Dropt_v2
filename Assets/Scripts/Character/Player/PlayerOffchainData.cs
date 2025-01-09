@@ -477,6 +477,7 @@ public class PlayerOffchainData : NetworkBehaviour
 
                 SyncServerDataToClient();
 
+                Debug.Log("Set gotchi dust to: " + dustBalance_offchain);
 
                 return;
             }

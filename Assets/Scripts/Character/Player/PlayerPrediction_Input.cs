@@ -16,6 +16,22 @@ public partial class PlayerPrediction : NetworkBehaviour
 
     private Vector3 m_screenToWorldPosition;
 
+    void OnApplicationFocusChanged(bool hasFocus)
+    {
+        if (!hasFocus)
+        {
+            // Reset the movement action to simulate a KeyUp event
+            m_moveDirection = Vector2.zero;
+
+            // Optionally reset any other states
+            if (m_movementAction != null)
+            {
+                m_movementAction.Disable(); // Disable the action to ensure no lingering input
+                m_movementAction.Enable();  // Re-enable it for fresh input when focus is regained
+            }
+        }
+    }
+
     // called every frame in the main PlayerPrediction.cs file Update()
     private void UpdateInput()
     {

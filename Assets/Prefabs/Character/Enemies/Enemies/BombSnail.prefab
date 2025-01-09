@@ -101,11 +101,9 @@ GameObject:
   - component: {fileID: -2099557218047769943}
   - component: {fileID: -1865453684165800506}
   - component: {fileID: -5451400601243544258}
-  - component: {fileID: -4637386071132230751}
   - component: {fileID: 3202058436566882424}
   - component: {fileID: 442510803199067980}
   - component: {fileID: -7246433058078861914}
-  - component: {fileID: 2376481274280364154}
   - component: {fileID: 7894955574090363429}
   - component: {fileID: -672225850276954026}
   - component: {fileID: 6423663201319280036}
@@ -247,7 +245,7 @@ MonoBehaviour:
   - {fileID: 8382270573715496843}
   IsSpawning: 1
   SpawnDuration: 0
-  IsArmed: 0
+  enemyAI: {fileID: 0}
 --- !u!61 &-2099557218047769943
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -322,19 +320,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 93245a10eab2ede4eb23e82088d382cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &-4637386071132230751
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1249991746567512264}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e01a7831c8b34d498bf7ed75e6ff22a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  explodeAbilityPrefab: {fileID: 3159421716010617349, guid: 1a39f28e9e312b646adfe8a192589597, type: 3}
 --- !u!114 &3202058436566882424
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -347,6 +332,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09698abc2e8964808b00a54103ccdd21, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isDestroying: 0
 --- !u!195 &442510803199067980
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -412,20 +398,6 @@ MonoBehaviour:
     m_InternalValue: 1
   debugSlider:
     m_InternalValue: 0
---- !u!114 &2376481274280364154
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1249991746567512264}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f0c3d8e92089f472da9a97a093662d69, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  detonationTime: 999
-  detonationText: {fileID: 2869548533702037714}
 --- !u!114 &7894955574090363429
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -597,7 +569,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2fca993741f744a18a8a2c029469458, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  IsCulled: 1
+  networkObject: {fileID: 0}
+  pooledObject: {fileID: 0}
 --- !u!1 &3116345567214493271
 GameObject:
   m_ObjectHideFlags: 0
