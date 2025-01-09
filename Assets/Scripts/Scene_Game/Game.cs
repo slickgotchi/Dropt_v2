@@ -61,6 +61,7 @@ public class Game : MonoBehaviour
                 Bootstrap.Instance.IpAddress = "127.0.0.1";
                 Bootstrap.Instance.GamePort = 9000;
                 m_unityTransport.UseEncryption = false;
+                // delete this comment
             }
 
             if (Bootstrap.IsServer())
