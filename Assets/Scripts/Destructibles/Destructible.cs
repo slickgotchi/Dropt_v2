@@ -8,7 +8,9 @@ public class Destructible : NetworkBehaviour
     //public event Action DIE;
     public event Action PRE_DIE;
 
-    //public AudioClip audioOnHit;
+    private bool m_isCheckingIfServerDestroyedThisDestructible = false;
+    private float m_checkServerDestroyedThisDestructibleTimer = 0f;
+    private float k_checkServerDestroyedThisDestructibleInterval = 1f;
 
     public enum Type
     {
@@ -58,6 +60,36 @@ public class Destructible : NetworkBehaviour
                 SyncHpClientRpc(currentHp);
             }
         }
+
+        if (IsClient)
+        {
+            if (m_isCheckingIfServerDestroyedThisDestructible)
+            {
+                m_checkServerDestroyedThisDestructibleTimer -= Time.deltaTime;
+                if (m_checkServerDestroyedThisDestructibleTimer < 0)
+                {
+                    CheckServerDestroyedServerRpc();
+                    m_checkServerDestroyedThisDestructibleTimer = 1f;
+                }
+            }
+        }
+    }
+
+    [Rpc(SendTo.Server)]
+    void CheckServerDestroyedServerRpc()
+    {
+        CheckServerDestroyedClientRpc();
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    void CheckServerDestroyedClientRpc()
+    {
+        // because we got a response, our destructible is not actually destroyed and
+        // we need to turn its sprites back on
+        var spriteRenderers = GetComponentsInChildren<SpriteRenderer>();
+        foreach (var sr in spriteRenderers) sr.enabled = true;
+
+        m_isCheckingIfServerDestroyedThisDestructible = false;
     }
 
     [Rpc(SendTo.ClientsAndHost)]
@@ -78,11 +110,6 @@ public class Destructible : NetworkBehaviour
         DoDamage(damage, damageDealerId);
     }
 
-    //public void TakeDamageDirect(int damage, ulong damageDealerId)
-    //{
-    //    DoDamage(damage, damageDealerId);
-    //}
-
     private void DoDamage(int damage, ulong damageDealerId)
     {
         // do client actions
@@ -97,9 +124,9 @@ public class Destructible : NetworkBehaviour
                 var spriteRenderers = GetComponentsInChildren<SpriteRenderer>();
                 foreach (var sr in spriteRenderers) sr.enabled = false;
 
-                // NOTE: the jitter caused by doing the below is worse than the mini-teleport that can happen
-                // if we don't do the below. Leaving it commnted out for now.
-                //DelayColliderDisableTimed(1 / NetworkTimer_v2.Instance.TickRate);
+                // start a timer to check if server has also destroyed this destructible
+                m_isCheckingIfServerDestroyedThisDestructible = true;
+                m_checkServerDestroyedThisDestructibleTimer = 1f;
             }
             else
             {
