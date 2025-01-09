@@ -127,6 +127,8 @@ public partial class PlayerPrediction : NetworkBehaviour
     {
         base.OnNetworkSpawn();
 
+        if (IsClient) Application.focusChanged += OnApplicationFocusChanged;
+
         // deparent our circles for representing server/client prediction locations
         if (m_clientCircle != null) m_clientCircle.transform.SetParent(null);
         if (m_serverCircle != null) m_serverCircle.transform.SetParent(null);
@@ -156,16 +158,13 @@ public partial class PlayerPrediction : NetworkBehaviour
 
         // start input disabled
         if (IsClient) IsInputEnabled = false;
+    }
 
-        // local players do not have a network transform enabled
-        //if (IsLocalPlayer || IsHost)
-        //{
-        //    var networkTransform = GetComponent<Unity.Netcode.Components.NetworkTransform>();
-        //    if (networkTransform != null)
-        //    {
-        //        networkTransform.enabled = false;
-        //    }
-        //}
+    public override void OnNetworkDespawn()
+    {
+        if (IsClient) Application.focusChanged -= OnApplicationFocusChanged;
+
+        base.OnNetworkDespawn();
     }
 
     void ResetRemoteClientTickDelta()
