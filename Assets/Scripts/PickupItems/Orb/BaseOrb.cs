@@ -1,8 +1,9 @@
 using UnityEngine;
+using Unity.Netcode;
 
 namespace PickupItems.Orb
 {
-    public abstract class BaseOrb : MonoBehaviour
+    public abstract class BaseOrb : NetworkBehaviour
     {
         public Sprite tinySprite;
         public Sprite smallSprite;
@@ -13,8 +14,12 @@ namespace PickupItems.Orb
 
         private int m_value = 1;
 
+        protected PickupItemManager.Size m_size;
+
         public virtual void Init(PickupItemManager.Size size)
         {
+            m_size = size;
+
             switch (size)
             {
                 case PickupItemManager.Size.Tiny:

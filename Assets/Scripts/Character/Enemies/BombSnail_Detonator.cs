@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 public class BombSnail_Detonator : NetworkBehaviour
 {
+    /*
     public int detonationTime = 3;
     public TextMeshProUGUI detonationText;
 
@@ -67,4 +68,5 @@ public class BombSnail_Detonator : NetworkBehaviour
     {
         m_soundFX_BombSnail.PlayIgniteSound();
     }
+    */
 }

@@ -26,10 +26,7 @@ namespace Dropt
 
         public override void OnTelegraphStart()
         {
-            //if (IsServer)
-            //{
-            //    m_animator.Play("BombSnail_Explosion");
-            //}
+
         }
 
         public override void OnRoamUpdate(float dt)
@@ -42,6 +39,23 @@ namespace Dropt
             SimpleRoamUpdate(dt);
         }
 
+        public override void OnAggroStart()
+        {
+            base.OnAggroStart();
+
+            if (IsServer)
+            {
+                Utils.Anim.Play(m_animator, "BombSnail_ShortFuse");
+                PlayIgniteSoundClientRpc();
+            }
+        }
+
+        [ClientRpc]
+        private void PlayIgniteSoundClientRpc()
+        {
+            m_soundFX_BombSnail.PlayIgniteSound();
+        }
+
         public override void OnAggroUpdate(float dt)
         {
             SimplePursueUpdate(dt);
@@ -51,7 +65,6 @@ namespace Dropt
         {
             PlayExplodeSoundClientRpc();
             SimpleAttackStart();
-            // set facing
             GetComponent<EnemyController>().SetFacingFromDirection(AttackDirection, AttackDuration);
 
         }

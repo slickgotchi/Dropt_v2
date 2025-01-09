@@ -26,7 +26,7 @@ public class EnemyController : NetworkBehaviour
     private Vector3 m_previousPosition;
     private float m_previousPositionUpdateTimer = 0f;
 
-    [HideInInspector] public bool IsArmed = false;
+    //[HideInInspector] public bool IsArmed = false;
 
     public Dropt.EnemyAI enemyAI;
     private ProximityCulling m_proximityCulling;
