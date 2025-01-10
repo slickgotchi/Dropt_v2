@@ -461,27 +461,27 @@ public class PlayerController : NetworkBehaviour
     // cheat to go to next level
     private void HandleNextLevelCheat()
     {
-        if (Input.GetKeyDown(KeyCode.N))
-        {
-            GoNextLevelServerRpc();
-        }
+        //if (Input.GetKeyDown(KeyCode.N))
+        //{
+        //    GoNextLevelServerRpc();
+        //}
 
-        if (Input.GetKeyDown(KeyCode.H))
-        {
-            GoToDegenapeVillageServerRpc();
-        }
+        //if (Input.GetKeyDown(KeyCode.H))
+        //{
+        //    GoToDegenapeVillageServerRpc();
+        //}
     }
 
     [Rpc(SendTo.Server)]
     private void GoNextLevelServerRpc()
     {
-        LevelManager.Instance.StartTransitionToNextLevel_SERVER();
+        //LevelManager.Instance.StartTransitionToNextLevel_SERVER();
     }
 
     [Rpc(SendTo.Server)]
     private void GoToDegenapeVillageServerRpc()
     {
-        LevelManager.Instance.GoToDegenapeVillageLevel_SERVER();
+        //LevelManager.Instance.GoToDegenapeVillageLevel_SERVER();
     }
 
     private void HandleDegenapeHpAp()
