@@ -54,9 +54,6 @@ public class PierceDrill : PlayerAbility
             GetAngleFromDirection(ActivationInput.actionDirection) - 90, AutoMoveDuration);
 
         Player.GetComponent<PlayerController>().StartInvulnerability(ExecutionDuration);
-        //var playerPos = Player.transform.position;
-        //var abilityPos = transform.position;
-        //ErrorDialogCanvas.Instance.Show($"Player: ({playerPos.x}, {playerPos.y}, ability: ({abilityPos.x}, {abilityPos.y}");
 
         m_hitTransforms.Clear();
 
@@ -65,13 +62,14 @@ public class PierceDrill : PlayerAbility
 
     public override void OnUpdate()
     {
-        // SWAPPED out weird ray casting for continuous collision detection
-        //HandleRaycastCollisions(Time.deltaTime);
+        
     }
 
     private void OnTriggerEnter2D(Collider2D collider)
     {
         if (m_hitTransforms.Contains(collider.gameObject.transform)) return;
+
+        m_hitTransforms.Add(collider.gameObject.transform);
 
         var networkCharacter = collider.gameObject.GetComponent<NetworkCharacter>();
         if (networkCharacter)
@@ -176,6 +174,7 @@ public class PierceDrill : PlayerAbility
         m_collider.enabled = false;
     }
 
+    /*
     public void HandleRaycastCollisions(float dt)
     {
         if (IsServer && !IsHost) PlayerAbility.RollbackEnemies(Player);
@@ -217,15 +216,12 @@ public class PierceDrill : PlayerAbility
         {
             if (m_objectHits[i].collider == null) return;
 
-            Debug.Log("Hit something A: " + m_objectHits[i].collider.gameObject.name);
             var collider = m_objectHits[i].collider;
             if (collider == null) continue;
 
-            Debug.Log("Hit something A2");
             var colliderTransform = collider.transform;
             if (colliderTransform == null) continue;
 
-            Debug.Log("Hit something B");
             bool isAlreadyHit = false;
             for (int j = 0; j < m_hitTransforms.Count; j++)
             {
@@ -283,4 +279,5 @@ public class PierceDrill : PlayerAbility
             array[i] = default;
         }
     }
+    */
 }

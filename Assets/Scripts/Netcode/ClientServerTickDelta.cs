@@ -50,7 +50,7 @@ public class ClientServerTickDelta : NetworkBehaviour
         if (math.abs(newTickDelta - TickDelta) > 5)
         {
             TickDelta = newTickDelta;
-            Debug.Log("Updated tick delta");
+            //Debug.Log("Updated tick delta");
         }
     }
 }

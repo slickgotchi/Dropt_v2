@@ -58,7 +58,7 @@ public class DebugCanvas : MonoBehaviour
         pingText.text = "Ping: " + m_ping.ToString();
         serverFpsText.text = "Server FPS: " + m_serverFps.ToString();
 
-        UpdateNetworkObjects();
+        // UpdateNetworkObjects();
     }
 
     public void SetPing(int ping)

@@ -37,7 +37,7 @@ public class ServerManagerAgent : MonoBehaviour
             var getGamePostData = new GetGame_PostData { gameId = gameId, region = region };
             string json = JsonUtility.ToJson(getGamePostData);
             var responseString = await PostRequest(m_serverManagerUri + "/getgame", json);
-            Debug.Log(responseString);
+            Debug.Log("responseString: " + responseString);
 
             // Check if the response is not null
             if (string.IsNullOrEmpty(responseString)) return null;

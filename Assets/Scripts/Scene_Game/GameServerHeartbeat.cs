@@ -90,7 +90,8 @@ public class GameServerHeartbeat : MonoBehaviour
             {
                 gameId = Bootstrap.Instance.GameId,
                 playerCount = playerCount,
-                isPublic = LevelManager.Instance.IsDegenapeVillage() ? IsPublic : false,
+                isPublic = IsPublic,
+                isVillage = LevelManager.Instance.IsDegenapeVillage(),
                 status = status,
             };
             string jsonPayload = JsonConvert.SerializeObject(payload);

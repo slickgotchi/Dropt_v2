@@ -188,16 +188,24 @@ public class Game : MonoBehaviour
                 // if no valid response, give error and go back to title
                 if (response == null)
                 {
-                    ErrorDialogCanvas.Instance.Show("The Dropt server manager is either full or not online, you can check https//manager.playdropt.io to see available instances.");
-                    if (isReturnToTitleOnFail) SceneManager.LoadScene("Title");
+                    ErrorDialogCanvas.Instance.Show("The Dropt server manager is not currently online. Check our Discord for when we'll be back in Action!");
+                    if (isReturnToTitleOnFail)
+                    {
+                        Debug.Log("Return to title screen");
+                        SceneManager.LoadScene("Title");
+                    }
                     return;
                 }
 
                 // check for non-succes
-                if (response.responseCode != 200)
+                if (response.message != "SUCCESS")
                 {
                     ErrorDialogCanvas.Instance.Show(response.message);
-                    if (isReturnToTitleOnFail) SceneManager.LoadScene("Title");
+                    if (isReturnToTitleOnFail)
+                    {
+                        Debug.Log("Return to title screen");
+                        SceneManager.LoadScene("Title");
+                    }
                     return;
                 }
 
