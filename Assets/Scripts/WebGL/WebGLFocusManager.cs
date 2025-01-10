@@ -14,8 +14,6 @@ public class WebGLFocusManager : MonoBehaviour
 
     public static WebGLFocusManager Instance { get; private set; }
 
-    public bool isClientNetworkManagerConnected = false;
-
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -56,7 +54,11 @@ public class WebGLFocusManager : MonoBehaviour
             {
                 double elapsedMilliseconds = (System.DateTime.UtcNow - m_focusLostTimestamp.Value).TotalMilliseconds;
 
-                if (elapsedMilliseconds > unityTransport.DisconnectTimeoutMS && !isClientNetworkManagerConnected)
+                var players = FindObjectsByType<PlayerController>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+
+                if (elapsedMilliseconds > unityTransport.DisconnectTimeoutMS &&
+                    players.Length <= 0 &&
+                    SceneManager.GetActiveScene().name == "Game")
                 {
                     Debug.Log("You were disconnected due to inactivity while the game was unfocused.");
                     ErrorDialogCanvas.Instance.Show("Disconnected from the server due to being out of focus (tabbed out) longer than " + unityTransport.DisconnectTimeoutMS + "s. Please refresh for a new game!");

@@ -72,12 +72,10 @@ public class ConnectionApprovalHandler : MonoBehaviour
     private void OnClientConnectedCallback(ulong obj)
     {
         Debug.Log("Client connected, obj: " + obj);
-        WebGLFocusManager.Instance.isClientNetworkManagerConnected = true;
     }
 
     private void OnClientDisconnectCallback(ulong obj)
     {
         Debug.Log("Client disconnected, obj: " + obj);
-        WebGLFocusManager.Instance.isClientNetworkManagerConnected = false;
     }
 }

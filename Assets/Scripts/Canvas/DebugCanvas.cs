@@ -12,6 +12,7 @@ public class DebugCanvas : MonoBehaviour
 
     public GameObject Container;
 
+    public TextMeshProUGUI gameIdText;
     public TextMeshProUGUI localFpsText;
     public TextMeshProUGUI serverFpsText;
     public TextMeshProUGUI pingText;
@@ -55,6 +56,7 @@ public class DebugCanvas : MonoBehaviour
         // update fps
         UpdateFps();
 
+        gameIdText.text = "Game ID: " + Bootstrap.Instance.GameId.ToString();
         pingText.text = "Ping: " + m_ping.ToString();
         serverFpsText.text = "Server FPS: " + m_serverFps.ToString();
 
