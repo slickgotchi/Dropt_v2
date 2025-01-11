@@ -264,7 +264,7 @@ public class PlayerController : NetworkBehaviour
             var playerLeaderboardLogger = GetComponent<PlayerLeaderboardLogger>();
             if (playerLeaderboardLogger != null)
             {
-                _ = LeaderboardLogger.LogEndOfDungeonResults(
+                await LeaderboardLogger.LogEndOfDungeonResults(
                     playerLeaderboardLogger.GetComponent<PlayerController>(),
                     playerLeaderboardLogger.dungeonType,
                     false);
@@ -307,10 +307,11 @@ public class PlayerController : NetworkBehaviour
     [Rpc(SendTo.ClientsAndHost)]
     private void TriggerGameOverClientRpc(ulong killedPlayerNetworkObjectId, REKTCanvas.TypeOfREKT typeOfREKT)
     {
-        var networkObject = GetComponent<NetworkObject>();
-        if (networkObject == null) { Debug.LogWarning("networkObject = null"); return; }
+        if (!IsLocalPlayer) return;
+        //var networkObject = GetComponent<NetworkObject>();
+        //if (networkObject == null) { Debug.LogWarning("networkObject = null"); return; }
 
-        if (networkObject.NetworkObjectId != killedPlayerNetworkObjectId) return;
+        //if (networkObject.NetworkObjectId != killedPlayerNetworkObjectId) return;
 
         isGameOvered = true;
 

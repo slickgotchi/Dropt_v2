@@ -19,8 +19,6 @@ public static class LeaderboardLogger
             return;
         }
 
-
-
         try
         {
             Debug.Log("LogEndOfDungeonResults()");
@@ -28,16 +26,10 @@ public static class LeaderboardLogger
             // Extract data from PlayerController
             var gotchiId = playerController.NetworkGotchiId.Value;
             Debug.Log("gotchiId: " + gotchiId);
-
-            // check for default non-wallet gotchis
-            var offchainGotchis = GotchiHub.GotchiDataManager.Instance.offchainGotchiData;
-            foreach (var offchainGotchi in offchainGotchis)
+            if (gotchiId > 25001)
             {
-                if (offchainGotchi.id == gotchiId)
-                {
-                    Debug.Log("Can not log offchain gotchi");
-                    return;
-                }
+                Debug.Log("Can not log offchain gotchi");
+                return;
             }
 
             // we wrap this call in the event that the graph is down for some reason

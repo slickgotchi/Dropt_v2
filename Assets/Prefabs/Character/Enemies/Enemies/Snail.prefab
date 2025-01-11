@@ -259,7 +259,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0.3}
+  m_Offset: {x: 0, y: 0.34}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -270,7 +270,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1, y: 0.65}
+  m_Size: {x: 1.5, y: 1.5}
   m_EdgeRadius: 0
 --- !u!114 &990222868014410655
 MonoBehaviour:
@@ -306,7 +306,7 @@ MonoBehaviour:
   - {fileID: 6430755682763702358}
   IsSpawning: 1
   SpawnDuration: 0
-  IsArmed: 0
+  enemyAI: {fileID: 0}
 --- !u!114 &7512630288662385814
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -331,6 +331,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09698abc2e8964808b00a54103ccdd21, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isDestroying: 0
 --- !u!114 &2975631533240675610
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -564,7 +565,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2fca993741f744a18a8a2c029469458, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  IsCulled: 1
+  networkObject: {fileID: 0}
+  pooledObject: {fileID: 0}
 --- !u!1 &6525230415705073668
 GameObject:
   m_ObjectHideFlags: 0

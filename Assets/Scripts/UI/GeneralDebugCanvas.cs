@@ -49,7 +49,7 @@ public class GeneralDebugCanvas : DroptCanvas
     {
         if (Input.GetKeyDown(KeyCode.Alpha0))
         {
-            if (PlayerEquipmentDebugCanvas.Instance.isCanvasOpen)
+            if (GeneralDebugCanvas.Instance.isCanvasOpen)
             {
                 HideCanvas();
             }

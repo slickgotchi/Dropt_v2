@@ -40,7 +40,7 @@ public class DebugCanvas : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
-        Container.SetActive(false);
+        Container.SetActive(true);
     }
 
     private void Start()

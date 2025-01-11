@@ -110,8 +110,8 @@ GameObject:
   - component: {fileID: 6991990925118849059}
   - component: {fileID: 716497618899555246}
   - component: {fileID: -6854162072963809908}
-  - component: {fileID: -743815631342148244}
   - component: {fileID: -4639753825803758148}
+  - component: {fileID: -7405795299215620807}
   m_Layer: 15
   m_Name: FudSpiritElite
   m_TagString: Untagged
@@ -200,7 +200,6 @@ MonoBehaviour:
   - {fileID: 7835778407316290802}
   IsSpawning: 1
   SpawnDuration: 0
-  IsArmed: 0
   enemyAI: {fileID: 0}
 --- !u!114 &2497675960903434768
 MonoBehaviour:
@@ -548,18 +547,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   networkObject: {fileID: 0}
   pooledObject: {fileID: 0}
---- !u!114 &-743815631342148244
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1249991746567512264}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0716f6bc2cee84ca3bf7d71997830124, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &-4639753825803758148
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -591,6 +578,18 @@ MonoBehaviour:
   InLocalSpace: 0
   Interpolate: 0
   SlerpPosition: 0
+--- !u!114 &-7405795299215620807
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0716f6bc2cee84ca3bf7d71997830124, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2682488299147284056
 GameObject:
   m_ObjectHideFlags: 0
