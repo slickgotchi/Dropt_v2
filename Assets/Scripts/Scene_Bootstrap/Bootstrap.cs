@@ -73,6 +73,9 @@ public class Bootstrap : MonoBehaviour
 
     private bool m_isUnityEditor = false;
 
+    [Tooltip("Toggles player equipment debug canvas")]
+    public bool isPlayerEquipmentSwapperActive = false;
+
     [HideInInspector] public bool isJoiningFromTitle = false;
 
     [SerializeField] private GameObject StartupButtons;

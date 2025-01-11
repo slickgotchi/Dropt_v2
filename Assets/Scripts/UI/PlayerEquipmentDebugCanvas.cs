@@ -22,7 +22,6 @@ public class PlayerEquipmentDebugCanvas : DroptCanvas
 
     bool m_isInitialized = false;
 
-
     private void Awake()
     {
         // Singleton pattern to ensure only one instance of the AudioManager exists
@@ -60,7 +59,7 @@ public class PlayerEquipmentDebugCanvas : DroptCanvas
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.Alpha0))
+        if (Input.GetKeyDown(KeyCode.Alpha0) && Bootstrap.Instance.isPlayerEquipmentSwapperActive)
         {
             if (PlayerEquipmentDebugCanvas.Instance.isCanvasOpen)
             {
