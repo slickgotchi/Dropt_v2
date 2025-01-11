@@ -66,7 +66,9 @@ public class SplashVolley : PlayerAbility
     {
         // Set rotation/local position
         SetRotationToActionDirection();
-        SetLocalPosition(PlayerAbilityCentreOffset + ActivationInput.actionDirection * Projection);
+        //SetLocalPosition(PlayerAbilityCentreOffset + ActivationInput.actionDirection * Projection);
+        SetLocalPosition(PlayerAbilityCentreOffset);
+
 
         // Play animation
         PlayAnimation("SplashLob");
@@ -76,15 +78,12 @@ public class SplashVolley : PlayerAbility
 
         // Activate projectiles
         var holdChargePercentage = math.min(m_holdTimer / HoldChargeTime, 1);
+
         ActivateMultipleProjectiles(ActivationWearableNameEnum, 
             ActivationInput.actionDirection, m_distance, Duration, Scale, ExplosionRadius,
             holdChargePercentage);
     }
 
-    //GameObject GetProjectileInstance(int index)
-    //{
-    //    return m_visualProjectiles[index];
-    //}
 
     void ActivateMultipleProjectiles(Wearable.NameEnum activationWearable, 
         Vector3 direction, float distance, float duration, float scale, float explosionRadius,
@@ -131,22 +130,21 @@ public class SplashVolley : PlayerAbility
         //GameObject projectile = GetProjectileInstance(index);
         var no_projectile = Projectiles[index].GetComponent<SplashProjectile>();
         var playerCharacter = Player.GetComponent<NetworkCharacter>();
+        var startPosition =
+                Player.GetComponent<PlayerPrediction>().GetInterpPositionAtTick(ActivationInput.tick)
+                + new Vector3(0, 0.5f, 0);
+        //+ ActivationInput.actionDirection * Projection;
 
         // Local Client & Server
         if (Player.GetComponent<NetworkObject>().IsLocalPlayer || IsServer)
         {
-
-            var position =
-                Player.GetComponent<PlayerPrediction>().GetInterpPositionAtTick(ActivationInput.tick)
-                + new Vector3(0, 0.5f, 0);
-                //+ ActivationInput.actionDirection * Projection;
-
             Projectiles[index].SetActive(true);
-            Projectiles[index].transform.position = position;
+            //Projectiles[index].transform.position = startPosition;
 
             no_projectile.Init(
-                position, direction, distance, duration, scale,
-                explosionRadius, IsServer ? PlayerAbility.NetworkRole.Server : PlayerAbility.NetworkRole.LocalClient,
+                startPosition, direction, distance, duration, scale,
+                explosionRadius,
+                IsServer ? PlayerAbility.NetworkRole.Server : PlayerAbility.NetworkRole.LocalClient,
                 Wearable.WeaponTypeEnum.Splash, activationWearable,
                 Player,
                 playerCharacter.currentStaticStats.AttackPower * ActivationWearable.RarityMultiplier * DamageMultiplier,
@@ -164,7 +162,8 @@ public class SplashVolley : PlayerAbility
         {
             var playerNetworkObjectId = Player.GetComponent<NetworkObject>().NetworkObjectId;
             //var projectileNetworkObjectId = projectile.GetComponent<NetworkObject>().NetworkObjectId;
-            ActivateProjectileClientRpc(index, activationWearable, Projectiles[index].transform.position, 
+            ActivateProjectileClientRpc(index,
+                activationWearable, startPosition, 
                 direction, distance, duration, scale, explosionRadius,
                 playerNetworkObjectId);
         }
@@ -189,9 +188,10 @@ public class SplashVolley : PlayerAbility
         {
             var no_projectile = Projectiles[index].GetComponent<SplashProjectile>();
 
-            Projectiles[index].SetActive(true);
-            Projectiles[index].transform.position = startPosition;
+            //Projectiles[index].SetActive(true);
+            //Projectiles[index].transform.position = startPosition;
 
+            // iniy
             no_projectile.Init(
                 startPosition, direction, distance, duration, scale, explosionRadius,
                 NetworkRole.RemoteClient, Wearable.WeaponTypeEnum.Splash, activationWearable,

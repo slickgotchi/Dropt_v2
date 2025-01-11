@@ -95,6 +95,8 @@ public class SplashProjectile : NetworkBehaviour
     {
         gameObject.SetActive(true);
 
+        transform.parent = null;
+
         transform.rotation = Quaternion.identity;
 
         transform.localScale = new Vector3(Scale, Scale, 1f);

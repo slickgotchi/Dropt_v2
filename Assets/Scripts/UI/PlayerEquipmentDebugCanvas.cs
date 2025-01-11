@@ -60,16 +60,17 @@ public class PlayerEquipmentDebugCanvas : DroptCanvas
             }
         }
 
-        //if (Input.GetKeyDown(KeyCode.Alpha0))
-        //{
-        //    if (PlayerEquipmentDebugCanvas.Instance.isCanvasOpen)
-        //    {
-        //        HideCanvas();
-        //    } else
-        //    {
-        //        ShowCanvas();
-        //    }
-        //}
+        if (Input.GetKeyDown(KeyCode.Alpha0))
+        {
+            if (PlayerEquipmentDebugCanvas.Instance.isCanvasOpen)
+            {
+                HideCanvas();
+            }
+            else
+            {
+                ShowCanvas();
+            }
+        }
     }
 
     private void InitializeDropdowns()
