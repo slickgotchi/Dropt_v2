@@ -1,13 +1,16 @@
 using System;
 using Unity.Netcode;
 using UnityEngine;
+using Cysharp.Threading.Tasks;
 
 public class Destructible : NetworkBehaviour
 {
-    public event Action DIE;
+    //public event Action DIE;
     public event Action PRE_DIE;
 
-    //public AudioClip audioOnHit;
+    private bool m_isCheckingIfServerDestroyedThisDestructible = false;
+    private float m_checkServerDestroyedThisDestructibleTimer = 0f;
+    private float k_checkServerDestroyedThisDestructibleInterval = 1f;
 
     public enum Type
     {
@@ -34,6 +37,9 @@ public class Destructible : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
+
+        previousHp = Hp;
+        currentHp = Hp;
     }
 
     public override void OnNetworkDespawn()
@@ -54,6 +60,36 @@ public class Destructible : NetworkBehaviour
                 SyncHpClientRpc(currentHp);
             }
         }
+
+        if (IsClient)
+        {
+            if (m_isCheckingIfServerDestroyedThisDestructible)
+            {
+                m_checkServerDestroyedThisDestructibleTimer -= Time.deltaTime;
+                if (m_checkServerDestroyedThisDestructibleTimer < 0)
+                {
+                    CheckServerDestroyedServerRpc();
+                    m_checkServerDestroyedThisDestructibleTimer = 1f;
+                }
+            }
+        }
+    }
+
+    [Rpc(SendTo.Server)]
+    void CheckServerDestroyedServerRpc()
+    {
+        CheckServerDestroyedClientRpc();
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    void CheckServerDestroyedClientRpc()
+    {
+        // because we got a response, our destructible is not actually destroyed and
+        // we need to turn its sprites back on
+        var spriteRenderers = GetComponentsInChildren<SpriteRenderer>();
+        foreach (var sr in spriteRenderers) sr.enabled = true;
+
+        m_isCheckingIfServerDestroyedThisDestructible = false;
     }
 
     [Rpc(SendTo.ClientsAndHost)]
@@ -87,6 +123,10 @@ public class Destructible : NetworkBehaviour
                 // hide all sprites
                 var spriteRenderers = GetComponentsInChildren<SpriteRenderer>();
                 foreach (var sr in spriteRenderers) sr.enabled = false;
+
+                // start a timer to check if server has also destroyed this destructible
+                m_isCheckingIfServerDestroyedThisDestructible = true;
+                m_checkServerDestroyedThisDestructibleTimer = 1f;
             }
             else
             {
@@ -105,17 +145,17 @@ public class Destructible : NetworkBehaviour
             currentHp -= damage;
             if (currentHp <= 0)
             {
+                // disable all colliders
+                var colliders = GetComponentsInChildren<Collider2D>();
+                foreach (var c in colliders) c.enabled = false;
+
+                // do pre die
                 PRE_DIE?.Invoke();
-                NotifyPlayerToDestroyDestructible(damageDealerId);
+                NotifyPlayerTheyDestroyedDestructible(damageDealerId);
                 DestroyDestructibleSoundClientRpc();
 
-                var levelSpawn = GetComponent<Level.LevelSpawn>();
-
-                //Core.Pool.NetworkObjectPool.Instance.ReturnNetworkObject(
-                //    GetComponent<NetworkObject>(), levelSpawn.prefab);
-                //GetComponent<NetworkObject>().Despawn(false);
-                GetComponent<NetworkObject>().Despawn();
-                DIE?.Invoke();
+                var networkObject = GetComponent<NetworkObject>();
+                if (networkObject != null) networkObject.Despawn();
             }
         }
     }
@@ -164,11 +204,11 @@ public class Destructible : NetworkBehaviour
         return damage;
     }
 
-    private void NotifyPlayerToDestroyDestructible(ulong id)
+    private void NotifyPlayerTheyDestroyedDestructible(ulong id)
     {
         NetworkObject networkObject = NetworkManager.SpawnManager.SpawnedObjects[id];
         PlayerController playerController = networkObject.GetComponent<PlayerController>();
-        playerController?.DestroyDestructible();
+        playerController?.AddToTotalDestroyedDestructibles();
     }
 
     [ClientRpc]

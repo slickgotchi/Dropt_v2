@@ -44,8 +44,9 @@ namespace Dropt
 
         private bool m_isDeathTriggered = false;
 
-        
-        // override OnDeath so we do not get the default DeSpawn
+        // NOTE: just kill gasbags normally for the tournament
+        // work on a solution throughout the week
+        /*
         protected override void OnDeath(Vector3 position)
         {
             transform.position = position;
@@ -62,6 +63,7 @@ namespace Dropt
             // change to telegraph state
             ChangeState(State.Telegraph);
         }
+        */
 
         [Rpc(SendTo.ClientsAndHost)]
         void SetDeathClientRpc()

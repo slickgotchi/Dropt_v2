@@ -21,29 +21,52 @@ public static class LeaderboardLogger
 
         try
         {
-            Debug.Log("LogEndOfDungeonResults: Got Player");
+            Debug.Log("LogEndOfDungeonResults()");
 
             // Extract data from PlayerController
             var gotchiId = playerController.NetworkGotchiId.Value;
             Debug.Log("gotchiId: " + gotchiId);
-            var gotchiData = GotchiHub.GotchiDataManager.Instance.GetGotchiDataById(gotchiId);
-            Debug.Log("gotchiData: " + gotchiData);
-            var gotchiName = gotchiData.name;
+            if (gotchiId > 25001)
+            {
+                Debug.Log("Can not log offchain gotchi");
+                return;
+            }
+
+            // we wrap this call in the event that the graph is down for some reason
+            // note: we can always check gotchis against wallets after the fact but
+            // we still want to guarantee that scores get logged for gotchis
+            PortalDefender.AavegotchiKit.GotchiData gotchiData = null;
+            try
+            {
+                gotchiData = await GotchiHub.GotchiDataManager.Instance.GetGotchiDataFromGraph(gotchiId);
+                Debug.Log("GotchiData received");
+            }
+            catch (System.Exception e)
+            {
+                Debug.Log(e);
+            }
+
+            var gotchiName = gotchiData != null ? gotchiData.name : $"Gotchi ID: {gotchiId}";
             Debug.Log("gotchiName: " + gotchiName);
-            var walletAddress = playerController.ConnectedWallet;
+
+            var walletAddress = gotchiData != null ? gotchiData.owner.id : "TBC";
             Debug.Log("walletAddress: " + walletAddress);
+
             var playerOffchainData = playerController.GetComponent<PlayerOffchainData>();
             Debug.Log("playerOffchainData: " + playerOffchainData);
+
             var formation = playerOffchainData?.dungeonFormation ?? "unknown";
             Debug.Log("formation: " + formation);
+
             var dustBalance = playerOffchainData?.GetDustDeltaValue() ?? 0;
             Debug.Log("dustBalance: " + dustBalance);
+
             var kills = playerController.GetTotalKilledEnemies();
             Debug.Log("kills: " + kills);
+
             var completionTime = (int)Time.timeSinceLevelLoad; // Example completion time in seconds
             Debug.Log("completionTime: " + completionTime);
 
-            Debug.Log("LogEndOfDungeonResults: Create leaderboard entry");
             var leaderboardEntry = new LeaderboardEntry
             {
                 gotchi_id = gotchiId,
@@ -55,23 +78,25 @@ public static class LeaderboardLogger
                 completion_time = completionTime
             };
 
-            Debug.Log("Created leaderboardEntry");
+            Debug.Log("Created temporary leaderboardEntry data object");
 
             if (dungeonType == DungeonType.Adventure)
             {
-                Debug.Log("HandleAdventureLogging...");
+                Debug.Log("Did we escape?");
                 if (isEscaped)
                 {
-                    Debug.Log("HandleAdventureLogging: Try");
+                    Debug.Log("Yes escaped. HandleAdventureLogging");
                     await HandleAdventureLogging(leaderboardEntry);
-                    Debug.Log("HandleAdventureLogging: Success");
+                }
+                else
+                {
+                    Debug.Log("Did not escape, do not update leaderboard");
                 }
             }
             else
             {
-                Debug.Log("HandleGauntletLogging: Try");
+                Debug.Log("HandleGauntletLogging");
                 await HandleGauntletLogging(leaderboardEntry);
-                Debug.Log("HandleGauntletLogging: Success");
             }
         }
         catch (Exception e)
@@ -84,7 +109,8 @@ public static class LeaderboardLogger
     {
         try
         {
-            await UpsertLeaderboardEntry("adventure_leaderboard", entry);
+            await UpsertLeaderboardEntry("adventure_leaderboard", entry, "leaderboard_dr0pt_secret");
+            Debug.Log("Successfully updated adventure_leaderboard for " + entry.gotchi_name);
         }
         catch (Exception e)
         {
@@ -96,7 +122,8 @@ public static class LeaderboardLogger
     {
         try
         {
-            await UpsertLeaderboardEntry("gauntlet_leaderboard", entry);
+            await UpsertLeaderboardEntry("gauntlet_leaderboard", entry, "leaderboard_dr0pt_secret");
+            Debug.Log("Successfully updated gauntlet_leader for " + entry.gotchi_name);
         }
         catch (Exception e)
         {
@@ -126,14 +153,14 @@ public static class LeaderboardLogger
             }
             else
             {
-                Debug.LogWarning($"Failed to fetch leaderboard entry: {request.error}\nResponse: {request.downloadHandler.text}");
+                Debug.LogError($"Failed to fetch leaderboard entry: {request.error}\nResponse: {request.downloadHandler.text}");
             }
 
             return null;
         }
     }
 
-    private static async UniTask UpsertLeaderboardEntry(string leaderboard, LeaderboardEntry entry)
+    private static async UniTask UpsertLeaderboardEntry(string leaderboard, LeaderboardEntry entry, string secretKey)
     {
         string url = $"{leaderboardDbUri}/{leaderboard}/{entry.gotchi_id}";
         string json = JsonUtility.ToJson(entry);
@@ -143,6 +170,7 @@ public static class LeaderboardLogger
             request.uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(json));
             request.downloadHandler = new DownloadHandlerBuffer();
             request.SetRequestHeader("Content-Type", "application/json");
+            request.SetRequestHeader("Authorization", secretKey); // Add secret key to headers
 
             var operation = request.SendWebRequest();
             while (!operation.isDone)
@@ -152,10 +180,11 @@ public static class LeaderboardLogger
 
             if (request.result != UnityWebRequest.Result.Success)
             {
-                Debug.LogWarning($"Failed to update {leaderboard}: {request.error}\nResponse: {request.downloadHandler.text}");
+                Debug.LogError($"Failed to update {leaderboard}: {request.error}\nResponse: {request.downloadHandler.text}");
             }
         }
     }
+
 
 
     public static async UniTask<List<LeaderboardEntry>> GetAllLeaderboardEntries(string leaderboard)

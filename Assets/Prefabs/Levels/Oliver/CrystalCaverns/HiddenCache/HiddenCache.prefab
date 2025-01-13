@@ -96,6 +96,7 @@ Transform:
   - {fileID: 1004315046490296729}
   - {fileID: 3545951043898171162}
   - {fileID: 739349658950715498}
+  - {fileID: 8541695370198730494}
   - {fileID: 597535543398453365}
   - {fileID: 674666010626338088}
   m_Father: {fileID: 0}
@@ -124,7 +125,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 4042975312
+  GlobalObjectIdHash: 4216190226
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -666,6 +667,84 @@ PrefabInstance:
 Transform:
   m_CorrespondingSourceObject: {fileID: 7264523137609494998, guid: 27d162e27e5904fee9a2bca89895524f, type: 3}
   m_PrefabInstance: {fileID: 457460205211788693}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &459470764689252858
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 5804475076186642641}
+    m_Modifications:
+    - target: {fileID: 4486641026887768437, guid: 59bfdadea8c5b4f66b5dc30f204fd6ab, type: 3}
+      propertyPath: spawnOptions.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4486641026887768437, guid: 59bfdadea8c5b4f66b5dc30f204fd6ab, type: 3}
+      propertyPath: spawnOptions.Array.data[0].Chance
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4486641026887768437, guid: 59bfdadea8c5b4f66b5dc30f204fd6ab, type: 3}
+      propertyPath: spawnOptions.Array.data[1].Chance
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4486641026887768437, guid: 59bfdadea8c5b4f66b5dc30f204fd6ab, type: 3}
+      propertyPath: spawnOptions.Array.data[1].NetworkObjectPrefab
+      value: 
+      objectReference: {fileID: 790926647510716971, guid: f915cb4ca1baa4d6eb0fd08ac6825e8a, type: 3}
+    - target: {fileID: 5678285115073182600, guid: 59bfdadea8c5b4f66b5dc30f204fd6ab, type: 3}
+      propertyPath: m_Name
+      value: Spawner_HPCannister
+      objectReference: {fileID: 0}
+    - target: {fileID: 8136435072890939140, guid: 59bfdadea8c5b4f66b5dc30f204fd6ab, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.93049073
+      objectReference: {fileID: 0}
+    - target: {fileID: 8136435072890939140, guid: 59bfdadea8c5b4f66b5dc30f204fd6ab, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 19.80557
+      objectReference: {fileID: 0}
+    - target: {fileID: 8136435072890939140, guid: 59bfdadea8c5b4f66b5dc30f204fd6ab, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8136435072890939140, guid: 59bfdadea8c5b4f66b5dc30f204fd6ab, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8136435072890939140, guid: 59bfdadea8c5b4f66b5dc30f204fd6ab, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8136435072890939140, guid: 59bfdadea8c5b4f66b5dc30f204fd6ab, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8136435072890939140, guid: 59bfdadea8c5b4f66b5dc30f204fd6ab, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8136435072890939140, guid: 59bfdadea8c5b4f66b5dc30f204fd6ab, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8136435072890939140, guid: 59bfdadea8c5b4f66b5dc30f204fd6ab, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8136435072890939140, guid: 59bfdadea8c5b4f66b5dc30f204fd6ab, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 59bfdadea8c5b4f66b5dc30f204fd6ab, type: 3}
+--- !u!4 &8541695370198730494 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8136435072890939140, guid: 59bfdadea8c5b4f66b5dc30f204fd6ab, type: 3}
+  m_PrefabInstance: {fileID: 459470764689252858}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &845974599716554289
 PrefabInstance:

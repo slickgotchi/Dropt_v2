@@ -73,7 +73,9 @@ public class SplashLob : PlayerAbility
             Projectile.SetActive(true);
 
             // init
-            no_projectile.Init(startPosition, direction, distance, duration, scale, explosionRadius,
+            no_projectile.Init(
+                startPosition, direction, distance, duration, scale,
+                explosionRadius,
                 IsServer ? PlayerAbility.NetworkRole.Server : PlayerAbility.NetworkRole.LocalClient,
                 Wearable.WeaponTypeEnum.Splash, wearableNameEnum,
                 

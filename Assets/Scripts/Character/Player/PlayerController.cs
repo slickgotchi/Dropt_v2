@@ -17,7 +17,7 @@ public class PlayerController : NetworkBehaviour
     private NetworkCharacter m_networkCharacter;
     private PlayerPrediction m_playerPrediction;
 
-    [HideInInspector] public static float InactiveTimerDuration = 5 * 60;
+    [HideInInspector] public static float InactiveTimerDuration = 60 * 60;
 
     [HideInInspector] public bool IsDead = false;
 
@@ -34,8 +34,7 @@ public class PlayerController : NetworkBehaviour
     // tracking selected gotchi
     private int m_selectedGotchiId = 0;
 
-    // for tracking wallet
-    public string ConnectedWallet = "";
+    [HideInInspector] public bool isGameOvered = false;
 
     // variables for tracking current gotchi
     private int m_localGotchiId = 0;
@@ -47,6 +46,9 @@ public class PlayerController : NetworkBehaviour
 
     private Vector3 m_spawnPoint;
 
+
+
+
     private void Awake()
     {
         m_networkCharacter = GetComponent<NetworkCharacter>();
@@ -55,11 +57,14 @@ public class PlayerController : NetworkBehaviour
         m_playerAttackCentre = GetComponentInChildren<AttackCentre>();
     }
 
+  
+
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
 
-        IsLevelSpawnPositionSet = false;
+        IsLevelSpawnPositionSet = true;
+
 
         // register player controller
         Game.Instance.playerControllers.Add(GetComponent<PlayerController>());
@@ -100,9 +105,9 @@ public class PlayerController : NetworkBehaviour
 
     public override void OnNetworkDespawn()
     {
+
         // degregister player controller
         Game.Instance.playerControllers.Remove(GetComponent<PlayerController>());
-
 
         if (!IsServer) return;
 
@@ -144,6 +149,7 @@ public class PlayerController : NetworkBehaviour
     }
 
 
+    
 
     private void Update()
     {
@@ -194,7 +200,9 @@ public class PlayerController : NetworkBehaviour
         }
 
         // Handle level spawning on the server
-        if (IsServer && !IsLevelSpawnPositionSet)
+        //if (IsServer && !IsLevelSpawnPositionSet)
+        if (IsServer && LevelManager.Instance.isPlayersSpawnable &&
+            !LevelManager.Instance.spawnedPlayers.Contains(this))
         {
             var pos = LevelManager.Instance.TryGetPlayerSpawnPoint();
             Debug.Log("Spawn Player at " + pos);
@@ -212,6 +220,8 @@ public class PlayerController : NetworkBehaviour
                 // Mark the spawn position as set
                 IsLevelSpawnPositionSet = true;
                 m_spawnPoint = spawnPoint;
+
+                LevelManager.Instance.spawnedPlayers.Add(this);
             }
         }
 
@@ -226,47 +236,46 @@ public class PlayerController : NetworkBehaviour
         if (m_holdBarCanvas != null) m_holdBarCanvas.transform.localPosition = new Vector3(0, 2, 0);
     }
 
+    // this is where we set everything required for leaderboarding
     [Rpc(SendTo.Server)]
-    public void SetNetworkGotchiIdServerRpc(int gotchiId, string wallet)
+    public void SetNetworkGotchiIdServerRpc(int gotchiId)
     {
+        // make sure we're in the Degenape village!
+        // players can only change gotchis in the village. this prevents someone using
+        // someone elses god gotchi (client side hack) and then switching back to theirs
+        if (!LevelManager.Instance.IsDegenapeVillage()) return;
+
         NetworkGotchiId.Value = gotchiId;
-        ConnectedWallet = wallet;
     }
 
     public async UniTask KillPlayer(REKTCanvas.TypeOfREKT typeOfREKT)
     {
         try
         {
-            // set player to dead
-            var playerController = GetComponent<PlayerController>();
-            if (playerController == null) return;
-            if (playerController.IsDead) return;
+            if (IsDead) return;
+            IsDead = true;
 
-            // set player to dead
-            playerController.IsDead = true;
-
-            // calc offchain balances
             var playerOffchainData = GetComponent<PlayerOffchainData>();
             if (playerOffchainData != null)
             {
                 await playerOffchainData.ExitDungeonCalculateBalances(false);
             }
 
-            // do leaderboard logging (only other place this is called is EscapePortal.cs)
-            Debug.Log("KillPlayer: LogEndOfDungeonResults");
             var playerLeaderboardLogger = GetComponent<PlayerLeaderboardLogger>();
             if (playerLeaderboardLogger != null)
             {
-                Debug.Log("Start logging leaderboard: " + playerLeaderboardLogger.GetComponent<PlayerController>());
-                LeaderboardLogger.LogEndOfDungeonResults(
+                await LeaderboardLogger.LogEndOfDungeonResults(
                     playerLeaderboardLogger.GetComponent<PlayerController>(),
                     playerLeaderboardLogger.dungeonType,
                     false);
-                Debug.Log("Finished logging leaderboard");
             }
 
-            Debug.Log("TriggerGameoverclient");
-            TriggerGameOverClientRpc(GetComponent<NetworkObject>().NetworkObjectId, typeOfREKT);
+            var networkObject = GetComponent<NetworkObject>();
+            if (networkObject == null) { Debug.LogWarning("KillPlayer: networkObject = null"); return; }
+
+            isGameOvered = true;
+
+            TriggerGameOverClientRpc(networkObject.NetworkObjectId, typeOfREKT);
         }
         catch (System.Exception e)
         {
@@ -296,14 +305,16 @@ public class PlayerController : NetworkBehaviour
     }
 
     [Rpc(SendTo.ClientsAndHost)]
-    private void TriggerGameOverClientRpc(ulong playerNetworkObjectId, REKTCanvas.TypeOfREKT typeOfREKT)
+    private void TriggerGameOverClientRpc(ulong killedPlayerNetworkObjectId, REKTCanvas.TypeOfREKT typeOfREKT)
     {
-        //ensure we only trigger this for the relevant player
-        var player = NetworkManager.SpawnManager.SpawnedObjects[playerNetworkObjectId];
-        var localId = GetComponent<NetworkObject>().NetworkObjectId;
-        if (player.NetworkObjectId != localId) return;
+        if (!IsLocalPlayer) return;
+        //var networkObject = GetComponent<NetworkObject>();
+        //if (networkObject == null) { Debug.LogWarning("networkObject = null"); return; }
 
-        // show the game over canvas
+        //if (networkObject.NetworkObjectId != killedPlayerNetworkObjectId) return;
+
+        isGameOvered = true;
+
         REKTCanvas.Instance.Show(typeOfREKT);
     }
 
@@ -352,7 +363,15 @@ public class PlayerController : NetworkBehaviour
             framingTransposer.m_YDamping = 1;
             framingTransposer.m_ZDamping = 0;
         }
+
+        // track our speed
+        var displacement = transform.position - prevPosition;
+        prevPosition = transform.position;
+        var distance = displacement.magnitude;
+        var velocity = distance / Time.deltaTime;
     }
+
+    Vector3 prevPosition;
 
     private void HandleLocalGotchiIdChanges()
     {
@@ -365,8 +384,7 @@ public class PlayerController : NetworkBehaviour
             if (selectedGotchiId != m_selectedGotchiId)
             {
                 m_selectedGotchiId = selectedGotchiId;
-                ConnectedWallet = GotchiSelectCanvas.Instance.GetConnectedWallet();
-                SetNetworkGotchiIdServerRpc(m_selectedGotchiId, ConnectedWallet);
+                SetNetworkGotchiIdServerRpc(m_selectedGotchiId);
             }
         }
     }
@@ -444,27 +462,27 @@ public class PlayerController : NetworkBehaviour
     // cheat to go to next level
     private void HandleNextLevelCheat()
     {
-        if (Input.GetKeyDown(KeyCode.N))
-        {
-            GoNextLevelServerRpc();
-        }
+        //if (Input.GetKeyDown(KeyCode.N))
+        //{
+        //    GoNextLevelServerRpc();
+        //}
 
-        if (Input.GetKeyDown(KeyCode.H))
-        {
-            GoToDegenapeVillageServerRpc();
-        }
+        //if (Input.GetKeyDown(KeyCode.H))
+        //{
+        //    GoToDegenapeVillageServerRpc();
+        //}
     }
 
     [Rpc(SendTo.Server)]
     private void GoNextLevelServerRpc()
     {
-        LevelManager.Instance.StartTransitionToNextLevel_SERVER();
+        //LevelManager.Instance.StartTransitionToNextLevel_SERVER();
     }
 
     [Rpc(SendTo.Server)]
     private void GoToDegenapeVillageServerRpc()
     {
-        LevelManager.Instance.GoToDegenapeVillageLevel_SERVER();
+        //LevelManager.Instance.GoToDegenapeVillageLevel_SERVER();
     }
 
     private void HandleDegenapeHpAp()
@@ -539,10 +557,9 @@ public class PlayerController : NetworkBehaviour
         m_inactiveTimer = InactiveTimerDuration;
     }
 
-    public void KillEnemy()
+    public void AddToTotalKilledEnemies()
     {
         m_totalKilledEnemies.Value++;
-        //Debug.Log("Kill count: " + m_totalKilledEnemies);
     }
 
     public int GetTotalKilledEnemies()
@@ -550,7 +567,7 @@ public class PlayerController : NetworkBehaviour
         return m_totalKilledEnemies.Value;
     }
 
-    public void DestroyDestructible()
+    public void AddToTotalDestroyedDestructibles()
     {
         m_totalDestroyedDestructibles.Value++;
     }

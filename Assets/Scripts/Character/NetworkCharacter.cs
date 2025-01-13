@@ -351,7 +351,7 @@ public class NetworkCharacter : NetworkBehaviour
                 if (damageDealer != null)
                 {
                     PlayerController playerController = damageDealer.GetComponent<PlayerController>();
-                    if (playerController != null) playerController.KillEnemy();
+                    if (playerController != null) playerController.AddToTotalKilledEnemies();
                 }
 
                 // despawn this character
@@ -365,17 +365,7 @@ public class NetworkCharacter : NetworkBehaviour
                 {
                     PlayEnemyDieSoundClientRpc();
                     var networkObject = GetComponent<NetworkObject>();
-                    //if (networkObject != null) networkObject.Despawn();
-
-                    // grab level spawn component
-                    var levelSpawn = networkObject.GetComponent<Level.LevelSpawn>();
-
-                    //Debug.Log("HandleEnemyTakeDamage: ReturnNetworkObject()");
-                    //Core.Pool.NetworkObjectPool.Instance.ReturnNetworkObject(
-                    //    networkObject, levelSpawn.prefab);
-                    //networkObject.Despawn(false);
-
-                    networkObject.Despawn();
+                    if (networkObject != null && networkObject.IsSpawned) networkObject.Despawn();
                 }
             }
 

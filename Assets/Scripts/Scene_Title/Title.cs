@@ -10,5 +10,8 @@ public class Title : MonoBehaviour
     void Start()
     {
         AudioManager.Instance.PlayMusic(titleScreenMusic);
+
+        // fade out loading canvas if its there
+        LoadingCanvas.Instance.WipeOut();
     }
 }

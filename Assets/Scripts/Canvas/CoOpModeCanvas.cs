@@ -43,6 +43,8 @@ public class CoOpModeCanvas : DroptCanvas
         IsPublicToggle.onValueChanged.AddListener(HandleChange_IsPublicToggle);
 
         //m_copyButtonText = CopyMyGameIdButton.GetComponentInChildren<TextMeshProUGUI>();
+
+        m_copyButtonText.text = "TEST";
     }
 
     private void Start()
@@ -62,7 +64,7 @@ public class CoOpModeCanvas : DroptCanvas
 
         if (Bootstrap.Instance.GameId != null)
         {
-            m_copyButtonText.text = Bootstrap.Instance.GameId.ToString();
+            if (!string.IsNullOrEmpty(Bootstrap.Instance.GameId)) m_copyButtonText.text = Bootstrap.Instance.GameId.ToString();
         }
 
         if (Input.GetKeyDown(KeyCode.M) && LevelManager.Instance.IsDegenapeVillage())
@@ -80,7 +82,18 @@ public class CoOpModeCanvas : DroptCanvas
 
     void HandleClick_CopyMyGameIdButton()
     {
+#if UNITY_WEBGL && !UNITY_EDITOR
+    Application.ExternalEval($@"
+        navigator.clipboard.writeText('{m_copyButtonText.text}').then(function() {{
+            console.log('Copied to clipboard: {m_copyButtonText.text}');
+        }}).catch(function(err) {{
+            console.error('Failed to copy: ', err);
+        }});
+    ");
+#else
         GUIUtility.systemCopyBuffer = m_copyButtonText.text;
+#endif
+
     }
 
     void HandleClick_JoinPrivateButton()

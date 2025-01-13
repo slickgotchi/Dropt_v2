@@ -38,6 +38,8 @@ public partial class PlayerPrediction : NetworkBehaviour
     private float k_actionDirectionTime = 0.5f;
     public NetworkVariable<Vector3> ActionDirection = new NetworkVariable<Vector3>();
 
+    private LayerMask m_environmentWallLayerMask;
+
     // for access
     private Rigidbody2D rb;
     private PlayerAbilities m_playerAbilities;
@@ -49,9 +51,9 @@ public partial class PlayerPrediction : NetworkBehaviour
     // Netcode client
     CircularBuffer<StatePayload> clientStateBuffer;
     CircularBuffer<InputPayload> clientInputBuffer;
-    StatePayload lastServerState;
+    StatePayload m_lastServerState;
 
-    public StatePayload LastServerState => lastServerState;
+    public StatePayload LastServerState => m_lastServerState;
     List<StatePayload> m_lastServerStateArray;
 
     // Netcode server
@@ -125,6 +127,8 @@ public partial class PlayerPrediction : NetworkBehaviour
     {
         base.OnNetworkSpawn();
 
+        if (IsClient) Application.focusChanged += OnApplicationFocusChanged;
+
         // deparent our circles for representing server/client prediction locations
         if (m_clientCircle != null) m_clientCircle.transform.SetParent(null);
         if (m_serverCircle != null) m_serverCircle.transform.SetParent(null);
@@ -137,6 +141,9 @@ public partial class PlayerPrediction : NetworkBehaviour
 
 
         m_lastServerStateArray = new List<StatePayload>();
+
+        m_environmentWallLayerMask = LayerMask.GetMask("EnvironmentWall", "EnvironmentWater");
+
 
         ResetRemoteClientTickDelta();
 
@@ -151,6 +158,13 @@ public partial class PlayerPrediction : NetworkBehaviour
 
         // start input disabled
         if (IsClient) IsInputEnabled = false;
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        if (IsClient) Application.focusChanged -= OnApplicationFocusChanged;
+
+        base.OnNetworkDespawn();
     }
 
     void ResetRemoteClientTickDelta()
@@ -195,6 +209,10 @@ public partial class PlayerPrediction : NetworkBehaviour
         return holdPercent;
     }
 
+    private Vector3 m_previousInterpPosition; // To track the last interpolated position
+    private Vector3 m_targetInterpPosition;   // To store the new position after interpolation fallback
+
+
     private void Update()
     {
         // don't run if the player is dead
@@ -209,21 +227,33 @@ public partial class PlayerPrediction : NetworkBehaviour
         m_playerGotchi.SetMoveDirection(m_moveDirection);
 
         // set updated render position
-        if (IsLocalPlayer)
+        if (IsClient)
         {
-            // update input from our PlayerPrediction_Input.cs file
-            UpdateInput();
+            if (IsLocalPlayer)
+            {
+                // update input from our PlayerPrediction_Input.cs file
+                UpdateInput();
 
-            // update position
-            transform.position = GetLocalPlayerInterpPosition();
+                // update position
+                transform.position = GetLocalPlayerInterpPosition();
+            }
+            else
+            {
+                transform.position = GetRemotePlayerInterpPosition();
+            }
         }
-        else if (IsClient && !IsLocalPlayer)
+
+        // for some reason, if we have this in main update loop in host mode, player starts flashing
+        // ghosts in front
+        if (IsServer && !IsHost)
         {
-            transform.position = GetRemotePlayerInterpPosition();
+            // ticks are handled in a queue so we need this here so we can process input
+            // as soon as it is available and send it back to clients
+            HandleServerTicks();
         }
 
         // update debug circles if attached
-        if (m_serverCircle != null) m_serverCircle.transform.position = lastServerState.position;
+        if (m_serverCircle != null) m_serverCircle.transform.position = m_lastServerState.position;
         if (m_clientCircle != null) m_clientCircle.transform.position = transform.position;
 
         // IMPORTANT: need to keep rigid body position synced for collision interactions
@@ -231,7 +261,7 @@ public partial class PlayerPrediction : NetworkBehaviour
         // so we must do overlap checks instead
         if (IsHost)
         {
-            rb.position = lastServerState.position;
+            rb.position = m_lastServerState.position;
         }
     }
 
@@ -243,7 +273,10 @@ public partial class PlayerPrediction : NetworkBehaviour
         if (playerController == null || playerController.IsDead) return;
 
         HandleClientTick();
-        HandleServerTick();
+
+        // for some reason, if we have this in main update loop in host mode, player starts flashing
+        // ghosts in front
+        if (IsHost) HandleServerTicks();   // Move this to main update loop to process ticks as soon as possible
     }
 
     // 2. Create an input payload on this tick
@@ -335,7 +368,6 @@ public partial class PlayerPrediction : NetworkBehaviour
         clientStateBuffer.Add(statePayload, bufferIndex);
 
         // activate ability if it was not null
-        //Debug.Log($"{triggeredAbility != null} - {m_triggeredAbilityEnum != PlayerAbilityEnum.Null}");
         if (triggeredAbility != null && m_triggeredAbilityEnum != PlayerAbilityEnum.Null)
         {
             // calc any hold duration
@@ -359,20 +391,10 @@ public partial class PlayerPrediction : NetworkBehaviour
             // CLIENT SIDE ONLY - set facing
             m_playerGotchi.SetFacingFromDirection(m_actionDirection, triggeredAbility.ExecutionDuration, true);
             SetFacingParametersServerRpc(m_actionDirection, triggeredAbility.ExecutionDuration, m_lastNonZeroMoveDirection);
-
-            //m_playerGotchi.SetFacingFromDirection(m_actionDirection, k_actionDirectionTime, true);
-            //SetFacingParametersServerRpc(m_actionDirection, k_actionDirectionTime, m_lastNonZeroMoveDirection);
-
         }
-
-        // set facing
-        //if (m_triggeredAbilityEnum != PlayerAbilityEnum.Null)
-        //{
-        //     }
 
         // reset any triggers or booleans
         m_triggeredAbilityEnum = PlayerAbilityEnum.Null;
-        //m_holdStartTriggeredAbilityEnum = PlayerAbilityEnum.Null;
         m_isHoldStartFlag = false;
         m_isHoldFinishFlag = false;
 
@@ -380,7 +402,7 @@ public partial class PlayerPrediction : NetworkBehaviour
         HandleServerReconciliation();
     }
 
-    void HandleServerTick()
+    void HandleServerTicks()
     {
         if (!IsServer) return;
 
@@ -424,21 +446,12 @@ public partial class PlayerPrediction : NetworkBehaviour
             {
                 // check AP only, we can't check against cooldown because we are commencing this attack within the starter attacks cooldown window
                 bool isEnoughAp = m_networkCharacter.currentDynamicStats.ApCurrent >= holdStartTriggeredAbility.ApCost;
-                //bool isBlockedByOthers =
-                //    !IsAttackCooldownFinished(Hand.Left) ||
-                //    !IsAttackCooldownFinished(Hand.Right) ||
-                //    !IsHoldCooldownFinished(Hand.Left) ||
-                //    !IsHoldCooldownFinished(Hand.Right);
-
                 bool isPredecessorAbility = IsLastAttackAbilityHoldPredecessor(m_lastActivatedAbilityEnum, inputPayload.holdStartTriggeredAbilityEnum);
 
                 if (isEnoughAp && isPredecessorAbility && !isHoldCancelled)
                 {
                     if (!IsHost) holdStartTriggeredAbility.Init(gameObject, inputPayload.abilityHand);
                     if (!IsHost) holdStartTriggeredAbility.HoldStart();
-
-                    //if (IsClient) holdStartTriggeredAbility.Init(gameObject, inputPayload.abilityHand);
-                    //if (IsClient) holdStartTriggeredAbility.HoldStart();
                     inputPayload.isHoldStartFlag = true;
                 }
                 else
@@ -499,14 +512,12 @@ public partial class PlayerPrediction : NetworkBehaviour
 
             }
 
+  
             // 9. tell client the last state we have as a server
             SendToClientRpc(statePayload);
-
-            //// 10. resest player inactive state (if we moved or ability triggered)
-            //if (triggeredAbility != null || inputPayload.moveDirection.magnitude > 0.01)
-            //{
-            //    m_playerController.ResetInactiveTimer();
-            //}
+            //var sendToClientTimeDelta = Time.time - lastServerSendTime;
+            //lastServerSendTime = Time.time;
+            //Debug.Log("sendToClientDeltaTime: " + sendToClientTimeDelta);
         }
 
         // reset state of setting player position
@@ -515,6 +526,8 @@ public partial class PlayerPrediction : NetworkBehaviour
             m_isSetPlayerPosition = false;
         }
     }
+
+    //float lastServerSendTime;
 
     [Rpc(SendTo.Server)]
     void SetFacingParametersServerRpc(Vector3 actionDirection, float actionDirectionTimer, Vector3 lastMoveDirection)
@@ -534,17 +547,17 @@ public partial class PlayerPrediction : NetworkBehaviour
     void HandleServerReconciliation()
     {
         // grab the buffer index of the last server state we've received
-        int bufferIndex = lastServerState.tick % k_bufferSize;
+        int bufferIndex = m_lastServerState.tick % k_bufferSize;
         if (bufferIndex - 1 < 0) return;    // not enough information to reconcile
 
-        StatePayload rewindState = IsHost ? serverStateBuffer.Get(bufferIndex - 1) : lastServerState;    // host rpcs execute immedimate, so use the previous server state in the buffer
+        StatePayload rewindState = IsHost ? serverStateBuffer.Get(bufferIndex - 1) : m_lastServerState;    // host rpcs execute immedimate, so use the previous server state in the buffer
 
         transform.position = rewindState.position;
 
         clientStateBuffer.Add(rewindState, rewindState.tick);
 
         // replay all inputs from rewind state to current state
-        int tickToReplay = lastServerState.tick + 1;
+        int tickToReplay = m_lastServerState.tick + 1;
 
         // variables to ensure we don't get stuck in an infinite loop if the client cannot keep up
         int MAX_REPLAYS = 10;
@@ -588,6 +601,8 @@ public partial class PlayerPrediction : NetworkBehaviour
         if (input.isHoldStartFlag) m_holdStartTick = input.tick;
         if (input.isHoldFinishFlag) m_holdFinishTick = input.tick;
 
+        var simulationTime = 1f / NetworkTimer_v2.Instance.TickRate;
+
         // teleport handling
         HandleTeleportInput(input);
 
@@ -602,7 +617,8 @@ public partial class PlayerPrediction : NetworkBehaviour
         else
         {
             // generate velocity from char speed, move dir any potential abilities that slow down speed
-            rb.velocity = GetInputSlowFactor(input, isServerCalling) * m_networkCharacter.currentStaticStats.MoveSpeed * input.moveDirection;
+            rb.velocity = GetInputSlowFactor(input, isServerCalling) *
+                m_networkCharacter.currentStaticStats.MoveSpeed * input.moveDirection;
 
             // check for automove
             if (input.tick < m_autoMoveExpiryTick)
@@ -623,10 +639,8 @@ public partial class PlayerPrediction : NetworkBehaviour
 
         var stateVelocity = rb.velocity;
 
-
         // simulate
         Physics2D.simulationMode = SimulationMode2D.Script;
-        var simulationTime = 1f / NetworkTimer_v2.Instance.TickRate;
         while (simulationTime > 0f)
         {
             Physics2D.Simulate(Time.fixedDeltaTime);    // need to simulate at fixedDeltaTime
@@ -635,6 +649,7 @@ public partial class PlayerPrediction : NetworkBehaviour
         rb.velocity = Vector3.zero;
         rb.position = transform.position;   // CHECK THIS
         Physics2D.simulationMode = SimulationMode2D.FixedUpdate;
+        
 
         return new StatePayload
         {
@@ -694,20 +709,21 @@ public partial class PlayerPrediction : NetworkBehaviour
     private bool isFirstSet = true;
 
     // this function executed on CLIENT
-    [ClientRpc]
+    [Rpc(SendTo.ClientsAndHost)]
     void SendToClientRpc(StatePayload statePayload)
     {
-        // save last server state
-        lastServerState = statePayload;
-
         var currentTick = NetworkTimer_v2.Instance.TickCurrent;
         var tickRate = NetworkTimer_v2.Instance.TickRate;
+
+        m_lastServerState = statePayload;
 
         // append state to last server state array, only store 2 seconds of tick data
         m_lastServerStateArray.Add(statePayload);
         if (m_lastServerStateArray.Count > tickRate * 2) m_lastServerStateArray.RemoveAt(0);
 
         // track tick deltas
+        // IMPORTANT: This is NOT the tick delta from the server tick to client tick,
+        // it is the tick delta between the client input tick to server to client current tick
         var deltaTick = currentTick - statePayload.tick;
         m_remoteClientTickDeltas.Add(deltaTick);
         if (m_remoteClientTickDeltas.Count > 10) m_remoteClientTickDeltas.RemoveAt(0);
@@ -742,7 +758,7 @@ public partial class PlayerPrediction : NetworkBehaviour
         // sort the array in case ticks were received out of order
         m_lastServerStateArray.Sort((state1, state2) => state1.tick.CompareTo(state2.tick));
 
-        var targetTick = currentTick - m_remoteClientTickDelta - 3;
+        var targetTick = currentTick - m_remoteClientTickDelta - 4;
 
         // find out where we are in last server state array
         int a = -1;
@@ -761,8 +777,8 @@ public partial class PlayerPrediction : NetworkBehaviour
         // something went wrong so just return original position
         if (a == -1 || b == -1)
         {
-            Debug.Log("Remote player outside interp range. Target tick: " + targetTick +
-                ", LastServerOldest Tick: " + m_lastServerStateArray[0].tick + ", LastServerNewest Tick: " + m_lastServerStateArray[m_lastServerStateArray.Count - 1].tick);
+            //Debug.Log("Remote player outside interp range. Target tick: " + targetTick +
+            //    ", LastServerOldest Tick: " + m_lastServerStateArray[0].tick + ", LastServerNewest Tick: " + m_lastServerStateArray[m_lastServerStateArray.Count - 1].tick);
             return transform.position;
         }
 
@@ -852,7 +868,7 @@ public partial class PlayerPrediction : NetworkBehaviour
 
     public Vector3 GetServerPosition()
     {
-        return lastServerState.position;
+        return m_lastServerState.position;
     }
 
     public float GetServerTickRate()

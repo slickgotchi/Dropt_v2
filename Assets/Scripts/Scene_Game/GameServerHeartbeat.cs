@@ -78,8 +78,6 @@ public class GameServerHeartbeat : MonoBehaviour
 
         try
         {
-            //var playerCount = Game.Instance.IsClientReconnecting() ?
-            //    math.max(m_playerCount, 1) : m_playerCount;
             var playerCount = m_playerCount;
 
             // determine the status of our server
@@ -93,6 +91,7 @@ public class GameServerHeartbeat : MonoBehaviour
                 gameId = Bootstrap.Instance.GameId,
                 playerCount = playerCount,
                 isPublic = IsPublic,
+                isVillage = LevelManager.Instance.IsDegenapeVillage(),
                 status = status,
             };
             string jsonPayload = JsonConvert.SerializeObject(payload);

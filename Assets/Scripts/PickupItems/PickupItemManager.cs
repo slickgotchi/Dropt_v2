@@ -8,7 +8,7 @@ public sealed class PickupItemManager : NetworkBehaviour
 {
     public static PickupItemManager Instance { get; private set; }
 
-    private Dictionary<GameObject, GameObject> m_prefabByInstanceMap;
+    //private Dictionary<GameObject, GameObject> m_prefabByInstanceMap;
 
     private void Awake()
     {
@@ -21,7 +21,7 @@ public sealed class PickupItemManager : NetworkBehaviour
 
         Instance = this;
 
-        m_prefabByInstanceMap = new Dictionary<GameObject, GameObject>();
+        //m_prefabByInstanceMap = new Dictionary<GameObject, GameObject>();
     }
 
     public enum Size
@@ -116,7 +116,8 @@ public sealed class PickupItemManager : NetworkBehaviour
         var deltaY = Random.Range(-rand, rand);
         var randPosition = position + new Vector3(deltaX, deltaY, 0);
 
-        var networkObj = GetFromPool(prefab, randPosition);
+        var initObj = Instantiate(prefab, randPosition, Quaternion.identity);
+        var networkObj = initObj.GetComponent<NetworkObject>();
         var orb = networkObj.GetComponent<TOrb>();
 
         if (orb == null)
@@ -132,16 +133,6 @@ public sealed class PickupItemManager : NetworkBehaviour
             networkObj.Spawn();
         }
 
-        // Safely add to the dictionary
-        if (!m_prefabByInstanceMap.ContainsKey(orb.gameObject))
-        {
-            m_prefabByInstanceMap.Add(orb.gameObject, prefab);
-        }
-        else
-        {
-            Debug.LogWarning($"Duplicate key detected for {orb.gameObject.name}. Skipping addition.");
-        }
-
         return orb;
     }
 
@@ -151,75 +142,76 @@ public sealed class PickupItemManager : NetworkBehaviour
         var deltaY = Random.Range(-rand, rand);
         var randPosition = position + new Vector3(deltaX, deltaY, 0);
 
-        var networkObj = GetFromPool(prefab, randPosition);
+        var initObj = Instantiate(prefab, randPosition, Quaternion.identity);
+        var networkObj = initObj.GetComponent<NetworkObject>();
 
         if (!networkObj.IsSpawned)
         {
             networkObj.Spawn();
         }
 
-        // Safely add to the dictionary
-        if (!m_prefabByInstanceMap.ContainsKey(networkObj.gameObject))
-        {
-            m_prefabByInstanceMap.Add(networkObj.gameObject, prefab);
-        }
-        else
-        {
-            Debug.LogWarning($"Duplicate key detected for {networkObj.gameObject.name}. Skipping addition.");
-        }
+        //// Safely add to the dictionary
+        //if (!m_prefabByInstanceMap.ContainsKey(networkObj.gameObject))
+        //{
+        //    m_prefabByInstanceMap.Add(networkObj.gameObject, prefab);
+        //}
+        //else
+        //{
+        //    Debug.LogWarning($"Duplicate key detected for {networkObj.gameObject.name}. Skipping addition.");
+        //}
     }
 
-    private NetworkObject GetFromPool(GameObject prefab, Vector3 randPosition)
-    {
-        var networkObj = NetworkObjectPool.Instance.GetNetworkObject(prefab, randPosition, Quaternion.identity);
+    //private NetworkObject GetFromPool(GameObject prefab, Vector3 randPosition)
+    //{
+    //    var networkObj = NetworkObjectPool.Instance.GetNetworkObject(prefab, randPosition, Quaternion.identity);
 
-        if (networkObj == null)
-        {
-            Debug.LogError($"Failed to retrieve NetworkObject from pool for prefab: {prefab.name}");
-        }
+    //    if (networkObj == null)
+    //    {
+    //        Debug.LogError($"Failed to retrieve NetworkObject from pool for prefab: {prefab.name}");
+    //    }
 
-        return networkObj;
-    }
+    //    return networkObj;
+    //}
 
     private void GenerateCGHSTOrb(Size size, Vector3 position, float rand = 0.5f)
     {
         GenerateOrb<CGHSTOrb>(CGHSTOrbPrefab, size, position, rand);
     }
 
-    public void ReturnToPool(PickupItem item)
-    {
-        if (!IsServer)
-        {
-            return;
-        }
+    //public void ReturnToPool(PickupItem item)
+    //{
+    //    if (!IsServer)
+    //    {
+    //        return;
+    //    }
 
-        if (item == null || item.gameObject == null)
-        {
-            Debug.LogError("Attempted to return a null item to the pool.");
-            return;
-        }
+    //    if (item == null || item.gameObject == null)
+    //    {
+    //        Debug.LogError("Attempted to return a null item to the pool.");
+    //        return;
+    //    }
 
-        if (m_prefabByInstanceMap.TryGetValue(item.gameObject, out var prefab))
-        {
-            var networkObj = item.GetComponent<NetworkObject>();
+    //    if (m_prefabByInstanceMap.TryGetValue(item.gameObject, out var prefab))
+    //    {
+    //        var networkObj = item.GetComponent<NetworkObject>();
 
-            if (networkObj != null)
-            {
-                networkObj.gameObject.SetActive(false);
-                networkObj.Despawn(false);
+    //        if (networkObj != null)
+    //        {
+    //            networkObj.gameObject.SetActive(false);
+    //            networkObj.Despawn(false);
 
-                //Debug.Log("ReturnToPool - ReturnNetworkObject()");
-                NetworkObjectPool.Instance.ReturnNetworkObject(networkObj, prefab);
-                m_prefabByInstanceMap.Remove(item.gameObject);
-            }
-            else
-            {
-                Debug.LogWarning($"NetworkObject component missing on {item.gameObject.name}. Cannot return to pool.");
-            }
-        }
-        else
-        {
-            //Debug.LogWarning($"Attempted to return {item.gameObject.name}, but it was not found in m_prefabByInstanceMap.");
-        }
-    }
+    //            //Debug.Log("ReturnToPool - ReturnNetworkObject()");
+    //            NetworkObjectPool.Instance.ReturnNetworkObject(networkObj, prefab);
+    //            m_prefabByInstanceMap.Remove(item.gameObject);
+    //        }
+    //        else
+    //        {
+    //            Debug.LogWarning($"NetworkObject component missing on {item.gameObject.name}. Cannot return to pool.");
+    //        }
+    //    }
+    //    else
+    //    {
+    //        //Debug.LogWarning($"Attempted to return {item.gameObject.name}, but it was not found in m_prefabByInstanceMap.");
+    //    }
+    //}
 }

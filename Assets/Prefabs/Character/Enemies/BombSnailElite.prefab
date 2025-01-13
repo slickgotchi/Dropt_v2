@@ -101,11 +101,9 @@ GameObject:
   - component: {fileID: -2099557218047769943}
   - component: {fileID: -1865453684165800506}
   - component: {fileID: -5451400601243544258}
-  - component: {fileID: -4637386071132230751}
   - component: {fileID: 3202058436566882424}
   - component: {fileID: 442510803199067980}
   - component: {fileID: -7246433058078861914}
-  - component: {fileID: 2376481274280364154}
   - component: {fileID: 7894955574090363429}
   - component: {fileID: -672225850276954026}
   - component: {fileID: 6423663201319280036}
@@ -245,7 +243,7 @@ MonoBehaviour:
   - {fileID: 8382270573715496843}
   IsSpawning: 1
   SpawnDuration: 0
-  IsArmed: 0
+  enemyAI: {fileID: 0}
 --- !u!61 &-2099557218047769943
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -278,7 +276,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0.34381184}
+  m_Offset: {x: 0, y: 0.34}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.685, y: 0.16}
@@ -289,7 +287,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1, y: 0.81964}
+  m_Size: {x: 1.5, y: 1.5}
   m_EdgeRadius: 0
 --- !u!114 &-1865453684165800506
 MonoBehaviour:
@@ -320,19 +318,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 93245a10eab2ede4eb23e82088d382cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &-4637386071132230751
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1249991746567512264}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e01a7831c8b34d498bf7ed75e6ff22a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  explodeAbilityPrefab: {fileID: 3159421716010617349, guid: 1a39f28e9e312b646adfe8a192589597, type: 3}
 --- !u!114 &3202058436566882424
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -345,6 +330,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09698abc2e8964808b00a54103ccdd21, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isDestroying: 0
 --- !u!195 &442510803199067980
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -399,6 +385,7 @@ MonoBehaviour:
   SecondaryAttack: {fileID: 0}
   avoidanceRadius: 1
   debugCanvas: {fileID: 6040597720460773605}
+  interpolationDelay_s: 0.1
   m_navMeshAgent: {fileID: 0}
   AttackDirection: {x: 0, y: 0, z: 0}
   PositionToAttack: {x: 0, y: 0, z: 0}
@@ -409,20 +396,6 @@ MonoBehaviour:
     m_InternalValue: 1
   debugSlider:
     m_InternalValue: 0
---- !u!114 &2376481274280364154
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1249991746567512264}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f0c3d8e92089f472da9a97a093662d69, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  detonationTime: 999
-  detonationText: {fileID: 2869548533702037714}
 --- !u!114 &7894955574090363429
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -483,46 +456,52 @@ MonoBehaviour:
   ReceiveDamageFontSize: 16
   ReceiveCriticalDamageColor: {r: 1, g: 0.92156863, b: 0.34117648, a: 1}
   ReceiveCriticalDamageFontSize: 24
-  HpMax:
-    m_InternalValue: 100
-  HpCurrent:
-    m_InternalValue: 100
-  HpBuffer:
-    m_InternalValue: 0
-  AttackPower:
-    m_InternalValue: 10
-  CriticalChance:
-    m_InternalValue: 0.1
-  ApMax:
-    m_InternalValue: 50
-  ApCurrent:
-    m_InternalValue: 50
-  ApBuffer:
-    m_InternalValue: 0
-  DoubleStrikeChance:
-    m_InternalValue: 0.05
-  CriticalDamage:
-    m_InternalValue: 0
-  MoveSpeed:
-    m_InternalValue: 6.22
-  Accuracy:
-    m_InternalValue: 1
-  Evasion:
-    m_InternalValue: 0
-  DamageReduction:
-    m_InternalValue: 0
-  ApLeech:
-    m_InternalValue: 0
-  ApRegen:
-    m_InternalValue: 0
-  KnockbackMultiplier:
-    m_InternalValue: 0
-  StunMultiplier:
-    m_InternalValue: 0
-  EnemyShield:
-    m_InternalValue: 0
-  MaxEnemyShield:
-    m_InternalValue: 0
+  previousDynamicStats:
+    HpCurrent: 0
+    ApCurrent: 0
+    EnemyShield: 0
+    IsDead: 0
+  currentDynamicStats:
+    HpCurrent: 0
+    ApCurrent: 0
+    EnemyShield: 0
+    IsDead: 0
+  previousStaticStats:
+    HpMax: 0
+    HpBuffer: 0
+    AttackPower: 0
+    CriticalChance: 0
+    ApMax: 0
+    ApBuffer: 0
+    DoubleStrikeChance: 0
+    CriticalDamage: 0
+    MoveSpeed: 0
+    Accuracy: 0
+    Evasion: 0
+    DamageReduction: 0
+    ApLeech: 0
+    ApRegen: 0
+    KnockbackMultiplier: 0
+    StunMultiplier: 0
+    MaxEnemyShield: 0
+  currentStaticStats:
+    HpMax: 0
+    HpBuffer: 0
+    AttackPower: 0
+    CriticalChance: 0
+    ApMax: 0
+    ApBuffer: 0
+    DoubleStrikeChance: 0
+    CriticalDamage: 0
+    MoveSpeed: 0
+    Accuracy: 0
+    Evasion: 0
+    DamageReduction: 0
+    ApLeech: 0
+    ApRegen: 0
+    KnockbackMultiplier: 0
+    StunMultiplier: 0
+    MaxEnemyShield: 0
 --- !u!114 &6014046944584602669
 MonoBehaviour:
   m_ObjectHideFlags: 0

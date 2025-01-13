@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.LowLevel;
 using Unity.Mathematics;
 
 // INPUT HANDLING
@@ -16,9 +17,40 @@ public partial class PlayerPrediction : NetworkBehaviour
 
     private Vector3 m_screenToWorldPosition;
 
+    
+    void OnApplicationFocusChanged(bool hasFocus)
+    {
+        if (hasFocus)
+        {
+            //var keyboard = Keyboard.current;
+            //var keyboardState = new KeyboardState();
+            //keyboardState.Release(Key.W);
+            //keyboardState.Release(Key.A);
+            //keyboardState.Release(Key.S);
+            //keyboardState.Release(Key.D);
+            //InputSystem.QueueStateEvent(keyboard, keyboardState);
+            //Debug.Log("Release keyboard state");
+        }
+    }
+    
+
+    private Vector3 GetMoveDirection_LegacyInput()
+    {
+        var dir = Vector3.zero;
+
+        dir.x = Input.GetAxisRaw("Horizontal");
+        dir.y = Input.GetAxisRaw("Vertical");
+
+        if (dir != Vector3.zero) dir = dir.normalized;
+
+        return dir;
+    }
+
     // called every frame in the main PlayerPrediction.cs file Update()
     private void UpdateInput()
     {
+        if (!Application.isFocused) return;
+
         // update cursor
         m_cursorScreenPosition = Input.mousePosition;
 
@@ -33,6 +65,7 @@ public partial class PlayerPrediction : NetworkBehaviour
         if (IsMovementEnabled && IsInputEnabled)
         {
             m_moveDirection = m_movementAction.ReadValue<Vector2>();
+            //m_moveDirection = GetMoveDirection_LegacyInput();
             if (m_moveDirection.magnitude > 0.01f) m_lastNonZeroMoveDirection = m_moveDirection;
         }
         else

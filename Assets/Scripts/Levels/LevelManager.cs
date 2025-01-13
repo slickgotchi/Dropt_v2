@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 using System;
+using Cysharp.Threading.Tasks;
 
 // Level Management
 // - Four types of level
@@ -50,6 +51,8 @@ public class LevelManager : NetworkBehaviour
     // this is for doing first spawn of level manager
     private bool m_isSpawnedFirstLevel = false;
 
+    private bool m_isOnceOnlySpawnDone = false;
+
     private void Awake()
     {
         // Singleton pattern to ensure only one instance of the AudioManager exists
@@ -75,6 +78,7 @@ public class LevelManager : NetworkBehaviour
         if (IsServer)
         {
             m_isSpawnedFirstLevel = false;
+            m_isOnceOnlySpawnDone = false;
             m_currentLevelIndex_SERVER = -1;
             m_depthCounter_SERVER = 0;
             transitionState.Value = TransitionState.Null;
@@ -102,10 +106,10 @@ public class LevelManager : NetworkBehaviour
     public void TryGoToTutorialLevelServerRpc()
     {
         // ensure this only works once
-        if (!m_isSpawnedFirstLevel)
+        if (!m_isOnceOnlySpawnDone)
         {
             GoToTutorialLevel_SERVER();
-            m_isSpawnedFirstLevel = true;
+            m_isOnceOnlySpawnDone = true;
         }
     }
 
@@ -113,10 +117,10 @@ public class LevelManager : NetworkBehaviour
     public void TryGoToDegenapeVillageLevelServerRpc()
     {
         // ensure this only works once
-        if (!m_isSpawnedFirstLevel)
+        if (!m_isOnceOnlySpawnDone)
         {
             GoToDegenapeVillageLevel_SERVER();
-            m_isSpawnedFirstLevel = true;
+            m_isOnceOnlySpawnDone = true;
         }
     }
 
@@ -160,9 +164,6 @@ public class LevelManager : NetworkBehaviour
         // disable proximity manager
         ProximityManager.Instance.enabled = false;
 
-        // tag all spawns to die
-        //LevelSpawnManager.Instance.TagAllCurrentLevelSpawnsForDead();
-
         // find everything to destroy
         var destroyObjects = FindObjectsByType<DestroyAtLevelChange>(FindObjectsInactive.Include, FindObjectsSortMode.None);
 
@@ -170,16 +171,9 @@ public class LevelManager : NetworkBehaviour
         // with DestroyAtLevelChange should still be destroyed)
         foreach (var destroyObject in destroyObjects)
         {
-            // enable all destroys (excpet for not in use pooled objects)
-            var pooledObject = destroyObject.GetComponent<PooledObject>();
-            if (pooledObject != null && !pooledObject.IsInUse)
-            {
-                destroyObject.gameObject.SetActive(false);
-            }
-            else
-            {
-                destroyObject.gameObject.SetActive(true);
-            }
+            // its important everything is enabled (the proximity manager disables things)
+            destroyObject.gameObject.SetActive(true);
+            destroyObject.isDestroying = true;
 
             // deparent objects
             if (destroyObject.HasComponent<NetworkObject>())
@@ -198,64 +192,24 @@ public class LevelManager : NetworkBehaviour
         // despawn/destroy all objects
         foreach (var destroyObject in destroyObjects)
         {
-            // disable any onDestroySpawn something components
-            if (destroyObject.HasComponent<OnDestroySpawnNetworkObject>())
-            {
-                destroyObject.GetComponent<OnDestroySpawnNetworkObject>().enabled = false;
-            }
-            if (destroyObject.HasComponent<OnDestroySpawnGltr>())
-            {
-                destroyObject.GetComponent<OnDestroySpawnGltr>().enabled = false;
-            }
-            if (destroyObject.HasComponent<Interactables.Chest>())
-            {
-                destroyObject.GetComponent<Interactables.Chest>().enabled = false;
-            }
-
             // get our destroy objects networkobject
             var networkObject = destroyObject.GetComponent<NetworkObject>();
             if (networkObject != null)
             {
-                // check for enemies or destructibles
-                var enemyController = networkObject.GetComponent<EnemyController>();
-                var destructible = networkObject.GetComponent<Destructible>();
-                var levelSpawn = networkObject.GetComponent<Level.LevelSpawn>();
-                var pooledObject = networkObject.GetComponent<PooledObject>();
-
-                if ((enemyController != null || destructible != null) &&
-                    levelSpawn != null &&
-                    pooledObject != null && pooledObject.IsInUse &&
-                    networkObject.IsSpawned)
+                if (networkObject.IsSpawned)
                 {
-                    //Debug.Log($"LevelManager: Returning {networkObject.gameObject.name} to pool");
-                    //Core.Pool.NetworkObjectPool.Instance.ReturnNetworkObject(
-                    //    networkObject, levelSpawn.prefab);
-                    //networkObject.Despawn(false);
-
                     networkObject.Despawn();
                 }
-
                 else
                 {
-                    if (networkObject.IsSpawned) networkObject.Despawn();
+                    networkObject.Spawn();
+                    networkObject.Despawn();
                 }
-
-                //if (networkObject.IsSpawned) networkObject.Despawn();
             }
             else
             {
                 Destroy(destroyObject);
             }
-        }
-
-        // clear our list
-        //destroyObjects.Clear();
-
-        // return all pickup items to their pools
-        var pickupItems = FindObjectsByType<PickupItem>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-        foreach (var pi in pickupItems)
-        {
-            PickupItemManager.Instance.ReturnToPool(pi);
         }
 
         // re-enable proximity manager
@@ -319,6 +273,7 @@ public class LevelManager : NetworkBehaviour
                 break;
             case TransitionState.GoToNext:
                 HandleGoToNextLevel_SERVER();
+
                 m_headsDownTimer = m_headsDownDuration;
                 transitionState.Value = TransitionState.ClientHeadsDown;
                 break;
@@ -330,7 +285,6 @@ public class LevelManager : NetworkBehaviour
                 }
                 break;
             case TransitionState.End:
-
                 //transitionState.Value = TransitionState.Null;
                 break;
             default:
@@ -405,22 +359,28 @@ public class LevelManager : NetworkBehaviour
             // increment all buffs
             foreach (var lcb in levelCountBuffs)
             {
-                lcb.IncrementLevelCount();
+                if (lcb != null) lcb.IncrementLevelCount();
             }
         }
+
+        isLevelLoaded = false;
     }
 
     // vars for handling level loaded
-    bool isHandleLevelLoadedNextFrame = false;
+    //bool isHandleLevelLoadedNextFrame = false;
     public bool isLevelLoaded = true;
+    public bool isPlayersSpawnable = false;
 
     // update nav mesh, spawn things, drop spawn players
-    void HandleLevelLoaded_SERVER()
+    async UniTaskVoid HandleLevelLoaded_SERVER()
     {
         if (!IsServer) return;
 
-        if (isHandleLevelLoadedNextFrame && !isLevelLoaded)
+        //if (isHandleLevelLoadedNextFrame && !isLevelLoaded)
+        if (!isLevelLoaded && LevelSpawningCount <= 0)
         {
+            isLevelLoaded = false;
+            await UniTask.Yield();
             isLevelLoaded = true;
 
             // check if level uses render mesh or physics colliders
@@ -456,7 +416,6 @@ public class LevelManager : NetworkBehaviour
 
             // drop spawn players
             var no_playerSpawnPoints = m_currentLevel.GetComponentsInChildren<PlayerSpawnPoints>();
-            int makeupCount = 3;
             if (no_playerSpawnPoints != null)
             {
                 for (int i = 0; i < no_playerSpawnPoints.Length; i++)
@@ -465,12 +424,12 @@ public class LevelManager : NetworkBehaviour
                     for (int j = 0; j < playerSpawnPoints.transform.childCount; j++)
                     {
                         m_playerSpawnPoints.Add(playerSpawnPoints.transform.GetChild(j).transform.position);
-                        makeupCount--;
                     }
                 }
             }
 
-            for (int i = 0; i < makeupCount; i++)
+            // add extra spawn points if we didn't get 3
+            for (int i = 0; i < 3 - m_playerSpawnPoints.Count; i++)
             {
                 // if we got at least one legit spawn use that
                 if (m_playerSpawnPoints.Count > 0)
@@ -483,22 +442,24 @@ public class LevelManager : NetworkBehaviour
                 }
             }
 
-            // get all players to recheck their spawn position
-            var players = Game.Instance.playerControllers;
-            foreach (var player in players)
-            {
-                player.IsLevelSpawnPositionSet = false;
-            }
+            // clear the spawnedPlayers lists which will mean any player checking the list
+            // will know if they need to spawn or not
+            // NOTE: players need to check both this list and the state of isLevelLoaded
+            spawnedPlayers.Clear();
+            isPlayersSpawnable = true;
+
         }
 
         // this code ensures we only build a navmesh once level is finished loading
-        if (isHandleLevelLoaded && LevelSpawningCount <= 0)
-        {
-            isHandleLevelLoaded = false;
-            isHandleLevelLoadedNextFrame = true;
-            isLevelLoaded = false;
-        }
+        //if (isHandleLevelLoaded && LevelSpawningCount <= 0)
+        //{
+        //    isHandleLevelLoaded = false;
+        //    isHandleLevelLoadedNextFrame = true;
+        //    isLevelLoaded = false;
+        //}
     }
+
+    public List<PlayerController> spawnedPlayers = new List<PlayerController>();
 
     public bool IsPlayerSpawnPointsReady()
     {

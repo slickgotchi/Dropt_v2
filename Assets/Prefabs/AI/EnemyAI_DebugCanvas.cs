@@ -10,20 +10,30 @@ public class EnemyAI_DebugCanvas : MonoBehaviour
     public TextMeshProUGUI stateTMP;
     public Slider slider;
 
-    private bool m_isVisible = false;
+    public bool isVisible = false;
+
+    private void Start()
+    {
+        if (Bootstrap.IsServer())
+        {
+            GeneralDebugCanvas.Instance.enemyAIToggle.isOn = false;
+            isVisible = false;
+            Container.SetActive(false);
+        }
+    }
 
     private void Update()
     {
         if (GeneralDebugCanvas.Instance == null) return;
 
-        if (GeneralDebugCanvas.Instance.enemyAIToggle.isOn && !m_isVisible)
+        if (GeneralDebugCanvas.Instance.enemyAIToggle.isOn && !isVisible)
         {
-            m_isVisible = true;
+            isVisible = true;
             Container.SetActive(true);
         }
-        else if (!GeneralDebugCanvas.Instance.enemyAIToggle.isOn && m_isVisible)
+        else if (!GeneralDebugCanvas.Instance.enemyAIToggle.isOn && isVisible)
         {
-            m_isVisible = false;
+            isVisible = false;
             Container.SetActive(false);
         }
 

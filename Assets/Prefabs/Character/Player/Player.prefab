@@ -841,7 +841,6 @@ Transform:
   - {fileID: 3908813926668223793}
   - {fileID: 2972029598541266474}
   - {fileID: 2927131228705121010}
-  - {fileID: 6845901674473810640}
   - {fileID: 7838843729396316950}
   - {fileID: 1871408958033432868}
   - {fileID: 5329823270649007181}
@@ -852,6 +851,7 @@ Transform:
   - {fileID: 2346943555948467453}
   - {fileID: 4380377416953888011}
   - {fileID: 7564333498438163765}
+  - {fileID: 6845901674473810640}
   - {fileID: 543290580558224034}
   - {fileID: 7386278464542488644}
   m_Father: {fileID: 0}
@@ -902,7 +902,7 @@ Rigidbody2D:
     m_Bits: 0
   m_Interpolate: 1
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 4
 --- !u!70 &5988500204368849640
 CapsuleCollider2D:
@@ -1006,7 +1006,7 @@ MonoBehaviour:
   ScreenBlockers: {fileID: 5111852839597543851}
   IsDead: 0
   IsLevelSpawnPositionSet: 0
-  ConnectedWallet: 
+  isGameOvered: 0
   NetworkGotchiId:
     m_InternalValue: 69420
   m_totalKilledEnemies:
@@ -1256,7 +1256,6 @@ MonoBehaviour:
   ectoDebitStartAmount_dungeon: 0
   ectoDebitCount_dungeon: 0
   ectoLiveCount_dungeon: 0
-  dustLiveCount_dungeon: 0
   bombStartCount_dungeon: 3
   bombLiveCount_dungeon: 0
   healSalveChargeCount_dungeon: 0
@@ -13283,6 +13282,18 @@ PrefabInstance:
       propertyPath: GlobalObjectIdHash
       value: 1311497934
       objectReference: {fileID: 0}
+    - target: {fileID: 1596535472128102925, guid: 1211080fa1b594cbf86cbd168127c93c, type: 3}
+      propertyPath: m_shieldBarCanvas
+      value: 
+      objectReference: {fileID: 8129875239090062417}
+    - target: {fileID: 1596535472128102925, guid: 1211080fa1b594cbf86cbd168127c93c, type: 3}
+      propertyPath: _shieldBlockEffect
+      value: 
+      objectReference: {fileID: 522984649546130373}
+    - target: {fileID: 1596535472128102925, guid: 1211080fa1b594cbf86cbd168127c93c, type: 3}
+      propertyPath: m_ownerNetworkObject
+      value: 
+      objectReference: {fileID: -2378564677302240399}
     - target: {fileID: 2544078778212307353, guid: 1211080fa1b594cbf86cbd168127c93c, type: 3}
       propertyPath: m_Name
       value: ShieldBlock

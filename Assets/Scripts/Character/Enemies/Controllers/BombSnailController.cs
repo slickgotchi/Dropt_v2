@@ -13,7 +13,7 @@ public class BombSnailController : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        if (GetComponent<EnemyController>().IsArmed)
+        //if (GetComponent<EnemyController>().IsArmed)
         {
             m_explosionTimer -= Time.deltaTime;
 

@@ -101,11 +101,9 @@ GameObject:
   - component: {fileID: -2099557218047769943}
   - component: {fileID: -1865453684165800506}
   - component: {fileID: -5451400601243544258}
-  - component: {fileID: -4637386071132230751}
   - component: {fileID: 3202058436566882424}
   - component: {fileID: 442510803199067980}
   - component: {fileID: -7246433058078861914}
-  - component: {fileID: 2376481274280364154}
   - component: {fileID: 7894955574090363429}
   - component: {fileID: -672225850276954026}
   - component: {fileID: 6423663201319280036}
@@ -113,7 +111,6 @@ GameObject:
   - component: {fileID: 7866031249757602412}
   - component: {fileID: 6215339487896030094}
   - component: {fileID: -5555769081634926165}
-  - component: {fileID: 7732513851948436497}
   m_Layer: 15
   m_Name: BombSnail
   m_TagString: Untagged
@@ -177,7 +174,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2500555884
+  GlobalObjectIdHash: 4221514460
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -207,7 +204,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1249991746567512264}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
   m_Name: 
@@ -248,7 +245,7 @@ MonoBehaviour:
   - {fileID: 8382270573715496843}
   IsSpawning: 1
   SpawnDuration: 0
-  IsArmed: 0
+  enemyAI: {fileID: 0}
 --- !u!61 &-2099557218047769943
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -281,7 +278,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0.34381184}
+  m_Offset: {x: 0, y: 0.34}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.685, y: 0.16}
@@ -292,7 +289,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1, y: 0.81964}
+  m_Size: {x: 1.5, y: 1.5}
   m_EdgeRadius: 0
 --- !u!114 &-1865453684165800506
 MonoBehaviour:
@@ -323,19 +320,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 93245a10eab2ede4eb23e82088d382cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &-4637386071132230751
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1249991746567512264}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e01a7831c8b34d498bf7ed75e6ff22a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  explodeAbilityPrefab: {fileID: 3159421716010617349, guid: 1a39f28e9e312b646adfe8a192589597, type: 3}
 --- !u!114 &3202058436566882424
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -348,6 +332,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09698abc2e8964808b00a54103ccdd21, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isDestroying: 0
 --- !u!195 &442510803199067980
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -402,6 +387,7 @@ MonoBehaviour:
   SecondaryAttack: {fileID: 0}
   avoidanceRadius: 1
   debugCanvas: {fileID: 6040597720460773605}
+  interpolationDelay_s: 0.26
   m_navMeshAgent: {fileID: 0}
   AttackDirection: {x: 0, y: 0, z: 0}
   PositionToAttack: {x: 0, y: 0, z: 0}
@@ -412,20 +398,6 @@ MonoBehaviour:
     m_InternalValue: 1
   debugSlider:
     m_InternalValue: 0
---- !u!114 &2376481274280364154
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1249991746567512264}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f0c3d8e92089f472da9a97a093662d69, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  detonationTime: 999
-  detonationText: {fileID: 2869548533702037714}
 --- !u!114 &7894955574090363429
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -597,21 +569,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2fca993741f744a18a8a2c029469458, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  IsCulled: 1
---- !u!114 &7732513851948436497
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1249991746567512264}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 40782bf69052c45b8b668c6bcbf0e9b4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_syncOnPositionDelta: 0.1
-  interpolationDelayTicks: 4
+  networkObject: {fileID: 0}
+  pooledObject: {fileID: 0}
 --- !u!1 &3116345567214493271
 GameObject:
   m_ObjectHideFlags: 0

@@ -20,6 +20,7 @@ public class PlayerEquipmentDebugCanvas : DroptCanvas
     public TMP_Dropdown leftHandWearableDropdown;
     public TMP_Dropdown petDropdown;
 
+    bool m_isInitialized = false;
 
     private void Awake()
     {
@@ -35,11 +36,18 @@ public class PlayerEquipmentDebugCanvas : DroptCanvas
         InstaHideCanvas();
     }
 
-    bool m_isInitialized = false;
+    public override void OnStart()
+    {
+        base.OnStart();
+
+        //InitializeDropdowns();
+    }
+
 
     public override void OnUpdate()
     {
         FindLatestPlayerEquipment();
+
         if (playerEquipment != null)
         {
             if (!m_isInitialized)
@@ -51,12 +59,13 @@ public class PlayerEquipmentDebugCanvas : DroptCanvas
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.Alpha0))
+        if (Input.GetKeyDown(KeyCode.Alpha0) && Bootstrap.Instance.isPlayerEquipmentSwapperActive)
         {
             if (PlayerEquipmentDebugCanvas.Instance.isCanvasOpen)
             {
                 HideCanvas();
-            } else
+            }
+            else
             {
                 ShowCanvas();
             }
@@ -65,6 +74,7 @@ public class PlayerEquipmentDebugCanvas : DroptCanvas
 
     private void InitializeDropdowns()
     {
+        //Debug.Log("InitializeDropdowns()");
         InitializeDropdown(bodyDropdown, Wearable.SlotEnum.Body);
         InitializeDropdown(faceDropdown, Wearable.SlotEnum.Face);
         InitializeDropdown(eyesDropdown, Wearable.SlotEnum.Eyes);
@@ -78,6 +88,7 @@ public class PlayerEquipmentDebugCanvas : DroptCanvas
 
     private void SetUpDropdownListeners()
     {
+        //Debug.Log("SetupDropdownListeners()");
         bodyDropdown.onValueChanged.AddListener(index => OnDropdownChanged(bodyDropdown, Wearable.SlotEnum.Body));
         faceDropdown.onValueChanged.AddListener(index => OnDropdownChanged(faceDropdown, Wearable.SlotEnum.Face));
         eyesDropdown.onValueChanged.AddListener(index => OnDropdownChanged(eyesDropdown, Wearable.SlotEnum.Eyes));
@@ -91,7 +102,10 @@ public class PlayerEquipmentDebugCanvas : DroptCanvas
 
     private void SetDropdownValues()
     {
+        //Debug.Log("SetDropdownValues()");
         FindLatestPlayerEquipment();
+
+        if (playerEquipment == null) return;
 
         SetDropdownValue(bodyDropdown, playerEquipment.Body.Value);
         SetDropdownValue(faceDropdown, playerEquipment.Face.Value);
@@ -177,6 +191,10 @@ public class PlayerEquipmentDebugCanvas : DroptCanvas
     private void OnDropdownChanged(TMP_Dropdown dropdown, Wearable.SlotEnum slot)
     {
         FindLatestPlayerEquipment();
+
+        if (playerEquipment == null) return;
+
+        if (dropdown == null) { Debug.LogWarning("dropdown = null"); return; }
 
         var selectedNameEnum = (Wearable.NameEnum)System.Enum.Parse(typeof(Wearable.NameEnum), dropdown.options[dropdown.value].text);
         var wearable = WearableManager.Instance.GetWearable(selectedNameEnum);

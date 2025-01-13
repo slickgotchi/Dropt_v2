@@ -164,7 +164,6 @@ namespace GotchiHub
 
         private void Awake()
         {
-            // Singleton pattern to ensure only one instance of the AudioManager exists
             if (Instance != null && Instance != this)
             {
                 Destroy(gameObject);
@@ -198,12 +197,11 @@ namespace GotchiHub
         {
             try
             {
+#if UNITY_WEBGL
                 var newProvider = WalletProvider.MetaMaskWallet;
-
-                if (Application.isEditor)
-                {
-                    newProvider = WalletProvider.WalletConnectWallet;
-                }
+#else
+                var newProvider = WalletProvider.WalletConnectWallet;
+#endif
 
                 Debug.Log($"Set provider: {newProvider.ToString()}");
 

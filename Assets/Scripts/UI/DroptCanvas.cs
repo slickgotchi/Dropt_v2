@@ -27,6 +27,13 @@ public class DroptCanvas : MonoBehaviour
         }
 
         InstaHideCanvas();
+
+        OnStart();
+    }
+
+    private void OnDestroy()
+    {
+        DOTween.Kill(m_modalRectTransform);
     }
 
     protected virtual void Update()
@@ -37,6 +44,12 @@ public class DroptCanvas : MonoBehaviour
 
     public virtual void ShowCanvas()
     {
+        if (m_container == null || m_modal == null)
+        {
+            Debug.LogWarning("ShowCanvas: m_container or m_modal = null");
+            return;
+        }
+
         if (m_modalRectTransform == null)
         {
             m_modalRectTransform = m_modal.GetComponent<RectTransform>();
@@ -51,17 +64,25 @@ public class DroptCanvas : MonoBehaviour
             m_backgroundCanvasGroup.DOFade(1, 0.2f);
         }
 
-        m_modalRectTransform.DOAnchorPosX(m_modalOnscreenXPosition, 0.2f)
-            .OnComplete(() => {
-                OnShowCanvas(); // Custom logic after showing canvas
-            });
+        if (m_modalRectTransform != null)
+        {
+            m_modalRectTransform.DOAnchorPosX(m_modalOnscreenXPosition, 0.2f)
+                .OnComplete(() => OnShowCanvas());
+        }
 
+        //Debug.Log("SwitchToInUI()");
         PlayerInputMapSwitcher.Instance.SwitchToInUI();
         isCanvasOpen = true;
     }
 
     public void InstaHideCanvas()
     {
+        if (m_container == null || m_modal == null)
+        {
+            Debug.LogWarning("ShowCanvas: m_container or m_modal = null");
+            return;
+        }
+
         if (m_modalRectTransform == null)
         {
             m_modalRectTransform = m_modal.GetComponent<RectTransform>();
@@ -73,36 +94,52 @@ public class DroptCanvas : MonoBehaviour
             m_backgroundCanvasGroup.alpha = 0;
         }
 
-        m_modalRectTransform.anchoredPosition =
-            new Vector2(m_modalOffscreenXPosition, m_modalRectTransform.anchoredPosition.y);
+        if (m_modalRectTransform != null)
+        {
+            m_modalRectTransform.DOAnchorPosX(m_modalOffscreenXPosition, 0.2f)
+                .OnComplete(() => m_container.SetActive(false));
+        }
+
 
         // Immediately deactivate the container
         m_container.SetActive(false);
 
+        //Debug.Log("SwitchToInGame()");
         PlayerInputMapSwitcher.Instance.SwitchToInGame();
         isCanvasOpen = false;
     }
 
     public virtual void HideCanvas()
     {
+        if (m_container == null || m_modal == null)
+        {
+            Debug.LogWarning("ShowCanvas: m_container or m_modal = null");
+            return;
+        }
+
         if (m_modalRectTransform == null)
         {
             m_modalRectTransform = m_modal.GetComponent<RectTransform>();
         }
 
         OnHideCanvas();
+
         if (m_backgroundCanvasGroup != null)
         {
             m_backgroundCanvasGroup.blocksRaycasts = false;
             m_backgroundCanvasGroup.DOFade(0, 0.2f);
         }
 
-        m_modalRectTransform.DOAnchorPosX(m_modalOffscreenXPosition, 0.2f)
-            .OnComplete(() => {
-                // Deactivate the container after the animation completes
-                m_container.SetActive(false);
-            });
+        if (m_modalRectTransform != null)
+        {
+            m_modalRectTransform.DOAnchorPosX(m_modalOffscreenXPosition, 0.2f)
+                .OnComplete(() =>
+                {
+                    m_container.SetActive(false);
+                });
+        }
 
+        //Debug.Log("SwitchToInGame()");
         PlayerInputMapSwitcher.Instance.SwitchToInGame();
         isCanvasOpen = false;
     }
@@ -122,6 +159,7 @@ public class DroptCanvas : MonoBehaviour
 
     public virtual void OnShowCanvas() { }
     public virtual void OnHideCanvas() { }
+    public virtual void OnStart() { }
     public virtual void OnUpdate() { }
 
     protected void TryGetLocalPlayerInput()

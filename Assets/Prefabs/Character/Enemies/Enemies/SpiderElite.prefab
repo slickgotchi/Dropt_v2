@@ -112,7 +112,6 @@ GameObject:
   - component: {fileID: -6546004602855606656}
   - component: {fileID: 4934147990510087795}
   - component: {fileID: 8745919381515592746}
-  - component: {fileID: 8107201640786172693}
   m_Layer: 15
   m_Name: SpiderElite
   m_TagString: Untagged
@@ -154,7 +153,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1549624854
+  GlobalObjectIdHash: 1922545124
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -206,7 +205,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1249991746567512264}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
   m_Name: 
@@ -415,6 +414,7 @@ MonoBehaviour:
   SecondaryAttack: {fileID: 0}
   avoidanceRadius: 1
   debugCanvas: {fileID: 2383291364310102428}
+  interpolationDelay_s: 0.26
   m_navMeshAgent: {fileID: 0}
   AttackDirection: {x: 0, y: 0, z: 0}
   PositionToAttack: {x: 0, y: 0, z: 0}
@@ -583,20 +583,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsCulled: 1
---- !u!114 &8107201640786172693
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1249991746567512264}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 40782bf69052c45b8b668c6bcbf0e9b4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_syncOnPositionDelta: 0.1
-  interpolationDelayTicks: 4
 --- !u!1 &2736674369248915178
 GameObject:
   m_ObjectHideFlags: 0

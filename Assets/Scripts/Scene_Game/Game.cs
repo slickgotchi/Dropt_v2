@@ -27,17 +27,12 @@ public class Game : MonoBehaviour
     // reconnecting to new game from gaeover
     private bool m_isTryConnectClientGame = false;
 
-    // store current game Id
-    //private string m_currentGameId = "";
-
     [HideInInspector] public bool isReconnecting = true;
 
     public float reconnectTimer = 30f;
     [HideInInspector] public bool isReconnectTimerActive = false;
 
     public bool isServerReady = false;
-
-    //public List<GameObject> afterConnectSpawnPrefabs_SERVER = new List<GameObject>();
 
     [HideInInspector] public List<PlayerController> playerControllers = new List<PlayerController>();
     [HideInInspector] public List<EnemyController> enemyControllers = new List<EnemyController>();
@@ -66,13 +61,14 @@ public class Game : MonoBehaviour
                 Bootstrap.Instance.IpAddress = "127.0.0.1";
                 Bootstrap.Instance.GamePort = 9000;
                 m_unityTransport.UseEncryption = false;
+                // delete this comment
             }
 
             if (Bootstrap.IsServer())
             {
                 // set a reasonably high target frame rate to reduce latency
                 //Application.targetFrameRate = Bootstrap.IsRemoteConnection() ? 1200 : 300;
-                Application.targetFrameRate = 180;
+                Application.targetFrameRate = 60;   // 30fps is too low and starts adding significant (+40ms) latency
                 QualitySettings.vSyncCount = 0;
 
                 // hide loading canvas
@@ -85,7 +81,7 @@ public class Game : MonoBehaviour
             {
                 QualitySettings.vSyncCount = 1;
 
-                Application.targetFrameRate = 60;
+                Application.targetFrameRate = 120;
 
                 // connect to a client game (leave gameId param "" to signify we want an empty game)
                 ConnectClientGame(Bootstrap.Instance.isJoiningFromTitle ? Bootstrap.Instance.GameId : "");
@@ -169,9 +165,8 @@ public class Game : MonoBehaviour
     {
         Debug.Log("ConnectClientGame()");
 
-        //m_currentGameId = gameId;
-
         bool isReturnToTitleOnFail = string.IsNullOrEmpty(gameId) || Bootstrap.Instance.isJoiningFromTitle;
+        Debug.Log("isReturnToTitleOnFail: " + isReturnToTitleOnFail);
 
         if (m_unityTransport == null)
         {
@@ -193,16 +188,24 @@ public class Game : MonoBehaviour
                 // if no valid response, give error and go back to title
                 if (response == null)
                 {
-                    ErrorDialogCanvas.Instance.Show("The Dropt server manager is either full or not online, you can check https//manager.playdropt.io to see available instances.");
-                    if (isReturnToTitleOnFail) SceneManager.LoadScene("Title");
+                    ErrorDialogCanvas.Instance.Show("The Dropt server manager is not currently online. Check our Discord for when we'll be back in Action!");
+                    if (isReturnToTitleOnFail)
+                    {
+                        Debug.Log("Return to title screen");
+                        SceneManager.LoadScene("Title");
+                    }
                     return;
                 }
 
                 // check for non-succes
-                if (response.responseCode != 200)
+                if (response.message != "SUCCESS")
                 {
                     ErrorDialogCanvas.Instance.Show(response.message);
-                    if (isReturnToTitleOnFail) SceneManager.LoadScene("Title");
+                    if (isReturnToTitleOnFail)
+                    {
+                        Debug.Log("Return to title screen");
+                        SceneManager.LoadScene("Title");
+                    }
                     return;
                 }
 

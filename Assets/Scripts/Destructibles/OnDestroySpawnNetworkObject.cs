@@ -14,6 +14,10 @@ public class OnDestroySpawnNetworkObject : NetworkBehaviour
         if (!GetComponent<OnDestroySpawnNetworkObject>().enabled) return;
         if (SpawnPrefab == null) return;
 
+        // we don't want to spawn if the level is changing so check isDestroying
+        var destroyAtLevelChange = GetComponent<DestroyAtLevelChange>();
+        if (destroyAtLevelChange != null && destroyAtLevelChange.isDestroying) return;
+
         // spawn 
         var newSpawn = Instantiate(SpawnPrefab, transform);
         newSpawn.transform.position += Offset;

@@ -4,15 +4,7 @@ using UnityEngine;
 
 public class DestroyAtLevelChange : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    // any OnDestroy style spawners should check this variable to ensure
+    // they don't accidentally create something at level change
+    public bool isDestroying = false;
 }
