@@ -17,20 +17,16 @@ public partial class PlayerPrediction : NetworkBehaviour
 
     private Vector3 m_screenToWorldPosition;
 
-    
+    public bool isLeftAttackPressed = false;
+    public bool isRightAttackPressed = false;
+
+    InputAction leftAttackAction;
+    InputAction rightAttackAction;
+
+
     void OnApplicationFocusChanged(bool hasFocus)
     {
-        if (hasFocus)
-        {
-            //var keyboard = Keyboard.current;
-            //var keyboardState = new KeyboardState();
-            //keyboardState.Release(Key.W);
-            //keyboardState.Release(Key.A);
-            //keyboardState.Release(Key.S);
-            //keyboardState.Release(Key.D);
-            //InputSystem.QueueStateEvent(keyboard, keyboardState);
-            //Debug.Log("Release keyboard state");
-        }
+
     }
     
 
@@ -45,6 +41,8 @@ public partial class PlayerPrediction : NetworkBehaviour
 
         return dir;
     }
+
+
 
     // called every frame in the main PlayerPrediction.cs file Update()
     private void UpdateInput()
@@ -88,6 +86,10 @@ public partial class PlayerPrediction : NetworkBehaviour
         {
             m_holdActionDirection = new Vector2(m_lastNonZeroMoveDirection.x, m_lastNonZeroMoveDirection.y);
         }
+
+        // update is attack pressed values
+        isLeftAttackPressed = leftAttackAction != null && leftAttackAction.IsPressed();
+        isRightAttackPressed = rightAttackAction != null && rightAttackAction.IsPressed();
     }
 
     public Vector2 GetHoldActionDirection()
@@ -101,8 +103,11 @@ public partial class PlayerPrediction : NetworkBehaviour
         return math.distance(attackCentrePos, m_screenToWorldPosition);
     }
 
-    // Generic_PlayerMove - this is not called as we sample movement from m_movementAction every frame
-    // Generic_CursorMove - this is not called as we sample the cursor every frame in UpdateInput()
+    private void StartInput()
+    {
+        leftAttackAction = m_playerInput.actions["Generic_LeftAttackKeyDown"];
+        rightAttackAction = m_playerInput.actions["Generic_RightAttackKeyDown"];
+    }
 
     // Generic_Interact
     private void OnGeneric_Interact(InputValue value)

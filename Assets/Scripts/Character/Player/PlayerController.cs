@@ -65,7 +65,6 @@ public class PlayerController : NetworkBehaviour
 
         IsLevelSpawnPositionSet = true;
 
-
         // register player controller
         Game.Instance.playerControllers.Add(GetComponent<PlayerController>());
 
@@ -112,18 +111,22 @@ public class PlayerController : NetworkBehaviour
         if (!IsServer) return;
 
         // check for any pets owned
-        var pets = Game.Instance.petControllers;
-        var playerNetworkObjectId = GetComponent<NetworkObject>().NetworkObjectId;
-
-        foreach (var pet in pets)
+        if (Game.Instance != null)
         {
-            if (pet.GetPetOwnerNetworkObjectId() == playerNetworkObjectId)
+            var pets = Game.Instance.petControllers;
+            if (pets.Count > 0)
             {
-                pet.GetComponent<NetworkObject>().Despawn();
+                var playerNetworkObjectId = GetComponent<NetworkObject>().NetworkObjectId;
+
+                foreach (var pet in pets)
+                {
+                    if (pet.GetPetOwnerNetworkObjectId() == playerNetworkObjectId)
+                    {
+                        pet.GetComponent<NetworkObject>().Despawn();
+                    }
+                }
             }
         }
-
-
 
         base.OnNetworkDespawn();
 
@@ -225,6 +228,7 @@ public class PlayerController : NetworkBehaviour
             }
         }
 
+        HandleDegenapeResetKillAndDestructibleCount();
         HandleDegenapeHpAp();
         HandleInactivePlayer();
 
@@ -483,6 +487,17 @@ public class PlayerController : NetworkBehaviour
     private void GoToDegenapeVillageServerRpc()
     {
         //LevelManager.Instance.GoToDegenapeVillageLevel_SERVER();
+    }
+
+    private void HandleDegenapeResetKillAndDestructibleCount()
+    {
+        if (!IsServer) return;
+
+        if (LevelManager.Instance.IsDegenapeVillage())
+        {
+            m_totalKilledEnemies.Value = 0;
+            m_totalDestroyedDestructibles.Value = 0;
+        }
     }
 
     private void HandleDegenapeHpAp()

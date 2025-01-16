@@ -190,6 +190,7 @@ namespace GotchiHub
 
         public void ClickOnConnect()
         {
+            SetMenuScreen(MenuScreen.Loading);
             ConnectWallet();
         }
 
@@ -293,7 +294,7 @@ namespace GotchiHub
 
         public override void OnShowCanvas()
         {
-            UpdateGotchiList();
+            //UpdateGotchiList();
             SelectById(GotchiDataManager.Instance.GetSelectedGotchiId());
         }
 
@@ -306,6 +307,17 @@ namespace GotchiHub
         void HandleOnFetchAllGotchiDataAndSvgs()
         {
             UpdateGotchiList();
+
+            // show screen depending on gotchi count
+            var numGotchis = m_gotchiDataManager.localWalletGotchiData.Count;
+            if (numGotchis <= 0)
+            {
+                SetMenuScreen(MenuScreen.NoGotchis);
+            }
+            else if (m_menuScreen != MenuScreen.Connected)
+            {
+                SetMenuScreen(MenuScreen.Connected);
+            }
         }
 
 
@@ -385,20 +397,20 @@ namespace GotchiHub
                     Debug.Log("New wallet data fetched");
                 }
 
-                // show screen depending on gotchi count
-                var numGotchis = m_gotchiDataManager.localWalletGotchiData.Count;
-                if (numGotchis <= 0)
-                {
-                    SetMenuScreen(MenuScreen.NoGotchis);
-                } else if (m_menuScreen != MenuScreen.Connected)
-                {
-                    SetMenuScreen(MenuScreen.Connected);
-                }
+                //// show screen depending on gotchi count
+                //var numGotchis = m_gotchiDataManager.localWalletGotchiData.Count;
+                //if (numGotchis <= 0)
+                //{
+                //    SetMenuScreen(MenuScreen.NoGotchis);
+                //} else if (m_menuScreen != MenuScreen.Connected)
+                //{
+                //    SetMenuScreen(MenuScreen.Connected);
+                //}
                 
             }
             catch (System.Exception e)
             {
-                //Debug.Log(e);
+                Debug.Log(e);
             }
         }
 
@@ -595,7 +607,7 @@ namespace GotchiHub
             if (onchainSvgImage != null) onchainSvgImage.gameObject.SetActive(false);
 
             //if (wearable != null && wearableId != 0 && wearableId < 990)
-            if (!isWeapon && wearableId != 0)
+            if (wearable != null && !isWeapon && wearableId != 0)
             {
                 wearable = WearableManager.Instance.GetWearable(wearable.NameType);
                 var svgSprite = wearable.SvgSprite;

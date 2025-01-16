@@ -131,7 +131,7 @@ public class SplashProjectile : NetworkBehaviour
             transform.position = m_finalPosition;
             if (Role != PlayerAbility.NetworkRole.RemoteClient) CollisionCheck();
             gameObject.SetActive(false);
-            VisualEffectsManager.Instance.SpawnSplashExplosion(m_finalPosition, new Color(1, 0, 0, 0.5f), ExplosionRadius);
+            VisualEffectsManager.Instance.SpawnSplashExplosion(m_finalPosition, new Color(1f, 0.635f, 0.0784f, 1f), ExplosionRadius);
 
             bodySpriteRenderer.enabled = false;
             shadowSpriteRenderer.enabled = false;
@@ -156,7 +156,7 @@ public class SplashProjectile : NetworkBehaviour
             {
                 var isCritical = PlayerAbility.IsCriticalAttack(CriticalChance);
                 var damage = (int)(isCritical ? DamagePerHit * CriticalDamage : DamagePerHit);
-                hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical);
+                hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical, LocalPlayer);
                 var knockbackDirection = (Dropt.Utils.Battle.GetAttackCentrePosition(hit.gameObject) - transform.position).normalized;
                 var enemyAI = hit.GetComponent<Dropt.EnemyAI>();
                 if (enemyAI != null)

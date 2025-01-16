@@ -351,7 +351,11 @@ public class NetworkCharacter : NetworkBehaviour
                 if (damageDealer != null)
                 {
                     PlayerController playerController = damageDealer.GetComponent<PlayerController>();
-                    if (playerController != null) playerController.AddToTotalKilledEnemies();
+                    if (playerController != null)
+                    {
+                        //Debug.Log("Add to kill count");
+                        playerController.AddToTotalKilledEnemies();
+                    }
                 }
 
                 // despawn this character

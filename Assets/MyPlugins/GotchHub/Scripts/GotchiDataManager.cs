@@ -6,6 +6,7 @@ using Thirdweb.Unity;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 using PortalDefender.AavegotchiKit;
+using Unity.Mathematics;
 
 namespace GotchiHub
 {
@@ -319,7 +320,12 @@ namespace GotchiHub
                     return;
                 }
 
+                // checking litepigles gotchis
+                //walletAddress = "0xa6ab5ca03954e8b2bb54e9006efb8e68824271fa";
+
                 walletAddress = walletAddress.ToLower();
+
+
 
                 // don't do anything if our wallet hasn't changed
                 if (walletAddress == m_walletAddress) return;
@@ -331,11 +337,9 @@ namespace GotchiHub
                 var userAccount = await graphManager.GetUserAccount(walletAddress);
 
                 // save base gotchi data
-                //var gotchiIds = new List<string>();
                 foreach (var gotchi in userAccount.gotchisOwned)
                 {
                     localWalletGotchiData.Add(gotchi);
-                    //gotchiIds.Add(gotchi.id.ToString());
                 }
 
                 // lets reorder the data to go from highest brs to lowest
@@ -343,21 +347,27 @@ namespace GotchiHub
 
                 onFetchedLocalWalletGotchiData?.Invoke();
 
-                await FetchGotchiSvgsParallelForLocalAccount(userAccount);
+                //await FetchGotchiSvgsParallelForLocalAccount(userAccount);
+                FetchGotchiSvgsOneCallForLocalAccount(userAccount);
 
-                // default to highest brs gotchi
-                if (localWalletGotchiData.Count > 0)
-                {
-                    SetSelectedGotchiById(GetGotchiIdByHighestBRS());
-
-                    onFetchAllGotchiDataAndSvgs?.Invoke();
-                }
+                
                 
 
             }
             catch (Exception ex)
             {
                 Debug.Log(ex);
+            }
+        }
+
+        void CallOnFetchComplete()
+        {
+            // default to highest brs gotchi
+            if (localWalletGotchiData.Count > 0)
+            {
+                SetSelectedGotchiById(GetGotchiIdByHighestBRS());
+
+                onFetchAllGotchiDataAndSvgs?.Invoke();
             }
         }
 
@@ -391,13 +401,52 @@ namespace GotchiHub
             }
         }
 
+        public async UniTask FetchGotchiSvgsOneCallForLocalAccount(UserAccount userAccount)
+        {
+            try
+            {
+                List<string> gotchiIds = new List<string>();
+
+                for (int i = 0; i < userAccount.gotchisOwned.Length; i++)
+                {
+                    gotchiIds.Add(userAccount.gotchisOwned[i].id.ToString());
+                }
+
+                var allSvgs = await graphManager.GetGotchiSvgs(gotchiIds);
+
+                for (int i = 0; i < userAccount.gotchisOwned.Length; i++)
+                {
+                    var svg = allSvgs[i];
+
+                    localWalletGotchiSvgSets.Add(new GotchiSvgSet
+                    {
+                        id = int.Parse(userAccount.gotchisOwned[i].id.ToString()),
+                        Front = svg.svg,
+                        Back = svg.back,
+                        Left = svg.left,
+                        Right = svg.right,
+                    });
+                }
+
+                CallOnFetchComplete();
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogWarning(ex.Message);
+            }
+        }
+
+
         public async UniTask FetchGotchiSvgsParallelForLocalAccount(UserAccount userAccount)
         {
             try
             {
                 List<UniTask> fetchTasks = new List<UniTask>();
 
-                for (int i = 0; i < userAccount.gotchisOwned.Length; i++)
+                //var maxNumber = math.min(50, userAccount.gotchisOwned.Length);
+                var maxNumber = userAccount.gotchisOwned.Length;
+
+                for (int i = 0; i < maxNumber; i++)
                 {
                     Debug.Log("Fetch Gotchi SVG: " + i);
                     int index = i; // Capture the loop variable to use inside the async lambda
