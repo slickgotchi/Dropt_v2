@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 6763170492953632584}
   - component: {fileID: 554241958889828361}
   - component: {fileID: 484687912871077718}
-  - component: {fileID: 701437783618322225}
   - component: {fileID: -4369532355625601228}
   m_Layer: 7
   m_Name: Bullet
@@ -53,8 +52,6 @@ SpriteRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
-  m_RayTracingAccelStructBuildFlagsOverride: 0
-  m_RayTracingAccelStructBuildFlags: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -98,7 +95,6 @@ CircleCollider2D:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1065883210741400869}
   m_Enabled: 1
-  serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}
   m_IncludeLayers:
@@ -122,9 +118,9 @@ CircleCollider2D:
     m_Bits: 4294967295
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
+  m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
+  serializedVersion: 2
   m_Radius: 0.49999997
 --- !u!50 &484687912871077718
 Rigidbody2D:
@@ -153,20 +149,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!114 &701437783618322225
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1065883210741400869}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4f46a23a913fee24cb191a12bd2968fc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  deathTimer_s: 5
-  explosionPrefab: {fileID: 950291127736548313, guid: 99689bab644f01c439773640e4bcc06f, type: 3}
 --- !u!114 &-4369532355625601228
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -179,7 +161,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 0
+  GlobalObjectIdHash: 1832298248
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1

@@ -3,14 +3,9 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
 using Cysharp.Threading.Tasks;
-using UnityEngine;
-using System.Collections;
 using System.Security.Cryptography;
 using Newtonsoft.Json; // For handling JSON
-using System.Net.Http;
-using System.Threading.Tasks;
 using System.IO;
-using Unity.Mathematics;
 
 
 public class GameServerHeartbeat : MonoBehaviour

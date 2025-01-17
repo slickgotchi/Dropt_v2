@@ -5,8 +5,6 @@ using System.Collections.Generic;
 using Thirdweb.Unity;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
-using PortalDefender.AavegotchiKit;
-using Unity.Mathematics;
 
 namespace GotchiHub
 {

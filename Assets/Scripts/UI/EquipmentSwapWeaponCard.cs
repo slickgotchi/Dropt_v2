@@ -32,6 +32,8 @@ public class EquipmentSwapWeaponCard : MonoBehaviour
 
     public void Init(Wearable.NameEnum wearableNameEnum, int gotchiId)
     {
+        this.gameObject.SetActive(true);
+
         var wearable = WearableManager.Instance.GetWearable(wearableNameEnum);
         if (wearable == null)
         {
@@ -84,6 +86,11 @@ public class EquipmentSwapWeaponCard : MonoBehaviour
         m_atkText.color = atk <= 0.1f ? inactiveTextColor : activeTextColor;
         m_critText.color = crit < 0.01f ? inactiveTextColor : activeTextColor;
         m_apText.color = ap < 0.1f ? inactiveTextColor : activeTextColor;
+    }
+
+    public void DeInit()
+    {
+        this.gameObject.SetActive(false);
     }
 
     public float GetBaseAttackMultiplier(Wearable.WeaponTypeEnum weaponType)

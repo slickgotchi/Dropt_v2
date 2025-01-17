@@ -45,6 +45,8 @@ public class WeaponSwap : Interactable
         base.OnTriggerEnter2DInteraction();
 
         PlayerHUDCanvas.Instance.ShowPlayerInteractionCanvii(interactionText, interactableType);
+
+        WeaponSwapCanvas_v2.Instance.interactable = this;
     }
 
     public override void OnTriggerExit2DInteraction()
@@ -52,6 +54,8 @@ public class WeaponSwap : Interactable
         base.OnTriggerExit2DInteraction();
 
         PlayerHUDCanvas.Instance.HidePlayerInteractionCanvii(interactableType);
+
+        WeaponSwapCanvas_v2.Instance.interactable = null;
     }
 
     public void SwapWeapon(Hand hand, Wearable.NameEnum wearableNameEnum, PlayerController localPlayer)
@@ -93,11 +97,6 @@ public class WeaponSwap : Interactable
             Init(m_localWeaponName);
         }
     }
-
-    //private void OnNetworkNameChanged(Wearable.NameEnum prevValue, Wearable.NameEnum newValue)
-    //{
-    //    Init(newValue);
-    //}
 
     private void Init(Wearable.NameEnum wearableNameEnum)
     {

@@ -12,9 +12,13 @@ public class WeaponSwapCanvas_v2 : DroptCanvas
 {
     public static WeaponSwapCanvas_v2 Instance { get; private set; }
 
+    [HideInInspector] public Interactable interactable;
+
     [SerializeField] private EquipmentSwapWeaponCard m_newWeapon;
     [SerializeField] private EquipmentSwapWeaponCard m_lhWeapon;
     [SerializeField] private EquipmentSwapWeaponCard m_rhWeapon;
+
+    [SerializeField] private Button m_exitButton;
 
     [SerializeField] private TextMeshProUGUI m_swapInfoText;
 
@@ -42,7 +46,10 @@ public class WeaponSwapCanvas_v2 : DroptCanvas
 
         Instance = this;
 
+        m_exitButton.onClick.AddListener(HandleClickExit);
+
         InstaHideCanvas();
+
     }
 
     public override void OnShowCanvas()
@@ -73,6 +80,15 @@ public class WeaponSwapCanvas_v2 : DroptCanvas
 
         // centre our new weapon
         ReCentre();
+    }
+
+    public override void OnHideCanvas()
+    {
+        m_newWeapon.DeInit();
+        m_lhWeapon.DeInit();
+        m_rhWeapon.DeInit();
+
+        base.OnHideCanvas();
     }
 
     public override void OnUpdate()
@@ -124,6 +140,8 @@ public class WeaponSwapCanvas_v2 : DroptCanvas
         SetSwapInfoText(newWeaponPosition);
         SetOutlines(newWeaponPosition);
     }
+
+
 
     void SlideLeft()
     {
@@ -178,6 +196,16 @@ public class WeaponSwapCanvas_v2 : DroptCanvas
         else
         {
             m_swapInfoText.text = "Press left/right move key to swap new weapon for existing, or, F to leave it on the ground";
+        }
+    }
+
+    void HandleClickExit()
+    {
+        WeaponSwapCanvas_v2.Instance.HideCanvas();
+        if (interactable != null)
+        {
+            PlayerHUDCanvas.Instance.ShowPlayerInteractionCanvii(interactable.interactionText,
+                interactable.interactableType);
         }
     }
 

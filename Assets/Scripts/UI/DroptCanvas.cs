@@ -40,6 +40,12 @@ public class DroptCanvas : MonoBehaviour
     {
         TryGetLocalPlayerInput();
         OnUpdate();
+
+        // some backup keys for hiding the canvas
+        if (Input.GetKeyDown(KeyCode.Return))
+        {
+            InstaHideCanvas();
+        }
     }
 
     public virtual void ShowCanvas()

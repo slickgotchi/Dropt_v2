@@ -174,7 +174,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1063988559
+  GlobalObjectIdHash: 3848886509
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -245,7 +245,7 @@ MonoBehaviour:
   - {fileID: 939896579716910989}
   IsSpawning: 1
   SpawnDuration: 0
-  IsArmed: 0
+  enemyAI: {fileID: 0}
 --- !u!61 &-5458690501079495969
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -304,8 +304,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_flashColor: {r: 1, g: 1, b: 1, a: 1}
-  m_flashTime: 0.3
-  m_flashCount: 1
   m_spriteRenderers:
   - {fileID: 361146906994616670}
 --- !u!114 &2930525525755836940
@@ -332,6 +330,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09698abc2e8964808b00a54103ccdd21, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isDestroying: 0
 --- !u!114 &5466463676920536362
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -377,6 +376,7 @@ MonoBehaviour:
   SecondaryAttack: {fileID: 0}
   avoidanceRadius: 1
   debugCanvas: {fileID: 5548827575612237848}
+  interpolationDelay_s: 0.1
   m_navMeshAgent: {fileID: 0}
   AttackDirection: {x: 0, y: 0, z: 0}
   PositionToAttack: {x: 0, y: 0, z: 0}
@@ -562,7 +562,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2fca993741f744a18a8a2c029469458, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  IsCulled: 1
+  networkObject: {fileID: 0}
+  pooledObject: {fileID: 0}
 --- !u!1 &2870288378392988745
 GameObject:
   m_ObjectHideFlags: 0
