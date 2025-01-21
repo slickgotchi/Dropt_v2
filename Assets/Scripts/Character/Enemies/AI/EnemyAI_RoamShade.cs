@@ -24,6 +24,13 @@ namespace Dropt
             m_soundFX_Shade.PlayChargeSound();
         }
 
+        public override void OnRoamStart()
+        {
+            base.OnRoamStart();
+
+
+        }
+
         public override void OnRoamUpdate(float dt)
         {
             Patrol(dt);
@@ -49,21 +56,20 @@ namespace Dropt
 
         bool isGoToA = false;
 
-        Vector3 a = new Vector3(-5, 10, 0);
-        Vector3 b = new Vector3(-5, -10, 0);
+        Vector3 a = new Vector3(-5, 7, 0);
+        Vector3 b = new Vector3(-5, -7, 0);
 
         void Patrol(float dt)
         {
+            if (!IsServer) return;
             if (networkCharacter == null) return;
             if (m_navMeshAgent == null) return;
 
-            // stop nav mesh
             if (m_navMeshAgent != null && m_navMeshAgent.isOnNavMesh)
             {
                 m_navMeshAgent.isStopped = false;
-                m_navMeshAgent.speed = 10;
+                m_navMeshAgent.speed = 5;
             }
-
 
             if (isGoToA)
             {

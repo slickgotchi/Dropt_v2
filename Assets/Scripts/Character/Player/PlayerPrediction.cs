@@ -387,7 +387,7 @@ public partial class PlayerPrediction : NetworkBehaviour
             }
 
             // activate ability
-            triggeredAbility.Activate(gameObject, statePayload, inputPayload, holdDuration);
+            triggeredAbility.Activate(gameObject, inputPayload, holdDuration);
             m_lastActivatedAbilityEnum = m_triggeredAbilityEnum;
             // set slow down ticks
             m_slowFactor = triggeredAbility.ExecutionSlowFactor;
@@ -424,61 +424,7 @@ public partial class PlayerPrediction : NetworkBehaviour
             // 1. get the oldest input
             inputPayload = serverInputQueue.Dequeue();
 
-            // 2. check if ability triggered
-            bool isHoldCancelled = false;
-            var triggeredAbility = m_playerAbilities.GetAbility(inputPayload.triggeredAbilityEnum);
-            if (triggeredAbility != null && !IsHost)
-            {
-                // check ap and cooldown sufficient
-                bool isApEnough = m_networkCharacter.currentDynamicStats.ApCurrent >= triggeredAbility.ApCost;
-                bool isCooldownFinished = triggeredAbility.IsCooldownFinished();
-                bool isBlockedByOthers = !IsAttackCooldownFinished(Hand.Left) || !IsAttackCooldownFinished(Hand.Right) ||
-                        !IsHoldCooldownFinished(Hand.Left) || !IsHoldCooldownFinished(Hand.Right);
-
-                if (isApEnough && isCooldownFinished && !isBlockedByOthers)
-                {
-                    if (!IsHost) triggeredAbility.Init(gameObject, inputPayload.abilityHand);
-                    if (!IsHost && m_triggeredAbilityEnum == PlayerAbilityEnum.Dash) isHoldCancelled = true;
-
-                }
-                else
-                {
-                    inputPayload.triggeredAbilityEnum = PlayerAbilityEnum.Null;
-                }
-            }
-
-            // 3. check if hold ability started
-            var holdStartTriggeredAbility = m_playerAbilities.GetAbility(inputPayload.holdStartTriggeredAbilityEnum);
-            if (holdStartTriggeredAbility != null && !IsHost)
-            {
-                // check AP only, we can't check against cooldown because we are commencing this attack within the starter attacks cooldown window
-                bool isEnoughAp = m_networkCharacter.currentDynamicStats.ApCurrent >= holdStartTriggeredAbility.ApCost;
-                bool isPredecessorAbility = IsLastAttackAbilityHoldPredecessor(m_lastActivatedAbilityEnum, inputPayload.holdStartTriggeredAbilityEnum);
-
-                if (isEnoughAp && isPredecessorAbility && !isHoldCancelled)
-                {
-                    if (!IsHost) holdStartTriggeredAbility.Init(gameObject, inputPayload.abilityHand);
-                    if (!IsHost) holdStartTriggeredAbility.HoldStart();
-                    inputPayload.isHoldStartFlag = true;
-                }
-                else
-                {
-                    if (!IsHost) holdStartTriggeredAbility.HoldCancel();
-                    inputPayload.isHoldStartFlag = false;
-                    inputPayload.holdStartTriggeredAbilityEnum = PlayerAbilityEnum.Null;
-                    holdStartTriggeredAbility = null;
-                    m_holdState = HoldState.Inactive;
-                }
-            }
-
-
-            // 4. handle auto-move
-            if (triggeredAbility != null && inputPayload.triggeredAbilityEnum != PlayerAbilityEnum.Null && triggeredAbility.AutoMoveDuration > 0 && !IsHost)
-            {
-                var speed = triggeredAbility.AutoMoveDistance / triggeredAbility.AutoMoveDuration;
-                m_autoMoveVelocity = inputPayload.actionDirection * speed;
-                m_autoMoveExpiryTick = inputPayload.tick + (int)(triggeredAbility.AutoMoveDuration * tickRate);
-            }
+            
 
             // 5. process input
             statePayload = ProcessInput(inputPayload, false, true);
@@ -495,29 +441,7 @@ public partial class PlayerPrediction : NetworkBehaviour
             bufferIndex = inputPayload.tick % k_bufferSize;
             serverStateBuffer.Add(statePayload, bufferIndex);
 
-            // 8. perform ability if applicable
-            if (triggeredAbility != null && inputPayload.triggeredAbilityEnum != PlayerAbilityEnum.Null && !IsHost)
-            {
-                // calc any hold duration
-                var holdDuration = (m_holdFinishTick - m_holdStartTick) / tickRate;
-
-                // call HoldFinish() if this is a hold ability
-                if (!IsHost && triggeredAbility.abilityType == PlayerAbility.AbilityType.Hold) triggeredAbility.HoldFinish();
-
-                // activate
-                if (!IsHost) triggeredAbility.Activate(gameObject, statePayload, inputPayload, holdDuration);
-                if (!IsHost) m_lastActivatedAbilityEnum = inputPayload.triggeredAbilityEnum;
-
-                if (!IsHost)
-                {
-                    // set slow down ticks
-                    m_slowFactor = triggeredAbility.ExecutionSlowFactor;
-                    m_slowFactorStartTick = inputPayload.tick;
-                    m_slowFactorExpiryTick = inputPayload.tick + (int)math.ceil(triggeredAbility.ExecutionDuration * tickRate);
-                    m_cooldownSlowFactor = triggeredAbility.CooldownSlowFactor;
-                }
-
-            }
+            
 
   
             // 9. tell client the last state we have as a server
@@ -750,9 +674,92 @@ public partial class PlayerPrediction : NetworkBehaviour
 
     // this function executed on SERVER
     [Rpc(SendTo.Server)]
-    void SendToServerRpc(InputPayload input)
+    void SendToServerRpc(InputPayload inputPayload)
     {
-        serverInputQueue.Enqueue(input);
+        serverInputQueue.Enqueue(inputPayload);
+
+        // 2. check if ability triggered
+        bool isHoldCancelled = false;
+        var triggeredAbility = m_playerAbilities.GetAbility(inputPayload.triggeredAbilityEnum);
+        if (triggeredAbility != null && !IsHost)
+        {
+            // check ap and cooldown sufficient
+            bool isApEnough = m_networkCharacter.currentDynamicStats.ApCurrent >= triggeredAbility.ApCost;
+            bool isCooldownFinished = triggeredAbility.IsCooldownFinished();
+            bool isBlockedByOthers = !IsAttackCooldownFinished(Hand.Left) || !IsAttackCooldownFinished(Hand.Right) ||
+                    !IsHoldCooldownFinished(Hand.Left) || !IsHoldCooldownFinished(Hand.Right);
+
+            if (isApEnough && isCooldownFinished && !isBlockedByOthers)
+            {
+                if (!IsHost) triggeredAbility.Init(gameObject, inputPayload.abilityHand);
+                if (!IsHost && m_triggeredAbilityEnum == PlayerAbilityEnum.Dash) isHoldCancelled = true;
+
+            }
+            else
+            {
+                inputPayload.triggeredAbilityEnum = PlayerAbilityEnum.Null;
+            }
+        }
+
+        // 3. check if hold ability started
+        var holdStartTriggeredAbility = m_playerAbilities.GetAbility(inputPayload.holdStartTriggeredAbilityEnum);
+        if (holdStartTriggeredAbility != null && !IsHost)
+        {
+            // check AP only, we can't check against cooldown because we are commencing this attack within the starter attacks cooldown window
+            bool isEnoughAp = m_networkCharacter.currentDynamicStats.ApCurrent >= holdStartTriggeredAbility.ApCost;
+            bool isPredecessorAbility = IsLastAttackAbilityHoldPredecessor(m_lastActivatedAbilityEnum, inputPayload.holdStartTriggeredAbilityEnum);
+
+            if (isEnoughAp && isPredecessorAbility && !isHoldCancelled)
+            {
+                if (!IsHost) holdStartTriggeredAbility.Init(gameObject, inputPayload.abilityHand);
+                if (!IsHost) holdStartTriggeredAbility.HoldStart();
+                inputPayload.isHoldStartFlag = true;
+            }
+            else
+            {
+                if (!IsHost) holdStartTriggeredAbility.HoldCancel();
+                inputPayload.isHoldStartFlag = false;
+                inputPayload.holdStartTriggeredAbilityEnum = PlayerAbilityEnum.Null;
+                holdStartTriggeredAbility = null;
+                m_holdState = HoldState.Inactive;
+            }
+        }
+
+
+        // 4. handle auto-move
+        if (triggeredAbility != null &&
+            inputPayload.triggeredAbilityEnum != PlayerAbilityEnum.Null &&
+            triggeredAbility.AutoMoveDuration > 0 &&
+            !IsHost)
+        {
+            var speed = triggeredAbility.AutoMoveDistance / triggeredAbility.AutoMoveDuration;
+            m_autoMoveVelocity = inputPayload.actionDirection * speed;
+            m_autoMoveExpiryTick = inputPayload.tick + (int)(triggeredAbility.AutoMoveDuration * NetworkTimer_v2.Instance.TickRate);
+        }
+
+        // 8. perform ability if applicable
+        if (triggeredAbility != null && inputPayload.triggeredAbilityEnum != PlayerAbilityEnum.Null && !IsHost)
+        {
+            // calc any hold duration
+            var holdDuration = (m_holdFinishTick - m_holdStartTick) / NetworkTimer_v2.Instance.TickRate;
+
+            // call HoldFinish() if this is a hold ability
+            if (!IsHost && triggeredAbility.abilityType == PlayerAbility.AbilityType.Hold) triggeredAbility.HoldFinish();
+
+            // activate
+            if (!IsHost) triggeredAbility.Activate(gameObject, inputPayload, holdDuration);
+            if (!IsHost) m_lastActivatedAbilityEnum = inputPayload.triggeredAbilityEnum;
+
+            if (!IsHost)
+            {
+                // set slow down ticks
+                m_slowFactor = triggeredAbility.ExecutionSlowFactor;
+                m_slowFactorStartTick = inputPayload.tick;
+                m_slowFactorExpiryTick = inputPayload.tick + (int)math.ceil(triggeredAbility.ExecutionDuration * NetworkTimer_v2.Instance.TickRate);
+                m_cooldownSlowFactor = triggeredAbility.CooldownSlowFactor;
+            }
+
+        }
     }
 
     public Vector3 GetRemotePlayerInterpPosition()

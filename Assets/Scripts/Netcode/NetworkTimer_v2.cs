@@ -122,6 +122,7 @@ public class NetworkTimer_v2 : NetworkBehaviour
     {
         // insert all functions that need to be ticked throughout the codebase
         HandleTick_PlayerPrediction();
+        HandleTick_PositionBuffers();
         HandleTick_DroptNetworkTransforms();
     }
 
@@ -133,6 +134,21 @@ public class NetworkTimer_v2 : NetworkBehaviour
         foreach (var player in players)
         {
             player.GetComponent<PlayerPrediction>().Tick();
+        }
+    }
+
+    private void HandleTick_PositionBuffers()
+    {
+        if (Game.Instance == null) return;
+
+        var enemies = Game.Instance.enemyControllers;
+        foreach (var enemyController in enemies)
+        {
+            var posBuffer = enemyController.GetComponent<PositionBuffer>();
+            if (posBuffer != null)
+            {
+                posBuffer.Tick();
+            }
         }
     }
 

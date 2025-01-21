@@ -26,6 +26,10 @@ public class GenericProjectile : NetworkBehaviour
 
     [HideInInspector] public GameObject VisualGameObject;
 
+    public GameObject SpawnOnHitPrefab;
+
+    public enum HitObjectType { Destructible, EnemyCharacter, PlayerCharacter }
+
     private float m_timer = 0;
     private bool m_isSpawned = false;
     private float m_speed = 1;
@@ -202,20 +206,27 @@ public class GenericProjectile : NetworkBehaviour
                 var enemyAI = hit.GetComponent<Dropt.EnemyAI>();
                 if (enemyAI != null)
                 {
-                    enemyAI.Knockback(KnockbackDirection, KnockbackDistance, KnockbackStunDuration);
+                    enemyAI.Knockback(castDirection, KnockbackDistance, KnockbackStunDuration);
                 }
 
                 // output hit details
                 if (IsServer)
                 {
-                    Debug.Log("Server Hit: " + hitInfo.point);
-                    LogHitPointClientRpc(hitInfo.point);
+                    //Debug.Log("Server Hit: " + hitInfo.point);
+                    //LogHitPointClientRpc(hitInfo.point);
                 }
 
                 if (IsClient)
                 {
-                    Debug.Log("Client Hit: " + hitInfo.point);
-                    LogHitPointServerRpc(hitInfo.point);
+                    //Debug.Log("Client Hit: " + hitInfo.point);
+                    //LogHitPointServerRpc(hitInfo.point);
+
+                    if (SpawnOnHitPrefab != null)
+                    {
+                        //var go = Instantiate(SpawnOnHitPrefab, hitInfo.point, quaternion.identity);
+
+                    }
+
                 }
 
 
@@ -225,7 +236,8 @@ public class GenericProjectile : NetworkBehaviour
                 var destructible = hit.GetComponent<Destructible>();
                 destructible.TakeDamage(WeaponType, LocalPlayer.GetComponent<NetworkObject>().NetworkObjectId);
             }
-            ExplodeAndDeactivate(hitInfo.point);
+            ExplodeAndDeactivate(hitInfo.point,
+                hit.HasComponent<Destructible>() ? HitObjectType.Destructible : HitObjectType.EnemyCharacter);
 
             if (LocalPlayer != null)
             {
@@ -248,28 +260,33 @@ public class GenericProjectile : NetworkBehaviour
         Debug.Log("Server Hit: " + hitPoint);
     }
 
-    void ExplodeAndDeactivate(Vector3 hitPosition)
+    void ExplodeAndDeactivate(Vector3 hitPosition, HitObjectType hitObjectType)
     {
         if (VisualGameObject != null) Destroy(VisualGameObject);
 
-        VisualEffectsManager.Instance.SpawnBulletExplosion(hitPosition);
+        if (hitObjectType == HitObjectType.EnemyCharacter) VisualEffectsManager.Instance.SpawnVFX_BloodHit_03(hitPosition);
+        if (hitObjectType == HitObjectType.Destructible) VisualEffectsManager.Instance.SpawnBulletExplosion(hitPosition);
+
+
         if (VisualGameObject != null) VisualGameObject.SetActive(false);
         gameObject.SetActive(false);
 
         if (Role == PlayerAbility.NetworkRole.Server)
         {
-            ExplodeAndDeactivateClientRpc(hitPosition);
+            ExplodeAndDeactivateClientRpc(hitPosition, hitObjectType);
         }
     }
 
 
 
     [Rpc(SendTo.ClientsAndHost)]
-    void ExplodeAndDeactivateClientRpc(Vector3 hitPosition)
+    void ExplodeAndDeactivateClientRpc(Vector3 hitPosition, HitObjectType hitObjectType)
     {
         if (Role == PlayerAbility.NetworkRole.RemoteClient)
         {
-            VisualEffectsManager.Instance.SpawnBulletExplosion(hitPosition);
+            if (hitObjectType == HitObjectType.EnemyCharacter) VisualEffectsManager.Instance.SpawnVFX_BloodHit_03(hitPosition);
+            if (hitObjectType == HitObjectType.Destructible) VisualEffectsManager.Instance.SpawnBulletExplosion(hitPosition);
+
             if (VisualGameObject != null) VisualGameObject.SetActive(false);
             gameObject.SetActive(false);
         }

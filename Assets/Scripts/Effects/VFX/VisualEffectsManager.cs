@@ -13,6 +13,10 @@ public class VisualEffectsManager : MonoBehaviour
     [SerializeField] private GameObject stompCirclePrefab;
     [SerializeField] private GameObject basicCirclePrefab;
     [SerializeField] private GameObject petAttackPerfab;
+
+    [SerializeField] private GameObject vfxDeathBloodSkullPrefab;
+    //[SerializeField] private GameObject vfxBloodHit03Prefab;
+
     private Queue<GameObject> m_cloudExplosionPool = new Queue<GameObject>();
     private Queue<GameObject> m_bulletExplosionPool = new Queue<GameObject>();
     private Queue<GameObject> m_splashExplosionPool = new Queue<GameObject>();
@@ -20,6 +24,12 @@ public class VisualEffectsManager : MonoBehaviour
     private Queue<GameObject> m_stompCirclePool = new Queue<GameObject>();
     private Queue<GameObject> m_petAttackPool = new Queue<GameObject>();
     private Queue<GameObject> m_basicCirclePool = new Queue<GameObject>();
+
+    private Queue<GameObject> m_vfxDeathBloodSkullPool = new Queue<GameObject>();
+    //private Queue<GameObject> m_vfxBloodHit03Pool = new Queue<GameObject>();
+
+    [SerializeField] private List<GameObject> m_vfxBloodHitPrefabs = new List<GameObject>();
+    private int m_vfxBloodHitCurrentIndex = 0;
 
     private void Awake()
     {
@@ -177,6 +187,39 @@ public class VisualEffectsManager : MonoBehaviour
         return instance;
     }
 
+    public GameObject SpawnVFX_DeathBloodSkull(Vector3 position, float scale = 1f)
+    {
+        GameObject instance;
+
+        //if (m_vfxDeathBloodSkullPool.Count > 0)
+        //{
+        //    instance = m_vfxDeathBloodSkullPool.Dequeue();
+        //    instance.SetActive(true);
+        //}
+        //else
+        //{
+            instance = Instantiate(vfxDeathBloodSkullPrefab);
+        //}
+
+        instance.transform.position = position;
+        instance.transform.localScale = new Vector3(scale, scale, 1);
+        return instance;
+    }
+
+    public GameObject SpawnVFX_BloodHit_03(Vector3 position, float scale = 1f)
+    {
+        m_vfxBloodHitCurrentIndex++;
+        if (m_vfxBloodHitCurrentIndex >= m_vfxBloodHitPrefabs.Count)
+        {
+            m_vfxBloodHitCurrentIndex = 0;
+        }
+
+        GameObject instance = Instantiate(m_vfxBloodHitPrefabs[m_vfxBloodHitCurrentIndex]);
+        instance.transform.position = position;
+        instance.transform.localScale = new Vector3(scale, scale, 1);
+        return instance;
+    }
+
     public void ReturnToPool(GameObject instance)
     {
         instance.SetActive(false);
@@ -188,5 +231,8 @@ public class VisualEffectsManager : MonoBehaviour
         if (instance.HasComponent<StompCircle>()) m_stompCirclePool.Enqueue(instance);
         if (instance.HasComponent<BasicCircle>()) m_basicCirclePool.Enqueue(instance);
         if (instance.HasComponent<PetAttackEffect>()) m_petAttackPool.Enqueue(instance);
+
+        if (instance.HasComponent<VFX_DeathBloodSkull>()) m_vfxDeathBloodSkullPool.Enqueue(instance);
+        //if (instance.HasComponent<>)
     }
 }

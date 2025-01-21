@@ -71,7 +71,7 @@ public class PlayerAbility : NetworkBehaviour
 
     public Vector3 PlayerAbilityCentreOffset = new Vector3(0, 0.5f, 0);
     protected bool IsActivated = false;
-    protected StatePayload PlayerActivationState;
+    //protected StatePayload PlayerActivationState;
     protected InputPayload ActivationInput;
     protected Wearable.NameEnum ActivationWearableNameEnum;
     protected Wearable ActivationWearable;
@@ -209,12 +209,12 @@ public class PlayerAbility : NetworkBehaviour
         return remainingTicks * NetworkTimer_v2.Instance.TickInterval;
     }
 
-    public bool Activate(GameObject playerObject, StatePayload state, InputPayload input, float holdDuration)
+    public bool Activate(GameObject playerObject, InputPayload input, float holdDuration)
     {
         //OnActivate();
 
         Player = playerObject;
-        PlayerActivationState = state;
+        //PlayerActivationState = state;
         ActivationInput = input;
 
         m_holdTimer = math.min(m_holdTimer, HoldChargeTime);
@@ -517,9 +517,17 @@ public class PlayerAbility : NetworkBehaviour
 
         foreach (var hit in enemyHitColliders)
         {
-            if (hit.HasComponent<NetworkCharacter>())
+            var playerCharacter = Player.GetComponent<NetworkCharacter>();
+            var hitCharacter = hit.GetComponent<NetworkCharacter>();
+            var hitDestructible = hit.GetComponent<Destructible>();
+
+            var closestPoint = hit.ClosestPoint(Player.transform.position);
+            Vector3 closestPointV3 = Vector3.zero;
+            closestPointV3.x = closestPoint.x;
+            closestPointV3.y = closestPoint.y;
+
+            if (hitCharacter != null)
             {
-                var playerCharacter = Player.GetComponent<NetworkCharacter>();
 
                 if (ActivationWearable != null)
                 {
@@ -527,7 +535,7 @@ public class PlayerAbility : NetworkBehaviour
                     isCritical = playerCharacter.IsCriticalAttack();
                     damage = (int)(isCritical ? damage * playerCharacter.currentStaticStats.CriticalDamage : damage);
 
-                    hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical, Player);
+                    hitCharacter.TakeDamage(damage, isCritical, Player);
 
                     var enemyAI = hit.GetComponent<Dropt.EnemyAI>();
                     if (enemyAI != null)
@@ -535,15 +543,25 @@ public class PlayerAbility : NetworkBehaviour
                         var knockbackDir = Dropt.Utils.Battle.GetVectorFromAtoBAttackCentres(playerCharacter.gameObject, hit.gameObject).normalized;
                         enemyAI.Knockback(knockbackDir, KnockbackDistance, KnockbackStunDuration);
                     }
+                }
 
+                if (Player.GetComponent<NetworkCharacter>().IsLocalPlayer)
+                {
+                    VisualEffectsManager.Instance.SpawnVFX_BloodHit_03(closestPointV3);
                 }
             }
 
-            if (hit.HasComponent<Destructible>())
+            if (hitDestructible != null)
             {
-                var destructible = hit.GetComponent<Destructible>();
-                destructible.TakeDamage(weaponType, Player.GetComponent<NetworkObject>().NetworkObjectId);
+                hitDestructible.TakeDamage(weaponType, Player.GetComponent<NetworkObject>().NetworkObjectId);
+
+                if (Player.GetComponent<NetworkCharacter>().IsLocalPlayer)
+                {
+                    VisualEffectsManager.Instance.SpawnBulletExplosion(closestPointV3);
+                }
             }
+
+            
         }
         // screen shake
         if (isLocalPlayer && enemyHitColliders.Count > 0)
@@ -578,25 +596,30 @@ public class PlayerAbility : NetworkBehaviour
         //var tickInterval = NetworkTimer_v2.Instance.TickInterval;
         //var delay_s = 0.5f * rtt_s + 4f * tickInterval;
 
-        /*
-        float m = 1.5f;
-        float c = 0.29f;
+        
+        float m = 0.32f;
+        float c = 0.21f;
 
         if (TestingLagCompCanvas.Instance != null)
         {
             m = TestingLagCompCanvas.Instance.m;
             c = TestingLagCompCanvas.Instance.c;
         }
-        */
+        
 
         // lets use a linear formula we calculated by taking a bunch of snapshots and plotting in
         // google sheets
         //var delay_s = m * rtt_s + c;
 
-        var delay_s = 1f * rtt_s +
-            1 *
-            (NetworkTimer_v2.Instance.DroptNetworkTransformInterpolationDelayTicks) *
-            NetworkTimer_v2.Instance.TickInterval;
+        // DroptNetworkTransform LagComp
+        //var delay_s = rtt_s +
+        //    NetworkTimer_v2.Instance.DroptNetworkTransformInterpolationDelayTicks *
+        //    NetworkTimer_v2.Instance.TickInterval;
+
+        // 66ms, m = 1, c = 0.23
+
+        // NetworkTransform LagComp
+        var delay_s = m * rtt_s + c;
 
         // convert delay in seconds to delay in ticks
         var delay_ticks = delay_s * NetworkTimer_v2.Instance.TickRate;

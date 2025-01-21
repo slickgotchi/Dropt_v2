@@ -7197,8 +7197,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 101318711918874193}
-  - component: {fileID: 6964754612526629697}
   - component: {fileID: 6964754612526629698}
+  - component: {fileID: 6964754612526629697}
   m_Layer: 0
   m_Name: NetworkTimer_v2
   m_TagString: Untagged
@@ -10184,6 +10184,8 @@ MonoBehaviour:
   TickInterval: 0.1
   TickCurrent: 0
   TickFraction: 0
+  DroptNetworkTransformInterpolationDelayTicks: 6
+  ClientServerTickDelta: 0
 --- !u!114 &6964754612526629698
 MonoBehaviour:
   m_ObjectHideFlags: 0

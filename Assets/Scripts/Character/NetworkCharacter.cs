@@ -318,6 +318,18 @@ public class NetworkCharacter : NetworkBehaviour
                 {
                     spriteFlash.DamageFlash();
                 }
+
+                var ohsgo = GetComponent<OnHitSpawnGameObject>();
+                if (ohsgo != null)
+                {
+                    Debug.Log("OnHitSpawn!");
+                    var xRand = UnityEngine.Random.Range(-0.1f, 0.1f);
+                    var yRand = UnityEngine.Random.Range(-0.1f, 0.1f);
+                    var pos = transform.position;
+                    pos.x += xRand;
+                    pos.y += yRand;
+                    ohsgo.Hit(pos);
+                }
             }
         }
 
@@ -419,6 +431,18 @@ public class NetworkCharacter : NetworkBehaviour
                 // do sprite flash
                 SpriteFlash spriteFlash = GetComponentInChildren<SpriteFlash>();
                 spriteFlash?.DamageFlash();
+
+                var ohsgo = GetComponent<OnHitSpawnGameObject>();
+                if (ohsgo != null)
+                {
+                    Debug.Log("OnHitSpawn!");
+                    var xRand = UnityEngine.Random.Range(-0.5f, 0.5f);
+                    var yRand = UnityEngine.Random.Range(-0.5f, 0.5f);
+                    var pos = transform.position;
+                    pos.x += xRand;
+                    pos.y += yRand;
+                    ohsgo.Hit(pos);
+                }
             }
         }
     }

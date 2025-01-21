@@ -9,8 +9,8 @@ public class TestingLagCompCanvas : MonoBehaviour
 
     public TMPro.TextMeshProUGUI posText;
 
-    public float m = 1.2f;
-    public float c = 0.29f;
+    [HideInInspector] public float m = 1f;
+    [HideInInspector] public float c = 0.25f;
 
     [SerializeField] private Button mUpBtn;
     [SerializeField] private Button mDownBtn;
@@ -22,12 +22,18 @@ public class TestingLagCompCanvas : MonoBehaviour
 
     private void Awake()
     {
-        mUpBtn.onClick.AddListener(() => { m += 0.1f; });
-        mDownBtn.onClick.AddListener(() => { m -= 0.1f; });
-        cUpBtn.onClick.AddListener(() => { c += 0.01f; });
-        cDownBtn.onClick.AddListener(() => { c -= 0.01f; });
+        mUpBtn.onClick.AddListener(() => { m += 0.01f; });
+        mDownBtn.onClick.AddListener(() => { m -= 0.01f; });
+        cUpBtn.onClick.AddListener(() => { c += 0.005f; });
+        cDownBtn.onClick.AddListener(() => { c -= 0.005f; });
 
         Instance = this; 
+    }
+
+    private void Start()
+    {
+        m = 0.32f;
+        c = 0.21f;
     }
 
     private void Update()
@@ -41,7 +47,7 @@ public class TestingLagCompCanvas : MonoBehaviour
             posText.text = "RoamShade Pos: " + rs.transform.position.y;
         }
 
-        mText.text = "m = " + m.ToString("F2");
-        cText.text = "c = " + c.ToString("F2");
+        mText.text = "m = " + m.ToString("F3");
+        cText.text = "c = " + c.ToString("F3");
     }
 }

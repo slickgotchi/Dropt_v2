@@ -41,7 +41,7 @@ namespace Dropt
 
                 // set nav mesh agent
                 m_navMeshAgent.SetDestination(transform.position + finalDirection * distance);
-                m_navMeshAgent.speed = networkCharacter.currentStaticStats.MoveSpeed * RoamSpeedMultiplier;
+                m_navMeshAgent.speed = networkCharacter.currentStaticStats.MoveSpeed * RoamSpeedMultiplier * stunMultiplier;
             }
         }
 
@@ -58,7 +58,7 @@ namespace Dropt
             var offset = dir * PursueStopShortRange;
 
             m_navMeshAgent.SetDestination(NearestPlayer.transform.position + offset);
-            m_navMeshAgent.speed = networkCharacter.currentStaticStats.MoveSpeed * PursueSpeedMultiplier;
+            m_navMeshAgent.speed = networkCharacter.currentStaticStats.MoveSpeed * PursueSpeedMultiplier * stunMultiplier;
 
             HandleAntiClumping();
             HandleAlertOthers();
