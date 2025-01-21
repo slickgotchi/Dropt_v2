@@ -79,6 +79,16 @@ public class FussPot_EruptProjectile : NetworkBehaviour
 
         m_timer -= Time.deltaTime;
 
+        transform.position += m_speed * Time.deltaTime * Direction;
+
+        TargetMarker.transform.position = m_finalPosition;
+
+        // update target marker size
+        float alpha = (Duration - m_timer) / Duration;
+        float targetScale = alpha * HitRadius * 2;
+        TargetMarker.transform.localScale = new Vector3(targetScale, targetScale * 0.7f, 1);
+
+        // handle collision checks
         if (IsServer && m_timer < 0 && !m_isCollided)
         {
             m_isCollided = true;
@@ -89,19 +99,14 @@ public class FussPot_EruptProjectile : NetworkBehaviour
             var damage = isCritical ? DamagePerHit * CriticalDamage : DamagePerHit;
             damage = Dropt.Utils.Battle.GetRandomVariation(damage);
 
+            // we need to delay the collision check to account for lag
+            // - player interp is 2 ticks back of current position (check player interp in PlayerPrediction)
+            // - 
+
             EnemyAbility.PlayerCollisionCheckAndDamage(m_collider, damage, isCritical);
 
             gameObject.SetActive(false);
             gameObject.GetComponent<NetworkObject>().Despawn();
         }
-
-        transform.position += m_speed * Time.deltaTime * Direction;
-
-        TargetMarker.transform.position = m_finalPosition;
-
-        // update target marker size
-        float alpha = (Duration - m_timer) / Duration;
-        float targetScale = alpha * HitRadius * 2;
-        TargetMarker.transform.localScale = new Vector3(targetScale, targetScale * 0.7f, 1);
     }
 }

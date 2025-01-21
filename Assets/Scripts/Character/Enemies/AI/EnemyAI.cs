@@ -528,6 +528,10 @@ namespace Dropt
             {
                 m_clientPredictedState = State.Knockback;
                 if (m_networkTransform != null) m_networkTransform.enabled = false;
+
+                var droptNetworkTransform = GetComponent<DroptNetworkTransform>();
+                if (droptNetworkTransform != null) droptNetworkTransform.enabled = false;
+
                 m_knockbackDuration = k_knockbackDuration;
             }
         }
@@ -560,6 +564,10 @@ namespace Dropt
                 m_clientPredictedState = State.Stun;
                 m_predictedStunFinishPosition = transform.position;
                 if (m_networkTransform != null) m_stunTimer = StunDuration;
+
+                var droptNetworkTransform = GetComponent<DroptNetworkTransform>();
+                if (droptNetworkTransform != null) m_stunTimer = StunDuration;
+
                 return;
             }
         }
@@ -581,6 +589,10 @@ namespace Dropt
                 m_smoothingTimer = 0f;
                 transform.position = m_predictedStunFinishPosition;
                 if (m_networkTransform != null) m_networkTransform.enabled = true;
+
+                var droptNetworkTransform = GetComponent<DroptNetworkTransform>();
+                if (droptNetworkTransform != null) droptNetworkTransform.enabled = true;
+
                 return;
             }
         }

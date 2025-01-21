@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 8086004901219037682}
   - component: {fileID: -6693017499447722929}
   - component: {fileID: 3785798846994764995}
-  - component: {fileID: 2334808591066055042}
   - component: {fileID: 2965551278588062993}
+  - component: {fileID: 5032616141631419662}
   m_Layer: 8
   m_Name: BallisticShotProjectile
   m_TagString: Untagged
@@ -92,33 +92,6 @@ CircleCollider2D:
   m_Offset: {x: -0.1, y: 0.16426939}
   serializedVersion: 2
   m_Radius: 0.35
---- !u!50 &2334808591066055042
-Rigidbody2D:
-  serializedVersion: 4
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2544078778212307353}
-  m_BodyType: 0
-  m_Simulated: 1
-  m_UseFullKinematicContacts: 0
-  m_UseAutoMass: 0
-  m_Mass: 1
-  m_LinearDrag: 0
-  m_AngularDrag: 0.05
-  m_GravityScale: 0
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_Interpolate: 0
-  m_SleepingMode: 1
-  m_CollisionDetection: 0
-  m_Constraints: 0
 --- !u!114 &2965551278588062993
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -145,6 +118,33 @@ MonoBehaviour:
   LocalPlayer: {fileID: 0}
   Role: 0
   VisualGameObject: {fileID: 0}
+--- !u!50 &5032616141631419662
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2544078778212307353}
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
 --- !u!1 &8059999596395395899
 GameObject:
   m_ObjectHideFlags: 0

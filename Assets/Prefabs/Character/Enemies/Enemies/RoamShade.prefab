@@ -107,7 +107,8 @@ GameObject:
   - component: {fileID: 8102887151775892845}
   - component: {fileID: 3943222617784642230}
   - component: {fileID: 7035604135027777795}
-  - component: {fileID: 3960302492211672989}
+  - component: {fileID: 6320695242960183661}
+  - component: {fileID: 7228023539610739991}
   m_Layer: 15
   m_Name: RoamShade
   m_TagString: Untagged
@@ -148,7 +149,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1349645175
+  GlobalObjectIdHash: 2642127946
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 0
@@ -173,7 +174,7 @@ MonoBehaviour:
   - {fileID: 361146906994616670}
   IsSpawning: 1
   SpawnDuration: 0
-  IsArmed: 0
+  enemyAI: {fileID: 0}
 --- !u!61 &-277146688726621620
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -232,8 +233,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_flashColor: {r: 1, g: 1, b: 1, a: 1}
-  m_flashTime: 0.3
-  m_flashCount: 1
   m_spriteRenderers:
   - {fileID: 361146906994616670}
 --- !u!114 &-8391369733495563293
@@ -260,6 +259,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09698abc2e8964808b00a54103ccdd21, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isDestroying: 0
 --- !u!195 &-1844866496177262035
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -345,7 +345,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1249991746567512264}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
   m_Name: 
@@ -409,8 +409,8 @@ MonoBehaviour:
   baseDamageReduction: 0
   baseApLeech: 0
   baseApRegen: 1
-  baseKnockbackMutliplier: 1
-  baseStunMultiplier: 1
+  baseKnockbackMutliplier: 0.5
+  baseStunMultiplier: 0.5
   k_popupTextOffset: {x: 0, y: 1.5, z: 0}
   ReceiveDamageColor: {r: 1, g: 1, b: 1, a: 1}
   ReceiveDamageFontSize: 16
@@ -502,7 +502,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsInUse: 0
---- !u!114 &3960302492211672989
+--- !u!114 &6320695242960183661
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -511,10 +511,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 1249991746567512264}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b2fca993741f744a18a8a2c029469458, type: 3}
+  m_Script: {fileID: 11500000, guid: 7c5cbcb0c54d04310b93f2a0ef29a29b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  IsCulled: 1
+--- !u!114 &7228023539610739991
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1249991746567512264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0716f6bc2cee84ca3bf7d71997830124, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1308822279949722805
 GameObject:
   m_ObjectHideFlags: 0

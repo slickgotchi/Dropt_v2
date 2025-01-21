@@ -49,8 +49,8 @@ namespace Dropt
 
         bool isGoToA = false;
 
-        Vector3 a = new Vector3(-5, 15, 0);
-        Vector3 b = new Vector3(-5, -15, 0);
+        Vector3 a = new Vector3(-5, 10, 0);
+        Vector3 b = new Vector3(-5, -10, 0);
 
         void Patrol(float dt)
         {

@@ -574,7 +574,29 @@ public class PlayerAbility : NetworkBehaviour
         // IMPORTANT: There was ALOT of finessing that went into this delay calc and
         // it MIGHT only work with ticks at 15 ticks per second.
         // It takes into accouunt both network lag and interpolation delay
-        var delay_s = 1f * rtt_s + 0.29f;
+        //var delay_s = 1f * rtt_s + 0.3f;
+        //var tickInterval = NetworkTimer_v2.Instance.TickInterval;
+        //var delay_s = 0.5f * rtt_s + 4f * tickInterval;
+
+        /*
+        float m = 1.5f;
+        float c = 0.29f;
+
+        if (TestingLagCompCanvas.Instance != null)
+        {
+            m = TestingLagCompCanvas.Instance.m;
+            c = TestingLagCompCanvas.Instance.c;
+        }
+        */
+
+        // lets use a linear formula we calculated by taking a bunch of snapshots and plotting in
+        // google sheets
+        //var delay_s = m * rtt_s + c;
+
+        var delay_s = 1f * rtt_s +
+            1 *
+            (NetworkTimer_v2.Instance.DroptNetworkTransformInterpolationDelayTicks) *
+            NetworkTimer_v2.Instance.TickInterval;
 
         // convert delay in seconds to delay in ticks
         var delay_ticks = delay_s * NetworkTimer_v2.Instance.TickRate;

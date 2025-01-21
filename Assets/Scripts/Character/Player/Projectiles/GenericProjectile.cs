@@ -106,6 +106,44 @@ public class GenericProjectile : NetworkBehaviour
 
         if (VisualGameObject != null) VisualGameObject.SetActive(true);
 
+        /*
+        // log some details
+        if (IsServer)
+        {
+            Debug.Log("Server Projectile: ");
+            Debug.Log("Position: " + transform.position);
+            Debug.Log("Direction: " + Direction);
+            Debug.Log("Duration: " + Duration);
+            LogFireDetailsClientRpc(transform.position, Direction, Duration);
+        }
+
+        if (IsClient)
+        {
+            Debug.Log("Client Projectile: ");
+            Debug.Log("Position: " + transform.position);
+            Debug.Log("Direction: " + Direction);
+            Debug.Log("Duration: " + Duration);
+            LogFireDetailsServerRpc(transform.position, Direction, Duration);
+        }
+        */
+    }
+
+    [Rpc(SendTo.NotServer)]
+    void LogFireDetailsClientRpc(Vector3 pos, Vector3 dir, float duration)
+    {
+        Debug.Log("Server Projectile: ");
+        Debug.Log("Position: " + pos);
+        Debug.Log("Direction: " + dir);
+        Debug.Log("Duration: " + duration);
+    }
+
+    [Rpc(SendTo.Server)]
+    void LogFireDetailsServerRpc(Vector3 pos, Vector3 dir, float duration)
+    {
+        Debug.Log("Client Projectile: ");
+        Debug.Log("Position: " + pos);
+        Debug.Log("Direction: " + dir);
+        Debug.Log("Duration: " + duration);
     }
 
     private void Update()
@@ -166,6 +204,21 @@ public class GenericProjectile : NetworkBehaviour
                 {
                     enemyAI.Knockback(KnockbackDirection, KnockbackDistance, KnockbackStunDuration);
                 }
+
+                // output hit details
+                if (IsServer)
+                {
+                    Debug.Log("Server Hit: " + hitInfo.point);
+                    LogHitPointClientRpc(hitInfo.point);
+                }
+
+                if (IsClient)
+                {
+                    Debug.Log("Client Hit: " + hitInfo.point);
+                    LogHitPointServerRpc(hitInfo.point);
+                }
+
+
             }
             else if (hit.HasComponent<Destructible>())
             {
@@ -181,6 +234,18 @@ public class GenericProjectile : NetworkBehaviour
         }
 
         if (IsServer && !IsHost) PlayerAbility.UnrollEnemies();
+    }
+
+    [Rpc(SendTo.Server)]
+    void LogHitPointServerRpc(Vector2 hitPoint)
+    {
+        Debug.Log("Client Hit: " + hitPoint);
+    }
+
+    [Rpc(SendTo.NotServer)]
+    void LogHitPointClientRpc(Vector2 hitPoint)
+    {
+        Debug.Log("Server Hit: " + hitPoint);
     }
 
     void ExplodeAndDeactivate(Vector3 hitPosition)

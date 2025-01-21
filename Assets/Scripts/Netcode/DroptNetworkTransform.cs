@@ -13,8 +13,6 @@ using Unity.Mathematics;
 
 public class DroptNetworkTransform : NetworkBehaviour
 {
-    public int interpolationDelayTicks = 2;
-
     struct PositionState
     {
         public Vector3 position;
@@ -23,8 +21,6 @@ public class DroptNetworkTransform : NetworkBehaviour
 
     private List<PositionState> m_positionStateBuffer;
     private int k_bufferSize = 32;
-
-    private int m_clientToServerTickDelta = 0;
 
     public override void OnNetworkSpawn()
     {
@@ -37,6 +33,36 @@ public class DroptNetworkTransform : NetworkBehaviour
     {
         if (IsClient)
         {
+            var currentTick = NetworkTimer_v2.Instance.TickCurrent;
+            var clientServerTickDelta = NetworkTimer_v2.Instance.ClientServerTickDelta;
+            var interpolationDelayTicks = NetworkTimer_v2.Instance.DroptNetworkTransformInterpolationDelayTicks;
+
+            if (m_positionStateBuffer.Count < 5) return;
+
+            var targetTick = currentTick - clientServerTickDelta - interpolationDelayTicks;
+
+            int a = -1;
+            int b = -1;
+
+            for (int i = 0; i < m_positionStateBuffer.Count - 1; i++)
+            {
+                if (targetTick == m_positionStateBuffer[i].tick)
+                {
+                    a = i;
+                    b = i + 1;
+                    break;
+                }
+            }
+
+            if (a == -1 || b == -1) return;
+
+            var start = m_positionStateBuffer[a];
+            var finish = m_positionStateBuffer[b];
+            var fraction = NetworkTimer_v2.Instance.TickFraction;
+
+            transform.position = Vector3.Lerp(start.position, finish.position, fraction);
+
+            /*
             // Calculate the target ticks for interpolation
             var startTick = NetworkTimer_v2.Instance.TickCurrent -
                 m_clientToServerTickDelta - interpolationDelayTicks;
@@ -57,6 +83,7 @@ public class DroptNetworkTransform : NetworkBehaviour
                 //Debug.Log("No value exists!");
                 //m_isSetNew = true;
             }
+            */
         }
     }
 
@@ -68,68 +95,21 @@ public class DroptNetworkTransform : NetworkBehaviour
         }
     }
 
-    float lastTime = 0;
-
-    int lastTick = 0;
-
-    [Rpc(SendTo.ClientsAndHost, Delivery = RpcDelivery.Unreliable)]
-    //[Rpc(SendTo.ClientsAndHost)]
+    [Rpc(SendTo.NotServer)]
     void SetPositionClientRpc(Vector3 pos, int serverTick)
     {
-        var currTime = Time.time;
-        var delta = currTime - lastTime;
-        lastTime = currTime;
-
         m_positionStateBuffer.Add(new PositionState
         {
             position = pos,
             tick = serverTick,
         });
-        //Debug.Log("added new position: " + pos + ", at tick: " + serverTick + ", delta: " + delta);
-
-        if (math.abs(serverTick-lastTick) > 1)
-        {
-            Debug.Log("Missed a tick");
-        }
-        lastTick = serverTick;
 
         if (m_positionStateBuffer.Count > k_bufferSize) m_positionStateBuffer.RemoveAt(0);
 
-        SortPositionBufferByTick();
+        m_positionStateBuffer.Sort((state1, state2) => state1.tick.CompareTo(state2.tick));
+
         FillTickGaps();
-
-        // save current tick delta
-        AddToTickDelta(NetworkTimer_v2.Instance.TickCurrent +
-            NetworkTimer_v2.Instance.TickFraction - serverTick);
     }
-
-    void SortPositionBufferByTick()
-    {
-        m_positionStateBuffer.Sort((a, b) => a.tick.CompareTo(b.tick));
-    }
-
-    private List<float> m_tickDeltas = new List<float>();
-    bool m_isSetNew = true;
-
-    void AddToTickDelta(float tickDelta)
-    {
-        m_tickDeltas.Add(tickDelta);
-
-        if (m_tickDeltas.Count > 50) m_tickDeltas.RemoveAt(0);
-
-        float sum = 0;
-        foreach (var td in m_tickDeltas) sum += td;
-
-        var meanTickDelta = (int)math.round(sum / m_tickDeltas.Count);
-
-        if (math.abs(m_clientToServerTickDelta - meanTickDelta) > 5 || m_isSetNew)
-        {
-            m_clientToServerTickDelta = meanTickDelta;
-            m_isSetNew = false;
-            Debug.Log("set new tick delta: " + meanTickDelta);
-        }
-    }
-
 
     // Finds the position for a given tick
     private PositionState? FindPositionForTick(int tick)

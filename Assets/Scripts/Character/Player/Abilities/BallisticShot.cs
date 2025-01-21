@@ -89,7 +89,7 @@ public class BallisticShot : PlayerAbility
         // Local Client & Server
         if (Player.GetComponent<NetworkObject>().IsLocalPlayer || IsServer)
         {
-            if (IsClient)
+            //if (IsClient)
             {
                 m_instantiatedVisualProjectile = InstantiateVisualProjectile(activationWearable);
                 m_instantiatedVisualProjectile.transform.position = startPosition;

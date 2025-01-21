@@ -810,10 +810,8 @@ public partial class PlayerPrediction : NetworkBehaviour
         // go back at least two ticks for our interp state
         if (currentTick < 3) return transform.position;
 
-        var currTick = currentTick;
-
-        var startBufferIndex = (currTick - 2) % k_bufferSize;
-        var finishBufferIndex = (currTick - 1) % k_bufferSize;
+        var startBufferIndex = (currentTick - 2) % k_bufferSize;
+        var finishBufferIndex = (currentTick - 1) % k_bufferSize;
 
         var start = clientStateBuffer.Get(startBufferIndex);
         var finish = clientStateBuffer.Get(finishBufferIndex);
