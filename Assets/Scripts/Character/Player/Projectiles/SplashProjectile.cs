@@ -191,7 +191,7 @@ public class SplashProjectile : NetworkBehaviour
 
     void Deactivate(Vector3 hitPosition)
     {
-        VisualEffectsManager.Instance.SpawnBulletExplosion(hitPosition);
+        VisualEffectsManager.Instance.Spawn_VFX_AttackHit(hitPosition);
         gameObject.SetActive(false);
 
         if (Role == PlayerAbility.NetworkRole.Server)
@@ -205,7 +205,7 @@ public class SplashProjectile : NetworkBehaviour
     {
         if (Role == PlayerAbility.NetworkRole.RemoteClient)
         {
-            VisualEffectsManager.Instance.SpawnBulletExplosion(hitPosition);
+            VisualEffectsManager.Instance.Spawn_VFX_AttackHit(hitPosition);
             gameObject.SetActive(false);
         }
     }

@@ -15,7 +15,7 @@ public class OnDeathSpawnBloodSkull : NetworkBehaviour
         var destroyAtLevelChange = GetComponent<DestroyAtLevelChange>();
         if (destroyAtLevelChange != null && destroyAtLevelChange.isDestroying) return;
 
-        VisualEffectsManager.Instance.SpawnVFX_DeathBloodSkull(transform.position + offset,
+        VisualEffectsManager.Instance.Spawn_VFX_Death(transform.position + offset,
             Scale);
     }
 }

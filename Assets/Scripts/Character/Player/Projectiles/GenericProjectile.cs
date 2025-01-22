@@ -236,8 +236,7 @@ public class GenericProjectile : NetworkBehaviour
                 var destructible = hit.GetComponent<Destructible>();
                 destructible.TakeDamage(WeaponType, LocalPlayer.GetComponent<NetworkObject>().NetworkObjectId);
             }
-            ExplodeAndDeactivate(hitInfo.point,
-                hit.HasComponent<Destructible>() ? HitObjectType.Destructible : HitObjectType.EnemyCharacter);
+            ExplodeAndDeactivate(hitInfo.point);
 
             if (LocalPlayer != null)
             {
@@ -260,32 +259,29 @@ public class GenericProjectile : NetworkBehaviour
         Debug.Log("Server Hit: " + hitPoint);
     }
 
-    void ExplodeAndDeactivate(Vector3 hitPosition, HitObjectType hitObjectType)
+    void ExplodeAndDeactivate(Vector3 hitPosition)
     {
         if (VisualGameObject != null) Destroy(VisualGameObject);
 
-        if (hitObjectType == HitObjectType.EnemyCharacter) VisualEffectsManager.Instance.SpawnVFX_BloodHit_03(hitPosition);
-        if (hitObjectType == HitObjectType.Destructible) VisualEffectsManager.Instance.SpawnBulletExplosion(hitPosition);
-
+        VisualEffectsManager.Instance.Spawn_VFX_AttackHit(hitPosition);
 
         if (VisualGameObject != null) VisualGameObject.SetActive(false);
         gameObject.SetActive(false);
 
         if (Role == PlayerAbility.NetworkRole.Server)
         {
-            ExplodeAndDeactivateClientRpc(hitPosition, hitObjectType);
+            ExplodeAndDeactivateClientRpc(hitPosition);
         }
     }
 
 
 
     [Rpc(SendTo.ClientsAndHost)]
-    void ExplodeAndDeactivateClientRpc(Vector3 hitPosition, HitObjectType hitObjectType)
+    void ExplodeAndDeactivateClientRpc(Vector3 hitPosition)
     {
         if (Role == PlayerAbility.NetworkRole.RemoteClient)
         {
-            if (hitObjectType == HitObjectType.EnemyCharacter) VisualEffectsManager.Instance.SpawnVFX_BloodHit_03(hitPosition);
-            if (hitObjectType == HitObjectType.Destructible) VisualEffectsManager.Instance.SpawnBulletExplosion(hitPosition);
+            VisualEffectsManager.Instance.Spawn_VFX_AttackHit(hitPosition);
 
             if (VisualGameObject != null) VisualGameObject.SetActive(false);
             gameObject.SetActive(false);

@@ -22,7 +22,7 @@ public class PlayerPing : NetworkBehaviour
 
     NetworkObject m_networkObject;
 
-    public NetworkVariable<ulong> RTT = new NetworkVariable<ulong>(0);
+    public NetworkVariable<ulong> RTT_ms = new NetworkVariable<ulong>(0);
 
     public NetworkVariable<int> serverFPS = new NetworkVariable<int>(0);
     private List<float> m_serverFPSArray = new List<float>();
@@ -45,7 +45,7 @@ public class PlayerPing : NetworkBehaviour
 
         if (IsServer)
         {
-            if (m_unityTransport != null) RTT.Value = m_unityTransport.GetCurrentRtt(m_networkObject.OwnerClientId);
+            if (m_unityTransport != null) RTT_ms.Value = m_unityTransport.GetCurrentRtt(m_networkObject.OwnerClientId);
 
             m_serverFPSArray.Add(1 / Time.deltaTime);
             if (m_serverFPSArray.Count > m_maxServerFPSArrayLength)

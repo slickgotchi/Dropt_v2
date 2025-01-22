@@ -28,8 +28,13 @@ public class VisualEffectsManager : MonoBehaviour
     private Queue<GameObject> m_vfxDeathBloodSkullPool = new Queue<GameObject>();
     //private Queue<GameObject> m_vfxBloodHit03Pool = new Queue<GameObject>();
 
+    [SerializeField] private GameObject m_vfxDeathPrefab;
+
     [SerializeField] private List<GameObject> m_vfxBloodHitPrefabs = new List<GameObject>();
     private int m_vfxBloodHitCurrentIndex = 0;
+
+    [SerializeField] private List<GameObject> m_vfxAttackHitPrefabs = new List<GameObject>();
+    private int m_vfxAttackHitCurrentIndex = 0;
 
     private void Awake()
     {
@@ -61,23 +66,23 @@ public class VisualEffectsManager : MonoBehaviour
         return instance;
     }
 
-    public GameObject SpawnBulletExplosion(Vector3 position)
-    {
-        GameObject instance;
+    //public GameObject SpawnBulletExplosion(Vector3 position)
+    //{
+    //    GameObject instance;
 
-        if (m_bulletExplosionPool.Count > 0)
-        {
-            instance = m_bulletExplosionPool.Dequeue();
-            instance?.SetActive(true);
-        }
-        else
-        {
-            instance = Instantiate(bulletExplosionPrefab);
-        }
+    //    if (m_bulletExplosionPool.Count > 0)
+    //    {
+    //        instance = m_bulletExplosionPool.Dequeue();
+    //        instance?.SetActive(true);
+    //    }
+    //    else
+    //    {
+    //        instance = Instantiate(bulletExplosionPrefab);
+    //    }
 
-        if (instance != null) instance.transform.position = position;
-        return instance;
-    }
+    //    if (instance != null) instance.transform.position = position;
+    //    return instance;
+    //}
 
     public GameObject SpawnSplashExplosion(Vector3 position, Color? color = null, float scale = 1f)
     {
@@ -187,34 +192,45 @@ public class VisualEffectsManager : MonoBehaviour
         return instance;
     }
 
-    public GameObject SpawnVFX_DeathBloodSkull(Vector3 position, float scale = 1f)
+    //public GameObject SpawnVFX_DeathBloodSkull(Vector3 position, float scale = 1f)
+    //{
+    //    GameObject instance = Instantiate(vfxDeathBloodSkullPrefab);
+    //    instance.transform.position = position;
+    //    instance.transform.localScale = new Vector3(scale, scale, 1);
+    //    return instance;
+    //}
+
+    //public GameObject SpawnVFX_BloodHit_03(Vector3 position, float scale = 1f)
+    //{
+    //    m_vfxBloodHitCurrentIndex++;
+    //    if (m_vfxBloodHitCurrentIndex >= m_vfxBloodHitPrefabs.Count)
+    //    {
+    //        m_vfxBloodHitCurrentIndex = 0;
+    //    }
+
+    //    GameObject instance = Instantiate(m_vfxBloodHitPrefabs[m_vfxBloodHitCurrentIndex]);
+    //    instance.transform.position = position;
+    //    instance.transform.localScale = new Vector3(scale, scale, 1);
+    //    return instance;
+    //}
+
+    public GameObject Spawn_VFX_AttackHit(Vector3 position, float scale = 1f)
     {
-        GameObject instance;
+        m_vfxAttackHitCurrentIndex++;
+        if (m_vfxAttackHitCurrentIndex >= m_vfxAttackHitPrefabs.Count)
+        {
+            m_vfxAttackHitCurrentIndex = 0;
+        }
 
-        //if (m_vfxDeathBloodSkullPool.Count > 0)
-        //{
-        //    instance = m_vfxDeathBloodSkullPool.Dequeue();
-        //    instance.SetActive(true);
-        //}
-        //else
-        //{
-            instance = Instantiate(vfxDeathBloodSkullPrefab);
-        //}
-
+        GameObject instance = Instantiate(m_vfxAttackHitPrefabs[m_vfxAttackHitCurrentIndex]);
         instance.transform.position = position;
         instance.transform.localScale = new Vector3(scale, scale, 1);
         return instance;
     }
 
-    public GameObject SpawnVFX_BloodHit_03(Vector3 position, float scale = 1f)
+    public GameObject Spawn_VFX_Death(Vector3 position, float scale = 1f)
     {
-        m_vfxBloodHitCurrentIndex++;
-        if (m_vfxBloodHitCurrentIndex >= m_vfxBloodHitPrefabs.Count)
-        {
-            m_vfxBloodHitCurrentIndex = 0;
-        }
-
-        GameObject instance = Instantiate(m_vfxBloodHitPrefabs[m_vfxBloodHitCurrentIndex]);
+        GameObject instance = Instantiate(m_vfxDeathPrefab);
         instance.transform.position = position;
         instance.transform.localScale = new Vector3(scale, scale, 1);
         return instance;

@@ -544,24 +544,18 @@ public class PlayerAbility : NetworkBehaviour
                         enemyAI.Knockback(knockbackDir, KnockbackDistance, KnockbackStunDuration);
                     }
                 }
-
-                if (Player.GetComponent<NetworkCharacter>().IsLocalPlayer)
-                {
-                    VisualEffectsManager.Instance.SpawnVFX_BloodHit_03(closestPointV3);
-                }
             }
 
             if (hitDestructible != null)
             {
                 hitDestructible.TakeDamage(weaponType, Player.GetComponent<NetworkObject>().NetworkObjectId);
-
-                if (Player.GetComponent<NetworkCharacter>().IsLocalPlayer)
-                {
-                    VisualEffectsManager.Instance.SpawnBulletExplosion(closestPointV3);
-                }
             }
 
-            
+            if (Player.GetComponent<NetworkCharacter>().IsLocalPlayer)
+            {
+                VisualEffectsManager.Instance.Spawn_VFX_AttackHit(closestPointV3);
+            }
+
         }
         // screen shake
         if (isLocalPlayer && enemyHitColliders.Count > 0)
@@ -587,7 +581,7 @@ public class PlayerAbility : NetworkBehaviour
         }
 
         // get round trip time
-        var rtt_s = (float)playerPing.RTT.Value / 1000;
+        var rtt_s = (float)playerPing.RTT_ms.Value / 1000;
 
         // IMPORTANT: There was ALOT of finessing that went into this delay calc and
         // it MIGHT only work with ticks at 15 ticks per second.

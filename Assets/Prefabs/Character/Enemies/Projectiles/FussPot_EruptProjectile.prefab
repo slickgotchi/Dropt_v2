@@ -66,7 +66,7 @@ CircleCollider2D:
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
-  m_Radius: 0.5
+  m_Radius: 0.9
 --- !u!1 &4916505142044677059
 GameObject:
   m_ObjectHideFlags: 0
@@ -79,7 +79,6 @@ GameObject:
   - component: {fileID: -6380805425707032811}
   - component: {fileID: 2586933080452359490}
   - component: {fileID: 1436172034510677208}
-  - component: {fileID: 3806931466038697612}
   - component: {fileID: 9070649316580403400}
   - component: {fileID: 492079355586330594}
   m_Layer: 0
@@ -120,7 +119,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3040036596
+  GlobalObjectIdHash: 3896073766
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -141,7 +140,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e09c226b5dfdd5b48a9bb65e55005dba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  HitRadius: 1.5
   TargetMarker: {fileID: 5797221604217530835}
   LobArcBody: {fileID: 725978898333489779}
   Direction: {x: 0, y: 0, z: 0}
@@ -151,6 +149,11 @@ MonoBehaviour:
   CriticalChance: 0.1
   CriticalDamage: 1.5
   Scale: 1
+  m_animator: {fileID: 9070649316580403400}
+  m_spriteRenderers:
+  - {fileID: 7203392138496670408}
+  - {fileID: 5358690717850669649}
+  - {fileID: 8046928863422518973}
 --- !u!50 &1436172034510677208
 Rigidbody2D:
   serializedVersion: 4
@@ -178,37 +181,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!114 &3806931466038697612
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4916505142044677059}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  UseUnreliableDeltas: 0
-  SyncPositionX: 1
-  SyncPositionY: 1
-  SyncPositionZ: 1
-  SyncRotAngleX: 1
-  SyncRotAngleY: 1
-  SyncRotAngleZ: 1
-  SyncScaleX: 1
-  SyncScaleY: 1
-  SyncScaleZ: 1
-  PositionThreshold: 0.001
-  RotAngleThreshold: 0.01
-  ScaleThreshold: 0.01
-  UseQuaternionSynchronization: 0
-  UseQuaternionCompression: 0
-  UseHalfFloatPrecision: 0
-  InLocalSpace: 0
-  Interpolate: 1
-  SlerpPosition: 0
 --- !u!95 &9070649316580403400
 Animator:
   serializedVersion: 5
@@ -272,7 +244,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 0.75, z: 1}
+  m_LocalScale: {x: 1.5, y: 1.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4891758117280557731}
@@ -318,8 +290,8 @@ SpriteRenderer:
   m_SortingLayerID: -1182511101
   m_SortingLayer: -4
   m_SortingOrder: 0
-  m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  m_Color: {r: 1, g: 0, b: 0, a: 0.19607843}
+  m_Sprite: {fileID: -87594214, guid: e395a245c8dd0411194f48939aa99ef8, type: 3}
+  m_Color: {r: 1, g: 0, b: 0, a: 0.5019608}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -487,7 +459,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -1639497075719174599, guid: 9d6112ce125f15c4a813a35fb9dc8418, type: 3}
+  m_Sprite: {fileID: -1552877266, guid: 018ea88c4dfcb48bcbfab42717118b2e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

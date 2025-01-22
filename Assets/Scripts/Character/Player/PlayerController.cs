@@ -46,7 +46,7 @@ public class PlayerController : NetworkBehaviour
 
     private Vector3 m_spawnPoint;
 
-
+    public Collider2D HurtCollider2D;
 
 
     private void Awake()

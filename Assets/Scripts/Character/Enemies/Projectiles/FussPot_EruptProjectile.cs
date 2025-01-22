@@ -2,11 +2,14 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEngine;
+using Cysharp.Threading.Tasks;
+using UnityEngine.Pool;
+using Unity.Mathematics;
 
 public class FussPot_EruptProjectile : NetworkBehaviour
 {
     [Header("FussPot_EruptProjectile Parameters")]
-    public float HitRadius = 3f;
+    //public float HitRadius = 3f;
     public GameObject TargetMarker;
     public LobArc LobArcBody;
 
@@ -21,15 +24,17 @@ public class FussPot_EruptProjectile : NetworkBehaviour
     [HideInInspector] public float Scale = 1f;
 
     private float m_timer = 0;
-    private bool m_isSpawned = false;
     private float m_speed = 1;
     private bool m_isCollided = false;
 
     private Collider2D m_collider;
+    [SerializeField] private Animator m_animator;
 
     private Vector3 m_finalPosition = Vector3.zero;
 
     private SoundFX_ProjectileHitGround m_soundFX_ProjectileHitGround;
+
+    public List<SpriteRenderer> m_spriteRenderers = new List<SpriteRenderer>();
 
     private void Awake()
     {
@@ -37,14 +42,23 @@ public class FussPot_EruptProjectile : NetworkBehaviour
         m_soundFX_ProjectileHitGround = GetComponent<SoundFX_ProjectileHitGround>();
     }
 
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        SetVisible(false);
+    }
+
+    void SetVisible(bool isVisible)
+    {
+        foreach (var sr in m_spriteRenderers)
+        {
+            sr.enabled = isVisible;
+        }
+    }
+
     public override void OnNetworkDespawn()
     {
-        if (IsClient)
-        {
-            VisualEffectsManager.Instance.SpawnCloudExplosion(transform.position);
-            m_soundFX_ProjectileHitGround.Play();
-        }
-
         base.OnNetworkDespawn();
     }
 
@@ -60,53 +74,155 @@ public class FussPot_EruptProjectile : NetworkBehaviour
         CriticalDamage = criticalDamage;
 
         m_finalPosition = transform.position + Direction * Distance;
+        TargetMarker.transform.parent = null;
+        TargetMarker.transform.position = m_finalPosition;
+
+        //m_collider.GetComponent<CircleCollider2D>().radius = HitRadius;
+
     }
 
     public void Fire()
     {
-        gameObject.SetActive(true);
-
+        SetVisible(true);
+        m_isCollided = false;
         m_timer = Duration;
-        m_isSpawned = true;
         m_speed = Distance / Duration;
 
         LobArcBody.Duration_s = Duration;
+        LobArcBody.Reset();
+
+        if (IsClient)
+        {
+            Dropt.Utils.Anim.PlayAnimationWithDuration(m_animator, "Fusspot_EruptProjectile", Duration);
+        }
     }
 
     private void Update()
     {
-        if (!m_isSpawned) return;
+        if (!IsSpawned) return;
 
         m_timer -= Time.deltaTime;
 
-        transform.position += m_speed * Time.deltaTime * Direction;
+        if (m_timer > 0 && !m_isCollided)
+        {
+            transform.position += m_speed * Time.deltaTime * Direction;
+        }
 
-        TargetMarker.transform.position = m_finalPosition;
-
-        // update target marker size
-        float alpha = (Duration - m_timer) / Duration;
-        float targetScale = alpha * HitRadius * 2;
-        TargetMarker.transform.localScale = new Vector3(targetScale, targetScale * 0.7f, 1);
-
-        // handle collision checks
-        if (IsServer && m_timer < 0 && !m_isCollided)
+        else if (m_timer <= 0 && !m_isCollided)
         {
             m_isCollided = true;
 
-            m_collider.GetComponent<CircleCollider2D>().radius = HitRadius;
+            if (IsClient)
+            {
+                SetVisible(false);
+                VisualEffectsManager.Instance.SpawnCloudExplosion(transform.position);
+                m_soundFX_ProjectileHitGround.Play();
+            }
 
+            else if (IsServer)
+            {
+                CheckDamageToAllPlayers_SERVER();
+            }
+        }
+    }
+
+    void CheckDamageToAllPlayers_SERVER()
+    {
+        if (!IsServer) return;
+
+        //m_collider.GetComponent<CircleCollider2D>().radius = HitRadius;
+
+        var playerControllers = Game.Instance.playerControllers;
+
+        // Create a list to track all the tasks
+        //List<UniTask> damageTasks = new List<UniTask>();
+
+        foreach (var playerController in playerControllers)
+        {
             var isCritical = Dropt.Utils.Battle.IsCriticalAttack(CriticalChance);
             var damage = isCritical ? DamagePerHit * CriticalDamage : DamagePerHit;
             damage = Dropt.Utils.Battle.GetRandomVariation(damage);
 
-            // we need to delay the collision check to account for lag
-            // - player interp is 2 ticks back of current position (check player interp in PlayerPrediction)
-            // - 
-
-            EnemyAbility.PlayerCollisionCheckAndDamage(m_collider, damage, isCritical);
-
-            gameObject.SetActive(false);
-            gameObject.GetComponent<NetworkObject>().Despawn();
+            // Add each task to the list
+            //damageTasks.Add(CheckDamageToPlayer_SERVER(playerController, damage, isCritical));
+            CheckDamageToPlayer_SERVER(playerController, damage, isCritical);
         }
     }
+
+    async UniTask CheckDamageToPlayer_SERVER(PlayerController playerController, float damage, bool isCritical)
+    {
+        var playerPing = playerController.GetComponent<PlayerPing>();
+        if (playerPing != null)
+        {
+            // get the players hurt collider
+            var playerHurtCollider = playerController.HurtCollider2D;
+
+            var delay_s = NetworkTimer_v2.Instance.TickInterval * 2 +
+                playerPing.RTT_ms.Value * 0.001f;
+            delay_s = math.min(delay_s, 0.5f);
+
+            Debug.Log("Player position before lagcomp: " + playerController.transform.position);
+
+            await UniTask.Delay((int)(delay_s*1000));
+
+            Debug.Log("Player position after lagcomp: " + playerController.transform.position);
+
+            // sync colliders to current transform
+            Physics2D.SyncTransforms();
+
+            // do a collision check
+            List<Collider2D> playerHurtColliders = new List<Collider2D>();
+
+            m_collider.OverlapCollider(PlayerAbility.GetContactFilter(new string[] { "PlayerHurt" }), playerHurtColliders);
+            foreach (var hit in playerHurtColliders)
+            {
+                if (hit == playerHurtCollider)
+                {
+                    playerController.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical, null);
+                    Debug.Log("Player position after lagcomp (hit): " + playerController.transform.position);
+                    break;
+                }
+            }
+
+            // clear out colliders
+            playerHurtColliders.Clear();
+        }
+    }
+
+    /*
+    async UniTaskVoid CheckDamageToPlayer_SERVER(float damage, bool isCritical)
+    {
+        if (!IsServer) return;
+
+        // we need to delay the collision check to account for lag
+        // - player interp is 2 ticks back of current position (check player interp in PlayerPrediction)
+        // -
+        var delay_s = NetworkTimer_v2.Instance.TickInterval * 2;
+        if (IsHost) delay_s = 0;
+
+        await UniTask.Delay((int)(1000 * delay_s));
+
+        // sync colliders to current transform
+        Physics2D.SyncTransforms();
+
+        // do a collision check
+        List<Collider2D> playerHitColliders = new List<Collider2D>();
+
+        m_collider.OverlapCollider(PlayerAbility.GetContactFilter(new string[] { "PlayerHurt" }), playerHitColliders);
+        foreach (var hit in playerHitColliders)
+        {
+            var player = hit.transform.parent;
+            if (player.HasComponent<NetworkCharacter>())
+            {
+                player.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical, null);
+            }
+        }
+
+        // clear out colliders
+        playerHitColliders.Clear();
+
+        gameObject.SetActive(false);
+        gameObject.GetComponent<NetworkObject>().Despawn();
+    }
+    */
 }
