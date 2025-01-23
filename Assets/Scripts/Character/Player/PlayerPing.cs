@@ -45,7 +45,8 @@ public class PlayerPing : NetworkBehaviour
 
         if (IsServer)
         {
-            if (m_unityTransport != null) RTT_ms.Value = m_unityTransport.GetCurrentRtt(m_networkObject.OwnerClientId);
+            //if (m_unityTransport != null) RTT_ms.Value = m_unityTransport.GetCurrentRtt(m_networkObject.OwnerClientId);
+            Debug.Log("RTT_ms: " + RTT_ms.Value);
 
             m_serverFPSArray.Add(1 / Time.deltaTime);
             if (m_serverFPSArray.Count > m_maxServerFPSArrayLength)
@@ -72,6 +73,7 @@ public class PlayerPing : NetworkBehaviour
             TrackPing();
             DebugCanvas.Instance.SetPing((int)pingMedian);
             DebugCanvas.Instance.SetServerFPS(((int)serverFPS.Value));
+            UpdateServerRTT_msServerRpc((ulong)pingMedian);
         }
 
         elapsedTimeSinceLastPing += Time.deltaTime;
@@ -86,6 +88,12 @@ public class PlayerPing : NetworkBehaviour
         m_pingTimer = m_pingInterval;
 
         PingServerRpc(Time.time);
+    }
+
+    [Rpc(SendTo.Server)]
+    void UpdateServerRTT_msServerRpc(ulong rtt_ms)
+    {
+        RTT_ms.Value = rtt_ms;
     }
 
     [Rpc(SendTo.Server)]

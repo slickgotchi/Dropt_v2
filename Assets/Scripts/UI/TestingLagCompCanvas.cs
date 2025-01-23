@@ -9,7 +9,7 @@ public class TestingLagCompCanvas : MonoBehaviour
 
     public TMPro.TextMeshProUGUI posText;
 
-    [HideInInspector] public float m = 1f;
+    [HideInInspector] public float m = 0.3f;
     [HideInInspector] public float c = 0.25f;
 
     [SerializeField] private Button mUpBtn;

@@ -20,7 +20,7 @@ public class GenericProjectile : NetworkBehaviour
     [HideInInspector] public float KnockbackDistance;
     [HideInInspector] public float KnockbackStunDuration;
 
-    [HideInInspector] public GameObject LocalPlayer;
+    [HideInInspector] public GameObject Player;
 
     [HideInInspector] public PlayerAbility.NetworkRole Role = PlayerAbility.NetworkRole.LocalClient;
 
@@ -84,7 +84,7 @@ public class GenericProjectile : NetworkBehaviour
         WeaponType = weaponType;
 
         // server & local only
-        LocalPlayer = player;
+        Player = player;
         DamagePerHit = damagePerHit;
         CriticalChance = criticalChance;
         CriticalDamage = criticalDamage;
@@ -109,27 +109,6 @@ public class GenericProjectile : NetworkBehaviour
         m_collider = GetComponent<Collider2D>();
 
         if (VisualGameObject != null) VisualGameObject.SetActive(true);
-
-        /*
-        // log some details
-        if (IsServer)
-        {
-            Debug.Log("Server Projectile: ");
-            Debug.Log("Position: " + transform.position);
-            Debug.Log("Direction: " + Direction);
-            Debug.Log("Duration: " + Duration);
-            LogFireDetailsClientRpc(transform.position, Direction, Duration);
-        }
-
-        if (IsClient)
-        {
-            Debug.Log("Client Projectile: ");
-            Debug.Log("Position: " + transform.position);
-            Debug.Log("Direction: " + Direction);
-            Debug.Log("Duration: " + Duration);
-            LogFireDetailsServerRpc(transform.position, Direction, Duration);
-        }
-        */
     }
 
     [Rpc(SendTo.NotServer)]
@@ -179,15 +158,47 @@ public class GenericProjectile : NetworkBehaviour
 
     public void CollisionCheck()
     {
-        if (IsServer && !IsHost) PlayerAbility.RollbackEnemies(LocalPlayer);
+
+        if (Role == PlayerAbility.NetworkRole.LocalClient)
+        {
+
+        }
+
+        if (Role == PlayerAbility.NetworkRole.Server)
+        {
+            //if (!IsHost) PlayerAbility.RollbackEnemies(Player);
+        }
+
+
+
+
+
+
+
+
+
+        if (IsServer && !IsHost) PlayerAbility.RollbackEnemies(Player);
 
         // resync transforms
         Physics2D.SyncTransforms();
 
-        // Use ColliderCast to perform continuous collision detection
+        // If we're on the server we need to do two passes of the collision check
+        //  1. the first pass is the actual projectile radius and does a normal check for collision
+        //  2. the second pass is a "tolerance" larger radius check. if the client thinks they
+        //     got a hit they can ask the server to double check and if we got a tolerance hit it
+        //      will register a hit
+
+        // common variables for each cast
         Vector2 castDirection = Direction.normalized;
         float castDistance = m_speed * Time.deltaTime;
         RaycastHit2D[] hits = new RaycastHit2D[1];
+
+        var firstCastRadius = m_collider.GetComponent<CircleCollider2D>().radius;
+        var secondCastRadius = 3 * firstCastRadius;
+
+        // FIRST CAST - Normal Hit Check
+        // Use ColliderCast to perform continuous collision detection
+        m_collider.GetComponent<CircleCollider2D>().radius = firstCastRadius;
         int hitCount = m_collider.Cast(castDirection,
             PlayerAbility.GetContactFilter(new string[] { "EnemyHurt", "Destructible", "EnvironmentWall" }),
             hits, castDistance);
@@ -201,48 +212,39 @@ public class GenericProjectile : NetworkBehaviour
                 var damage = PlayerAbility.GetRandomVariation(DamagePerHit);
                 var isCritical = PlayerAbility.IsCriticalAttack(CriticalChance);
                 damage = (int)(isCritical ? damage * CriticalDamage : damage);
-                hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical, LocalPlayer);
+                hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical, Player);
 
                 var enemyAI = hit.GetComponent<Dropt.EnemyAI>();
                 if (enemyAI != null)
                 {
                     enemyAI.Knockback(castDirection, KnockbackDistance, KnockbackStunDuration);
                 }
-
-                // output hit details
-                if (IsServer)
-                {
-                    //Debug.Log("Server Hit: " + hitInfo.point);
-                    //LogHitPointClientRpc(hitInfo.point);
-                }
-
-                if (IsClient)
-                {
-                    //Debug.Log("Client Hit: " + hitInfo.point);
-                    //LogHitPointServerRpc(hitInfo.point);
-
-                    if (SpawnOnHitPrefab != null)
-                    {
-                        //var go = Instantiate(SpawnOnHitPrefab, hitInfo.point, quaternion.identity);
-
-                    }
-
-                }
-
-
             }
             else if (hit.HasComponent<Destructible>())
             {
                 var destructible = hit.GetComponent<Destructible>();
-                destructible.TakeDamage(WeaponType, LocalPlayer.GetComponent<NetworkObject>().NetworkObjectId);
+                destructible.TakeDamage(WeaponType, Player.GetComponent<NetworkObject>().NetworkObjectId);
             }
             ExplodeAndDeactivate(hitInfo.point);
 
-            if (LocalPlayer != null)
+
+            if (Player != null)
             {
-                LocalPlayer.GetComponent<PlayerCamera>().Shake();
+                Player.GetComponent<PlayerCamera>().Shake();
             }
         }
+
+        // SECOND CAST - Tolerance Hit Check
+        if (IsServer)
+        {
+            m_collider.GetComponent<CircleCollider2D>().radius = secondCastRadius;
+            hitCount = m_collider.Cast(castDirection,
+                PlayerAbility.GetContactFilter(new string[] { "EnemyHurt", "Destructible", "EnvironmentWall" }),
+                hits, castDistance);
+        }
+
+        // reset to original radius
+        m_collider.GetComponent<CircleCollider2D>().radius = firstCastRadius;
 
         if (IsServer && !IsHost) PlayerAbility.UnrollEnemies();
     }

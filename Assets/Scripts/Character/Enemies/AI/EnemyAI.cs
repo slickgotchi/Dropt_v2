@@ -491,6 +491,7 @@ namespace Dropt
 
         async public UniTaskVoid Knockback(Vector3 direction, float distance, float stunTime)
         {
+            /*
             // try a brief stop
             isStopped = true;
             stopPosition = transform.position;
@@ -500,7 +501,7 @@ namespace Dropt
                 m_navMeshAgent.isStopped = true;
             }
 
-            await UniTask.Delay((int)(stunTime*1000));
+            await UniTask.Delay((int)(stunTime * 1000));
 
             isStopped = false;
 
@@ -508,23 +509,14 @@ namespace Dropt
             {
                 m_navMeshAgent.isStopped = false;
             }
-
-
-            /*
-            // apply a stun effect instead
-            if (m_navMeshAgent != null)
-            {
-                stunMultiplier = 0.1f;
-                Debug.Log("stunMultiplier = 0.1f");
-
-                await UniTask.Delay((int)(stunTime * 1000));
-
-                stunMultiplier = 1f;
-                Debug.Log("stunMultiplier = 1f");
-            }
             */
 
             /*
+            // GOING TO DISABLE KNOCKBACK FOR NOW (BUT NOT STUN)
+            // - set distance to 0
+            distance = 0;
+
+            
             if (state.Value == State.Attack) return;
             if (state.Value == State.Spawn) return;
 
@@ -570,6 +562,7 @@ namespace Dropt
             }
             else if (IsClient)
             {
+                
                 m_clientPredictedState = State.Knockback;
                 if (m_networkTransform != null) m_networkTransform.enabled = false;
 
@@ -577,6 +570,7 @@ namespace Dropt
                 if (droptNetworkTransform != null) droptNetworkTransform.enabled = false;
 
                 m_knockbackDuration = k_knockbackDuration;
+                
             }
             */
         }

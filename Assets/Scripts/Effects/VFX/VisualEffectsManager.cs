@@ -88,25 +88,32 @@ public class VisualEffectsManager : MonoBehaviour
     {
         if (color == null) color = Color.white;
 
-        GameObject instance;
+        GameObject instance = Instantiate(splashExplosionPrefab);
+        instance.transform.position = position;
+        instance.transform.localScale = new Vector3(scale, scale, 1);
+        instance.GetComponentInChildren<SpriteRenderer>().color = (Color)color;
 
-        if (m_splashExplosionPool.Count > 0)
-        {
-            instance = m_splashExplosionPool.Dequeue();
-            instance?.SetActive(true);
-        }
-        else
-        {
-            instance = Instantiate(splashExplosionPrefab);
-        }
-
-        if (instance != null)
-        {
-            instance.transform.position = position;
-            instance.transform.localScale = new Vector3(scale, scale, 1);
-            instance.GetComponentInChildren<SpriteRenderer>().color = (Color)color;
-        }
         return instance;
+
+        //GameObject instance;
+
+        //if (m_splashExplosionPool.Count > 0)
+        //{
+        //    instance = m_splashExplosionPool.Dequeue();
+        //    instance?.SetActive(true);
+        //}
+        //else
+        //{
+        //    instance = Instantiate(splashExplosionPrefab);
+        //}
+
+        //if (instance != null)
+        //{
+        //    instance.transform.position = position;
+        //    instance.transform.localScale = new Vector3(scale, scale, 1);
+        //    instance.GetComponentInChildren<SpriteRenderer>().color = (Color)color;
+        //}
+        //return instance;
     }
 
     public GameObject SpawnFudWispExplosion(Vector3 position, Color? color = null, float scale = 1f)

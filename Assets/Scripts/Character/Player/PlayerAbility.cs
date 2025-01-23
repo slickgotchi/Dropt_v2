@@ -590,30 +590,32 @@ public class PlayerAbility : NetworkBehaviour
         //var tickInterval = NetworkTimer_v2.Instance.TickInterval;
         //var delay_s = 0.5f * rtt_s + 4f * tickInterval;
 
-        
-        float m = 0.32f;
-        float c = 0.21f;
+        // these are the results of plotting on the Delta v Ping graph on Lag Compensatino Analysis google sheet
+        float m = 0.324f;
+        float c = 0.212f;
 
         if (TestingLagCompCanvas.Instance != null)
         {
             m = TestingLagCompCanvas.Instance.m;
             c = TestingLagCompCanvas.Instance.c;
         }
-        
+
 
         // lets use a linear formula we calculated by taking a bunch of snapshots and plotting in
         // google sheets
         //var delay_s = m * rtt_s + c;
 
         // DroptNetworkTransform LagComp
-        //var delay_s = rtt_s +
-        //    NetworkTimer_v2.Instance.DroptNetworkTransformInterpolationDelayTicks *
-        //    NetworkTimer_v2.Instance.TickInterval;
+        var delay_s = rtt_s +
+            NetworkTimer_v2.Instance.DroptNetworkTransformInterpolationDelayTicks *
+            NetworkTimer_v2.Instance.TickInterval;
+
+        //delay_s = m;
 
         // 66ms, m = 1, c = 0.23
 
         // NetworkTransform LagComp
-        var delay_s = m * rtt_s + c;
+        //var delay_s = m * rtt_s + c;
 
         // convert delay in seconds to delay in ticks
         var delay_ticks = delay_s * NetworkTimer_v2.Instance.TickRate;

@@ -16,7 +16,7 @@ public class NetworkTimer_v2 : NetworkBehaviour
     [HideInInspector] public int TickCurrent;
     [HideInInspector] public float TickFraction;
 
-    public int DroptNetworkTransformInterpolationDelayTicks = 6;
+    [HideInInspector] public int DroptNetworkTransformInterpolationDelayTicks = 6;
 
     public int ClientServerTickDelta = 0;
 

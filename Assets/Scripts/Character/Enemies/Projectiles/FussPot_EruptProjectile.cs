@@ -23,6 +23,10 @@ public class FussPot_EruptProjectile : NetworkBehaviour
 
     [HideInInspector] public float Scale = 1f;
 
+    [Header("Visual Parameters (splashScale does not affect Collider2D)")]
+    public Color splashColor;
+    public float splashScale = 1f;
+
     private float m_timer = 0;
     private float m_speed = 1;
     private bool m_isCollided = false;
@@ -115,11 +119,11 @@ public class FussPot_EruptProjectile : NetworkBehaviour
             if (IsClient)
             {
                 SetVisible(false);
-                VisualEffectsManager.Instance.SpawnCloudExplosion(transform.position);
+                VisualEffectsManager.Instance.SpawnSplashExplosion(transform.position, splashColor, splashScale);
                 m_soundFX_ProjectileHitGround.Play();
             }
 
-            else if (IsServer)
+            if (IsServer)
             {
                 CheckDamageToAllPlayers_SERVER();
             }
@@ -130,12 +134,7 @@ public class FussPot_EruptProjectile : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        //m_collider.GetComponent<CircleCollider2D>().radius = HitRadius;
-
         var playerControllers = Game.Instance.playerControllers;
-
-        // Create a list to track all the tasks
-        //List<UniTask> damageTasks = new List<UniTask>();
 
         foreach (var playerController in playerControllers)
         {
@@ -151,6 +150,7 @@ public class FussPot_EruptProjectile : NetworkBehaviour
 
     async UniTask CheckDamageToPlayer_SERVER(PlayerController playerController, float damage, bool isCritical)
     {
+        Debug.Log("Check player damage");
         var playerPing = playerController.GetComponent<PlayerPing>();
         if (playerPing != null)
         {
@@ -159,13 +159,9 @@ public class FussPot_EruptProjectile : NetworkBehaviour
 
             var delay_s = NetworkTimer_v2.Instance.TickInterval * 2 +
                 playerPing.RTT_ms.Value * 0.001f;
-            delay_s = math.min(delay_s, 0.5f);
-
-            Debug.Log("Player position before lagcomp: " + playerController.transform.position);
+            delay_s = math.min(delay_s, 0.8f);
 
             await UniTask.Delay((int)(delay_s*1000));
-
-            Debug.Log("Player position after lagcomp: " + playerController.transform.position);
 
             // sync colliders to current transform
             Physics2D.SyncTransforms();
@@ -179,7 +175,6 @@ public class FussPot_EruptProjectile : NetworkBehaviour
                 if (hit == playerHurtCollider)
                 {
                     playerController.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical, null);
-                    Debug.Log("Player position after lagcomp (hit): " + playerController.transform.position);
                     break;
                 }
             }
@@ -188,41 +183,4 @@ public class FussPot_EruptProjectile : NetworkBehaviour
             playerHurtColliders.Clear();
         }
     }
-
-    /*
-    async UniTaskVoid CheckDamageToPlayer_SERVER(float damage, bool isCritical)
-    {
-        if (!IsServer) return;
-
-        // we need to delay the collision check to account for lag
-        // - player interp is 2 ticks back of current position (check player interp in PlayerPrediction)
-        // -
-        var delay_s = NetworkTimer_v2.Instance.TickInterval * 2;
-        if (IsHost) delay_s = 0;
-
-        await UniTask.Delay((int)(1000 * delay_s));
-
-        // sync colliders to current transform
-        Physics2D.SyncTransforms();
-
-        // do a collision check
-        List<Collider2D> playerHitColliders = new List<Collider2D>();
-
-        m_collider.OverlapCollider(PlayerAbility.GetContactFilter(new string[] { "PlayerHurt" }), playerHitColliders);
-        foreach (var hit in playerHitColliders)
-        {
-            var player = hit.transform.parent;
-            if (player.HasComponent<NetworkCharacter>())
-            {
-                player.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical, null);
-            }
-        }
-
-        // clear out colliders
-        playerHitColliders.Clear();
-
-        gameObject.SetActive(false);
-        gameObject.GetComponent<NetworkObject>().Despawn();
-    }
-    */
 }
