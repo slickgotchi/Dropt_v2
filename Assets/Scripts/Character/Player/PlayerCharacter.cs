@@ -44,7 +44,7 @@ public class PlayerCharacter : NetworkCharacter
                 var playerOffchainData = GetComponent<PlayerOffchainData>();
                 if (playerOffchainData != null)
                 {
-                    Essence.Value = baseEssence + (playerOffchainData.isEssenceInfused_offchain ? baseInfusedEssenceBonus : 0);
+                    Essence.Value = baseEssence + (playerOffchainData.m_isEssenceInfused_gotchi.Value ? baseInfusedEssenceBonus : 0);
                 }
             }
             else
@@ -54,7 +54,12 @@ public class PlayerCharacter : NetworkCharacter
 
             if (Essence.Value <= 0 && !LevelManager.Instance.IsDegenapeVillage())
             {
-                GetComponent<PlayerController>().KillPlayer(REKTCanvas.TypeOfREKT.Essence);
+                var playerController = GetComponent<PlayerController>();
+                if (playerController != null)
+                {
+                    _ = playerController.KillPlayer(REKTCanvas.TypeOfREKT.Essence);
+                }
+
             }
         }
     }

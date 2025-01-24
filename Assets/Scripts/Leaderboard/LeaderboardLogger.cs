@@ -58,7 +58,7 @@ public static class LeaderboardLogger
             var formation = playerOffchainData?.dungeonFormation ?? "unknown";
             Debug.Log("formation: " + formation);
 
-            var dustBalance = playerOffchainData?.GetDustDeltaValue() ?? 0;
+            var dustBalance = playerOffchainData?.GetDustDeltaValue_PostDungeon() ?? 0;
             Debug.Log("dustBalance: " + dustBalance);
 
             var kills = playerController.GetTotalKilledEnemies();

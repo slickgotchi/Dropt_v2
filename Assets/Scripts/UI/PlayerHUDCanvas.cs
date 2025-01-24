@@ -163,6 +163,8 @@ public class PlayerHUDCanvas : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
+        if (LevelManager.Instance == null) return;
+
         if (m_localPlayerCharacter == null)
         {
             m_container.SetActive(false);
@@ -179,7 +181,7 @@ public class PlayerHUDCanvas : MonoBehaviour
         UpdateEcto();
         UpdateEssence();
         UpdateAbilityIcons();
-        UpdateHealSlaveUpItem();
+        UpdateZenCricketItem();
     }
 
     private void UpdateStatBars()
@@ -216,15 +218,22 @@ public class PlayerHUDCanvas : MonoBehaviour
 
     private void UpdateDust()
     {
+        var teamDustCounter = FindAnyObjectByType<TeamDustCounter>();
+        if (teamDustCounter == null) return;
+
         var dust = LevelManager.Instance.IsDegenapeVillage() ?
-            m_localPlayerDungeonData.dustBalance_offchain :
-            PlayerOffchainData.dustLiveCount_dungeon;
+            m_localPlayerDungeonData.m_dustVillageBalance_gotchi.Value :    // village
+            teamDustCounter.Count.Value;                                    // dungeon
+
         m_dustText.text = dust.ToString() + " x" + CodeInjector.Instance.GetOutputMultiplier();
     }
 
     private void UpdateBombs()
     {
-        var bombs = LevelManager.Instance.IsDegenapeVillage() ? m_localPlayerDungeonData.bombBalance_offchain : m_localPlayerDungeonData.bombLiveCount_dungeon;
+        var bombs = LevelManager.Instance.IsDegenapeVillage() ?
+            m_localPlayerDungeonData.m_bombLiveBalance_wallet.Value :       // village
+            m_localPlayerDungeonData.m_bombLiveCount_dungeon.Value;         // dungeon
+
         m_bombsText.text = bombs.ToString("F0");
     }
 
@@ -232,11 +241,11 @@ public class PlayerHUDCanvas : MonoBehaviour
     {
         if (LevelManager.Instance.IsDegenapeVillage())
         {
-            m_ectoText.text = m_localPlayerDungeonData.ectoBalance_offchain.ToString("F0");
+            m_ectoText.text = m_localPlayerDungeonData.m_ectoVillageBalance_wallet.Value.ToString("F0");
         }
         else
         {
-            m_ectoText.text = "(" + m_localPlayerDungeonData.ectoDebitCount_dungeon + ") " + m_localPlayerDungeonData.ectoLiveCount_dungeon;
+            m_ectoText.text = "(" + m_localPlayerDungeonData.m_ectoDebitCount_dungeon.Value + ") " + m_localPlayerDungeonData.m_ectoLiveCount_dungeon.Value;
         }
     }
 
@@ -310,10 +319,10 @@ public class PlayerHUDCanvas : MonoBehaviour
         m_PetMeterView.SetProgress(progress);
     }
 
-    public void UpdateHealSlaveUpItem()
+    public void UpdateZenCricketItem()
     {
-        m_healSlaveChargeText.text = m_localPlayerDungeonData.healSalveChargeCount_dungeon.ToString();
-        float fillAmount = m_localPlayerDungeonData.healSalveChargeCount_dungeon / (float)m_localPlayerDungeonData.healSalveDungeonCharges_offchain;
-        m_healSlaveUpImage.fillAmount = fillAmount;
+        //m_healSlaveChargeText.text = m_localPlayerDungeonData.healSalveChargeCount_dungeon.ToString();
+        //float fillAmount = m_localPlayerDungeonData.healSalveChargeCount_dungeon / (float)m_localPlayerDungeonData.healSalveDungeonCharges_offchain;
+        //m_healSlaveUpImage.fillAmount = fillAmount;
     }
 }

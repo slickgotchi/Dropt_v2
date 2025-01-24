@@ -12,8 +12,9 @@ public class PlayerItems : NetworkBehaviour
     private PlayerOffchainData m_playerOffchainData;
     private SoundFX_Player m_soundFX_Player;
 
-    [SerializeField] private GameObject m_healSlaveEffect;
-    [SerializeField] private GameObject m_bombObject;
+    [SerializeField] private GameObject m_zenCricketEffect;
+    [SerializeField] private GameObject m_bombPrefab;
+    [SerializeField] private GameObject m_holePrefab;
 
     public override void OnNetworkSpawn()
     {
@@ -48,16 +49,17 @@ public class PlayerItems : NetworkBehaviour
 
     private void OnUseItem1Performed(InputAction.CallbackContext obj)
     {
-        UseHealSalveItemServerRpc();
+        UseBombItemServerRpc();
     }
 
     private void OnUseItem2Performed(InputAction.CallbackContext obj)
     {
-        UseBombItemServerRpc();
+        UsePortaHoleItemServerRpc();
     }
 
     private void OnUseItem3Performed(InputAction.CallbackContext obj)
     {
+        UseZenCricketItemServerRpc();
     }
 
     private void OnUseItem4Performed(InputAction.CallbackContext obj)
@@ -71,55 +73,6 @@ public class PlayerItems : NetworkBehaviour
         return !LevelManager.Instance.IsDegenapeVillage();
     }
 
-    #region HealSalve Item
-
-    [ServerRpc]
-    private void UseHealSalveItemServerRpc()
-    {
-        if (!IsInDungeons())
-        {
-            WarningClientRpc("Heal Salve Can Only Be Used In Dungeons");
-            return;
-        }
-
-        if (!IsHealSalveChargeAvailable())
-        {
-            WarningClientRpc("You Dont Have Heal Items.");
-            return;
-        }
-
-        PlayerCharacter playerCharacter = GetComponent<PlayerCharacter>();
-        if (playerCharacter.IsHpFullyCharged()) return;
-        playerCharacter.RecoverHealthByPercentageOfTotalHp(40);
-        m_playerOffchainData.UseHealSalveItem();
-        //UpdateHealSalveItemClientRpc(m_playerOffchainData.healSalveChargeCount_dungeon.Value,
-        //                             m_playerOffchainData.healSalveDungeonCharges_offchain.Value);
-        GenerateHealSalveEffectClientRpc();
-    }
-
-    //[ClientRpc]
-    //private void UpdateHealSalveItemClientRpc(int currentHealCharge, int maxHealCharge)
-    //{
-    //    if (!IsLocalPlayer) return;
-    //    PlayerHUDCanvas.Instance.UpdateHealSlaveUpItem(currentHealCharge, maxHealCharge);
-    //}
-
-    private bool IsHealSalveChargeAvailable()
-    {
-        return m_playerOffchainData.healSalveChargeCount_dungeon > 0;
-    }
-
-    [ClientRpc]
-    private void GenerateHealSalveEffectClientRpc()
-    {
-        GameObject effect = Instantiate(m_healSlaveEffect, transform);
-        effect.transform.localPosition = new Vector3(0, 0.5f, 0);
-        Destroy(effect, 3.0f);
-        m_soundFX_Player.PlayHealSound();
-    }
-
-    #endregion
-
     #region Bomb Item
 
     [ServerRpc]
@@ -131,30 +84,99 @@ public class PlayerItems : NetworkBehaviour
             return;
         }
 
-        if (!IsBombAvailable())
+        var success = m_playerOffchainData.TryUseDungeonBomb();
+        if (success)
         {
-            WarningClientRpc("You Dont Have Bomb Items.");
-            return;
+            PlaceBomb();
         }
-
-        m_playerOffchainData.UseBombItem();
-        PlaceBomb();
-    }
-
-    private bool IsBombAvailable()
-    {
-        return m_playerOffchainData.IsBombAvailable();
+        else
+        {
+            DebugLogClientRpc("You Dont Have Bomb Items.");
+        }
     }
 
     private void PlaceBomb()
     {
-        GameObject bombItem = Instantiate(m_bombObject, transform.position, Quaternion.identity);
+        GameObject bombItem = Instantiate(m_bombPrefab, transform.position, Quaternion.identity);
         bombItem.GetComponent<BombItem>().OwnerId = GetComponent<NetworkObject>().NetworkObjectId;
         NetworkObject networkObject = bombItem.GetComponent<NetworkObject>();
         networkObject.Spawn();
     }
 
     #endregion
+
+    #region PortaHole Item
+
+    [ServerRpc]
+    private void UsePortaHoleItemServerRpc()
+    {
+        if (!IsInDungeons())
+        {
+            WarningClientRpc("PortaHole Item Can Only Be Used In Dungeons");
+            return;
+        }
+
+        var success = m_playerOffchainData.TryUseDungeonPortaHole();
+        if (success)
+        {
+            PlacePortaHole();
+        }
+        else
+        {
+            DebugLogClientRpc("You Dont Have PortaHole Items.");
+        }
+    }
+
+    private void PlacePortaHole()
+    {
+        GameObject holeItem = Instantiate(m_holePrefab, transform.position, Quaternion.identity);
+        NetworkObject networkObject = holeItem.GetComponent<NetworkObject>();
+        networkObject.Spawn();
+    }
+
+    #endregion
+
+    #region HealSalve Item
+
+    [ServerRpc]
+    private void UseZenCricketItemServerRpc()
+    {
+        if (!IsInDungeons())
+        {
+            WarningClientRpc("Heal Salve Can Only Be Used In Dungeons");
+            return;
+        }
+
+        PlayerCharacter playerCharacter = GetComponent<PlayerCharacter>();
+        if (playerCharacter != null)
+        {
+            if (playerCharacter.IsHpFullyCharged()) return;
+
+            var success = m_playerOffchainData.TryUseDungeonZenCricket();
+            if (success)
+            {
+                playerCharacter.RecoverHealthByPercentageOfTotalHp(40);
+                GenerateHealSalveEffectClientRpc();
+            }
+            else
+            {
+                DebugLogClientRpc("You don't have any zen crickets");
+            }
+        }
+    }
+
+    [ClientRpc]
+    private void GenerateHealSalveEffectClientRpc()
+    {
+        GameObject effect = Instantiate(m_zenCricketEffect, transform);
+        effect.transform.localPosition = new Vector3(0, 0.5f, 0);
+        Destroy(effect, 3.0f);
+        m_soundFX_Player.PlayHealSound();
+    }
+
+    #endregion
+
+    
 
     public override void OnNetworkDespawn()
     {
@@ -178,5 +200,12 @@ public class PlayerItems : NetworkBehaviour
     {
         if (!IsLocalPlayer) return;
         NotifyCanvas.Instance.SetVisible(message);
+    }
+
+    [ClientRpc]
+    private void DebugLogClientRpc(string message)
+    {
+        if (!IsLocalPlayer) return;
+        Debug.Log(message);
     }
 }

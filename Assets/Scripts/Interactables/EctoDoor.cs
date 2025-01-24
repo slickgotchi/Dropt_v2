@@ -30,8 +30,8 @@ public class EctoDoor : Interactable
     public override void OnTriggerEnter2DInteraction()
     {
         base.OnTriggerEnter2DInteraction();
-        PlayerOffchainData playerDungeonData = localPlayerController.GetComponent<PlayerOffchainData>();
-        if (playerDungeonData.DoWeHaveEctoGraterThanOrEqualTo(m_costToOpenTheDoor))
+        PlayerOffchainData playerOffchainData = localPlayerController.GetComponent<PlayerOffchainData>();
+        if (!playerOffchainData.IsDungeonEctoGreaterThanOrEqualTo(m_costToOpenTheDoor))
         {
             PlayerHUDCanvas.Instance.ShowPlayerInteractionCanvii("You do not have enough Ecto to use this door",
                                                                  interactableType);
@@ -52,11 +52,12 @@ public class EctoDoor : Interactable
     [Rpc(SendTo.Server)]
     private void TryOpenDoorServerRpc(ulong playerNetworkObjectId)
     {
-        _ = TryOpenDoorAsync(playerNetworkObjectId);
-    }
+        if (LevelManager.Instance.IsDegenapeVillage())
+        {
+            DebugLogClientRpc("Can't have ecto doors in the ape village! Our logic requires dungeon ecto to open them");
+            return;
+        }
 
-    private async UniTaskVoid TryOpenDoorAsync(ulong playerNetworkObjectId)
-    {
         PlayerController playerController = GetPlayerController(playerNetworkObjectId);
         if (playerController == null)
         {
@@ -64,20 +65,23 @@ public class EctoDoor : Interactable
             return;
         }
 
-        PlayerOffchainData playerDungeonData = playerController.GetComponent<PlayerOffchainData>();
-        bool isSuccess = await playerDungeonData.RemoveEcto(m_costToOpenTheDoor);
-        if (!isSuccess)
+        PlayerOffchainData playerOffchainData = playerController.GetComponent<PlayerOffchainData>();
+        if (playerOffchainData != null)
         {
-            //NotifyNotEnoughBalanceClientRpc();
-            return;
-        }
+            bool isSuccess = playerOffchainData.RemoveDungeonEcto(m_costToOpenTheDoor);
+            if (!isSuccess)
+            {
+                Debug.Log("Could not open ecto door (not enough ecto?)");
+                return;
+            }
 
-        m_doorAnimation.OpenDoor();
-        if (IsServer && !IsHost)
-        {
-            OpenDoor();
+            m_doorAnimation.OpenDoor();
+            if (IsServer && !IsHost)
+            {
+                OpenDoor();
+            }
+            OpenDoorClientRpc();
         }
-        OpenDoorClientRpc();
     }
 
     [ClientRpc]
@@ -94,5 +98,12 @@ public class EctoDoor : Interactable
         m_closeCollider.enabled = false;
         m_leftOpenCollider.enabled = true;
         m_rightOpenCollider.enabled = true;
+    }
+
+    [ClientRpc]
+    private void DebugLogClientRpc(string message)
+    {
+        if (!IsLocalPlayer) return;
+        Debug.Log(message);
     }
 }
