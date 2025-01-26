@@ -451,6 +451,7 @@ public class PlayerOffchainData : NetworkBehaviour
     {
         try
         {
+            var url = dbUri + "/gotchis/delta/" + gotchiId;
             var json = JsonUtility.ToJson(new GotchiDelta_Data
             {
                 dust_delta = dustDelta,
@@ -458,7 +459,7 @@ public class PlayerOffchainData : NetworkBehaviour
 
             Debug.Log($"LogGotchiDelta, dust: {dustDelta}");
 
-            var responseStr = await Dropt.Utils.Http.PostEncryptedRequest(dbUri + "/gotchis/delta/" + gotchiId, json);
+            var responseStr = await Dropt.Utils.Http.PostEncryptedRequest(url, json, Bootstrap.Instance.DbSecret);
             if (!string.IsNullOrEmpty(responseStr))
             {
                 Gotchi_Data gotchiData = JsonUtility.FromJson<Gotchi_Data>(responseStr);

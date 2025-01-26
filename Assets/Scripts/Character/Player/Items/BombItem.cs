@@ -32,7 +32,7 @@ public class BombItem : NetworkBehaviour
             await StartTimer();
             m_body.SetActive(false);
             SpawnExplosionEffectClientRpc();
-            DetactAndDestroyDestructible();
+            DetectAndDestroyDestructible();
             await UniTask.Delay(1000);
             GetComponent<NetworkObject>().Despawn();
         }
@@ -107,7 +107,7 @@ public class BombItem : NetworkBehaviour
         m_soundFX_BombItem.PlayExplosionSound();
     }
 
-    private void DetactAndDestroyDestructible()
+    private void DetectAndDestroyDestructible()
     {
         Collider2D[] destructibleObjects = Physics2D.OverlapCircleAll(transform.position, m_radius, m_destructibleLayer);
         foreach (Collider2D destructibleObject in destructibleObjects)
@@ -121,7 +121,7 @@ public class BombItem : NetworkBehaviour
         {
             NetworkCharacter networkCharacter = enemyObject.GetComponent<NetworkCharacter>();
             var playerObject = NetworkManager.SpawnManager.SpawnedObjects[OwnerId].gameObject;
-            networkCharacter.TakeDamage(99, true, playerObject);
+            networkCharacter.TakeDamage(999, true, playerObject);
         }
     }
 }

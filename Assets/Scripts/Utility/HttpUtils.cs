@@ -16,11 +16,11 @@ namespace Dropt.Utils
 
         public static async UniTask<string> PostEncryptedRequest(string url, string json, string secretKey = "")
         {
-            var encryptedJson = EncryptPayload(json, secretKey);
+            var encryptedPayload = EncryptPayload(json, secretKey);
 
             using (UnityWebRequest request = new UnityWebRequest(url, "POST"))
             {
-                byte[] bodyRaw = Encoding.UTF8.GetBytes(encryptedJson);
+                byte[] bodyRaw = Encoding.UTF8.GetBytes(encryptedPayload);
                 request.uploadHandler = new UploadHandlerRaw(bodyRaw);
                 request.downloadHandler = new DownloadHandlerBuffer();
                 request.SetRequestHeader("Content-Type", "application/json");
@@ -90,50 +90,48 @@ namespace Dropt.Utils
         public static string EncryptPayload(string jsonPayload, string secret)
         {
             // Add nonce and timestamp to payload
-            var enhancedPayload = new
+            var enhancedPayload = new EnhancedData
             {
                 data = jsonPayload,
                 nonce = Bootstrap.Instance.GameId + Interlocked.Increment(ref Http.nonce).ToString(),
                 timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
             };
 
-            string enhancedJson = JsonConvert.SerializeObject(enhancedPayload); // Use Newtonsoft for better serialization
+            // Serialize the enhanced payload
+            string enhancedJson = JsonUtility.ToJson(enhancedPayload);
 
-            using (Aes aes = Aes.Create())
+            // Use HMACSHA256 to encrypt the payload with the secret key
+            using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secret)))
             {
-                // Derive key using PBKDF2
-                using (var deriveBytes = new Rfc2898DeriveBytes(secret, Encoding.UTF8.GetBytes("YourSaltHere"), 10000))
+                // Compute hash of the payload
+                byte[] hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(enhancedJson));
+
+                // Combine the original JSON payload and its hash as a single output
+                var result = new SignedPayload
                 {
-                    aes.Key = deriveBytes.GetBytes(32); // AES-256
-                }
+                    payload = enhancedJson,
+                    signature = Convert.ToBase64String(hash)
+                };
 
-                aes.GenerateIV(); // Generate a new IV for every encryption
-                aes.Mode = CipherMode.CBC;
-                aes.Padding = PaddingMode.PKCS7;
-
-                // Encrypt payload
-                using (MemoryStream ms = new MemoryStream())
-                {
-                    ms.Write(aes.IV, 0, aes.IV.Length); // Prepend IV to ciphertext
-
-                    using (ICryptoTransform encryptor = aes.CreateEncryptor(aes.Key, aes.IV))
-                    using (CryptoStream cs = new CryptoStream(ms, encryptor, CryptoStreamMode.Write))
-                    using (StreamWriter sw = new StreamWriter(cs))
-                    {
-                        sw.Write(enhancedJson);
-                    }
-
-                    // Add HMAC for integrity check
-                    using (HMACSHA256 hmac = new HMACSHA256(aes.Key))
-                    {
-                        byte[] hash = hmac.ComputeHash(ms.ToArray());
-                        ms.Write(hash, 0, hash.Length);
-                    }
-
-                    return Convert.ToBase64String(ms.ToArray());
-                }
+                // Return the final JSON string containing both payload and signature
+                return JsonUtility.ToJson(result);
             }
         }
 
+        [System.Serializable]
+        public struct EnhancedData
+        {
+            public string data;
+            public string nonce;
+            public long timestamp;
+            public string signature;
+        }
+
+        [System.Serializable]
+        public struct SignedPayload
+        {
+            public string payload;
+            public string signature;
+        }
     }
 }

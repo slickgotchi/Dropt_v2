@@ -114,6 +114,10 @@ public class Bootstrap : MonoBehaviour
 
             if (arg == "-domainname") DomainName = param; 
         }
+
+#if UNITY_EDITOR
+        DbSecret = "thelongroad";
+#endif
     }
 
     private void Start()
