@@ -391,36 +391,36 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
                     ""name"": ""UseItem_1"",
                     ""type"": ""Button"",
                     ""id"": ""62dcdde4-28c5-4445-aa69-44ca0781d608"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
-                    ""interactions"": ""Hold"",
+                    ""interactions"": """",
                     ""initialStateCheck"": false
                 },
                 {
                     ""name"": ""UseItem_2"",
                     ""type"": ""Button"",
                     ""id"": ""85aac182-92a0-4253-ac89-c3219c90c85f"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
-                    ""interactions"": ""Hold"",
+                    ""interactions"": """",
                     ""initialStateCheck"": false
                 },
                 {
                     ""name"": ""UseItem_3"",
                     ""type"": ""Button"",
                     ""id"": ""0d1056d3-3525-4457-bbe5-0a7173cee7c3"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
-                    ""interactions"": ""Hold"",
+                    ""interactions"": """",
                     ""initialStateCheck"": false
                 },
                 {
                     ""name"": ""UseItem_4"",
                     ""type"": ""Button"",
                     ""id"": ""b82c7f3a-d1d7-4ead-8068-9974213afa91"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
-                    ""interactions"": ""Hold"",
+                    ""interactions"": """",
                     ""initialStateCheck"": false
                 },
                 {

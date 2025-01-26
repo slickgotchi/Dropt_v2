@@ -41,6 +41,47 @@ public class PlayerItemCard : MonoBehaviour
         m_remainingText.text = playerRemainingCount + " / " + playerCapacityCount;
     }
 
+    private void Update()
+    {
+        var localPlayerOffchainData = PlayerHUDCanvas.Instance.m_localPlayerOffchainData;
+        if (localPlayerOffchainData == null) return;
+
+        switch (m_playerItem_SO.playerItemType)
+        {
+            case PlayerItem_SO.PlayerItemType.Bomb:
+
+                int bombBalance = LevelManager.Instance.IsDegenapeVillage() ?
+                    localPlayerOffchainData.m_bombLiveBalance_wallet.Value :
+                    localPlayerOffchainData.m_bombLiveCount_dungeon.Value;
+                int bombCapacity = localPlayerOffchainData.m_bombCapacity_gotchi.Value;
+
+                m_remainingText.text = bombBalance + " / " + bombCapacity;
+
+                break;
+            case PlayerItem_SO.PlayerItemType.PortaHole:
+
+                int portaHoleBalance = LevelManager.Instance.IsDegenapeVillage() ?
+                    localPlayerOffchainData.m_portaHoleLiveBalance_wallet.Value :
+                    localPlayerOffchainData.m_portaHoleLiveCount_dungeon.Value;
+                int portaHoleCapacity = localPlayerOffchainData.m_portaHoleCapacity_gotchi.Value;
+
+                m_remainingText.text = portaHoleBalance + " / " + portaHoleCapacity;
+
+                break;
+            case PlayerItem_SO.PlayerItemType.ZenCricket:
+
+                int zenCricketBalance = LevelManager.Instance.IsDegenapeVillage() ?
+                    localPlayerOffchainData.m_zenCricketLiveBalance_wallet.Value :
+                    localPlayerOffchainData.m_zenCricketLiveCount_dungeon.Value;
+                int zenCricketCapacity = localPlayerOffchainData.m_zenCricketCapacity_gotchi.Value;
+
+                m_remainingText.text = zenCricketBalance + " / " + zenCricketCapacity;
+
+                break;
+            default:
+                break;
+        }
+    }
 
     public static string ConvertKeyCodeToString(KeyCode key)
     {

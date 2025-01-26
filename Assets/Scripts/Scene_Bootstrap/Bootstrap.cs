@@ -65,6 +65,7 @@ public class Bootstrap : MonoBehaviour
     public ushort WorkerPort = 3000;
     public string GameId = "";
     public string HeartbeatSecret = "";
+    public string DbSecret = "";
     public string DomainName = "";
 
     public int TestBlockChainGotchiId = 0;
@@ -108,6 +109,8 @@ public class Bootstrap : MonoBehaviour
             if (arg == "-ipaddress") IpAddress = param;
 
             if (arg == "-heartbeatsecret") HeartbeatSecret = param;
+
+            if (arg == "-dbsecret") DbSecret = param;
 
             if (arg == "-domainname") DomainName = param; 
         }

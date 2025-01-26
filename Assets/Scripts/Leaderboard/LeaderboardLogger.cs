@@ -109,7 +109,7 @@ public static class LeaderboardLogger
     {
         try
         {
-            await UpsertLeaderboardEntry("adventure_leaderboard", entry, "leaderboard_dr0pt_secret");
+            await UpsertLeaderboardEntry("adventure_leaderboard", entry, Bootstrap.Instance.DbSecret);
             Debug.Log("Successfully updated adventure_leaderboard for " + entry.gotchi_name);
         }
         catch (Exception e)
@@ -122,7 +122,7 @@ public static class LeaderboardLogger
     {
         try
         {
-            await UpsertLeaderboardEntry("gauntlet_leaderboard", entry, "leaderboard_dr0pt_secret");
+            await UpsertLeaderboardEntry("gauntlet_leaderboard", entry, Bootstrap.Instance.DbSecret);
             Debug.Log("Successfully updated gauntlet_leader for " + entry.gotchi_name);
         }
         catch (Exception e)

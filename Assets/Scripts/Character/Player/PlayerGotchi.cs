@@ -543,6 +543,8 @@ public class PlayerGotchi : NetworkBehaviour
         m_bodyRotationTimer = duration;
     }
 
+    public Facing GetFacing() { return m_facing; }
+
     // call this to spin the gotchi
     public void PlayFacingSpin(int spinNumber, float spinPeriod, SpinDirection spinDirection, float startAngle)
     {

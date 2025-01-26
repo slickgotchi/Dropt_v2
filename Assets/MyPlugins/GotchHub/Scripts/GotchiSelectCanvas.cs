@@ -396,16 +396,6 @@ namespace GotchiHub
 
                     Debug.Log("New wallet data fetched");
                 }
-
-                //// show screen depending on gotchi count
-                //var numGotchis = m_gotchiDataManager.localWalletGotchiData.Count;
-                //if (numGotchis <= 0)
-                //{
-                //    SetMenuScreen(MenuScreen.NoGotchis);
-                //} else if (m_menuScreen != MenuScreen.Connected)
-                //{
-                //    SetMenuScreen(MenuScreen.Connected);
-                //}
                 
             }
             catch (System.Exception e)

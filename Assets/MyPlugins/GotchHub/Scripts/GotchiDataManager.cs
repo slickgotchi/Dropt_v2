@@ -84,16 +84,19 @@ namespace GotchiHub
 
         private void Start()
         {
-            StartAsync();
+            ClearGotchiDataAndSvgs();
+
+            //StartAsync();
         }
 
+        /*
         private async void StartAsync()
         {
             if (Bootstrap.IsServer()) return;
 
             ClearGotchiDataAndSvgs();
 
-            /*
+            
             var existingWalletAddress = PlayerPrefs.GetString("WalletAddress");
             if (string.IsNullOrEmpty(existingWalletAddress))
             {
@@ -130,8 +133,9 @@ namespace GotchiHub
 
                 LoadGotchiDataAndSvgsForLocalWalletAddress(m_walletAddress);
             }
-            */
+            
         }
+        */
 
         private void ClearGotchiDataAndSvgs()
         {
@@ -347,9 +351,6 @@ namespace GotchiHub
 
                 //await FetchGotchiSvgsParallelForLocalAccount(userAccount);
                 FetchGotchiSvgsOneCallForLocalAccount(userAccount);
-
-                
-                
 
             }
             catch (Exception ex)

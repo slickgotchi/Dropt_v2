@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using Cysharp.Threading.Tasks;
 
 public class BazaarItemCard : MonoBehaviour
 {
@@ -43,6 +44,56 @@ public class BazaarItemCard : MonoBehaviour
 
     void HandleClickBuy()
     {
-        Debug.Log("Buy " + m_titleText.text + " for " + m_ghstCost.text + " GHST");
+        HandleClickBuyAsync();
     }
+
+    async UniTaskVoid HandleClickBuyAsync()
+    {
+        try
+        {
+
+
+            var qty = m_bazaarItem_SO.purchaseQty;
+
+            switch (m_bazaarItem_SO.purchaseType)
+            {
+                case BazaarItem_SO.PurchaseType.Bomb:
+                    if (qty == 5)
+                    {
+                        bool success = await TryWeb3Purchase("Bomb_x5");
+
+                    }
+                    break;
+                case BazaarItem_SO.PurchaseType.PortaHole:
+
+                    break;
+                case BazaarItem_SO.PurchaseType.HealSalveRecharge:
+
+                    break;
+                case BazaarItem_SO.PurchaseType.Ecto:
+
+                    break;
+                default:
+                    break;
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogWarning(ex.Message);
+        }
+    }
+
+    
+
+    async UniTask<bool> TryWeb3Purchase(string purchaseString)
+    {
+        Debug.Log("Try purchase: " + purchaseString);
+        await UniTask.Delay(1000);
+        Debug.Log("Purchased: " + purchaseString);
+
+        return true;
+    }
+
+
+
 }

@@ -16,6 +16,8 @@ public class PlayerItems : NetworkBehaviour
     [SerializeField] private GameObject m_bombPrefab;
     [SerializeField] private GameObject m_holePrefab;
 
+    private PlayerGotchi m_playerGotchi;
+
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
@@ -23,6 +25,7 @@ public class PlayerItems : NetworkBehaviour
         m_soundFX_Player = GetComponent<SoundFX_Player>();
         if (!IsLocalPlayer) return;
         InitializeInputActions();
+        m_playerGotchi = GetComponent<PlayerGotchi>();
     }
 
     private void InitializeInputActions()
@@ -45,25 +48,44 @@ public class PlayerItems : NetworkBehaviour
         m_useItem4.Enable();
     }
 
+    Vector3 GetPlacementOffset(PlayerGotchi.Facing facing)
+    {
+        switch (facing)
+        {
+            case PlayerGotchi.Facing.Front: return new Vector3(0, -0.5f, 0);
+            case PlayerGotchi.Facing.Back: return new Vector3(0, 1.5f, 0);
+            case PlayerGotchi.Facing.Left: return new Vector3(-1.5f, 0.5f, 0);
+            case PlayerGotchi.Facing.Right: return new Vector3(1.5f, 0.5f, 0);
+            default: break;
+        }
+
+        return Vector3.zero;
+    }
+
+
     #region Input Action Listners
 
     private void OnUseItem1Performed(InputAction.CallbackContext obj)
     {
-        UseBombItemServerRpc();
+        Debug.Log("Use Item1");
+        UseBombItemServerRpc(GetPlacementOffset(m_playerGotchi.GetFacing()));
     }
 
     private void OnUseItem2Performed(InputAction.CallbackContext obj)
     {
-        UsePortaHoleItemServerRpc();
+        Debug.Log("Use Item2");
+        UsePortaHoleItemServerRpc(GetPlacementOffset(m_playerGotchi.GetFacing()));
     }
 
     private void OnUseItem3Performed(InputAction.CallbackContext obj)
     {
+        Debug.Log("Use Item3");
         UseZenCricketItemServerRpc();
     }
 
     private void OnUseItem4Performed(InputAction.CallbackContext obj)
     {
+        Debug.Log("Use Item4");
     }
 
     #endregion
@@ -76,18 +98,21 @@ public class PlayerItems : NetworkBehaviour
     #region Bomb Item
 
     [ServerRpc]
-    private void UseBombItemServerRpc()
+    private void UseBombItemServerRpc(Vector3 placementOffset)
     {
         if (!IsInDungeons())
         {
-            WarningClientRpc("Bomb Item Can Only Be Used In Dungeons");
+            WarningClientRpc("Bomb item can only be used in dungeons");
             return;
         }
 
         var success = m_playerOffchainData.TryUseDungeonBomb();
         if (success)
         {
-            PlaceBomb();
+            GameObject bombItem = Instantiate(m_bombPrefab,
+                transform.position + placementOffset, Quaternion.identity);
+            bombItem.GetComponent<BombItem>().OwnerId = GetComponent<NetworkObject>().NetworkObjectId;
+            bombItem.GetComponent<NetworkObject>().Spawn();
         }
         else
         {
@@ -95,43 +120,30 @@ public class PlayerItems : NetworkBehaviour
         }
     }
 
-    private void PlaceBomb()
-    {
-        GameObject bombItem = Instantiate(m_bombPrefab, transform.position, Quaternion.identity);
-        bombItem.GetComponent<BombItem>().OwnerId = GetComponent<NetworkObject>().NetworkObjectId;
-        NetworkObject networkObject = bombItem.GetComponent<NetworkObject>();
-        networkObject.Spawn();
-    }
-
     #endregion
 
     #region PortaHole Item
 
     [ServerRpc]
-    private void UsePortaHoleItemServerRpc()
+    private void UsePortaHoleItemServerRpc(Vector3 placementOffset)
     {
         if (!IsInDungeons())
         {
-            WarningClientRpc("PortaHole Item Can Only Be Used In Dungeons");
+            WarningClientRpc("Port-a-Hole item can only be used in dungeons");
             return;
         }
 
         var success = m_playerOffchainData.TryUseDungeonPortaHole();
         if (success)
         {
-            PlacePortaHole();
+            GameObject holeItem = Instantiate(m_holePrefab,
+                transform.position + placementOffset, Quaternion.identity);
+            holeItem.GetComponent<NetworkObject>().Spawn();
         }
         else
         {
             DebugLogClientRpc("You Dont Have PortaHole Items.");
         }
-    }
-
-    private void PlacePortaHole()
-    {
-        GameObject holeItem = Instantiate(m_holePrefab, transform.position, Quaternion.identity);
-        NetworkObject networkObject = holeItem.GetComponent<NetworkObject>();
-        networkObject.Spawn();
     }
 
     #endregion
@@ -143,7 +155,7 @@ public class PlayerItems : NetworkBehaviour
     {
         if (!IsInDungeons())
         {
-            WarningClientRpc("Heal Salve Can Only Be Used In Dungeons");
+            WarningClientRpc("Zen Cricket item can only be used in dungeons");
             return;
         }
 

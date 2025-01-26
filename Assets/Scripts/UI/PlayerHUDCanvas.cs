@@ -40,7 +40,7 @@ public class PlayerHUDCanvas : MonoBehaviour
     [SerializeField] private GameObject m_multiplayerMenuNote;
 
     private PlayerCharacter m_localPlayerCharacter;
-    private PlayerOffchainData m_localPlayerDungeonData;
+    public PlayerOffchainData m_localPlayerOffchainData;
 
     [Header("Shield Sliders and Pet Meter")]
     [SerializeField] private Slider m_leftHandShieldBar;
@@ -74,7 +74,7 @@ public class PlayerHUDCanvas : MonoBehaviour
     public void SetLocalPlayerCharacter(PlayerCharacter localPlayerCharacter)
     {
         m_localPlayerCharacter = localPlayerCharacter;
-        m_localPlayerDungeonData = localPlayerCharacter.GetComponent<PlayerOffchainData>();
+        m_localPlayerOffchainData = localPlayerCharacter.GetComponent<PlayerOffchainData>();
 
         // setup the interact press/hold groups
         m_localPlayerInteractPressGroup = localPlayerCharacter
@@ -176,12 +176,14 @@ public class PlayerHUDCanvas : MonoBehaviour
 
         UpdateStatBars();
         UpdateCooldowns();
-        UpdateBombs();
         UpdateDust();
         UpdateEcto();
         UpdateEssence();
         UpdateAbilityIcons();
-        UpdateZenCricketItem();
+
+        //UpdateBombItems();
+        //UpdatePortaHoleItems();
+        //UpdateZenCricketItems();
     }
 
     private void UpdateStatBars()
@@ -222,30 +224,47 @@ public class PlayerHUDCanvas : MonoBehaviour
         if (teamDustCounter == null) return;
 
         var dust = LevelManager.Instance.IsDegenapeVillage() ?
-            m_localPlayerDungeonData.m_dustVillageBalance_gotchi.Value :    // village
+            m_localPlayerOffchainData.m_dustVillageBalance_gotchi.Value :    // village
             teamDustCounter.Count.Value;                                    // dungeon
 
         m_dustText.text = dust.ToString() + " x" + CodeInjector.Instance.GetOutputMultiplier();
     }
 
-    private void UpdateBombs()
-    {
-        var bombs = LevelManager.Instance.IsDegenapeVillage() ?
-            m_localPlayerDungeonData.m_bombLiveBalance_wallet.Value :       // village
-            m_localPlayerDungeonData.m_bombLiveCount_dungeon.Value;         // dungeon
+    //private void UpdateBombItems()
+    //{
+    //    var bombs = LevelManager.Instance.IsDegenapeVillage() ?
+    //        m_localPlayerOffchainData.m_bombLiveBalance_wallet.Value :       // village
+    //        m_localPlayerOffchainData.m_bombLiveCount_dungeon.Value;         // dungeon
 
-        m_bombsText.text = bombs.ToString("F0");
-    }
+    //    m_bombsText.text = bombs.ToString("F0");
+    //}
+
+    //private void UpdatePortaHoleItems()
+    //{
+    //    var portaHoles = LevelManager.Instance.IsDegenapeVillage() ?
+    //        m_localPlayerOffchainData.m_bombLiveBalance_wallet.Value :       // village
+    //        m_localPlayerOffchainData.m_bombLiveCount_dungeon.Value;         // dungeon
+
+    //    m_bombsText.text = portaHoles.ToString("F0");
+    //}
+
+
+    //public void UpdateZenCricketItems()
+    //{
+        //m_healSlaveChargeText.text = m_localPlayerDungeonData.healSalveChargeCount_dungeon.ToString();
+        //float fillAmount = m_localPlayerDungeonData.healSalveChargeCount_dungeon / (float)m_localPlayerDungeonData.healSalveDungeonCharges_offchain;
+        //m_healSlaveUpImage.fillAmount = fillAmount;
+    //}
 
     private void UpdateEcto()
     {
         if (LevelManager.Instance.IsDegenapeVillage())
         {
-            m_ectoText.text = m_localPlayerDungeonData.m_ectoVillageBalance_wallet.Value.ToString("F0");
+            m_ectoText.text = m_localPlayerOffchainData.m_ectoVillageBalance_wallet.Value.ToString("F0");
         }
         else
         {
-            m_ectoText.text = "(" + m_localPlayerDungeonData.m_ectoDebitCount_dungeon.Value + ") " + m_localPlayerDungeonData.m_ectoLiveCount_dungeon.Value;
+            m_ectoText.text = "(" + m_localPlayerOffchainData.m_ectoDebitCount_dungeon.Value + ") " + m_localPlayerOffchainData.m_ectoLiveCount_dungeon.Value;
         }
     }
 
@@ -319,10 +338,5 @@ public class PlayerHUDCanvas : MonoBehaviour
         m_PetMeterView.SetProgress(progress);
     }
 
-    public void UpdateZenCricketItem()
-    {
-        //m_healSlaveChargeText.text = m_localPlayerDungeonData.healSalveChargeCount_dungeon.ToString();
-        //float fillAmount = m_localPlayerDungeonData.healSalveChargeCount_dungeon / (float)m_localPlayerDungeonData.healSalveDungeonCharges_offchain;
-        //m_healSlaveUpImage.fillAmount = fillAmount;
-    }
+
 }

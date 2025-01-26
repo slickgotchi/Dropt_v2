@@ -300,6 +300,12 @@ public class PlayerCharacter : NetworkCharacter
 
     public void RecoverHealthByPercentageOfTotalHp(float percentage)
     {
+        if (!IsServer)
+        {
+            Debug.LogWarning("Can not recover health on client");
+            return;
+        }
+
         currentDynamicStats.HpCurrent += currentStaticStats.HpMax * percentage / 100;
         if (currentDynamicStats.HpCurrent > currentStaticStats.HpMax)
         {
