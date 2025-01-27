@@ -5,11 +5,24 @@ using UnityEngine;
 
 public class DialogueManagerUIController : MonoBehaviour
 {
-    public GameObject DialoguePanel;
+    private GameObject DialoguePanel;
     bool isDialogueActive = false;
 
     private void Update()
     {
+        if (DialoguePanel == null)
+        {
+            var dpt = GetComponentInChildren<DialoguePanelTag>();
+            if (dpt != null)
+            {
+                DialoguePanel = dpt.gameObject;
+            }
+            else
+            {
+                return;
+            }
+        }
+
         if (isDialogueActive == DialoguePanel.activeSelf) return;
         isDialogueActive = DialoguePanel.activeSelf;    
 

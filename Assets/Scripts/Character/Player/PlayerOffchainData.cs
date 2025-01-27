@@ -144,7 +144,7 @@ public class PlayerOffchainData : NetworkBehaviour
             {
                 m_updateWalletAndGotchiOffchainDataTimer = k_updateWalletAndGotchiOffchainDataInterval;
 
-                Debug.Log("Check backend data for m_walletAddress " + m_walletAddress + ", m_gotchiId " + m_gotchiId);
+                //Debug.Log("Check backend data for m_walletAddress " + m_walletAddress + ", m_gotchiId " + m_gotchiId);
 
                 if (!string.IsNullOrEmpty(m_walletAddress))
                 {
