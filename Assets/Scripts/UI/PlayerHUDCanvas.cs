@@ -36,6 +36,8 @@ public class PlayerHUDCanvas : MonoBehaviour
     [SerializeField] private TextMeshProUGUI m_levelName;
     [SerializeField] private TextMeshProUGUI m_levelObjective;
 
+
+
     [Header("Multiplayer Menu")]
     [SerializeField] private GameObject m_multiplayerMenuNote;
 
@@ -69,6 +71,8 @@ public class PlayerHUDCanvas : MonoBehaviour
         }
 
         Instance = this;
+
+
     }
 
     public void SetLocalPlayerCharacter(PlayerCharacter localPlayerCharacter)

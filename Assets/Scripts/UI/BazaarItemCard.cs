@@ -4,6 +4,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using Cysharp.Threading.Tasks;
+using Thirdweb.Unity;
 
 public class BazaarItemCard : MonoBehaviour
 {
@@ -51,8 +52,6 @@ public class BazaarItemCard : MonoBehaviour
     {
         try
         {
-
-
             var qty = m_bazaarItem_SO.purchaseQty;
 
             switch (m_bazaarItem_SO.purchaseType)
@@ -90,6 +89,8 @@ public class BazaarItemCard : MonoBehaviour
         Debug.Log("Try purchase: " + purchaseString);
         await UniTask.Delay(1000);
         Debug.Log("Purchased: " + purchaseString);
+
+        
 
         return true;
     }

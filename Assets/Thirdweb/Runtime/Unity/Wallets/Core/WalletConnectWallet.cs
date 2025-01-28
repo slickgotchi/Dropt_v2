@@ -18,7 +18,7 @@ namespace Thirdweb.Unity
     public class WalletConnectWallet : IThirdwebWallet
     {
         public ThirdwebClient Client => _client;
-
+        public string WalletId => "walletconnect";
         public ThirdwebAccountType AccountType => ThirdwebAccountType.ExternalAccount;
 
         protected ThirdwebClient _client;
@@ -35,7 +35,7 @@ namespace Thirdweb.Unity
             _client = client;
         }
 
-        public async static Task<WalletConnectWallet> Create(ThirdwebClient client, BigInteger initialChainId, BigInteger[] supportedChains)
+        public async static Task<WalletConnectWallet> Create(ThirdwebClient client, BigInteger initialChainId, BigInteger[] supportedChains, string[] includedWalletIds)
         {
             var eip155ChainsSupported = new string[] { };
             if (supportedChains != null)
@@ -44,6 +44,7 @@ namespace Thirdweb.Unity
             _exception = null;
             _isConnected = false;
             _supportedChains = eip155ChainsSupported;
+            _includedWalletIds = includedWalletIds;
 
             if (WalletConnect.Instance != null && WalletConnect.Instance.IsConnected)
             {
@@ -270,7 +271,9 @@ namespace Thirdweb.Unity
             IThirdwebBrowser browser = null,
             BigInteger? chainId = null,
             string jwt = null,
-            string payload = null
+            string payload = null,
+            string defaultSessionIdOverride = null,
+            List<string> forceWalletIds = null
         )
         {
             throw new InvalidOperationException("LinkAccount is not supported by external wallets.");

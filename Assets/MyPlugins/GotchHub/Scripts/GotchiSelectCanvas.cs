@@ -194,6 +194,7 @@ namespace GotchiHub
             ConnectWallet();
         }
 
+        
         async private void ConnectWallet()
         {
             try
@@ -203,19 +204,33 @@ namespace GotchiHub
 #else
                 var newProvider = WalletProvider.WalletConnectWallet;
 #endif
-
                 Debug.Log($"Set provider: {newProvider.ToString()}");
 
-                var walletOptions = new WalletOptions(provider: newProvider, chainId: 137);
+                System.Numerics.BigInteger chainId = 80002;
 
-                await ThirdwebManager.Instance.ConnectWallet(walletOptions);
+                var walletOptions = new WalletOptions(provider: newProvider, chainId: chainId);
+
+                var wallet = await ThirdwebManager.Instance.ConnectWallet(walletOptions);
+                if (wallet == null || !(await wallet.IsConnected()))
+                {
+                    Debug.LogError("Wallet connection failed");
+                    return;
+                }
+
+                var address = await wallet.GetAddress();
+                Debug.Log("Connected Wallet address: " + address);
+
+                var walletBalance = await wallet.GetBalance(chainId);
+                Debug.Log($"Wallet MATIC Balance: {(float)(walletBalance)/1e18}");
+
+                
             }
             catch (System.Exception e)
             {
                 Debug.LogWarning(e.Message);
             }
         }
-
+        
         private void Start()
         {
             if (GotchiDataManager.Instance == null)
@@ -389,12 +404,12 @@ namespace GotchiHub
                     SetMenuScreen(MenuScreen.Loading);
 
                     // fetch new gotchis due to different address
-                    Debug.Log("Wallet address changed, fetch new wallet gotchi data");
+                    //Debug.Log("Wallet address changed, fetch new wallet gotchi data");
                     m_isFetching = true;
                     await m_gotchiDataManager.FetchWalletGotchiData();
                     m_isFetching = false;
 
-                    Debug.Log("New wallet data fetched");
+                    //Debug.Log("New wallet data fetched");
                 }
                 
             }
