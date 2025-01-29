@@ -14,13 +14,25 @@ public class BazaarCanvas : DroptCanvas
 
     [HideInInspector] public Interactable interactable;
 
-
+    [Header("Buttons")]
     [SerializeField] private Button m_exitButton;
-
+    [SerializeField] private Button m_signInButton; 
     [SerializeField] private Button m_approveGhstButton;
-    [SerializeField] private InputField m_approveGhstInputField;
 
-    
+    [Header("Input Field")]
+    [SerializeField] private TMPro.TMP_InputField m_approveGhstInputField;
+
+    [Header("Approved GHST Text")]
+    [SerializeField] private TMPro.TextMeshProUGUI m_approvedGhstText;
+
+    private int m_approvedGhst = 0;
+
+    [Header("Panels")]
+    [SerializeField] private GameObject m_signInPanel;
+    [SerializeField] private GameObject m_approveGhstPanel;
+    [SerializeField] private GameObject m_purchaseItemsPanel;
+
+    ThirdwebContract m_ghstContract;
     
     private void Awake()
     {
@@ -34,8 +46,8 @@ public class BazaarCanvas : DroptCanvas
         Instance = this;
 
         m_exitButton.onClick.AddListener(HandleClickExit);
-
         m_approveGhstButton.onClick.AddListener(HandleClickApprove);
+        m_signInButton.onClick.AddListener(HandleClickSignIn);
 
         InstaHideCanvas();
 
@@ -45,6 +57,32 @@ public class BazaarCanvas : DroptCanvas
     {
         base.OnShowCanvas();
 
+        ConfigureMainPanel();
+
+        _ = PollUpdates();
+    }
+
+    void ConfigureMainPanel()
+    {
+        if (Web3AuthCanvas.Instance.GetActiveWallet() == null)
+        {
+            m_signInPanel.SetActive(true);
+            m_approveGhstPanel.SetActive(false);
+            m_purchaseItemsPanel.SetActive(false);
+            return;
+        }
+
+        if (m_approvedGhst <= 3)
+        {
+            m_signInPanel.SetActive(false);
+            m_approveGhstPanel.SetActive(true);
+            m_purchaseItemsPanel.SetActive(false);
+            return;
+        }
+
+        m_signInPanel.SetActive(false);
+        m_approveGhstPanel.SetActive(false);
+        m_purchaseItemsPanel.SetActive(true);
     }
 
     public override void OnHideCanvas()
@@ -52,9 +90,58 @@ public class BazaarCanvas : DroptCanvas
         base.OnHideCanvas();
     }
 
+
+
     public override void OnUpdate()
     {
+        
+    }
 
+    private async UniTaskVoid PollUpdates()
+    {
+        while (isCanvasOpen)
+        {
+            await UniTask.Delay(3000);
+
+            _ = CheckGhstApproval();
+
+            ConfigureMainPanel();
+        }
+    }
+
+    private async UniTaskVoid CheckGhstApproval()
+    {
+        if (m_ghstContract == null)
+        {
+            m_ghstContract = await ThirdwebManager.Instance.GetContract(
+                address: Web3AuthCanvas.Instance.Contracts.ghst,
+                chainId: Web3AuthCanvas.Instance.ChainId,
+                abi: Web3AuthCanvas.Instance.ABIs.ghst
+                );
+
+            if (m_ghstContract == null) { Debug.LogWarning("Can not get GHST contract"); return; }
+        }
+
+        // Get the user's wallet
+        IThirdwebWallet wallet = Web3AuthCanvas.Instance.GetActiveWallet();
+        if (wallet == null)
+        {
+            return;
+        }
+
+        BigInteger weiAllowance = await ThirdwebContract.Read<BigInteger>(
+            m_ghstContract,
+            "allowance",
+            Web3AuthCanvas.Instance.GetActiveWalletAddress(),
+            Web3AuthCanvas.Instance.Contracts.droptPaymentProcessor
+            );
+
+        //Debug.Log($"Allowance Response Type: {weiAllowance.GetType()} | Value: {weiAllowance}");
+
+        float amount = (float)(weiAllowance) / 1e18f;
+
+        m_approvedGhst = (int)((float)weiAllowance / 1e18f);
+        m_approvedGhstText.text = amount.ToString("F0") + " Approved";
     }
 
     void HandleClickExit()
@@ -67,45 +154,36 @@ public class BazaarCanvas : DroptCanvas
         }
     }
 
-    void HandleClickApprove()
+    void HandleClickSignIn()
     {
-        int approveAmount = 10;
-
-        HandleClickApproveAsync();
+        Web3AuthCanvas.Instance.SignIn();
     }
 
-    async UniTaskVoid HandleClickApproveAsync()
+    void HandleClickApprove()
     {
-        Debug.Log("Approving 10 GHST on Amoy");
+        bool isFloat = float.TryParse(m_approveGhstInputField.text, out float parsedValue);
+        if (!isFloat)
+        {
+            Debug.LogWarning("Approve quantity should be a number");
+            return;
+        } 
 
+        _ = HandleClickApproveAsync((int)parsedValue);
+    }
+
+    async UniTaskVoid HandleClickApproveAsync(int approveAmount)
+    {
+        Debug.Log("Try approve: " + approveAmount + " GHST");
         try
         {
-            // Load ABI for the GHST contract
-            TextAsset abiFile = Resources.Load<TextAsset>("ghst-abi");
-            if (abiFile == null)
-            {
-                Debug.LogError("ghst-abi.json file not found in Resources folder.");
-                return;
-            }
-
-            string ghstAbi = abiFile.text;
-            Debug.Log("ABI Loaded: " + ghstAbi);
-
-            // Variables
-            BigInteger amount = BigInteger.Parse("10000000000000000000"); // 10 GHST in wei
-            string spenderAddress_amoy = "0x32EFD2fBb0a43eE1918621D0544EFbd2c7F77beE"; // Spender contract
-            string ghstContractAddress_amoy = "0xF679b8D109b2d23931237Ce948a7D784727c0897"; // GHST token contract
-            string ghstContractAddress_polygon = "0x385eeac5cb85a38a9a07a70c73e0a3271cfb54a7";
-
-            var chainId = 80002;
-
-            
+            // convert int amount into big int
+            BigInteger weiAmount = new BigInteger(approveAmount) * BigInteger.Pow(10, 18);
 
             // Get the GHST contract instance
             ThirdwebContract contract = await ThirdwebManager.Instance.GetContract(
-                address: ghstContractAddress_amoy,
-                chainId: chainId,
-                abi: ghstAbi
+                address: Web3AuthCanvas.Instance.Contracts.ghst,
+                chainId: Web3AuthCanvas.Instance.ChainId,
+                abi: Web3AuthCanvas.Instance.ABIs.ghst
             );
 
             if (contract == null)
@@ -114,26 +192,47 @@ public class BazaarCanvas : DroptCanvas
                 return;
             }
 
-            Debug.Log("GHST Contract retrieved: " + contract);
-
             // Get the user's wallet
-            IThirdwebWallet wallet = ThirdwebManager.Instance.GetActiveWallet();
+            IThirdwebWallet wallet = Web3AuthCanvas.Instance.GetActiveWallet();
             if (wallet == null)
             {
                 Debug.LogError("No active wallet found!");
                 return;
             }
-            
-            ThirdwebTransactionReceipt receipt = await ThirdwebContract.Write(
+
+            var prepareTxn = await ThirdwebContract.Prepare(
                 wallet,
                 contract,
                 "approve",
-                0, // No ETH required for this transaction
-                spenderAddress_amoy,
-                amount
+                0,
+                Web3AuthCanvas.Instance.Contracts.droptPaymentProcessor,
+                weiAmount
             );
 
-            Debug.Log($"Approval transaction completed. Tx Hash: {receipt.TransactionHash}");
+            Debug.Log("Prepared transaction");
+
+            BigInteger estimateGas = await ThirdwebTransaction.EstimateGasLimit(prepareTxn);
+            prepareTxn.SetGasLimit(estimateGas);
+            Debug.Log("Estimated and set gas limit: " + estimateGas);
+
+            // Estimate Max Fee per Gas & Max Priority Fee per Gas
+            (BigInteger maxFeePerGas, BigInteger maxPriorityFeePerGas) = await ThirdwebTransaction.EstimateGasFees(prepareTxn);
+
+            // we need to set gas higher for amoy
+            if (Web3AuthCanvas.Instance.ChainId == 80002)
+            {
+                BigInteger gwei = BigInteger.Pow(10, 9);
+                maxFeePerGas = 39 * gwei;
+                maxPriorityFeePerGas = 39 * gwei;
+            }
+
+            prepareTxn.SetMaxFeePerGas(maxFeePerGas);
+            prepareTxn.SetMaxPriorityFeePerGas(maxPriorityFeePerGas);
+            Debug.Log($"Estimated & Set Gas Fees - Max Fee: {maxFeePerGas}, Max Priority Fee: {maxPriorityFeePerGas}");
+
+            var receipt = await ThirdwebTransaction.Send(prepareTxn);
+
+            Debug.Log($"Approval transaction completed. Tx Hash: {receipt.GetType()}");
             
         }
         catch (System.Exception ex)

@@ -191,46 +191,10 @@ namespace GotchiHub
         public void ClickOnConnect()
         {
             SetMenuScreen(MenuScreen.Loading);
-            ConnectWallet();
+
+            Web3AuthCanvas.Instance.SignIn();
         }
 
-        
-        async private void ConnectWallet()
-        {
-            try
-            {
-#if UNITY_WEBGL
-                var newProvider = WalletProvider.MetaMaskWallet;
-#else
-                var newProvider = WalletProvider.WalletConnectWallet;
-#endif
-                Debug.Log($"Set provider: {newProvider.ToString()}");
-
-                System.Numerics.BigInteger chainId = 80002;
-
-                var walletOptions = new WalletOptions(provider: newProvider, chainId: chainId);
-
-                var wallet = await ThirdwebManager.Instance.ConnectWallet(walletOptions);
-                if (wallet == null || !(await wallet.IsConnected()))
-                {
-                    Debug.LogError("Wallet connection failed");
-                    return;
-                }
-
-                var address = await wallet.GetAddress();
-                Debug.Log("Connected Wallet address: " + address);
-
-                var walletBalance = await wallet.GetBalance(chainId);
-                Debug.Log($"Wallet MATIC Balance: {(float)(walletBalance)/1e18}");
-
-                
-            }
-            catch (System.Exception e)
-            {
-                Debug.LogWarning(e.Message);
-            }
-        }
-        
         private void Start()
         {
             if (GotchiDataManager.Instance == null)
@@ -272,6 +236,7 @@ namespace GotchiHub
             m_menuScreen = menuScreen;
         }
 
+        /*
         private float m_updateGHSTimer = 0f;
 
         private async void UpdateGHSTBalance()
@@ -294,6 +259,7 @@ namespace GotchiHub
                 Debug.Log(e);
             }
         }
+        */
 
         public string GetConnectedWallet()
         {
@@ -362,7 +328,7 @@ namespace GotchiHub
             if (!GotchiSelectCanvas.Instance.isCanvasOpen) return;
             if (m_isFetching) return;
 
-            UpdateGHSTBalance();
+            //UpdateGHSTBalance();
 
             m_updateTimer -= Time.deltaTime;
             if (m_updateTimer > 0) return;
