@@ -5,8 +5,11 @@ using UnityEngine.UI;
 using Cysharp.Threading.Tasks;
 using Thirdweb;
 using Thirdweb.Unity;
+using Unity.Netcode;
+using System;
+using UnityEngine.Networking;
 
-public class Web3AuthCanvas : MonoBehaviour
+public class Web3AuthCanvas : NetworkBehaviour
 {
     public static Web3AuthCanvas Instance { get; private set; }
 
@@ -24,7 +27,6 @@ public class Web3AuthCanvas : MonoBehaviour
     [SerializeField] private Color m_amoyChainColor;
     [SerializeField] private Image m_chainIconImage;
 
-    private int k_walletPollInterval_ms = 3000;
 
     [HideInInspector] public System.Numerics.BigInteger ChainId = 80002;
 
@@ -32,7 +34,16 @@ public class Web3AuthCanvas : MonoBehaviour
     [HideInInspector] public DroptABIs ABIs;
 
     IThirdwebWallet m_wallet;
+    private int k_walletPollInterval_ms = 2000;
     private string m_walletAddress = "";
+    private float m_ghstBalance = 0;
+
+    private string authUri = "https://db.playdropt.io/web3auth";
+
+    public enum ConnectionState { NotConnected, ConnectedNotAuthenticated, ConnectedAndAuthenticated }
+    private ConnectionState m_connectionState = ConnectionState.NotConnected;
+
+    public ConnectionState GetConnectionState() { return m_connectionState; }
 
     private void Awake()
     {
@@ -48,28 +59,33 @@ public class Web3AuthCanvas : MonoBehaviour
     public IThirdwebWallet GetActiveWallet() { return m_wallet; }
     public string GetActiveWalletAddress() { return m_walletAddress; }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        m_signInButton.onClick.AddListener(HandleClick_SignIn);
 
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        m_walletAddress = "";
         SetContractAddresses((int)ChainId);
         SetABIs();
 
-        PollWalletStatus().Forget();
-
-        m_walletAddress = "";
-
-        _ = PollWallet();
+        // only the client should handle sign ins and poll the user wallet
+        if (IsClient)
+        {
+            m_signInButton.onClick.AddListener(HandleClick_ConnectAndSignIn);
+            _ = PollWallet();
+            PollWalletStatus().Forget();
+        }
     }
 
     private void Update()
     {
-        
+        SetPanel(m_connectionState);
     }
 
     private async UniTaskVoid PollWalletStatus()
     {
+        if (!IsClient) return;
+
         while (gameObject != null)
         {
             await UniTask.Delay(k_walletPollInterval_ms);
@@ -80,18 +96,57 @@ public class Web3AuthCanvas : MonoBehaviour
 
     private async UniTaskVoid PollWallet()
     {
+        if (!IsClient) return;
+
         m_wallet = ThirdwebManager.Instance.GetActiveWallet();
 
         if (m_wallet != null)
         {
-            m_walletAddress = await m_wallet.GetAddress();
+            var newWalletAddress = await m_wallet.GetAddress();
+            if (m_walletAddress != newWalletAddress)
+            {
+                m_walletAddress = newWalletAddress;
+                m_connectionState = ConnectionState.ConnectedNotAuthenticated;
+            }
+
+            var walletBalance = await m_wallet.GetBalance(ChainId, Contracts.ghst);
+            m_ghstBalance = (float)(walletBalance) / 1e18f;
+        }
+        else
+        {
+            m_connectionState = ConnectionState.NotConnected;
+        }
+    }
+
+    private void SetPanel(ConnectionState connectionState)
+    {
+        if (connectionState == ConnectionState.NotConnected)
+        {
+            m_signInText.text = "Connect";
+            m_signInText.fontSize = 16;
+            m_signInImage.color = m_signInColor;
+
+            m_ghstBalanceText.gameObject.SetActive(false);
+
+            m_leftPanel.gameObject.SetActive(false);
+        }
+        else if (connectionState == ConnectionState.ConnectedNotAuthenticated)
+        {
+            m_signInText.text = "Sign In";
+            m_signInText.fontSize = 16;
+            m_signInImage.color = m_signInColor;
+
+            m_ghstBalanceText.gameObject.SetActive(false);
+
+            m_leftPanel.gameObject.SetActive(false);
+        }
+        else if (connectionState == ConnectionState.ConnectedAndAuthenticated)
+        {
             m_signInText.text = ShortenString(m_walletAddress);
             m_signInText.fontSize = 12;
 
-            var walletBalance = await m_wallet.GetBalance(ChainId, Contracts.ghst);
             m_ghstBalanceText.gameObject.SetActive(true);
-            m_ghstBalanceText.text = ((float)(walletBalance) / 1e18).ToString("F2") + " GHST";
-
+            m_ghstBalanceText.text = m_ghstBalance.ToString("F2") + " GHST";
 
             m_signInImage.color = m_connectedColor;
 
@@ -106,51 +161,67 @@ public class Web3AuthCanvas : MonoBehaviour
                 m_chainIconImage.color = m_amoyChainColor;
             }
         }
-        else
-        {
-            m_signInText.text = "Sign In";
-            m_signInText.fontSize = 16;
-            m_signInImage.color = m_signInColor;
-
-            m_ghstBalanceText.gameObject.SetActive(false);
-
-            m_leftPanel.gameObject.SetActive(false);
-        }
     }
 
-    public void SignIn()
+    public void ConnectAndSignIn()
     {
-        HandleClick_SignIn();
+        if (!IsClient) return;
+
+        HandleClick_ConnectAndSignIn();
     }
 
-    void HandleClick_SignIn()
+    void HandleClick_ConnectAndSignIn()
     {
-        _ = HandleClick_SignIn_Async();
+        if (!IsClient) return;
+
+        _ = HandleClick_ConnectAndSignIn_ASYNC();
     }
 
-    async UniTaskVoid HandleClick_SignIn_Async()
+    async UniTaskVoid HandleClick_ConnectAndSignIn_ASYNC()
     {
-        var existingWallet = ThirdwebManager.Instance.GetActiveWallet();
-        if (existingWallet != null)
-        {
-            await existingWallet.Disconnect();
-        }
+        if (!IsClient) return;
 
         try
         {
-            if (m_wallet == null)
+            if (m_connectionState == ConnectionState.NotConnected)
             {
-#if UNITY_WEBGL
-                var newProvider = WalletProvider.MetaMaskWallet;
-#else
-                var newProvider = WalletProvider.WalletConnectWallet;
-#endif
-                Debug.Log($"Set provider: {newProvider.ToString()}");
+                var existingWallet = ThirdwebManager.Instance.GetActiveWallet();
+                if (existingWallet != null)
+                {
+                    await existingWallet.Disconnect();
+                }
 
-                var walletOptions = new WalletOptions(provider: newProvider, chainId: ChainId);
+                    if (m_wallet == null)
+                    {
+    #if UNITY_WEBGL
+                    var newProvider = WalletProvider.MetaMaskWallet;
+    #else
+                    var newProvider = WalletProvider.WalletConnectWallet;
+    #endif
+                    Debug.Log($"Set provider: {newProvider.ToString()}");
 
-                m_wallet = await ThirdwebManager.Instance.ConnectWallet(walletOptions);
+                    var walletOptions = new WalletOptions(provider: newProvider, chainId: ChainId);
+
+                    IThirdwebWallet
+
+                    m_wallet = await ThirdwebManager.Instance.ConnectWallet(walletOptions);
+                    if (m_wallet == null)
+                    {
+                        Debug.LogWarning("No active wallet found!");
+                        return;
+                    }
+
+                    m_connectionState = ConnectionState.ConnectedNotAuthenticated;
+
+                }
+
             }
+            else if (m_connectionState == ConnectionState.ConnectedNotAuthenticated)
+            {
+                //if we now have a wallet the next step is to authenticate it with the server
+                _ = AuthenticateUser(m_wallet);
+            }
+
         }
         catch (System.Exception ex)
         {
@@ -158,9 +229,119 @@ public class Web3AuthCanvas : MonoBehaviour
         }
     }
 
-    private void OnDestroy()
+    async UniTaskVoid AuthenticateUser(IThirdwebWallet wallet)
+    {
+        if (!IsClient) return;
+
+        try
+        {
+            var walletAddress = await wallet.GetAddress();
+            if (string.IsNullOrEmpty(walletAddress))
+            {
+                Debug.LogError("Could not retrieve wallet address.");
+                return;
+            }
+
+            string timestamp = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss.fffZ");
+            string message = "Welcome to Dropt! Please sign in to verify you are the true owner of " +
+                walletAddress + ". \nTime: " + timestamp;
+
+            string signature = await wallet.PersonalSign(message);
+            if (string.IsNullOrEmpty(signature))
+            {
+                Debug.LogWarning("Failed to sign message");
+                return;
+            }
+
+            // send to server to then confirm with backend
+            var clientAuthNetworkObjectId = GetComponent<NetworkObject>().NetworkObjectId;
+            AuthenticateUserServerRpc(walletAddress, message, signature, clientAuthNetworkObjectId);
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogWarning(ex.Message);
+        }
+    }
+
+
+    [Rpc(SendTo.Server)]
+    void AuthenticateUserServerRpc(string address, string message, string signature, ulong clientAuthNetworkObjectId)
+    {
+        _ = AuthenticateUserServerRpc_ASYNC(address, message, signature, clientAuthNetworkObjectId);
+    }
+
+    async UniTaskVoid AuthenticateUserServerRpc_ASYNC(string address, string message, string signature, ulong clientAuthNetworkObjectId)
+    {
+        Debug.Log("Send message to web3auth.js");
+        try
+        {
+            var url = authUri + "/verify";
+            Debug.Log(url);
+
+            using (UnityWebRequest request = new UnityWebRequest(url, "POST"))
+            {
+
+                var authRequest = new AuthRequest
+                {
+                    address = address,
+                    message = message,
+                    signature = signature
+                };
+                string jsonPayload = JsonUtility.ToJson(authRequest);
+
+                byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonPayload);
+                request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+                request.downloadHandler = new DownloadHandlerBuffer();
+                request.SetRequestHeader("Content-Type", "application/json");
+
+                var operation = await request.SendWebRequest();
+
+                while (!operation.isDone)
+                {
+                    await UniTask.Yield();
+                }
+
+                switch (request.result)
+                {
+                    case UnityWebRequest.Result.Success:
+                        Debug.Log("Success: " + request.downloadHandler.text); // Return the response content
+                        ConfirmAuthenticationClientRpc(request.downloadHandler.text, clientAuthNetworkObjectId);
+                        break;
+                    case UnityWebRequest.Result.ConnectionError:
+                    case UnityWebRequest.Result.DataProcessingError:
+                    case UnityWebRequest.Result.ProtocolError:
+                    default:
+                        Debug.LogError($"GetRequest() error: {request.error}");
+                        break;
+                }
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogWarning(ex.Message);
+        }
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    void ConfirmAuthenticationClientRpc(string token, ulong clientAuthNetworkObjectId)
+    {
+        var networkObjectId = GetComponent<NetworkObject>().NetworkObjectId;
+        Debug.Log("ConfirmAuthenticationClientRpc: " + networkObjectId + " vs " + clientAuthNetworkObjectId);
+        if (networkObjectId != clientAuthNetworkObjectId)
+        {
+            return;
+        }
+
+        Debug.Log("Client successfully received token: " + token);
+
+        m_connectionState = ConnectionState.ConnectedAndAuthenticated;
+    }
+
+    public override void OnDestroy()
     {
         m_signInButton.onClick.RemoveAllListeners();
+
+        base.OnDestroy();
     }
 
     public static string ShortenString(string input)
@@ -244,5 +425,13 @@ public class Web3AuthCanvas : MonoBehaviour
         public string paymentProcessor;
         public string ghst;
         public string essence;
+    }
+
+    [System.Serializable]
+    public struct AuthRequest
+    {
+        public string address;
+        public string message;
+        public string signature;
     }
 }

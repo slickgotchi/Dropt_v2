@@ -192,7 +192,7 @@ namespace GotchiHub
         {
             SetMenuScreen(MenuScreen.Loading);
 
-            Web3AuthCanvas.Instance.SignIn();
+            Web3AuthCanvas.Instance.ConnectAndSignIn();
         }
 
         private void Start()
@@ -363,9 +363,8 @@ namespace GotchiHub
                     // clear old list
                     ClearGotchiListChildren();
 
-                    ConnectButton.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = address;
+                    ConnectButton.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = ShortenString(address);
                     ConnectButton.GetComponentInChildren<Image>().color = Dropt.Utils.Color.HexToColor("#d3fc7e");
-                    ConnectButton.GetComponentInChildren<TextEllipsisInMiddle>().UpdateTextWithEllipsis();
 
                     SetMenuScreen(MenuScreen.Loading);
 
@@ -383,6 +382,17 @@ namespace GotchiHub
             {
                 Debug.Log(e);
             }
+        }
+
+        public string ShortenString(string input)
+        {
+            if (input.Length <= 10) // If the string is too short, return it as is
+                return input;
+
+            string firstPart = input.Substring(0, 6);
+            string lastPart = input.Substring(input.Length - 4);
+
+            return firstPart + "..." + lastPart;
         }
 
         void HideAllMenus()

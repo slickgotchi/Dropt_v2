@@ -63,7 +63,6 @@ public class PlayerHUDCanvas : MonoBehaviour
 
     private void Awake()
     {
-        // Singleton pattern to ensure only one instance of the AudioManager exists
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -184,10 +183,6 @@ public class PlayerHUDCanvas : MonoBehaviour
         UpdateEcto();
         UpdateEssence();
         UpdateAbilityIcons();
-
-        //UpdateBombItems();
-        //UpdatePortaHoleItems();
-        //UpdateZenCricketItems();
     }
 
     private void UpdateStatBars()
@@ -233,32 +228,6 @@ public class PlayerHUDCanvas : MonoBehaviour
 
         m_dustText.text = dust.ToString() + " x" + CodeInjector.Instance.GetOutputMultiplier();
     }
-
-    //private void UpdateBombItems()
-    //{
-    //    var bombs = LevelManager.Instance.IsDegenapeVillage() ?
-    //        m_localPlayerOffchainData.m_bombLiveBalance_wallet.Value :       // village
-    //        m_localPlayerOffchainData.m_bombLiveCount_dungeon.Value;         // dungeon
-
-    //    m_bombsText.text = bombs.ToString("F0");
-    //}
-
-    //private void UpdatePortaHoleItems()
-    //{
-    //    var portaHoles = LevelManager.Instance.IsDegenapeVillage() ?
-    //        m_localPlayerOffchainData.m_bombLiveBalance_wallet.Value :       // village
-    //        m_localPlayerOffchainData.m_bombLiveCount_dungeon.Value;         // dungeon
-
-    //    m_bombsText.text = portaHoles.ToString("F0");
-    //}
-
-
-    //public void UpdateZenCricketItems()
-    //{
-        //m_healSlaveChargeText.text = m_localPlayerDungeonData.healSalveChargeCount_dungeon.ToString();
-        //float fillAmount = m_localPlayerDungeonData.healSalveChargeCount_dungeon / (float)m_localPlayerDungeonData.healSalveDungeonCharges_offchain;
-        //m_healSlaveUpImage.fillAmount = fillAmount;
-    //}
 
     private void UpdateEcto()
     {

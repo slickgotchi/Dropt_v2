@@ -16,7 +16,8 @@ public class BazaarCanvas : DroptCanvas
 
     [Header("Buttons")]
     [SerializeField] private Button m_exitButton;
-    [SerializeField] private Button m_signInButton; 
+    [SerializeField] private Button m_signInButton;
+    [SerializeField] private TMPro.TextMeshProUGUI m_signInButtonText;
     [SerializeField] private Button m_approveGhstButton;
 
     [Header("Input Field")]
@@ -57,32 +58,44 @@ public class BazaarCanvas : DroptCanvas
     {
         base.OnShowCanvas();
 
-        ConfigureMainPanel();
 
         _ = PollUpdates();
     }
 
     void ConfigureMainPanel()
     {
-        if (Web3AuthCanvas.Instance.GetActiveWallet() == null)
+        switch (Web3AuthCanvas.Instance.GetConnectionState())
         {
-            m_signInPanel.SetActive(true);
-            m_approveGhstPanel.SetActive(false);
-            m_purchaseItemsPanel.SetActive(false);
-            return;
-        }
+            case Web3AuthCanvas.ConnectionState.NotConnected:
+                m_signInPanel.SetActive(true);
+                m_approveGhstPanel.SetActive(false);
+                m_purchaseItemsPanel.SetActive(false);
 
-        if (m_approvedGhst <= 3)
-        {
-            m_signInPanel.SetActive(false);
-            m_approveGhstPanel.SetActive(true);
-            m_purchaseItemsPanel.SetActive(false);
-            return;
-        }
+                m_signInButtonText.text = "Connect";
+                break;
+            case Web3AuthCanvas.ConnectionState.ConnectedNotAuthenticated:
+                m_signInPanel.SetActive(true);
+                m_approveGhstPanel.SetActive(false);
+                m_purchaseItemsPanel.SetActive(false);
 
-        m_signInPanel.SetActive(false);
-        m_approveGhstPanel.SetActive(false);
-        m_purchaseItemsPanel.SetActive(true);
+                m_signInButtonText.text = "Sign In";
+                break;
+            case Web3AuthCanvas.ConnectionState.ConnectedAndAuthenticated:
+                if (m_approvedGhst <= 3)
+                {
+                    m_signInPanel.SetActive(false);
+                    m_approveGhstPanel.SetActive(true);
+                    m_purchaseItemsPanel.SetActive(false);
+                }
+                else
+                {
+                    m_signInPanel.SetActive(false);
+                    m_approveGhstPanel.SetActive(false);
+                    m_purchaseItemsPanel.SetActive(true);
+                }
+                break;
+            default: break;
+        }
     }
 
     public override void OnHideCanvas()
@@ -94,7 +107,7 @@ public class BazaarCanvas : DroptCanvas
 
     public override void OnUpdate()
     {
-        
+        ConfigureMainPanel();
     }
 
     private async UniTaskVoid PollUpdates()
@@ -104,8 +117,6 @@ public class BazaarCanvas : DroptCanvas
             await UniTask.Delay(3000);
 
             _ = CheckGhstApproval();
-
-            ConfigureMainPanel();
         }
     }
 
@@ -136,8 +147,6 @@ public class BazaarCanvas : DroptCanvas
             Web3AuthCanvas.Instance.Contracts.droptPaymentProcessor
             );
 
-        //Debug.Log($"Allowance Response Type: {weiAllowance.GetType()} | Value: {weiAllowance}");
-
         float amount = (float)(weiAllowance) / 1e18f;
 
         m_approvedGhst = (int)((float)weiAllowance / 1e18f);
@@ -156,7 +165,7 @@ public class BazaarCanvas : DroptCanvas
 
     void HandleClickSignIn()
     {
-        Web3AuthCanvas.Instance.SignIn();
+        Web3AuthCanvas.Instance.ConnectAndSignIn();
     }
 
     void HandleClickApprove()
@@ -222,8 +231,8 @@ public class BazaarCanvas : DroptCanvas
             if (Web3AuthCanvas.Instance.ChainId == 80002)
             {
                 BigInteger gwei = BigInteger.Pow(10, 9);
-                maxFeePerGas = 39 * gwei;
-                maxPriorityFeePerGas = 39 * gwei;
+                maxFeePerGas = 49 * gwei;
+                maxPriorityFeePerGas = 49 * gwei;
             }
 
             prepareTxn.SetMaxFeePerGas(maxFeePerGas);

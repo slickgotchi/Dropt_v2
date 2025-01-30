@@ -73,12 +73,12 @@ public class PlayerOffchainData : NetworkBehaviour
 
     // for keeping track of current wallet
     private string m_walletAddress = null;
-    private float k_walletUpdateInterval = 1f;
+    private float k_walletUpdateInterval = 3f;
     private float m_walletUpdateTimer = 0f;
 
     // for keeping track of current gotchi
     private int m_gotchiId = 0;
-    private float k_gotchiIdUpdateInterval = 1f;
+    private float k_gotchiIdUpdateInterval = 3f;
     private float m_gotchiIdUpdateTimer = 0f;
 
     private Level.NetworkLevel.LevelType m_currentLevelType;
@@ -125,7 +125,7 @@ public class PlayerOffchainData : NetworkBehaviour
     private float m_updateWalletAndGotchiOffchainDataTimer = 0f;
     private float k_updateWalletAndGotchiOffchainDataInterval = 3f;
 
-    async UniTaskVoid UpdateWalletAndGotchiOffchainData()
+    private void UpdateWalletAndGotchiOffchainData()
     {
         if (!IsServer) return;
         if (!LevelManager.Instance) return;
@@ -144,17 +144,15 @@ public class PlayerOffchainData : NetworkBehaviour
             {
                 m_updateWalletAndGotchiOffchainDataTimer = k_updateWalletAndGotchiOffchainDataInterval;
 
-                //Debug.Log("Check backend data for m_walletAddress " + m_walletAddress + ", m_gotchiId " + m_gotchiId);
-
                 if (!string.IsNullOrEmpty(m_walletAddress))
                 {
-                    GetLatestOffchainWalletDataServerRpcAsync(m_walletAddress);
+                    _ = GetLatestOffchainWalletDataServerRpcAsync(m_walletAddress);
 
                 }
 
                 if (m_gotchiId > 0)
                 {
-                    GetLatestOffchainGotchiDataServerRpcAsync(m_gotchiId);
+                    _ = GetLatestOffchainGotchiDataServerRpcAsync(m_gotchiId);
                 }
             }
         }
@@ -192,7 +190,7 @@ public class PlayerOffchainData : NetworkBehaviour
         else if ((m_currentLevelType == Level.NetworkLevel.LevelType.Dungeon || m_currentLevelType == Level.NetworkLevel.LevelType.DungeonRest) &&
             newLevelType == Level.NetworkLevel.LevelType.DegenapeVillage)
         {
-            ExitDungeonCalculateBalances(true);
+            _ = ExitDungeonCalculateBalances(true);
             StopDungeonTimer();
             ResetTimer();
         }

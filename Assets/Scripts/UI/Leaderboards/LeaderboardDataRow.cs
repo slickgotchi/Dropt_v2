@@ -43,7 +43,7 @@ public class LeaderboardDataRow : MonoBehaviour
         RankText.text = rank.ToString();
         GotchiText.text = gotchi;
         IdText.text = id.ToString();
-        AddressText.text = address;
+        AddressText.text = ShortenString(address);
         GhstText.text = ghst == 0 ? "-" : ghst.ToString();
         SetFormation(formation);
         DustText.text = dust.ToString("N0");
@@ -55,13 +55,19 @@ public class LeaderboardDataRow : MonoBehaviour
         {
             GhstIcon.SetActive(false);
         }
-
-        var ellipsisAddressText = AddressText.GetComponent<TextEllipsisInMiddle>();
-        if (ellipsisAddressText != null)
-        {
-            ellipsisAddressText.UpdateTextWithEllipsis();
-        }
     }
+
+    public string ShortenString(string input)
+    {
+        if (input.Length <= 10) // If the string is too short, return it as is
+            return input;
+
+        string firstPart = input.Substring(0, 6);
+        string lastPart = input.Substring(input.Length - 4);
+
+        return firstPart + "..." + lastPart;
+    }
+
 
     private void SetFormation(string formation)
     {
