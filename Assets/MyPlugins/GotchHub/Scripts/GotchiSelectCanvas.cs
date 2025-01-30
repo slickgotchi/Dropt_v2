@@ -192,7 +192,16 @@ namespace GotchiHub
         {
             SetMenuScreen(MenuScreen.Loading);
 
-            Web3AuthCanvas.Instance.ConnectAndSignIn();
+            switch (Web3AuthCanvas.Instance.GetConnectionState())
+            {
+                case Web3AuthCanvas.ConnectionState.NotConnected:
+                    Web3AuthCanvas.Instance.Connect();
+                    break;
+                case Web3AuthCanvas.ConnectionState.ConnectedNotAuthenticated:
+                    Web3AuthCanvas.Instance.SignIn();
+                    break;
+                default: break;
+            }
         }
 
         private void Start()

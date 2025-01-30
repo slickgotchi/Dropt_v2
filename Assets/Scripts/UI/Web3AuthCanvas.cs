@@ -13,23 +13,22 @@ public class Web3AuthCanvas : NetworkBehaviour
 {
     public static Web3AuthCanvas Instance { get; private set; }
 
-    [Header("Sign In Button")]
+    [Header("Buttons, Background, Details")]
+    [SerializeField] private Button m_connectButton;
     [SerializeField] private Button m_signInButton;
-    [SerializeField] private Image m_signInImage;
-    [SerializeField] private Color m_signInColor;
-    [SerializeField] private Color m_connectedColor;
-    [SerializeField] private TMPro.TextMeshProUGUI m_signInText;
-    [SerializeField] private TMPro.TextMeshProUGUI m_ghstBalanceText;
+    [SerializeField] private GameObject m_background;
 
-    [Header("Left Panel Detals")]
+    [Header("Panel Detals")]
     [SerializeField] private GameObject m_leftPanel;
+    [SerializeField] private GameObject m_rightPanel;
     [SerializeField] private Color m_maticChainColor;
+    [SerializeField] private TMPro.TextMeshProUGUI m_ghstBalanceText;
     [SerializeField] private Color m_amoyChainColor;
     [SerializeField] private Image m_chainIconImage;
+    [SerializeField] private TMPro.TextMeshProUGUI m_addressText;
 
 
     [HideInInspector] public System.Numerics.BigInteger ChainId = 80002;
-
     [HideInInspector] public DroptContractAddresses Contracts;
     [HideInInspector] public DroptABIs ABIs;
 
@@ -59,20 +58,20 @@ public class Web3AuthCanvas : NetworkBehaviour
     public IThirdwebWallet GetActiveWallet() { return m_wallet; }
     public string GetActiveWalletAddress() { return m_walletAddress; }
 
-    private ulong GetLocalPlayerNetworkObjectId()
-    {
-        var players = Game.Instance.playerControllers;
-        foreach (var player in players)
-        {
-            var playerNetworkObject = player.GetComponent<NetworkObject>();
-            if (playerNetworkObject != null && playerNetworkObject.IsLocalPlayer)
-            {
-                return playerNetworkObject.NetworkObjectId;
-            }
-        }
+    //private ulong GetLocalPlayerNetworkObjectId()
+    //{
+    //    var players = Game.Instance.playerControllers;
+    //    foreach (var player in players)
+    //    {
+    //        var playerNetworkObject = player.GetComponent<NetworkObject>();
+    //        if (playerNetworkObject != null && playerNetworkObject.IsLocalPlayer)
+    //        {
+    //            return playerNetworkObject.NetworkObjectId;
+    //        }
+    //    }
 
-        return 0;
-    }
+    //    return 0;
+    //}
 
     public override void OnNetworkSpawn()
     {
@@ -85,7 +84,16 @@ public class Web3AuthCanvas : NetworkBehaviour
         // only the client should handle sign ins and poll the user wallet
         if (IsClient)
         {
-            m_signInButton.onClick.AddListener(HandleClick_ConnectAndSignIn);
+            m_connectButton.onClick.AddListener(Connect);
+            m_signInButton.onClick.AddListener(SignIn);
+
+            // check for an existing auth token to try and sign in to
+            var existingAuthToken = PlayerPrefs.GetString("AuthToken");
+            if (!string.IsNullOrEmpty(existingAuthToken))
+            {
+                
+            }
+
             _ = PollWallet();
             PollWalletStatus().Forget();
         }
@@ -125,6 +133,8 @@ public class Web3AuthCanvas : NetworkBehaviour
 
             var walletBalance = await m_wallet.GetBalance(ChainId, Contracts.ghst);
             m_ghstBalance = (float)(walletBalance) / 1e18f;
+
+            m_addressText.text = ShortenString(m_walletAddress);
         }
         else
         {
@@ -136,57 +146,122 @@ public class Web3AuthCanvas : NetworkBehaviour
     {
         if (connectionState == ConnectionState.NotConnected)
         {
-            m_signInText.text = "Connect";
-            m_signInText.fontSize = 16;
-            m_signInImage.color = m_signInColor;
-
-            m_ghstBalanceText.gameObject.SetActive(false);
-
+            m_connectButton.gameObject.SetActive(true);
+            m_signInButton.gameObject.SetActive(false);
+            m_background.gameObject.SetActive(false);
+            m_rightPanel.gameObject.SetActive(false);
             m_leftPanel.gameObject.SetActive(false);
         }
         else if (connectionState == ConnectionState.ConnectedNotAuthenticated)
         {
-            m_signInText.text = "Sign In";
-            m_signInText.fontSize = 16;
-            m_signInImage.color = m_signInColor;
-
-            m_ghstBalanceText.gameObject.SetActive(false);
-
+            m_connectButton.gameObject.SetActive(false);
+            m_signInButton.gameObject.SetActive(true);
+            m_background.gameObject.SetActive(false);
+            m_rightPanel.gameObject.SetActive(false);
             m_leftPanel.gameObject.SetActive(false);
         }
         else if (connectionState == ConnectionState.ConnectedAndAuthenticated)
         {
-            m_signInText.text = ShortenString(m_walletAddress);
-            m_signInText.fontSize = 12;
-
-            m_ghstBalanceText.gameObject.SetActive(true);
-            m_ghstBalanceText.text = m_ghstBalance.ToString("F2") + " GHST";
-
-            m_signInImage.color = m_connectedColor;
-
+            m_connectButton.gameObject.SetActive(false);
+            m_signInButton.gameObject.SetActive(false);
+            m_background.gameObject.SetActive(true);
+            m_rightPanel.gameObject.SetActive(true);
             m_leftPanel.gameObject.SetActive(true);
 
-            if (ChainId == 137)
-            {
-                m_chainIconImage.color = m_maticChainColor;
-            }
-            else
-            {
-                m_chainIconImage.color = m_amoyChainColor;
-            }
+            m_ghstBalanceText.text = m_ghstBalance.ToString("F2") + " GHST";
+
+            m_chainIconImage.color = ChainId == 137 ? m_maticChainColor : m_amoyChainColor;
         }
     }
 
-    public void ConnectAndSignIn()
+    public void Connect()
     {
         if (!IsClient) return;
+
+        _ = ConnectAsync();
+    }
+
+    async UniTaskVoid ConnectAsync()
+    {
+        if (!IsClient) return;
+
+        try
+        {
+            if (m_connectionState == ConnectionState.NotConnected)
+            {
+                var existingWallet = ThirdwebManager.Instance.GetActiveWallet();
+                if (existingWallet != null)
+                {
+                    await existingWallet.Disconnect();
+                }
+
+                if (m_wallet == null)
+                {
+#if UNITY_WEBGL
+                    var newProvider = WalletProvider.MetaMaskWallet;
+#else
+                    var newProvider = WalletProvider.WalletConnectWallet;
+#endif
+                    Debug.Log($"Set provider: {newProvider.ToString()}");
+
+                    var walletOptions = new WalletOptions(provider: newProvider, chainId: ChainId);
+
+                    m_wallet = await ThirdwebManager.Instance.ConnectWallet(walletOptions);
+                    if (m_wallet == null)
+                    {
+                        Debug.LogWarning("No active wallet found!");
+                        return;
+                    }
+
+                    m_connectionState = ConnectionState.ConnectedNotAuthenticated;
+                    Debug.Log("Connected!");
+                }
+
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.Log(ex.Message);
+        }
+    }
+
+    public void SignIn()
+    {
+        if (!IsClient) return;
+
+        _ = SignInAsync();
+    }
+
+    async UniTaskVoid SignInAsync()
+    {
+        if (!IsClient) return;
+
+        try
+        {
+            if (m_connectionState == ConnectionState.ConnectedNotAuthenticated)
+            {
+                //if we now have a wallet the next step is to authenticate it with the server
+                _ = AuthenticateUser(m_wallet);
+            }
+
+        }
+        catch (System.Exception ex)
+        {
+            Debug.Log(ex.Message);
+        }
+    }
+
+    /*
+    public void ConnectAndSignIn()
+    {
+        if (!IsClient) return;  // CLIENT only
 
         HandleClick_ConnectAndSignIn();
     }
 
     void HandleClick_ConnectAndSignIn()
     {
-        if (!IsClient) return;
+        if (!IsClient) return;  // CLIENT only
 
         _ = HandleClick_ConnectAndSignIn_ASYNC();
     }
@@ -216,8 +291,6 @@ public class Web3AuthCanvas : NetworkBehaviour
 
                     var walletOptions = new WalletOptions(provider: newProvider, chainId: ChainId);
 
-                    IThirdwebWallet
-
                     m_wallet = await ThirdwebManager.Instance.ConnectWallet(walletOptions);
                     if (m_wallet == null)
                     {
@@ -242,6 +315,7 @@ public class Web3AuthCanvas : NetworkBehaviour
             Debug.Log(ex.Message);
         }
     }
+    */
 
     async UniTaskVoid AuthenticateUser(IThirdwebWallet wallet)
     {
