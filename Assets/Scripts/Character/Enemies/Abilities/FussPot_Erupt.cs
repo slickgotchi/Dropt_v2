@@ -93,7 +93,7 @@ public class FussPot_Erupt : EnemyAbility
         eruptProjectile.Fire();
     }
 
-    [Rpc(SendTo.NotServer)]
+    [Rpc(SendTo.ClientsAndHost)]
     void CreateAndFireProjectileClientRpc(int index, Vector3 direction, Vector3 spawnPosition,
         float distance, float damage, float criticalChance, float criticalDamage)
     {

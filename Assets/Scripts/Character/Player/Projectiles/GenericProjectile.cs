@@ -111,7 +111,7 @@ public class GenericProjectile : NetworkBehaviour
         if (VisualGameObject != null) VisualGameObject.SetActive(true);
     }
 
-    [Rpc(SendTo.NotServer)]
+    [Rpc(SendTo.ClientsAndHost)]
     void LogFireDetailsClientRpc(Vector3 pos, Vector3 dir, float duration)
     {
         Debug.Log("Server Projectile: ");
@@ -255,7 +255,7 @@ public class GenericProjectile : NetworkBehaviour
         Debug.Log("Client Hit: " + hitPoint);
     }
 
-    [Rpc(SendTo.NotServer)]
+    [Rpc(SendTo.ClientsAndHost)]
     void LogHitPointClientRpc(Vector2 hitPoint)
     {
         Debug.Log("Server Hit: " + hitPoint);

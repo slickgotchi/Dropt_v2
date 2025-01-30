@@ -59,6 +59,20 @@ public class Web3AuthCanvas : NetworkBehaviour
     public IThirdwebWallet GetActiveWallet() { return m_wallet; }
     public string GetActiveWalletAddress() { return m_walletAddress; }
 
+    private ulong GetLocalPlayerNetworkObjectId()
+    {
+        var players = Game.Instance.playerControllers;
+        foreach (var player in players)
+        {
+            var playerNetworkObject = player.GetComponent<NetworkObject>();
+            if (playerNetworkObject != null && playerNetworkObject.IsLocalPlayer)
+            {
+                return playerNetworkObject.NetworkObjectId;
+            }
+        }
+
+        return 0;
+    }
 
     public override void OnNetworkSpawn()
     {
@@ -305,7 +319,12 @@ public class Web3AuthCanvas : NetworkBehaviour
                 {
                     case UnityWebRequest.Result.Success:
                         Debug.Log("Success: " + request.downloadHandler.text); // Return the response content
-                        ConfirmAuthenticationClientRpc(request.downloadHandler.text, clientAuthNetworkObjectId);
+
+                        AuthResponse authResponse = JsonUtility.FromJson<AuthResponse>(request.downloadHandler.text);
+                        if (!string.IsNullOrEmpty(authResponse.token))
+                        {
+                            ConfirmAuthenticationClientRpc(authResponse.token, authResponse.address, clientAuthNetworkObjectId);
+                        }
                         break;
                     case UnityWebRequest.Result.ConnectionError:
                     case UnityWebRequest.Result.DataProcessingError:
@@ -323,7 +342,7 @@ public class Web3AuthCanvas : NetworkBehaviour
     }
 
     [Rpc(SendTo.ClientsAndHost)]
-    void ConfirmAuthenticationClientRpc(string token, ulong clientAuthNetworkObjectId)
+    void ConfirmAuthenticationClientRpc(string token, string address, ulong clientAuthNetworkObjectId)
     {
         var networkObjectId = GetComponent<NetworkObject>().NetworkObjectId;
         Debug.Log("ConfirmAuthenticationClientRpc: " + networkObjectId + " vs " + clientAuthNetworkObjectId);
@@ -333,6 +352,9 @@ public class Web3AuthCanvas : NetworkBehaviour
         }
 
         Debug.Log("Client successfully received token: " + token);
+
+        PlayerPrefs.SetString("AuthToken", token);
+        PlayerPrefs.SetString("AuthWalletAddress", address);
 
         m_connectionState = ConnectionState.ConnectedAndAuthenticated;
     }
@@ -433,5 +455,12 @@ public class Web3AuthCanvas : NetworkBehaviour
         public string address;
         public string message;
         public string signature;
+    }
+
+    [System.Serializable]
+    public struct AuthResponse
+    {
+        public string token;
+        public string address;
     }
 }

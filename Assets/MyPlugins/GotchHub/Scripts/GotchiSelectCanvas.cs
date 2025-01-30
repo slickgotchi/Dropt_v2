@@ -236,31 +236,6 @@ namespace GotchiHub
             m_menuScreen = menuScreen;
         }
 
-        /*
-        private float m_updateGHSTimer = 0f;
-
-        private async void UpdateGHSTBalance()
-        {
-            m_updateGHSTimer -= Time.deltaTime;
-            if (m_updateGHSTimer > 0) return;
-            m_updateGHSTimer = 10f;
-
-            try
-            {
-                var wallet = ThirdwebManager.Instance.GetActiveWallet();
-                if (wallet == null) return;
-
-                // get ghst balance
-                var bal = await wallet.GetBalance(137, polygonGHSTAddress);
-                ghstBalance.text = ((float)bal / 1e18).ToString("F2");
-            }
-            catch (System.Exception e)
-            {
-                Debug.Log(e);
-            }
-        }
-        */
-
         public string GetConnectedWallet()
         {
             return m_walletAddress;

@@ -95,7 +95,7 @@ public class DroptNetworkTransform : NetworkBehaviour
         }
     }
 
-    [Rpc(SendTo.NotServer)]
+    [Rpc(SendTo.ClientsAndHost)]
     void SetPositionClientRpc(Vector3 pos, int serverTick)
     {
         m_positionStateBuffer.Add(new PositionState

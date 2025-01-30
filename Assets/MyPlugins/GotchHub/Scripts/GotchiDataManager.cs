@@ -85,57 +85,7 @@ namespace GotchiHub
         private void Start()
         {
             ClearGotchiDataAndSvgs();
-
-            //StartAsync();
         }
-
-        /*
-        private async void StartAsync()
-        {
-            if (Bootstrap.IsServer()) return;
-
-            ClearGotchiDataAndSvgs();
-
-            
-            var existingWalletAddress = PlayerPrefs.GetString("WalletAddress");
-            if (string.IsNullOrEmpty(existingWalletAddress))
-            {
-                // load default gotchi / do nothing
-            }
-            else
-            {
-                await Dropt.Utils.Thirdweb.ConnectWallet();
-
-                var wallet = ThirdwebManager.Instance.GetActiveWallet();
-                if (wallet == null)
-                {
-                    Debug.LogWarning("Failed to connect to a wallet");
-                    return;
-                }
-
-                var isConnected = await wallet.IsConnected();
-                if (!isConnected)
-                {
-                    Debug.LogWarning("Wallet is not connected");
-                    return;
-                }
-
-                var connectedWalletAddress = await wallet.GetAddress();
-                if (connectedWalletAddress != existingWalletAddress)
-                {
-                    PlayerPrefs.SetString("WalletAddress", connectedWalletAddress);
-                    m_walletAddress = connectedWalletAddress;
-                }
-                else
-                {
-                    m_walletAddress = existingWalletAddress;
-                }
-
-                LoadGotchiDataAndSvgsForLocalWalletAddress(m_walletAddress);
-            }
-            
-        }
-        */
 
         private void ClearGotchiDataAndSvgs()
         {
@@ -350,7 +300,7 @@ namespace GotchiHub
                 onFetchedLocalWalletGotchiData?.Invoke();
 
                 //await FetchGotchiSvgsParallelForLocalAccount(userAccount);
-                FetchGotchiSvgsOneCallForLocalAccount(userAccount);
+                _ = FetchGotchiSvgsOneCallForLocalAccount(userAccount);
 
             }
             catch (Exception ex)

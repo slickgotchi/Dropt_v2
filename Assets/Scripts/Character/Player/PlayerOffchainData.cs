@@ -127,7 +127,7 @@ public class PlayerOffchainData : NetworkBehaviour
 
     private void UpdateWalletAndGotchiOffchainData()
     {
-        if (!IsServer) return;
+        if (!IsServer) return;  // SERVER ONLY
         if (!LevelManager.Instance) return;
         if (!LevelManager.Instance.IsDegenapeVillage()) return;
 
@@ -146,7 +146,8 @@ public class PlayerOffchainData : NetworkBehaviour
 
                 if (!string.IsNullOrEmpty(m_walletAddress))
                 {
-                    _ = GetLatestOffchainWalletDataServerRpcAsync(m_walletAddress);
+                    var authToken = PlayerPrefs.GetString("AuthToken");
+                    _ = SetWalletAndGetLatestOffchainWalletDataServerRpcAsync(m_walletAddress, authToken);
 
                 }
 
@@ -240,7 +241,8 @@ public class PlayerOffchainData : NetworkBehaviour
             {
                 m_walletAddress = connectedWalletAddress;
                 PlayerPrefs.SetString("WalletAddress", m_walletAddress);
-                GetLatestOffchainWalletDataServerRpc(m_walletAddress);
+                var authToken = PlayerPrefs.GetString("AuthToken");
+                GetLatestOffchainWalletDataServerRpc(m_walletAddress, authToken);
             }
 
         }
@@ -252,16 +254,23 @@ public class PlayerOffchainData : NetworkBehaviour
     
 
     [Rpc(SendTo.Server)]
-    private void GetLatestOffchainWalletDataServerRpc(string walletAddress)
+    private void GetLatestOffchainWalletDataServerRpc(string walletAddress, string authToken)
     {
-        _ = GetLatestOffchainWalletDataServerRpcAsync(walletAddress);
+        _ = SetWalletAndGetLatestOffchainWalletDataServerRpcAsync(walletAddress, authToken);
     }
 
-    private async UniTaskVoid GetLatestOffchainWalletDataServerRpcAsync(string walletAddress)
+    private async UniTaskVoid SetWalletAndGetLatestOffchainWalletDataServerRpcAsync(string walletAddress, string authToken)
     {
         if (!IsServer) return;
 
-        // save the current wallet address for this player
+        // check wallet matches token
+        var walletByToken = await Dropt.Utils.Http.GetAddressByAuthToken(authToken);
+        if (walletAddress != walletByToken)
+        {
+            Debug.LogWarning("Passed wallet does not match the auth token wallet");
+            return;
+        }
+
         m_walletAddress = walletAddress;
 
         // getsert wallet

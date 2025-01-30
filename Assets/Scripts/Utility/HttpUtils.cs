@@ -14,6 +14,8 @@ namespace Dropt.Utils
     {
         public static int nonce = 0;
 
+        public static string web3authUri = "https://db.playdropt.io/web3auth";
+
         public static async UniTask<string> PostEncryptedRequest(string url, string json, string secretKey = "")
         {
             var encryptedPayload = EncryptPayload(json, secretKey);
@@ -87,6 +89,55 @@ namespace Dropt.Utils
             }
         }
 
+        public static async UniTask<string> GetAddressByAuthToken(string token)
+        {
+            try
+            {
+                var url = web3authUri + "/getaddressbytoken";
+
+                using (UnityWebRequest request = new UnityWebRequest(url, "POST"))
+                {
+                    var addressRequest = new AddressRequest
+                    {
+                        token = token
+                    };
+                    string jsonPayload = JsonUtility.ToJson(addressRequest);
+
+                    byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonPayload);
+                    request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+                    request.downloadHandler = new DownloadHandlerBuffer();
+                    request.SetRequestHeader("Content-Type", "application/json");
+
+                    var operation = await request.SendWebRequest();
+
+                    while (!operation.isDone)
+                    {
+                        await UniTask.Yield();
+                    }
+
+                    switch (request.result)
+                    {
+                        case UnityWebRequest.Result.Success:
+                            var response = JsonUtility.FromJson<AddressResponse>(request.downloadHandler.text);
+                            if (!string.IsNullOrEmpty(response.address))
+                            {
+                                return response.address;
+                            }
+                            break;
+                        default:
+                            Debug.LogError($"Request error: {request.error}");
+                            break;
+                    }
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogWarning(ex.Message);
+            }
+
+            return null;
+        }
+
         public static string EncryptPayload(string jsonPayload, string secret)
         {
             // Add nonce and timestamp to payload
@@ -132,6 +183,18 @@ namespace Dropt.Utils
         {
             public string payload;
             public string signature;
+        }
+
+        [System.Serializable]
+        struct AddressRequest
+        {
+            public string token;
+        }
+
+        [System.Serializable]
+        struct AddressResponse
+        {
+            public string address;
         }
     }
 }

@@ -1,9 +1,12 @@
 using Cinemachine;
+using PortalDefender.AavegotchiKit;
+using PortalDefender.AavegotchiKit.GraphQL;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 using GotchiHub;
 using Cysharp.Threading.Tasks;
+using UnityEngine.Networking;
 
 public class PlayerController : NetworkBehaviour
 {
@@ -48,6 +51,7 @@ public class PlayerController : NetworkBehaviour
 
     public Collider2D HurtCollider2D;
 
+    private string authUri = "https://db.playdropt.io/web3auth";
 
     private void Awake()
     {
@@ -132,6 +136,7 @@ public class PlayerController : NetworkBehaviour
 
     }
 
+    /*
     [Rpc(SendTo.Server)]
     void ValidateVersionServerRpc()
     {
@@ -150,7 +155,7 @@ public class PlayerController : NetworkBehaviour
             NetworkManager.Singleton.Shutdown();
         }
     }
-
+    */
 
     
 
@@ -194,7 +199,7 @@ public class PlayerController : NetworkBehaviour
             CheckForPlayerInput();
         }
 
-        if (IsHost)
+        if (IsHost || (IsClient && Bootstrap.IsLocalConnection()))
         {
             if (Input.GetKeyDown(KeyCode.V))
             {
@@ -203,7 +208,6 @@ public class PlayerController : NetworkBehaviour
         }
 
         // Handle level spawning on the server
-        //if (IsServer && !IsLevelSpawnPositionSet)
         if (IsServer && LevelManager.Instance.isPlayersSpawnable &&
             !LevelManager.Instance.spawnedPlayers.Contains(this))
         {
@@ -242,15 +246,40 @@ public class PlayerController : NetworkBehaviour
 
     // this is where we set everything required for leaderboarding
     [Rpc(SendTo.Server)]
-    public void SetNetworkGotchiIdServerRpc(int gotchiId)
+    public void SetNetworkGotchiIdServerRpc(int gotchiId, string authToken)
     {
+        _ = SetNetworkGotchiIdServerRpc_ASYNC(gotchiId, authToken);
+    }
+
+    private async UniTaskVoid SetNetworkGotchiIdServerRpc_ASYNC(int gotchiId, string authToken)
+    {
+        if (!IsServer) return;
+
         // make sure we're in the Degenape village!
         // players can only change gotchis in the village. this prevents someone using
         // someone elses god gotchi (client side hack) and then switching back to theirs
         if (!LevelManager.Instance.IsDegenapeVillage()) return;
 
-        NetworkGotchiId.Value = gotchiId;
+        // ensure the gotchi specified is actually on the wallet associated with the
+        // given authToken
+        var walletByToken = await Dropt.Utils.Http.GetAddressByAuthToken(authToken);
+
+        // now verify the address has the passed gotchi on it
+        var userData = await GraphManager.Instance.GetUserAccount(walletByToken);
+        if (userData != null)
+        {
+            foreach (var gotchi in userData.gotchisOwned)
+            {
+                if (gotchi.id == gotchiId)
+                {
+                    NetworkGotchiId.Value = gotchiId;
+                    return;
+                }
+            }
+        }
     }
+
+
 
     public async UniTask KillPlayer(REKTCanvas.TypeOfREKT typeOfREKT)
     {
@@ -388,7 +417,14 @@ public class PlayerController : NetworkBehaviour
             if (selectedGotchiId != m_selectedGotchiId)
             {
                 m_selectedGotchiId = selectedGotchiId;
-                SetNetworkGotchiIdServerRpc(m_selectedGotchiId);
+                var authToken = PlayerPrefs.GetString("AuthToken");
+                if (string.IsNullOrEmpty(authToken))
+                {
+                    Debug.LogWarning("Please sign in and obtain an auth token");
+                    return;
+                }
+
+                SetNetworkGotchiIdServerRpc(m_selectedGotchiId, authToken);
             }
         }
     }

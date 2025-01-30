@@ -89,7 +89,7 @@ public class NetworkTimer_v2 : NetworkBehaviour
         SendServerTickClientRpc(networkObjectId, TickCurrent);
     }
 
-    [Rpc(SendTo.NotServer)]
+    [Rpc(SendTo.ClientsAndHost)]
     void SendServerTickClientRpc(ulong networkObjectId, int serverTick)
     {
         if (GetComponent<NetworkObject>().NetworkObjectId != networkObjectId) return;
