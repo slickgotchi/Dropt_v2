@@ -320,10 +320,8 @@ namespace GotchiHub
 
             try
             {
-                if (ThirdwebManager.Instance == null) return;
-
                 // get current wallet
-                var wallet = ThirdwebManager.Instance.GetActiveWallet();
+                var wallet = Web3AuthCanvas.Instance.GetActiveWallet();
                 if (wallet == null)
                 {
                     SetMenuScreen(MenuScreen.NotConnected);
@@ -340,9 +338,9 @@ namespace GotchiHub
 
                 // address check
                 var address = await wallet.GetAddress();
-                if (address != m_walletAddress)
+                if (address.ToLower() != m_walletAddress.ToLower())
                 {
-                    m_walletAddress = address;
+                    m_walletAddress = address.ToLower();
 
                     // clear old list
                     ClearGotchiListChildren();

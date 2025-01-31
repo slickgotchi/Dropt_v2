@@ -51,8 +51,6 @@ public class PlayerController : NetworkBehaviour
 
     public Collider2D HurtCollider2D;
 
-    private string authUri = "https://db.playdropt.io/web3auth";
-
     private void Awake()
     {
         m_networkCharacter = GetComponent<NetworkCharacter>();
@@ -135,29 +133,6 @@ public class PlayerController : NetworkBehaviour
         base.OnNetworkDespawn();
 
     }
-
-    /*
-    [Rpc(SendTo.Server)]
-    void ValidateVersionServerRpc()
-    {
-
-    }
-
-    [Rpc(SendTo.Server)]
-    void ValidateVersionClientRpc(string serverVersion)
-    {
-        if (!IsLocalPlayer) return;
-
-        if (serverVersion != Bootstrap.Instance.Version)
-        {
-            ErrorDialogCanvas.Instance.Show("Your local browser version of Dropt does not match the server. Please hard refresh your browser to update.");
-            Debug.Log("Shutdown NetworkManager");
-            NetworkManager.Singleton.Shutdown();
-        }
-    }
-    */
-
-    
 
     private void Update()
     {
@@ -246,7 +221,7 @@ public class PlayerController : NetworkBehaviour
 
     // this is where we set everything required for leaderboarding
     [Rpc(SendTo.Server)]
-    public void SetNetworkGotchiIdServerRpc(int gotchiId, string authToken)
+    private void SetNetworkGotchiIdServerRpc(int gotchiId, string authToken)
     {
         _ = SetNetworkGotchiIdServerRpc_ASYNC(gotchiId, authToken);
     }
@@ -260,26 +235,34 @@ public class PlayerController : NetworkBehaviour
         // someone elses god gotchi (client side hack) and then switching back to theirs
         if (!LevelManager.Instance.IsDegenapeVillage()) return;
 
-        // ensure the gotchi specified is actually on the wallet associated with the
-        // given authToken
-        var walletByToken = await Dropt.Utils.Http.GetAddressByAuthToken(authToken);
-
-        // now verify the address has the passed gotchi on it
-        var userData = await GraphManager.Instance.GetUserAccount(walletByToken);
-        if (userData != null)
+        // if its a default gotchi there is no need for address checking
+        if (gotchiId > 25000)
         {
-            foreach (var gotchi in userData.gotchisOwned)
+            NetworkGotchiId.Value = gotchiId;
+            return;
+        }
+        else
+        {
+            // ensure the gotchi specified is actually on the wallet associated with the
+            // given authToken
+            var addressByToken = await Dropt.Utils.Http.GetAddressByAuthToken(authToken);
+            if (!string.IsNullOrEmpty(addressByToken))
             {
-                if (gotchi.id == gotchiId)
+                var userData = await GraphManager.Instance.GetUserAccount(addressByToken.ToLower());
+                if (userData != null)
                 {
-                    NetworkGotchiId.Value = gotchiId;
-                    return;
+                    foreach (var gotchi in userData.gotchisOwned)
+                    {
+                        if (gotchi.id == gotchiId)
+                        {
+                            NetworkGotchiId.Value = gotchiId;
+                            return;
+                        }
+                    }
                 }
             }
         }
     }
-
-
 
     public async UniTask KillPlayer(REKTCanvas.TypeOfREKT typeOfREKT)
     {
@@ -417,6 +400,7 @@ public class PlayerController : NetworkBehaviour
             if (selectedGotchiId != m_selectedGotchiId)
             {
                 m_selectedGotchiId = selectedGotchiId;
+
                 var authToken = PlayerPrefs.GetString("AuthToken");
                 if (string.IsNullOrEmpty(authToken))
                 {

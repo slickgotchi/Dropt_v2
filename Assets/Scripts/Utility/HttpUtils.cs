@@ -121,7 +121,7 @@ namespace Dropt.Utils
                             var response = JsonUtility.FromJson<AddressResponse>(request.downloadHandler.text);
                             if (!string.IsNullOrEmpty(response.address))
                             {
-                                return response.address;
+                                return response.address.ToLower();
                             }
                             break;
                         default:

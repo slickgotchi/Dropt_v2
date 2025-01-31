@@ -259,7 +259,7 @@ namespace GotchiHub
 
 
                 // get wallet
-                var wallet = ThirdwebManager.Instance.GetActiveWallet();
+                var wallet = Web3AuthCanvas.Instance.GetActiveWallet();
                 if (wallet == null)
                 {
                     return;
@@ -276,8 +276,6 @@ namespace GotchiHub
                 //walletAddress = "0xa6ab5ca03954e8b2bb54e9006efb8e68824271fa";
 
                 walletAddress = walletAddress.ToLower();
-
-
 
                 // don't do anything if our wallet hasn't changed
                 if (walletAddress == m_walletAddress) return;

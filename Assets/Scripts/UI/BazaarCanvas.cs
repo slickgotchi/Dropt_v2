@@ -32,6 +32,7 @@ public class BazaarCanvas : DroptCanvas
     [SerializeField] private GameObject m_signInPanel;
     [SerializeField] private GameObject m_approveGhstPanel;
     [SerializeField] private GameObject m_purchaseItemsPanel;
+    [SerializeField] private GameObject m_purchaseSuccessModal;
 
     ThirdwebContract m_ghstContract;
     
@@ -50,8 +51,15 @@ public class BazaarCanvas : DroptCanvas
         m_approveGhstButton.onClick.AddListener(HandleClickApprove);
         m_signInButton.onClick.AddListener(HandleClickSignIn);
 
+        m_purchaseSuccessModal.SetActive(false);
+
         InstaHideCanvas();
 
+    }
+
+    public void ShowPurchaseSuccessModal()
+    {
+        m_purchaseSuccessModal.SetActive(true);
     }
 
     public override void OnShowCanvas()

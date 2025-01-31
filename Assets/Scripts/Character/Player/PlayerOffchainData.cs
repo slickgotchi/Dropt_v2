@@ -4,7 +4,7 @@ using Thirdweb.Unity;
 using GotchiHub;
 using Cysharp.Threading.Tasks;
 using Unity.Mathematics;
-
+using PortalDefender.AavegotchiKit.GraphQL;
 
 // ecto bank logic
 // - ecto_balance_offchain is the total ecto you have when in the village
@@ -71,25 +71,31 @@ public class PlayerOffchainData : NetworkBehaviour
     // uri for accessing database
     private string dbUri = "https://db.playdropt.io/offchaindata";
 
-    // for keeping track of current wallet
+    // for keeping track of current wallet & gotchi
     private string m_walletAddress = null;
-    private float k_walletUpdateInterval = 3f;
-    private float m_walletUpdateTimer = 0f;
-
-    // for keeping track of current gotchi
     private int m_gotchiId = 0;
-    private float k_gotchiIdUpdateInterval = 3f;
-    private float m_gotchiIdUpdateTimer = 0f;
 
     private Level.NetworkLevel.LevelType m_currentLevelType;
 
     public override void OnNetworkSpawn()
     {
         m_walletAddress = null;
-        m_gotchiId = 0;
+        m_gotchiId = -1;
         m_currentLevelType = Level.NetworkLevel.LevelType.Null;
 
         m_teamDustCounter = FindAnyObjectByType<TeamDustCounter>();
+
+        if (IsLocalPlayer)
+        {
+            _ = PollWalletChanges();
+            _ = PollGotchiChanges();
+        }
+
+        if (IsServer)
+        {
+            _ = PollOffchainWalletDataChanges();
+            _ = PollOffchainGotchiDataChanges();
+        }
     }
 
     public override void OnNetworkDespawn()
@@ -107,21 +113,200 @@ public class PlayerOffchainData : NetworkBehaviour
         }
     }
 
+    // we poll wallet changes regularly to ensure:
+    // - if a new wallet is connected we need to advise the server what the new address is
+    //   so we log to the correct wallet
+    // - the server also needs to confirm its a valid wallet addres by checking against the auth token
+    async UniTaskVoid PollWalletChanges()
+    {
+        if (!IsLocalPlayer) return;
+
+        while (IsSpawned)
+        {
+            await UniTask.Delay(3000);
+
+            var newWalletAddress = Web3AuthCanvas.Instance.GetActiveWalletAddress();
+            if (newWalletAddress != m_walletAddress)
+            {
+                m_walletAddress = newWalletAddress.ToLower();
+                var authToken = PlayerPrefs.GetString("AuthToken");
+                if (!string.IsNullOrEmpty(authToken))
+                {
+                    UpdateWalletAddressServerRpc(m_walletAddress, authToken);
+                }
+            }
+        }
+    }
+
+    [Rpc(SendTo.Server)]
+    void UpdateWalletAddressServerRpc(string walletAddress, string authToken)
+    {
+        _ = UpdateWalletAddressServerRpc_ASYNC(walletAddress, authToken);
+
+    }
+
+    async UniTaskVoid UpdateWalletAddressServerRpc_ASYNC(string walletAddress, string authToken)
+    {
+        if (!IsServer) return;
+        if (string.IsNullOrEmpty(walletAddress)) return;
+        if (!LevelManager.Instance.IsDegenapeVillage()) return; // no wallet changes outside degenape village
+
+        var addressByToken = await Dropt.Utils.Http.GetAddressByAuthToken(authToken);
+        if (addressByToken == walletAddress)
+        {
+            m_walletAddress = walletAddress.ToLower();
+        }
+    }
+
+    // poll gotchi changes to ensure:
+    // - any new assigned gotchi actually belongs to the wallet address we have in the server
+    async UniTaskVoid PollGotchiChanges()
+    {
+        if (!IsLocalPlayer) return;
+
+        while (IsSpawned)
+        {
+            await UniTask.Delay(3000);
+
+            var gotchiId = GotchiDataManager.Instance.GetSelectedGotchiId();
+            if (gotchiId != m_gotchiId)
+            {
+                m_gotchiId = gotchiId;
+                var authToken = PlayerPrefs.GetString("AuthToken");
+                if (!string.IsNullOrEmpty(authToken) || gotchiId > 25000)
+                {
+                    UpdateGotchiServerRpc(m_gotchiId, authToken);
+                }
+            }
+        }
+    }
+
+    [Rpc(SendTo.Server)]
+    void UpdateGotchiServerRpc(int gotchiId, string authToken)
+    {
+        _ = UpdateGotchiServerRpc_ASYNC(gotchiId, authToken);
+    }
+
+    async UniTaskVoid UpdateGotchiServerRpc_ASYNC(int gotchiId, string authToken)
+    {
+        if (!IsServer) return;
+
+        // if default gotchi we just allow it
+        if (gotchiId > 25000)
+        {
+            m_gotchiId = gotchiId;
+            return;
+        }
+
+        //if (string.IsNullOrEmpty(walletAddress)) return;
+        if (!LevelManager.Instance.IsDegenapeVillage()) return;
+
+        var addressByToken = await Dropt.Utils.Http.GetAddressByAuthToken(authToken);
+        if (!string.IsNullOrEmpty(addressByToken))
+        {
+            var userData = await GraphManager.Instance.GetUserAccount(addressByToken.ToLower());
+            if (userData != null)
+            {
+                foreach (var gotchi in userData.gotchisOwned)
+                {
+                    if (gotchi.id == gotchiId)
+                    {
+                        m_gotchiId = gotchiId;
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    // we continuously check to see if any offchain wallet data has changed BUT only
+    // if a valid wallet has been assigned to us (via PollWalletChanges())
+    async UniTaskVoid PollOffchainWalletDataChanges()
+    {
+        if (!IsServer) return;
+
+        while (IsSpawned)
+        {
+            await UniTask.Delay(3000);
+
+            if (string.IsNullOrEmpty(m_walletAddress)) return;
+
+            // getsert a wallet
+            try
+            {
+                var responseStr = await Dropt.Utils.Http.GetRequest(dbUri + "/wallets/" + m_walletAddress);
+                if (!string.IsNullOrEmpty(responseStr))
+                {
+                    var walletData = JsonUtility.FromJson<Wallet_Data>(responseStr);
+
+                    m_ectoVillageBalance_wallet.Value = walletData.ecto_balance;
+                    m_bombLiveBalance_wallet.Value = walletData.bomb_balance;
+                    m_portaHoleLiveBalance_wallet.Value = walletData.portahole_balance;
+                    m_zenCricketLiveBalance_wallet.Value = walletData.zencricket_balance;
+
+                    return;
+                }
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogWarning(e);
+            }
+        }
+    }
+
+    // we continuously check to see if any offchain gotchi data has changed BUT only
+    // if a valid gotchi id has been set on the server
+    async UniTaskVoid PollOffchainGotchiDataChanges()
+    {
+        if (!IsServer) return;
+
+        while (IsSpawned)
+        {
+            await UniTask.Delay(3000);
+
+            if (m_gotchiId < 0) return;
+
+            // getsert gotchi data
+            try
+            {
+                string responseStr = await Dropt.Utils.Http.GetRequest(dbUri + "/gotchis/" + m_gotchiId.ToString());
+                if (!string.IsNullOrEmpty(responseStr))
+                {
+                    Gotchi_Data gotchiData = JsonUtility.FromJson<Gotchi_Data>(responseStr);
+
+                    m_bombCapacity_gotchi.Value = gotchiData.bomb_capacity;
+                    m_portaHoleCapacity_gotchi.Value = gotchiData.portahole_capacity;
+                    m_zenCricketCapacity_gotchi.Value = gotchiData.zencricket_capacity;
+                    m_isEssenceInfused_gotchi.Value = gotchiData.is_essence_infused;
+                    m_ectoDungeonStartAmount_gotchi.Value = gotchiData.ecto_dungeon_start_amount;
+                    m_dustVillageBalance_gotchi.Value = gotchiData.dust_balance;
+
+                    return;
+                }
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogWarning(e);
+            }
+        }
+    }
+
     private void Update()
     {
         if (IsLocalPlayer)
         {
-            _ = CheckWalletAddressChanged();
-            CheckGotchiIdChanged();
+            //_ = CheckWalletAddressChanged();
+            //CheckGotchiIdChanged();
         }
 
         if (IsServer)
         {
-            CheckCurrentLevelType_SERVER();
-            UpdateWalletAndGotchiOffchainData();
+            HandleLevelChanges_SERVER();
+            //UpdateWalletAndGotchiOffchainData();
         }
     }
 
+    /*
     private float m_updateWalletAndGotchiOffchainDataTimer = 0f;
     private float k_updateWalletAndGotchiOffchainDataInterval = 3f;
 
@@ -147,13 +332,13 @@ public class PlayerOffchainData : NetworkBehaviour
                 if (!string.IsNullOrEmpty(m_walletAddress))
                 {
                     var authToken = PlayerPrefs.GetString("AuthToken");
-                    _ = SetWalletAndGetLatestOffchainWalletDataServerRpcAsync(m_walletAddress, authToken);
+                    //_ = SetWalletAndGetLatestOffchainWalletDataServerRpcAsync(m_walletAddress, authToken);
 
                 }
 
                 if (m_gotchiId > 0)
                 {
-                    _ = GetLatestOffchainGotchiDataServerRpcAsync(m_gotchiId);
+                    //_ = GetLatestOffchainGotchiDataServerRpcAsync(m_gotchiId);
                 }
             }
         }
@@ -162,8 +347,9 @@ public class PlayerOffchainData : NetworkBehaviour
             Debug.LogWarning(ex.Message);
         }
     }
+    */
 
-    private void CheckCurrentLevelType_SERVER()
+    private void HandleLevelChanges_SERVER()
     {
         if (!IsServer) return;
         if (LevelManager.Instance == null) return;
@@ -199,7 +385,7 @@ public class PlayerOffchainData : NetworkBehaviour
         m_currentLevelType = newLevelType;
     }
 
-    
+    /*
     private async UniTaskVoid CheckWalletAddressChanged()
     {
         // don't check for wallet updates every single frame
@@ -217,23 +403,15 @@ public class PlayerOffchainData : NetworkBehaviour
             if (ThirdwebManager.Instance == null) return;
 
             // see if we have a wallet address in player prefs
-            var playerPrefWalletAddress = PlayerPrefs.GetString("WalletAddress");
+            //var playerPrefWalletAddress = PlayerPrefs.GetString("WalletAddress");
 
             // get wallet
             var wallet = ThirdwebManager.Instance.GetActiveWallet();
-            if (wallet == null)
-            {
-                //TryGetOffchainTestData();
-                return;
-            }
+            if (wallet == null) return;
 
             // check if wallet is connected
             var isConnected = await wallet.IsConnected();
-            if (!isConnected)
-            {
-                //TryGetOffchainTestData();
-                return;
-            }
+            if (!isConnected) return;
 
             // get all latest data if address changed
             var connectedWalletAddress = await wallet.GetAddress();
@@ -251,8 +429,9 @@ public class PlayerOffchainData : NetworkBehaviour
             //TryGetOffchainTestData();
         }
     }
+    */
     
-
+    /*
     [Rpc(SendTo.Server)]
     private void GetLatestOffchainWalletDataServerRpc(string walletAddress, string authToken)
     {
@@ -295,7 +474,9 @@ public class PlayerOffchainData : NetworkBehaviour
             Debug.LogWarning(e);
         }
     }
-    
+    */
+
+    /*
     private void CheckGotchiIdChanged()
     {
         // dont check every frame
@@ -323,6 +504,7 @@ public class PlayerOffchainData : NetworkBehaviour
         _ = GetLatestOffchainGotchiDataServerRpcAsync(gotchiId);
     }
 
+    
     private async UniTask GetLatestOffchainGotchiDataServerRpcAsync(int gotchiId)
     {
         if (!IsServer) return;
@@ -353,6 +535,7 @@ public class PlayerOffchainData : NetworkBehaviour
             Debug.LogWarning(e);
         }
     }
+    */
 
     // enter dungeon method that calculates balance
     public void EnterDungeonCalculateBalances()

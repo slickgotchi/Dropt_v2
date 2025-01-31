@@ -15,7 +15,9 @@ public class Web3AuthCanvas : NetworkBehaviour
 
     [Header("Buttons, Background, Details")]
     [SerializeField] private Button m_connectButton;
+    [SerializeField] private TMPro.TextMeshProUGUI m_connectButtonText;
     [SerializeField] private Button m_signInButton;
+    [SerializeField] private TMPro.TextMeshProUGUI m_signInButtonText;
     [SerializeField] private GameObject m_background;
 
     [Header("Panel Detals")]
@@ -39,7 +41,12 @@ public class Web3AuthCanvas : NetworkBehaviour
 
     private string authUri = "https://db.playdropt.io/web3auth";
 
-    public enum ConnectionState { NotConnected, ConnectedNotAuthenticated, ConnectedAndAuthenticated }
+    public enum ConnectionState {
+        NotConnected,
+        Connecting,
+        ConnectedNotAuthenticated,
+        Authenticating,
+        ConnectedAndAuthenticated }
     private ConnectionState m_connectionState = ConnectionState.NotConnected;
 
     public ConnectionState GetConnectionState() { return m_connectionState; }
@@ -87,15 +94,8 @@ public class Web3AuthCanvas : NetworkBehaviour
             m_connectButton.onClick.AddListener(Connect);
             m_signInButton.onClick.AddListener(SignIn);
 
-            // check for an existing auth token to try and sign in to
-            var existingAuthToken = PlayerPrefs.GetString("AuthToken");
-            if (!string.IsNullOrEmpty(existingAuthToken))
-            {
-                
-            }
-
-            _ = PollWallet();
-            PollWalletStatus().Forget();
+            _ = UpdateWalletStatus();
+            _ = PollWalletStatus();
         }
     }
 
@@ -112,11 +112,15 @@ public class Web3AuthCanvas : NetworkBehaviour
         {
             await UniTask.Delay(k_walletPollInterval_ms);
 
-            _ = PollWallet();
+            if (m_connectionState != ConnectionState.Connecting &&
+                m_connectionState != ConnectionState.Authenticating)
+            {
+                _ = UpdateWalletStatus();
+            }
         }
     }
 
-    private async UniTaskVoid PollWallet()
+    private async UniTaskVoid UpdateWalletStatus()
     {
         if (!IsClient) return;
 
@@ -125,10 +129,27 @@ public class Web3AuthCanvas : NetworkBehaviour
         if (m_wallet != null)
         {
             var newWalletAddress = await m_wallet.GetAddress();
-            if (m_walletAddress != newWalletAddress)
+            if (m_walletAddress.ToLower() != newWalletAddress.ToLower())
             {
-                m_walletAddress = newWalletAddress;
+                m_walletAddress = newWalletAddress.ToLower();
                 m_connectionState = ConnectionState.ConnectedNotAuthenticated;
+
+                // check if we have an auth token and if it matches the connected wallet
+                // we can sign in
+                var authToken = PlayerPrefs.GetString("AuthToken");
+                if (authToken != null)
+                {
+                    m_connectionState = ConnectionState.Authenticating;
+                    var addressByToken = await Dropt.Utils.Http.GetAddressByAuthToken(authToken);
+                    if (addressByToken.ToLower() == m_walletAddress.ToLower())
+                    {
+                        m_connectionState = ConnectionState.ConnectedAndAuthenticated;
+                    }
+                    else
+                    {
+                        m_connectionState = ConnectionState.ConnectedNotAuthenticated;
+                    }
+                }
             }
 
             var walletBalance = await m_wallet.GetBalance(ChainId, Contracts.ghst);
@@ -147,18 +168,28 @@ public class Web3AuthCanvas : NetworkBehaviour
         if (connectionState == ConnectionState.NotConnected)
         {
             m_connectButton.gameObject.SetActive(true);
+            m_connectButtonText.text = "Connect";
             m_signInButton.gameObject.SetActive(false);
             m_background.gameObject.SetActive(false);
             m_rightPanel.gameObject.SetActive(false);
             m_leftPanel.gameObject.SetActive(false);
         }
+        else if (connectionState == ConnectionState.Connecting)
+        {
+            m_connectButtonText.text = "Connecting...";
+        }
         else if (connectionState == ConnectionState.ConnectedNotAuthenticated)
         {
             m_connectButton.gameObject.SetActive(false);
             m_signInButton.gameObject.SetActive(true);
+            m_signInButtonText.text = "Sign In";
             m_background.gameObject.SetActive(false);
             m_rightPanel.gameObject.SetActive(false);
             m_leftPanel.gameObject.SetActive(false);
+        }
+        else if (connectionState == ConnectionState.Authenticating)
+        {
+            m_signInButtonText.text = "Authenticating...";
         }
         else if (connectionState == ConnectionState.ConnectedAndAuthenticated)
         {
@@ -206,6 +237,8 @@ public class Web3AuthCanvas : NetworkBehaviour
 
                     var walletOptions = new WalletOptions(provider: newProvider, chainId: ChainId);
 
+                    m_connectionState = ConnectionState.Connecting;
+
                     m_wallet = await ThirdwebManager.Instance.ConnectWallet(walletOptions);
                     if (m_wallet == null)
                     {
@@ -214,7 +247,6 @@ public class Web3AuthCanvas : NetworkBehaviour
                     }
 
                     m_connectionState = ConnectionState.ConnectedNotAuthenticated;
-                    Debug.Log("Connected!");
                 }
 
             }
@@ -229,18 +261,12 @@ public class Web3AuthCanvas : NetworkBehaviour
     {
         if (!IsClient) return;
 
-        _ = SignInAsync();
-    }
-
-    async UniTaskVoid SignInAsync()
-    {
-        if (!IsClient) return;
-
         try
         {
             if (m_connectionState == ConnectionState.ConnectedNotAuthenticated)
             {
                 //if we now have a wallet the next step is to authenticate it with the server
+                m_connectionState = ConnectionState.Authenticating;
                 _ = AuthenticateUser(m_wallet);
             }
 
@@ -250,72 +276,6 @@ public class Web3AuthCanvas : NetworkBehaviour
             Debug.Log(ex.Message);
         }
     }
-
-    /*
-    public void ConnectAndSignIn()
-    {
-        if (!IsClient) return;  // CLIENT only
-
-        HandleClick_ConnectAndSignIn();
-    }
-
-    void HandleClick_ConnectAndSignIn()
-    {
-        if (!IsClient) return;  // CLIENT only
-
-        _ = HandleClick_ConnectAndSignIn_ASYNC();
-    }
-
-    async UniTaskVoid HandleClick_ConnectAndSignIn_ASYNC()
-    {
-        if (!IsClient) return;
-
-        try
-        {
-            if (m_connectionState == ConnectionState.NotConnected)
-            {
-                var existingWallet = ThirdwebManager.Instance.GetActiveWallet();
-                if (existingWallet != null)
-                {
-                    await existingWallet.Disconnect();
-                }
-
-                    if (m_wallet == null)
-                    {
-    #if UNITY_WEBGL
-                    var newProvider = WalletProvider.MetaMaskWallet;
-    #else
-                    var newProvider = WalletProvider.WalletConnectWallet;
-    #endif
-                    Debug.Log($"Set provider: {newProvider.ToString()}");
-
-                    var walletOptions = new WalletOptions(provider: newProvider, chainId: ChainId);
-
-                    m_wallet = await ThirdwebManager.Instance.ConnectWallet(walletOptions);
-                    if (m_wallet == null)
-                    {
-                        Debug.LogWarning("No active wallet found!");
-                        return;
-                    }
-
-                    m_connectionState = ConnectionState.ConnectedNotAuthenticated;
-
-                }
-
-            }
-            else if (m_connectionState == ConnectionState.ConnectedNotAuthenticated)
-            {
-                //if we now have a wallet the next step is to authenticate it with the server
-                _ = AuthenticateUser(m_wallet);
-            }
-
-        }
-        catch (System.Exception ex)
-        {
-            Debug.Log(ex.Message);
-        }
-    }
-    */
 
     async UniTaskVoid AuthenticateUser(IThirdwebWallet wallet)
     {
@@ -420,15 +380,11 @@ public class Web3AuthCanvas : NetworkBehaviour
     {
         var networkObjectId = GetComponent<NetworkObject>().NetworkObjectId;
         Debug.Log("ConfirmAuthenticationClientRpc: " + networkObjectId + " vs " + clientAuthNetworkObjectId);
-        if (networkObjectId != clientAuthNetworkObjectId)
-        {
-            return;
-        }
+        if (networkObjectId != clientAuthNetworkObjectId) return;
 
         Debug.Log("Client successfully received token: " + token);
 
         PlayerPrefs.SetString("AuthToken", token);
-        PlayerPrefs.SetString("AuthWalletAddress", address);
 
         m_connectionState = ConnectionState.ConnectedAndAuthenticated;
     }
@@ -481,32 +437,35 @@ public class Web3AuthCanvas : NetworkBehaviour
 
     void SetABIs()
     {
-        TextAsset abiFile = Resources.Load<TextAsset>("DroptPaymentProcessorV1-abi");
-        if (abiFile == null)
+        TextAsset abiFileA = Resources.Load<TextAsset>("DroptPaymentProcessorV1-abi");
+        if (abiFileA == null)
         {
             Debug.LogError("DroptPaymentProcessorV1-abi.json file not found in Resources folder.");
             return;
         }
 
-        ABIs.paymentProcessor = abiFile.text;
+        ABIs.paymentProcessor = abiFileA.text;
+        Debug.Log("paymentABI: " + abiFileA.text);
 
-        abiFile = Resources.Load<TextAsset>("GHST-abi");
-        if (abiFile == null)
+        TextAsset abiFileB = Resources.Load<TextAsset>("GHST-abi");
+        if (abiFileB == null)
         {
             Debug.LogError("GHST-abi.json file not found in Resources folder.");
             return;
         }
 
-        ABIs.ghst = abiFile.text;
+        ABIs.ghst = abiFileB.text;
+        Debug.Log("ghstABI: " + abiFileB.text);
 
-        abiFile = Resources.Load<TextAsset>("Essence-abi");
-        if (abiFile == null)
+        TextAsset abiFileC = Resources.Load<TextAsset>("Essence-abi");
+        if (abiFileC == null)
         {
             Debug.LogError("Essence-abi.json file not found in Resources folder.");
             return;
         }
 
-        ABIs.essence = abiFile.text;
+        ABIs.essence = abiFileC.text;
+        Debug.Log("essenceABI: " + abiFileC.text);
     }
 
     public struct DroptContractAddresses

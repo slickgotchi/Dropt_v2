@@ -5,7 +5,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New Bazaar Item", menuName = "ScriptableObject/BazaarItem")]
 public class BazaarItem_SO : ScriptableObject
 {
-    public enum PurchaseType { Bomb, PortaHole, HealSalveRecharge, Ecto }
+    public enum PurchaseType { Bomb, PortaHole, ZenCricket, Ecto }
 
     public Sprite sprite;
     public string titleText;
