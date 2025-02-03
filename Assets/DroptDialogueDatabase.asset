@@ -3102,7 +3102,7 @@ MonoBehaviour:
       - originConversationID: 2
         originDialogueID: 7
         destinationConversationID: 2
-        destinationDialogueID: 10
+        destinationDialogueID: 14
         isConnector: 0
         priority: 2
       conditionsString: 
@@ -3209,13 +3209,19 @@ MonoBehaviour:
       isGroup: 0
       nodeColor: 
       delaySimStatus: 0
-      falseConditionAction: 
+      falseConditionAction: Block
       conditionPriority: 2
       outgoingLinks:
       - originConversationID: 2
         originDialogueID: 9
         destinationConversationID: 2
         destinationDialogueID: 6
+        isConnector: 0
+        priority: 2
+      - originConversationID: 2
+        originDialogueID: 9
+        destinationConversationID: 2
+        destinationDialogueID: 14
         isConnector: 0
         priority: 2
       conditionsString: 
@@ -3252,7 +3258,8 @@ MonoBehaviour:
         type: 0
         typeString: 
       - title: Dialogue Text
-        value: 'Are you ready to begin? '
+        value: To complete the ritual and spend 250 essence, stand before the altar
+          beside me and give in to the power it holds...
         type: 0
         typeString: 
       - title: Sequence
@@ -3266,19 +3273,7 @@ MonoBehaviour:
       delaySimStatus: 0
       falseConditionAction: Block
       conditionPriority: 2
-      outgoingLinks:
-      - originConversationID: 2
-        originDialogueID: 10
-        destinationConversationID: 2
-        destinationDialogueID: 11
-        isConnector: 0
-        priority: 2
-      - originConversationID: 2
-        originDialogueID: 10
-        destinationConversationID: 2
-        destinationDialogueID: 12
-        isConnector: 0
-        priority: 2
+      outgoingLinks: []
       conditionsString: 
       userScript: 
       onExecute:
@@ -3286,8 +3281,8 @@ MonoBehaviour:
           m_Calls: []
       canvasRect:
         serializedVersion: 2
-        x: 66.00899
-        y: 470.9809
+        x: 275.0148
+        y: 621.11163
         width: 160
         height: 30
     - id: 11
@@ -3331,12 +3326,6 @@ MonoBehaviour:
       - originConversationID: 2
         originDialogueID: 11
         destinationConversationID: 2
-        destinationDialogueID: 14
-        isConnector: 0
-        priority: 2
-      - originConversationID: 2
-        originDialogueID: 11
-        destinationConversationID: 2
         destinationDialogueID: 15
         isConnector: 0
         priority: 2
@@ -3347,8 +3336,8 @@ MonoBehaviour:
           m_Calls: []
       canvasRect:
         serializedVersion: 2
-        x: 66.00899
-        y: 520.9809
+        x: 485.955
+        y: 518.88116
         width: 160
         height: 30
     - id: 12
@@ -3402,8 +3391,8 @@ MonoBehaviour:
           m_Calls: []
       canvasRect:
         serializedVersion: 2
-        x: 243.83127
-        y: 520.9809
+        x: 699.47266
+        y: 568.22485
         width: 160
         height: 30
     - id: 13
@@ -3453,8 +3442,8 @@ MonoBehaviour:
           m_Calls: []
       canvasRect:
         serializedVersion: 2
-        x: 243.83127
-        y: 570.9809
+        x: 699.47266
+        y: 618.22485
         width: 160
         height: 30
     - id: 14
@@ -3480,9 +3469,7 @@ MonoBehaviour:
         type: 0
         typeString: 
       - title: Dialogue Text
-        value: '<Activate here!!!>
-
-'
+        value: The statue adjacent to me will bring you the power you crave...
         type: 0
         typeString: 
       - title: Sequence
@@ -3496,7 +3483,13 @@ MonoBehaviour:
       delaySimStatus: 0
       falseConditionAction: Block
       conditionPriority: 2
-      outgoingLinks: []
+      outgoingLinks:
+      - originConversationID: 2
+        originDialogueID: 14
+        destinationConversationID: 2
+        destinationDialogueID: 22
+        isConnector: 0
+        priority: 2
       conditionsString: 
       userScript: 
       onExecute:
@@ -3504,8 +3497,8 @@ MonoBehaviour:
           m_Calls: []
       canvasRect:
         serializedVersion: 2
-        x: 5.0609055
-        y: 573.01135
+        x: 168.83987
+        y: 500.57056
         width: 160
         height: 30
     - id: 15
@@ -3555,8 +3548,8 @@ MonoBehaviour:
           m_Calls: []
       canvasRect:
         serializedVersion: 2
-        x: 95.45058
-        y: 623.7724
+        x: 478.65115
+        y: 652.1188
         width: 160
         height: 30
     - id: 16
@@ -3826,7 +3819,7 @@ MonoBehaviour:
       - originConversationID: 2
         originDialogueID: 20
         destinationConversationID: 2
-        destinationDialogueID: 21
+        destinationDialogueID: 14
         isConnector: 0
         priority: 2
       conditionsString: 
@@ -3898,13 +3891,62 @@ MonoBehaviour:
           m_Calls: []
       canvasRect:
         serializedVersion: 2
-        x: 436.1131
-        y: 177.84851
+        x: 733.2249
+        y: 259.73798
+        width: 160
+        height: 30
+    - id: 22
+      fields:
+      - title: Title
+        value: 
+        type: 0
+        typeString: 
+      - title: Description
+        value: 
+        type: 0
+        typeString: 
+      - title: Actor
+        value: 1
+        type: 5
+        typeString: CustomFieldType_Actor
+      - title: Conversant
+        value: 5
+        type: 5
+        typeString: CustomFieldType_Actor
+      - title: Menu Text
+        value: 
+        type: 0
+        typeString: 
+      - title: Dialogue Text
+        value: 
+        type: 0
+        typeString: 
+      - title: Sequence
+        value: 
+        type: 0
+        typeString: 
+      conversationID: 2
+      isRoot: 0
+      isGroup: 0
+      nodeColor: 
+      delaySimStatus: 0
+      falseConditionAction: Block
+      conditionPriority: 2
+      outgoingLinks: []
+      conditionsString: 
+      userScript: 
+      onExecute:
+        m_PersistentCalls:
+          m_Calls: []
+      canvasRect:
+        serializedVersion: 2
+        x: 168.83987
+        y: 550.57056
         width: 160
         height: 30
     entryGroups: []
-    canvasScrollPosition: {x: 5.364473, y: 9.190347}
-    canvasZoom: 0.9525034
+    canvasScrollPosition: {x: 4.754283, y: 8.84938}
+    canvasZoom: 0.95150334
   - id: 3
     fields:
     - title: Title

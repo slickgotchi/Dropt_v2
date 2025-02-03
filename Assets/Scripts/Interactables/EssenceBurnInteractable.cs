@@ -14,6 +14,12 @@ public class EssenceBurnInteractable : Interactable
         // set our interactable
         EssenceBurnCanvas.Instance.interactable = GetComponent<Interactable>();
 
+        var selectedGotchiId = GotchiHub.GotchiDataManager.Instance.GetSelectedGotchiId();
+        var isOffchainGotchi =
+            GotchiHub.GotchiDataManager.Instance.GetOffchainGotchiDataById(selectedGotchiId) != null;
+
+        if (isOffchainGotchi) return;
+
         if (EssenceBurnCanvas.Instance.isCanvasOpen)
         {
             EssenceBurnCanvas.Instance.HideCanvas();
@@ -30,7 +36,12 @@ public class EssenceBurnInteractable : Interactable
     {
         base.OnTriggerEnter2DInteraction();
 
-        PlayerHUDCanvas.Instance.ShowPlayerInteractionCanvii(interactionText, interactableType);
+        var selectedGotchiId = GotchiHub.GotchiDataManager.Instance.GetSelectedGotchiId();
+        var isOffchainGotchi =
+            GotchiHub.GotchiDataManager.Instance.GetOffchainGotchiDataById(selectedGotchiId) != null;
+
+        var displayText = isOffchainGotchi ? "Can not burn free-play gotchi essense" : interactionText;
+        PlayerHUDCanvas.Instance.ShowPlayerInteractionCanvii(displayText, interactableType);
     }
 
     public override void OnTriggerExit2DInteraction()
