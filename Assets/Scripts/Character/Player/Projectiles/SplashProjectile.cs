@@ -179,7 +179,7 @@ public class SplashProjectile : NetworkBehaviour
             var playerCamera = pc.GetComponent<PlayerCamera>();
             if (playerCamera.GetComponent<NetworkObject>().IsLocalPlayer)
             {
-                playerCamera.Shake(1.5f, 0.3f);
+                //playerCamera.Shake(1.5f, 0.3f);
             }
         }
 

@@ -230,7 +230,7 @@ public class GenericProjectile : NetworkBehaviour
 
             if (Player != null)
             {
-                Player.GetComponent<PlayerCamera>().Shake();
+                //Player.GetComponent<PlayerCamera>().Shake();
             }
         }
 

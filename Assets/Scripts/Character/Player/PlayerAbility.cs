@@ -560,7 +560,7 @@ public class PlayerAbility : NetworkBehaviour
         // screen shake
         if (isLocalPlayer && enemyHitColliders.Count > 0)
         {
-            Player.GetComponent<PlayerCamera>().Shake(isCritical ? 1.5f : 0.75f, 0.3f);
+            //Player.GetComponent<PlayerCamera>().Shake(isCritical ? 1.5f : 0.75f, 0.3f);
         }
 
         // clear out colliders

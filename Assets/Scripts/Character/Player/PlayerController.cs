@@ -45,11 +45,13 @@ public class PlayerController : NetworkBehaviour
     [HideInInspector] public NetworkVariable<int> m_totalKilledEnemies = new NetworkVariable<int>(0);
     [HideInInspector] public NetworkVariable<int> m_totalDestroyedDestructibles = new NetworkVariable<int>(0);
 
-    private CinemachineVirtualCamera m_virtualCamera;
+    //private CinemachineVirtualCamera m_virtualCamera;
 
     private Vector3 m_spawnPoint;
 
     public Collider2D HurtCollider2D;
+
+    private PlayerCamera m_playerCamera;
 
     private void Awake()
     {
@@ -87,14 +89,21 @@ public class PlayerController : NetworkBehaviour
 
             GotchiDataManager.Instance.SetSelectedGotchiById(gotchiId);
 
-            var virtualCameraGameObject = GameObject.FindGameObjectWithTag("VirtualCamera");
-            if (virtualCameraGameObject == null)
+            // setup player hud
+            if (!m_isPlayerHUDInitialized && GetComponent<NetworkCharacter>() != null)
             {
-                Debug.LogWarning("No virtual camera exists in the scene");
-                return;
+                PlayerHUDCanvas.Instance.SetLocalPlayerCharacter(GetComponent<PlayerCharacter>());
             }
 
-            m_virtualCamera = virtualCameraGameObject.GetComponent<CinemachineVirtualCamera>();
+            m_cameraFollower = GameObject.FindGameObjectWithTag("CameraFollower");
+            if (m_cameraFollower != null)
+            {
+                Debug.Log("Found a camera follower");
+                m_cameraFollower.GetComponent<CameraFollowerAndPlayerInteractor>().Player = gameObject;
+            }
+            
+
+            m_playerCamera = FindAnyObjectByType<PlayerCamera>();
         }
 
 
@@ -102,6 +111,9 @@ public class PlayerController : NetworkBehaviour
         {
             ScreenBlockers.SetActive(false);
         }
+
+        LevelManager.OnLevelChangeHeadsUp += Handle_LevelChangeHeadsUp;
+        LevelManager.OnLevelChanged += Handle_LevelChanged;
     }
 
     public override void OnNetworkDespawn()
@@ -130,6 +142,9 @@ public class PlayerController : NetworkBehaviour
             }
         }
 
+        LevelManager.OnLevelChangeHeadsUp -= Handle_LevelChangeHeadsUp;
+        LevelManager.OnLevelChanged -= Handle_LevelChanged;
+
         base.OnNetworkDespawn();
 
     }
@@ -145,33 +160,19 @@ public class PlayerController : NetworkBehaviour
                 m_positionText.text = $"({pos.x:F2}, {pos.y:F2})";
             }
 
-            HandleLevelTransition();
-
-            // setup player hud
-            if (!m_isPlayerHUDInitialized && GetComponent<NetworkCharacter>() != null)
-            {
-                PlayerHUDCanvas.Instance.SetLocalPlayerCharacter(GetComponent<PlayerCharacter>());
-            }
-
-            // Set camera to follow player (if it exists)
-            if (m_cameraFollower == null)
-            {
-                m_cameraFollower = GameObject.FindGameObjectWithTag("CameraFollower");
-                if (m_cameraFollower != null)
-                {
-                    m_cameraFollower.GetComponent<CameraFollowerAndPlayerInteractor>().Player = gameObject;
-                }
-            }
-            else
+            if (m_cameraFollower != null)
             {
                 m_cameraFollower.transform.position = m_playerPrediction.GetLocalPlayerInterpPosition() + new Vector3(0, 0.5f, 0f);
             }
 
 
-            HandleNextLevelCheat();
-
             // check for player input to ensure we stay active
             CheckForPlayerInput();
+
+            if (Input.GetKeyDown(KeyCode.T))
+            {
+                m_playerCamera.Shake(0.5f, 0.3f);
+            }
         }
 
         if (IsHost || (IsClient && Bootstrap.IsLocalConnection()))
@@ -342,6 +343,7 @@ public class PlayerController : NetworkBehaviour
     [Rpc(SendTo.ClientsAndHost)]
     private void SetCameraPositionClientRpc(Vector3 position, ulong networkObjectId)
     {
+        /*
         if (GetComponent<NetworkObject>().NetworkObjectId != networkObjectId) return;
         if (m_cameraFollower == null) return;
 
@@ -360,6 +362,7 @@ public class PlayerController : NetworkBehaviour
 
         m_isDoReset = true;
         m_resetTimer = 1f;
+        */
     }
 
     private bool m_isDoReset = false;
@@ -367,6 +370,7 @@ public class PlayerController : NetworkBehaviour
 
     private void LateUpdate()
     {
+        /*
         m_resetTimer -= Time.deltaTime;
 
         if (m_isDoReset && m_resetTimer < 0)
@@ -385,6 +389,7 @@ public class PlayerController : NetworkBehaviour
         prevPosition = transform.position;
         var distance = displacement.magnitude;
         var velocity = distance / Time.deltaTime;
+        */
     }
 
     Vector3 prevPosition;
@@ -450,63 +455,18 @@ public class PlayerController : NetworkBehaviour
     //private bool shouldBeBlackedOut = true;
     //private bool isBlackedOut = true;
 
-
-    private enum LoadingCanvasState { Null, BlackOut, WipeIn, WipeOut }
-    private LoadingCanvasState loadingCanvasState = LoadingCanvasState.Null;
-
-    // handle loading canvas
-    private void HandleLevelTransition()
+    void Handle_LevelChangeHeadsUp()
     {
-        if (!IsLocalPlayer) return;
-        if (LevelManager.Instance == null) return;
-
-
-        LevelManager.TransitionState state = LevelManager.Instance.transitionState.Value;
-
-        if (state == LevelManager.TransitionState.Start ||
-            state == LevelManager.TransitionState.ClientHeadsUp ||
-            state == LevelManager.TransitionState.GoToNext ||
-            state == LevelManager.TransitionState.ClientHeadsDown)
-        {
-            LoadingCanvas.Instance.WipeIn();
-
-            // disable player input
-            GetComponent<PlayerPrediction>().IsInputEnabled = false;
-        }
-        else if (state == LevelManager.TransitionState.End)
-        {
-            LoadingCanvas.Instance.WipeOut();
-        }
-        else
-        {
-            LoadingCanvas.Instance.InstaClear();
-        }
+        Debug.Log("WipeIn");
+        LoadingCanvas.Instance.WipeIn();
+        GetComponent<PlayerPrediction>().IsInputEnabled = false;
     }
 
-    // cheat to go to next level
-    private void HandleNextLevelCheat()
+    void Handle_LevelChanged(Level.NetworkLevel.LevelType oldLevel, Level.NetworkLevel.LevelType newLevel)
     {
-        //if (Input.GetKeyDown(KeyCode.N))
-        //{
-        //    GoNextLevelServerRpc();
-        //}
-
-        //if (Input.GetKeyDown(KeyCode.H))
-        //{
-        //    GoToDegenapeVillageServerRpc();
-        //}
-    }
-
-    [Rpc(SendTo.Server)]
-    private void GoNextLevelServerRpc()
-    {
-        //LevelManager.Instance.StartTransitionToNextLevel_SERVER();
-    }
-
-    [Rpc(SendTo.Server)]
-    private void GoToDegenapeVillageServerRpc()
-    {
-        //LevelManager.Instance.GoToDegenapeVillageLevel_SERVER();
+        Debug.Log("WipeOut");
+        LoadingCanvas.Instance.WipeOut();
+        GetComponent<PlayerPrediction>().IsInputEnabled = true;
     }
 
     private void HandleDegenapeResetKillAndDestructibleCount()

@@ -185,7 +185,7 @@ public class BallisticExplosionProjectile : NetworkBehaviour
 
             if (LocalPlayer != null)
             {
-                LocalPlayer.GetComponent<PlayerCamera>().Shake();
+                //LocalPlayer.GetComponent<PlayerCamera>().Shake();
 
                 // visual effect
                 VisualEffectsManager.Instance.SpawnSplashExplosion(hitInfo.point, new Color(1, 0, 0, 0.5f), ExplosionRadius);
@@ -248,7 +248,7 @@ public class BallisticExplosionProjectile : NetworkBehaviour
         {
             if (playerController.GetComponent<NetworkObject>().IsLocalPlayer)
             {
-                playerController.GetComponent<PlayerCamera>().Shake(1.5f, 0.3f);
+                //playerController.GetComponent<PlayerCamera>().Shake(1.5f, 0.3f);
             }
         }
 

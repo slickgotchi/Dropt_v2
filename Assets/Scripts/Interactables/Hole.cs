@@ -38,6 +38,6 @@ public class Hole : Interactable
         }
 
         // go to next level
-        LevelManager.Instance.StartTransitionToNextLevel_SERVER();
+        LevelManager.Instance.TransitionToNextLevel_SERVER();
     }
 }

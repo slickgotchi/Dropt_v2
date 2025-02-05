@@ -30,7 +30,7 @@ public class LevelManager : NetworkBehaviour
     // var for numbering/naming levels
     private float k_numberAndLevelInterval = 0.5f;
     private float m_numberAndLevelTimer = 0f;
-    private float m_depthCounter_SERVER = 0;
+    //private float m_depthCounter_SERVER = 0;
 
     // variables to keep track of spawning levels
     [HideInInspector] public int LevelSpawningCount = 0;
@@ -40,10 +40,11 @@ public class LevelManager : NetworkBehaviour
     private List<Vector3> m_playerSpawnPoints = new List<Vector3>();
 
     // this helps other classes know where we are in a level transition
-    public enum TransitionState { Null, Start, ClientHeadsUp, GoToNext, ClientHeadsDown, End }
-    [HideInInspector] public NetworkVariable<TransitionState> transitionState;
+    //public enum TransitionState { Null, Start, ClientHeadsUp, GoToNext, ClientHeadsDown, End }
+    //[HideInInspector] public NetworkVariable<TransitionState> transitionState;
 
-    private float m_headsUpDuration = 0.5f;
+    private float k_clientHeadsUpDuration_s = 0.5f;
+    private float k_levelLoadingDuration_s = 0.5f;
     private float m_headsUpTimer = 0;
 
     private float m_headsDownDuration = 0.5f;
@@ -54,9 +55,10 @@ public class LevelManager : NetworkBehaviour
 
     private bool m_isOnceOnlySpawnDone = false;
 
-    private NetworkLevel.LevelType m_previousLevelType = NetworkLevel.LevelType.Null;
+    private NetworkLevel.LevelType m_oldLevelType = NetworkLevel.LevelType.Null;
     private NetworkLevel.LevelType m_newLevelType = NetworkLevel.LevelType.Null;
 
+    public static event Action OnLevelChangeHeadsUp;
     public static event Action<NetworkLevel.LevelType, NetworkLevel.LevelType> OnLevelChanged;
 
     private void Awake()
@@ -70,7 +72,7 @@ public class LevelManager : NetworkBehaviour
 
         Instance = this;
 
-        transitionState = new NetworkVariable<TransitionState>(TransitionState.Null);
+        //transitionState = new NetworkVariable<TransitionState>(TransitionState.Null);
     }
 
     // Start is called before the first frame update
@@ -84,8 +86,8 @@ public class LevelManager : NetworkBehaviour
             m_isSpawnedFirstLevel = false;
             m_isOnceOnlySpawnDone = false;
             m_currentLevelIndex_SERVER = -1;
-            m_depthCounter_SERVER = 0;
-            transitionState.Value = TransitionState.Null;
+            //m_depthCounter_SERVER = 0;
+            //transitionState.Value = TransitionState.Null;
         }
 
         // if new client, check if we've done the tutorial
@@ -134,8 +136,8 @@ public class LevelManager : NetworkBehaviour
 
         // reset level list and go to next level
         SetLevelList_SERVER(TutorialLevels);
-        StartTransitionToNextLevel_SERVER();
-        m_depthCounter_SERVER = -TutorialLevels.Count;
+        TransitionToNextLevel_SERVER();
+        //m_depthCounter_SERVER = -TutorialLevels.Count;
     }
 
     public void GoToDegenapeVillageLevel_SERVER()
@@ -148,8 +150,8 @@ public class LevelManager : NetworkBehaviour
 
         // reset level list and go to next level
         SetLevelList_SERVER(levels);
-        StartTransitionToNextLevel_SERVER();
-        m_depthCounter_SERVER = 0;
+        TransitionToNextLevel_SERVER();
+        //m_depthCounter_SERVER = 0;
     }
 
     public void SetLevelList_SERVER(List<GameObject> levels)
@@ -239,20 +241,25 @@ public class LevelManager : NetworkBehaviour
         m_currentLevel = Instantiate(m_levels[index]);
         m_currentLevel.GetComponent<NetworkObject>().Spawn();
         m_currentLevelIndex_SERVER = index;
-        m_currentLevelType.Value = m_currentLevel.GetComponent<Level.NetworkLevel>().levelType;
+        m_oldLevelType = m_newLevelType;
+        m_newLevelType = m_currentLevel.GetComponent<Level.NetworkLevel>().levelType;
+        m_currentLevelType.Value = m_newLevelType;
     }
 
     private void Update()
     {
+        /*
         // handle server functions
         if (IsServer)
         {
-            HandleLevelTransitions_SERVER();    // controls all transitions
+            //HandleLevelTransitions_SERVER();    // controls all transitions
             HandleLevelLoaded_SERVER();         // called once only when all levels/sublevels are loaded
             NumberAndNameLevel_SERVER();        // updates name/number of current level
         }
+        */
     }
 
+    /*
     // 1. Receive GoToNextLevel message from other part of server
     // 2. Set StartLevelTransition message/state on all clients to prepare for level transition
     // 3. Wait small duration (typically 300ms) to allow for fade transitions
@@ -265,7 +272,7 @@ public class LevelManager : NetworkBehaviour
         switch (transitionState.Value)
         {
             case TransitionState.Start:
-                m_headsUpTimer = m_headsUpDuration;
+                m_headsUpTimer = k_clientHeadsUpDuration_s;
                 transitionState.Value = TransitionState.ClientHeadsUp;
                 break;
             case TransitionState.ClientHeadsUp:
@@ -276,7 +283,7 @@ public class LevelManager : NetworkBehaviour
                 }
                 break;
             case TransitionState.GoToNext:
-                HandleGoToNextLevel_SERVER();
+                GoToNextLevel_SERVER();
 
                 m_headsDownTimer = m_headsDownDuration;
                 transitionState.Value = TransitionState.ClientHeadsDown;
@@ -295,15 +302,43 @@ public class LevelManager : NetworkBehaviour
                 break;
         }
     }
+    */
 
-    public void StartTransitionToNextLevel_SERVER()
+    public async UniTask TransitionToNextLevel_SERVER()
     {
         if (!IsServer) return;
 
-        transitionState.Value = TransitionState.Start;
+        // tell all clients to start transition
+        OnLevelChangeHeadsUp?.Invoke();
+        if (!IsHost) OnLevelChangeHeadsUp_ClientRpc();
+
+        // wait a moment to give clients chance to start fade out screens
+        await UniTask.Delay((int)(k_clientHeadsUpDuration_s * 1000));
+
+        // perform leveltransition
+        GoToNextLevel_SERVER();
+
+        // wait till all level loaded correctly
+        await HandleLevelLoaded_SERVER();
+
+        // tell clients level has changed
+        OnLevelChanged?.Invoke(m_oldLevelType, m_newLevelType);
+        if (!IsHost) OnLevelChanged_ClientRpc(m_oldLevelType, m_newLevelType);
     }
 
-    private void HandleGoToNextLevel_SERVER()
+    [Rpc(SendTo.ClientsAndHost)]
+    void OnLevelChangeHeadsUp_ClientRpc()
+    {
+        OnLevelChangeHeadsUp?.Invoke();
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    void OnLevelChanged_ClientRpc(NetworkLevel.LevelType oldLevelType, NetworkLevel.LevelType newLevelType)
+    {
+        OnLevelChanged?.Invoke(oldLevelType, newLevelType);
+    }
+
+    private void GoToNextLevel_SERVER()
     {
         if (!IsServer) return;
 
@@ -316,14 +351,6 @@ public class LevelManager : NetworkBehaviour
             var levels = new List<GameObject>();
             levels.Add(ApeVillageLevel);
             SetLevelList_SERVER(levels);
-
-            // WE DO EXIT DUNGEON CHECKS IN PLAYEROFFCHAINDATA (NOT HERE)
-            //// do exist calcs for all players
-            //var playerOffchainDatas = FindObjectsByType<PlayerOffchainData>(FindObjectsSortMode.None);
-            //foreach (var pocd in playerOffchainDatas)
-            //{
-            //    pocd.ExitDungeonCalculateBalances(true);
-            //}
         }
 
         // increment current level index
@@ -338,8 +365,6 @@ public class LevelManager : NetworkBehaviour
         // do degenape/tutorial vs dungeon logic
         if (IsDegenapeVillage() || IsTutorial())
         {
-            m_depthCounter_SERVER = 0;
-
             // set playres leaderboard loggers
             foreach (var pc in Game.Instance.playerControllers)
             {
@@ -358,27 +383,107 @@ public class LevelManager : NetworkBehaviour
         }
         else
         {
-            m_depthCounter_SERVER++;
-
             // increment all buffs
             foreach (var lcb in levelCountBuffs)
             {
                 if (lcb != null) lcb.IncrementLevelCount();
             }
         }
-
-        isLevelLoaded = false;
     }
 
     // vars for handling level loaded
     //bool isHandleLevelLoadedNextFrame = false;
-    public bool isLevelLoaded = true;
+    //public bool isLevelLoaded = true;
     public bool isPlayersSpawnable = false;
 
     // update nav mesh, spawn things, drop spawn players
-    async UniTaskVoid HandleLevelLoaded_SERVER()
+    async UniTask HandleLevelLoaded_SERVER()
     {
         if (!IsServer) return;
+
+        while (LevelSpawningCount > 0)
+        {
+            await UniTask.Yield();
+        }
+
+        await UniTask.Yield();
+
+        // check if level uses render mesh or physics colliders
+        var networkLevel = m_levels[m_currentLevelIndex_SERVER].GetComponent<Level.NetworkLevel>();
+
+        // rebuild all NavMeshSurfaces
+        var navMeshes = FindObjectsByType<NavMeshPlus.Components.NavMeshSurface>(FindObjectsSortMode.None);
+        foreach (var surface in navMeshes)
+        {
+            if (networkLevel.navmeshGeneration == Level.NetworkLevel.NavmeshGeneration.PhysicsColliders)
+            {
+                surface.useGeometry = UnityEngine.AI.NavMeshCollectGeometry.PhysicsColliders;
+            }
+            else
+            {
+                surface.useGeometry = UnityEngine.AI.NavMeshCollectGeometry.RenderMeshes;
+            }
+
+            surface.BuildNavMesh();
+        }
+
+        // clear out old spawn points
+        if (IsHost)
+        {
+            var playerSpawns = new List<PlayerSpawnPoints>(m_currentLevel.GetComponentsInChildren<PlayerSpawnPoints>());
+            foreach (var playerSpawn in playerSpawns)
+            {
+                GameObject.Destroy(playerSpawn.gameObject);
+            }
+        }
+
+        m_playerSpawnPoints.Clear();
+
+        // find all the new levels spawn points
+        var no_playerSpawnPoints = m_currentLevel.GetComponentsInChildren<PlayerSpawnPoints>();
+        if (no_playerSpawnPoints != null)
+        {
+            for (int i = 0; i < no_playerSpawnPoints.Length; i++)
+            {
+                var playerSpawnPoints = no_playerSpawnPoints[i];
+                for (int j = 0; j < playerSpawnPoints.transform.childCount; j++)
+                {
+                    m_playerSpawnPoints.Add(playerSpawnPoints.transform.GetChild(j).transform.position);
+                }
+            }
+        }
+
+        // add extra spawn points if we didn't get 3
+        for (int i = 0; i < 3 - m_playerSpawnPoints.Count; i++)
+        {
+            // if we got at least one legit spawn use that
+            if (m_playerSpawnPoints.Count > 0)
+            {
+                m_playerSpawnPoints.Add(m_playerSpawnPoints[0]);
+            }
+            else
+            {
+                m_playerSpawnPoints.Add(Vector3.zero);
+            }
+        }
+
+        // move each player to a new spawn point
+        int index = 0;
+        foreach (var playerController in Game.Instance.playerControllers)
+        {
+            var playerPrediction = playerController.GetComponent<PlayerPrediction>();
+            if (playerPrediction != null)
+            {
+                playerPrediction.SetPlayerPosition(m_playerSpawnPoints[index]);
+            }
+        }
+
+        /*
+        // clear the spawnedPlayers lists which will mean any player checking the list
+        // will know if they need to spawn or not
+        // NOTE: players need to check both this list and the state of isLevelLoaded
+        spawnedPlayers.Clear();
+        isPlayersSpawnable = true;
 
         //if (isHandleLevelLoadedNextFrame && !isLevelLoaded)
         if (!isLevelLoaded && LevelSpawningCount <= 0)
@@ -453,14 +558,7 @@ public class LevelManager : NetworkBehaviour
             isPlayersSpawnable = true;
 
         }
-
-        // this code ensures we only build a navmesh once level is finished loading
-        //if (isHandleLevelLoaded && LevelSpawningCount <= 0)
-        //{
-        //    isHandleLevelLoaded = false;
-        //    isHandleLevelLoadedNextFrame = true;
-        //    isLevelLoaded = false;
-        //}
+        */
     }
 
     public List<PlayerController> spawnedPlayers = new List<PlayerController>();
@@ -497,7 +595,7 @@ public class LevelManager : NetworkBehaviour
         if (m_levels == null || m_levels.Count <= 0) return;
         if (m_currentLevelIndex_SERVER < 0) return;
 
-        string number = m_depthCounter_SERVER.ToString();
+        string number = "0";
         string name = m_levels[m_currentLevelIndex_SERVER].name;
         string objective = m_levels[m_currentLevelIndex_SERVER].gameObject.GetComponent<Level.NetworkLevel>().objective;
 

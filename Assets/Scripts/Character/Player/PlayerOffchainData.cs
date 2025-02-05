@@ -268,19 +268,19 @@ public class PlayerOffchainData : NetworkBehaviour
         {
             await UniTask.Delay(3000);
 
-            Debug.Log("Poll gotchi data for: " + m_gotchiId);
-
+            //Debug.Log("Poll gotchi data for: " + m_gotchiId);
+            if (!LevelManager.Instance.IsDegenapeVillage()) continue;
             if (m_gotchiId < 0) continue;
 
             // getsert gotchi data
             try
             {
                 string responseStr = await Dropt.Utils.Http.GetRequest(dbUri + "/gotchis/" + m_gotchiId.ToString());
-                Debug.Log("GetRequest responseStr: " + responseStr);
+                //Debug.Log("GetRequest responseStr: " + responseStr);
                 if (!string.IsNullOrEmpty(responseStr))
                 {
                     Gotchi_Data gotchiData = JsonUtility.FromJson<Gotchi_Data>(responseStr);
-                    Debug.Log("isEssenceInfused: " + gotchiData.is_essence_infused);
+                    //Debug.Log("isEssenceInfused: " + gotchiData.is_essence_infused);
 
                     m_bombCapacity_gotchi.Value = gotchiData.bomb_capacity;
                     m_portaHoleCapacity_gotchi.Value = gotchiData.portahole_capacity;

@@ -116,7 +116,7 @@ public class PlayerGotchi : NetworkBehaviour
         if (!m_isHitGround && m_hitGroundTimer <= 0)
         {
             m_isHitGround = true;
-            GetComponent<PlayerCamera>().Shake(1.75f, 0.3f);
+            //GetComponent<PlayerCamera>().Shake(1.75f, 0.3f);
         }
     }
 
