@@ -125,7 +125,6 @@ namespace Thirdweb.Unity.Examples
             currentPanel.Action1Button.onClick.AddListener(async () =>
             {
                 var address = await wallet.GetAddress();
-                address.CopyToClipboard();
                 Log(currentPanel.LogText, $"Address: {address}");
             });
 

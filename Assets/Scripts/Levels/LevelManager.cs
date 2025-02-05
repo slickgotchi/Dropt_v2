@@ -3,6 +3,7 @@ using UnityEngine;
 using Unity.Netcode;
 using System;
 using Cysharp.Threading.Tasks;
+using Level;
 
 // Level Management
 // - Four types of level
@@ -53,6 +54,11 @@ public class LevelManager : NetworkBehaviour
 
     private bool m_isOnceOnlySpawnDone = false;
 
+    private NetworkLevel.LevelType m_previousLevelType = NetworkLevel.LevelType.Null;
+    private NetworkLevel.LevelType m_newLevelType = NetworkLevel.LevelType.Null;
+
+    public static event Action<NetworkLevel.LevelType, NetworkLevel.LevelType> OnLevelChanged;
+
     private void Awake()
     {
         // Singleton pattern to ensure only one instance of the AudioManager exists
@@ -71,8 +77,6 @@ public class LevelManager : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-
-        //Debug.Log("LevelManager spawned");
 
         // reset server vars
         if (IsServer)

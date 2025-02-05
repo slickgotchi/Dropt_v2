@@ -5,59 +5,119 @@ using System.Reflection;
 
 namespace Thirdweb.Editor
 {
-    public abstract class ThirdwebManagerBaseEditor<T> : UnityEditor.Editor
-        where T : MonoBehaviour
+    [CustomEditor(typeof(ThirdwebManager))]
+    public class ThirdwebManagerEditor : UnityEditor.Editor
     {
-        protected SerializedProperty initializeOnAwakeProp;
-        protected SerializedProperty showDebugLogsProp;
-        protected SerializedProperty autoConnectLastWalletProp;
-        protected SerializedProperty supportedChainsProp;
-        protected SerializedProperty includedWalletIdsProp;
-        protected SerializedProperty redirectPageHtmlOverrideProp;
-        protected SerializedProperty rpcOverridesProp;
+        private SerializedProperty clientIdProp;
+        private SerializedProperty bundleIdProp;
+        private SerializedProperty initializeOnAwakeProp;
+        private SerializedProperty showDebugLogsProp;
+        private SerializedProperty optOutUsageAnalyticsProp;
+        private SerializedProperty supportedChainsProp;
+        private SerializedProperty redirectPageHtmlOverrideProp;
 
-        protected int selectedTab;
-        protected GUIStyle buttonStyle;
-        protected Texture2D bannerImage;
+        private int selectedTab = 0;
+        private readonly string[] tabTitles = { "Client", "Preferences", "Misc", "Debug" };
 
-        protected virtual string[] TabTitles => new string[] { "Client/Server", "Preferences", "Misc", "Debug" };
+        private GUIStyle headerStyle;
+        private GUIStyle buttonStyle;
 
-        protected virtual void OnEnable()
+        private Texture2D bannerImage;
+
+        private void OnEnable()
         {
-            initializeOnAwakeProp = FindProp("InitializeOnAwake");
-            showDebugLogsProp = FindProp("ShowDebugLogs");
-            autoConnectLastWalletProp = FindProp("AutoConnectLastWallet");
-            supportedChainsProp = FindProp("SupportedChains");
-            includedWalletIdsProp = FindProp("IncludedWalletIds");
-            redirectPageHtmlOverrideProp = FindProp("RedirectPageHtmlOverride");
-            rpcOverridesProp = FindProp("RpcOverrides");
+            clientIdProp = FindProperty("ClientId");
+            bundleIdProp = FindProperty("BundleId");
+            initializeOnAwakeProp = FindProperty("InitializeOnAwake");
+            showDebugLogsProp = FindProperty("ShowDebugLogs");
+            optOutUsageAnalyticsProp = FindProperty("OptOutUsageAnalytics");
+            supportedChainsProp = FindProperty("SupportedChains");
+            redirectPageHtmlOverrideProp = FindProperty("RedirectPageHtmlOverride");
 
             bannerImage = Resources.Load<Texture2D>("EditorBanner");
+        }
+
+        private void InitializeStyles()
+        {
+            buttonStyle = new GUIStyle(GUI.skin.button)
+            {
+                fontStyle = FontStyle.Bold,
+                alignment = TextAnchor.MiddleLeft,
+                padding = new RectOffset(10, 10, 10, 10)
+            };
+        }
+
+        private SerializedProperty FindProperty(string propertyName)
+        {
+            var targetType = target.GetType();
+            var property = targetType.GetProperty(propertyName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+            if (property == null)
+                return null;
+
+            var backingFieldName = $"<{propertyName}>k__BackingField";
+            return serializedObject.FindProperty(backingFieldName);
         }
 
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
 
-            if (buttonStyle == null)
+            if (headerStyle == null || buttonStyle == null)
             {
                 InitializeStyles();
             }
 
+            // Draw Banner and Title
             DrawBannerAndTitle();
+
+            // Draw Tab Bar
             DrawTabs();
+
+            // Draw Selected Tab Content
             GUILayout.Space(10);
             DrawSelectedTabContent();
 
             serializedObject.ApplyModifiedProperties();
         }
 
-        protected virtual void DrawSelectedTabContent()
+        private void DrawBannerAndTitle()
+        {
+            GUILayout.BeginVertical();
+            GUILayout.Space(10);
+
+            GUILayout.BeginHorizontal();
+
+            if (bannerImage != null)
+            {
+                GUILayout.Label(bannerImage, GUILayout.Width(64), GUILayout.Height(64));
+            }
+
+            GUILayout.Space(10);
+
+            GUILayout.BeginVertical();
+            GUILayout.Space(10);
+            GUILayout.Label("Thirdweb Configuration", EditorStyles.boldLabel);
+            GUILayout.Label("Configure your settings and preferences.\nYou can access ThirdwebManager.Instance from anywhere.", EditorStyles.miniLabel);
+            GUILayout.EndVertical();
+
+            GUILayout.EndHorizontal();
+
+            GUILayout.Space(10);
+
+            GUILayout.EndVertical();
+        }
+
+        private void DrawTabs()
+        {
+            selectedTab = GUILayout.Toolbar(selectedTab, tabTitles, GUILayout.Height(25));
+        }
+
+        private void DrawSelectedTabContent()
         {
             switch (selectedTab)
             {
                 case 0:
-                    DrawClientOrServerTab();
+                    DrawClientTab();
                     break;
                 case 1:
                     DrawPreferencesTab();
@@ -74,155 +134,7 @@ namespace Thirdweb.Editor
             }
         }
 
-        protected abstract void DrawClientOrServerTab();
-
-        protected virtual void DrawPreferencesTab()
-        {
-            EditorGUILayout.HelpBox("Set your preferences and initialization options here.", MessageType.Info);
-            DrawProperty(initializeOnAwakeProp, "Initialize On Awake");
-            DrawProperty(showDebugLogsProp, "Show Debug Logs");
-            DrawProperty(autoConnectLastWalletProp, "Auto-Connect Last Wallet");
-        }
-
-        protected virtual void DrawMiscTab()
-        {
-            EditorGUILayout.HelpBox("Configure other settings here.", MessageType.Info);
-            DrawProperty(rpcOverridesProp, "RPC Overrides");
-            GUILayout.Space(10);
-            EditorGUILayout.LabelField("OAuth Redirect Page HTML Override", EditorStyles.boldLabel);
-            redirectPageHtmlOverrideProp.stringValue = EditorGUILayout.TextArea(redirectPageHtmlOverrideProp.stringValue, GUILayout.MinHeight(75));
-            GUILayout.Space(10);
-            DrawProperty(supportedChainsProp, "WalletConnect Supported Chains");
-            DrawProperty(includedWalletIdsProp, "WalletConnect Included Wallet IDs");
-        }
-
-        protected virtual void DrawDebugTab()
-        {
-            EditorGUILayout.HelpBox("Debug your settings here.", MessageType.Info);
-            DrawButton(
-                "Log Active Wallet Info",
-                () =>
-                {
-                    if (Application.isPlaying)
-                    {
-                        var mgr = target as T;
-                        var method = mgr.GetType().GetMethod("GetActiveWallet", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                        if (method != null)
-                        {
-                            var wallet = method.Invoke(mgr, null) as IThirdwebWallet;
-                            if (wallet != null)
-                            {
-                                Debug.Log($"Active Wallet ({wallet.GetType().Name}) Address: {wallet.GetAddress().Result}");
-                            }
-                            else
-                            {
-                                Debug.LogWarning("No active wallet found.");
-                            }
-                        }
-                        else
-                        {
-                            Debug.LogWarning("GetActiveWallet() not found.");
-                        }
-                    }
-                    else
-                    {
-                        Debug.LogWarning("Debugging can only be done in Play Mode.");
-                    }
-                }
-            );
-            DrawButton(
-                "Open Documentation",
-                () =>
-                {
-                    Application.OpenURL("http://portal.thirdweb.com/unity/v5");
-                }
-            );
-        }
-
-        protected void DrawBannerAndTitle()
-        {
-            GUILayout.BeginVertical();
-            GUILayout.Space(10);
-            GUILayout.BeginHorizontal();
-            if (bannerImage != null)
-            {
-                GUILayout.Label(bannerImage, GUILayout.Width(64), GUILayout.Height(64));
-            }
-            GUILayout.Space(10);
-            GUILayout.BeginVertical();
-            GUILayout.Space(10);
-            GUILayout.Label("Thirdweb Configuration", EditorStyles.boldLabel);
-            GUILayout.Label("Configure your settings and preferences.\nYou can access ThirdwebManager.Instance from anywhere.", EditorStyles.miniLabel);
-            GUILayout.EndVertical();
-            GUILayout.EndHorizontal();
-            GUILayout.Space(10);
-            GUILayout.EndVertical();
-        }
-
-        protected void DrawTabs()
-        {
-            selectedTab = GUILayout.Toolbar(selectedTab, TabTitles, GUILayout.Height(25));
-        }
-
-        protected void InitializeStyles()
-        {
-            buttonStyle = new GUIStyle(GUI.skin.button)
-            {
-                fontStyle = FontStyle.Bold,
-                alignment = TextAnchor.MiddleLeft,
-                padding = new RectOffset(10, 10, 10, 10)
-            };
-        }
-
-        protected void DrawProperty(SerializedProperty property, string label)
-        {
-            if (property != null)
-            {
-                EditorGUILayout.PropertyField(property, new GUIContent(label));
-            }
-            else
-            {
-                EditorGUILayout.HelpBox($"Property '{label}' not found.", MessageType.Error);
-            }
-        }
-
-        protected void DrawButton(string label, System.Action action)
-        {
-            GUILayout.FlexibleSpace();
-            if (GUILayout.Button(label, buttonStyle, GUILayout.Height(35), GUILayout.ExpandWidth(true)))
-            {
-                action.Invoke();
-            }
-            GUILayout.FlexibleSpace();
-        }
-
-        protected SerializedProperty FindProp(string propName)
-        {
-            var targetType = target.GetType();
-            var property = targetType.GetProperty(propName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-            if (property == null)
-                return null;
-            var backingFieldName = $"<{propName}>k__BackingField";
-            return serializedObject.FindProperty(backingFieldName);
-        }
-    }
-
-    [CustomEditor(typeof(ThirdwebManager))]
-    public class ThirdwebManagerEditor : ThirdwebManagerBaseEditor<ThirdwebManager>
-    {
-        SerializedProperty clientIdProp;
-        SerializedProperty bundleIdProp;
-
-        protected override void OnEnable()
-        {
-            base.OnEnable();
-            clientIdProp = FindProp("ClientId");
-            bundleIdProp = FindProp("BundleId");
-        }
-
-        protected override string[] TabTitles => new string[] { "Client", "Preferences", "Misc", "Debug" };
-
-        protected override void DrawClientOrServerTab()
+        private void DrawClientTab()
         {
             EditorGUILayout.HelpBox("Configure your client settings here.", MessageType.Info);
             DrawProperty(clientIdProp, "Client ID");
@@ -235,32 +147,88 @@ namespace Thirdweb.Editor
                 }
             );
         }
-    }
 
-    [CustomEditor(typeof(ThirdwebManagerServer))]
-    public class ThirdwebManagerServerEditor : ThirdwebManagerBaseEditor<ThirdwebManagerServer>
-    {
-        SerializedProperty secretKeyProp;
-
-        protected override void OnEnable()
+        private void DrawPreferencesTab()
         {
-            base.OnEnable();
-            secretKeyProp = FindProp("SecretKey");
+            EditorGUILayout.HelpBox("Set your preferences and initialization options here.", MessageType.Info);
+            DrawProperty(initializeOnAwakeProp, "Initialize On Awake");
+            DrawProperty(showDebugLogsProp, "Show Debug Logs");
+            DrawProperty(optOutUsageAnalyticsProp, "Opt-Out of Usage Analytics");
         }
 
-        protected override string[] TabTitles => new string[] { "Client", "Preferences", "Misc", "Debug" };
-
-        protected override void DrawClientOrServerTab()
+        private void DrawMiscTab()
         {
-            EditorGUILayout.HelpBox("Configure your client settings here.", MessageType.Info);
-            DrawProperty(secretKeyProp, "Secret Key");
+            EditorGUILayout.HelpBox("Configure other settings here.", MessageType.Info);
+
+            // Wallet Connect Settings
+            GUILayout.Label("Wallet Connect Settings", EditorStyles.boldLabel);
+            DrawProperty(supportedChainsProp, "Supported Chains");
+
+            GUILayout.Space(10);
+
+            // Desktop OAuth Settings
+            GUILayout.Label("Desktop OAuth Settings", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Redirect Page HTML Override", EditorStyles.boldLabel);
+            redirectPageHtmlOverrideProp.stringValue = EditorGUILayout.TextArea(redirectPageHtmlOverrideProp.stringValue, GUILayout.MinHeight(75));
+        }
+
+        private void DrawDebugTab()
+        {
+            EditorGUILayout.HelpBox("Debug your settings here.", MessageType.Info);
+
             DrawButton(
-                "Create API Key",
+                "Log Active Wallet Info",
                 () =>
                 {
-                    Application.OpenURL("https://thirdweb.com/create-api-key");
+                    if (Application.isPlaying)
+                    {
+                        var wallet = ((ThirdwebManager)target).GetActiveWallet();
+                        if (wallet != null)
+                        {
+                            Debug.Log($"Active Wallet ({wallet.GetType().Name}) Address: {wallet.GetAddress().Result}");
+                        }
+                        else
+                        {
+                            Debug.LogWarning("No active wallet found.");
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogWarning("Debugging can only be done in Play Mode.");
+                    }
                 }
             );
+
+            DrawButton(
+                "Open Documentation",
+                () =>
+                {
+                    Application.OpenURL("http://portal.thirdweb.com/unity/v5");
+                }
+            );
+        }
+
+        private void DrawProperty(SerializedProperty property, string label)
+        {
+            if (property != null)
+            {
+                EditorGUILayout.PropertyField(property, new GUIContent(label));
+            }
+            else
+            {
+                EditorGUILayout.HelpBox($"Property '{label}' not found.", MessageType.Error);
+            }
+        }
+
+        private void DrawButton(string label, System.Action action)
+        {
+            GUILayout.FlexibleSpace();
+            // center label
+            if (GUILayout.Button(label, buttonStyle, GUILayout.Height(35), GUILayout.ExpandWidth(true)))
+            {
+                action.Invoke();
+            }
+            GUILayout.FlexibleSpace();
         }
     }
 }

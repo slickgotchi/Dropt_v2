@@ -22,6 +22,7 @@ public class EssenceBurnCanvas : DroptCanvas
     [SerializeField] private Button m_approveButton;
     [SerializeField] private TMPro.TextMeshProUGUI m_approvedEssenceText;
     [SerializeField] private Button m_burnButton;
+    [SerializeField] private GameObject m_InfusedText;
 
     [SerializeField] private Button m_exitButton;
     [SerializeField] private SVGImage m_gotchiImage;
@@ -30,6 +31,7 @@ public class EssenceBurnCanvas : DroptCanvas
     ThirdwebContract m_essenceContract;
     //private int m_approvedEssence = 0;
     private bool m_isApprovedEssence = false;
+    private int m_essenceBalance = 0;
 
     ThirdwebContract m_paymentProcessorContract;
 
@@ -51,7 +53,7 @@ public class EssenceBurnCanvas : DroptCanvas
         InstaHideCanvas();
 
         m_burnButton.gameObject.SetActive(false);
-
+        m_InfusedText.SetActive(false);
 
     }
 
@@ -84,21 +86,24 @@ public class EssenceBurnCanvas : DroptCanvas
         {
             m_approveButton.gameObject.SetActive(false);
             m_burnButton.gameObject.SetActive(false);
-            m_approvedEssenceText.text = "Gotchi essence already infused";
+            m_InfusedText.SetActive(true);
+            m_approvedEssenceText.text = m_essenceBalance.ToString("F0") + " Available";
 
         }
         else if (!m_isApprovedEssence)
         {
             m_approveButton.gameObject.SetActive(true);
             m_burnButton.gameObject.SetActive(false);
-            m_approvedEssenceText.text = "Not Approved";
+            m_InfusedText.SetActive(false);
+            m_approvedEssenceText.text = m_essenceBalance.ToString("F0") + " Available";
 
         }
         else
         {
             m_approveButton.gameObject.SetActive(false);
             m_burnButton.gameObject.SetActive(true);
-            m_approvedEssenceText.text = "Approved";
+            m_InfusedText.SetActive(false);
+            m_approvedEssenceText.text = m_essenceBalance.ToString("F0") + " Available";
 
         }
     }
@@ -138,6 +143,13 @@ public class EssenceBurnCanvas : DroptCanvas
             "isApprovedForAll",
             Web3AuthCanvas.Instance.GetActiveWalletAddress(),
             Web3AuthCanvas.Instance.Contracts.droptPaymentProcessor
+            );
+
+        m_essenceBalance = await ThirdwebContract.Read<int>(
+            m_essenceContract,
+            "balanceOf",
+            Web3AuthCanvas.Instance.GetActiveWalletAddress(),
+            1000000001
             );
     }
 
@@ -249,14 +261,14 @@ public class EssenceBurnCanvas : DroptCanvas
             return;
         }
 
-        BigInteger weiAmount = new BigInteger(250) * BigInteger.Pow(10, 18);
+        //BigInteger weiAmount = new BigInteger(250) * BigInteger.Pow(10, 18);
 
         var prepareTxn = await ThirdwebContract.Prepare(
             wallet,
             m_paymentProcessorContract,
             "payWithEssence",
             0,
-            weiAmount,
+            250,
             gotchiId
             );
 
