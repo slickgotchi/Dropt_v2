@@ -321,6 +321,9 @@ public class LevelManager : NetworkBehaviour
         // wait till all level loaded correctly
         await HandleLevelLoaded_SERVER();
 
+        // add further buffer to allow player new spawn position to propogate to client
+        await UniTask.Delay((int)(k_levelLoadingDuration_s * 1000));
+
         // tell clients level has changed
         OnLevelChanged?.Invoke(m_oldLevelType, m_newLevelType);
         if (!IsHost) OnLevelChanged_ClientRpc(m_oldLevelType, m_newLevelType);

@@ -144,13 +144,12 @@ public class FussPot_EruptProjectile : NetworkBehaviour
 
             // Add each task to the list
             //damageTasks.Add(CheckDamageToPlayer_SERVER(playerController, damage, isCritical));
-            CheckDamageToPlayer_SERVER(playerController, damage, isCritical);
+            _ = CheckDamageToPlayer_SERVER(playerController, damage, isCritical);
         }
     }
 
     async UniTask CheckDamageToPlayer_SERVER(PlayerController playerController, float damage, bool isCritical)
     {
-        Debug.Log("Check player damage");
         var playerPing = playerController.GetComponent<PlayerPing>();
         if (playerPing != null)
         {

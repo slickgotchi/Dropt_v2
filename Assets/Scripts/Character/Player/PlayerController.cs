@@ -171,7 +171,7 @@ public class PlayerController : NetworkBehaviour
 
             if (Input.GetKeyDown(KeyCode.T))
             {
-                m_playerCamera.Shake(0.5f, 0.3f);
+                m_playerCamera.Shake(0.3f, 0.3f);
             }
         }
 
@@ -180,31 +180,6 @@ public class PlayerController : NetworkBehaviour
             if (Input.GetKeyDown(KeyCode.V))
             {
                 GetComponent<NetworkCharacter>().TakeDamage(300, false);
-            }
-        }
-
-        // Handle level spawning on the server
-        if (IsServer && LevelManager.Instance.isPlayersSpawnable &&
-            !LevelManager.Instance.spawnedPlayers.Contains(this))
-        {
-            var pos = LevelManager.Instance.TryGetPlayerSpawnPoint();
-            Debug.Log("Spawn Player at " + pos);
-            if (pos != null)
-            {
-                var spawnPoint = (Vector3)pos;
-                GetComponent<PlayerPrediction>().SetPlayerPosition(spawnPoint);
-
-                // Position the camera follower directly at the spawn point
-                SetCameraPositionClientRpc(spawnPoint + new Vector3(0, 0.5f, 0), GetComponent<NetworkObject>().NetworkObjectId);
-
-                // Call DropSpawn to perform any additional logic
-                GetComponent<PlayerGotchi>().PlayDropAnimation();
-
-                // Mark the spawn position as set
-                IsLevelSpawnPositionSet = true;
-                m_spawnPoint = spawnPoint;
-
-                LevelManager.Instance.spawnedPlayers.Add(this);
             }
         }
 
@@ -325,72 +300,15 @@ public class PlayerController : NetworkBehaviour
     private void TriggerGameOverClientRpc(ulong killedPlayerNetworkObjectId, REKTCanvas.TypeOfREKT typeOfREKT)
     {
         if (!IsLocalPlayer) return;
-        //var networkObject = GetComponent<NetworkObject>();
-        //if (networkObject == null) { Debug.LogWarning("networkObject = null"); return; }
-
-        //if (networkObject.NetworkObjectId != killedPlayerNetworkObjectId) return;
 
         isGameOvered = true;
 
         REKTCanvas.Instance.Show(typeOfREKT);
     }
 
-    public void StartTransition()
-    {
-        if (!IsServer) return;
-    }
-
-    [Rpc(SendTo.ClientsAndHost)]
-    private void SetCameraPositionClientRpc(Vector3 position, ulong networkObjectId)
-    {
-        /*
-        if (GetComponent<NetworkObject>().NetworkObjectId != networkObjectId) return;
-        if (m_cameraFollower == null) return;
-
-        var delta = position - m_cameraFollower.transform.position;
-        m_cameraFollower.transform.position = position;
-
-        // Temporarily set damping to zero for instant teleport
-        var framingTransposer = m_virtualCamera.GetCinemachineComponent<CinemachineFramingTransposer>();
-        //Debug.Log("transposer: " + framingTransposer);
-        float originalDamping = framingTransposer.m_XDamping; // Store original damping
-        framingTransposer.m_XDamping = 0;
-        framingTransposer.m_YDamping = 0;
-        framingTransposer.m_ZDamping = 0;
-
-        m_virtualCamera.OnTargetObjectWarped(m_cameraFollower.transform, delta);
-
-        m_isDoReset = true;
-        m_resetTimer = 1f;
-        */
-    }
 
     private bool m_isDoReset = false;
     private float m_resetTimer = 0f;
-
-    private void LateUpdate()
-    {
-        /*
-        m_resetTimer -= Time.deltaTime;
-
-        if (m_isDoReset && m_resetTimer < 0)
-        {
-            m_isDoReset = false;
-
-            var framingTransposer = m_virtualCamera.GetCinemachineComponent<CinemachineFramingTransposer>();
-            float originalDamping = framingTransposer.m_XDamping; // Store original damping
-            framingTransposer.m_XDamping = 1;
-            framingTransposer.m_YDamping = 1;
-            framingTransposer.m_ZDamping = 0;
-        }
-
-        // track our speed
-        var displacement = transform.position - prevPosition;
-        prevPosition = transform.position;
-        var distance = displacement.magnitude;
-        var velocity = distance / Time.deltaTime;
-        */
-    }
 
     Vector3 prevPosition;
 
@@ -464,9 +382,14 @@ public class PlayerController : NetworkBehaviour
 
     void Handle_LevelChanged(Level.NetworkLevel.LevelType oldLevel, Level.NetworkLevel.LevelType newLevel)
     {
+        m_playerCamera.SnapToTrackedObjectImmediately();
+        GetComponent<PlayerGotchi>().PlayDropAnimation();
+
         Debug.Log("WipeOut");
         LoadingCanvas.Instance.WipeOut();
         GetComponent<PlayerPrediction>().IsInputEnabled = true;
+
+        
     }
 
     private void HandleDegenapeResetKillAndDestructibleCount()
