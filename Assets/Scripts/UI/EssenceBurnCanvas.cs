@@ -31,6 +31,8 @@ public class EssenceBurnCanvas : DroptCanvas
     //private int m_approvedEssence = 0;
     private bool m_isApprovedEssence = false;
 
+    ThirdwebContract m_paymentProcessorContract;
+
     private void Awake()
     {
         // Singleton pattern 
@@ -151,18 +153,17 @@ public class EssenceBurnCanvas : DroptCanvas
         {
             // convert int amount into big int
             BigInteger weiAmount = new BigInteger(250) * BigInteger.Pow(10, 18);
-
-            /*
-            // Get the GHST contract instance
-            ThirdwebContract contract = await ThirdwebManager.Instance.GetContract(
-                address: Web3AuthCanvas.Instance.Contracts.ghst,
+            
+            // Get the essence/forge contract instance
+            ThirdwebContract essenceContract = await ThirdwebManager.Instance.GetContract(
+                address: Web3AuthCanvas.Instance.Contracts.essence,
                 chainId: Web3AuthCanvas.Instance.ChainId,
-                abi: Web3AuthCanvas.Instance.ABIs.ghst
+                abi: Web3AuthCanvas.Instance.ABIs.essence
             );
 
-            if (contract == null)
+            if (essenceContract == null)
             {
-                Debug.LogError("Failed to retrieve the GHST contract.");
+                Debug.LogError("Failed to retrieve the essence contract.");
                 return;
             }
 
@@ -176,14 +177,14 @@ public class EssenceBurnCanvas : DroptCanvas
 
             var prepareTxn = await ThirdwebContract.Prepare(
                 wallet,
-                contract,
-                "approve",
+                essenceContract,
+                "setApprovalForAll",
                 0,
                 Web3AuthCanvas.Instance.Contracts.droptPaymentProcessor,
-                weiAmount
+                true
             );
 
-            Debug.Log("Prepared transaction");
+            Debug.Log("Prepared essence approve transaction");
 
             BigInteger estimateGas = await ThirdwebTransaction.EstimateGasLimit(prepareTxn);
             prepareTxn.SetGasLimit(estimateGas);
@@ -207,7 +208,7 @@ public class EssenceBurnCanvas : DroptCanvas
             var receipt = await ThirdwebTransaction.Send(prepareTxn);
 
             Debug.Log($"Approval transaction completed. Tx Hash: {receipt.GetType()}");
-            */
+            
         }
         catch (System.Exception ex)
         {
@@ -217,7 +218,78 @@ public class EssenceBurnCanvas : DroptCanvas
 
     void HandleClick_Burn()
     {
+        int gotchiId = GotchiDataManager.Instance.GetSelectedGotchiId();
+        _ = HandleClick_Burn_ASYNC(gotchiId);
+    }
 
+    async UniTaskVoid HandleClick_Burn_ASYNC(int gotchiId)
+    {
+
+        Debug.Log("Try burn: " + 250 + " Essence for gotchiId: " + gotchiId);
+
+        if (m_paymentProcessorContract == null)
+        {
+            m_paymentProcessorContract = await ThirdwebManager.Instance.GetContract(
+                address: Web3AuthCanvas.Instance.Contracts.droptPaymentProcessor,
+                chainId: Web3AuthCanvas.Instance.ChainId,
+                abi: Web3AuthCanvas.Instance.ABIs.paymentProcessor
+                );
+
+            if (m_paymentProcessorContract == null)
+            {
+                Debug.LogWarning("Could not get DroptPaymentProccessor contract");
+                return;
+            }
+        }
+
+        var wallet = Web3AuthCanvas.Instance.GetActiveWallet();
+        if (wallet == null)
+        {
+            Debug.LogWarning("No active wallet found. Can not process transaction");
+            return;
+        }
+
+        BigInteger weiAmount = new BigInteger(250) * BigInteger.Pow(10, 18);
+
+        var prepareTxn = await ThirdwebContract.Prepare(
+            wallet,
+            m_paymentProcessorContract,
+            "payWithEssence",
+            0,
+            weiAmount,
+            gotchiId
+            );
+
+        Debug.Log("Prepared transaction");
+
+        BigInteger estimateGas = await ThirdwebTransaction.EstimateGasLimit(prepareTxn);
+        prepareTxn.SetGasLimit(estimateGas);
+        Debug.Log("Estimated and set gas limit: " + estimateGas);
+
+        // Estimate Max Fee per Gas & Max Priority Fee per Gas
+        (BigInteger maxFeePerGas, BigInteger maxPriorityFeePerGas) = await ThirdwebTransaction.EstimateGasFees(prepareTxn);
+
+        /*
+        // we need to set gas higher for amoy
+        if (Web3AuthCanvas.Instance.ChainId == 80002)
+        {
+            BigInteger gwei = BigInteger.Pow(10, 9);
+            maxFeePerGas = 49 * gwei;
+            maxPriorityFeePerGas = 49 * gwei;
+        }
+        */
+
+        prepareTxn.SetMaxFeePerGas(maxFeePerGas);
+        prepareTxn.SetMaxPriorityFeePerGas(maxPriorityFeePerGas);
+        Debug.Log($"Estimated & Set Gas Fees - Max Fee: {maxFeePerGas}, Max Priority Fee: {maxPriorityFeePerGas}");
+
+        var receipt = await ThirdwebTransaction.Send(prepareTxn);
+
+        Debug.Log($"Approval transaction completed. Tx Hash: {receipt.GetType()}");
+
+        BazaarCanvas.Instance.ShowPurchaseSuccessModal();
+
+        return;
     }
 
     void HandleClick_Exit()
