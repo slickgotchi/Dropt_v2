@@ -165,13 +165,24 @@ public class PlayerController : NetworkBehaviour
                 m_cameraFollower.transform.position = m_playerPrediction.GetLocalPlayerInterpPosition() + new Vector3(0, 0.5f, 0f);
             }
 
+            if (m_playerCamera == null)
+            {
+                m_playerCamera = FindAnyObjectByType<PlayerCamera>();
+            }
 
             // check for player input to ensure we stay active
             CheckForPlayerInput();
 
             if (Input.GetKeyDown(KeyCode.T))
             {
-                m_playerCamera.Shake(0.3f, 0.3f);
+                if (m_playerCamera != null)
+                {
+                    m_playerCamera.Shake();
+                }
+                else
+                {
+                    Debug.LogWarning("Don't have a PlayerCamera");
+                }
             }
         }
 

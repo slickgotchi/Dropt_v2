@@ -44,11 +44,7 @@ public class LevelManager : NetworkBehaviour
     //[HideInInspector] public NetworkVariable<TransitionState> transitionState;
 
     private float k_clientHeadsUpDuration_s = 0.5f;
-    private float k_levelLoadingDuration_s = 0.5f;
-    private float m_headsUpTimer = 0;
-
-    private float m_headsDownDuration = 0.5f;
-    private float m_headsDownTimer = 0;
+    private float k_levelLoadingDuration_s = 1f;
 
     // this is for doing first spawn of level manager
     private bool m_isSpawnedFirstLevel = false;

@@ -116,7 +116,7 @@ public class PlayerGotchi : NetworkBehaviour
         if (!m_isHitGround && m_hitGroundTimer <= 0)
         {
             m_isHitGround = true;
-            if (IsLocalPlayer) FindAnyObjectByType<PlayerCamera>().Shake(0.3f, 0.3f);
+            if (IsLocalPlayer) FindAnyObjectByType<PlayerCamera>().Shake();
         }
     }
 

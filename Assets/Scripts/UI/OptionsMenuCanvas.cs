@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Unity.Netcode;
 using UnityEngine.SceneManagement;
+using Cysharp.Threading.Tasks;
 
 public class OptionsMenuCanvas : MonoBehaviour
 {
@@ -185,7 +186,15 @@ public class OptionsMenuCanvas : MonoBehaviour
 
     public void OnClickExitToVillageButton()
     {
+        ExitGoToVillage_ASYNC();
+    }
+
+    async UniTask ExitGoToVillage_ASYNC()
+    {
         LoadingCanvas.Instance.WipeIn();
+
+        await UniTask.Delay(500);
+
         NetworkManager.Singleton.Shutdown();
         Container.SetActive(false);
         Bootstrap.Instance.GameId = "";

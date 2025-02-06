@@ -12,6 +12,6 @@ public class Title : MonoBehaviour
         AudioManager.Instance.PlayMusic(titleScreenMusic);
 
         // fade out loading canvas if its there
-        LoadingCanvas.Instance.WipeOut();
+        LoadingCanvas.Instance.InstaClear();
     }
 }

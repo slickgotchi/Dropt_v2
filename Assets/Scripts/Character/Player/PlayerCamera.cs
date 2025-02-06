@@ -1,4 +1,6 @@
 using UnityEngine;
+using Unity.Mathematics;
+
 
 public class PlayerCamera : MonoBehaviour
 {
@@ -6,57 +8,53 @@ public class PlayerCamera : MonoBehaviour
     public Vector3 Offset = new Vector3(0, 0.5f, 0);
 
     [Header("Follow Settings")]
-    [SerializeField] private float smoothTime = 0.175f; // Normal smooth time
-    [SerializeField] private float shakeSmoothTime = 0.05f; // Faster response when shaking
+    [SerializeField] private float m_smoothTime = 0.3f; // Normal smooth time
     [SerializeField] private float maxLagDistance = 20f; // Max camera lag distance
 
     private Vector3 velocity = Vector3.zero;
 
     [Header("Shake Settings")]
-    private float shakeDuration = 0f;
-    private float shakeAmplitude = 0f;
-    private Vector3 shakeOffset = Vector3.zero;
+    private float m_shakeTimer_s = 0f;
+    private float m_shakeAmplitude = 0f;
+    private float m_shakeDuration_s = 0f;
+    private float m_elapsedTime_s = 0f;
+    private float m_shakeFrequency = 1f;
+
+    private void Start()
+    {
+        m_shakeTimer_s = 0f;
+        m_shakeAmplitude = 0f;
+    }
 
     private void Update()
     {
-        if (m_trackedObject != null)
+        if (m_trackedObject == null) return;
+
+        Vector3 targetPosition = m_trackedObject.transform.position + Offset;
+
+        // Enforce max lag distance (prevent infinite lagging)
+        if (Vector3.Distance(transform.position, targetPosition) > maxLagDistance)
         {
-            Vector3 targetPosition = m_trackedObject.transform.position + Offset;
-
-            // Enforce max lag distance (prevent infinite lagging)
-            if (Vector3.Distance(transform.position, targetPosition) > maxLagDistance)
-            {
-                transform.position = targetPosition - (targetPosition - transform.position).normalized * maxLagDistance;
-            }
-
-            // **Temporarily Reduce Smoothing During Shake**
-            float currentSmoothTime = (shakeDuration > 0) ? shakeSmoothTime : smoothTime;
-
-            // Smoothly move towards the target
-            Vector3 smoothedPosition = Vector3.SmoothDamp(transform.position, targetPosition, ref velocity, currentSmoothTime);
-
-            // Apply shake effect
-            if (shakeDuration > 0)
-            {
-                shakeOffset = new Vector3(
-                    (Mathf.PerlinNoise(Time.time * 50f, 0) - 0.5f) * shakeAmplitude,
-                    (Mathf.PerlinNoise(0, Time.time * 50f) - 0.5f) * shakeAmplitude,
-                    0
-                );
-                shakeDuration -= Time.deltaTime;
-            }
-            else
-            {
-                shakeOffset = Vector3.zero; // Reset shake after duration ends
-            }
-
-            // Apply final position with shake
-            transform.position = new Vector3(
-                smoothedPosition.x + shakeOffset.x,
-                smoothedPosition.y + shakeOffset.y,
-                -10f // Keep Z locked
-            );
+            transform.position = targetPosition - (targetPosition - transform.position).normalized * maxLagDistance;
         }
+
+        // Perlin noise shake
+        Vector2 shakeOffset = Vector2.zero;
+        m_elapsedTime_s += Time.deltaTime;
+        if (m_shakeTimer_s > 0)
+        {
+            float shakeAmount = m_shakeAmplitude * (m_shakeTimer_s / m_shakeDuration_s); // Fades out over time
+            shakeOffset.x = noise.snoise(new float2(m_elapsedTime_s * m_shakeFrequency, 0)) * shakeAmount;
+            shakeOffset.y = noise.snoise(new float2(0, m_elapsedTime_s * m_shakeFrequency)) * shakeAmount;
+
+            m_shakeTimer_s -= Time.deltaTime;
+        }
+
+        // Smoothly move towards target position
+        Vector3 smoothedPosition = Vector3.SmoothDamp(transform.position, targetPosition, ref velocity, m_smoothTime);
+
+        // Apply final shake-adjusted position
+        transform.position = new Vector3(smoothedPosition.x + shakeOffset.x, smoothedPosition.y + shakeOffset.y, -10f);
     }
 
     public void SetTrackedObject(GameObject trackedObject)
@@ -64,11 +62,15 @@ public class PlayerCamera : MonoBehaviour
         m_trackedObject = trackedObject;
     }
 
-    public void Shake(float amplitude, float duration)
+    /// <summary>
+    /// Starts a camera shake effect.
+    /// </summary>
+    public void Shake(float amplitude = 0.05f, float duration = 0.2f, float frequency = 10)
     {
-        Debug.Log("Do shake");
-        shakeAmplitude = amplitude;
-        shakeDuration = duration;
+        m_shakeAmplitude = amplitude;
+        m_shakeTimer_s = duration;
+        m_shakeDuration_s = duration;
+        m_shakeFrequency = frequency;
     }
 
     /// <summary>

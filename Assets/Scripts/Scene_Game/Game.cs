@@ -70,7 +70,7 @@ public class Game : MonoBehaviour
             {
                 // set a reasonably high target frame rate to reduce latency
                 //Application.targetFrameRate = Bootstrap.IsRemoteConnection() ? 1200 : 300;
-                Application.targetFrameRate = 60;   // 30fps is too low and starts adding significant (+40ms) latency
+                Application.targetFrameRate = 180;   // 30fps is too low and starts adding significant (+40ms) latency
                 QualitySettings.vSyncCount = 0;
 
                 // hide loading canvas
