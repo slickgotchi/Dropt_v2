@@ -112,8 +112,15 @@ public class PlayerController : NetworkBehaviour
             ScreenBlockers.SetActive(false);
         }
 
-        LevelManager.OnLevelChangeHeadsUp += Handle_LevelChangeHeadsUp;
-        LevelManager.OnLevelChanged += Handle_LevelChanged;
+        if (IsLocalPlayer)
+        {
+            LevelManager.Instance.OnLevelChangeHeadsUp += Handle_LevelChangeHeadsUp;
+            LevelManager.Instance.OnLevelChanged += Handle_LevelChanged;
+        }
+
+        // call handle level changed right away because the server has
+        // already sent messages about level changes that we would not be aware of
+        Handle_LevelChanged(Level.NetworkLevel.LevelType.Null, Level.NetworkLevel.LevelType.Null);
     }
 
     public override void OnNetworkDespawn()
@@ -142,8 +149,12 @@ public class PlayerController : NetworkBehaviour
             }
         }
 
-        LevelManager.OnLevelChangeHeadsUp -= Handle_LevelChangeHeadsUp;
-        LevelManager.OnLevelChanged -= Handle_LevelChanged;
+        if (IsLocalPlayer)
+        {
+            LevelManager.Instance.OnLevelChangeHeadsUp -= Handle_LevelChangeHeadsUp;
+            LevelManager.Instance.OnLevelChanged -= Handle_LevelChanged;
+        }
+
 
         base.OnNetworkDespawn();
 
@@ -386,21 +397,27 @@ public class PlayerController : NetworkBehaviour
 
     void Handle_LevelChangeHeadsUp()
     {
-        Debug.Log("WipeIn");
-        LoadingCanvas.Instance.WipeIn();
-        GetComponent<PlayerPrediction>().IsInputEnabled = false;
+        if (IsLocalPlayer)
+        {
+            Debug.Log("WipeIn");
+            LoadingCanvas.Instance.WipeIn();
+        }
+
     }
 
     void Handle_LevelChanged(Level.NetworkLevel.LevelType oldLevel, Level.NetworkLevel.LevelType newLevel)
     {
-        m_playerCamera.SnapToTrackedObjectImmediately();
-        GetComponent<PlayerGotchi>().PlayDropAnimation();
+        if (IsLocalPlayer)
+        {
+            m_playerCamera.SnapToTrackedObjectImmediately();
+            GetComponent<PlayerGotchi>().PlayDropAnimation();
 
-        Debug.Log("WipeOut");
-        LoadingCanvas.Instance.WipeOut();
-        GetComponent<PlayerPrediction>().IsInputEnabled = true;
+            Debug.Log("WipeOut");
+            LoadingCanvas.Instance.WipeOut();
+            GetComponent<PlayerPrediction>().IsInputEnabled = true;
+            Debug.Log("InputEnabled");
+        }
 
-        
     }
 
     private void HandleDegenapeResetKillAndDestructibleCount()
@@ -473,7 +490,7 @@ public class PlayerController : NetworkBehaviour
 
         if (m_inactiveTimer <= 0)
         {
-            KillPlayer(REKTCanvas.TypeOfREKT.InActive);
+            _ = KillPlayer(REKTCanvas.TypeOfREKT.InActive);
         }
     }
 

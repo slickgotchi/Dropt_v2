@@ -46,7 +46,7 @@ public class PlayerPing : NetworkBehaviour
         if (IsServer)
         {
             //if (m_unityTransport != null) RTT_ms.Value = m_unityTransport.GetCurrentRtt(m_networkObject.OwnerClientId);
-            Debug.Log("RTT_ms: " + RTT_ms.Value);
+            //Debug.Log("RTT_ms: " + RTT_ms.Value);
 
             m_serverFPSArray.Add(1 / Time.deltaTime);
             if (m_serverFPSArray.Count > m_maxServerFPSArrayLength)

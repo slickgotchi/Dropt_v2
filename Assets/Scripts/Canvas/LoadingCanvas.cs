@@ -1,6 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Cysharp.Threading.Tasks;
+using Cysharp.Threading;
+using Cysharp;
+using System.Threading;
 
 public class LoadingCanvas : MonoBehaviour
 {
@@ -56,6 +60,9 @@ public class LoadingCanvas : MonoBehaviour
             m_animator.Play("LoadingCanvas_WipeIn");
             m_loadingCanvasState = LoadingCanvasState.BlackedOut;
         }
+
+        StartClearScreenFailSafeTimer();
+        
     }
 
     public void WipeOut()
@@ -66,5 +73,33 @@ public class LoadingCanvas : MonoBehaviour
             m_loadingCanvasState = LoadingCanvasState.Clear;
         }
 
+    }
+
+    private CancellationTokenSource failSafeTokenSource;
+
+    private async void StartClearScreenFailSafeTimer()
+    {
+        // Cancel any existing fail-safe timer before starting a new one
+        failSafeTokenSource?.Cancel();
+        failSafeTokenSource?.Dispose();
+        failSafeTokenSource = new CancellationTokenSource();
+
+        try
+        {
+            await UniTask.Delay(5000, cancellationToken: failSafeTokenSource.Token);
+
+            m_animator.Play("LoadingCanvas_InstaClear");
+            m_loadingCanvasState = LoadingCanvasState.Clear;
+        }
+        catch (System.Exception ex)
+        {
+            // Timer was reset, do nothing
+        }
+    }
+
+    private void OnDestroy()
+    {
+        failSafeTokenSource?.Cancel();
+        failSafeTokenSource?.Dispose();
     }
 }

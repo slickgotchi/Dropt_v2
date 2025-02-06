@@ -64,6 +64,7 @@ public class DialogueManagerUIController : MonoBehaviour
             if (playerController.GetComponent<NetworkObject>().IsLocalPlayer)
             {
                 playerController.GetComponent<PlayerPrediction>().IsInputEnabled = false;
+                Debug.Log("InputDisabled");
             }
         }
     }
@@ -76,6 +77,7 @@ public class DialogueManagerUIController : MonoBehaviour
             if (playerController.GetComponent<NetworkObject>().IsLocalPlayer)
             {
                 playerController.GetComponent<PlayerPrediction>().IsInputEnabled = true;
+                Debug.Log("InputEnabled");
             }
         }
     }

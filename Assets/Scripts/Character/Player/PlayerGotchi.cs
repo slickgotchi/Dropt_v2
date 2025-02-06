@@ -144,17 +144,19 @@ public class PlayerGotchi : NetworkBehaviour
         }
     }
 
+    /*
     public void PlayDropAnimation()
     {
         if (!IsServer) return;
 
         PlayDropAnimationClientRpc();
     }
+    */
 
     
 
-    [Rpc(SendTo.ClientsAndHost)]
-    void PlayDropAnimationClientRpc()
+    //[Rpc(SendTo.ClientsAndHost)]
+    public void PlayDropAnimation()
     {
         if (!IsLocalPlayer) return;
 
@@ -163,6 +165,7 @@ public class PlayerGotchi : NetworkBehaviour
         m_hitGroundTimer = k_hitGroundDuration;
         m_isHitGround = false;
         m_playerPrediction.IsInputEnabled = false;
+        Debug.Log("InputDisabled");
 
         SetFacingFromDirection(new Vector3(0, -1f, 0), k_dropSpawnDuration, true);
 
