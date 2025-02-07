@@ -10,7 +10,7 @@ namespace Dropt.Utils
             // Check if animator is valid
             if (animator == null || animator.gameObject == null)
             {
-                //Debug.LogWarning("No valid animator for gameObject trying to play " + animName);
+                Debug.LogWarning("No valid animator for gameObject trying to play " + animName);
                 return;
             }
 
@@ -22,7 +22,7 @@ namespace Dropt.Utils
             // Check again after delay (in case the animator was destroyed)
             if (animator == null || animator.gameObject == null)
             {
-                //Debug.LogWarning("Animator was destroyed before animation could be played.");
+                Debug.LogWarning("Animator was destroyed before animation could be played.");
                 return;
             }
 
@@ -35,7 +35,7 @@ namespace Dropt.Utils
 
             if (clip == null)
             {
-                //Debug.LogWarning($"Animation clip '{animName}' not found in animator.");
+                Debug.LogWarning($"Animation clip '{animName}' not found in animator.");
                 return;
             }
 

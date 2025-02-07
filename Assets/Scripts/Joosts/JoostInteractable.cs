@@ -61,7 +61,7 @@ public class JoostInteractable : Interactable
                 var playerOffchainData = localPlayerController.GetComponent<PlayerOffchainData>();
                 if (playerOffchainData == null) { Debug.LogWarning("playerOffchainData = null"); return; }
 
-                bool isLocalPlayerEctoSufficient = playerOffchainData.IsEctoBalanceGreaterThanOrEqualTo(m_cost);
+                bool isLocalPlayerEctoSufficient = playerOffchainData.IsDungeonEctoGreaterThanOrEqualTo(m_cost);
 
                 if (isLocalPlayerEctoSufficient)
                 {
@@ -132,7 +132,7 @@ public class JoostInteractable : Interactable
         var playerDungeonData = playerController.GetComponent<PlayerOffchainData>();
         if (playerDungeonData == null) Debug.LogWarning("TryAddJoostBuffServerRpcAsync: playerDungeonData = null");
 
-        bool isSufficientEcto = await playerDungeonData.RemoveEcto(m_cost);
+        bool isSufficientEcto = playerDungeonData.RemoveDungeonEcto(m_cost);
         if (!isSufficientEcto) { Debug.Log("TryAddJoostBuffServerRpcAsync: Insufficient Ecto"); return; }
 
         bool isBuffAdded = levelCountedBuff.TryAddBuffToPlayer(m_buffObject, playerController.GetComponent<NetworkCharacter>(), NumberLevels);

@@ -116,7 +116,7 @@ public class PlayerGotchi : NetworkBehaviour
         if (!m_isHitGround && m_hitGroundTimer <= 0)
         {
             m_isHitGround = true;
-            GetComponent<PlayerCamera>().Shake(1.75f, 0.3f);
+            if (IsLocalPlayer) FindAnyObjectByType<PlayerCamera>().Shake();
         }
     }
 
@@ -144,17 +144,19 @@ public class PlayerGotchi : NetworkBehaviour
         }
     }
 
+    /*
     public void PlayDropAnimation()
     {
         if (!IsServer) return;
 
         PlayDropAnimationClientRpc();
     }
+    */
 
     
 
-    [Rpc(SendTo.ClientsAndHost)]
-    void PlayDropAnimationClientRpc()
+    //[Rpc(SendTo.ClientsAndHost)]
+    public void PlayDropAnimation()
     {
         if (!IsLocalPlayer) return;
 
@@ -163,6 +165,7 @@ public class PlayerGotchi : NetworkBehaviour
         m_hitGroundTimer = k_hitGroundDuration;
         m_isHitGround = false;
         m_playerPrediction.IsInputEnabled = false;
+        Debug.Log("InputDisabled");
 
         SetFacingFromDirection(new Vector3(0, -1f, 0), k_dropSpawnDuration, true);
 
@@ -542,6 +545,8 @@ public class PlayerGotchi : NetworkBehaviour
         m_bodyRotation = angleDegrees;
         m_bodyRotationTimer = duration;
     }
+
+    public Facing GetFacing() { return m_facing; }
 
     // call this to spin the gotchi
     public void PlayFacingSpin(int spinNumber, float spinPeriod, SpinDirection spinDirection, float startAngle)

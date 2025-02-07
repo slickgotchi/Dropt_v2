@@ -55,6 +55,6 @@ public class Hole_RandomLevelGroups : Interactable
         }
 
         // go to next level
-        LevelManager.Instance.StartTransitionToNextLevel_SERVER();
+        LevelManager.Instance.TransitionToNextLevel_SERVER();
     }
 }

@@ -3,6 +3,9 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Unity.Netcode;
+using UnityEngine.SceneManagement;
+using Cysharp.Threading.Tasks;
 
 public class OptionsMenuCanvas : MonoBehaviour
 {
@@ -39,7 +42,9 @@ public class OptionsMenuCanvas : MonoBehaviour
     public Slider sfxVolumeSlider;
     public Button saveButton;
     public Button exitButton;
-    public Button exitToTitleButton;
+    public Button exitToVillageButton;
+
+    public TMPro.TextMeshProUGUI exitToVillageNote;
 
     // Predefined 16:9 and 16:10 resolutions
     private List<ResItem> resolutions = new List<ResItem> {
@@ -87,7 +92,7 @@ public class OptionsMenuCanvas : MonoBehaviour
         resolutionDropdown.onValueChanged.AddListener(OnResolutionDropdownChanged);
         exitButton.onClick.AddListener(() => { Container.SetActive(false); });
         saveButton.onClick.AddListener(() => { Container.SetActive(false); });
-        exitToTitleButton.onClick.AddListener(OnClickExitToTitleButton);
+        exitToVillageButton.onClick.AddListener(OnClickExitToVillageButton);
 
         // Check for player prefs for slider volume
         SetupAudioPrefs();
@@ -162,12 +167,38 @@ public class OptionsMenuCanvas : MonoBehaviour
         {
             Container.SetActive(!Container.gameObject.activeSelf);
         }
+
+        // if the containers active, we need to set if the exit to village button is visible
+        if (Container.activeSelf)
+        {
+            if (Game.Instance != null && LevelManager.Instance != null && !LevelManager.Instance.IsDegenapeVillage())
+            {
+                exitToVillageButton.gameObject.SetActive(true);
+                exitToVillageNote.gameObject.SetActive(true);
+            }
+            else
+            {
+                exitToVillageButton.gameObject.SetActive(false);
+                exitToVillageNote.gameObject.SetActive(false);
+            }
+        }
     }
 
-    public void OnClickExitToTitleButton()
+    public void OnClickExitToVillageButton()
     {
+        ExitGoToVillage_ASYNC();
+    }
+
+    async UniTask ExitGoToVillage_ASYNC()
+    {
+        LoadingCanvas.Instance.WipeIn();
+
+        await UniTask.Delay(500);
+
+        NetworkManager.Singleton.Shutdown();
         Container.SetActive(false);
-        // Additional logic for exiting to the title screen can be added here
+        Bootstrap.Instance.GameId = "";
+        SceneManager.LoadScene("Game");
     }
 }
 

@@ -24,7 +24,7 @@ public class REKTCanvas : MonoBehaviour
 
     [SerializeField] private TextMeshProUGUI m_BankEctoDeltaText;
     [SerializeField] private TextMeshProUGUI m_GotchiDustCollectedText;
-    [SerializeField] private TextMeshProUGUI m_BombsUsedText;
+    //[SerializeField] private TextMeshProUGUI m_BombsUsedText;
     [SerializeField] private TextMeshProUGUI m_EnemiesSlainText;
     [SerializeField] private TextMeshProUGUI m_DestructiblesSmashedText;
     [SerializeField] private TextMeshProUGUI m_dungeonTimerText;
@@ -45,32 +45,13 @@ public class REKTCanvas : MonoBehaviour
         DegenapeButton.onClick.AddListener(HandleClickDegenapeButton);
     }
 
-    //private bool m_isDisconnectTimerActive = false;
-    //private float m_disconnectTimer = 0f;
-    //private float k_disconnectTime = 10f;
-
     public void Update()
     {
         if (!Bootstrap.IsClient()) return;
-
-        //m_disconnectTimer -= Time.deltaTime;
-        //if (m_isDisconnectTimerActive && m_disconnectTimer < 0)
-        //{
-        //    m_isDisconnectTimerActive = false;
-        //    NetworkManager.Singleton.Shutdown();
-        //}
-
-        //if (Container.activeSelf)
-        //{
-        //    InitializePlayerInfo();
-        //}
     }
 
     public void Show(TypeOfREKT type)
     {
-        //m_isDisconnectTimerActive = true;
-        //m_disconnectTimer = k_disconnectTime;
-
         InitializePlayerInfo();
 
         Type = type;
@@ -109,15 +90,11 @@ public class REKTCanvas : MonoBehaviour
 
         DegenapeButton.GetComponentInChildren<TextMeshProUGUI>().text = "Return to Degenape Village";
 
-        //InitializeTime();
-
         NetworkManager.Singleton.Shutdown();
     }
 
     private void HandleClickDegenapeButton()
     {
-        //m_isDisconnectTimerActive = false;
-        //NetworkManager.Singleton.Shutdown();
         Container.SetActive(false);
         Bootstrap.Instance.GameId = "";
         SceneManager.LoadScene("Game");
@@ -134,15 +111,15 @@ public class REKTCanvas : MonoBehaviour
 
         PlayerOffchainData playerOffchainData = player.GetComponent<PlayerOffchainData>();
 
-        int ectoDelta = playerOffchainData.GetEctoDeltaValue();
+        int ectoDelta = playerOffchainData.GetEctoDeltaValue_PostDungeon();
         m_BankEctoDeltaText.text = ectoDelta.ToString();
         m_BankEctoDeltaText.color = ectoDelta < 0 ? new Color32(245, 85, 93, 255) : new Color32(153, 230, 95, 255);
 
-        int dustDelta = playerOffchainData.GetDustDeltaValue();
+        int dustDelta = playerOffchainData.GetDustDeltaValue_PostDungeon();
         m_GotchiDustCollectedText.text = dustDelta.ToString();
 
-        int bombDelta = playerOffchainData.GetBombDeltaValue();
-        m_BombsUsedText.text = bombDelta.ToString();
+        //int bombDelta = playerOffchainData.GetBombDeltaValue();
+        //m_BombsUsedText.text = bombDelta.ToString();
 
         PlayerController playerController = player.GetComponent<PlayerController>();
         m_EnemiesSlainText.text = playerController.GetTotalKilledEnemies().ToString();

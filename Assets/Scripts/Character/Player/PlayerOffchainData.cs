@@ -4,7 +4,7 @@ using Thirdweb.Unity;
 using GotchiHub;
 using Cysharp.Threading.Tasks;
 using Unity.Mathematics;
-
+using PortalDefender.AavegotchiKit.GraphQL;
 
 // ecto bank logic
 // - ecto_balance_offchain is the total ecto you have when in the village
@@ -28,34 +28,38 @@ using Unity.Mathematics;
 
 public class PlayerOffchainData : NetworkBehaviour
 {
-    // wallet (offchain data)
-    public int ectoBalance_offchain = 0;
-    public int dustBalance_offchain = 0;
-    public int bombBalance_offchain = 0;
+    // wallet data - balances DO NOT change in dungeons, only in the village
+    public NetworkVariable<int> m_ectoVillageBalance_wallet = new NetworkVariable<int>(0);
 
-    // gotchi (offchain data)
-    public int ectoDungeonStartAmount_offchain = 0;
-    public int bombDungeonCapacity_offchain = 0;
-    public int healSalveDungeonCharges_offchain = 3;
-    public bool isEssenceInfused_offchain = false;
+    // wallet data - balances DO change in dungeons and the village
+    public NetworkVariable<int> m_bombLiveBalance_wallet = new NetworkVariable<int>(0);
+    public NetworkVariable<int> m_portaHoleLiveBalance_wallet = new NetworkVariable<int>(0);
+    public NetworkVariable<int> m_zenCricketLiveBalance_wallet = new NetworkVariable<int>(0);
 
-    // dungeon (dungeon run data set at the start of a dungeon run)
-    public int ectoDebitStartAmount_dungeon = 0;
-    public int ectoDebitCount_dungeon = 0;       // this is the ecto out of your offchain bank account you start with
-    public int ectoLiveCount_dungeon = 0;        // this is the ecto that gets added to as you collect ecto, starts at 0
-    public static int dustLiveCount_dungeon = 0;
-    public int bombStartCount_dungeon = 3;
-    public int bombLiveCount_dungeon = 0;
-    public int healSalveChargeCount_dungeon = 0;
+    // gotchi data - in and out of dungeons
+    public NetworkVariable<int> m_bombCapacity_gotchi = new NetworkVariable<int>(0);
+    public NetworkVariable<int> m_portaHoleCapacity_gotchi = new NetworkVariable<int>(0);
+    public NetworkVariable<int> m_zenCricketCapacity_gotchi = new NetworkVariable<int>(0);
+    public NetworkVariable<bool> m_isEssenceInfused_gotchi = new NetworkVariable<bool>(false);
+    public NetworkVariable<int> m_ectoDungeonStartAmount_gotchi = new NetworkVariable<int>(0);
+    public NetworkVariable<int> m_dustVillageBalance_gotchi = new NetworkVariable<int>(0);
 
-    private int m_postDungeonEctoDelta = 0;
-    private int m_postDungeonDustDelta = 0;
-    private int m_postDungeonBombDelta = 0;
+    // dungeon data - dungeon run data set at the start of a dungeon run
+    public NetworkVariable<int> m_ectoDebitStartAmount_dungeon = new NetworkVariable<int>(0);
+    public NetworkVariable<int> m_ectoDebitCount_dungeon = new NetworkVariable<int>(0);      // this is the ecto out of your offchain bank account you start with
+    public NetworkVariable<int> m_ectoLiveCount_dungeon = new NetworkVariable<int>(0);      // this is the ecto that gets added to as you collect ecto, starts at 0
+    public NetworkVariable<int> m_bombLiveCount_dungeon = new NetworkVariable<int>(0);
+    public NetworkVariable<int> m_portaHoleLiveCount_dungeon = new NetworkVariable<int>(0);
+    public NetworkVariable<int> m_zenCricketLiveCount_dungeon = new NetworkVariable<int>(0);
 
-    private float m_syncClientTimer = 0f;
-    private float k_syncClientInterval = 1f;
-    // atest <DELETE THIS>
+    // post dungeon data - used to update data
+    private NetworkVariable<int> m_ectoDelta_postDungeon = new NetworkVariable<int>(0);
+    private NetworkVariable<int> m_dustDelta_postDungeon = new NetworkVariable<int>(0);
 
+    // the shared dust count between all players in the dungeon
+    //public static int m_dustLiveCount_dungeon = 0;
+
+    private TeamDustCounter m_teamDustCounter;
 
     // if player dies
     //      ectoBankDelta = ectoDebitCount_dungeon - ectoDungeonStartMount_offchain
@@ -67,23 +71,31 @@ public class PlayerOffchainData : NetworkBehaviour
     // uri for accessing database
     private string dbUri = "https://db.playdropt.io/offchaindata";
 
-    // for keeping track of current wallet
+    // for keeping track of current wallet & gotchi
     private string m_walletAddress = null;
-    private float k_walletUpdateInterval = 1f;
-    private float m_walletUpdateTimer = 0f;
-
-    // for keeping track of current gotchi
     private int m_gotchiId = 0;
-    private float k_gotchiIdUpdateInterval = 1f;
-    private float m_gotchiIdUpdateTimer = 0f;
 
     private Level.NetworkLevel.LevelType m_currentLevelType;
 
     public override void OnNetworkSpawn()
     {
         m_walletAddress = null;
-        m_gotchiId = 0;
+        m_gotchiId = -1;
         m_currentLevelType = Level.NetworkLevel.LevelType.Null;
+
+        m_teamDustCounter = FindAnyObjectByType<TeamDustCounter>();
+
+        if (IsLocalPlayer)
+        {
+            _ = PollWalletChanges();
+            _ = PollGotchiChanges();
+        }
+
+        if (IsServer)
+        {
+            _ = PollOffchainWalletDataChanges();
+            _ = PollOffchainGotchiDataChanges();
+        }
     }
 
     public override void OnNetworkDespawn()
@@ -101,70 +113,205 @@ public class PlayerOffchainData : NetworkBehaviour
         }
     }
 
+    // we poll wallet changes regularly to ensure:
+    // - if a new wallet is connected we need to advise the server what the new address is
+    //   so we log to the correct wallet
+    // - the server also needs to confirm its a valid wallet addres by checking against the auth token
+    async UniTaskVoid PollWalletChanges()
+    {
+        if (!IsLocalPlayer) return;
+
+        while (IsSpawned)
+        {
+            await UniTask.Delay(3000);
+
+            if (!LevelManager.Instance.IsDegenapeVillage()) continue;
+
+            var newWalletAddress = Web3AuthCanvas.Instance.GetActiveWalletAddress();
+            if (newWalletAddress != m_walletAddress)
+            {
+                m_walletAddress = newWalletAddress.ToLower();
+                var authToken = PlayerPrefs.GetString("AuthToken");
+                if (!string.IsNullOrEmpty(authToken))
+                {
+                    UpdateWalletAddressServerRpc(m_walletAddress, authToken);
+                }
+            }
+        }
+    }
+
+    [Rpc(SendTo.Server)]
+    void UpdateWalletAddressServerRpc(string walletAddress, string authToken)
+    {
+        _ = UpdateWalletAddressServerRpc_ASYNC(walletAddress, authToken);
+
+    }
+
+    async UniTaskVoid UpdateWalletAddressServerRpc_ASYNC(string walletAddress, string authToken)
+    {
+        if (!IsServer) return;
+        if (string.IsNullOrEmpty(walletAddress)) return;
+        if (!LevelManager.Instance.IsDegenapeVillage()) return; // no wallet changes outside degenape village
+
+        var addressByToken = await Dropt.Utils.Http.GetAddressByAuthToken(authToken);
+        if (addressByToken == walletAddress)
+        {
+            m_walletAddress = walletAddress.ToLower();
+        }
+    }
+
+    // poll gotchi changes to ensure:
+    // - any new assigned gotchi actually belongs to the wallet address we have in the server
+    async UniTaskVoid PollGotchiChanges()
+    {
+        if (!IsLocalPlayer) return;
+
+        while (IsSpawned)
+        {
+            await UniTask.Delay(3000);
+
+            if (!LevelManager.Instance.IsDegenapeVillage()) continue;
+
+            var gotchiId = GotchiDataManager.Instance.GetSelectedGotchiId();
+            if (gotchiId != m_gotchiId)
+            {
+                m_gotchiId = gotchiId;
+                var authToken = PlayerPrefs.GetString("AuthToken");
+                if (!string.IsNullOrEmpty(authToken) || gotchiId > 25000)
+                {
+                    UpdateGotchiServerRpc(m_gotchiId, authToken);
+                }
+            }
+        }
+    }
+
+    [Rpc(SendTo.Server)]
+    void UpdateGotchiServerRpc(int gotchiId, string authToken)
+    {
+        _ = UpdateGotchiServerRpc_ASYNC(gotchiId, authToken);
+    }
+
+    async UniTaskVoid UpdateGotchiServerRpc_ASYNC(int gotchiId, string authToken)
+    {
+        if (!IsServer) return;
+
+        // if default gotchi we just allow it
+        if (gotchiId > 25000)
+        {
+            m_gotchiId = gotchiId;
+            return;
+        }
+
+        //if (string.IsNullOrEmpty(walletAddress)) return;
+        if (!LevelManager.Instance.IsDegenapeVillage()) return;
+
+        var addressByToken = await Dropt.Utils.Http.GetAddressByAuthToken(authToken);
+        if (!string.IsNullOrEmpty(addressByToken))
+        {
+            var userData = await GraphManager.Instance.GetUserAccount(addressByToken.ToLower());
+            if (userData != null)
+            {
+                foreach (var gotchi in userData.gotchisOwned)
+                {
+                    if (gotchi.id == gotchiId)
+                    {
+                        m_gotchiId = gotchiId;
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    // we continuously check to see if any offchain wallet data has changed BUT only
+    // if a valid wallet has been assigned to us (via PollWalletChanges())
+    async UniTaskVoid PollOffchainWalletDataChanges()
+    {
+        if (!IsServer) return;
+
+        while (IsSpawned)
+        {
+            await UniTask.Delay(3000);
+
+            if (string.IsNullOrEmpty(m_walletAddress)) continue;
+
+            // getsert a wallet
+            try
+            {
+                var responseStr = await Dropt.Utils.Http.GetRequest(dbUri + "/wallets/" + m_walletAddress);
+                if (!string.IsNullOrEmpty(responseStr))
+                {
+                    var walletData = JsonUtility.FromJson<Wallet_Data>(responseStr);
+
+                    m_ectoVillageBalance_wallet.Value = walletData.ecto_balance;
+                    m_bombLiveBalance_wallet.Value = walletData.bomb_balance;
+                    m_portaHoleLiveBalance_wallet.Value = walletData.portahole_balance;
+                    m_zenCricketLiveBalance_wallet.Value = walletData.zencricket_balance;
+
+                    continue;
+                }
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogWarning(e);
+            }
+        }
+    }
+
+    // we continuously check to see if any offchain gotchi data has changed BUT only
+    // if a valid gotchi id has been set on the server
+    async UniTaskVoid PollOffchainGotchiDataChanges()
+    {
+        if (!IsServer) return;
+
+        while (IsSpawned)
+        {
+            await UniTask.Delay(3000);
+
+            //Debug.Log("Poll gotchi data for: " + m_gotchiId);
+            if (!LevelManager.Instance.IsDegenapeVillage()) continue;
+            if (m_gotchiId < 0) continue;
+
+            // getsert gotchi data
+            try
+            {
+                string responseStr = await Dropt.Utils.Http.GetRequest(dbUri + "/gotchis/" + m_gotchiId.ToString());
+                //Debug.Log("GetRequest responseStr: " + responseStr);
+                if (!string.IsNullOrEmpty(responseStr))
+                {
+                    Gotchi_Data gotchiData = JsonUtility.FromJson<Gotchi_Data>(responseStr);
+                    //Debug.Log("isEssenceInfused: " + gotchiData.is_essence_infused);
+
+                    m_bombCapacity_gotchi.Value = gotchiData.bomb_capacity;
+                    m_portaHoleCapacity_gotchi.Value = gotchiData.portahole_capacity;
+                    m_zenCricketCapacity_gotchi.Value = gotchiData.zencricket_capacity;
+                    m_isEssenceInfused_gotchi.Value = gotchiData.is_essence_infused;
+                    m_ectoDungeonStartAmount_gotchi.Value = gotchiData.ecto_dungeon_start_amount;
+                    m_dustVillageBalance_gotchi.Value = gotchiData.dust_balance;
+
+                    continue;
+                }
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogWarning(e);
+            }
+        }
+    }
+
     private void Update()
     {
         if (IsLocalPlayer)
         {
-            _ = CheckWalletAddressChanged();
-            CheckGotchiIdChanged();
         }
 
         if (IsServer)
         {
-            CheckCurrentLevelType_SERVER();
+            HandleLevelChanges_SERVER();
         }
     }
 
-    void SyncServerDataToClient()
-    {
-        if (!IsServer) return;
-
-        var networkObject = GetComponent<NetworkObject>();
-        if (networkObject == null) { Debug.LogWarning("SyncServerDataToClient: networkObject = null"); return; }
-
-        SyncClientRpc(networkObject.NetworkObjectId, ectoBalance_offchain, dustBalance_offchain, bombBalance_offchain,
-            ectoDungeonStartAmount_offchain, bombDungeonCapacity_offchain, healSalveDungeonCharges_offchain, isEssenceInfused_offchain,
-            ectoDebitStartAmount_dungeon, ectoDebitCount_dungeon, ectoLiveCount_dungeon, dustLiveCount_dungeon, bombStartCount_dungeon, bombLiveCount_dungeon, healSalveChargeCount_dungeon,
-            m_postDungeonEctoDelta, m_postDungeonDustDelta, m_postDungeonBombDelta);
-    }
-
-    [Rpc(SendTo.ClientsAndHost)]
-    void SyncClientRpc(ulong syncNetworkObjectId, int ectoBalanceOffchain, int dustBalanceOffchain, int bombBalanceOffchain,
-        int ectoDungeonStartAmountOffcahin, int bombDungeonCapacityOffchain, int healSalveDungeonChargesOffchain, bool isEssenceInfusedOffchain,
-        int ectoDebitStartAmountDungeon, int ectoDebitCountDungeon, int ectoLiveCountDungeon, int dustLiveCountDungeon, int bombStartCountDungeon, int bombLiveCountDungeon, int healSalveChargeCountDungeon,
-        int postDungeonEctoDelta, int postDungeonDustDelta, int postDungeonBombDelta)
-    {
-        var networkObject = GetComponent<NetworkObject>();
-        if (networkObject == null) { Debug.LogWarning("SyncClientRpc: networkObject = null"); return; }
-
-        if (networkObject.NetworkObjectId != syncNetworkObjectId) return;
-
-        // wallet (offchain data)
-        ectoBalance_offchain = ectoBalanceOffchain;
-        dustBalance_offchain = dustBalanceOffchain;
-        bombBalance_offchain = bombBalanceOffchain;
-
-        // gotchi (offchain data)
-        ectoDungeonStartAmount_offchain = ectoDungeonStartAmountOffcahin;
-        bombDungeonCapacity_offchain = bombDungeonCapacityOffchain;
-        healSalveDungeonCharges_offchain = healSalveDungeonChargesOffchain;
-        isEssenceInfused_offchain = isEssenceInfusedOffchain;
-
-        // dungeon (dungeon run data set at the start of a dungeon run)
-        ectoDebitStartAmount_dungeon = ectoDebitStartAmountDungeon;
-        ectoDebitCount_dungeon = ectoDebitCountDungeon;      
-        ectoLiveCount_dungeon = ectoLiveCountDungeon;       
-        dustLiveCount_dungeon = dustLiveCountDungeon;
-        bombStartCount_dungeon = bombStartCountDungeon;
-        bombLiveCount_dungeon = bombLiveCountDungeon;
-        healSalveChargeCount_dungeon = healSalveChargeCountDungeon;
-
-        m_postDungeonEctoDelta = postDungeonEctoDelta;
-        m_postDungeonDustDelta = postDungeonDustDelta;
-        m_postDungeonBombDelta = postDungeonBombDelta;
-    }
-
-    private void CheckCurrentLevelType_SERVER()
+    private void HandleLevelChanges_SERVER()
     {
         if (!IsServer) return;
         if (LevelManager.Instance == null) return;
@@ -192,7 +339,7 @@ public class PlayerOffchainData : NetworkBehaviour
         else if ((m_currentLevelType == Level.NetworkLevel.LevelType.Dungeon || m_currentLevelType == Level.NetworkLevel.LevelType.DungeonRest) &&
             newLevelType == Level.NetworkLevel.LevelType.DegenapeVillage)
         {
-            ExitDungeonCalculateBalances(true);
+            _ = ExitDungeonCalculateBalances(true);
             StopDungeonTimer();
             ResetTimer();
         }
@@ -200,179 +347,25 @@ public class PlayerOffchainData : NetworkBehaviour
         m_currentLevelType = newLevelType;
     }
 
-    private async UniTaskVoid CheckWalletAddressChanged()
-    {
-        // don't check for wallet updates every single frame
-        m_walletUpdateTimer -= Time.deltaTime;
-        if (m_walletUpdateTimer > 0) return;
-        m_walletUpdateTimer = k_walletUpdateInterval;
-
-        // only check for wallet updates if in degenape village
-        if (LevelManager.Instance == null) return;
-        if (!LevelManager.Instance.IsDegenapeVillage()) return;
-
-        // try get latest wallet address
-        try
-        {
-            if (ThirdwebManager.Instance == null) return;
-
-            // see if we have a wallet address in player prefs
-            var playerPrefWalletAddress = PlayerPrefs.GetString("WalletAddress");
-
-            // get wallet
-            var wallet = ThirdwebManager.Instance.GetActiveWallet();
-            if (wallet == null)
-            {
-                TryGetOffchainTestData();
-                return;
-            }
-
-            // check if wallet is connected
-            var isConnected = await wallet.IsConnected();
-            if (!isConnected)
-            {
-                TryGetOffchainTestData();
-                return;
-            }
-
-            // get all latest data if address changed
-            var connectedWalletAddress = await wallet.GetAddress();
-            if (connectedWalletAddress != m_walletAddress && connectedWalletAddress != null)
-            {
-                m_walletAddress = connectedWalletAddress;
-                PlayerPrefs.SetString("WalletAddress", m_walletAddress);
-                GetLatestOffchainWalletDataServerRpc(m_walletAddress);
-            }
-
-        }
-        catch
-        {
-            TryGetOffchainTestData();
-        }
-    }
-
-    private void TryGetOffchainTestData()
-    {
-        if ((IsHost || Bootstrap.IsLocalConnection()) && m_walletAddress != Bootstrap.Instance.TestWalletAddress)
-        {
-            m_walletAddress = Bootstrap.Instance.TestWalletAddress;
-            PlayerPrefs.SetString("WalletAddress", m_walletAddress);
-            GetLatestOffchainWalletDataServerRpc(m_walletAddress);
-        }
-    }
-
-    [Rpc(SendTo.Server)]
-    private void GetLatestOffchainWalletDataServerRpc(string walletAddress)
-    {
-        _ = GetLatestOffchainWalletDataServerRpcAsync(walletAddress);
-    }
-
-    private async UniTaskVoid GetLatestOffchainWalletDataServerRpcAsync(string walletAddress)
-    {
-        // save the current wallet address for this player
-        m_walletAddress = walletAddress;
-
-        // getsert wallet
-        try
-        {
-            var responseStr = await Dropt.Utils.Http.GetRequest(dbUri + "/wallets/" + walletAddress);
-            if (!string.IsNullOrEmpty(responseStr))
-            {
-                var walletData = JsonUtility.FromJson<Wallet_Data>(responseStr);
-
-                ectoBalance_offchain = walletData.ecto_balance;
-                bombBalance_offchain = walletData.bomb_balance;
-
-                SyncServerDataToClient();
-
-                return;
-            }
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogWarning(e);
-        }
-    }
-
-    private void CheckGotchiIdChanged()
-    {
-        // dont check every frame
-        m_gotchiIdUpdateTimer -= Time.deltaTime;
-        if (m_gotchiIdUpdateTimer > 0) return;
-        m_gotchiIdUpdateTimer = k_gotchiIdUpdateInterval;
-
-        // only check for gotchi updates if in degenape village
-        if (LevelManager.Instance == null) return;
-        if (!LevelManager.Instance.IsDegenapeVillage()) return;
-
-        // get gotchi
-        var gotchiId = GotchiDataManager.Instance.GetSelectedGotchiId();
-        if (gotchiId != m_gotchiId)
-        {
-            m_gotchiId = gotchiId;
-            GetLatestOffchainGotchiDataServerRpc(m_gotchiId);
-        }
-    }
-
-    [Rpc(SendTo.Server)]
-    private void GetLatestOffchainGotchiDataServerRpc(int gotchiId)
-    {
-        _ = GetLatestOffchainGotchiDataServerRpcAsync(gotchiId);
-    }
-
-    private async UniTask GetLatestOffchainGotchiDataServerRpcAsync(int gotchiId)
-    {
-        // save gotchi id to server m_gotchiId
-        m_gotchiId = gotchiId;
-
-        // getsert gotchi data
-        try
-        {
-            string responseStr = await Dropt.Utils.Http.GetRequest(dbUri + "/gotchis/" + gotchiId.ToString());
-            if (!string.IsNullOrEmpty(responseStr))
-            {
-                Gotchi_Data gotchiData = JsonUtility.FromJson<Gotchi_Data>(responseStr);
-
-                ectoDungeonStartAmount_offchain = gotchiData.ecto_dungeon_start_amount;
-                bombDungeonCapacity_offchain = gotchiData.bomb_dungeon_capacity;
-                healSalveDungeonCharges_offchain = gotchiData.heal_salve_dungeon_charges;
-                dustBalance_offchain = gotchiData.dust_balance;
-                isEssenceInfused_offchain = gotchiData.is_essence_infused;
-
-                SyncServerDataToClient();
-
-                return;
-            }
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogWarning(e);
-        }
-    }
-
     // enter dungeon method that calculates balance
     public void EnterDungeonCalculateBalances()
     {
         if (!IsServer) return;
 
-        // ecto calcs
-        ectoDebitStartAmount_dungeon = math.min(ectoDungeonStartAmount_offchain, ectoBalance_offchain);
-        ectoDebitCount_dungeon = ectoDebitStartAmount_dungeon;
-        ectoLiveCount_dungeon = 0;
+        // 6 dungeon values to be set
+        m_ectoDebitStartAmount_dungeon.Value = math.min(m_ectoDungeonStartAmount_gotchi.Value, m_ectoVillageBalance_wallet.Value);
+        m_ectoDebitCount_dungeon.Value = m_ectoDebitStartAmount_dungeon.Value;
+        m_ectoLiveCount_dungeon.Value = 0;
+        m_bombLiveCount_dungeon.Value =
+            math.min(m_bombCapacity_gotchi.Value, m_bombLiveBalance_wallet.Value);
+        m_portaHoleLiveCount_dungeon.Value =
+            math.min(m_portaHoleCapacity_gotchi.Value, m_portaHoleLiveBalance_wallet.Value);
+        m_zenCricketLiveCount_dungeon.Value =
+            math.min(m_zenCricketCapacity_gotchi.Value, m_zenCricketLiveBalance_wallet.Value);
 
-        // dust starts at 0 always
-        dustLiveCount_dungeon = 0;
-
-        // bomb counts
-        bombStartCount_dungeon =
-            math.min(bombDungeonCapacity_offchain, bombBalance_offchain);
-        //Debug.Log("bombStartCount_dungeon -> " + bombStartCount_dungeon.Value);
-        bombLiveCount_dungeon = bombStartCount_dungeon;
-
-        // heal charge to full
-        healSalveChargeCount_dungeon = healSalveDungeonCharges_offchain;
-
-        SyncServerDataToClient();
+        // 1 dust team counter starts at 0 always
+        if (m_teamDustCounter == null) { Debug.LogWarning("TeamDustCounter not found!"); return; }
+        m_teamDustCounter.Count.Value = 0;
     }
 
     // exit dungeon calculates new balances and updates the database
@@ -383,27 +376,20 @@ public class PlayerOffchainData : NetworkBehaviour
         var playerLeaderboardLogger = GetComponent<PlayerLeaderboardLogger>();
         if (playerLeaderboardLogger == null) return;
 
-        m_postDungeonEctoDelta = isEscaped ?
-            ectoDebitCount_dungeon - ectoDebitStartAmount_dungeon + ectoLiveCount_dungeon :
-            ectoDebitCount_dungeon - ectoDebitStartAmount_dungeon;
+        m_ectoDelta_postDungeon.Value = isEscaped ?
+            (int)m_ectoDebitCount_dungeon.Value - (int)m_ectoDebitStartAmount_dungeon.Value + (int)m_ectoLiveCount_dungeon.Value :
+            (int)m_ectoDebitCount_dungeon.Value - (int)m_ectoDebitStartAmount_dungeon.Value;
 
-        m_postDungeonDustDelta = (int)(dustLiveCount_dungeon * CodeInjector.Instance.GetOutputMultiplier());
-
-        m_postDungeonBombDelta = bombLiveCount_dungeon - bombStartCount_dungeon;
-
-        SyncServerDataToClient();
+        m_dustDelta_postDungeon.Value = (int)(m_teamDustCounter.Count.Value * CodeInjector.Instance.GetOutputMultiplier());
 
         // save wallet specific dungeon collectibles
         try
         {
-            await LogWalletDeltaDataServerRpcAsync(m_postDungeonEctoDelta, m_postDungeonBombDelta);
+            await LogWalletDeltaDataServerRpcAsync(m_ectoDelta_postDungeon.Value, 0, 0, 0);
 
-            // successfully logged deltas so zero all the balances
-            //ectoDebitStartAmount_dungeon = 0;
-            ectoDebitCount_dungeon = 0;
-            ectoLiveCount_dungeon = 0;
-            //bombStartCount_dungeon = 0;
-            bombLiveCount_dungeon = 0;
+            m_ectoDebitStartAmount_dungeon.Value = 0;
+            m_ectoDebitCount_dungeon.Value = 0;
+            m_ectoLiveCount_dungeon.Value = 0;
         }
         catch
         {
@@ -413,9 +399,14 @@ public class PlayerOffchainData : NetworkBehaviour
         // save gotchi specific dungeon collectibles
         try
         {
-            await LogGotchiDeltaDataServerRpcAsync(
-                GetComponent<PlayerController>().NetworkGotchiId.Value,
-                isEscaped ? m_postDungeonDustDelta : 0);
+            var playerController = GetComponent<PlayerController>();
+            if (playerController != null)
+            {
+                await LogGotchiDeltaDataServerRpcAsync(
+                    playerController.NetworkGotchiId.Value,                 // gotchiId
+                    isEscaped ? (int)m_teamDustCounter.Count.Value : 0);    // dust delta
+            }
+
         }
         catch
         {
@@ -424,30 +415,28 @@ public class PlayerOffchainData : NetworkBehaviour
 
     }
 
-    private async UniTask LogWalletDeltaDataServerRpcAsync(int ectoDelta, int bombDelta)
+    private async UniTask LogWalletDeltaDataServerRpcAsync(int ectoDelta, int bombDelta, int portaHoleDelta, int zenCricketDelta)
     {
         try
         {
+            string url = dbUri + "/wallets/delta/" + m_walletAddress;
             var json = JsonUtility.ToJson(new WalletDelta_Data
             {
                 ecto_delta = ectoDelta,
-                bomb_delta = bombDelta
+                bomb_delta = bombDelta,
+                portahole_delta = portaHoleDelta,
+                zencricket_delta = zenCricketDelta
             });
 
-            Debug.Log($"LogWalletDelta, ecto: {ectoDelta}, bomb: {bombDelta}");
-
-            var responseStr = await Dropt.Utils.Http.PostRequest(dbUri + "/wallets/delta/" + m_walletAddress, json);
+            var responseStr = await Dropt.Utils.Http.PostEncryptedRequest(url, json, Bootstrap.Instance.DbSecret);
             if (!string.IsNullOrEmpty(responseStr))
             {
                 Wallet_Data walletData = JsonUtility.FromJson<Wallet_Data>(responseStr);
 
-                ectoBalance_offchain = walletData.ecto_balance;
-                bombBalance_offchain = walletData.bomb_balance;
-
-                SyncServerDataToClient();
-
-
-                Debug.Log("set ecto balance to: " + ectoBalance_offchain);
+                m_ectoVillageBalance_wallet.Value = walletData.ecto_balance;
+                m_bombLiveBalance_wallet.Value = walletData.bomb_balance;
+                m_portaHoleLiveBalance_wallet.Value = walletData.portahole_balance;
+                m_zenCricketLiveBalance_wallet.Value = walletData.zencricket_balance;
 
                 return;
             }
@@ -462,6 +451,7 @@ public class PlayerOffchainData : NetworkBehaviour
     {
         try
         {
+            var url = dbUri + "/gotchis/delta/" + gotchiId;
             var json = JsonUtility.ToJson(new GotchiDelta_Data
             {
                 dust_delta = dustDelta,
@@ -469,15 +459,11 @@ public class PlayerOffchainData : NetworkBehaviour
 
             Debug.Log($"LogGotchiDelta, dust: {dustDelta}");
 
-            var responseStr = await Dropt.Utils.Http.PostRequest(dbUri + "/gotchis/delta/" + gotchiId, json);
+            var responseStr = await Dropt.Utils.Http.PostEncryptedRequest(url, json, Bootstrap.Instance.DbSecret);
             if (!string.IsNullOrEmpty(responseStr))
             {
                 Gotchi_Data gotchiData = JsonUtility.FromJson<Gotchi_Data>(responseStr);
-                dustBalance_offchain = gotchiData.dust_balance;
-
-                SyncServerDataToClient();
-
-                Debug.Log("Set gotchi dust to: " + dustBalance_offchain);
+                m_dustVillageBalance_gotchi.Value = gotchiData.dust_balance;
 
                 return;
             }
@@ -493,10 +479,7 @@ public class PlayerOffchainData : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        dustLiveCount_dungeon += value;
-
-        SyncServerDataToClient();
-
+        m_teamDustCounter.Count.Value += value;
     }
 
     // Method to add ecto
@@ -505,76 +488,111 @@ public class PlayerOffchainData : NetworkBehaviour
         if (!IsServer) return false;
         if (value <= 0) return false;
 
-        ectoLiveCount_dungeon += value;
-
-        SyncServerDataToClient();
-
+        m_ectoLiveCount_dungeon.Value += value;
 
         return true;
     }
 
-    // Method to remove ecto
-    public async UniTask<bool> RemoveEcto(int value)
+    public bool AddVillageEcto(int value)
     {
         if (!IsServer) return false;
         if (value <= 0) return false;
+        if (!LevelManager.Instance.IsDegenapeVillage()) return false;
 
-        // if in village, deduct straight from database
-        if (LevelManager.Instance.IsDegenapeVillage())
+        if (!string.IsNullOrEmpty(m_walletAddress))
         {
-            // check if we have sufficent ecto balance
-            if (value <= ectoBalance_offchain)
-            {
-                try
-                {
-                    await LogWalletDeltaDataServerRpcAsync(-value, 0);
-                    SyncServerDataToClient();
-
-                    return true;
-                }
-                catch
-                {
-                    return false;
-                }
-            }
-        }
-        // if in dungeon, deduct from ecto live count
-        else
-        {
-            var isSpent = TrySpendDungeonEcto(value);
-            SyncServerDataToClient();
-
-            return isSpent;
+            _ = LogWalletDeltaDataServerRpcAsync(value, 0, 0, 0);
         }
 
         return true;
     }
 
-    /// <summary>
-    /// Krunals function
-    /// </summary>
-    /// <param name="value"></param>
-    /// <returns></returns>
-    public bool DoWeHaveEctoGraterThanOrEqualTo(int value)
+    public bool AddVillageBombs(int value)
     {
-        return value >= ectoBalance_offchain;
+        if (!IsServer) return false;
+        if (value <= 0) return false;
+        if (!LevelManager.Instance.IsDegenapeVillage()) return false;
+
+        if (!string.IsNullOrEmpty(m_walletAddress))
+        {
+            _ = LogWalletDeltaDataServerRpcAsync(0, value, 0, 0);
+        }
+
+        return true;
     }
 
-    /// <summary>
-    /// Slicks function
-    /// </summary>
-    public bool IsEctoBalanceGreaterThanOrEqualTo(int value)
+    public bool AddVillagePortaHoles(int value)
     {
-        if (LevelManager.Instance == null) return false;
+        if (!IsServer) return false;
+        if (value <= 0) return false;
+        if (!LevelManager.Instance.IsDegenapeVillage()) return false;
 
-        if (LevelManager.Instance.IsDegenapeVillage())
+        if (!string.IsNullOrEmpty(m_walletAddress))
         {
-            return ectoBalance_offchain >= value;
+            _ = LogWalletDeltaDataServerRpcAsync(0, 0, value, 0);
         }
-        else
+
+        return true;
+    }
+
+    public bool AddVillageZenCrickets(int value)
+    {
+        if (!IsServer) return false;
+        if (value <= 0) return false;
+        if (!LevelManager.Instance.IsDegenapeVillage()) return false;
+
+        if (!string.IsNullOrEmpty(m_walletAddress))
         {
-            return (ectoLiveCount_dungeon + ectoDebitCount_dungeon) >= value;
+            _ = LogWalletDeltaDataServerRpcAsync(0, 0, 0, value);
         }
+
+        return true;
+    }
+
+    public async UniTask<bool> RemoveVillageEcto(int value)
+    {
+        if (!IsServer) return false;
+        if (value <= 0) return false;
+        if (!LevelManager.Instance.IsDegenapeVillage()) return false;
+
+        if (value <= m_ectoVillageBalance_wallet.Value)
+        {
+            try
+            {
+                await LogWalletDeltaDataServerRpcAsync(-value, 0, 0, 0);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public bool RemoveDungeonEcto(int value)
+    {
+        if (!IsServer) return false;
+        if (value <= 0) return false;
+        if (LevelManager.Instance.IsDegenapeVillage()) return false;
+
+        var isSpent = TrySpendDungeonEcto(value);
+        return isSpent;
+    }
+
+    public bool IsVillageEctoGreaterThanOrEqualTo(int value)
+    {
+        if (!LevelManager.Instance.IsDegenapeVillage()) return false;
+
+        return m_ectoVillageBalance_wallet.Value >= value;
+    }
+
+    public bool IsDungeonEctoGreaterThanOrEqualTo(int value)
+    {
+        if (LevelManager.Instance.IsDegenapeVillage()) return false;
+
+        return (m_ectoLiveCount_dungeon.Value + m_ectoDebitCount_dungeon.Value) >= value;
     }
 
     // Method to remove ecto
@@ -582,8 +600,8 @@ public class PlayerOffchainData : NetworkBehaviour
     {
         if (!IsServer) return false;
 
-        var ectoLive = ectoLiveCount_dungeon;
-        var ectoDebit = ectoDebitCount_dungeon;
+        var ectoLive = m_ectoLiveCount_dungeon.Value;
+        var ectoDebit = m_ectoDebitCount_dungeon.Value;
 
         // check if we have enough ecto
         if ((ectoLive + ectoDebit) < value) return false;
@@ -593,16 +611,13 @@ public class PlayerOffchainData : NetworkBehaviour
 
         if (debitDelta < 0)
         {
-            ectoLiveCount_dungeon = 0;
-            ectoDebitCount_dungeon += debitDelta;
+            m_ectoLiveCount_dungeon.Value = 0;
+            m_ectoDebitCount_dungeon.Value += debitDelta;
         }
         else
         {
-            ectoLiveCount_dungeon -= value;
+            m_ectoLiveCount_dungeon.Value -= value;
         }
-
-        SyncServerDataToClient();
-
 
         return true;
     }
@@ -658,20 +673,10 @@ public class PlayerOffchainData : NetworkBehaviour
     [System.Serializable]
     public class Wallet_Data
     {
-        public string id;
         public int ecto_balance;
         public int bomb_balance;
-    }
-
-    [System.Serializable]
-    public class Gotchi_Data
-    {
-        public int id;
-        public int ecto_dungeon_start_amount;
-        public int bomb_dungeon_capacity;
-        public int heal_salve_dungeon_charges;
-        public int dust_balance;
-        public bool is_essence_infused;
+        public int portahole_balance;
+        public int zencricket_balance;
     }
 
     [System.Serializable]
@@ -679,6 +684,19 @@ public class PlayerOffchainData : NetworkBehaviour
     {
         public int ecto_delta;
         public int bomb_delta;
+        public int portahole_delta;
+        public int zencricket_delta;
+    }
+
+    [System.Serializable]
+    public class Gotchi_Data
+    {
+        public int bomb_capacity;
+        public int portahole_capacity;
+        public int zencricket_capacity;
+        public bool is_essence_infused;
+        public int ecto_dungeon_start_amount;
+        public int dust_balance;
     }
 
     [System.Serializable]
@@ -687,42 +705,66 @@ public class PlayerOffchainData : NetworkBehaviour
         public int dust_delta;
     }
 
-    public void UseHealSalveItem()
+    public bool TryUseDungeonBomb()
     {
-        if (!IsServer) return;
+        if (!IsServer) return false;
 
-        healSalveChargeCount_dungeon--;
-        SyncServerDataToClient();
-
+        if (m_bombLiveCount_dungeon.Value > 0)
+        {
+            m_bombLiveCount_dungeon.Value--;
+            _ = LogWalletDeltaDataServerRpcAsync(0, -1, 0, 0);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
-    public bool IsBombAvailable()
+    public bool TryUseDungeonPortaHole()
     {
-        return bombLiveCount_dungeon > 0;
+        if (!IsServer) return false;
+
+        if (m_portaHoleLiveCount_dungeon.Value > 0)
+        {
+            m_portaHoleLiveCount_dungeon.Value--;
+            _ = LogWalletDeltaDataServerRpcAsync(0, 0, -1, 0);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
-    public void UseBombItem()
+    public bool TryUseDungeonZenCricket()
     {
-        if (!IsServer) return;
+        if (!IsServer) return false;
 
-        bombLiveCount_dungeon--;
-
-        SyncServerDataToClient();
-
+        if (m_zenCricketLiveCount_dungeon.Value > 0)
+        {
+            m_zenCricketLiveCount_dungeon.Value--;
+            _ = LogWalletDeltaDataServerRpcAsync(0, 0, 0, -1);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
-    public int GetEctoDeltaValue()
+    public int GetEctoDeltaValue_PostDungeon()
     {
-        return m_postDungeonEctoDelta;
+        return m_ectoDelta_postDungeon.Value;
     }
 
-    public int GetDustDeltaValue()
+    public int GetDustDeltaValue_PostDungeon()
     {
-        return m_postDungeonDustDelta;
+        return m_dustDelta_postDungeon.Value;
     }
 
-    public int GetBombDeltaValue()
-    {
-        return m_postDungeonBombDelta;
-    }
+    //public int GetBombDeltaValue()
+    //{
+    //    return m_postDungeonBombDelta;
+    //}
 }

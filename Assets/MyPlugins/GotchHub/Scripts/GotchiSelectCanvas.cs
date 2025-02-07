@@ -190,28 +190,17 @@ namespace GotchiHub
 
         public void ClickOnConnect()
         {
-            ConnectWallet();
-        }
+            SetMenuScreen(MenuScreen.Loading);
 
-        async private void ConnectWallet()
-        {
-            try
+            switch (Web3AuthCanvas.Instance.GetConnectionState())
             {
-#if UNITY_WEBGL
-                var newProvider = WalletProvider.MetaMaskWallet;
-#else
-                var newProvider = WalletProvider.WalletConnectWallet;
-#endif
-
-                Debug.Log($"Set provider: {newProvider.ToString()}");
-
-                var walletOptions = new WalletOptions(provider: newProvider, chainId: 137);
-
-                await ThirdwebManager.Instance.ConnectWallet(walletOptions);
-            }
-            catch (System.Exception e)
-            {
-                Debug.LogWarning(e.Message);
+                case Web3AuthCanvas.ConnectionState.NotConnected:
+                    Web3AuthCanvas.Instance.Connect();
+                    break;
+                case Web3AuthCanvas.ConnectionState.ConnectedNotAuthenticated:
+                    Web3AuthCanvas.Instance.SignIn();
+                    break;
+                default: break;
             }
         }
 
@@ -256,29 +245,6 @@ namespace GotchiHub
             m_menuScreen = menuScreen;
         }
 
-        private float m_updateGHSTimer = 0f;
-
-        private async void UpdateGHSTBalance()
-        {
-            m_updateGHSTimer -= Time.deltaTime;
-            if (m_updateGHSTimer > 0) return;
-            m_updateGHSTimer = 10f;
-
-            try
-            {
-                var wallet = ThirdwebManager.Instance.GetActiveWallet();
-                if (wallet == null) return;
-
-                // get ghst balance
-                var bal = await wallet.GetBalance(137, polygonGHSTAddress);
-                ghstBalance.text = ((float)bal / 1e18).ToString("F2");
-            }
-            catch (System.Exception e)
-            {
-                Debug.Log(e);
-            }
-        }
-
         public string GetConnectedWallet()
         {
             return m_walletAddress;
@@ -293,7 +259,7 @@ namespace GotchiHub
 
         public override void OnShowCanvas()
         {
-            UpdateGotchiList();
+            //UpdateGotchiList();
             SelectById(GotchiDataManager.Instance.GetSelectedGotchiId());
         }
 
@@ -306,6 +272,17 @@ namespace GotchiHub
         void HandleOnFetchAllGotchiDataAndSvgs()
         {
             UpdateGotchiList();
+
+            // show screen depending on gotchi count
+            var numGotchis = m_gotchiDataManager.localWalletGotchiData.Count;
+            if (numGotchis <= 0)
+            {
+                SetMenuScreen(MenuScreen.NoGotchis);
+            }
+            else if (m_menuScreen != MenuScreen.Connected)
+            {
+                SetMenuScreen(MenuScreen.Connected);
+            }
         }
 
 
@@ -335,7 +312,7 @@ namespace GotchiHub
             if (!GotchiSelectCanvas.Instance.isCanvasOpen) return;
             if (m_isFetching) return;
 
-            UpdateGHSTBalance();
+            //UpdateGHSTBalance();
 
             m_updateTimer -= Time.deltaTime;
             if (m_updateTimer > 0) return;
@@ -343,10 +320,8 @@ namespace GotchiHub
 
             try
             {
-                if (ThirdwebManager.Instance == null) return;
-
                 // get current wallet
-                var wallet = ThirdwebManager.Instance.GetActiveWallet();
+                var wallet = Web3AuthCanvas.Instance.GetActiveWallet();
                 if (wallet == null)
                 {
                     SetMenuScreen(MenuScreen.NotConnected);
@@ -363,43 +338,43 @@ namespace GotchiHub
 
                 // address check
                 var address = await wallet.GetAddress();
-                if (address != m_walletAddress)
+                if (address.ToLower() != m_walletAddress.ToLower())
                 {
-                    m_walletAddress = address;
+                    m_walletAddress = address.ToLower();
 
                     // clear old list
                     ClearGotchiListChildren();
 
-                    ConnectButton.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = address;
+                    ConnectButton.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = ShortenString(address);
                     ConnectButton.GetComponentInChildren<Image>().color = Dropt.Utils.Color.HexToColor("#d3fc7e");
-                    ConnectButton.GetComponentInChildren<TextEllipsisInMiddle>().UpdateTextWithEllipsis();
 
                     SetMenuScreen(MenuScreen.Loading);
 
                     // fetch new gotchis due to different address
-                    Debug.Log("Wallet address changed, fetch new wallet gotchi data");
+                    //Debug.Log("Wallet address changed, fetch new wallet gotchi data");
                     m_isFetching = true;
                     await m_gotchiDataManager.FetchWalletGotchiData();
                     m_isFetching = false;
 
-                    Debug.Log("New wallet data fetched");
-                }
-
-                // show screen depending on gotchi count
-                var numGotchis = m_gotchiDataManager.localWalletGotchiData.Count;
-                if (numGotchis <= 0)
-                {
-                    SetMenuScreen(MenuScreen.NoGotchis);
-                } else if (m_menuScreen != MenuScreen.Connected)
-                {
-                    SetMenuScreen(MenuScreen.Connected);
+                    //Debug.Log("New wallet data fetched");
                 }
                 
             }
             catch (System.Exception e)
             {
-                //Debug.Log(e);
+                Debug.Log(e);
             }
+        }
+
+        public string ShortenString(string input)
+        {
+            if (input.Length <= 10) // If the string is too short, return it as is
+                return input;
+
+            string firstPart = input.Substring(0, 6);
+            string lastPart = input.Substring(input.Length - 4);
+
+            return firstPart + "..." + lastPart;
         }
 
         void HideAllMenus()
@@ -595,7 +570,7 @@ namespace GotchiHub
             if (onchainSvgImage != null) onchainSvgImage.gameObject.SetActive(false);
 
             //if (wearable != null && wearableId != 0 && wearableId < 990)
-            if (!isWeapon && wearableId != 0)
+            if (wearable != null && !isWeapon && wearableId != 0)
             {
                 wearable = WearableManager.Instance.GetWearable(wearable.NameType);
                 var svgSprite = wearable.SvgSprite;

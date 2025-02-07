@@ -71,6 +71,8 @@ public class AttackPathVisualizer : MonoBehaviour
     {
         if (Bootstrap.IsServer()) return;
 
+        SetInvisibleIfLocalPlayerHoldKeyIsUp();
+
         if (!fillMeshFilter.gameObject.activeSelf) return;
 
         if (useCircle)
@@ -83,12 +85,42 @@ public class AttackPathVisualizer : MonoBehaviour
             UpdateRectangleFill();
             UpdateRectangleBorder();
         }
+
+    }
+
+    // we need to regularly check that the local player isn't holding anything down
+    // to set the visualizer to not visible
+    void SetInvisibleIfLocalPlayerHoldKeyIsUp()
+    {
+        var players = Game.Instance.playerControllers;
+        foreach (var pc in players)
+        {
+                
+            var networkObject = pc.GetComponent<NetworkObject>();
+            if (networkObject != null && networkObject.IsLocalPlayer)
+            {
+                var playerPrediction = pc.GetComponent<PlayerPrediction>();
+                if (playerPrediction != null)
+                {
+                    if (!playerPrediction.isLeftAttackPressed && !playerPrediction.isRightAttackPressed)
+                    {
+                        SetMeshVisible(false);
+                    }
+                }
+            }
+        }
     }
 
     public void SetMeshVisible(bool isVisible)
     {
-        fillMeshFilter.gameObject.SetActive(isVisible);
-        borderMeshFilter.gameObject.SetActive(isVisible);
+        if (fillMeshFilter.gameObject.activeSelf != isVisible)
+        {
+            fillMeshFilter.gameObject.SetActive(isVisible);
+        }
+        if (borderMeshFilter.gameObject.activeSelf != isVisible)
+        {
+            borderMeshFilter.gameObject.SetActive(isVisible);
+        }
     }
 
     private void InitializeMeshObjects()

@@ -37,7 +37,7 @@ public class Spawner_NetworkObject_v2 : MonoBehaviour
         }
 
         // if sum < 1, don't do any normalization
-        if (sum <= 1) return;
+        //if (sum <= 1) return;
 
         // don't allow division by zero
         if (sum <= 0) sum = 1;

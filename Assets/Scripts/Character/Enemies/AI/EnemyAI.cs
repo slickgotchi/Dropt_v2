@@ -4,6 +4,7 @@ using UnityEngine.AI;
 using Unity.Mathematics;
 using System.Collections.Generic;
 using Unity.Netcode.Components;
+using Cysharp.Threading.Tasks;
 
 namespace Dropt
 {
@@ -93,7 +94,8 @@ namespace Dropt
             Stun,
             Flee,
             PredictionToAuthorativeSmoothing,
-            Dead
+            Dead,
+            Stop
         }
 
         [HideInInspector] public NetworkVariable<State> state = new NetworkVariable<State>(State.Spawn);
@@ -479,13 +481,47 @@ namespace Dropt
             OnDeadUpdate(dt);
         }
 
-        public void Knockback(Vector3 direction, float distance, float stunTime)
+        public bool isKnockback = false;
+
+        public float stunMultiplier = 1f;
+        float m_preStunSpeed = 1f;
+
+        public bool isStopped = false;
+        public Vector3 stopPosition;
+
+        async public UniTaskVoid Knockback(Vector3 direction, float distance, float stunTime)
         {
+            /*
+            // try a brief stop
+            isStopped = true;
+            stopPosition = transform.position;
+
+            if (m_navMeshAgent != null && m_navMeshAgent.isOnNavMesh)
+            {
+                m_navMeshAgent.isStopped = true;
+            }
+
+            await UniTask.Delay((int)(stunTime * 1000));
+
+            isStopped = false;
+
+            if (m_navMeshAgent != null && m_navMeshAgent.isOnNavMesh)
+            {
+                m_navMeshAgent.isStopped = false;
+            }
+            */
+
+            /*
+            // GOING TO DISABLE KNOCKBACK FOR NOW (BUT NOT STUN)
+            // - set distance to 0
+            distance = 0;
+
+            
             if (state.Value == State.Attack) return;
             if (state.Value == State.Spawn) return;
 
             var noKnockback = GetComponent<NoKnockback>();
-            if (noKnockback != null) return;
+            if (noKnockback != null && noKnockback.enabled) return;
 
             // get network character
             var networkCharacter = GetComponent<NetworkCharacter>();
@@ -500,7 +536,7 @@ namespace Dropt
 
             // recalc distance allowing for collisions
             distance = CalculateKnockbackDistance(direction, distance);
-
+            
             // set stun timer parameters
             StunDuration = stunTime;
             m_stunTimer = stunTime;
@@ -526,10 +562,17 @@ namespace Dropt
             }
             else if (IsClient)
             {
+                
                 m_clientPredictedState = State.Knockback;
                 if (m_networkTransform != null) m_networkTransform.enabled = false;
+
+                var droptNetworkTransform = GetComponent<DroptNetworkTransform>();
+                if (droptNetworkTransform != null) droptNetworkTransform.enabled = false;
+
                 m_knockbackDuration = k_knockbackDuration;
+                
             }
+            */
         }
 
         public Vector3 GetKnockbackPosition()
@@ -560,6 +603,12 @@ namespace Dropt
                 m_clientPredictedState = State.Stun;
                 m_predictedStunFinishPosition = transform.position;
                 if (m_networkTransform != null) m_stunTimer = StunDuration;
+
+                var droptNetworkTransform = GetComponent<DroptNetworkTransform>();
+                if (droptNetworkTransform != null) m_stunTimer = StunDuration;
+
+
+
                 return;
             }
         }
@@ -581,6 +630,15 @@ namespace Dropt
                 m_smoothingTimer = 0f;
                 transform.position = m_predictedStunFinishPosition;
                 if (m_networkTransform != null) m_networkTransform.enabled = true;
+
+                var droptNetworkTransform = GetComponent<DroptNetworkTransform>();
+                if (droptNetworkTransform != null) droptNetworkTransform.enabled = true;
+
+                if (m_navMeshAgent != null && m_navMeshAgent.isOnNavMesh)
+                {
+                    m_navMeshAgent.isStopped = false;
+                }
+
                 return;
             }
         }

@@ -10,11 +10,12 @@ public class BombItem : NetworkBehaviour
     private SoundFX_BombItem m_soundFX_BombItem;
     [SerializeField] private GameObject m_explosionEffect;
     [SerializeField] private LayerMask m_destructibleLayer;
+    [SerializeField] private LayerMask m_enemyLayer;
     [SerializeField] private GameObject m_body;
     [SerializeField] private LineRenderer m_lineRenderer;
     public int segments = 100;
     public ulong OwnerId;
-    private readonly float m_fadeDuration = 0.5f;
+    private readonly float m_fadeDuration = 3f;
 
     public override async void OnNetworkSpawn()
     {
@@ -31,7 +32,7 @@ public class BombItem : NetworkBehaviour
             await StartTimer();
             m_body.SetActive(false);
             SpawnExplosionEffectClientRpc();
-            DetactAndDestroyDestructible();
+            DetectAndDestroyDestructible();
             await UniTask.Delay(1000);
             GetComponent<NetworkObject>().Despawn();
         }
@@ -48,8 +49,9 @@ public class BombItem : NetworkBehaviour
     {
         Material material = m_lineRenderer.materials[0];
         material.DOFade(0, m_fadeDuration);
-        Color currentColor = material.GetColor("_Color"); // Get the current color
-        Color targetColor = new Color(currentColor.r, currentColor.g, currentColor.b, 0f);
+        //Color currentColor = material.GetColor("_Color"); // Get the current color
+        //Color targetColor = new Color(currentColor.r, currentColor.g, currentColor.b, 0f);
+        Color targetColor = new Color(0.9607f, 0.3333f, 0.3647f, 0f);
         _ = material.DOColor(targetColor, "_Color", m_fadeDuration);
     }
 
@@ -72,6 +74,8 @@ public class BombItem : NetworkBehaviour
 
     private void UpdateTimerText(int timer)
     {
+        if (timer == 0) return;
+
         Transform myTransform = transform;
         Vector3 textposition = new Vector3(myTransform.position.x,
                                            myTransform.position.y + 0.5f,
@@ -85,11 +89,11 @@ public class BombItem : NetworkBehaviour
 
     private async UniTask StartTimer()
     {
-        await UniTask.Delay(1000);
         while (m_timer.Value > 0)
         {
-            m_timer.Value--;
             await UniTask.Delay(1000);
+            m_timer.Value--;
+            //await UniTask.Delay(1000);
         }
     }
 
@@ -103,13 +107,21 @@ public class BombItem : NetworkBehaviour
         m_soundFX_BombItem.PlayExplosionSound();
     }
 
-    private void DetactAndDestroyDestructible()
+    private void DetectAndDestroyDestructible()
     {
         Collider2D[] destructibleObjects = Physics2D.OverlapCircleAll(transform.position, m_radius, m_destructibleLayer);
         foreach (Collider2D destructibleObject in destructibleObjects)
         {
             Destructible destructible = destructibleObject.GetComponent<Destructible>();
             destructible.Explode(OwnerId);
+        }
+
+        Collider2D[] enemyObjects = Physics2D.OverlapCircleAll(transform.position, m_radius, m_enemyLayer);
+        foreach (Collider2D enemyObject in enemyObjects)
+        {
+            NetworkCharacter networkCharacter = enemyObject.GetComponent<NetworkCharacter>();
+            var playerObject = NetworkManager.SpawnManager.SpawnedObjects[OwnerId].gameObject;
+            networkCharacter.TakeDamage(999, true, playerObject);
         }
     }
 }

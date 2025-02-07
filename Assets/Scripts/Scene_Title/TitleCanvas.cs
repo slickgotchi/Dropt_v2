@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using DG.Tweening;
+using Cysharp.Threading.Tasks;
 
 public class TitleCanvas : MonoBehaviour
 {
@@ -35,8 +36,7 @@ public class TitleCanvas : MonoBehaviour
         playButton.onClick.AddListener(() =>
         {
             if (Bootstrap.IsClient()) Bootstrap.Instance.GameId = "";
-            LoadingCanvas.Instance.WipeIn();
-            SceneManager.LoadScene("Game");
+            _ = GoToGameSceneWithWipeDelay();
         });
 
         optionsButton.onClick.AddListener(() =>
@@ -48,8 +48,7 @@ public class TitleCanvas : MonoBehaviour
         {
             Bootstrap.Instance.GameId = joinInputField.text;
             Bootstrap.Instance.isJoiningFromTitle = true;
-            LoadingCanvas.Instance.WipeIn();
-            SceneManager.LoadScene("Game");
+            _ = GoToGameSceneWithWipeDelay();
         });
 
         if (Defines.FAST_START)
@@ -69,6 +68,13 @@ public class TitleCanvas : MonoBehaviour
             m_fadeOutCanvasGroup.alpha = 1;
             m_fadeTween = m_fadeOutCanvasGroup.DOFade(0, m_fadeOutDuration).SetEase(Ease.InOutQuad);
         }
+    }
+
+    async UniTaskVoid GoToGameSceneWithWipeDelay()
+    {
+        LoadingCanvas.Instance.WipeIn();
+        await UniTask.Delay(500);
+        SceneManager.LoadScene("Game");
     }
 
     private void Handle_DropdownChange(int index)

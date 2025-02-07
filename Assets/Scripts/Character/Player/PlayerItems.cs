@@ -12,8 +12,11 @@ public class PlayerItems : NetworkBehaviour
     private PlayerOffchainData m_playerOffchainData;
     private SoundFX_Player m_soundFX_Player;
 
-    [SerializeField] private GameObject m_healSlaveEffect;
-    [SerializeField] private GameObject m_bombObject;
+    [SerializeField] private GameObject m_zenCricketEffect;
+    [SerializeField] private GameObject m_bombPrefab;
+    [SerializeField] private GameObject m_holePrefab;
+
+    private PlayerGotchi m_playerGotchi;
 
     public override void OnNetworkSpawn()
     {
@@ -22,6 +25,7 @@ public class PlayerItems : NetworkBehaviour
         m_soundFX_Player = GetComponent<SoundFX_Player>();
         if (!IsLocalPlayer) return;
         InitializeInputActions();
+        m_playerGotchi = GetComponent<PlayerGotchi>();
     }
 
     private void InitializeInputActions()
@@ -44,24 +48,44 @@ public class PlayerItems : NetworkBehaviour
         m_useItem4.Enable();
     }
 
+    Vector3 GetPlacementOffset(PlayerGotchi.Facing facing)
+    {
+        switch (facing)
+        {
+            case PlayerGotchi.Facing.Front: return new Vector3(0, -0.5f, 0);
+            case PlayerGotchi.Facing.Back: return new Vector3(0, 1.5f, 0);
+            case PlayerGotchi.Facing.Left: return new Vector3(-1.5f, 0.5f, 0);
+            case PlayerGotchi.Facing.Right: return new Vector3(1.5f, 0.5f, 0);
+            default: break;
+        }
+
+        return Vector3.zero;
+    }
+
+
     #region Input Action Listners
 
     private void OnUseItem1Performed(InputAction.CallbackContext obj)
     {
-        UseHealSalveItemServerRpc();
+        Debug.Log("Use Item1");
+        UseBombItemServerRpc(GetPlacementOffset(m_playerGotchi.GetFacing()));
     }
 
     private void OnUseItem2Performed(InputAction.CallbackContext obj)
     {
-        UseBombItemServerRpc();
+        Debug.Log("Use Item2");
+        UsePortaHoleItemServerRpc(GetPlacementOffset(m_playerGotchi.GetFacing()));
     }
 
     private void OnUseItem3Performed(InputAction.CallbackContext obj)
     {
+        Debug.Log("Use Item3");
+        UseZenCricketItemServerRpc();
     }
 
     private void OnUseItem4Performed(InputAction.CallbackContext obj)
     {
+        Debug.Log("Use Item4");
     }
 
     #endregion
@@ -71,48 +95,92 @@ public class PlayerItems : NetworkBehaviour
         return !LevelManager.Instance.IsDegenapeVillage();
     }
 
-    #region HealSalve Item
+    #region Bomb Item
 
     [ServerRpc]
-    private void UseHealSalveItemServerRpc()
+    private void UseBombItemServerRpc(Vector3 placementOffset)
     {
         if (!IsInDungeons())
         {
-            WarningClientRpc("Heal Salve Can Only Be Used In Dungeons");
+            WarningClientRpc("Bomb item can only be used in dungeons");
             return;
         }
 
-        if (!IsHealSalveChargeAvailable())
+        var success = m_playerOffchainData.TryUseDungeonBomb();
+        if (success)
         {
-            WarningClientRpc("You Dont Have Heal Items.");
+            GameObject bombItem = Instantiate(m_bombPrefab,
+                transform.position + placementOffset, Quaternion.identity);
+            bombItem.GetComponent<BombItem>().OwnerId = GetComponent<NetworkObject>().NetworkObjectId;
+            bombItem.GetComponent<NetworkObject>().Spawn();
+        }
+        else
+        {
+            DebugLogClientRpc("You Dont Have Bomb Items.");
+        }
+    }
+
+    #endregion
+
+    #region PortaHole Item
+
+    [ServerRpc]
+    private void UsePortaHoleItemServerRpc(Vector3 placementOffset)
+    {
+        if (!IsInDungeons())
+        {
+            WarningClientRpc("Port-a-Hole item can only be used in dungeons");
+            return;
+        }
+
+        var success = m_playerOffchainData.TryUseDungeonPortaHole();
+        if (success)
+        {
+            GameObject holeItem = Instantiate(m_holePrefab,
+                transform.position + placementOffset, Quaternion.identity);
+            holeItem.GetComponent<NetworkObject>().Spawn();
+        }
+        else
+        {
+            DebugLogClientRpc("You Dont Have PortaHole Items.");
+        }
+    }
+
+    #endregion
+
+    #region HealSalve Item
+
+    [ServerRpc]
+    private void UseZenCricketItemServerRpc()
+    {
+        if (!IsInDungeons())
+        {
+            WarningClientRpc("Zen Cricket item can only be used in dungeons");
             return;
         }
 
         PlayerCharacter playerCharacter = GetComponent<PlayerCharacter>();
-        if (playerCharacter.IsHpFullyCharged()) return;
-        playerCharacter.RecoverHealthByPercentageOfTotalHp(40);
-        m_playerOffchainData.UseHealSalveItem();
-        //UpdateHealSalveItemClientRpc(m_playerOffchainData.healSalveChargeCount_dungeon.Value,
-        //                             m_playerOffchainData.healSalveDungeonCharges_offchain.Value);
-        GenerateHealSalveEffectClientRpc();
-    }
+        if (playerCharacter != null)
+        {
+            if (playerCharacter.IsHpFullyCharged()) return;
 
-    //[ClientRpc]
-    //private void UpdateHealSalveItemClientRpc(int currentHealCharge, int maxHealCharge)
-    //{
-    //    if (!IsLocalPlayer) return;
-    //    PlayerHUDCanvas.Instance.UpdateHealSlaveUpItem(currentHealCharge, maxHealCharge);
-    //}
-
-    private bool IsHealSalveChargeAvailable()
-    {
-        return m_playerOffchainData.healSalveChargeCount_dungeon > 0;
+            var success = m_playerOffchainData.TryUseDungeonZenCricket();
+            if (success)
+            {
+                playerCharacter.RecoverHealthByPercentageOfTotalHp(40);
+                GenerateHealSalveEffectClientRpc();
+            }
+            else
+            {
+                DebugLogClientRpc("You don't have any zen crickets");
+            }
+        }
     }
 
     [ClientRpc]
     private void GenerateHealSalveEffectClientRpc()
     {
-        GameObject effect = Instantiate(m_healSlaveEffect, transform);
+        GameObject effect = Instantiate(m_zenCricketEffect, transform);
         effect.transform.localPosition = new Vector3(0, 0.5f, 0);
         Destroy(effect, 3.0f);
         m_soundFX_Player.PlayHealSound();
@@ -120,41 +188,7 @@ public class PlayerItems : NetworkBehaviour
 
     #endregion
 
-    #region Bomb Item
-
-    [ServerRpc]
-    private void UseBombItemServerRpc()
-    {
-        if (!IsInDungeons())
-        {
-            WarningClientRpc("Bomb Item Can Only Be Used In Dungeons");
-            return;
-        }
-
-        if (!IsBombAvailable())
-        {
-            WarningClientRpc("You Dont Have Bomb Items.");
-            return;
-        }
-
-        m_playerOffchainData.UseBombItem();
-        PlaceBomb();
-    }
-
-    private bool IsBombAvailable()
-    {
-        return m_playerOffchainData.IsBombAvailable();
-    }
-
-    private void PlaceBomb()
-    {
-        GameObject bombItem = Instantiate(m_bombObject, transform.position, Quaternion.identity);
-        bombItem.GetComponent<BombItem>().OwnerId = GetComponent<NetworkObject>().NetworkObjectId;
-        NetworkObject networkObject = bombItem.GetComponent<NetworkObject>();
-        networkObject.Spawn();
-    }
-
-    #endregion
+    
 
     public override void OnNetworkDespawn()
     {
@@ -178,5 +212,12 @@ public class PlayerItems : NetworkBehaviour
     {
         if (!IsLocalPlayer) return;
         NotifyCanvas.Instance.SetVisible(message);
+    }
+
+    [ClientRpc]
+    private void DebugLogClientRpc(string message)
+    {
+        if (!IsLocalPlayer) return;
+        Debug.Log(message);
     }
 }

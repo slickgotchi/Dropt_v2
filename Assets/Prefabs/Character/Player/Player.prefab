@@ -480,7 +480,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &1019891872464464798
@@ -795,7 +795,6 @@ GameObject:
   - component: {fileID: -774090055585674696}
   - component: {fileID: -8059371171911978272}
   - component: {fileID: -6677643682976111441}
-  - component: {fileID: 4878605696326581850}
   - component: {fileID: -66779552448143468}
   - component: {fileID: 6173716106985737149}
   - component: {fileID: 2488828689398098102}
@@ -1013,6 +1012,7 @@ MonoBehaviour:
     m_InternalValue: 0
   m_totalDestroyedDestructibles:
     m_InternalValue: 0
+  HurtCollider2D: {fileID: 6283606698107285717}
 --- !u!114 &3992886838419682707
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1085,6 +1085,8 @@ MonoBehaviour:
   MovementMultiplier: 1
   IsInteracting: 0
   IsFreezeMovementWhileTargeting: 0
+  isLeftAttackPressed: 0
+  isRightAttackPressed: 0
 --- !u!114 &-6677643682976111441
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1100,18 +1102,6 @@ MonoBehaviour:
   Value: {x: 0, y: 0, z: 0}
   IsMoving: 0
   LastNonZeroVelocity: {x: 0, y: 0, z: 0}
---- !u!114 &4878605696326581850
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1519051571170098037}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5f83d817991c85a49b1e80a63715c8bd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &-66779552448143468
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1209,7 +1199,7 @@ MonoBehaviour:
   pingMean: 0
   pingHigh: 0
   pingLow: 0
-  RTT:
+  RTT_ms:
     m_InternalValue: 0
   serverFPS:
     m_InternalValue: 0
@@ -1227,8 +1217,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_flashColor: {r: 1, g: 1, b: 1, a: 1}
-  m_flashTime: 0.3
-  m_flashCount: 1
   m_spriteRenderers:
   - {fileID: 1612297573555755433}
   - {fileID: 2723815586771756021}
@@ -1246,19 +1234,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4fab4410d163ddc4d904b5305706efd5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ectoBalance_offchain: 0
-  dustBalance_offchain: 0
-  bombBalance_offchain: 0
-  ectoDungeonStartAmount_offchain: 0
-  bombDungeonCapacity_offchain: 0
-  healSalveDungeonCharges_offchain: 3
-  isEssenceInfused_offchain: 0
-  ectoDebitStartAmount_dungeon: 0
-  ectoDebitCount_dungeon: 0
-  ectoLiveCount_dungeon: 0
-  bombStartCount_dungeon: 3
-  bombLiveCount_dungeon: 0
-  healSalveChargeCount_dungeon: 0
+  m_ectoVillageBalance_wallet:
+    m_InternalValue: 0
+  m_bombLiveBalance_wallet:
+    m_InternalValue: 0
+  m_portaHoleLiveBalance_wallet:
+    m_InternalValue: 0
+  m_zenCricketLiveBalance_wallet:
+    m_InternalValue: 0
+  m_bombCapacity_gotchi:
+    m_InternalValue: 0
+  m_portaHoleCapacity_gotchi:
+    m_InternalValue: 0
+  m_zenCricketCapacity_gotchi:
+    m_InternalValue: 0
+  m_isEssenceInfused_gotchi:
+    m_InternalValue: 0
+  m_ectoDungeonStartAmount_gotchi:
+    m_InternalValue: 0
+  m_dustVillageBalance_gotchi:
+    m_InternalValue: 0
+  m_ectoDebitStartAmount_dungeon:
+    m_InternalValue: 0
+  m_ectoDebitCount_dungeon:
+    m_InternalValue: 0
+  m_ectoLiveCount_dungeon:
+    m_InternalValue: 0
+  m_bombLiveCount_dungeon:
+    m_InternalValue: 0
+  m_portaHoleLiveCount_dungeon:
+    m_InternalValue: 0
+  m_zenCricketLiveCount_dungeon:
+    m_InternalValue: 0
   dungeonFormation: solo
 --- !u!114 &3933483105401015273
 MonoBehaviour:
@@ -1462,8 +1469,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7710ad8b6c254162b3cc441467aaf06, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_healSlaveEffect: {fileID: 5879443292268764709, guid: 690be56a7ce75554dbc7a58c528018a0, type: 3}
-  m_bombObject: {fileID: 8131423919289326383, guid: 3ac3ed65ed24848d586a29e7ab9ce2e6, type: 3}
+  m_zenCricketEffect: {fileID: 1148534404970766894, guid: 974930936976fc34294feba411b454b5, type: 3}
+  m_bombPrefab: {fileID: 8131423919289326383, guid: 3ac3ed65ed24848d586a29e7ab9ce2e6, type: 3}
+  m_holePrefab: {fileID: 1249991746567512264, guid: 9250a285bcfa44e378c492d6b60e9be8, type: 3}
 --- !u!114 &7897468605786725820
 MonoBehaviour:
   m_ObjectHideFlags: 0

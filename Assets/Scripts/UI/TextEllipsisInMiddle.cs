@@ -5,6 +5,7 @@ using UnityEngine;
 [ExecuteAlways]  // Makes the script run in edit mode
 public class TextEllipsisInMiddle : MonoBehaviour
 {
+    /*
     public int startCharacters = 6;  // Number of characters to show at the start
     public int endCharacters = 4;    // Number of characters to show at the end
     [TextArea]
@@ -49,4 +50,5 @@ public class TextEllipsisInMiddle : MonoBehaviour
             tmpText.text = fullText;
         }
     }
+    */
 }

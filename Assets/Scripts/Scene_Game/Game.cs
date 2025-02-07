@@ -38,6 +38,8 @@ public class Game : MonoBehaviour
     [HideInInspector] public List<EnemyController> enemyControllers = new List<EnemyController>();
     [HideInInspector] public List<PetController> petControllers = new List<PetController>();
 
+    [HideInInspector] public PlayerController LocalPlayerController;
+
     private void Awake()
     {
         // Singleton pattern to ensure only one instance of the AudioManager exists
@@ -68,7 +70,7 @@ public class Game : MonoBehaviour
             {
                 // set a reasonably high target frame rate to reduce latency
                 //Application.targetFrameRate = Bootstrap.IsRemoteConnection() ? 1200 : 300;
-                Application.targetFrameRate = 60;   // 30fps is too low and starts adding significant (+40ms) latency
+                Application.targetFrameRate = 180;   // 30fps is too low and starts adding significant (+40ms) latency
                 QualitySettings.vSyncCount = 0;
 
                 // hide loading canvas
@@ -121,9 +123,17 @@ public class Game : MonoBehaviour
             }
         }
 
-        if (Bootstrap.IsClient())
+        if (Bootstrap.IsClient() || Bootstrap.IsHost())
         {
-
+            foreach (var playerController in playerControllers)
+            {
+                var networkObject = playerController.GetComponent<NetworkObject>();
+                if (networkObject != null && networkObject.IsLocalPlayer)
+                {
+                    LocalPlayerController = playerController;
+                    break;
+                }
+            }
         }
     }
 

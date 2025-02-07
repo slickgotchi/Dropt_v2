@@ -1,63 +1,87 @@
-using Cinemachine;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.Mathematics;
-using Unity.Netcode;
 using UnityEngine;
+using Unity.Mathematics;
 
-public class PlayerCamera : NetworkBehaviour
+
+public class PlayerCamera : MonoBehaviour
 {
-    private CinemachineVirtualCamera m_virtualCamera;
-    private CinemachineBasicMultiChannelPerlin m_perlin;
-    private float m_startingIntensity;
-    private float m_shakeTimer_s;
-    private float m_shakeTimerTotal_s;
+    [SerializeField] private GameObject m_trackedObject;
+    public Vector3 Offset = new Vector3(0, 0.5f, 0);
 
-    public override void OnNetworkSpawn()
+    [Header("Follow Settings")]
+    [SerializeField] private float m_smoothTime = 0.3f; // Normal smooth time
+    [SerializeField] private float maxLagDistance = 20f; // Max camera lag distance
+
+    private Vector3 velocity = Vector3.zero;
+
+    [Header("Shake Settings")]
+    private float m_shakeTimer_s = 0f;
+    private float m_shakeAmplitude = 0f;
+    private float m_shakeDuration_s = 0f;
+    private float m_elapsedTime_s = 0f;
+    private float m_shakeFrequency = 1f;
+
+    private void Start()
     {
-        base.OnNetworkSpawn();
+        m_shakeTimer_s = 0f;
+        m_shakeAmplitude = 0f;
+    }
 
-        return;
+    private void Update()
+    {
+        if (m_trackedObject == null) return;
 
-        var virtualCameraGameObject = GameObject.FindGameObjectWithTag("VirtualCamera");
-        if (virtualCameraGameObject == null)
+        Vector3 targetPosition = m_trackedObject.transform.position + Offset;
+
+        // Enforce max lag distance (prevent infinite lagging)
+        if (Vector3.Distance(transform.position, targetPosition) > maxLagDistance)
         {
-            Debug.LogWarning("No virtual camera exists in the scene");
-            return;
+            transform.position = targetPosition - (targetPosition - transform.position).normalized * maxLagDistance;
         }
 
-        m_virtualCamera = virtualCameraGameObject.GetComponent<CinemachineVirtualCamera>();
-        m_perlin = m_virtualCamera.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
-    }
-
-    public void Shake(float intensity = 1.5f, float time = 0.3f)
-    {
-        // lets get rid of camera shake for now
-        return;
-
-        if (!IsLocalPlayer || !IsSpawned) return;
-
-        m_perlin.m_AmplitudeGain = intensity;
-        m_shakeTimer_s = time;
-        m_shakeTimerTotal_s = time;
-        m_startingIntensity = intensity;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        return;
-
-        if (!IsLocalPlayer || !IsSpawned) return;
-
-        m_shakeTimer_s -= Time.deltaTime;
+        // Perlin noise shake
+        Vector2 shakeOffset = Vector2.zero;
+        m_elapsedTime_s += Time.deltaTime;
         if (m_shakeTimer_s > 0)
         {
-            math.lerp(m_startingIntensity, 0, m_shakeTimer_s / m_shakeTimerTotal_s);
+            float shakeAmount = m_shakeAmplitude * (m_shakeTimer_s / m_shakeDuration_s); // Fades out over time
+            shakeOffset.x = noise.snoise(new float2(m_elapsedTime_s * m_shakeFrequency, 0)) * shakeAmount;
+            shakeOffset.y = noise.snoise(new float2(0, m_elapsedTime_s * m_shakeFrequency)) * shakeAmount;
+
+            m_shakeTimer_s -= Time.deltaTime;
         }
-        else if (m_shakeTimer_s <= 0)
-        {
-            m_perlin.m_AmplitudeGain = 0f;
-        }
+
+        // Smoothly move towards target position
+        Vector3 smoothedPosition = Vector3.SmoothDamp(transform.position, targetPosition, ref velocity, m_smoothTime);
+
+        // Apply final shake-adjusted position
+        transform.position = new Vector3(smoothedPosition.x + shakeOffset.x, smoothedPosition.y + shakeOffset.y, -10f);
+    }
+
+    public void SetTrackedObject(GameObject trackedObject)
+    {
+        m_trackedObject = trackedObject;
+    }
+
+    /// <summary>
+    /// Starts a camera shake effect.
+    /// </summary>
+    public void Shake(float amplitude = 0.05f, float duration = 0.2f, float frequency = 10)
+    {
+        m_shakeAmplitude = amplitude;
+        m_shakeTimer_s = duration;
+        m_shakeDuration_s = duration;
+        m_shakeFrequency = frequency;
+    }
+
+    /// <summary>
+    /// Instantly moves the camera to the tracked object's position without smoothing.
+    /// </summary>
+    public void SnapToTrackedObjectImmediately()
+    {
+        if (m_trackedObject == null) return;
+
+        Vector3 targetPosition = m_trackedObject.transform.position + Offset;
+        transform.position = new Vector3(targetPosition.x, targetPosition.y, -10f); // Keep Z fixed
+        velocity = Vector3.zero; // Reset velocity to prevent SmoothDamp artifacts
     }
 }

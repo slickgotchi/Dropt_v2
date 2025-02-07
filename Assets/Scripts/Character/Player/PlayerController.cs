@@ -1,9 +1,12 @@
 using Cinemachine;
+using PortalDefender.AavegotchiKit;
+using PortalDefender.AavegotchiKit.GraphQL;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 using GotchiHub;
 using Cysharp.Threading.Tasks;
+using UnityEngine.Networking;
 
 public class PlayerController : NetworkBehaviour
 {
@@ -27,8 +30,6 @@ public class PlayerController : NetworkBehaviour
 
     private HoldBarCanvas m_holdBarCanvas;
 
-    [HideInInspector] public bool IsLevelSpawnPositionSet = true;
-
     private AttackCentre m_playerAttackCentre;
 
     // tracking selected gotchi
@@ -42,12 +43,11 @@ public class PlayerController : NetworkBehaviour
     [HideInInspector] public NetworkVariable<int> m_totalKilledEnemies = new NetworkVariable<int>(0);
     [HideInInspector] public NetworkVariable<int> m_totalDestroyedDestructibles = new NetworkVariable<int>(0);
 
-    private CinemachineVirtualCamera m_virtualCamera;
-
     private Vector3 m_spawnPoint;
 
+    public Collider2D HurtCollider2D;
 
-
+    private PlayerCamera m_playerCamera;
 
     private void Awake()
     {
@@ -62,9 +62,6 @@ public class PlayerController : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-
-        IsLevelSpawnPositionSet = true;
-
 
         // register player controller
         Game.Instance.playerControllers.Add(GetComponent<PlayerController>());
@@ -86,21 +83,48 @@ public class PlayerController : NetworkBehaviour
 
             GotchiDataManager.Instance.SetSelectedGotchiById(gotchiId);
 
-            var virtualCameraGameObject = GameObject.FindGameObjectWithTag("VirtualCamera");
-            if (virtualCameraGameObject == null)
+            // setup player hud
+            if (!m_isPlayerHUDInitialized && GetComponent<NetworkCharacter>() != null)
             {
-                Debug.LogWarning("No virtual camera exists in the scene");
-                return;
+                PlayerHUDCanvas.Instance.SetLocalPlayerCharacter(GetComponent<PlayerCharacter>());
             }
 
-            m_virtualCamera = virtualCameraGameObject.GetComponent<CinemachineVirtualCamera>();
+            m_cameraFollower = GameObject.FindGameObjectWithTag("CameraFollower");
+            if (m_cameraFollower != null)
+            {
+                Debug.Log("Found a camera follower");
+                m_cameraFollower.GetComponent<CameraFollowerAndPlayerInteractor>().Player = gameObject;
+            }
+            
+
+            m_playerCamera = FindAnyObjectByType<PlayerCamera>();
+
+            LevelManager.Instance.OnLevelChangeHeadsUp += Handle_LevelChangeHeadsUp;
+            LevelManager.Instance.OnLevelChanged += Handle_LevelChanged;
+
+            m_playerCamera.SnapToTrackedObjectImmediately();
         }
 
+        if (IsClient)
+        {
+            if (!IsLocalPlayer) ScreenBlockers.SetActive(false);
+        }
 
-        if (!IsLocalPlayer)
+        if (IsServer)
         {
             ScreenBlockers.SetActive(false);
+            m_playerPrediction.SetPlayerPosition(LevelManager.Instance.GetPlayerSpawnPosition());
         }
+
+        // call handle level changed right away because the server has
+        // already sent messages about level changes that we would not be aware of
+        if (!IsHost) _ = StartupLevelChanged();
+    }
+
+    async UniTaskVoid StartupLevelChanged()
+    {
+        await UniTask.Delay(1000);
+        Handle_LevelChanged(Level.NetworkLevel.LevelType.Null, Level.NetworkLevel.LevelType.Null);
     }
 
     public override void OnNetworkDespawn()
@@ -112,44 +136,33 @@ public class PlayerController : NetworkBehaviour
         if (!IsServer) return;
 
         // check for any pets owned
-        var pets = Game.Instance.petControllers;
-        var playerNetworkObjectId = GetComponent<NetworkObject>().NetworkObjectId;
-
-        foreach (var pet in pets)
+        if (Game.Instance != null)
         {
-            if (pet.GetPetOwnerNetworkObjectId() == playerNetworkObjectId)
+            var pets = Game.Instance.petControllers;
+            if (pets.Count > 0)
             {
-                pet.GetComponent<NetworkObject>().Despawn();
+                var playerNetworkObjectId = GetComponent<NetworkObject>().NetworkObjectId;
+
+                foreach (var pet in pets)
+                {
+                    if (pet.GetPetOwnerNetworkObjectId() == playerNetworkObjectId)
+                    {
+                        pet.GetComponent<NetworkObject>().Despawn();
+                    }
+                }
             }
         }
 
+        if (IsLocalPlayer)
+        {
+            LevelManager.Instance.OnLevelChangeHeadsUp -= Handle_LevelChangeHeadsUp;
+            LevelManager.Instance.OnLevelChanged -= Handle_LevelChanged;
+        }
 
 
         base.OnNetworkDespawn();
 
     }
-
-    [Rpc(SendTo.Server)]
-    void ValidateVersionServerRpc()
-    {
-
-    }
-
-    [Rpc(SendTo.Server)]
-    void ValidateVersionClientRpc(string serverVersion)
-    {
-        if (!IsLocalPlayer) return;
-
-        if (serverVersion != Bootstrap.Instance.Version)
-        {
-            ErrorDialogCanvas.Instance.Show("Your local browser version of Dropt does not match the server. Please hard refresh your browser to update.");
-            Debug.Log("Shutdown NetworkManager");
-            NetworkManager.Singleton.Shutdown();
-        }
-    }
-
-
-    
 
     private void Update()
     {
@@ -162,36 +175,33 @@ public class PlayerController : NetworkBehaviour
                 m_positionText.text = $"({pos.x:F2}, {pos.y:F2})";
             }
 
-            HandleLevelTransition();
-
-            // setup player hud
-            if (!m_isPlayerHUDInitialized && GetComponent<NetworkCharacter>() != null)
-            {
-                PlayerHUDCanvas.Instance.SetLocalPlayerCharacter(GetComponent<PlayerCharacter>());
-            }
-
-            // Set camera to follow player (if it exists)
-            if (m_cameraFollower == null)
-            {
-                m_cameraFollower = GameObject.FindGameObjectWithTag("CameraFollower");
-                if (m_cameraFollower != null)
-                {
-                    m_cameraFollower.GetComponent<CameraFollowerAndPlayerInteractor>().Player = gameObject;
-                }
-            }
-            else
+            if (m_cameraFollower != null)
             {
                 m_cameraFollower.transform.position = m_playerPrediction.GetLocalPlayerInterpPosition() + new Vector3(0, 0.5f, 0f);
             }
 
-
-            HandleNextLevelCheat();
+            if (m_playerCamera == null)
+            {
+                m_playerCamera = FindAnyObjectByType<PlayerCamera>();
+            }
 
             // check for player input to ensure we stay active
             CheckForPlayerInput();
+
+            if (Input.GetKeyDown(KeyCode.T))
+            {
+                if (m_playerCamera != null)
+                {
+                    m_playerCamera.Shake();
+                }
+                else
+                {
+                    Debug.LogWarning("Don't have a PlayerCamera");
+                }
+            }
         }
 
-        if (IsHost)
+        if (IsHost || (IsClient && Bootstrap.IsLocalConnection()))
         {
             if (Input.GetKeyDown(KeyCode.V))
             {
@@ -199,32 +209,7 @@ public class PlayerController : NetworkBehaviour
             }
         }
 
-        // Handle level spawning on the server
-        //if (IsServer && !IsLevelSpawnPositionSet)
-        if (IsServer && LevelManager.Instance.isPlayersSpawnable &&
-            !LevelManager.Instance.spawnedPlayers.Contains(this))
-        {
-            var pos = LevelManager.Instance.TryGetPlayerSpawnPoint();
-            Debug.Log("Spawn Player at " + pos);
-            if (pos != null)
-            {
-                var spawnPoint = (Vector3)pos;
-                GetComponent<PlayerPrediction>().SetPlayerPosition(spawnPoint);
-
-                // Position the camera follower directly at the spawn point
-                SetCameraPositionClientRpc(spawnPoint + new Vector3(0, 0.5f, 0), GetComponent<NetworkObject>().NetworkObjectId);
-
-                // Call DropSpawn to perform any additional logic
-                GetComponent<PlayerGotchi>().PlayDropAnimation();
-
-                // Mark the spawn position as set
-                IsLevelSpawnPositionSet = true;
-                m_spawnPoint = spawnPoint;
-
-                LevelManager.Instance.spawnedPlayers.Add(this);
-            }
-        }
-
+        HandleDegenapeResetKillAndDestructibleCount();
         HandleDegenapeHpAp();
         HandleInactivePlayer();
 
@@ -238,14 +223,47 @@ public class PlayerController : NetworkBehaviour
 
     // this is where we set everything required for leaderboarding
     [Rpc(SendTo.Server)]
-    public void SetNetworkGotchiIdServerRpc(int gotchiId)
+    private void SetNetworkGotchiIdServerRpc(int gotchiId, string authToken)
     {
+        _ = SetNetworkGotchiIdServerRpc_ASYNC(gotchiId, authToken);
+    }
+
+    private async UniTaskVoid SetNetworkGotchiIdServerRpc_ASYNC(int gotchiId, string authToken)
+    {
+        if (!IsServer) return;
+
         // make sure we're in the Degenape village!
         // players can only change gotchis in the village. this prevents someone using
         // someone elses god gotchi (client side hack) and then switching back to theirs
         if (!LevelManager.Instance.IsDegenapeVillage()) return;
 
-        NetworkGotchiId.Value = gotchiId;
+        // if its a default gotchi there is no need for address checking
+        if (gotchiId > 25000)
+        {
+            NetworkGotchiId.Value = gotchiId;
+            return;
+        }
+        else
+        {
+            // ensure the gotchi specified is actually on the wallet associated with the
+            // given authToken
+            var addressByToken = await Dropt.Utils.Http.GetAddressByAuthToken(authToken);
+            if (!string.IsNullOrEmpty(addressByToken))
+            {
+                var userData = await GraphManager.Instance.GetUserAccount(addressByToken.ToLower());
+                if (userData != null)
+                {
+                    foreach (var gotchi in userData.gotchisOwned)
+                    {
+                        if (gotchi.id == gotchiId)
+                        {
+                            NetworkGotchiId.Value = gotchiId;
+                            return;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public async UniTask KillPlayer(REKTCanvas.TypeOfREKT typeOfREKT)
@@ -308,68 +326,15 @@ public class PlayerController : NetworkBehaviour
     private void TriggerGameOverClientRpc(ulong killedPlayerNetworkObjectId, REKTCanvas.TypeOfREKT typeOfREKT)
     {
         if (!IsLocalPlayer) return;
-        //var networkObject = GetComponent<NetworkObject>();
-        //if (networkObject == null) { Debug.LogWarning("networkObject = null"); return; }
-
-        //if (networkObject.NetworkObjectId != killedPlayerNetworkObjectId) return;
 
         isGameOvered = true;
 
         REKTCanvas.Instance.Show(typeOfREKT);
     }
 
-    public void StartTransition()
-    {
-        if (!IsServer) return;
-    }
-
-    [Rpc(SendTo.ClientsAndHost)]
-    private void SetCameraPositionClientRpc(Vector3 position, ulong networkObjectId)
-    {
-        if (GetComponent<NetworkObject>().NetworkObjectId != networkObjectId) return;
-        if (m_cameraFollower == null) return;
-
-        var delta = position - m_cameraFollower.transform.position;
-        m_cameraFollower.transform.position = position;
-
-        // Temporarily set damping to zero for instant teleport
-        var framingTransposer = m_virtualCamera.GetCinemachineComponent<CinemachineFramingTransposer>();
-        //Debug.Log("transposer: " + framingTransposer);
-        float originalDamping = framingTransposer.m_XDamping; // Store original damping
-        framingTransposer.m_XDamping = 0;
-        framingTransposer.m_YDamping = 0;
-        framingTransposer.m_ZDamping = 0;
-
-        m_virtualCamera.OnTargetObjectWarped(m_cameraFollower.transform, delta);
-
-        m_isDoReset = true;
-        m_resetTimer = 1f;
-    }
 
     private bool m_isDoReset = false;
     private float m_resetTimer = 0f;
-
-    private void LateUpdate()
-    {
-        m_resetTimer -= Time.deltaTime;
-
-        if (m_isDoReset && m_resetTimer < 0)
-        {
-            m_isDoReset = false;
-
-            var framingTransposer = m_virtualCamera.GetCinemachineComponent<CinemachineFramingTransposer>();
-            float originalDamping = framingTransposer.m_XDamping; // Store original damping
-            framingTransposer.m_XDamping = 1;
-            framingTransposer.m_YDamping = 1;
-            framingTransposer.m_ZDamping = 0;
-        }
-
-        // track our speed
-        var displacement = transform.position - prevPosition;
-        prevPosition = transform.position;
-        var distance = displacement.magnitude;
-        var velocity = distance / Time.deltaTime;
-    }
 
     Vector3 prevPosition;
 
@@ -384,7 +349,15 @@ public class PlayerController : NetworkBehaviour
             if (selectedGotchiId != m_selectedGotchiId)
             {
                 m_selectedGotchiId = selectedGotchiId;
-                SetNetworkGotchiIdServerRpc(m_selectedGotchiId);
+
+                var authToken = PlayerPrefs.GetString("AuthToken");
+                if (string.IsNullOrEmpty(authToken))
+                {
+                    Debug.LogWarning("Please sign in and obtain an auth token");
+                    return;
+                }
+
+                SetNetworkGotchiIdServerRpc(m_selectedGotchiId, authToken);
             }
         }
     }
@@ -426,63 +399,40 @@ public class PlayerController : NetworkBehaviour
     //private bool shouldBeBlackedOut = true;
     //private bool isBlackedOut = true;
 
-
-    private enum LoadingCanvasState { Null, BlackOut, WipeIn, WipeOut }
-    private LoadingCanvasState loadingCanvasState = LoadingCanvasState.Null;
-
-    // handle loading canvas
-    private void HandleLevelTransition()
+    void Handle_LevelChangeHeadsUp()
     {
-        if (!IsLocalPlayer) return;
-        if (LevelManager.Instance == null) return;
-
-
-        LevelManager.TransitionState state = LevelManager.Instance.transitionState.Value;
-
-        if (state == LevelManager.TransitionState.Start ||
-            state == LevelManager.TransitionState.ClientHeadsUp ||
-            state == LevelManager.TransitionState.GoToNext ||
-            state == LevelManager.TransitionState.ClientHeadsDown)
+        if (IsLocalPlayer)
         {
+            //Debug.Log("WipeIn");
             LoadingCanvas.Instance.WipeIn();
-
-            // disable player input
-            GetComponent<PlayerPrediction>().IsInputEnabled = false;
         }
-        else if (state == LevelManager.TransitionState.End)
+
+    }
+
+    void Handle_LevelChanged(Level.NetworkLevel.LevelType oldLevel, Level.NetworkLevel.LevelType newLevel)
+    {
+        if (IsLocalPlayer)
         {
+            m_playerCamera.SnapToTrackedObjectImmediately();
+            GetComponent<PlayerGotchi>().PlayDropAnimation();
+
+            //Debug.Log("WipeOut");
             LoadingCanvas.Instance.WipeOut();
+            GetComponent<PlayerPrediction>().IsInputEnabled = true;
+            Debug.Log("InputEnabled");
         }
-        else
+
+    }
+
+    private void HandleDegenapeResetKillAndDestructibleCount()
+    {
+        if (!IsServer) return;
+
+        if (LevelManager.Instance.IsDegenapeVillage())
         {
-            LoadingCanvas.Instance.InstaClear();
+            m_totalKilledEnemies.Value = 0;
+            m_totalDestroyedDestructibles.Value = 0;
         }
-    }
-
-    // cheat to go to next level
-    private void HandleNextLevelCheat()
-    {
-        //if (Input.GetKeyDown(KeyCode.N))
-        //{
-        //    GoNextLevelServerRpc();
-        //}
-
-        //if (Input.GetKeyDown(KeyCode.H))
-        //{
-        //    GoToDegenapeVillageServerRpc();
-        //}
-    }
-
-    [Rpc(SendTo.Server)]
-    private void GoNextLevelServerRpc()
-    {
-        //LevelManager.Instance.StartTransitionToNextLevel_SERVER();
-    }
-
-    [Rpc(SendTo.Server)]
-    private void GoToDegenapeVillageServerRpc()
-    {
-        //LevelManager.Instance.GoToDegenapeVillageLevel_SERVER();
     }
 
     private void HandleDegenapeHpAp()
@@ -544,7 +494,7 @@ public class PlayerController : NetworkBehaviour
 
         if (m_inactiveTimer <= 0)
         {
-            KillPlayer(REKTCanvas.TypeOfREKT.InActive);
+            _ = KillPlayer(REKTCanvas.TypeOfREKT.InActive);
         }
     }
 

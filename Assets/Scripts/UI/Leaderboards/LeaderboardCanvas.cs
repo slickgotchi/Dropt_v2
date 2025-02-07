@@ -234,7 +234,7 @@ public class LeaderboardCanvas : DroptCanvas
                     var entry = m_adventureLeaderboardEntries[i + pageNumber];
                     if (entry != null && dataRow != null)
                     {
-                        var ghstPrize = (i + pageNumber > m_adventurePrizes.Length) ? 0 : m_adventurePrizes[i + pageNumber];
+                        var ghstPrize = (i + pageNumber >= m_adventurePrizes.Length) ? 0 : m_adventurePrizes[i + pageNumber];
 
                         dataRow.SetActive(true);
                         dataRow.Set(
@@ -258,7 +258,7 @@ public class LeaderboardCanvas : DroptCanvas
                     var entry = m_gauntletLeaderboardEntries[i + pageNumber];
                     if (entry != null && dataRow != null)
                     {
-                        var ghstPrize = (i + pageNumber > m_gauntletPrizes.Length) ? 0 : m_gauntletPrizes[i + pageNumber];
+                        var ghstPrize = (i + pageNumber >= m_gauntletPrizes.Length) ? 0 : m_gauntletPrizes[i + pageNumber];
 
                         dataRow.SetActive(true);
                         dataRow.Set(

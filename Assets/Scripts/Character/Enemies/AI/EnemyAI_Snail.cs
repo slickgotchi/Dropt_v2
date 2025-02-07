@@ -41,6 +41,8 @@ namespace Dropt
 
         public override void OnRoamUpdate(float dt)
         {
+            if (isStopped) return;
+
             SimpleRoamUpdate(dt);
         }
 
@@ -55,6 +57,8 @@ namespace Dropt
 
         public override void OnAggroUpdate(float dt)
         {
+            if (isStopped) return;
+
             SimplePursueUpdate(dt);
         }
 
@@ -80,6 +84,8 @@ namespace Dropt
 
         public override void OnCooldownUpdate(float dt)
         {
+            if (isStopped) return;
+
             if (IsServer)
             {
                 Utils.Anim.PlayAnimationWithDuration(m_animator, "Snail_Roam", TelegraphDuration, interpolationDelay_s);

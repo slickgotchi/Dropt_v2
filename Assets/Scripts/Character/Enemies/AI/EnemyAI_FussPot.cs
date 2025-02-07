@@ -12,6 +12,8 @@ namespace Dropt
         private EnemyController m_enemyController;
         private SoundFX_Fusspot m_soundFX_Fusspot;
 
+        [SerializeField] private FussPot_Erupt m_fussPot_Erupt;
+
         private void Awake()
         {
             m_animator = GetComponent<Animator>();
@@ -61,7 +63,7 @@ namespace Dropt
 
         public override void OnAttackStart()
         {
-            SimpleFussPotAttack();
+            m_fussPot_Erupt.Activate(gameObject, NearestPlayer, AttackDirection, AttackDuration, PositionToAttack);
             Utils.Anim.PlayAnimationWithDuration(m_animator, "Fusspot_Fire", AttackDuration);
             m_soundFX_Fusspot.PlayAttackSound();
             m_enemyController.SetFacingFromDirection(AttackDirection, AttackDuration);
@@ -71,28 +73,6 @@ namespace Dropt
         {
             base.OnAttackFinish();
             Utils.Anim.Play(m_animator, "Fusspot_Idle");
-        }
-
-        // attack
-        protected void SimpleFussPotAttack()
-        {
-            // check we have a primary attack.
-            if (PrimaryAttack == null) return;
-
-            // instantiate an attack
-            GameObject ability = Instantiate(PrimaryAttack);
-
-            // get enemy ability of attack
-            EnemyAbility enemyAbility = ability.GetComponent<EnemyAbility>();
-            if (enemyAbility == null) return;
-
-            // get fusspot erupt ability
-            FussPot_Erupt fussPotErupt = ability.GetComponent<FussPot_Erupt>();
-            fussPotErupt.ProjectileSpreadInDegrees = ProjectileSpreadInDegrees;
-
-            // initialise the ability
-            ability.GetComponent<NetworkObject>().Spawn();
-            enemyAbility.Activate(gameObject, NearestPlayer, AttackDirection, AttackDuration, PositionToAttack);
         }
     }
 }

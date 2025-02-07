@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using Cysharp.Threading.Tasks;
 
 public class NetworkRoleCanvas : MonoBehaviour
 {
@@ -19,21 +20,21 @@ public class NetworkRoleCanvas : MonoBehaviour
         {
             Bootstrap.Instance.NetworkRole = NetworkRole.Host;
             SetConnectionTypeFromDropDown();
-            SceneManager.LoadScene(isSkipTitle ? "Game" : "Title");
+            _ = GoToSceneWithWipeDelay(isSkipTitle ? "Game" : "Title");
         });
 
         serverButton.onClick.AddListener(() =>
         {
             Bootstrap.Instance.NetworkRole = NetworkRole.Server;
             SetConnectionTypeFromDropDown();
-            SceneManager.LoadScene(isSkipTitle ? "Game" : "Title");
+            _ = GoToSceneWithWipeDelay(isSkipTitle ? "Game" : "Title");
         });
 
         clientButton.onClick.AddListener(() =>
         {
             Bootstrap.Instance.NetworkRole = NetworkRole.Client;
             SetConnectionTypeFromDropDown();
-            SceneManager.LoadScene(isSkipTitle ? "Game" : "Title");
+            _ = GoToSceneWithWipeDelay(isSkipTitle ? "Game" : "Title");
         });
 
         connectionDropdown.onValueChanged.AddListener(OnConnectionDropdownValueChanged);
@@ -42,6 +43,13 @@ public class NetworkRoleCanvas : MonoBehaviour
         {
             hostButton.onClick.Invoke();
         }
+    }
+
+    async UniTaskVoid GoToSceneWithWipeDelay(string scene)
+    {
+        LoadingCanvas.Instance.WipeIn();
+        await UniTask.Delay(500);
+        SceneManager.LoadScene(scene);
     }
 
     private void Start()

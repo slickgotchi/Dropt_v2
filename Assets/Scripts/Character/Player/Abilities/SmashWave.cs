@@ -189,14 +189,16 @@ public class SmashWave : PlayerAbility
             {
                 m_hitColliders.Add(hit);
 
-                if (hit.HasComponent<NetworkCharacter>())
+                var networkCharacter = hit.GetComponent<NetworkCharacter>();
+
+                if (networkCharacter != null)
                 {
                     var playerCharacter = Player.GetComponent<NetworkCharacter>();
                     var damage = playerCharacter.currentStaticStats.AttackPower * m_damageMultiplier * ActivationWearable.RarityMultiplier;
                     damage = GetRandomVariation(damage);
                     var isCritical = IsCriticalAttack(playerCharacter.currentStaticStats.CriticalChance);
                     damage = (int)(isCritical ? damage * playerCharacter.currentStaticStats.CriticalDamage : damage);
-                    hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical, Player);
+                    networkCharacter.TakeDamage(damage, isCritical, Player);
 
                     // do knockback if enemy
                     var enemyAI = hit.GetComponent<Dropt.EnemyAI>();

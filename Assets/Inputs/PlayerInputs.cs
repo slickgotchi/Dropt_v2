@@ -31,7 +31,7 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
                     ""name"": ""GENERIC_ACTION"",
                     ""type"": ""Button"",
                     ""id"": ""e1456733-fac3-4e34-b0c4-d3fb6c781365"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -130,7 +130,7 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
                     ""name"": ""Mouse_LeftSpecial"",
                     ""type"": ""Button"",
                     ""id"": ""b68945a9-54ff-4f89-98ad-2928283c45ae"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -166,7 +166,7 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
                     ""name"": ""Mouse_RightSpecial"",
                     ""type"": ""Button"",
                     ""id"": ""b458bd03-e856-4f5b-89e6-8da48167df1b"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -202,7 +202,7 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
                     ""name"": ""Keyboard_Dash"",
                     ""type"": ""Button"",
                     ""id"": ""be7e15c2-d544-4cc8-9874-03d6dbca7466"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -301,7 +301,7 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
                     ""name"": ""Gamepad_LeftAttack"",
                     ""type"": ""Button"",
                     ""id"": ""5464b43e-d97c-4641-8897-37c60a9d5c35"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -310,7 +310,7 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
                     ""name"": ""Gamepad_LeftSpecial"",
                     ""type"": ""Button"",
                     ""id"": ""c21c307d-c741-47d5-bf8e-35f1dfa3194d"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -346,7 +346,7 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
                     ""name"": ""Gamepad_RightSpecial"",
                     ""type"": ""Button"",
                     ""id"": ""0ca96041-f37f-4322-9cb1-b8435c215318"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -382,7 +382,7 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
                     ""name"": ""ITEMS========================"",
                     ""type"": ""Button"",
                     ""id"": ""4dbdc1cd-07bc-4452-81c5-4b816476baa0"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -391,36 +391,63 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
                     ""name"": ""UseItem_1"",
                     ""type"": ""Button"",
                     ""id"": ""62dcdde4-28c5-4445-aa69-44ca0781d608"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
-                    ""interactions"": ""Hold"",
+                    ""interactions"": """",
                     ""initialStateCheck"": false
                 },
                 {
                     ""name"": ""UseItem_2"",
                     ""type"": ""Button"",
                     ""id"": ""85aac182-92a0-4253-ac89-c3219c90c85f"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
-                    ""interactions"": ""Hold"",
+                    ""interactions"": """",
                     ""initialStateCheck"": false
                 },
                 {
                     ""name"": ""UseItem_3"",
                     ""type"": ""Button"",
                     ""id"": ""0d1056d3-3525-4457-bbe5-0a7173cee7c3"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
-                    ""interactions"": ""Hold"",
+                    ""interactions"": """",
                     ""initialStateCheck"": false
                 },
                 {
                     ""name"": ""UseItem_4"",
                     ""type"": ""Button"",
                     ""id"": ""b82c7f3a-d1d7-4ead-8068-9974213afa91"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
-                    ""interactions"": ""Hold"",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""HOLD_BREAKS =================="",
+                    ""type"": ""Button"",
+                    ""id"": ""457c516b-d3cf-4435-a624-514900b0f92c"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Generic_LeftAttackKeyDown"",
+                    ""type"": ""Button"",
+                    ""id"": ""70d613c2-9ef0-40a0-a83b-7c0bfc05cd70"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Generic_RightAttackKeyDown"",
+                    ""type"": ""Button"",
+                    ""id"": ""adc07edf-da31-441c-b7f1-03d4c7ae5d30"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
                     ""initialStateCheck"": false
                 }
             ],
@@ -514,6 +541,39 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": false
                 },
                 {
+                    ""name"": ""One Modifier"",
+                    ""id"": ""48e0d0d9-faa5-4bf0-91c2-19ec64a39e91"",
+                    ""path"": ""OneModifier"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Mouse_LeftSpecial"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""modifier"",
+                    ""id"": ""f4860d8c-1d06-4cea-8529-3d766e03d397"",
+                    ""path"": ""<Keyboard>/shift"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Mouse_LeftSpecial"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""binding"",
+                    ""id"": ""f61fdd01-ddd4-46cb-86ad-cc23a8137abc"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Mouse_LeftSpecial"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
                     ""name"": """",
                     ""id"": ""1996d5ae-8aa1-49ae-b3a4-e8b0df9d925c"",
                     ""path"": ""<Keyboard>/e"",
@@ -523,6 +583,39 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
                     ""action"": ""Mouse_RightSpecial"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""One Modifier"",
+                    ""id"": ""8958aff0-75e6-45bc-adf8-a83f551a13e0"",
+                    ""path"": ""OneModifier"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Mouse_RightSpecial"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""modifier"",
+                    ""id"": ""640c4b88-c3c4-422e-a5e2-dce44c57bd19"",
+                    ""path"": ""<Keyboard>/shift"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Mouse_RightSpecial"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""binding"",
+                    ""id"": ""301e1ae4-d7e4-4161-b996-a3ee417c1726"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Mouse_RightSpecial"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
                 },
                 {
                     ""name"": """",
@@ -785,6 +878,94 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Gamepad_LeftAttack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""5d61a3b7-fd87-48d9-b0df-930860570f24"",
+                    ""path"": ""<Gamepad>/buttonWest"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Generic_LeftAttackKeyDown"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d37aee56-fe84-4975-9681-da3edce9b25e"",
+                    ""path"": ""<Gamepad>/leftShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Generic_LeftAttackKeyDown"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""3da57571-6b52-477f-b5b3-ccfaed919423"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Generic_LeftAttackKeyDown"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""3c9d094b-68c8-492e-a4ff-ab704f059ce0"",
+                    ""path"": ""<Keyboard>/j"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Generic_LeftAttackKeyDown"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ee85f87b-7bbe-4471-97b2-1ced79deeb7b"",
+                    ""path"": ""<Gamepad>/buttonEast"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Generic_RightAttackKeyDown"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""bf55b53a-e75a-431a-9f5e-43f2caf189ee"",
+                    ""path"": ""<Gamepad>/rightShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Generic_RightAttackKeyDown"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""bc6c206c-8bc8-4bdd-b1ff-46fc973b31ea"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Generic_RightAttackKeyDown"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""3bd883c9-87f5-4190-9f11-2668361308f1"",
+                    ""path"": ""<Keyboard>/k"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Generic_RightAttackKeyDown"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -1310,6 +1491,9 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
         m_InGame_UseItem_2 = m_InGame.FindAction("UseItem_2", throwIfNotFound: true);
         m_InGame_UseItem_3 = m_InGame.FindAction("UseItem_3", throwIfNotFound: true);
         m_InGame_UseItem_4 = m_InGame.FindAction("UseItem_4", throwIfNotFound: true);
+        m_InGame_HOLD_BREAKS = m_InGame.FindAction("HOLD_BREAKS ==================", throwIfNotFound: true);
+        m_InGame_Generic_LeftAttackKeyDown = m_InGame.FindAction("Generic_LeftAttackKeyDown", throwIfNotFound: true);
+        m_InGame_Generic_RightAttackKeyDown = m_InGame.FindAction("Generic_RightAttackKeyDown", throwIfNotFound: true);
         // InUI
         m_InUI = asset.FindActionMap("InUI", throwIfNotFound: true);
         m_InUI_Up = m_InUI.FindAction("Up", throwIfNotFound: true);
@@ -1428,6 +1612,9 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
     private readonly InputAction m_InGame_UseItem_2;
     private readonly InputAction m_InGame_UseItem_3;
     private readonly InputAction m_InGame_UseItem_4;
+    private readonly InputAction m_InGame_HOLD_BREAKS;
+    private readonly InputAction m_InGame_Generic_LeftAttackKeyDown;
+    private readonly InputAction m_InGame_Generic_RightAttackKeyDown;
     public struct InGameActions
     {
         private @PlayerInputs m_Wrapper;
@@ -1476,6 +1663,9 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
         public InputAction @UseItem_2 => m_Wrapper.m_InGame_UseItem_2;
         public InputAction @UseItem_3 => m_Wrapper.m_InGame_UseItem_3;
         public InputAction @UseItem_4 => m_Wrapper.m_InGame_UseItem_4;
+        public InputAction @HOLD_BREAKS => m_Wrapper.m_InGame_HOLD_BREAKS;
+        public InputAction @Generic_LeftAttackKeyDown => m_Wrapper.m_InGame_Generic_LeftAttackKeyDown;
+        public InputAction @Generic_RightAttackKeyDown => m_Wrapper.m_InGame_Generic_RightAttackKeyDown;
         public InputActionMap Get() { return m_Wrapper.m_InGame; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -1617,6 +1807,15 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
             @UseItem_4.started += instance.OnUseItem_4;
             @UseItem_4.performed += instance.OnUseItem_4;
             @UseItem_4.canceled += instance.OnUseItem_4;
+            @HOLD_BREAKS.started += instance.OnHOLD_BREAKS;
+            @HOLD_BREAKS.performed += instance.OnHOLD_BREAKS;
+            @HOLD_BREAKS.canceled += instance.OnHOLD_BREAKS;
+            @Generic_LeftAttackKeyDown.started += instance.OnGeneric_LeftAttackKeyDown;
+            @Generic_LeftAttackKeyDown.performed += instance.OnGeneric_LeftAttackKeyDown;
+            @Generic_LeftAttackKeyDown.canceled += instance.OnGeneric_LeftAttackKeyDown;
+            @Generic_RightAttackKeyDown.started += instance.OnGeneric_RightAttackKeyDown;
+            @Generic_RightAttackKeyDown.performed += instance.OnGeneric_RightAttackKeyDown;
+            @Generic_RightAttackKeyDown.canceled += instance.OnGeneric_RightAttackKeyDown;
         }
 
         private void UnregisterCallbacks(IInGameActions instance)
@@ -1753,6 +1952,15 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
             @UseItem_4.started -= instance.OnUseItem_4;
             @UseItem_4.performed -= instance.OnUseItem_4;
             @UseItem_4.canceled -= instance.OnUseItem_4;
+            @HOLD_BREAKS.started -= instance.OnHOLD_BREAKS;
+            @HOLD_BREAKS.performed -= instance.OnHOLD_BREAKS;
+            @HOLD_BREAKS.canceled -= instance.OnHOLD_BREAKS;
+            @Generic_LeftAttackKeyDown.started -= instance.OnGeneric_LeftAttackKeyDown;
+            @Generic_LeftAttackKeyDown.performed -= instance.OnGeneric_LeftAttackKeyDown;
+            @Generic_LeftAttackKeyDown.canceled -= instance.OnGeneric_LeftAttackKeyDown;
+            @Generic_RightAttackKeyDown.started -= instance.OnGeneric_RightAttackKeyDown;
+            @Generic_RightAttackKeyDown.performed -= instance.OnGeneric_RightAttackKeyDown;
+            @Generic_RightAttackKeyDown.canceled -= instance.OnGeneric_RightAttackKeyDown;
         }
 
         public void RemoveCallbacks(IInGameActions instance)
@@ -1894,6 +2102,9 @@ public partial class @PlayerInputs: IInputActionCollection2, IDisposable
         void OnUseItem_2(InputAction.CallbackContext context);
         void OnUseItem_3(InputAction.CallbackContext context);
         void OnUseItem_4(InputAction.CallbackContext context);
+        void OnHOLD_BREAKS(InputAction.CallbackContext context);
+        void OnGeneric_LeftAttackKeyDown(InputAction.CallbackContext context);
+        void OnGeneric_RightAttackKeyDown(InputAction.CallbackContext context);
     }
     public interface IInUIActions
     {

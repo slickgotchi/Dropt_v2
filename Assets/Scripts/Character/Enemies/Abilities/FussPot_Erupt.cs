@@ -7,12 +7,16 @@ using UnityEngine;
 public class FussPot_Erupt : EnemyAbility
 {
     [Header("FussPot Erupt Parameters")]
-    public GameObject FussPot_EruptProjectilePrefab;
+    //public GameObject FussPot_EruptProjectilePrefab;
     public float LobProjectileDuraton = 1f;
-    [HideInInspector] public float ProjectileSpreadInDegrees = 30;
+    //[HideInInspector] public float ProjectileSpreadInDegrees = 30;
+    private float MaxDistance = 8f;
+
+    public List<FussPot_EruptProjectile> Projectiles = new List<FussPot_EruptProjectile>();
 
     public override void OnActivate()
     {
+        if (!IsServer) return;
         if (Parent == null) { Debug.Log("Null ref detected"); return; }
 
         var parentNetworkCharacter = Parent.GetComponent<NetworkCharacter>();
@@ -20,8 +24,8 @@ public class FussPot_Erupt : EnemyAbility
 
         var spawnPosition = Parent.transform.position + new Vector3(0, 1.5f, 0);
 
-        var dir = AttackDirection;
-        var distance = (PositionToAttack - spawnPosition).magnitude;
+        //var dir = AttackDirection;
+        //var distance = (PositionToAttack - spawnPosition).magnitude;
         var damage = parentNetworkCharacter.currentStaticStats.AttackPower;
         var criticalChance = parentNetworkCharacter.currentStaticStats.CriticalChance;
         var criticalDamage = parentNetworkCharacter.currentStaticStats.CriticalDamage;
@@ -52,51 +56,48 @@ public class FussPot_Erupt : EnemyAbility
         var distB = (landPosB - spawnPosition).magnitude;
         var distC = (landPosC - spawnPosition).magnitude;
 
-        CreateAndFireProjectile(dirA, spawnPosition, distA, damage, criticalChance, criticalDamage);
+        distA = math.min(distA, MaxDistance);
+        distB = math.min(distB, MaxDistance);
+        distC = math.min(distC, MaxDistance);
 
-        CreateAndFireProjectile(dirB, spawnPosition, distB, damage, criticalChance, criticalDamage);
+        CreateAndFireProjectile(0, dirA, spawnPosition, distA, damage, criticalChance, criticalDamage);
+        CreateAndFireProjectileClientRpc(0, dirA, spawnPosition, distA, damage, criticalChance, criticalDamage);
 
-        CreateAndFireProjectile(dirC, spawnPosition, distC, damage, criticalChance, criticalDamage);
+        CreateAndFireProjectile(1, dirB, spawnPosition, distB, damage, criticalChance, criticalDamage);
+        CreateAndFireProjectileClientRpc(1, dirB, spawnPosition, distB, damage, criticalChance, criticalDamage);
 
-        /*
-        // Fire the first projectile with a little distance randomness
-        var randA = UnityEngine.Random.Range(-1f, 1f);
-        CreateAndFireProjectile(dir, spawnPosition, distance + randA, damage, criticalChance, criticalDamage);
-
-        // Calculate and fire the projectile at 120 degrees
-        var rotation120 = Quaternion.Euler(0, 0, ProjectileSpreadInDegrees);
-        var dir120 = rotation120 * dir;
-        CreateAndFireProjectile(dir120, spawnPosition, distance, damage, criticalChance, criticalDamage);
-
-        // Calculate and fire the projectile at -120 degrees
-        var rotationMinus120 = Quaternion.Euler(0, 0, -ProjectileSpreadInDegrees);
-        var dirMinus120 = rotationMinus120 * dir;
-        CreateAndFireProjectile(dirMinus120, spawnPosition, distance, damage, criticalChance, criticalDamage);
-        */
+        CreateAndFireProjectile(2, dirC, spawnPosition, distC, damage, criticalChance, criticalDamage);
+        CreateAndFireProjectileClientRpc(2, dirC, spawnPosition, distC, damage, criticalChance, criticalDamage);
     }
 
     // Function to create and fire a projectile
-    void CreateAndFireProjectile(Vector3 direction, Vector3 spawnPosition,
+    void CreateAndFireProjectile(int index, Vector3 direction, Vector3 spawnPosition,
         float distance, float damage, float criticalChance, float criticalDamage)
     {
-        var projectile = Instantiate(FussPot_EruptProjectilePrefab);
-        projectile.GetComponent<FussPot_EruptProjectile>().Init(
+        var projectile = Projectiles[index];
+        if (projectile == null) { Debug.LogWarning("Null ref detected"); return; }
+
+        var eruptProjectile = projectile.GetComponent<FussPot_EruptProjectile>();
+        if (eruptProjectile == null) { Debug.LogWarning("Null ref detected"); return; }
+
+        eruptProjectile.Init(
             spawnPosition,
             quaternion.identity,
             direction,
-            PlayerAbility.GetRandomVariation(distance),
+            distance,
             LobProjectileDuraton,
             damage,
             criticalChance,
             criticalDamage);
 
-        var projectileNetworkObject = projectile.GetComponent<NetworkObject>();
-        if (projectileNetworkObject == null) { Debug.LogWarning("Null ref detected"); return; }
+        eruptProjectile.Fire();
+    }
 
-        var projectileEruptProjectile = projectile.GetComponent<FussPot_EruptProjectile>();
-        if (projectileEruptProjectile == null) { Debug.LogWarning("Null ref detected"); return; }
-
-        projectileNetworkObject.Spawn();
-        projectileEruptProjectile.Fire();
+    [Rpc(SendTo.ClientsAndHost)]
+    void CreateAndFireProjectileClientRpc(int index, Vector3 direction, Vector3 spawnPosition,
+        float distance, float damage, float criticalChance, float criticalDamage)
+    {
+        CreateAndFireProjectile(index, direction, spawnPosition,
+            distance, damage, criticalChance, criticalDamage);
     }
 }
