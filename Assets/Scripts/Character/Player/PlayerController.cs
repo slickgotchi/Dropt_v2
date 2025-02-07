@@ -118,7 +118,7 @@ public class PlayerController : NetworkBehaviour
 
         // call handle level changed right away because the server has
         // already sent messages about level changes that we would not be aware of
-        _ = StartupLevelChanged();
+        if (!IsHost) _ = StartupLevelChanged();
     }
 
     async UniTaskVoid StartupLevelChanged()

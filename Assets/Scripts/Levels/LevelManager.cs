@@ -380,7 +380,11 @@ public class LevelManager : NetworkBehaviour
         m_playerSpawnPositions.Clear();
         var playerSpawnPoints = m_currentLevel.GetComponentsInChildren<PlayerSpawnPoints>();
 
-        foreach (var psp in playerSpawnPoints) m_playerSpawnPositions.Add(psp.transform.position);
+        foreach (var psp in playerSpawnPoints)
+        {
+            m_playerSpawnPositions.Add(psp.transform.position);
+            Destroy(psp.gameObject);
+        }
         if (m_playerSpawnPositions.Count == 0)
         {
             Debug.LogWarning("No PlayerSpawnPoint objects identified at first level of level prefab heirarchy, setting to Vector3.zero");
