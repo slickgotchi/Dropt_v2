@@ -20,21 +20,21 @@ public class NetworkRoleCanvas : MonoBehaviour
         {
             Bootstrap.Instance.NetworkRole = NetworkRole.Host;
             SetConnectionTypeFromDropDown();
-            GoToSceneWithWipeDelay(isSkipTitle ? "Game" : "Title");
+            _ = GoToSceneWithWipeDelay(isSkipTitle ? "Game" : "Title");
         });
 
         serverButton.onClick.AddListener(() =>
         {
             Bootstrap.Instance.NetworkRole = NetworkRole.Server;
             SetConnectionTypeFromDropDown();
-            GoToSceneWithWipeDelay(isSkipTitle ? "Game" : "Title");
+            _ = GoToSceneWithWipeDelay(isSkipTitle ? "Game" : "Title");
         });
 
         clientButton.onClick.AddListener(() =>
         {
             Bootstrap.Instance.NetworkRole = NetworkRole.Client;
             SetConnectionTypeFromDropDown();
-            GoToSceneWithWipeDelay(isSkipTitle ? "Game" : "Title");
+            _ = GoToSceneWithWipeDelay(isSkipTitle ? "Game" : "Title");
         });
 
         connectionDropdown.onValueChanged.AddListener(OnConnectionDropdownValueChanged);

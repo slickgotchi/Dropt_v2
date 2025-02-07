@@ -30,8 +30,6 @@ public class PlayerController : NetworkBehaviour
 
     private HoldBarCanvas m_holdBarCanvas;
 
-    [HideInInspector] public bool IsLevelSpawnPositionSet = true;
-
     private AttackCentre m_playerAttackCentre;
 
     // tracking selected gotchi
@@ -44,8 +42,6 @@ public class PlayerController : NetworkBehaviour
     [HideInInspector] public NetworkVariable<int> NetworkGotchiId = new NetworkVariable<int>(69420);
     [HideInInspector] public NetworkVariable<int> m_totalKilledEnemies = new NetworkVariable<int>(0);
     [HideInInspector] public NetworkVariable<int> m_totalDestroyedDestructibles = new NetworkVariable<int>(0);
-
-    //private CinemachineVirtualCamera m_virtualCamera;
 
     private Vector3 m_spawnPoint;
 
@@ -66,8 +62,6 @@ public class PlayerController : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-
-        IsLevelSpawnPositionSet = true;
 
         // register player controller
         Game.Instance.playerControllers.Add(GetComponent<PlayerController>());
@@ -104,22 +98,32 @@ public class PlayerController : NetworkBehaviour
             
 
             m_playerCamera = FindAnyObjectByType<PlayerCamera>();
-        }
 
-
-        if (!IsLocalPlayer)
-        {
-            ScreenBlockers.SetActive(false);
-        }
-
-        if (IsLocalPlayer)
-        {
             LevelManager.Instance.OnLevelChangeHeadsUp += Handle_LevelChangeHeadsUp;
             LevelManager.Instance.OnLevelChanged += Handle_LevelChanged;
+
+            m_playerCamera.SnapToTrackedObjectImmediately();
+        }
+
+        if (IsClient)
+        {
+            if (!IsLocalPlayer) ScreenBlockers.SetActive(false);
+        }
+
+        if (IsServer)
+        {
+            ScreenBlockers.SetActive(false);
+            m_playerPrediction.SetPlayerPosition(LevelManager.Instance.GetPlayerSpawnPosition());
         }
 
         // call handle level changed right away because the server has
         // already sent messages about level changes that we would not be aware of
+        _ = StartupLevelChanged();
+    }
+
+    async UniTaskVoid StartupLevelChanged()
+    {
+        await UniTask.Delay(1000);
         Handle_LevelChanged(Level.NetworkLevel.LevelType.Null, Level.NetworkLevel.LevelType.Null);
     }
 
@@ -399,7 +403,7 @@ public class PlayerController : NetworkBehaviour
     {
         if (IsLocalPlayer)
         {
-            Debug.Log("WipeIn");
+            //Debug.Log("WipeIn");
             LoadingCanvas.Instance.WipeIn();
         }
 
@@ -412,7 +416,7 @@ public class PlayerController : NetworkBehaviour
             m_playerCamera.SnapToTrackedObjectImmediately();
             GetComponent<PlayerGotchi>().PlayDropAnimation();
 
-            Debug.Log("WipeOut");
+            //Debug.Log("WipeOut");
             LoadingCanvas.Instance.WipeOut();
             GetComponent<PlayerPrediction>().IsInputEnabled = true;
             Debug.Log("InputEnabled");

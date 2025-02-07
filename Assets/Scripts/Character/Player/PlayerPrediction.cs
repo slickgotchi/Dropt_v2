@@ -156,19 +156,7 @@ public partial class PlayerPrediction : NetworkBehaviour
             clientStateBuffer.Add(startState, i);
         }
 
-        //// start input disabled
-        //if (IsClient)
-        //{
-        //    IsInputEnabled = false;
-        //    Debug.Log("InputDisabled");
-        //}
-
         StartInput();
-
-
-
-        // clear my pinding
-        //GetComponent<PlayerInput>().actions["Mouse_RightSpecial"].ChangeBinding(1).Erase();
     }
 
     public override void OnNetworkDespawn()

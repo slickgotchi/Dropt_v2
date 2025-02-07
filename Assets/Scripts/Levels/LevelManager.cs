@@ -37,7 +37,8 @@ public class LevelManager : NetworkBehaviour
     //private bool isHandleLevelLoaded = false;    // when no levels spawing we can call level loaded code
 
     // variable for player spawning
-    private List<Vector3> m_playerSpawnPoints = new List<Vector3>();
+    private List<Vector3> m_playerSpawnPositions = new List<Vector3>();
+    private int m_spawnIndex = 0;
 
     // this helps other classes know where we are in a level transition
     //public enum TransitionState { Null, Start, ClientHeadsUp, GoToNext, ClientHeadsDown, End }
@@ -166,6 +167,88 @@ public class LevelManager : NetworkBehaviour
         m_currentLevelIndex_SERVER = -1;
     }
 
+    public async UniTask TransitionToNextLevel_SERVER()
+    {
+        if (!IsServer) return;  // SERVER ONLY CODE BELOW
+
+        // tell all clients to start transition
+        OnLevelChangeHeadsUp?.Invoke();
+        if (!IsHost) OnLevelChangeHeadsUp_ClientRpc();
+
+        // wait a moment to give clients chance to start fade out screens
+        await UniTask.Delay((int)(k_clientHeadsUpDuration_s * 1000));
+
+        // perform leveltransition
+        GoToNextLevel_SERVER();
+
+        // wait till all level loaded correctly
+        await HandleLevelLoaded_SERVER();
+
+        // add further buffer to allow player new spawn position to propogate to client
+        await UniTask.Delay((int)(k_levelLoadingDuration_s * 1000));
+
+        // tell clients level has changed
+        OnLevelChanged?.Invoke(m_oldLevelType, m_newLevelType);
+        if (!IsHost) OnLevelChanged_ClientRpc(m_oldLevelType, m_newLevelType);
+    }
+
+    private void GoToNextLevel_SERVER()
+    {
+        if (!IsServer) return;
+
+        // destroy current level
+        DestroyCurrentLevel_SERVER();
+
+        // return to DegemApe village if we were on last level (should not occur in actual game), return to degenape
+        if (m_currentLevelIndex_SERVER >= m_levels.Count - 1)
+        {
+            var levels = new List<GameObject>();
+            levels.Add(ApeVillageLevel);
+            SetLevelList_SERVER(levels);
+        }
+
+        // increment current level index
+        m_currentLevelIndex_SERVER++;
+
+        // create next level
+        CreateLevel_SERVER(m_currentLevelIndex_SERVER);
+
+        /// ALL BELOW CODE NEEDS TO BE MOVED BACK TO THEIR OWN CLASSES
+
+        // increment all LevelCountBuffs
+        var levelCountBuffs = FindObjectsByType<LevelCountedBuff>(FindObjectsSortMode.None);
+
+        // do degenape/tutorial vs dungeon logic
+        if (IsDegenapeVillage() || IsTutorial())
+        {
+            // set playres leaderboard loggers
+            foreach (var pc in Game.Instance.playerControllers)
+            {
+                var pll = pc.GetComponent<PlayerLeaderboardLogger>();
+                if (pll != null)
+                {
+                    pll.dungeonType = LeaderboardLogger.DungeonType.Adventure;
+                }
+            }
+
+            // destroy all buffs
+            foreach (var lcb in levelCountBuffs)
+            {
+                Destroy(lcb.gameObject);
+            }
+        }
+        else
+        {
+            // increment all buffs
+            foreach (var lcb in levelCountBuffs)
+            {
+                if (lcb != null) lcb.IncrementLevelCount();
+            }
+        }
+
+        /// ABOVE CODE NEEDS TO BE MOVED BACK TO OWN CLASSES
+    }
+
     public void DestroyCurrentLevel_SERVER()
     {
         if (!IsServer) return;
@@ -248,39 +331,6 @@ public class LevelManager : NetworkBehaviour
         m_currentLevelType.Value = m_newLevelType;
     }
 
-    public async UniTask TransitionToNextLevel_SERVER()
-    {
-        if (!IsServer) return;  // SERVER ONLY CODE BELOW
-
-        // tell all clients to start transition
-        OnLevelChangeHeadsUp?.Invoke();
-        if (!IsHost)
-        {
-            Debug.Log("Send OnLevelChangeHeadsUp to Client");
-            OnLevelChangeHeadsUp_ClientRpc();
-        }
-
-        // wait a moment to give clients chance to start fade out screens
-        await UniTask.Delay((int)(k_clientHeadsUpDuration_s * 1000));
-
-        // perform leveltransition
-        GoToNextLevel_SERVER();
-
-        // wait till all level loaded correctly
-        await HandleLevelLoaded_SERVER();
-
-        // add further buffer to allow player new spawn position to propogate to client
-        await UniTask.Delay((int)(k_levelLoadingDuration_s * 1000));
-
-        // tell clients level has changed
-        OnLevelChanged?.Invoke(m_oldLevelType, m_newLevelType);
-        if (!IsHost)
-        {
-            Debug.Log("Send OnLevelChanged to Client");
-            OnLevelChanged_ClientRpc(m_oldLevelType, m_newLevelType);
-        }
-    }
-
     [Rpc(SendTo.ClientsAndHost)]
     void OnLevelChangeHeadsUp_ClientRpc()
     {
@@ -294,64 +344,6 @@ public class LevelManager : NetworkBehaviour
         Debug.Log("OnLevelChanged_ClientRpc()");
         OnLevelChanged?.Invoke(oldLevelType, newLevelType);
     }
-
-    private void GoToNextLevel_SERVER()
-    {
-        if (!IsServer) return;
-
-        // destroy current level
-        DestroyCurrentLevel_SERVER();
-
-        // return to DegemApe village if we were on last level (should not occur in actual game), return to degenape
-        if (m_currentLevelIndex_SERVER >= m_levels.Count - 1)
-        {
-            var levels = new List<GameObject>();
-            levels.Add(ApeVillageLevel);
-            SetLevelList_SERVER(levels);
-        }
-
-        // increment current level index
-        m_currentLevelIndex_SERVER++;
-
-        // create next level
-        CreateLevel_SERVER(m_currentLevelIndex_SERVER);
-
-        // increment all LevelCountBuffs
-        var levelCountBuffs = FindObjectsByType<LevelCountedBuff>(FindObjectsSortMode.None);
-
-        // do degenape/tutorial vs dungeon logic
-        if (IsDegenapeVillage() || IsTutorial())
-        {
-            // set playres leaderboard loggers
-            foreach (var pc in Game.Instance.playerControllers)
-            {
-                var pll = pc.GetComponent<PlayerLeaderboardLogger>();
-                if (pll != null)
-                {
-                    pll.dungeonType = LeaderboardLogger.DungeonType.Adventure;
-                }
-            }
-
-            // destroy all buffs
-            foreach (var lcb in levelCountBuffs)
-            {
-                Destroy(lcb.gameObject);
-            }
-        }
-        else
-        {
-            // increment all buffs
-            foreach (var lcb in levelCountBuffs)
-            {
-                if (lcb != null) lcb.IncrementLevelCount();
-            }
-        }
-    }
-
-    // vars for handling level loaded
-    //bool isHandleLevelLoadedNextFrame = false;
-    //public bool isLevelLoaded = true;
-    public bool isPlayersSpawnable = false;
 
     // update nav mesh, spawn things, drop spawn players
     async UniTask HandleLevelLoaded_SERVER()
@@ -384,79 +376,49 @@ public class LevelManager : NetworkBehaviour
             surface.BuildNavMesh();
         }
 
-        // clear out old spawn points
-        if (IsHost)
+        // update list of all available spawn positions
+        m_playerSpawnPositions.Clear();
+        var playerSpawnPoints = m_currentLevel.GetComponentsInChildren<PlayerSpawnPoints>();
+
+        foreach (var psp in playerSpawnPoints) m_playerSpawnPositions.Add(psp.transform.position);
+        if (m_playerSpawnPositions.Count == 0)
         {
-            var playerSpawns = new List<PlayerSpawnPoints>(m_currentLevel.GetComponentsInChildren<PlayerSpawnPoints>());
-            foreach (var playerSpawn in playerSpawns)
-            {
-                GameObject.Destroy(playerSpawn.gameObject);
-            }
+            Debug.LogWarning("No PlayerSpawnPoint objects identified at first level of level prefab heirarchy, setting to Vector3.zero");
+            m_playerSpawnPositions.Add(Vector3.zero);
         }
 
-        m_playerSpawnPoints.Clear();
+        // we cycle through the available positions for our spawn for each player
+        m_spawnIndex = UnityEngine.Random.Range(0, m_playerSpawnPositions.Count);
 
-        // find all the new levels spawn points
-        var no_playerSpawnPoints = m_currentLevel.GetComponentsInChildren<PlayerSpawnPoints>();
-        if (no_playerSpawnPoints != null)
+        // NOTE: the below does not work for the very first spawn so we need to ensure that
+        // the connection approval handler calls GetPlayerSpawnPosition() and sets positions too
+        foreach (var pc in Game.Instance.playerControllers)
         {
-            for (int i = 0; i < no_playerSpawnPoints.Length; i++)
-            {
-                var playerSpawnPoints = no_playerSpawnPoints[i];
-                for (int j = 0; j < playerSpawnPoints.transform.childCount; j++)
-                {
-                    m_playerSpawnPoints.Add(playerSpawnPoints.transform.GetChild(j).transform.position);
-                }
-            }
-        }
-
-        // add extra spawn points if we didn't get 3
-        for (int i = 0; i < 3 - m_playerSpawnPoints.Count; i++)
-        {
-            // if we got at least one legit spawn use that
-            if (m_playerSpawnPoints.Count > 0)
-            {
-                m_playerSpawnPoints.Add(m_playerSpawnPoints[0]);
-            }
-            else
-            {
-                m_playerSpawnPoints.Add(Vector3.zero);
-            }
-        }
-
-        // move each player to a new spawn point
-        int index = 0;
-        foreach (var playerController in Game.Instance.playerControllers)
-        {
-            var playerPrediction = playerController.GetComponent<PlayerPrediction>();
+            var playerPrediction = pc.GetComponent<PlayerPrediction>();
             if (playerPrediction != null)
             {
-                playerPrediction.SetPlayerPosition(m_playerSpawnPoints[index]);
+                playerPrediction.SetPlayerPosition(GetPlayerSpawnPosition());
             }
         }
-
     }
 
     public List<PlayerController> spawnedPlayers = new List<PlayerController>();
 
-    public bool IsPlayerSpawnPointsReady()
+    public Vector3 GetPlayerSpawnPosition()
     {
-        return m_playerSpawnPoints.Count > 0;
-    }
-
-    public Vector3? TryGetPlayerSpawnPoint()
-    {
-        if (m_playerSpawnPoints.Count <= 0) return Vector3.zero;
-
-        var randIndex = UnityEngine.Random.Range(0, m_playerSpawnPoints.Count);
-        var spawnPoint = m_playerSpawnPoints[randIndex];
-
-        if (!LevelManager.Instance.IsDegenapeVillage())
+        if (m_playerSpawnPositions.Count <= 0)
         {
-            m_playerSpawnPoints.RemoveAt(randIndex);
+            Debug.LogWarning("A level does not contain any PlayerSpawnPoints, returning Vector3.zero as spawn position");
+            return Vector3.zero;
         }
 
-        return spawnPoint;
+        if (m_spawnIndex >= m_playerSpawnPositions.Count) m_spawnIndex = 0;
+
+        var spawnPosition = m_playerSpawnPositions[m_spawnIndex];
+
+        m_spawnIndex++;
+
+        return spawnPosition;
     }
 
 
