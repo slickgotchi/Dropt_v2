@@ -510,9 +510,15 @@ public class PlayerAbility : NetworkBehaviour
 
     protected void OneFrameCollisionDamageCheck(Collider2D abilityCollider, Wearable.WeaponTypeEnum weaponType, float damageMultiplier = 1f)
     {
-        if (IsServer && !IsHost) PlayerAbility.RollbackEnemies(Player);
+        // we need to find the historic tick that we can reliably use for lag compensation
+        int rollbackTargetTick = PerfectLagCompensation.GetRollbackTargetTickForPlayer(Player,
+            ActivationInput.tick - NetworkTimer_v2.Instance.TickCurrent);
 
+        // roll back all perfect lag compensated enemies and resync physics transforms
+        PerfectLagCompensation.RollbackAllEntities(rollbackTargetTick);
         Physics2D.SyncTransforms();
+
+        // generate list of enemys we hit
         List<Collider2D> enemyHitColliders = new List<Collider2D>();
         abilityCollider.OverlapCollider(GetContactFilter(new string[] { "EnemyHurt", "Destructible" }), enemyHitColliders);
         bool isLocalPlayer = Player.GetComponent<NetworkObject>().IsLocalPlayer;
@@ -569,10 +575,11 @@ public class PlayerAbility : NetworkBehaviour
         // clear out colliders
         enemyHitColliders.Clear();
 
-
-        if (IsServer && !IsHost) PlayerAbility.UnrollEnemies();
+        // reset all entities back to original states
+        PerfectLagCompensation.UnrollAllEntities();
     }
 
+    /*
     public static void RollbackEnemies(GameObject Player)
     {
         // 0. determine lag based on our player
@@ -660,6 +667,7 @@ public class PlayerAbility : NetworkBehaviour
             positionBuffer.transform.position = positionBuffer.GetStashPosition();
         }
     }
+    */
 
     Vector3 GetAttackVectorFromAToB(GameObject a, GameObject b)
     {

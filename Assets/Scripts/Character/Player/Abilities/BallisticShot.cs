@@ -79,7 +79,6 @@ public class BallisticShot : PlayerAbility
     void ActivateProjectile(Wearable.NameEnum activationWearable, Vector3 direction, float distance, float duration)
     {
         var no_projectile = Projectile.GetComponent<GenericProjectile>();
-        //var no_projectileId = no_projectile.GetComponent<NetworkObject>().NetworkObjectId;
         var playerCharacter = Player.GetComponent<NetworkCharacter>();
         var startPosition =
                 Player.GetComponent<PlayerPrediction>().GetInterpPositionAtTick(ActivationInput.tick)

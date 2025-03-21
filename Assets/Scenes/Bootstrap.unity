@@ -6134,7 +6134,7 @@ MonoBehaviour:
   region: 2
   NetworkRole: 0
   ConnectionType: 0
-  AutoBoot: 0
+  AutoBoot: 1
   AutoPlay: 1
   UseServerManager: 0
   ShowTutorialLevel: 0
@@ -10346,11 +10346,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   TickRate: 20
-  TickInterval: 0.1
+  TickInterval_s: 0.1
   TickCurrent: 0
   TickFraction: 0
   DroptNetworkTransformInterpolationDelayTicks: 6
   ClientServerTickDelta: 0
+  InterpolationLagTicks: 5
 --- !u!114 &6964754612526629698
 MonoBehaviour:
   m_ObjectHideFlags: 0

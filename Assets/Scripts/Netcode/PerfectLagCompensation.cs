@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 using Unity.Mathematics;
+using System;
 
 public class PerfectLagCompensation : NetworkBehaviour
 {
@@ -17,6 +18,14 @@ public class PerfectLagCompensation : NetworkBehaviour
 
         m_visualA.transform.parent = null;
         m_visualB.transform.parent = null;
+
+        NetworkTimer_v2.Instance.OnTick += Tick;
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        NetworkTimer_v2.Instance.OnTick -= Tick;
+        base.OnNetworkDespawn();
     }
 
     public void Tick()
@@ -33,7 +42,7 @@ public class PerfectLagCompensation : NetworkBehaviour
                 serverTick = serverTick
             });
 
-            if (m_tickPositions.Count > 100) m_tickPositions.RemoveAt(0);
+            if (m_tickPositions.Count > 40) m_tickPositions.RemoveAt(0);
 
             m_tickPositions.Sort((a, b) => a.serverTick.CompareTo(b.serverTick));
         }
@@ -42,7 +51,7 @@ public class PerfectLagCompensation : NetworkBehaviour
         {
             var tickDelta = NetworkTimer_v2.Instance.ClientServerTickDelta;
             var currentTick = NetworkTimer_v2.Instance.TickCurrent;
-            var targetServerTick = currentTick - tickDelta - 5;
+            var targetServerTick = currentTick - tickDelta - NetworkTimer_v2.Instance.InterpolationLagTicks;
 
             foreach (var tickPosition in m_tickPositions)
             {
@@ -56,23 +65,78 @@ public class PerfectLagCompensation : NetworkBehaviour
 
     private void LateUpdate()
     {
-        if (IsClient)
-        {
-            var targetServerTick = NetworkTimer_v2.Instance.TickCurrent -
-                NetworkTimer_v2.Instance.ClientServerTickDelta - 5 + 1;
-            var fraction = NetworkTimer_v2.Instance.TickFraction;
+        InterpolatePosition();
+    }
 
-            for (int i = 0; i < m_tickPositions.Count; i++)
+    private void InterpolatePosition() {
+        if (!IsClient || IsHost) return;
+
+        var targetServerTick = NetworkTimer_v2.Instance.TickCurrent -
+            NetworkTimer_v2.Instance.ClientServerTickDelta - 
+            NetworkTimer_v2.Instance.InterpolationLagTicks + 1;
+        var fraction = NetworkTimer_v2.Instance.TickFraction;
+
+        for (int i = 1; i < m_tickPositions.Count; i++)
+        {
+            if (m_tickPositions[i].serverTick == targetServerTick)
             {
-                if (m_tickPositions[i].serverTick == targetServerTick)
-                {
-                    var posA = m_tickPositions[i - 1].position;
-                    var posB = m_tickPositions[i].position;
-                    var lerpPos = math.lerp(posA, posB, fraction);
-                    transform.position = lerpPos;
-                }
+                var posA = m_tickPositions[i - 1].position;
+                var posB = m_tickPositions[i].position;
+                var lerpPos = math.lerp(posA, posB, fraction);
+                transform.position = lerpPos;
             }
         }
+    }
+
+    public static void RollbackAllEntities(int targetTick) {
+        var enemyControllers = Game.Instance.enemyControllers;
+        foreach (var enemyController in enemyControllers) {
+            var perfectLagComp = enemyController.GetComponent<PerfectLagCompensation>();
+            if (perfectLagComp != null) {
+                perfectLagComp.StashPosition();
+                perfectLagComp.SetPositionToTick(targetTick);
+            }
+        }
+    }
+
+    public static void UnrollAllEntities() {
+        var enemyControllers = Game.Instance.enemyControllers;
+        foreach (var enemyController in enemyControllers)
+        {
+            var perfectLagComp = enemyController.GetComponent<PerfectLagCompensation>();
+            if (perfectLagComp != null) {
+                perfectLagComp.RestorePositionFromStash();
+            }
+        }
+    }
+
+
+    public static int GetRollbackTargetTickForPlayer(GameObject player, int clientServerActivationTickDelta) {
+        int targetTick = NetworkTimer_v2.Instance.TickCurrent;
+        int interpolationLagTicks = NetworkTimer_v2.Instance.InterpolationLagTicks;
+
+        var playerPing = player.GetComponent<PlayerPing>();
+        if (playerPing == null) {
+            Debug.LogWarning("null playerPing not allowed!!");
+            return targetTick;
+        }
+
+        if (Bootstrap.IsClient()) {
+            int tickDelta = playerPing.Client_ClientLocalServerReceived_TickDelta;
+
+            targetTick = 
+                NetworkTimer_v2.Instance.TickCurrent -
+                tickDelta - interpolationLagTicks + 1;
+        }
+        if (Bootstrap.IsServer()) {
+            int tickDelta = playerPing.Server_ClientReportingServerReceived_TickDelta;
+            
+            targetTick = NetworkTimer_v2.Instance.TickCurrent -
+                tickDelta - interpolationLagTicks +
+                clientServerActivationTickDelta;
+        }
+
+        return targetTick;
     }
 
     private Vector3 m_stashPosition;
@@ -80,18 +144,14 @@ public class PerfectLagCompensation : NetworkBehaviour
     public void StashPosition()
     {
         m_stashPosition = transform.position;
-        //Debug.Log("Stash Position: " + m_stashPosition);
     }
 
     public void SetPositionToTick(int tick)
     {
-        //Debug.Log("Look for targetTick: " + tick);
         foreach (var tickPosition in m_tickPositions)
         {
             if (tickPosition.serverTick == tick)
             {
-                //Debug.Log("Found targetTick: " + tickPosition.serverTick +
-                //    "and set position to: " + tickPosition.position);
                 transform.position = tickPosition.position;
                 break;
             }
@@ -101,7 +161,6 @@ public class PerfectLagCompensation : NetworkBehaviour
     public void RestorePositionFromStash()
     {
         transform.position = m_stashPosition;
-        //Debug.Log("Restore Stash Position: " + m_stashPosition);
     }
 
 
@@ -109,9 +168,12 @@ public class PerfectLagCompensation : NetworkBehaviour
     void SendPositionClientRpc(Vector3 position, int serverTick)
     {
         m_visualA.transform.position = position;
+
+        if (IsHost) return;
+
         m_tickPositions.Add(new TickPosition { serverTick = serverTick, position = position });
 
-        if (m_tickPositions.Count > 100) m_tickPositions.RemoveAt(0);
+        if (m_tickPositions.Count > 40) m_tickPositions.RemoveAt(0);
 
         // sort tick positions
         m_tickPositions.Sort((a, b) => a.serverTick.CompareTo(b.serverTick));

@@ -20,6 +20,7 @@ public class NetworkTimer_v2 : NetworkBehaviour
     [HideInInspector] public int DroptNetworkTransformInterpolationDelayTicks = 6;
 
     public int ClientServerTickDelta = 0;
+    public int InterpolationLagTicks = 5;
 
     private List<int> m_clientServerTickDeltas = new List<int>();
 
@@ -130,7 +131,7 @@ public class NetworkTimer_v2 : NetworkBehaviour
         //HandleTick_PlayerPrediction();
         HandleTick_PositionBuffers();
         HandleTick_DroptNetworkTransforms();
-        HandleTick_PerfectLagCompensation();
+        // HandleTick_PerfectLagCompensation();
     }
 
     //private void HandleTick_PlayerPrediction()
@@ -174,18 +175,18 @@ public class NetworkTimer_v2 : NetworkBehaviour
         }
     }
 
-    private void HandleTick_PerfectLagCompensation()
-    {
-        if (Game.Instance == null) return;
+    // private void HandleTick_PerfectLagCompensation()
+    // {
+    //     if (Game.Instance == null) return;
 
-        var enemies = Game.Instance.enemyControllers;
-        foreach (var enemyController in enemies)
-        {
-            var perfLagComp = enemyController.GetComponent<PerfectLagCompensation>();
-            if (perfLagComp != null)
-            {
-                perfLagComp.Tick();
-            }
-        }
-    }
+    //     var enemies = Game.Instance.enemyControllers;
+    //     foreach (var enemyController in enemies)
+    //     {
+    //         var perfLagComp = enemyController.GetComponent<PerfectLagCompensation>();
+    //         if (perfLagComp != null)
+    //         {
+    //             perfLagComp.Tick();
+    //         }
+    //     }
+    // }
 }

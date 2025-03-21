@@ -170,6 +170,7 @@ public class SmashWave : PlayerAbility
 
     private void CustomCollisionCheck()
     {
+        /*
         if (IsServer && !IsHost) RollbackEnemies(Player);
 
         // resync transforms
@@ -220,6 +221,6 @@ public class SmashWave : PlayerAbility
         enemyHitColliders.Clear();
 
         if (IsServer && !IsHost) UnrollEnemies();
+    */
     }
-
 }
