@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 using Unity.Netcode.Transports.UTP;
+using Unity.Mathematics;
 
 public class PlayerPing : NetworkBehaviour
 {
@@ -30,6 +31,18 @@ public class PlayerPing : NetworkBehaviour
 
     public float elapsedTimeSinceLastPing = 0;
 
+    private List<int> m_clientServerTickDeltas = new List<int>();
+
+    //public int ClientServerTickDelta;
+
+    public int Client_LocalTick;
+    public int Client_ReceivedServerTick;
+    public int Client_ClientLocalServerReceived_TickDelta;
+
+    public int Server_LocalTick;
+    public int Server_ReportingClientTick;
+    public int Server_ClientReportingServerReceived_TickDelta;
+
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
@@ -37,6 +50,96 @@ public class PlayerPing : NetworkBehaviour
         m_networkObject = GetComponent<NetworkObject>();
         m_unityTransport = NetworkManager.Singleton.GetComponent<UnityTransport>();
 
+        NetworkTimer_v2.Instance.OnTick += Tick;
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        NetworkTimer_v2.Instance.OnTick -= Tick;
+
+        base.OnNetworkDespawn();
+    }
+
+    void Tick()
+    {
+        if (IsServer)
+        {
+            Server_LocalTick = NetworkTimer_v2.Instance.TickCurrent;
+            SendServerTickToClientRpc(Server_LocalTick);
+
+            ServerTickRTTClientRpc(Server_LocalTick);
+        }
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    void ServerTickRTTClientRpc(int serverTick)
+    {
+        if (IsLocalPlayer)
+        {
+            ServerTickRTTServerRpc(serverTick);
+        }
+    }
+
+    [Rpc(SendTo.Server)]
+    void ServerTickRTTServerRpc(int ogServerTick)
+    {
+        //Debug.Log("OG serverTick: " + ogServerTick +
+        //    ", Current serverTick" + NetworkTimer_v2.Instance.TickCurrent +
+        //    ", tick delta: " + (NetworkTimer_v2.Instance.TickCurrent - ogServerTick));
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    void SendServerTickToClientRpc(int serverTick)
+    {
+        if (IsLocalPlayer)
+        {
+            Client_LocalTick = NetworkTimer_v2.Instance.TickCurrent;
+            Client_ReceivedServerTick = serverTick;
+
+            CompareClientTickServerRpc(Client_ReceivedServerTick, Client_LocalTick);
+
+            // update the clients version of the client/server tick delta
+            UpdateClientServerTickDelta(Client_ReceivedServerTick, Client_LocalTick);
+        }
+    }
+
+    [Rpc(SendTo.Server)]
+    void CompareClientTickServerRpc(int serverTick, int clientTick)
+    {
+        // update the servers version of the client/server tick delta
+        UpdateClientServerTickDelta(serverTick, clientTick);
+    }
+
+    void UpdateClientServerTickDelta(int serverTick, int clientTick)
+    {
+        m_clientServerTickDeltas.Add(clientTick - serverTick);
+        if (m_clientServerTickDeltas.Count > 20) m_clientServerTickDeltas.RemoveAt(0);
+
+        // get average
+        float sum = 0;
+        foreach (var delta in m_clientServerTickDeltas) sum += delta;
+
+        // if new remote client tick delta is 5 or more different from the old, replace the old delta
+        int newClientServerTickDelta = (int)math.round(
+            sum / m_clientServerTickDeltas.Count);
+
+        if (IsServer)
+        {
+            if (math.abs(Server_ClientReportingServerReceived_TickDelta -
+                newClientServerTickDelta) > 5)
+            {
+                Server_ClientReportingServerReceived_TickDelta =
+                    newClientServerTickDelta;
+            }
+        }
+        else if (IsClient)
+        {
+            if (math.abs(Client_ClientLocalServerReceived_TickDelta -
+                newClientServerTickDelta) > 5)
+            {
+                Client_ClientLocalServerReceived_TickDelta = newClientServerTickDelta;
+            }
+        }
     }
 
     private void Update()
@@ -65,6 +168,7 @@ public class PlayerPing : NetworkBehaviour
             {
                 serverFPS.Value = (int)(sum/m_serverFPSArray.Count);
             }
+
             
         }
 

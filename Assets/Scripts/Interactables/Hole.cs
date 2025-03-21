@@ -15,7 +15,6 @@ public class Hole : Interactable
     public override void OnTriggerEnter2DInteraction()
     {
         base.OnTriggerEnter2DInteraction();
-
         PlayerHUDCanvas.Instance.ShowPlayerInteractionCanvii(interactionText, interactableType);
     }
 

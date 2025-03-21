@@ -89,13 +89,10 @@ public class BallisticShot : PlayerAbility
         // Local Client & Server
         if (Player.GetComponent<NetworkObject>().IsLocalPlayer || IsServer)
         {
-            //if (IsClient)
-            {
-                m_instantiatedVisualProjectile = InstantiateVisualProjectile(activationWearable);
-                m_instantiatedVisualProjectile.transform.position = startPosition;
-                if (no_projectile.VisualGameObject != null) Destroy(no_projectile.VisualGameObject);
-                no_projectile.VisualGameObject = m_instantiatedVisualProjectile;
-            }
+            m_instantiatedVisualProjectile = InstantiateVisualProjectile(activationWearable);
+            m_instantiatedVisualProjectile.transform.position = startPosition;
+            if (no_projectile.VisualGameObject != null) Destroy(no_projectile.VisualGameObject);
+            no_projectile.VisualGameObject = m_instantiatedVisualProjectile;
 
             // init
             no_projectile.Init(startPosition, direction, distance, duration, 1,
@@ -109,7 +106,10 @@ public class BallisticShot : PlayerAbility
                 KnockbackStunDuration);
 
             // fire
-            no_projectile.Fire();
+            no_projectile.Fire(ActivationInput.tick);
+
+            Debug.Log("ActivationInput.tick: " + ActivationInput.tick +
+                ", ServerTick: " + NetworkTimer_v2.Instance.TickCurrent);
         }
 
         // Server Only

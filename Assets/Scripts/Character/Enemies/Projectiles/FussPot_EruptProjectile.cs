@@ -156,7 +156,7 @@ public class FussPot_EruptProjectile : NetworkBehaviour
             // get the players hurt collider
             var playerHurtCollider = playerController.HurtCollider2D;
 
-            var delay_s = NetworkTimer_v2.Instance.TickInterval * 2 +
+            var delay_s = NetworkTimer_v2.Instance.TickInterval_s * 2 +
                 playerPing.RTT_ms.Value * 0.001f;
             delay_s = math.min(delay_s, 0.8f);
 

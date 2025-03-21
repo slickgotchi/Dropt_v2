@@ -157,11 +157,15 @@ public partial class PlayerPrediction : NetworkBehaviour
         }
 
         StartInput();
+
+        NetworkTimer_v2.Instance.OnTick += Tick;
     }
 
     public override void OnNetworkDespawn()
     {
         if (IsClient) Application.focusChanged -= OnApplicationFocusChanged;
+
+        NetworkTimer_v2.Instance.OnTick -= Tick;
 
         base.OnNetworkDespawn();
     }

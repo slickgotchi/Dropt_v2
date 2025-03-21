@@ -92,6 +92,8 @@ public class PlayerAbility : NetworkBehaviour
     private Transform m_handAndWearableTransform;
     private float m_attackAngleOffset = 0;
 
+    public int ActivationClientTick;
+
     [HideInInspector]
     public enum NetworkRole { LocalClient, RemoteClient, Server }
 
@@ -206,12 +208,13 @@ public class PlayerAbility : NetworkBehaviour
         var remainingTicks = m_cooldownExpiryTick - NetworkTimer_v2.Instance.TickCurrent;
         if (remainingTicks <= 0) return 0;
 
-        return remainingTicks * NetworkTimer_v2.Instance.TickInterval;
+        return remainingTicks * NetworkTimer_v2.Instance.TickInterval_s;
     }
 
     public bool Activate(GameObject playerObject, InputPayload input, float holdDuration)
     {
         //OnActivate();
+        ActivationClientTick = input.tick;
 
         Player = playerObject;
         //PlayerActivationState = state;
@@ -608,7 +611,7 @@ public class PlayerAbility : NetworkBehaviour
         // DroptNetworkTransform LagComp
         var delay_s = rtt_s +
             NetworkTimer_v2.Instance.DroptNetworkTransformInterpolationDelayTicks *
-            NetworkTimer_v2.Instance.TickInterval;
+            NetworkTimer_v2.Instance.TickInterval_s;
 
         //delay_s = m;
 

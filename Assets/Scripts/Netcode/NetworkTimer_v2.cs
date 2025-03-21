@@ -4,6 +4,7 @@ using UnityEngine;
 using Unity.Netcode;
 using Dropt;
 using Unity.Mathematics;
+using System;
 
 public class NetworkTimer_v2 : NetworkBehaviour
 {
@@ -11,7 +12,7 @@ public class NetworkTimer_v2 : NetworkBehaviour
 
     [Tooltip("WARNING: The TickRate here must be the same for the NetworkTimer_v2, NetworkManager AND the physics interval in Edit > Project Settings > Time (1 / TickRate)")]
     public float TickRate = 10f;
-    [HideInInspector] public float TickInterval = 0.1f;
+    [HideInInspector] public float TickInterval_s = 0.1f;
 
     [HideInInspector] public int TickCurrent;
     [HideInInspector] public float TickFraction;
@@ -23,6 +24,8 @@ public class NetworkTimer_v2 : NetworkBehaviour
     private List<int> m_clientServerTickDeltas = new List<int>();
 
     private float m_timer;
+
+    public event Action OnTick;
 
     private void Awake()
     {
@@ -38,13 +41,13 @@ public class NetworkTimer_v2 : NetworkBehaviour
 
     private void Start()
     {
-        TickInterval = 1 / TickRate;
+        TickInterval_s = 1 / TickRate;
 
         TickCurrent = 0;
         TickFraction = 0;
         m_timer = 0;
 
-        TickRate = 1 / TickInterval;
+        TickRate = 1 / TickInterval_s;
 
         DroptNetworkTransformInterpolationDelayTicks = 6;
     }
@@ -56,11 +59,14 @@ public class NetworkTimer_v2 : NetworkBehaviour
 
         // check for tick time
         int loopBreakCount = 0;
-        while (m_timer > TickInterval && loopBreakCount < 10)
+        while (m_timer > TickInterval_s && loopBreakCount < 10)
         {
             // update timer and tick
-            m_timer -= TickInterval;
+            m_timer -= TickInterval_s;
             TickCurrent++;
+
+            // tell all isteners a tick happened
+            OnTick?.Invoke();
 
             // handle all the functions that need to be called each tick in our codebase
             HandleTickFunctions();
@@ -72,7 +78,7 @@ public class NetworkTimer_v2 : NetworkBehaviour
         }
 
         // calc the new tick fraction
-        TickFraction = m_timer / TickInterval;
+        TickFraction = m_timer / TickInterval_s;
     }
 
     void CheckTickDelta()
@@ -98,44 +104,45 @@ public class NetworkTimer_v2 : NetworkBehaviour
         m_clientServerTickDeltas.Add(newTickDelta);
         if (m_clientServerTickDeltas.Count > 10) m_clientServerTickDeltas.RemoveAt(0);
 
+        //Debug.Log("Client Tick: " + NetworkTimer_v2.Instance.TickCurrent +
+        //    ", Server Tick: " + serverTick);
+
         // get average
         float sum = 0;
         foreach (var delta in m_clientServerTickDeltas) sum += delta;
-
-        //Debug.Log("new ClientServerTickDelta: " + newTickDelta + ", serverTick: " + serverTick + ", clientTick: " + TickCurrent);
 
         // if new remote client tick delta is 5 or more different from the old, replace the old delta
         int newClientServerTickDelta = (int)math.round(sum / m_clientServerTickDeltas.Count);
         if (math.abs(ClientServerTickDelta - newClientServerTickDelta) > 5)
         {
             ClientServerTickDelta = newClientServerTickDelta;
-            Debug.Log("Set new ClientServerTickDelta: " + ClientServerTickDelta);
         }
     }
 
     public float GetTime()
     {
-        return (TickCurrent + TickFraction) * TickInterval; 
+        return (TickCurrent + TickFraction) * TickInterval_s; 
     }
 
     private void HandleTickFunctions()
     {
         // insert all functions that need to be ticked throughout the codebase
-        HandleTick_PlayerPrediction();
+        //HandleTick_PlayerPrediction();
         HandleTick_PositionBuffers();
         HandleTick_DroptNetworkTransforms();
+        HandleTick_PerfectLagCompensation();
     }
 
-    private void HandleTick_PlayerPrediction()
-    {
-        if (Game.Instance == null) return;
+    //private void HandleTick_PlayerPrediction()
+    //{
+    //    if (Game.Instance == null) return;
 
-        var players = Game.Instance.playerControllers;
-        foreach (var player in players)
-        {
-            player.GetComponent<PlayerPrediction>().Tick();
-        }
-    }
+    //    var players = Game.Instance.playerControllers;
+    //    foreach (var player in players)
+    //    {
+    //        player.GetComponent<PlayerPrediction>().Tick();
+    //    }
+    //}
 
     private void HandleTick_PositionBuffers()
     {
@@ -163,6 +170,21 @@ public class NetworkTimer_v2 : NetworkBehaviour
             if (droptNetworkTransform != null)
             {
                 droptNetworkTransform.Tick();
+            }
+        }
+    }
+
+    private void HandleTick_PerfectLagCompensation()
+    {
+        if (Game.Instance == null) return;
+
+        var enemies = Game.Instance.enemyControllers;
+        foreach (var enemyController in enemies)
+        {
+            var perfLagComp = enemyController.GetComponent<PerfectLagCompensation>();
+            if (perfLagComp != null)
+            {
+                perfLagComp.Tick();
             }
         }
     }

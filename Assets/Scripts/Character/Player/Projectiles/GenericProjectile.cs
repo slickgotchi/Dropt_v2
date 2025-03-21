@@ -44,10 +44,13 @@ public class GenericProjectile : NetworkBehaviour
 
         if (VisualGameObject != null) VisualGameObject.SetActive(false);
 
+        NetworkTimer_v2.Instance.OnTick += Tick;
     }
 
     public override void OnNetworkDespawn()
     {
+        NetworkTimer_v2.Instance.OnTick -= Tick;
+
         base.OnNetworkDespawn();
     }
 
@@ -96,9 +99,20 @@ public class GenericProjectile : NetworkBehaviour
 
     }
 
-    public void Fire()
+    private int m_activationClientServerTickDelta = 0;
+
+    public void Fire(int activationClientTick = 0)
     {
         gameObject.SetActive(true);
+
+        // if we're on client this will just be 0
+        m_activationClientServerTickDelta = activationClientTick -
+            NetworkTimer_v2.Instance.TickCurrent;
+
+        Debug.Log("activationClientTick: " + activationClientTick + ", currentTick: " +
+            NetworkTimer_v2.Instance.TickCurrent);
+
+        isFired = true;
 
         transform.localScale = new Vector3(Scale, Scale, 1f);
 
@@ -109,24 +123,138 @@ public class GenericProjectile : NetworkBehaviour
         m_collider = GetComponent<Collider2D>();
 
         if (VisualGameObject != null) VisualGameObject.SetActive(true);
+
+        currentDeterminatePosition = transform.position;
+        previousDeterminatePosition = currentDeterminatePosition - Direction * 0.01f;
     }
 
-    [Rpc(SendTo.ClientsAndHost)]
-    void LogFireDetailsClientRpc(Vector3 pos, Vector3 dir, float duration)
+    bool isFired = false;
+    Vector3 previousDeterminatePosition;
+    Vector3 currentDeterminatePosition;
+
+    void Tick()
     {
-        Debug.Log("Server Projectile: ");
-        Debug.Log("Position: " + pos);
-        Debug.Log("Direction: " + dir);
-        Debug.Log("Duration: " + duration);
+        if (!isFired) return;
+
+        // roll back all colliders to a tick
+        int targetTick = NetworkTimer_v2.Instance.TickCurrent;
+            int interpolationLagTicks = 5;
+
+        if (IsClient)
+        {
+            int tickDelta = 0;
+            var playerPing = Player.GetComponent<PlayerPing>();
+            if (playerPing != null)
+            {
+                tickDelta = playerPing.Client_ClientLocalServerReceived_TickDelta;
+            }
+
+            targetTick = 
+                NetworkTimer_v2.Instance.TickCurrent -
+                tickDelta -
+                interpolationLagTicks + 1;
+
+            //Debug.Log("Client targetTick: " + targetTick);
+        }
+        if (IsServer)
+        {
+            // we need to compare the activation tick client/server tick delta to the more
+            // established PlayerPing client/server tick delta to see if we fired later or
+            // earlier than usual and need to adjust for that
+            int tickDelta = 0;
+            var playerPing = Player.GetComponent<PlayerPing>();
+            if (playerPing != null)
+            {
+                tickDelta = playerPing.Server_ClientReportingServerReceived_TickDelta;
+            }
+
+
+            targetTick = NetworkTimer_v2.Instance.TickCurrent +
+                (m_activationClientServerTickDelta -
+                tickDelta -
+                interpolationLagTicks);
+
+            //Debug.Log("Server targetTick: " + targetTick +
+            //    ", currentTick: " + NetworkTimer_v2.Instance.TickCurrent +
+            //    ", m_activationClientServerTickDelta: " + m_activationClientServerTickDelta +
+            //    ", averageClientServerTickDelta: " + tickDelta);
+        }
+
+        // roll back all perfect lag compensated enemies
+        var plces = FindObjectsByType<PerfectLagCompensation>(FindObjectsSortMode.None);
+        foreach (var plce in plces)
+        {
+            plce.StashPosition();
+            plce.SetPositionToTick(targetTick);
+        }
+
+        Physics2D.SyncTransforms();
+
+        var dt = NetworkTimer_v2.Instance.TickInterval_s;
+        var deltaPos = Direction * m_speed * dt;
+        previousDeterminatePosition = currentDeterminatePosition;
+        currentDeterminatePosition += deltaPos;
+
+        var startPosition = previousDeterminatePosition;
+        var radius = 0.2f;
+        var direction = (currentDeterminatePosition - previousDeterminatePosition).normalized;
+        var distance = math.distance(currentDeterminatePosition, previousDeterminatePosition);
+        ContactFilter2D contactFilter = PlayerAbility.GetContactFilter(new string[] { "EnemyHurt", "Destructible", "EnvironmentWall" });
+        RaycastHit2D hit2d = Physics2D.CircleCast(startPosition, radius, direction, distance, contactFilter.layerMask);
+        if (hit2d.collider != null)
+        {
+            var hit = hit2d.collider;
+            //Debug.Log("Hit: " + hit2d.collider.name);
+
+            if (IsClient)
+            {
+                ReportClientHitServerRpc(targetTick, plces[0].transform.position);
+
+            }
+
+            if (IsServer && plces.Length > 0)
+            {
+                Debug.Log("Server Hit obj at targetTick: " + targetTick + ", pos: " + plces[0].transform.position);
+            }
+
+            if (hit.HasComponent<NetworkCharacter>())
+            {
+                var damage = PlayerAbility.GetRandomVariation(DamagePerHit);
+                var isCritical = PlayerAbility.IsCriticalAttack(CriticalChance);
+                damage = (int)(isCritical ? damage * CriticalDamage : damage);
+                hit.GetComponent<NetworkCharacter>().TakeDamage(damage, isCritical, Player);
+
+                //var enemyAI = hit.GetComponent<Dropt.EnemyAI>();
+                //if (enemyAI != null)
+                //{
+                //    enemyAI.Knockback(castDirection, KnockbackDistance, KnockbackStunDuration);
+                //}
+            }
+            else if (hit.HasComponent<Destructible>())
+            {
+                var destructible = hit.GetComponent<Destructible>();
+                destructible.TakeDamage(WeaponType, Player.GetComponent<NetworkObject>().NetworkObjectId);
+            }
+            ExplodeAndDeactivate(hit2d.point);
+        }
+
+
+        // unroll colliders
+        foreach (var plce in plces)
+        {
+            plce.RestorePositionFromStash();
+        }
     }
 
     [Rpc(SendTo.Server)]
-    void LogFireDetailsServerRpc(Vector3 pos, Vector3 dir, float duration)
+    void ReportClientHitServerRpc(int tickHit, Vector3 objPosition)
     {
-        Debug.Log("Client Projectile: ");
-        Debug.Log("Position: " + pos);
-        Debug.Log("Direction: " + dir);
-        Debug.Log("Duration: " + duration);
+        Debug.Log("Client Hit obj at targetTick: " + tickHit + ", pos: " + objPosition);
+    }
+
+    void RollBackPerfectLagCompsToTick(int tick)
+    {
+
     }
 
     private void Update()
@@ -144,7 +272,7 @@ public class GenericProjectile : NetworkBehaviour
         transform.position += Direction * m_speed * Time.deltaTime;
         transform.rotation = PlayerAbility.GetRotationFromDirection(Direction);
 
-        if (Role != PlayerAbility.NetworkRole.RemoteClient) CollisionCheck();
+        //if (Role != PlayerAbility.NetworkRole.RemoteClient) CollisionCheck();
     }
 
     private void LateUpdate()
@@ -156,6 +284,7 @@ public class GenericProjectile : NetworkBehaviour
         }
     }
 
+    /*
     public void CollisionCheck()
     {
 
@@ -168,14 +297,6 @@ public class GenericProjectile : NetworkBehaviour
         {
             //if (!IsHost) PlayerAbility.RollbackEnemies(Player);
         }
-
-
-
-
-
-
-
-
 
         if (IsServer && !IsHost) PlayerAbility.RollbackEnemies(Player);
 
@@ -248,6 +369,8 @@ public class GenericProjectile : NetworkBehaviour
 
         if (IsServer && !IsHost) PlayerAbility.UnrollEnemies();
     }
+    */
+
 
     [Rpc(SendTo.Server)]
     void LogHitPointServerRpc(Vector2 hitPoint)
@@ -263,6 +386,8 @@ public class GenericProjectile : NetworkBehaviour
 
     void ExplodeAndDeactivate(Vector3 hitPosition)
     {
+        isFired = false;
+
         if (VisualGameObject != null) Destroy(VisualGameObject);
 
         VisualEffectsManager.Instance.Spawn_VFX_AttackHit(hitPosition);
