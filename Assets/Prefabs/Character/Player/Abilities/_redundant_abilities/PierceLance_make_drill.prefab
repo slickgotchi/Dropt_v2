@@ -183,9 +183,9 @@ MonoBehaviour:
   ExecutionSlowFactor: 0
   CooldownDuration: 9
   CooldownSlowFactor: 1
-  TeleportDistance: 4.5
-  AutoMoveDistance: 0
-  AutoMoveDuration: 0
+  TeleportDistance: 0
+  AutoMoveDistance: 10
+  AutoMoveDuration: 0.5
   HoldChargeTime: 3
   HoldSlowFactor: 1
   KnockbackDistance: 1.5
@@ -194,8 +194,12 @@ MonoBehaviour:
   SpecialCooldown: 0
   audioOnActivate: {fileID: 8300000, guid: 56c0153118f654db0835b79921f9f873, type: 3}
   PlayerAbilityCentreOffset: {x: 0, y: 0.5, z: 0}
+  ActivationClientTick: 0
   Projection: 0
   HitRadius: 3.5
+  NumberHits: 3
+  m_holdStartDistance: 3
+  m_holdFinishDistance: 14
 --- !u!58 &3156338094688859347
 CircleCollider2D:
   m_ObjectHideFlags: 0

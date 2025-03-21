@@ -32,6 +32,7 @@ public class PierceDrill : PlayerAbility
         m_collider = GetComponent<Collider2D>();
 
         m_collider.enabled = false;
+        Debug.Log(m_collider);
     }
 
     public override void OnStart()

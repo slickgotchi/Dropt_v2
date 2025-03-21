@@ -106,9 +106,6 @@ public class BallisticShot : PlayerAbility
 
             // fire
             no_projectile.Fire(ActivationInput.tick);
-
-            Debug.Log("ActivationInput.tick: " + ActivationInput.tick +
-                ", ServerTick: " + NetworkTimer_v2.Instance.TickCurrent);
         }
 
         // Server Only

@@ -209,6 +209,7 @@ public partial class PlayerPrediction : NetworkBehaviour
         SetupActionDirectionDistanceAndMove(PlayerTargetingReticle.Mode.Gamepad);
     }
 
+    /*
     // LEFT HOLD START
     void LeftHoldStart(InputValue value)
     {
@@ -276,7 +277,7 @@ public partial class PlayerPrediction : NetworkBehaviour
         LeftHoldFinish(value);
         SetupActionDirectionDistanceAndMove(PlayerTargetingReticle.Mode.Gamepad);
     }
-
+    */
 
     // RIGHT ATTACK
     void RightAttack(InputValue value)
@@ -336,6 +337,7 @@ public partial class PlayerPrediction : NetworkBehaviour
         SetupActionDirectionDistanceAndMove(PlayerTargetingReticle.Mode.Gamepad);
     }
 
+    /*
     // RIGHT HOLD START
     void RightHoldStart(InputValue value)
     {
@@ -403,4 +405,5 @@ public partial class PlayerPrediction : NetworkBehaviour
         RightHoldFinish(value);
         SetupActionDirectionDistanceAndMove(PlayerTargetingReticle.Mode.Gamepad);
     }
+    */
 }
